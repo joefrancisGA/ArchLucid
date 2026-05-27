@@ -7,6 +7,8 @@ type RunSummaryWireExtensions = {
   findingCount?: number | null;
   warningCount?: number | null;
   artifactCount?: number | null;
+  /** INV-002 persisted structural execution mode when merged from run detail. */
+  structuralExecutionMode?: number | null;
   /** Architecture request id when returned by list/detail endpoints (used for restore from archive). */
   requestId?: string | null;
   /** When true, the backing architecture request is archived and hidden from default lists. */

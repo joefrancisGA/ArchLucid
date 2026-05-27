@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { StatusPill } from "@/components/StatusPill";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionModeBadge";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
@@ -155,6 +156,9 @@ export function RunDetailPageHeader({
                 >
                   Degraded execution
                 </Badge>
+              ) : null}
+              {buyerPolishedShell !== true ? (
+                <StructuralExecutionModeBadge structuralExecutionMode={runSummary.structuralExecutionMode} />
               ) : null}
             </div>
           ) : null}

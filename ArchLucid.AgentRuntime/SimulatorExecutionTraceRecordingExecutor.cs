@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
-using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -10,12 +9,12 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-///     Wraps <see cref="DeterministicAgentSimulator" /> and persists one <see cref="AgentExecutionTrace" /> per
+///     Wraps an inner <see cref="IAgentExecutor" /> and persists one <see cref="AgentExecutionTrace" /> per
 ///     synthetic <see cref="AgentResult" /> so Simulator-mode runs expose the same trace surface as
 ///     <see cref="RealAgentExecutor" /> (audit API, analysis reports, exports).
 /// </summary>
 public sealed class SimulatorExecutionTraceRecordingExecutor(
-    DeterministicAgentSimulator innerSimulator,
+    IAgentExecutor innerExecutor,
     IAgentExecutionTraceRecorder traceRecorder) : IAgentExecutor
 {
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
@@ -31,7 +30,9 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
         IReadOnlyCollection<AgentTask> tasks,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<AgentResult> results = await innerSimulator.ExecuteAsync(
+        ArgumentNullException.ThrowIfNull(innerExecutor);
+
+        IReadOnlyList<AgentResult> results = await innerExecutor.ExecuteAsync(
             runId,
             request,
             evidence,

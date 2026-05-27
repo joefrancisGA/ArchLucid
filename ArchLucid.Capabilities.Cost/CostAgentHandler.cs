@@ -1,4 +1,4 @@
-using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Core.AgentSimulation;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;

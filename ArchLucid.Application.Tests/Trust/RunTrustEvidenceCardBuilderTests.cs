@@ -1,4 +1,5 @@
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -67,6 +68,21 @@ public sealed class RunTrustEvidenceCardBuilderTests
         card.Links.Should().Contain(l => l.Rel == "traceabilityZip");
         card.TopFinding.Should().NotBeNull();
         card.TopFinding!.FindingId.Should().Be("top-finding");
+    }
+
+    [Fact]
+    public async Task BuildAsync_uses_persisted_StructuralExecutionMode_for_execution_field()
+    {
+        Guid runGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        ArchitectureRunDetail detail = BuildCommittedDetail(runGuid);
+        detail.Run.StructuralExecutionMode = StructuralExecutionMode.Mixed;
+
+        RunTrustEvidenceCardBuilder sut = CreateSut(out _, out _);
+
+        RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);
+
+        card.Should().NotBeNull();
+        card!.ExecutionMode.Detail.Should().Be(StructuralExecutionModeLabels.MixedDetail);
     }
 
     private static RunTrustEvidenceCardBuilder CreateSut(

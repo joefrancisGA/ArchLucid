@@ -46,6 +46,10 @@
     <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
     <ProjectReference Include="..\ArchLucid.Worker\ArchLucid.Worker.csproj" />
+    <ProjectReference Include="..\ArchLucid.Mcp\ArchLucid.Mcp.csproj" />
+    <ProjectReference Include="..\ArchLucid.Integrations.AzureExtractor\ArchLucid.Integrations.AzureExtractor.csproj" />
+    <ProjectReference Include="..\ArchLucid.AgentSimulator\ArchLucid.AgentSimulator.csproj" />
+    <ProjectReference Include="..\ArchLucid.Jobs.Cli\ArchLucid.Jobs.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>

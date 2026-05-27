@@ -13,6 +13,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.AgentRuntime.QuickScan;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Core.AgentSimulation;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Evidence;
@@ -342,7 +343,10 @@ public static partial class ServiceCollectionExtensions
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
             services.AddScoped<DeterministicAgentSimulator>();
-            services.AddScoped<SimulatorExecutionTraceRecordingExecutor>();
+            services.AddScoped<SimulatorExecutionTraceRecordingExecutor>(static sp =>
+                new SimulatorExecutionTraceRecordingExecutor(
+                    sp.GetRequiredService<DeterministicAgentSimulator>(),
+                    sp.GetRequiredService<IAgentExecutionTraceRecorder>()));
             services.AddScoped<IAgentExecutor>(static sp => sp.GetRequiredService<SimulatorExecutionTraceRecordingExecutor>());
             RegisterFakeAgentCompletionClient(services);
         }
@@ -350,7 +354,10 @@ public static partial class ServiceCollectionExtensions
         {
             // Deterministic simulator is also used by POST /v1/demo/quickstart which must never call real LLMs.
             services.AddScoped<DeterministicAgentSimulator>();
-            services.AddScoped<SimulatorExecutionTraceRecordingExecutor>();
+            services.AddScoped<SimulatorExecutionTraceRecordingExecutor>(static sp =>
+                new SimulatorExecutionTraceRecordingExecutor(
+                    sp.GetRequiredService<DeterministicAgentSimulator>(),
+                    sp.GetRequiredService<IAgentExecutionTraceRecorder>()));
             services.AddScoped<IAgentExecutor, RealAgentExecutor>();
             services.AddScoped<IAgentHandler, TopologyAgentHandler>();
             services.AddScoped<IAgentHandler, CostAgentHandler>();

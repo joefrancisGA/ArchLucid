@@ -1,6 +1,8 @@
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
@@ -46,7 +48,7 @@ public sealed class RunTrustEvidenceCardBuilder(
         string runId = run.RunId;
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
         Guid? runGuid = TryParseRunGuid(runId, out Guid rg) ? rg : null;
-        TrustEvidenceFieldSnapshot execution = BuildExecutionModeField(run, hostAgentExecutionMode, isDemo);
+        TrustEvidenceFieldSnapshot execution = BuildExecutionModeField(run, isDemo);
         TrustEvidenceFieldSnapshot manifestField = new()
         {
             Title = "Golden manifest snapshot",
@@ -135,33 +137,41 @@ public sealed class RunTrustEvidenceCardBuilder(
         return links;
     }
 
-    private static TrustEvidenceFieldSnapshot BuildExecutionModeField(ArchitectureRun run, string? hostAgentExecutionMode, bool isDemo)
+    private static TrustEvidenceFieldSnapshot BuildExecutionModeField(ArchitectureRun run, bool isDemo)
     {
+        ArgumentNullException.ThrowIfNull(run);
+
         if (isDemo)
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "Execution mode",
                 Status = TrustEvidenceStatusValue.DemoOnly,
-                Detail = BuildBuyerExecutionSummary(run, hostAgentExecutionMode),
+                Detail = BuildBuyerExecutionSummary(run),
             };
 
-        if (run.RealModeFellBackToSimulator)
+        StructuralExecutionMode mode = run.StructuralExecutionMode;
+
+        if (mode == StructuralExecutionMode.Fallback || run.RealModeFellBackToSimulator)
             return new TrustEvidenceFieldSnapshot
             {
                 Title = "Execution mode",
                 Status = TrustEvidenceStatusValue.LowConfidence,
-                Detail = BuildBuyerExecutionSummary(run, hostAgentExecutionMode),
+                Detail = StructuralExecutionModeLabels.ToOperatorDetail(StructuralExecutionMode.Fallback),
             };
 
-        string mode = string.IsNullOrWhiteSpace(hostAgentExecutionMode) ? "Simulator" : hostAgentExecutionMode.Trim();
-        bool simulator = !string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase);
+        if (mode == StructuralExecutionMode.Mixed)
+            return new TrustEvidenceFieldSnapshot
+            {
+                Title = "Execution mode",
+                Status = TrustEvidenceStatusValue.LowConfidence,
+                Detail = StructuralExecutionModeLabels.MixedDetail,
+            };
+
         return new TrustEvidenceFieldSnapshot
         {
             Title = "Execution mode",
             Status = TrustEvidenceStatusValue.Available,
-            Detail = simulator
-                ? "Deterministic analysis path for agent steps on this host (repeatable, no billable model usage for those steps)."
-                : "Configured model-backed path for agent steps on this host.",
+            Detail = StructuralExecutionModeLabels.ToOperatorDetail(mode),
         };
     }
 
@@ -325,15 +335,18 @@ public sealed class RunTrustEvidenceCardBuilder(
     }
 
     /// <summary>Matches sponsor copy in <c>ArchLucid.Api.Support.RunExecutionFlavorSummary</c> without referencing the API layer.</summary>
-    private static string BuildBuyerExecutionSummary(ArchitectureRun run, string? hostAgentExecutionMode)
+    private static string BuildBuyerExecutionSummary(ArchitectureRun run)
     {
         ArgumentNullException.ThrowIfNull(run);
-        string mode = string.IsNullOrWhiteSpace(hostAgentExecutionMode) ? "Simulator" : hostAgentExecutionMode.Trim();
-        if (run.RealModeFellBackToSimulator)
+
+        if (run.RealModeFellBackToSimulator || run.StructuralExecutionMode == StructuralExecutionMode.Fallback)
             return
                 "Part of this review used a documented deterministic analysis path after the primary path did not complete. Treat numeric highlights conservatively and use sponsor exports for the full provenance table.";
 
-        return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase)
+        if (run.StructuralExecutionMode == StructuralExecutionMode.Mixed)
+            return StructuralExecutionModeLabels.MixedDetail;
+
+        return run.StructuralExecutionMode == StructuralExecutionMode.Real
             ? "Agent-assisted steps used your API host's configured model path when this page was loaded."
             : "Agent-assisted steps used a deterministic analysis path on this host (no billable model calls for those steps).";
     }

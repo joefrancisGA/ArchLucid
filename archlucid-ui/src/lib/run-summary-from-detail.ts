@@ -49,6 +49,7 @@ export function runFromDetailToRunSummary(detail: RunDetail): RunSummary {
     hasArtifactBundle: Boolean(run.artifactBundleId),
     runDegradedExecution: detail.runDegradedExecution,
     degradedExecutionAgents: detail.degradedExecutionAgents ?? undefined,
+    structuralExecutionMode: run.structuralExecutionMode,
   };
 }
 
@@ -86,5 +87,7 @@ export function effectiveRunSummaryForPipeline(
       apiSummary.degradedExecutionAgents,
       fromDetail.degradedExecutionAgents,
     ),
+    structuralExecutionMode:
+      apiSummary.structuralExecutionMode ?? fromDetail.structuralExecutionMode ?? run.structuralExecutionMode,
   };
 }

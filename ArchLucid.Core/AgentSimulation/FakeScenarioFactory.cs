@@ -7,8 +7,12 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 
-namespace ArchLucid.AgentSimulator.Services;
+namespace ArchLucid.Core.AgentSimulation;
 
+/// <summary>
+///     Deterministic <see cref="AgentResult" /> builders shared by simulator execution paths (no LLM).
+///     Lives in Core so production adapters (echo client, cost handler) avoid referencing <c>AgentSimulator</c>.
+/// </summary>
 public static class FakeScenarioFactory
 {
     /// <summary>

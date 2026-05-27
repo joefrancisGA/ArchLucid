@@ -601,20 +601,245 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
-    public void AgentRuntime_references_AgentSimulator_by_design()
+    public void AgentRuntime_must_not_reference_AgentSimulator_assembly()
     {
-        // SimulatorExecutionTraceRecordingExecutor and EchoAgentCompletionClient in AgentRuntime,
-        // plus deterministic handlers in ArchLucid.Capabilities.Cost, use AgentSimulator without LLMs.
-        // This is production behaviour (not test-only): when AgentExecution:Mode=Simulator the runtime
-        // delegates to AgentSimulator rather than calling Azure OpenAI.
-        // This test documents and accepts that coupling so future reviewers do not treat it as a bug.
         Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
         AssemblyName[] references = agentRuntime.GetReferencedAssemblies();
 
-        references.Should().Contain(
+        references.Should().NotContain(
             a => a.Name == "ArchLucid.AgentSimulator",
-            because: "AgentRuntime hosts simulator-mode execution adapters (SimulatorExecutionTraceRecordingExecutor, " +
-                     "EchoAgentCompletionClient) that delegate to DeterministicAgentSimulator in non-real-LLM environments.");
+            because: "TB-027: AgentRuntime depends on IAgentExecutor and Core deterministic scenarios only; AgentSimulator is wired at Host.Composition.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Capabilities_Cost_must_not_reference_AgentSimulator_assembly()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Capabilities.Cost", "ArchLucid.Capabilities.Cost.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.AgentSimulator",
+            because: "TB-027: Capabilities.Cost uses Core.FakeScenarioFactory; AgentSimulator is composition-root only.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Host_Core_must_not_reference_AgentSimulator_assembly()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Host.Core", "ArchLucid.Host.Core.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.AgentSimulator",
+            because: "TB-027: simulator wiring belongs in Host.Composition only.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentSimulator_may_only_be_referenced_by_allowlisted_assemblies()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        HashSet<string> allowlisted = new(StringComparer.Ordinal)
+        {
+            "ArchLucid.Host.Composition",
+        };
+
+        List<string> violations = [];
+
+        foreach (string csprojPath in Directory.EnumerateFiles(root!, "*.csproj", SearchOption.AllDirectories))
+        {
+            string assemblyName = Path.GetFileNameWithoutExtension(csprojPath);
+
+            if (string.Equals(assemblyName, "ArchLucid.AgentSimulator", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+            if (!declaredReferences.Contains("ArchLucid.AgentSimulator", StringComparer.Ordinal))
+            {
+                continue;
+            }
+
+            bool allowed = allowlisted.Contains(assemblyName)
+                           || assemblyName.EndsWith(".Tests", StringComparison.Ordinal);
+
+            if (!allowed)
+            {
+                violations.Add(assemblyName);
+            }
+        }
+
+        violations.Should().BeEmpty(
+            because: "TB-027 positive-list: only Host.Composition and *.Tests may reference AgentSimulator via csproj; violations: {0}",
+            string.Join(", ", violations));
+    }
+
+    // ── Tier 9 — TB-030 gap closure (Mcp, AzureExtractor, Jobs.Cli, integrations) ──
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Mcp_must_not_depend_on_Application_layer_namespaces()
+    {
+        Assembly mcp = typeof(ArchLucid.Mcp.Tools.RetrievalTools).Assembly;
+
+        TestResult result = Types
+            .InAssembly(mcp)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Application")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Mcp tools delegate to Retrieval/Core ports only. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Mcp_must_not_depend_on_Persistence()
+    {
+        Assembly mcp = typeof(ArchLucid.Mcp.Tools.RetrievalTools).Assembly;
+
+        TestResult result = Types
+            .InAssembly(mcp)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Persistence")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Mcp must stay above SQL/Dapper. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Mcp_csproj_must_not_reference_Application_or_Persistence()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Mcp", "ArchLucid.Mcp.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.Application",
+            because: "Mcp must not take a direct ProjectReference to Application.");
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.Persistence",
+            because: "Mcp must not take a direct ProjectReference to Persistence.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Integrations_must_not_depend_on_Application()
+    {
+        Assembly azureExtractor = typeof(ArchLucid.Integrations.AzureExtractor.HostedAzureExtractorClient).Assembly;
+        Assembly azureDevOps = typeof(ArchLucid.Integrations.AzureDevOps.AzureDevOpsCommitStatusPublisher).Assembly;
+
+        foreach (Assembly integration in new[] { azureExtractor, azureDevOps })
+        {
+            TestResult result = Types
+                .InAssembly(integration)
+                .ShouldNot()
+                .HaveDependencyOn("ArchLucid.Application")
+                .GetResult();
+
+            result.IsSuccessful.Should().BeTrue(
+                because: "{0} is an infrastructure adapter and must not reference Application. Offending types: {1}",
+                integration.GetName().Name,
+                FormatFailingTypeNames(result));
+        }
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Integrations_csproj_must_not_reference_Application()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        foreach (string projectDir in new[] { "ArchLucid.Integrations.AzureExtractor", "ArchLucid.Integrations.AzureDevOps" })
+        {
+            string csprojPath = Path.Combine(root!, projectDir, $"{projectDir}.csproj");
+            string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+            declaredReferences.Should().NotContain(
+                "ArchLucid.Application",
+                because: "{0} must not declare a ProjectReference to Application.", projectDir);
+        }
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Api_csproj_references_Integrations_AzureExtractor_by_design_until_TB_028()
+    {
+        // ApiWebLayerServiceCollectionExtensions still registers HostedAzureExtractorClient types directly.
+        // TB-028 moves that wiring to Host.Composition and deletes this direct ProjectReference.
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Api", "ArchLucid.Api.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().Contain(
+            "ArchLucid.Integrations.AzureExtractor",
+            because: "documented until TB-028 removes the Api → AzureExtractor direct reference.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Jobs_Cli_must_not_depend_on_Application_directly()
+    {
+        Assembly jobsCli = typeof(ArchLucid.Jobs.Cli.Program).Assembly;
+
+        TestResult result = Types
+            .InAssembly(jobsCli)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Application")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Jobs.Cli must reach Application only via Host.Composition. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Notifications_Email_RazorLight_must_not_depend_on_Application_or_above()
+    {
+        Assembly razorLight = typeof(ArchLucid.Notifications.Email.RazorLight.RazorLightEmailTemplateRenderer).Assembly;
+
+        TestResult result = Types
+            .InAssembly(razorLight)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Application")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Email template adapter stays at infrastructure tier. Offending types: {0}",
+            FormatFailingTypeNames(result));
     }
 
     // ── Tier 8 — Dependency graph gap closure (2026-05-23; #16 Provenance + Capabilities.Cost 2026-05-25) ──
