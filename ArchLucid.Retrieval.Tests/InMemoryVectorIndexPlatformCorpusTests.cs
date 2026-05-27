@@ -75,6 +75,8 @@ public sealed class InMemoryVectorIndexPlatformCorpusTests
         Text = chunkId,
         ChunkOrdinal = 0,
         Embedding = embedding,
+        EmbeddingModelId = "test-model",
+        EmbeddingDimension = embedding.Length,
     };
 
     private static RetrievalChunk MakePlatformChunk(string chunkId, float[] embedding) => new()
@@ -84,12 +86,14 @@ public sealed class InMemoryVectorIndexPlatformCorpusTests
         TenantId = CorpusKindSentinels.PlatformSentinelTenantId,
         WorkspaceId = Guid.Empty,
         ProjectId = Guid.Empty,
-        CorpusKind = CorpusKind.PolicyPack,
-        SourceType = "PolicyPackRule",
+        CorpusKind = CorpusKind.PlatformDoc,
+        SourceType = "PlatformDoc",
         SourceId = chunkId,
         Title = chunkId,
         Text = chunkId,
         ChunkOrdinal = 0,
         Embedding = embedding,
+        EmbeddingModelId = "test-model",
+        EmbeddingDimension = embedding.Length,
     };
 }

@@ -349,6 +349,12 @@ public static class ArchLucidInstrumentation
             "archlucid_rag_retrieval_fallback_total",
             description: "Ask retrieval fell back to SQL text search after vector index failure.");
 
+    /// <summary>Retrieval chunks skipped because stored/query embedding dimensions differ (TB-045).</summary>
+    public static readonly Counter<long> RetrievalEmbeddingDimensionMismatchTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_retrieval_embedding_dimension_mismatch_total",
+            description: "Retrieval chunks skipped because stored/query embedding dimensions differ.");
+
     /// <summary>Azure Retail Prices structured lookup used a heuristic monthly USD estimate (Improvement #6).</summary>
     public static readonly Counter<long> AzureRetailPricesHeuristicFallbackTotal =
         AppMeter.CreateCounter<long>(
@@ -1352,6 +1358,12 @@ public static class ArchLucidInstrumentation
     public static void RecordRagRetrievalFallback()
     {
         RagRetrievalFallbackTotal.Add(1);
+    }
+
+    /// <summary>Records one retrieval embedding dimension mismatch skip (TB-045).</summary>
+    public static void RecordRetrievalEmbeddingDimensionMismatch()
+    {
+        RetrievalEmbeddingDimensionMismatchTotal.Add(1);
     }
 
     /// <summary>Records one heuristic Azure Retail Prices fallback row (Improvement #6).</summary>

@@ -802,6 +802,8 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<RetrievalEmbeddingCapOptions>(
             configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName));
+        services.Configure<RetrievalEmbeddingModelOptions>(
+            configuration.GetSection(RetrievalEmbeddingModelOptions.SectionName));
         services.Configure<RetrievalRerankingOptions>(configuration.GetSection(RetrievalRerankingOptions.SectionPath));
         services.Configure<PriorManifestRetrievalOptions>(configuration.GetSection(PriorManifestRetrievalOptions.SectionPath));
         services.Configure<ManifestChunkSummarizationOptions>(
@@ -830,10 +832,20 @@ public static partial class ServiceCollectionExtensions
         string vectorMode = configuration["Retrieval:VectorIndex"] ?? "InMemory";
 
         if (string.Equals(vectorMode, "AzureSearch", StringComparison.OrdinalIgnoreCase))
+        {
             services.AddSingleton<IVectorIndex, AzureAiSearchVectorIndex>();
+            services.AddSingleton<IVectorIndexEmbeddingMetadataProvider>(_ => NullVectorIndexEmbeddingMetadataProvider.Instance);
+        }
         else
-            services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
+        {
+            services.AddSingleton<InMemoryVectorIndex>();
+            services.AddSingleton<IVectorIndex>(static sp => sp.GetRequiredService<InMemoryVectorIndex>());
+            services.AddSingleton<IVectorIndexEmbeddingMetadataProvider>(static sp =>
+                sp.GetRequiredService<InMemoryVectorIndex>());
+        }
 
+        services.AddSingleton<IEmbeddingModelIdentity, ConfiguredEmbeddingModelIdentity>();
+        services.AddHostedService<RetrievalEmbeddingDriftStartupValidator>();
 
         services.Configure<PolicyPackCorpusIndexerOptions>(configuration.GetSection(PolicyPackCorpusIndexerOptions.SectionPath));
         services.AddSingleton<PolicyPackCorpusIndexer>();
@@ -865,6 +877,14 @@ public static partial class ServiceCollectionExtensions
 
         if (useAzureEmbeddings)
         {
+            services.PostConfigure<RetrievalEmbeddingModelOptions>(options =>
+            {
+                options.ModelId = embedDeployment!.Trim();
+
+                if (options.ExpectedDimension <= 0)
+                    options.ExpectedDimension = 1536;
+            });
+
             services.AddKeyedSingleton<CircuitBreakerGate>(
                 OpenAiCircuitBreakerKeys.Embedding,
                 (sp, _) => CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.Embedding));
@@ -892,8 +912,15 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
         }
         else
+        {
+            services.PostConfigure<RetrievalEmbeddingModelOptions>(options =>
+            {
+                options.ModelId = "fake-local";
+                options.ExpectedDimension = 32;
+            });
 
             services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
+        }
 
     }
 

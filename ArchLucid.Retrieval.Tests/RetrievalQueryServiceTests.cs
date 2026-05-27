@@ -122,14 +122,22 @@ public sealed class RetrievalQueryServiceTests
             .ReturnsAsync(expected);
 
         RetrievalQuery query = ScopedQuery("needle", topK: 5);
-        index.Setup(i => i.SearchAsync(query, expected, It.IsAny<CancellationToken>()))
+        index.Setup(i => i.SearchAsync(
+                It.Is<RetrievalQuery>(q => q.QueryText == query.QueryText && q.TopK == query.TopK),
+                expected,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         RetrievalQueryService sut = CreateService(embeddings.Object, index.Object);
 
         await sut.SearchAsync(query, CancellationToken.None);
 
-        index.Verify(i => i.SearchAsync(query, expected, It.IsAny<CancellationToken>()), Times.Once);
+        index.Verify(
+            i => i.SearchAsync(
+                It.Is<RetrievalQuery>(q => q.QueryText == query.QueryText && q.TopK == query.TopK),
+                expected,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -314,7 +322,9 @@ public sealed class RetrievalQueryServiceTests
             Title = chunkId,
             Text = text,
             ChunkOrdinal = 0,
-            Embedding = embedding
+            Embedding = embedding,
+            EmbeddingModelId = "test-model",
+            EmbeddingDimension = embedding.Length
         };
     }
 }

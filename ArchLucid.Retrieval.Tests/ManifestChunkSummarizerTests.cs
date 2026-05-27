@@ -42,7 +42,7 @@ public sealed class ManifestChunkSummarizerTests
             .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("summary bullets");
 
-        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 50);
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 150);
 
         string heavyText = new('x', 400);
         IReadOnlyList<RetrievalHit> hits =
@@ -69,7 +69,7 @@ public sealed class ManifestChunkSummarizerTests
             .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("summary bullets");
 
-        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 80);
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 130);
 
         string heavyText = new('x', 400);
         IReadOnlyList<RetrievalHit> hits =

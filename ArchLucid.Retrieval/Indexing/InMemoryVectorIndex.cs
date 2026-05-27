@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 
 using ArchLucid.Retrieval.Models;
@@ -12,20 +13,26 @@ namespace ArchLucid.Retrieval.Indexing;
 ///     Replaces existing rows by <see cref="RetrievalChunk.ChunkId" /> on upsert. Filters require exact
 ///     tenant/workspace/project match; optional run/manifest must match when provided.
 /// </remarks>
-public sealed class InMemoryVectorIndex : IVectorIndex
+public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMetadataProvider
 {
     private const int MaxChunks = 10_000;
 
     private readonly List<RetrievalChunk> _chunks = [];
     private readonly Lock _sync = new();
 
+    private string? _indexEmbeddingModelId;
+    private int _indexEmbeddingDimension;
+
     /// <inheritdoc />
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(chunks);
+
         lock (_sync)
         {
             foreach (RetrievalChunk chunk in chunks)
             {
+                ValidateAndApplyIndexMetadata(chunk);
                 _chunks.RemoveAll(x => x.ChunkId == chunk.ChunkId);
                 _chunks.Add(chunk);
             }
@@ -43,35 +50,97 @@ public sealed class InMemoryVectorIndex : IVectorIndex
         float[] queryEmbedding,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(query);
+        ArgumentNullException.ThrowIfNull(queryEmbedding);
+
         lock (_sync)
         {
-            List<RetrievalHit> hits = _chunks
-                .Where(x => MatchesQueryScope(x, query))
-                .Select(x => new RetrievalHit
-                {
-                    ChunkId = x.ChunkId,
-                    DocumentId = x.DocumentId,
-                    CorpusKind = x.CorpusKind.ToString(),
-                    SourceType = x.SourceType,
-                    SourceId = x.SourceId,
-                    Title = x.Title,
-                    Text = x.Text,
-                    Score = Cosine(queryEmbedding, x.Embedding),
-                    DecisionId = x.DecisionId,
-                    FindingId = x.FindingId
-                })
+            List<RetrievalHit> hits = [];
+
+            foreach (RetrievalChunk chunk in _chunks)
+            {
+                if (!MatchesQueryScope(chunk, query))
+                    continue;
+
+                if (!EmbeddingDimensionsCompatible(queryEmbedding, chunk))
+                    continue;
+
+                hits.Add(
+                    new RetrievalHit
+                    {
+                        ChunkId = chunk.ChunkId,
+                        DocumentId = chunk.DocumentId,
+                        CorpusKind = chunk.CorpusKind.ToString(),
+                        SourceType = chunk.SourceType,
+                        SourceId = chunk.SourceId,
+                        Title = chunk.Title,
+                        Text = chunk.Text,
+                        Score = Cosine(queryEmbedding, chunk.Embedding),
+                        DecisionId = chunk.DecisionId,
+                        FindingId = chunk.FindingId
+                    });
+            }
+
+            IReadOnlyList<RetrievalHit> ranked = hits
                 .OrderByDescending(x => x.Score)
                 .Take(query.TopK)
                 .ToList();
 
-            return Task.FromResult<IReadOnlyList<RetrievalHit>>(hits);
+            return Task.FromResult(ranked);
         }
+    }
+
+    /// <inheritdoc />
+    public VectorIndexEmbeddingMetadata? GetEmbeddingMetadata()
+    {
+        lock (_sync)
+        {
+            if (_chunks.Count == 0 || string.IsNullOrWhiteSpace(_indexEmbeddingModelId) || _indexEmbeddingDimension <= 0)
+                return null;
+
+            return new VectorIndexEmbeddingMetadata(_indexEmbeddingModelId, _indexEmbeddingDimension, _chunks.Count);
+        }
+    }
+
+    private void ValidateAndApplyIndexMetadata(RetrievalChunk chunk)
+    {
+        if (string.IsNullOrWhiteSpace(chunk.EmbeddingModelId) || chunk.EmbeddingDimension <= 0)
+            throw new InvalidOperationException(
+                $"Retrieval chunk '{chunk.ChunkId}' is missing EmbeddingModelId or EmbeddingDimension metadata.");
+
+        if (_indexEmbeddingModelId is null)
+        {
+            _indexEmbeddingModelId = chunk.EmbeddingModelId;
+            _indexEmbeddingDimension = chunk.EmbeddingDimension;
+            return;
+        }
+
+        if (!string.Equals(_indexEmbeddingModelId, chunk.EmbeddingModelId, StringComparison.OrdinalIgnoreCase)
+            || _indexEmbeddingDimension != chunk.EmbeddingDimension)
+        {
+            throw new InvalidOperationException(
+                "Cannot upsert retrieval chunks with mixed embedding model identity into the same in-memory index.");
+        }
+    }
+
+    private static bool EmbeddingDimensionsCompatible(float[] queryEmbedding, RetrievalChunk chunk)
+    {
+        int chunkDimension = chunk.EmbeddingDimension > 0 ? chunk.EmbeddingDimension : chunk.Embedding.Length;
+
+        if (queryEmbedding.Length == chunkDimension)
+            return true;
+
+        ArchLucidInstrumentation.RecordRetrievalEmbeddingDimensionMismatch();
+        return false;
     }
 
     private static double Cosine(float[] a, float[] b)
     {
         if (a.Length != b.Length || a.Length == 0)
+        {
+            ArchLucidInstrumentation.RecordRetrievalEmbeddingDimensionMismatch();
             return 0;
+        }
 
         double dot = 0;
         double magA = 0;
@@ -117,10 +186,8 @@ public sealed class InMemoryVectorIndex : IVectorIndex
     {
         HashSet<string>? allowed = query.AllowedPolicyPackRulePackIds;
 
-        if (allowed is null)
-            return true;
-
-        if (allowed.Count == 0)
+        // TB-048: null assignment list must not expose platform policy-pack corpora.
+        if (allowed is null || allowed.Count == 0)
             return false;
 
         if (string.IsNullOrWhiteSpace(chunk.PolicyPackRulePackId))

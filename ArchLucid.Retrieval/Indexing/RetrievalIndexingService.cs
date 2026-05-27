@@ -16,6 +16,7 @@ public sealed class RetrievalIndexingService(
     PolicyPackChunker policyPackChunker,
     PriorManifestChunker priorManifestChunker,
     IEmbeddingService embeddingService,
+    IEmbeddingModelIdentity embeddingModelIdentity,
     IVectorIndex vectorIndex,
     IOptionsMonitor<RetrievalEmbeddingCapOptions> capOptions) : IRetrievalIndexingService
 {
@@ -27,6 +28,9 @@ public sealed class RetrievalIndexingService(
 
     private readonly PriorManifestChunker _priorManifestChunker =
         priorManifestChunker ?? throw new ArgumentNullException(nameof(priorManifestChunker));
+
+    private readonly IEmbeddingModelIdentity _embeddingModelIdentity =
+        embeddingModelIdentity ?? throw new ArgumentNullException(nameof(embeddingModelIdentity));
 
     /// <inheritdoc />
     public async Task IndexDocumentsAsync(IReadOnlyList<RetrievalDocument> documents, CancellationToken ct)
@@ -79,6 +83,15 @@ public sealed class RetrievalIndexingService(
                 if (batchEmbeddings.Count != batch.Count)
                     throw new InvalidOperationException("Embedding count must match chunk count.");
 
+                foreach (float[] vector in batchEmbeddings)
+                {
+                    if (vector.Length != _embeddingModelIdentity.ExpectedDimension)
+                    {
+                        throw new InvalidOperationException(
+                            $"Embedding dimension {vector.Length} does not match configured expected dimension {_embeddingModelIdentity.ExpectedDimension} for model '{_embeddingModelIdentity.ModelId}'.");
+                    }
+                }
+
                 embeddings.AddRange(batchEmbeddings);
             }
 
@@ -98,6 +111,8 @@ public sealed class RetrievalIndexingService(
                 Text = t,
                 ChunkOrdinal = i,
                 Embedding = embeddings[i],
+                EmbeddingModelId = _embeddingModelIdentity.ModelId,
+                EmbeddingDimension = _embeddingModelIdentity.ExpectedDimension,
                 CreatedUtc = doc.CreatedUtc,
                 PolicyPackRulePackId = doc.PolicyPackRulePackId,
                 DecisionId = doc.DecisionId,

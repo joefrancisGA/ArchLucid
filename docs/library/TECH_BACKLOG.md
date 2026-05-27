@@ -24,8 +24,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Honesty + economics — persisted execution mode, durable budget coherence, single quality-gate truth, replay scope isolation | L |
 | TB-033 | Agent execution trace — persist LLM sampling params + reasoning token count | Forensic replay completeness — temperature / maxTokens / top_p and reasoning tokens are not on `AgentExecutionTrace` | XS |
-| TB-048 | Tenancy isolation hardening — retrieval index + query | Security — policy-pack null-assignment bypass on `InMemoryVectorIndex`; Azure Search `$filter` unauditable; see **RAG-V1-010** | S |
-| TB-045 | Embedding model identity and drift guard | Correctness — silent dimension mismatch when deployment or Fake vs Azure vectors mix; see **RAG-V1-007** | S–M |
+| TB-048 | Tenancy isolation hardening — retrieval index + query | Done (Batch G, 2026-05-26) — null policy-pack assignment safe default, Azure filter builder, tests | S |
+| TB-045 | Embedding model identity and drift guard | Done (Batch G, 2026-05-26) — chunk metadata, mismatch metric, startup drift validator | S–M |
 | TB-049 | Retrieval IR eval harness — recall@k, MRR, golden dataset | Done (Batch E, 2026-05-26) — `eval_retrieval_ir.py` + `tests/eval-datasets/retrieval-golden/cases.json`; see **RAG-V1-011** | M |
 | TB-046 | Index freshness + ContentHash skip + indexer observability | Reliability — stale index undetected; `ContentHash` unused; startup indexer fail-open; see **RAG-V1-008** | S–M |
 | TB-047 | Chunking strategy fingerprint and invalidation | Correctness — mixed-generation chunks when chunker defaults change; see **RAG-V1-009** | S |
@@ -1423,6 +1423,8 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 
 ## TB-045 — Embedding model identity and drift guard
 
+**Status:** Done (Batch G, 2026-05-26).
+
 **Source:** Retrieval correctness & drift audit (2026-05-26). `RetrievalChunk` stores embeddings without model id or dimension; deployment name is config-only; dimension mismatch yields silent zero cosine scores.
 
 **Problem:** Swapping embedding deployment (or mixing `FakeEmbeddingService` with Azure) leaves incompatible vectors in the same index. Queries degrade with no operator signal.
@@ -1470,6 +1472,8 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 ---
 
 ## TB-048 — Tenancy isolation hardening (retrieval)
+
+**Status:** Done (Batch G, 2026-05-26).
 
 **Source:** Retrieval correctness & drift audit (2026-05-26). `InMemoryVectorIndex` treats `AllowedPolicyPackRulePackIds == null` as allow-all for policy packs. Azure Search filter path not auditable in-repo.
 

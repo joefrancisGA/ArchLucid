@@ -97,6 +97,20 @@ public class RetrievalChunk
         set;
     } = [];
 
+    /// <summary>Embedding deployment id stamped at index time (TB-045).</summary>
+    public string? EmbeddingModelId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Embedding vector length stamped at index time (TB-045).</summary>
+    public int EmbeddingDimension
+    {
+        get;
+        set;
+    }
+
     public DateTime CreatedUtc
     {
         get;

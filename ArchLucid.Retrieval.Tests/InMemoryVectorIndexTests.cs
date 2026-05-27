@@ -53,8 +53,10 @@ public sealed class InMemoryVectorIndexTests
     }
 
     [Fact]
-    public async Task SearchAsync_MismatchedEmbeddingLength_AssignsZeroScore()
+    public async Task SearchAsync_MismatchedEmbeddingLength_ExcludesChunkAndRecordsMismatch()
     {
+        _ = ArchLucid.Core.Diagnostics.ArchLucidInstrumentation.RetrievalEmbeddingDimensionMismatchTotal;
+
         InMemoryVectorIndex sut = new();
         await sut.UpsertChunksAsync(
             [MakeChunk("wide", TenantId, WorkspaceId, ProjectId, [1f, 0f, 0f])],
@@ -65,7 +67,24 @@ public sealed class InMemoryVectorIndexTests
 
         IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, shortQuery, CancellationToken.None);
 
-        hits.Should().ContainSingle().Which.Score.Should().Be(0);
+        hits.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_WithNullAssignedPacks_ExcludesAllPolicyPackChunks()
+    {
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [MakePlatformPolicyPackChunk("pack-a-chunk", "pack-a", [1f, 0f])],
+            CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = true;
+        query.AllowedPolicyPackRulePackIds = null;
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().BeEmpty();
     }
 
     [Fact]
@@ -212,6 +231,9 @@ public sealed class InMemoryVectorIndexTests
         };
     }
 
+    private const string TestEmbeddingModelId = "test-model";
+    private const int TestEmbeddingDimension = 2;
+
     private static RetrievalChunk MakeChunk(
         string chunkId,
         Guid tenantId,
@@ -231,7 +253,9 @@ public sealed class InMemoryVectorIndexTests
             Title = chunkId,
             Text = chunkId,
             ChunkOrdinal = 0,
-            Embedding = embedding
+            Embedding = embedding,
+            EmbeddingModelId = TestEmbeddingModelId,
+            EmbeddingDimension = embedding.Length
         };
     }
 }

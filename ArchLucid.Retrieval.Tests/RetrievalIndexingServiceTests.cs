@@ -37,12 +37,17 @@ public sealed class RetrievalIndexingServiceTests
         caps.Setup(m => m.CurrentValue).Returns(
             new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 2, MaxChunksPerIndexOperation = 0 });
 
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
         InMemoryVectorIndex index = new();
         RetrievalIndexingService sut = new(
             new SimpleTextChunker(),
             new PolicyPackChunker(),
             new PriorManifestChunker(),
             embeddings.Object,
+            identity.Object,
             index,
             caps.Object);
 
@@ -72,11 +77,16 @@ public sealed class RetrievalIndexingServiceTests
         caps.Setup(m => m.CurrentValue).Returns(
             new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16, MaxChunksPerIndexOperation = 3 });
 
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(32);
+
         RetrievalIndexingService sut = new(
             new SimpleTextChunker(),
             new PolicyPackChunker(),
             new PriorManifestChunker(),
             embeddings.Object,
+            identity.Object,
             new InMemoryVectorIndex(),
             caps.Object);
 
