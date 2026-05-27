@@ -31,13 +31,13 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
       <p className="m-0 mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">{config.operateDeferralNote}</p>
       <div className="mt-2.5">
         {isHashLink ? (
-          <Button variant="default" size="sm" className="bg-teal-600 hover:bg-teal-700" asChild>
+          <Button variant="primary" size="sm" asChild>
             <a href={config.primaryAction.href} className="no-underline">
               {config.primaryAction.label}
             </a>
           </Button>
         ) : (
-          <Button variant="default" size="sm" className="bg-teal-600 hover:bg-teal-700" asChild>
+          <Button variant="primary" size="sm" asChild>
             <Link href={config.primaryAction.href} className="no-underline">
               {config.primaryAction.label}
             </Link>
