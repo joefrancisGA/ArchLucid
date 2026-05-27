@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -9,7 +10,6 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Tenancy;
@@ -122,6 +122,16 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             TimeProvider.System,
             Microsoft.Extensions.Options.Options.Create(new Core.Configuration.RoiCostEvidenceFreshnessOptions()));
 
+        Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
+        findingsSnapshots
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FindingsSnapshot?)null);
+
+        Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+        tenantCostSettings
+            .Setup(repo => repo.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+
         ExecutiveRoiSummaryService roiService = new(
             runQuery.Object,
             savingsResolver.Object,
@@ -134,6 +144,9 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             CreateEmptyFindingReviewTrailRepository(),
             CreateEmptyRiskExceptionService(),
             CreateEmptyTenantSettingsRepository(),
+            findingsSnapshots.Object,
+            tenantCostSettings.Object,
+            Microsoft.Extensions.Options.Options.Create(new Core.Configuration.ValueReportComputationOptions()),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 
         List<(Guid TenantId, decimal TotalUsd)> observed = [];

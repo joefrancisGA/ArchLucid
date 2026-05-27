@@ -71,7 +71,8 @@ public sealed class SponsorEvidencePackService(
             return new FindingsSnapshot { Findings = [], TotalEstimatedSavings = 0m };
         try
         {
-            FindingsSnapshot? loaded = await _findingsSnapshotRepository.GetByIdAsync(snapshotId, cancellationToken);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            FindingsSnapshot? loaded = await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken);
             if (loaded is not null)
                 return loaded;
             if (_logger.IsEnabled(LogLevel.Warning))

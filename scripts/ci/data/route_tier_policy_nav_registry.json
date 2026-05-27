@@ -92,6 +92,16 @@
       "nav_operator_href": "/admin/users"
     },
     {
+      "controller_file": "Admin/AdminTrialFunnelOperationalController.cs",
+      "class_name": "AdminTrialFunnelOperationalController",
+      "route_template": "v{version:apiVersion}/admin/operational",
+      "normalized_prefix": "/v1/admin/operational",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AuditController.cs",
       "class_name": "AuditController",
       "route_template": "v{version:apiVersion}/audit",

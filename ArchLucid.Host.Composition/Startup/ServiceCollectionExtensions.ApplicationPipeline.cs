@@ -223,6 +223,8 @@ public static partial class ServiceCollectionExtensions
             ExecutionProvenanceFooterRenderer>();
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<IFirstValueReportBuilder>(static sp => sp.GetRequiredService<FirstValueReportBuilder>());
+        services.AddScoped<ExecutiveReviewPacketBuilder>();
+        services.AddScoped<IExecutiveReviewPacketBuilder>(static sp => sp.GetRequiredService<ExecutiveReviewPacketBuilder>());
         services.AddScoped<IExecutiveSummaryService, ExecutiveSummaryService>();
         services.AddScoped<ITenantEstimatedUsdSavingsResolver, TenantEstimatedUsdSavingsResolver>();
         services.AddScoped<IGlobalSearchService, GlobalSearchService>();

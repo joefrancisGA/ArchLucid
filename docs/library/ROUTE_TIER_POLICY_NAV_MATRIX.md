@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:155 -->
+<!-- route-tier-policy-nav-registry-count:156 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -51,6 +51,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /admin/users |  |
+| `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /audit |  |
 | `Admin/AuthDebugController.cs` | `/api/auth` | none | ReadAuthority |  | auth_debug_api |
 | `Admin/ClientErrorTelemetryController.cs` | `/v1/diagnostics` | none | ReadAuthority |  |  |

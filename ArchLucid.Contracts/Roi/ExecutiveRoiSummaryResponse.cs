@@ -113,6 +113,13 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     }
+
+    /// <summary>USD partitioned by disposition so waived/deferred findings do not inflate realized ROI (Batch B).</summary>
+    public ExecutiveRoiBasisBreakdown? BasisBreakdown
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>

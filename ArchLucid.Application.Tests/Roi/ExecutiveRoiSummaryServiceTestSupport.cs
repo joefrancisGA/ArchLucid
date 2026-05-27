@@ -71,6 +71,16 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             clock ?? TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions()));
 
+        Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
+        findingsSnapshots
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FindingsSnapshot?)null);
+
+        Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+        tenantCostSettings
+            .Setup(repo => repo.TryGetAsync(resolvedScope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCostSettingsRecord?)null);
+
         ExecutiveRoiSummaryService service = new(
             runDetailQueryService,
             tenantEstimatedUsdSavingsResolver,
@@ -83,6 +93,9 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             findingReviewTrailRepository ?? reviewTrail.Object,
             riskExceptions.Object,
             tenantSettings.Object,
+            findingsSnapshots.Object,
+            tenantCostSettings.Object,
+            Options.Create(new ValueReportComputationOptions()),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 
         return (service, packageRepository);

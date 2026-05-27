@@ -39,9 +39,37 @@ public static class ExecutiveReviewPacketComposer
         AppendRunSummarySection(sb, detail, executiveSummary, topFindingTitles);
         AppendPortfolioSignalsSection(sb, portfolioSignals);
         AppendRoiBasisSection(sb, roiSummary);
+        AppendDispositionRoiBasisSection(sb, roiSummary);
         AppendRealizedValueSection(sb, roiSummary);
 
         return sb.ToString().TrimEnd() + Environment.NewLine;
+    }
+
+    private static void AppendDispositionRoiBasisSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)
+    {
+        ExecutiveRoiBasisBreakdown? basis = roiSummary.BasisBreakdown;
+
+        if (basis is null)
+            return;
+
+        sb.AppendLine();
+        sb.AppendLine("## ROI basis by disposition");
+        sb.AppendLine();
+        sb.AppendLine($"**Cost basis:** {ExecutiveRoiBasisBreakdown.CostBasisLabel} (not invoiced Azure cost)");
+        sb.AppendLine(
+            $"- **Open (estimated potential):** {basis.OpenEstimatedUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
+        sb.AppendLine(
+            $"- **Needs evidence:** {basis.NeedsEvidenceUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
+        sb.AppendLine(
+            $"- **Accepted risk:** {basis.AcceptedRiskUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
+        sb.AppendLine(
+            $"- **Deferred:** {basis.DeferredUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
+        sb.AppendLine(
+            $"- **Waived:** {basis.WaivedUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
+        sb.AppendLine(
+            $"- **Realized (remediated):** {basis.RealizedUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
+        sb.AppendLine(
+            $"- **Rejected (not applicable):** {basis.RejectedNotApplicableUsd.ToString("N2", CultureInfo.InvariantCulture)} USD");
     }
 
     private static void AppendTopDecisionsSection(StringBuilder sb, IReadOnlyList<ExecutiveReviewPacketDecisionRow>? topDecisions)

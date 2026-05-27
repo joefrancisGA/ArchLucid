@@ -27,4 +27,14 @@ internal static class FindingInspectReadModelMapper
 
         return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl) ? lvl : null;
     }
+
+    public static FindingDisposition? ParseDisposition(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingDisposition disposition)
+            ? disposition
+            : null;
+    }
 }

@@ -57,4 +57,11 @@ public sealed class RunFindingCoverageSummary
         get;
         init;
     } = FindingsSnapshotGenerationStatus.Complete;
+
+    /// <summary>Governance disposition counts for findings on this run (null when snapshot missing).</summary>
+    public RunFindingDispositionCoverage? DispositionCoverage
+    {
+        get;
+        init;
+    }
 }

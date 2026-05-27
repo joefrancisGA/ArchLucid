@@ -118,7 +118,7 @@ public sealed class SponsorEvidencePackServiceTests
 
         Mock<IFindingsSnapshotRepository> findingsRepo = new();
         findingsRepo
-            .Setup(f => f.GetByIdAsync(snapshotId, It.IsAny<CancellationToken>()))
+            .Setup(f => f.GetByIdAsync(It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(persisted);
 
         Mock<IGovernanceDashboardService> gov = new();

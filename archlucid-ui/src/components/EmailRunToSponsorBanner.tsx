@@ -100,6 +100,7 @@ export function EmailRunToSponsorBanner({
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
+  const executiveReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/executive-review-packet`;
   const executiveBriefHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/EXECUTIVE_SPONSOR_BRIEF.md`;
   const pilotRoiModelHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PILOT_ROI_MODEL.md`;
 
@@ -478,6 +479,16 @@ export function EmailRunToSponsorBanner({
       </div>
 
       <ul className="m-0 mt-3 list-none space-y-1.5 p-0 text-xs text-neutral-700 dark:text-neutral-300">
+        <li>
+          <a
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+            href={executiveReviewPacketHref}
+            download={`archlucid-executive-review-packet-${runId}.md`}
+            data-testid="email-run-to-sponsor-executive-review-packet"
+          >
+            {buyerPolishedShell ? "Executive review packet (one-click Markdown)" : "Executive review packet (Markdown)"}
+          </a>
+        </li>
         <li>
           <a
             className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"

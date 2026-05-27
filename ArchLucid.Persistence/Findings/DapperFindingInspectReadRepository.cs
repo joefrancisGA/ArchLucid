@@ -152,6 +152,41 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                 new { row.RunId, scope.TenantId, EventType = AuditEventTypes.AuthorityCommittedChainPersisted },
                 cancellationToken: ct));
 
+        const string dispositionSql = """
+                                      SELECT TOP 1 Disposition, OccurredAtUtc
+                                      FROM dbo.FindingReviewEvents
+                                      WHERE TenantId = @TenantId
+                                        AND FindingId = @FindingId
+                                        AND Disposition IS NOT NULL
+                                      ORDER BY OccurredAtUtc DESC;
+                                      """;
+
+        DispositionRow? dispositionRow = await connection.QuerySingleOrDefaultAsync<DispositionRow>(
+            new CommandDefinition(
+                dispositionSql,
+                new { scope.TenantId, FindingId = findingId.Trim() },
+                cancellationToken: ct));
+
+        const string waiverSql = """
+                                 SELECT COUNT_BIG(1)
+                                 FROM dbo.RiskExceptions
+                                 WHERE TenantId = @TenantId
+                                   AND FindingId = @FindingId
+                                   AND Status = @ActiveStatus
+                                   AND ExpiresAtUtc > SYSUTCDATETIME();
+                                 """;
+
+        long activeWaiverCount = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                waiverSql,
+                new
+                {
+                    scope.TenantId,
+                    FindingId = findingId.Trim(),
+                    ActiveStatus = "Active", // matches SqlRiskExceptionRepository N'Active'
+                },
+                cancellationToken: ct));
+
         (string? ruleId, string? ruleName) = ResolveRuleFields(row.AppliedRuleIdsJson, firstRuleText);
 
         FindingHumanReviewStatus humanReview = FindingInspectReadModelMapper.ParseHumanReview(row.HumanReviewStatus);
@@ -189,7 +224,12 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             IsMuted = row.IsMuted,
             MuteReason = row.MuteReason,
             ReasoningTrace = row.ReasoningTrace,
-            ReasoningTraceDigestSha256 = row.ReasoningTraceDigestSha256
+            ReasoningTraceDigestSha256 = row.ReasoningTraceDigestSha256,
+            LatestDisposition = dispositionRow is null
+                ? null
+                : FindingInspectReadModelMapper.ParseDisposition(dispositionRow.Disposition),
+            LatestDispositionOccurredAtUtc = dispositionRow?.OccurredAtUtc,
+            HasActiveWaiver = activeWaiverCount > 0,
         };
     }
 
@@ -333,6 +373,21 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public string? ReasoningTraceDigestSha256
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class DispositionRow
+    {
+        public string? Disposition
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? OccurredAtUtc
         {
             get;
             init;

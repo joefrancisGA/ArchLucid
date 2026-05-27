@@ -184,6 +184,8 @@ A recording rule **`archlucid:explanation_cache_hit_ratio`** is defined in **`in
 **Dashboard:** `infra/grafana/dashboard-archlucid-trial-funnel.json` (Terraform `grafana_dashboard.trial_funnel`).  
 **Alerts:** `infra/prometheus/archlucid-alerts.yml` group **`archlucid-trial-funnel`**.
 
+**Founder read model (Batch B):** `GET /v1/admin/operational/trial-funnel-summary` (Admin authority) returns trailing-30-day signup/first-commit/conversion counts, median signup→first-commit latency from `TrialFirstRunCompleted` audit payloads, and **estimated** COGS basis labels (token-cost bands are null until agent-trace rollup is wired). Pair with Prometheus series above for dashboard panels.
+
 ---
 
 ## Activity sources (custom)

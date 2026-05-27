@@ -163,4 +163,24 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    /// <summary>Latest TB-058 disposition for this finding in the tenant, if recorded.</summary>
+    public FindingDisposition? LatestDisposition
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? LatestDispositionOccurredAtUtc
+    {
+        get;
+        init;
+    }
+
+    /// <summary><see langword="true" /> when an active time-bounded waiver covers this finding.</summary>
+    public bool HasActiveWaiver
+    {
+        get;
+        init;
+    }
 }

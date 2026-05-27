@@ -4,17 +4,20 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
-using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Application.Governance;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Roi;
 
@@ -31,6 +34,9 @@ public sealed class ExecutiveRoiSummaryService(
     IFindingReviewTrailRepository findingReviewTrailRepository,
     IRiskExceptionService riskExceptionService,
     ITenantSettingsRepository tenantSettingsRepository,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    ITenantCostSettingsRepository tenantCostSettingsRepository,
+    IOptions<ValueReportComputationOptions> valueReportComputationOptions,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
 {
     /// <summary>Max distinct systems whose run details are loaded per request (defense against huge tenants).</summary>
@@ -69,6 +75,15 @@ public sealed class ExecutiveRoiSummaryService(
 
     private readonly ITenantSettingsRepository _tenantSettingsRepository =
         tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
+
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly ITenantCostSettingsRepository _tenantCostSettingsRepository =
+        tenantCostSettingsRepository ?? throw new ArgumentNullException(nameof(tenantCostSettingsRepository));
+
+    private readonly ValueReportComputationOptions _valueReportComputationOptions =
+        valueReportComputationOptions?.Value ?? throw new ArgumentNullException(nameof(valueReportComputationOptions));
 
     /// <inheritdoc/>
     public async Task<ExecutiveRoiSummaryResponse> BuildAsync(CancellationToken cancellationToken = default)
@@ -113,10 +128,16 @@ public sealed class ExecutiveRoiSummaryService(
             await CollectCommittedRunsForTrendsAsync(cancellationToken).ConfigureAwait(false);
         List<ExecutiveRoiSystemicIssueTrendSeries> historicalTrends =
             ExecutiveRoiSystemicIssueTrendBuilder.Build(trendRuns, TimeProvider.System);
-        decimal totalSavings = systems.Sum(static system => system.EstimatedUsdSavings ?? 0m);
-
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
         Guid? projectId = _scopeContextProvider.GetCurrentScope().ProjectId;
+
+        ExecutiveRoiBasisBreakdown basisBreakdown = await BuildBasisBreakdownAsync(
+            latestDetails,
+            tenantId,
+            projectId,
+            cancellationToken).ConfigureAwait(false);
+
+        decimal totalSavings = basisBreakdown.OpenEstimatedUsd + basisBreakdown.NeedsEvidenceUsd;
         (int resolvedCount, int newlyDiscoveredCount) =
             await ExecutiveRoiTrailing30DayMetricsCalculator.ComputeAsync(
                 _runDetailQueryService,
@@ -152,7 +173,49 @@ public sealed class ExecutiveRoiSummaryService(
             NewlyDiscoveredFindingsCount30Days = newlyDiscoveredCount,
             HistoricalTrends = historicalTrends,
             RealizedValue = realizedValue,
+            BasisBreakdown = basisBreakdown,
         };
+    }
+
+    private async Task<ExecutiveRoiBasisBreakdown> BuildBasisBreakdownAsync(
+        IReadOnlyList<ArchitectureRunDetail> latestDetails,
+        Guid tenantId,
+        Guid? projectId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        List<FindingsSnapshot> snapshots = [];
+
+        foreach (ArchitectureRunDetail detail in latestDetails)
+        {
+            Guid? snapshotId = detail.Run.FindingsSnapshotId;
+
+            if (snapshotId is null || snapshotId == Guid.Empty)
+                continue;
+
+            FindingsSnapshot? snapshot = await _findingsSnapshotRepository
+                .GetByIdAsync(scope, snapshotId.Value, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (snapshot is not null)
+                snapshots.Add(snapshot);
+        }
+
+        DateTimeOffset since = TimeProvider.System.UtcNowDateTime().Subtract(RealizedValueMetricsCalculator.TrailingWindow);
+        IReadOnlyList<FindingReviewEventRecord> trailEvents =
+            await _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<RiskExceptionRecord> activeWaivers =
+            await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken).ConfigureAwait(false);
+        TenantCostSettingsRecord? tenantSettings = await _tenantCostSettingsRepository
+            .TryGetAsync(tenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return DispositionAwareRoiBasisCalculator.Compute(
+            snapshots,
+            trailEvents,
+            activeWaivers,
+            tenantSettings,
+            _valueReportComputationOptions);
     }
 
     public async Task<CrossTenantPortfolioSummaryResponse> GetCrossTenantPortfolioSummaryAsync(string userDirectoryKey, CancellationToken cancellationToken = default)

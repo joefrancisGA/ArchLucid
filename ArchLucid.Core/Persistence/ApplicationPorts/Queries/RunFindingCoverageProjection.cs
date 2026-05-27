@@ -17,17 +17,28 @@ public static class RunFindingCoverageProjection
         if (findingsSnapshot is null)
             return (false, null);
 
-        RunFindingCoverageSummary summary = BuildSummary(findingsSnapshot);
+        RunFindingCoverageSummary summary = BuildSummary(findingsSnapshot, dispositionCoverage: null);
         bool degraded = summary.IsDegraded
                         || findingsSnapshot.EvaluationConfidenceEnrichmentSkipped;
 
         return (degraded, summary);
     }
 
-    private static RunFindingCoverageSummary BuildSummary(FindingsSnapshot findingsSnapshot)
+    public static void ApplyDispositionCoverage(RunDetailDto dto, RunFindingDispositionCoverage? dispositionCoverage)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        if (dto.FindingCoverageSummary is null || dispositionCoverage is null || dto.FindingsSnapshot is null)
+            return;
+
+        dto.FindingCoverageSummary = BuildSummary(dto.FindingsSnapshot, dispositionCoverage);
+    }
+
+    private static RunFindingCoverageSummary BuildSummary(
+        FindingsSnapshot findingsSnapshot,
+        RunFindingDispositionCoverage? dispositionCoverage)
     {
         int failed = findingsSnapshot.EngineFailures.Count;
-        bool hasFindings = findingsSnapshot.Findings.Count > 0;
         int succeeded = failed == 0 && findingsSnapshot.GenerationStatus == FindingsSnapshotGenerationStatus.Complete
             ? Math.Max(1, EstimateSucceededEngines(findingsSnapshot))
             : Math.Max(0, EstimateSucceededEngines(findingsSnapshot));
@@ -53,6 +64,7 @@ public static class RunFindingCoverageProjection
             HasCommitBlockingFailures = blocking,
             FailedEngineLabels = failedLabels,
             GenerationStatus = findingsSnapshot.GenerationStatus,
+            DispositionCoverage = dispositionCoverage,
         };
     }
 

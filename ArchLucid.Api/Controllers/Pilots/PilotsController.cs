@@ -5,6 +5,7 @@ using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
@@ -38,6 +39,7 @@ namespace ArchLucid.Api.Controllers.Pilots;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class PilotsController(
     FirstValueReportBuilder firstValueReportBuilder,
+    IExecutiveReviewPacketBuilder executiveReviewPacketBuilder,
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
     PilotScorecardBuilder pilotScorecardBuilder,
     IPilotInProductScorecardService pilotInProductScorecardService,
@@ -176,6 +178,22 @@ public sealed class PilotsController(
                 cancellationToken);
 
         return Ok(report);
+    }
+
+    /// <summary>
+    ///     Consolidated sponsor packet (manifest, findings, ROI basis by disposition, decisions) — one Markdown download.
+    /// </summary>
+    [HttpGet("runs/{runId}/executive-review-packet")]
+    [Produces("text/markdown")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "text/markdown")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetExecutiveReviewPacket(string runId, CancellationToken cancellationToken)
+    {
+        string? markdown = await executiveReviewPacketBuilder.BuildMarkdownAsync(runId, cancellationToken);
+
+        return markdown is null
+            ? this.NotFoundProblem($"Executive review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+            : Content(markdown, "text/markdown; charset=utf-8");
     }
 
     /// <summary>

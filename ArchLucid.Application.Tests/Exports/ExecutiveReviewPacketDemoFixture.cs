@@ -155,7 +155,18 @@ internal static class ExecutiveReviewPacketDemoFixture
                 ActiveWaiversCount = 0,
                 WaiversRetiredCount30Days = 0,
                 WaiverExpiryReversionCount30Days = 0,
-            }
+            },
+            BasisBreakdown = new ExecutiveRoiBasisBreakdown
+            {
+                OpenEstimatedUsd = 6200m,
+                AcceptedRiskUsd = 1200m,
+                NeedsEvidenceUsd = 1000m,
+                DeferredUsd = 0m,
+                WaivedUsd = 0m,
+                RealizedUsd = 0m,
+                RejectedNotApplicableUsd = 0m,
+                TotalPotentialUsd = 8400m,
+            },
         };
 
         return new DemoPacketInputs

@@ -59,6 +59,17 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 **Cost evidence freshness:** Fresh (stale after 90 days)
 **Estimated savings (USD):** 8,400.00
 
+## ROI basis by disposition
+
+**Cost basis:** estimated (not invoiced Azure cost)
+- **Open (estimated potential):** 6,200.00 USD
+- **Needs evidence:** 1,000.00 USD
+- **Accepted risk:** 1,200.00 USD
+- **Deferred:** 0.00 USD
+- **Waived:** 0.00 USD
+- **Realized (remediated):** 0.00 USD
+- **Rejected (not applicable):** 0.00 USD
+
 ## Realized value (computed)
 
 - **Findings remediated (30d):** 1

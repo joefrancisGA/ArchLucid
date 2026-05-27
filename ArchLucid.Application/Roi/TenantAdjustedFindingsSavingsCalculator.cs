@@ -67,6 +67,10 @@ public static class TenantAdjustedFindingsSavingsCalculator
         return total;
     }
 
+    internal static bool IsAcceptedCostFindingPublic(Finding finding) => IsAcceptedCostFinding(finding);
+
+    internal static bool IsAcceptedNonCostFindingPublic(Finding finding) => IsAcceptedNonCostFinding(finding);
+
     private static bool IsAcceptedCostFinding(Finding finding) =>
         finding.HumanReviewStatus is FindingHumanReviewStatus.Approved
             or FindingHumanReviewStatus.NotRequired;

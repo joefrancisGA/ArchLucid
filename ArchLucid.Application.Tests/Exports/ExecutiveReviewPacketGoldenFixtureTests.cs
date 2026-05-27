@@ -81,6 +81,7 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
             "## Run summary",
             "## Portfolio signals (live)",
             "## ROI basis",
+            "## ROI basis by disposition",
             "## Realized value (computed)",
             "Confidence:",
             "Evidence:",
