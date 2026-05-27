@@ -48,7 +48,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
         string configuredMode,
         string expectedLabel)
     {
-        ArchLucid.Core.Tests.Diagnostics.ArchLucidInstrumentationTestSupport.EnsureInitialized();
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(ArchLucid.Core.Diagnostics.ArchLucidInstrumentation).TypeHandle);
 
         List<Activity> captured = [];
 
@@ -93,7 +93,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
 
         result.Results.Should().ContainSingle();
 
-        Activity runActivity = captured.Should()
+        Activity runActivity = captured.Where(a => a.GetTagItem("archlucid.run_id") as string == runId).Should()
             .ContainSingle(a => a.OperationName == "architecture.run.execute")
             .Subject;
 
@@ -198,7 +198,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             Mock.Of<IAuditService>(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAgentOutputTraceEvaluationHook>(),
-            new NoOpAgentResultPostExecutionEnricher(),
+            new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
             new NoOpEvidencePackageInjectionMitigator(),
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,

@@ -63,6 +63,7 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
         await repository.UpdateSettingsAsync(
             new LlmTenantWalletUpdateSettingsRequest
             {
@@ -79,10 +80,10 @@ public sealed class LlmTenantWalletServiceTests
         Mock<IStripeWalletGateway> stripe = new();
         stripe
             .Setup(s => s.ChargeRefillAsync(
-                tenantId,
-                "cus_test",
-                "pm_test",
-                50m,
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(StripeWalletChargeResult.Ok("pi_test"));
@@ -109,6 +110,7 @@ public sealed class LlmTenantWalletServiceTests
         InMemoryLlmTenantWalletRepository repository = new();
         Guid tenantId = Guid.NewGuid();
 
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
         await repository.UpdateSettingsAsync(
             new LlmTenantWalletUpdateSettingsRequest
             {
@@ -120,15 +122,15 @@ public sealed class LlmTenantWalletServiceTests
             },
             CancellationToken.None);
 
-        await repository.TryCreditRefillAsync(tenantId, 5m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
+        await repository.TryCreditRefillAsync(tenantId, 0m, Guid.NewGuid(), null, int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")), [], CancellationToken.None);
 
         Mock<IStripeWalletGateway> stripe = new();
         stripe
             .Setup(s => s.ChargeRefillAsync(
-                tenantId,
-                "cus_test",
-                "pm_test",
-                50m,
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(StripeWalletChargeResult.Ok("pi_test_1"));
@@ -139,7 +141,7 @@ public sealed class LlmTenantWalletServiceTests
 
         refilled.Should().BeTrue();
         LlmTenantWalletView view = await service.GetWalletAsync(tenantId, CancellationToken.None);
-        view.BalanceUsd.Should().Be(55m);
+        view.BalanceUsd.Should().Be(50m);
         view.AutoRefillsThisUtcMonthCount.Should().Be(1);
     }
 

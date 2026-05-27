@@ -143,7 +143,7 @@ public sealed class ItsmOutboundServiceNowWireMockHttpIntegrationTests
     }
 
     [Fact]
-    public async Task ServiceNow_wiremock_upstream_http_400_is_vendor_error()
+    public async Task ServiceNow_wiremock_upstream_http_503_is_vendor_error()
     {
         using WireMockServer server = WireMockServer.Start();
 

@@ -101,6 +101,7 @@ public sealed class JiraOutboundMockServerIntegrationTests
         await using JiraIssueCreateInProcessMockServer server = await JiraIssueCreateInProcessMockServer.StartAsync((context, _) =>
         {
             context.Response.StatusCode = 401;
+            context.Response.ContentLength64 = 0;
             context.Response.Close();
 
             return Task.CompletedTask;
