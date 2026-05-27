@@ -242,6 +242,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/MarketingPricingQuoteFollowUpAdminController.cs",
+      "class_name": "MarketingPricingQuoteFollowUpAdminController",
+      "route_template": "v{version:apiVersion}/admin/marketing/pricing-quote-requests",
+      "normalized_prefix": "/v1/admin/marketing/pricing-quote-requests",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/MeteringAdminController.cs",
       "class_name": "MeteringAdminController",
       "route_template": "v{version:apiVersion}/admin/metering",

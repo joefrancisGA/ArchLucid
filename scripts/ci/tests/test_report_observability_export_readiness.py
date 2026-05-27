@@ -192,5 +192,64 @@ class TestReportObservabilityExportReadiness(unittest.TestCase):
         self.assertTrue(any("ArchLucid.Api" in r for r in reasons))
 
 
+    def test_honor_require_telemetry_export_fails_json_only_when_flag_set(self):
+        script = _REPO / "scripts/report_observability_export_readiness.py"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            env = os.environ.copy()
+            env.pop("APPLICATIONINSIGHTS_CONNECTION_STRING", None)
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(script),
+                    "--environment",
+                    "Production",
+                    "--no-process-environment",
+                    "--honor-require-telemetry-export-config",
+                    "--out",
+                    str(Path(tmp) / "r.md"),
+                ],
+                cwd=_REPO,
+                check=False,
+                capture_output=True,
+                text=True,
+                env=env,
+            )
+
+            # Default Production appsettings keep RequireTelemetryExport=false; exit 0.
+            # When flag is false, honor mode is a no-op beyond standard WARN verdict.
+            self.assertEqual(result.returncode, 0, result.stderr)
+            text = (Path(tmp) / "r.md").read_text(encoding="utf-8")
+            self.assertIn("Telemetry export readiness verdict:", text)
+
+    def test_compute_release_verdict_fail_when_honor_require_and_json_only(self):
+        api = _M.HostReport(
+            files_attempted=[],
+            files_loaded=[],
+            load_errors=[],
+            active_exports=[],
+            export_warnings=["x"],
+        )
+        worker = _M.HostReport(
+            files_attempted=[],
+            files_loaded=[],
+            load_errors=[],
+            active_exports=[],
+            export_warnings=["x"],
+        )
+
+        v, reasons = _M.compute_release_verdict(
+            api=api,
+            worker=worker,
+            include_process_environment=False,
+            honor_require_telemetry_export_config=True,
+            require_telemetry_export_from_config=True,
+        )
+
+        self.assertEqual(v, "FAIL")
+        self.assertTrue(any("RequireTelemetryExport" in r for r in reasons))
+
+
 if __name__ == "__main__":
     unittest.main()

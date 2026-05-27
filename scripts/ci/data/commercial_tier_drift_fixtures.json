@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "description": "Curated API ↔ tier ↔ policy ↔ nav fixtures (Batch F improvement #16). Registry is authoritative; fixtures catch doc/marketing drift.",
+  "fixtures": [
+    {
+      "label": "Pilot — reviews entry",
+      "controller_file": "Pilots/PilotsController.cs",
+      "expected_commercial_tier": "none",
+      "expected_class_policy": "ReadAuthority",
+      "expected_nav_operator_href": "/reviews?projectId=default"
+    },
+    {
+      "label": "Operate analysis — ask",
+      "controller_file": "Planning/AskController.cs",
+      "expected_commercial_tier": "standard",
+      "expected_class_policy": "ReadAuthority",
+      "expected_nav_operator_href": "/ask"
+    },
+    {
+      "label": "Operate governance — policy packs",
+      "controller_file": "Governance/PolicyPacksController.cs",
+      "expected_commercial_tier": "standard",
+      "expected_class_policy": "ReadAuthority",
+      "expected_nav_operator_href": "/policy-packs"
+    },
+    {
+      "label": "Operate analysis — manifests",
+      "controller_file": "Governance/ManifestsController.cs",
+      "expected_commercial_tier": "standard",
+      "expected_class_policy": "ReadAuthority",
+      "expected_nav_operator_href": null,
+      "notes": "Enterprise CSV export tier gate is action-scoped on AuditController.ExportAudit, not class-level."
+    }
+  ]
+}

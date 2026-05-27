@@ -53,8 +53,11 @@ Operational hygiene (not a product change):
    - `ok` — under 18 hours
    - `warn at 18h` — 18–23 hours unanswered
    - `breach at 24h` — 24+ hours unanswered
-2. **Operator API:** `GET /v1/admin/marketing/pricing-quote-aging` (AdminAuthority) returns the aging view for sales ops.
-3. **Metrics:** `MarketingPricingQuoteAgingMetricsHostedService` snapshots the view every **5 minutes** and records **`archlucid_pricing_quote_request_age_hours`** (histogram, label `breach_status`).
-4. **Alert:** **`ArchLucidPricingQuoteAcknowledgementBreach`** in **`infra/prometheus/archlucid-alerts.yml`** fires when any row exceeds **24 hours** unanswered.
+2. **Operator API:** `GET /v1/admin/marketing/pricing-quote-aging` (AdminAuthority) returns open, unanswered rows with age and breach status. Follow-up mutations:
+   - `POST /v1/admin/marketing/pricing-quote-requests/{id}/acknowledge` — sets `FirstResponseUtc` (and optional `AssignedOwner`); removes the row from aging.
+   - `POST /v1/admin/marketing/pricing-quote-requests/{id}/close` — sets `Status = Closed`; removes the row from aging.
+3. **Columns (migration 230):** `Status` (`Open` / `Closed`), `FirstResponseUtc`, `AssignedOwner`, `ClosedUtc` on `dbo.MarketingPricingQuoteRequests`.
+4. **Metrics:** `MarketingPricingQuoteAgingMetricsHostedService` snapshots the view every **5 minutes** and records **`archlucid_pricing_quote_request_age_hours`** (histogram, label `breach_status`).
+5. **Alert:** **`ArchLucidPricingQuoteAcknowledgementBreach`** in **`infra/prometheus/archlucid-alerts.yml`** fires when any row exceeds **24 hours** unanswered.
 
 **Escalation:** On `warn at 18h`, assign or ping the pricing-quote owner; on `breach at 24h`, page sales leadership and clear or backdate only after a logged human response (do not delete rows for SLA gaming).

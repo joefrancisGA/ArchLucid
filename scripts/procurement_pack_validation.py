@@ -436,3 +436,138 @@ def procurement_pack_quick_checks(
         write_dry_run_preview(root, canonical_entries, excluded, preview_dir_normalized)
 
     return errors
+
+
+def collect_quality_snapshot(
+    root: Path,
+    *,
+    canonical_entries: list[dict],
+    excluded: list[dict],
+    pre_check_errors: list[str],
+    strict_placeholder_violations: list[str] | None,
+    deal_ready_violations: list[str] | None,
+    strict_mode: bool,
+    deal_ready_mode: bool,
+    max_assurance_review_age_days: int,
+) -> dict[str, object]:
+    """Machine-readable quality summary for procurement-pack-quality.md and manifest.json."""
+    freshness_warnings = assurance_freshness_violations(
+        root,
+        paths_relative=(
+            Path("docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md"),
+            Path("docs/go-to-market/TRUST_CENTER.md"),
+        ),
+        max_review_age_days=max_assurance_review_age_days,
+    )
+
+    placeholder_violations = list(strict_placeholder_violations or [])
+    deal_violations = list(deal_ready_violations or [])
+    blocking = list(pre_check_errors)
+
+    if strict_mode and placeholder_violations:
+        blocking.extend(placeholder_violations)
+
+    if deal_ready_mode and deal_violations:
+        blocking.extend(deal_violations)
+
+    overall = "pass" if not blocking else "fail"
+
+    return {
+        "generated_utc": datetime.now(timezone.utc).isoformat(),
+        "overall": overall,
+        "strict_mode": strict_mode,
+        "deal_ready_mode": deal_ready_mode,
+        "canonical_file_count": len(canonical_entries),
+        "redaction_omission_count": len(excluded),
+        "precondition_error_count": len(pre_check_errors),
+        "freshness_warning_count": len(freshness_warnings),
+        "strict_placeholder_violation_count": len(placeholder_violations),
+        "deal_ready_violation_count": len(deal_violations),
+        "precondition_errors": pre_check_errors,
+        "freshness_warnings": freshness_warnings,
+        "strict_placeholder_violations": placeholder_violations,
+        "deal_ready_violations": deal_violations,
+        "redaction_omissions": [
+            {"path": row.get("path", ""), "reason": row.get("reason", "")} for row in excluded
+        ],
+    }
+
+
+def procurement_pack_quality_markdown(snapshot: dict[str, object]) -> str:
+    """Buyer-safe quality summary (no secrets)."""
+    lines = [
+        "# Procurement pack quality",
+        "",
+        f"- **Overall:** `{snapshot.get('overall', 'unknown')}`",
+        f"- **Strict mode:** `{snapshot.get('strict_mode', False)}`",
+        f"- **Deal-ready mode:** `{snapshot.get('deal_ready_mode', False)}`",
+        f"- **Canonical files:** {snapshot.get('canonical_file_count', 0)}",
+        f"- **Redaction omissions:** {snapshot.get('redaction_omission_count', 0)}",
+        "",
+        "## Precondition checks",
+        "",
+    ]
+
+    pre_errors = snapshot.get("precondition_errors") or []
+
+    if pre_errors:
+        lines.extend(f"- FAIL: {err}" for err in pre_errors)
+    else:
+        lines.append("- PASS: canonical sources, templates, and buyer-claim scans (when enabled).")
+
+    lines.extend(["", "## Freshness (warn-only unless deal-ready)", ""])
+
+    freshness = snapshot.get("freshness_warnings") or []
+
+    if freshness:
+        lines.extend(f"- WARN: {warn}" for warn in freshness)
+    else:
+        lines.append("- PASS: assurance **Last reviewed** markers within configured age.")
+
+    lines.extend(["", "## Strict placeholder scan", ""])
+
+    placeholders = snapshot.get("strict_placeholder_violations") or []
+
+    if placeholders:
+        lines.extend(f"- FAIL: {item}" for item in placeholders)
+    elif snapshot.get("strict_mode"):
+        lines.append("- PASS: no buyer-unsafe placeholders in Evidence/Self-assessment pack files.")
+    else:
+        lines.append("- SKIPPED: strict mode off (use `--strict` or `PROCUREMENT_PACK_STRICT=1` for release drops).")
+
+    lines.extend(["", "## Deal-ready checks", ""])
+
+    deal_items = snapshot.get("deal_ready_violations") or []
+
+    if deal_items:
+        lines.extend(f"- FAIL: {item}" for item in deal_items)
+    elif snapshot.get("deal_ready_mode"):
+        lines.append("- PASS: deal-ready repository checks.")
+    else:
+        lines.append("- SKIPPED: deal-ready mode off.")
+
+    lines.extend(
+        [
+            "",
+            "## Redaction omissions (intentional)",
+            "",
+            "See `redaction_report.md` for the full table. Omitted repository paths are **not** defects when listed there.",
+            "",
+        ]
+    )
+
+    omissions = snapshot.get("redaction_omissions") or []
+
+    if omissions:
+        lines.append(f"- {len(omissions)} paths documented in `redaction_report.md`.")
+
+    lines.append("")
+
+    return "\n".join(lines)
+
+
+def write_procurement_pack_quality_report(stage: Path, snapshot: dict[str, object]) -> None:
+    (stage / "procurement-pack-quality.md").write_text(
+        procurement_pack_quality_markdown(snapshot),
+        encoding="utf-8",
+    )

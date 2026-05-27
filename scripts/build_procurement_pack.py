@@ -136,6 +136,7 @@ This bundle was produced by **`scripts/build_procurement_pack.py`** (or `archluc
 | **`manifest.json`** | Per-file **SHA-256**, size, and **`artifact_status`**. |
 | **`versions.txt`** | Git commit, build UTC, CLI package version. |
 | **`redaction_report.md`** | Repository paths **intentionally omitted** from the canonical pack and why. |
+| **`procurement-pack-quality.md`** | Pass/fail freshness, placeholder strictness, and redaction summary for the build. |
 
 ## Operator reference
 
@@ -326,18 +327,23 @@ def main() -> int:
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(src.read_bytes())
 
+    strict_violations: list[str] = []
+
     if strict:
-        violations = scan_packed_files_for_markers(
+        strict_violations = scan_packed_files_for_markers(
             stage,
             entries,
             _PLACEHOLDER_PATTERNS,
             allowed_statuses=("Evidence", "Self-assessment"),
         )
-        if violations:
+
+        if strict_violations:
             print("error: procurement pack strict mode found placeholders in buyer-facing files:", file=sys.stderr)
-            for v in violations:
+            for v in strict_violations:
                 print(f"  - {v}", file=sys.stderr)
             return 1
+
+    deal_violations: list[str] = []
 
     if deal_ready:
         deal_violations = scan_packed_files_for_markers(
@@ -355,9 +361,29 @@ def main() -> int:
 
             return 1
 
+    quality_snapshot = pp_val.collect_quality_snapshot(
+        root,
+        canonical_entries=entries,
+        excluded=excluded,
+        pre_check_errors=[],
+        strict_placeholder_violations=strict_violations,
+        deal_ready_violations=deal_violations,
+        strict_mode=strict,
+        deal_ready_mode=deal_ready,
+        max_assurance_review_age_days=args.max_review_age_days,
+    )
+    pp_val.write_procurement_pack_quality_report(stage, quality_snapshot)
+
     manifest_rows = build_manifest_rows(stage, entries)
     (stage / "manifest.json").write_text(
-        json.dumps({"generated_utc": datetime.now(timezone.utc).isoformat(), "files": manifest_rows}, indent=2)
+        json.dumps(
+            {
+                "generated_utc": datetime.now(timezone.utc).isoformat(),
+                "files": manifest_rows,
+                "quality": quality_snapshot,
+            },
+            indent=2,
+        )
         + "\n",
         encoding="utf-8",
     )

@@ -18,6 +18,9 @@ public sealed class MarketingPricingQuoteAgingMetricsHostedServiceTests
             "Contoso",
             "Team",
             DateTime.UtcNow.AddHours(-30),
+            MarketingPricingQuoteRequestStatus.Open,
+            null,
+            null,
             30,
             MarketingPricingQuoteRequestBreachStatus.BreachAt24Hours);
 

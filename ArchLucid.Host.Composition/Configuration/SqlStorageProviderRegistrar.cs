@@ -1,5 +1,3 @@
-using System.Reflection;
-
 using Polly;
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Provenance;
@@ -296,10 +294,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
     private static string ResolveArchLucidSqlScriptPath()
     {
-        Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
-        string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
-
-        return Path.Combine(dir, "Scripts", "ArchLucid.sql");
+        return PersistenceScriptPaths.ResolveTenantScriptPath();
     }
 
     /// <summary>Product repositories scoped to tenant-plane connections (plus <see cref="DapperTenantRepository" /> directory routing).</summary>
@@ -354,6 +349,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestAgingReader, SqlMarketingPricingQuoteRequestAgingReader>();
+        services.AddScoped<IMarketingPricingQuoteRequestFollowUpRepository, SqlMarketingPricingQuoteRequestFollowUpRepository>();
         services.AddScoped<IMarketingEarlyAccessRequestRepository, SqlMarketingEarlyAccessRequestRepository>();
         services.AddScoped<ITenantMarketingAttributionRepository, SqlTenantMarketingAttributionRepository>();
         services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();

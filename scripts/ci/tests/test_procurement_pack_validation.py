@@ -160,5 +160,74 @@ class TestProcurementPackValidation(unittest.TestCase):
             self.assertTrue((out_dir / "redaction_report.md").is_file())
 
 
+    def test_collect_quality_snapshot_passes_on_minimal_fixture(self) -> None:
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            gtm = root / "docs" / "go-to-market"
+            gtm.mkdir(parents=True)
+
+            (gtm / "ASSURANCE_STATUS_CANONICAL.md").write_text(
+                "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
+                encoding="utf-8",
+            )
+            (gtm / "TRUST_CENTER.md").write_text(
+                "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\n",
+                encoding="utf-8",
+            )
+
+            entries = [{"pack_path": "ok.md", "source_repo_path": "ok.md", "artifact_status": "Evidence"}]
+            excluded = [{"path": "secret.md", "reason": "fixture"}]
+
+            snapshot = pp_val.collect_quality_snapshot(
+                root,
+                canonical_entries=entries,
+                excluded=excluded,
+                pre_check_errors=[],
+                strict_placeholder_violations=[],
+                deal_ready_violations=None,
+                strict_mode=True,
+                deal_ready_mode=False,
+                max_assurance_review_age_days=120,
+            )
+
+            self.assertEqual(snapshot["overall"], "pass")
+            self.assertEqual(snapshot["redaction_omission_count"], 1)
+
+            markdown = pp_val.procurement_pack_quality_markdown(snapshot)
+            self.assertIn("procurement pack quality", markdown.lower())
+            self.assertIn("PASS", markdown)
+
+    def test_collect_quality_snapshot_fails_when_stale_last_reviewed(self) -> None:
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            gtm = root / "docs" / "go-to-market"
+            gtm.mkdir(parents=True)
+
+            (gtm / "ASSURANCE_STATUS_CANONICAL.md").write_text(
+                "> **Scope:** test\n\n**Last reviewed:** 2000-01-01\n",
+                encoding="utf-8",
+            )
+            (gtm / "TRUST_CENTER.md").write_text(
+                "> **Scope:** test\n\n**Last reviewed:** 2000-01-01\n",
+                encoding="utf-8",
+            )
+
+            snapshot = pp_val.collect_quality_snapshot(
+                root,
+                canonical_entries=[],
+                excluded=[],
+                pre_check_errors=[],
+                strict_placeholder_violations=None,
+                deal_ready_violations=None,
+                strict_mode=False,
+                deal_ready_mode=False,
+                max_assurance_review_age_days=30,
+            )
+
+            self.assertGreater(snapshot["freshness_warning_count"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -60859,6 +60859,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("agentExecutionTraceIds")]
         public System.Collections.Generic.ICollection<string>? AgentExecutionTraceIds { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("agentTracePointers")]
+        public System.Collections.Generic.ICollection<FindingForensicAgentTracePointer>? AgentTracePointers { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("auditCorrelationIds")]
+        public System.Collections.Generic.ICollection<string>? AuditCorrelationIds { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
         public System.Guid? ContextSnapshotId { get; set; } = default!;
 
@@ -60883,8 +60889,83 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("relatedGraphNodeIds")]
         public System.Collections.Generic.ICollection<string>? RelatedGraphNodeIds { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("retrievalGroundingPointers")]
+        public System.Collections.Generic.ICollection<FindingForensicRetrievalGroundingPointer>? RetrievalGroundingPointers { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("retrievalGroundingTraceIds")]
+        public System.Collections.Generic.ICollection<string>? RetrievalGroundingTraceIds { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public string? RunId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("supportHint")]
+        public string? SupportHint { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class FindingForensicAgentTracePointer
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentType")]
+        public string? AgentType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullPromptBlobAvailable")]
+        public bool? FullPromptBlobAvailable { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullResponseBlobAvailable")]
+        public bool? FullResponseBlobAvailable { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("inlineFallbackFailed")]
+        public bool? InlineFallbackFailed { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("modelDeploymentName")]
+        public string? ModelDeploymentName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("provenanceCorrelationId")]
+        public string? ProvenanceCorrelationId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceId")]
+        public string? TraceId { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class FindingForensicRetrievalGroundingPointer
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentExecutionTraceId")]
+        public string? AgentExecutionTraceId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentName")]
+        public string? AgentName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("citationCoverage")]
+        public double? CitationCoverage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("corpusKind")]
+        public string? CorpusKind { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceId")]
+        public string? TraceId { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

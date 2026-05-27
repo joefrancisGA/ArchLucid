@@ -2,6 +2,7 @@ using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
 
@@ -11,6 +12,38 @@ namespace ArchLucid.Host.Core.Startup;
 public static class ArchLucidPersistenceStartup
 {
     private const int DefaultSchemaBootstrapTimeoutSeconds = 30;
+
+    private static void RunSystemSchemaBootstrapIfAvailable(
+        WebApplication app,
+        string systemConnectionString,
+        ArchLucidPersistenceOptions persistenceOptions)
+    {
+        string systemScriptPath = PersistenceScriptPaths.ResolveSystemScriptPath();
+
+        if (!File.Exists(systemScriptPath))
+        {
+            app.Logger.LogWarning(
+                "Startup: consolidated system DDL not found at {Path}; skipping system-plane bootstrap.",
+                systemScriptPath);
+
+            return;
+        }
+
+        app.Logger.LogInformation(
+            "Startup: running system-plane ISchemaBootstrapper ({Script}).",
+            systemScriptPath);
+
+        SqlConnectionFactory connectionFactory = new(systemConnectionString);
+        SqlSchemaBootstrapper bootstrapper = new(connectionFactory, systemScriptPath);
+        int bootstrapTimeoutSeconds = persistenceOptions.DefaultSqlCommandTimeoutSeconds > 0
+            ? persistenceOptions.DefaultSqlCommandTimeoutSeconds
+            : DefaultSchemaBootstrapTimeoutSeconds;
+        using CancellationTokenSource cts = new(TimeSpan.FromSeconds(bootstrapTimeoutSeconds));
+
+        bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
+
+        app.Logger.LogInformation("Startup: system-plane schema bootstrap completed.");
+    }
 
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
     {
@@ -50,6 +83,8 @@ public static class ArchLucidPersistenceStartup
                         DatabaseMigrator.RunSystem(systemConnectionString);
 
                         app.Logger.LogInformation("Startup: system-plane DbUp migrations completed successfully.");
+
+                        RunSystemSchemaBootstrapIfAvailable(app, systemConnectionString, persistenceOptions);
                     }
                     catch (Exception ex)
                     {

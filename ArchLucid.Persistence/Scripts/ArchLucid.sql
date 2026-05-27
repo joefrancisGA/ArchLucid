@@ -6618,11 +6618,46 @@ BEGIN
         CompanyName   NVARCHAR(200)    NOT NULL,
         TierInterest  NVARCHAR(120)    NOT NULL,
         Message       NVARCHAR(2000)   NOT NULL,
-        ClientIpHash  VARBINARY(32)    NULL
+        ClientIpHash  VARBINARY(32)    NULL,
+        Status        NVARCHAR(32)     NOT NULL
+            CONSTRAINT DF_MarketingPricingQuoteRequests_Status2 DEFAULT N'Open',
+        FirstResponseUtc DATETIME2(7)  NULL,
+        AssignedOwner NVARCHAR(200)    NULL,
+        ClosedUtc     DATETIME2(7)     NULL
     );
 
     CREATE NONCLUSTERED INDEX IX_MarketingPricingQuoteRequests_CreatedUtc2
         ON dbo.MarketingPricingQuoteRequests (CreatedUtc DESC);
+END;
+GO
+
+/* ---- DbUp 230 parity: marketing pricing quote follow-up columns (see Migrations/230_MarketingPricingQuoteFollowUp.sql) ---- */
+IF OBJECT_ID(N'dbo.MarketingPricingQuoteRequests', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.MarketingPricingQuoteRequests', N'Status') IS NULL
+    BEGIN
+        ALTER TABLE dbo.MarketingPricingQuoteRequests
+            ADD Status NVARCHAR(32) NOT NULL
+                CONSTRAINT DF_MarketingPricingQuoteRequests_Status2 DEFAULT N'Open';
+    END;
+
+    IF COL_LENGTH(N'dbo.MarketingPricingQuoteRequests', N'FirstResponseUtc') IS NULL
+    BEGIN
+        ALTER TABLE dbo.MarketingPricingQuoteRequests
+            ADD FirstResponseUtc DATETIME2(7) NULL;
+    END;
+
+    IF COL_LENGTH(N'dbo.MarketingPricingQuoteRequests', N'AssignedOwner') IS NULL
+    BEGIN
+        ALTER TABLE dbo.MarketingPricingQuoteRequests
+            ADD AssignedOwner NVARCHAR(200) NULL;
+    END;
+
+    IF COL_LENGTH(N'dbo.MarketingPricingQuoteRequests', N'ClosedUtc') IS NULL
+    BEGIN
+        ALTER TABLE dbo.MarketingPricingQuoteRequests
+            ADD ClosedUtc DATETIME2(7) NULL;
+    END;
 END;
 GO
 
@@ -7817,9 +7852,14 @@ BEGIN
 END
 GO
 
-/* ---- DbUp 201 parity: marketing pricing quote SLA aging view (see Migrations/201_MarketingPricingQuoteRequestsAgingView.sql) ---- */
+/* ---- DbUp 201/230 parity: marketing pricing quote SLA aging view ---- */
+IF OBJECT_ID(N'dbo.MarketingPricingQuoteRequestsAging', N'V') IS NOT NULL
+BEGIN
+    DROP VIEW dbo.MarketingPricingQuoteRequestsAging;
+END;
+GO
+
 IF OBJECT_ID(N'dbo.MarketingPricingQuoteRequests', N'U') IS NOT NULL
-   AND OBJECT_ID(N'dbo.MarketingPricingQuoteRequestsAging', N'V') IS NULL
 BEGIN
     EXEC(N'
 CREATE VIEW dbo.MarketingPricingQuoteRequestsAging AS
@@ -7829,13 +7869,18 @@ SELECT
     r.CompanyName,
     r.TierInterest,
     r.CreatedUtc,
+    r.Status,
+    r.FirstResponseUtc,
+    r.AssignedOwner,
     CAST(DATEDIFF(SECOND, r.CreatedUtc, SYSUTCDATETIME()) AS DECIMAL(18, 4)) / 3600.0 AS AgeHours,
     CASE
         WHEN DATEDIFF(HOUR, r.CreatedUtc, SYSUTCDATETIME()) >= 24 THEN N''breach at 24h''
         WHEN DATEDIFF(HOUR, r.CreatedUtc, SYSUTCDATETIME()) >= 18 THEN N''warn at 18h''
         ELSE N''ok''
     END AS BreachStatus
-FROM dbo.MarketingPricingQuoteRequests AS r;
+FROM dbo.MarketingPricingQuoteRequests AS r
+WHERE r.Status = N''Open''
+  AND r.FirstResponseUtc IS NULL;
 ');
 END;
 GO

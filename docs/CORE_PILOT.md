@@ -11,6 +11,18 @@ Use this page when you need the **four-step Core Pilot** narrative without scrol
 
 Do not mistake the Core Pilot checklist for full product scope — advanced Operate lanes, entitlement-specific depth, and GA-gated paths live under **[`library/V1_SCOPE.md`](library/V1_SCOPE.md)** and linked runbooks. Use Core Pilot to prove **request → execute → commit → review package** once on **your** inputs.
 
+### Ignore for first pilot (defer until after first commit)
+
+| Defer | Why |
+|-------|-----|
+| **Operate** compare, replay, graph-at-scale, governance dashboards | Not required to prove first architecture review value |
+| **V1.1 connectors** (Jira, ServiceNow, Confluence, Slack, Teams) | See [`go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md) |
+| Advanced policy packs beyond one optional dry-run | Add only when governance is in pilot scope |
+| MCP, live commerce, hosted Tier 2 extractor WIF | Out of V1 first-hour path |
+| Reading full **V1 scope** or integration catalog before starting | Use [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) instead |
+
+**Stuck?** [`runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](runbooks/FIRST_PILOT_TROUBLESHOOTING.md) (symptom tree) · [`runbooks/PILOT_RESCUE_PLAYBOOK.md`](runbooks/PILOT_RESCUE_PLAYBOOK.md) (quick matrix).
+
 ---
 
 ## 2. Canonical depth and commands

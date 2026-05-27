@@ -8,6 +8,8 @@ Use this path when **`ArchLucidAuth:Mode=JwtBearer`** and the issuer is **not** 
 
 IdP-specific screenshots and expressions live in **[SSO — Okta](../integrations/SSO_OKTA_CONFIGURATION.md)** and **[SSO — Auth0](../integrations/SSO_AUTH0_CONFIGURATION.md)**; this runbook is the **cross-vendor** sequence and troubleshooting layer.
 
+**Self-service checks (no secrets):** `GET /v1/admin/auth/configuration-diagnostics` (AdminAuthority) or `archlucid auth diagnostics` with `ARCHLUCID_API_KEY` — surfaces authority/audience, discovery reachability, SAML entity id, tenant claim-mapping hints.
+
 ---
 
 ## 1. Preconditions

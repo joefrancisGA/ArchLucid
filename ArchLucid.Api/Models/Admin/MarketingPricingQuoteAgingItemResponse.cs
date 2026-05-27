@@ -44,4 +44,22 @@ public sealed class MarketingPricingQuoteAgingItemResponse
         get;
         init;
     } = string.Empty;
+
+    public string Status
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public DateTime? FirstResponseUtc
+    {
+        get;
+        init;
+    }
+
+    public string? AssignedOwner
+    {
+        get;
+        init;
+    }
 }

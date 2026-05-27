@@ -9,6 +9,8 @@
 
 **Repo-local preflight (before first prod apply):** run `scripts/Emit-ProductionProfilePreflightMarkdown.ps1` from the repository root to emit `artifacts/deployment/production-profile-preflight.md` — Terraform roots + **merged** `ArchLucid.Api` production appsettings (auth/JWT, API key off, SQL + Key Vault sample, redaction, observability, billing rules), Worker `appsettings` notes, and SMB/445 heuristics **without** Azure login or printing secret values (see [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md) and [RELEASE_EVIDENCE_SUMMARY.md](RELEASE_EVIDENCE_SUMMARY.md)).
 
+**Release readiness bundle (observability + preflight index):** `pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1` writes `artifacts/release-readiness/` including per-host Application Insights / OTLP / Prometheus verdicts from `scripts/report_observability_export_readiness.py`. Use `--honor-require-telemetry-export-config` (via the bundle script) when `ProductionValidation:RequireTelemetryExport=true` must fail closed without a configured exporter. See [OBSERVABILITY.md](OBSERVABILITY.md).
+
 ---
 
 ## 1. Deployment “succeeded” but health / post-deploy validation fails

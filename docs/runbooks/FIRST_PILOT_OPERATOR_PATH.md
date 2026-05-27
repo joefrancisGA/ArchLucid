@@ -24,7 +24,11 @@ Every step below maps to a **shipped** API, operator UI route, or CLI verb. Opti
 | A2 | Start API + worker (or combined host); confirm DbUp migrations applied. | `GET /version` returns build identity; logs show catalog ready. | API · [`PILOT_GUIDE.md`](../library/PILOT_GUIDE.md) |
 | A3 | Sign in to operator UI (`/auth/signin` or dev bypass locally only). | Home loads; no endless 401/403 on `/api/proxy`. | UI · [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md) |
 
-**Failure recovery (Phase A):** auth loops → [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) · SQL/migration errors → [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · capture **`X-Correlation-ID`** on every failed API call.
+**Failure recovery (Phase A):** auth loops → [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) § auth · `archlucid auth diagnostics` (admin API key) · SQL/migration errors → [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · capture **`X-Correlation-ID`** on every failed API call.
+
+### Ignore for first pilot
+
+Until you have one **committed** architecture review package, you do **not** need: Operate compare/replay/graph lanes, V1.1 connectors, MCP, live commerce, or reading the full V1 integration catalog. Optional policy-pack dry-run (step C4) is the only governance touch in the default path.
 
 ---
 

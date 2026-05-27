@@ -665,6 +665,12 @@ public static class AuditEventTypes
     /// <summary>Admin SSO wizard activated a tenant-scoped identity provider configuration row.</summary>
     public const string IdentitySsoConfigurationActivated = "Identity.SsoConfigurationActivated";
 
+    /// <summary>Admin acknowledged a marketing pricing quote request (first-response SLA).</summary>
+    public const string MarketingPricingQuoteRequestAcknowledged = "Marketing.PricingQuoteRequestAcknowledged";
+
+    /// <summary>Admin closed a marketing pricing quote request (no longer in aging triage).</summary>
+    public const string MarketingPricingQuoteRequestClosed = "Marketing.PricingQuoteRequestClosed";
+
     /// <summary>Admin configured Tier 2 hosted Azure extractor (customer SP + subscription scope via WIF).</summary>
     public const string IntegrationHostedAzureExtractorConfigured = "Integration.HostedAzureExtractorConfigured";
 

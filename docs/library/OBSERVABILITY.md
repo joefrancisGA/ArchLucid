@@ -27,11 +27,12 @@ If **none** of the above are active (typical bare **local** `dotnet run` without
 **Repo-local readiness report (no Azure login, no network):** merge committed appsettings the same way the **Api** host does (`appsettings.json` → `appsettings.{Environment}.json` → `appsettings.Advanced.json` → `appsettings.SaaS.json`) and the **Worker** host does (`appsettings.json` → `appsettings.{Environment}.json`), then optionally overlay **process environment** keys (values are never printed). Warns with exact configuration keys when no Application Insights connection string, OTLP endpoint, or Prometheus scrape is active.
 
 ```bash
+# Observability export readiness (repo-local) — regenerate:
 python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md
-# committed JSON only (CI / clean tree; ignores your shell env) — expect **WARN** verdict unless JSON layers include an exporter
-python scripts/report_observability_export_readiness.py --environment Production --no-process-environment --out artifacts/observability-export-readiness.json-files.md
-# release gate: fail when verdict is not PASS (e.g. missing Worker export, or Api still absent with env overlay)
-python scripts/report_observability_export_readiness.py --environment Production --strict-exit-code --out artifacts/observability-export-readiness.md
+# Release bundle (Production + Staging reports + preflight index):
+pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1
+# Strict gate when RequireTelemetryExport is enabled in merged Production JSON:
+python scripts/report_observability_export_readiness.py --environment Production --honor-require-telemetry-export-config --strict-exit-code
 ```
 
 `appsettings.Advanced.json` can override environment-specific `Observability` (for example it ships `Observability:Prometheus:Enabled` **false**), so the JSON-only report may show **no** durable exporter until deployment sets `APPLICATIONINSIGHTS_CONNECTION_STRING`, `Observability__Otlp__Endpoint`, or flips Prometheus via env. That matches runtime layering in **`ArchLucid.Api/Program.cs`**.

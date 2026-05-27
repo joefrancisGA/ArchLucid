@@ -5,6 +5,8 @@
 
 # Operator quickstart — ArchLucid (commands only) (56R)
 
+**First pilot path (UI + phases):** [FIRST_PILOT_OPERATOR_PATH.md](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Stuck:** [FIRST_PILOT_TROUBLESHOOTING.md](../../runbooks/FIRST_PILOT_TROUBLESHOOTING.md).
+
 **Canonical action map (UI + API + CLI):** [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md).
 
 Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; **PowerShell:** use `.ps1` where listed.

@@ -51,7 +51,10 @@ public sealed class MarketingPricingQuoteAgingAdminController(
                     BreachStatus = row.BreachStatus,
                     WorkEmail = row.WorkEmail,
                     CompanyName = row.CompanyName,
-                    TierInterest = row.TierInterest
+                    TierInterest = row.TierInterest,
+                    Status = row.Status,
+                    FirstResponseUtc = row.FirstResponseUtc,
+                    AssignedOwner = row.AssignedOwner
                 });
         }
 

@@ -103,6 +103,7 @@ All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias
 |--------|-------------|-------------|-------------------|-------------|
 | **`real-mode-e2e-benchmark.js`** | `ARCHLUCID_BASE_URL` (staging/prod) | `ARCHLUCID_API_KEY`, `K6_POLL_INTERVAL_MS`, `K6_POLL_TIMEOUT_MS`, `K6_ITERATIONS`, `K6_SUMMARY_PATH` | `ARCHLUCID_BASE_URL=https://staging.archlucid.net k6 run tests/load/real-mode-e2e-benchmark.js` | `tests/load/results/real-mode-e2e-benchmark.json` (via `handleSummary`) |
 | **`core-pilot.js`** | — | `K6_LOAD_PROFILE` (`core`\|`read`\|`mixed`), `K6_COMPRESS`, `K6_BASELINE_PATH`, `K6_BASELINE_DATE`, `K6_CORE_VUS`, `K6_READ_VUS`, `K6_MIXED_*` | `k6 run tests/load/core-pilot.js` | `tests/load/results/baseline-*.json` (via `handleSummary`) or merge `record-baseline.ps1` |
+| **`post-commit-operator-path.js`** | — | `ARCHLUCID_API_KEY`, `K6_COMPRESS`, `K6_POST_COMMIT_VUS`, `K6_POST_COMMIT_DURATION`, `K6_SUMMARY_PATH` | `K6_COMPRESS=1 k6 run tests/load/post-commit-operator-path.js` | **`handleSummary`** → `tests/load/results/post-commit-operator-path.json` |
 | **`k6-api-smoke.js`** | — | `ARCHLUCID_API_KEY`, `ARCHLUCID_AUTHORITY_PROJECT` (`default`), `K6_SCENARIO` (`smoke`\|`load`), `K6_SUMMARY_PATH` | `k6 run tests/load/k6-api-smoke.js` | `tests/load/results/k6-summary.json` (via `handleSummary`) |
 | **`ci-smoke.js`** | — | — | `k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json` | `--summary-export` arg |
 | **`smoke.js`** | — | — | `k6 run tests/load/smoke.js --out json=k6-results.json` | `--out` / `--summary-export` |
@@ -192,6 +193,7 @@ Low-rate read-only mix (`health`, `version`, `runs_list`, `audit_search`). Durat
 
 | File | Purpose |
 |------|---------|
+| **`post-commit-operator-path.js`** | Post-commit read mix: explain aggregate, provenance, executive ROI, sponsor packet (after seed+commit) |
 | **`smoke.js`** | Read-only paths; used for broader read mix (see **`docs/LOAD_TEST_BASELINE.md`**) |
 
 Deeper baselines and Compose full-stack runs: **`docs/LOAD_TEST_BASELINE.md`**, **`scripts/load/README.md`**.

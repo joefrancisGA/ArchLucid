@@ -24,7 +24,8 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 The command runs `scripts/build_procurement_pack.py`, verifies **every canonical file** exists, writes `dist/procurement-pack/` (staging) and the ZIP. Inside the ZIP you will find:
 
 - `README.md` — **start here** — pointers to artifact classification and provenance files
-- `manifest.json` — each file’s **size**, **SHA-256**, and **`artifact_status`**
+- `manifest.json` — each file’s **size**, **SHA-256**, **`artifact_status`**, and a **`quality`** summary object
+- `procurement-pack-quality.md` — pass/fail precondition, freshness, strict placeholder, and redaction index for the build
 - `versions.txt` — **git commit**, build timestamp, and **CLI package version**
 - `redaction_report.md` — repository paths **intentionally omitted** from the canonical checklist and why
 - `artifact_status_index.json` — machine-readable **`artifact_status`** per packed path (mirrors `scripts/procurement_pack_canonical.json`)

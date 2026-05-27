@@ -2,7 +2,7 @@
 
 # Pilot rescue playbook (V1)
 
-Use when you need **symptom → likely cause → first command → deeper doc**. Full flow: **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** and **[CORE_PILOT.md](../CORE_PILOT.md)**.
+Use when you need **symptom → likely cause → first command → deeper doc**. Decision tree: **[FIRST_PILOT_TROUBLESHOOTING.md](FIRST_PILOT_TROUBLESHOOTING.md)** · Full flow: **[TROUBLESHOOTING.md](../TROUBLESHOOTING.md)** and **[CORE_PILOT.md](../CORE_PILOT.md)**.
 
 **Correlation:** Include **`X-Correlation-ID`** (and `correlationId` inside ProblemDetails JSON) in notes whenever you open a thread, grep logs, or attach diagnostics.
 

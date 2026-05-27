@@ -112,7 +112,13 @@ public static class Program
                     if (normalized.Length > 1 && string.Equals(normalized[1], "validate-saml", StringComparison.OrdinalIgnoreCase))
                         return await AuthValidateSamlCommand.RunAsync(normalized.Skip(2).ToArray());
 
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "diagnostics", StringComparison.OrdinalIgnoreCase))
+                        return await AuthDiagnosticsCommand.RunAsync(
+                            normalized.Skip(2).ToArray(),
+                            CliCommandShared.TryLoadConfigFromCwd());
+
                     AuthValidateSamlCommand.WriteUsage();
+                    AuthDiagnosticsCommand.WriteUsage();
 
                     return CliExitCode.UsageError;
 

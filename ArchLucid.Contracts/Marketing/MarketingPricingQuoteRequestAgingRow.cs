@@ -7,5 +7,8 @@ public readonly record struct MarketingPricingQuoteRequestAgingRow(
     string CompanyName,
     string TierInterest,
     DateTime CreatedUtc,
+    string Status,
+    DateTime? FirstResponseUtc,
+    string? AssignedOwner,
     double AgeHours,
     string BreachStatus);

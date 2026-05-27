@@ -233,6 +233,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ILlmTenantWalletRepository, InMemoryLlmTenantWalletRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestAgingReader, NoOpMarketingPricingQuoteRequestAgingReader>();
+        services.AddSingleton<IMarketingPricingQuoteRequestFollowUpRepository, NoOpMarketingPricingQuoteRequestFollowUpRepository>();
         services.AddSingleton<IMarketingEarlyAccessRequestRepository, NoOpMarketingEarlyAccessRequestRepository>();
         services.AddSingleton<ITenantMarketingAttributionRepository, NoOpTenantMarketingAttributionRepository>();
         services.AddSingleton<IFirstTenantFunnelEventStore, NoopFirstTenantFunnelEventStore>();

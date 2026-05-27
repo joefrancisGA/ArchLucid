@@ -7,7 +7,7 @@
 
 **Goal:** Faster triage without reading the whole codebase.
 
-**Symptom index:** [Pilot rescue playbook](PILOT_RESCUE_PLAYBOOK.md) maps common stuck states (API down, health, auth, trial limits, commit readiness, governance gate, artifacts, real-mode AI, bundle redaction) to first commands and deeper docs.
+**Symptom index:** [First-pilot troubleshooting decision tree](FIRST_PILOT_TROUBLESHOOTING.md) (symptom → first check → escalation artifact) · [Pilot rescue playbook](PILOT_RESCUE_PLAYBOOK.md) (quick matrix).
 
 ## First-line steps (try in order)
 

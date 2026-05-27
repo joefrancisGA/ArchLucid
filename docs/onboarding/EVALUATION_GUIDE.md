@@ -6,6 +6,8 @@
 **Audience:** Prospective buyers, evaluators, operators, and design partners completing their first pilot.
 **Purpose:** Define the end-to-end journey from an empty tenant to a reviewed, exportable **architecture review package**.
 
+> **Operators with a local or hosted install:** start at **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single canonical path). This guide adds depth; it does not replace that checklist. **Stuck mid-pilot:** [`runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](../runbooks/FIRST_PILOT_TROUBLESHOOTING.md).
+
 ## Part 1: Your first 30 minutes (Buyer / Evaluator path)
 
 ArchLucid is a SaaS product. You will not install anything to evaluate it. Evaluating the product itself happens on the hosted SaaS at [`archlucid.net`](https://archlucid.net). There is no Docker, SQL, .NET, Node, Terraform, or CLI on the buyer path.

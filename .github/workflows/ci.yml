@@ -257,6 +257,12 @@ jobs:
       - name: Route tier policy nav guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_route_tier_policy_nav.py"
 
+      - name: Commercial tier packaging drift fixtures
+        run: python scripts/ci/assert_commercial_tier_packaging_drift.py
+
+      - name: Commercial tier packaging drift unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_commercial_tier_packaging_drift.py"
+
       - name: Integration recipe CloudEvent types vs catalog
         run: python scripts/ci/check_integration_recipes_link_alignment.py
 

@@ -1,11 +1,16 @@
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Identity;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -24,7 +29,10 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class AdminAuthDiagnosticsController(
     IAuthDiagnosticsRingBuffer authDiagnosticsRingBuffer,
     IOidcWellKnownDiagnosticsService oidcWellKnownDiagnosticsService,
-    ISamlOperationalDiagnosticsService samlOperationalDiagnosticsService) : ControllerBase
+    ISamlOperationalDiagnosticsService samlOperationalDiagnosticsService,
+    IOptionsMonitor<ArchLucidSamlAuthOptions> samlAuthOptionsMonitor,
+    ITenantIdentityProviderConfigurationRepository tenantIdentityProviderConfigurationRepository,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private const int MaxAuthDiagnosticsEntries = 200;
 
@@ -36,6 +44,16 @@ public sealed class AdminAuthDiagnosticsController(
 
     private readonly ISamlOperationalDiagnosticsService _samlOperationalDiagnosticsService =
         samlOperationalDiagnosticsService ?? throw new ArgumentNullException(nameof(samlOperationalDiagnosticsService));
+
+    private readonly IOptionsMonitor<ArchLucidSamlAuthOptions> _samlAuthOptionsMonitor =
+        samlAuthOptionsMonitor ?? throw new ArgumentNullException(nameof(samlAuthOptionsMonitor));
+
+    private readonly ITenantIdentityProviderConfigurationRepository _tenantIdentityProviderConfigurationRepository =
+        tenantIdentityProviderConfigurationRepository
+        ?? throw new ArgumentNullException(nameof(tenantIdentityProviderConfigurationRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <summary>
     ///     Returns the most recent IdP JWT role-mapping failures captured in the in-memory ring buffer.
@@ -79,5 +97,34 @@ public sealed class AdminAuthDiagnosticsController(
             await _samlOperationalDiagnosticsService.BuildAsync(cancellationToken);
 
         return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Returns host OIDC/SAML configuration checks, optional tenant SSO claim-mapping state, and bounded misconfiguration hints.
+    /// </summary>
+    [HttpGet("auth/configuration-diagnostics")]
+    [ProducesResponseType(typeof(AdminAuthConfigurationDiagnosticsResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminAuthConfigurationDiagnosticsResponse>> GetConfigurationDiagnostics(
+        CancellationToken cancellationToken)
+    {
+        AdminOidcDiagnosticsResponse oidc =
+            await _oidcWellKnownDiagnosticsService.BuildAsync(cancellationToken).ConfigureAwait(false);
+
+        AdminSamlOperationalHealthResponse saml =
+            await _samlOperationalDiagnosticsService.BuildAsync(cancellationToken).ConfigureAwait(false);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        TenantIdentityProviderConfigurationRecord? tenantRow = await _tenantIdentityProviderConfigurationRepository
+            .TryGetAsync(scope.TenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        AdminAuthConfigurationDiagnosticsResponse response = AuthConfigurationDiagnosticsComposer.Compose(
+            oidc,
+            saml,
+            _samlAuthOptionsMonitor.CurrentValue,
+            tenantRow);
+
+        return Ok(response);
     }
 }

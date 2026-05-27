@@ -56,4 +56,27 @@ public sealed class DatabaseMigrationScriptTests
                 $"DbUp predicate should include '{n}' (see {nameof(DatabaseMigrator)}.{nameof(DatabaseMigrator.Run)})");
         }
     }
+
+    [Fact]
+    public void Consolidated_system_ddl_file_lists_control_plane_tables()
+    {
+        string path = Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "ArchLucid.Persistence",
+            "Scripts",
+            "ArchLucid.System.sql");
+
+        path = Path.GetFullPath(path);
+        File.Exists(path).Should().BeTrue($"expected consolidated system DDL at {path}");
+
+        string ddl = File.ReadAllText(path);
+        ddl.Should().Contain("CREATE TABLE dbo.Tenants");
+        ddl.Should().Contain("CREATE TABLE dbo.TenantDatabaseBindings");
+        ddl.Should().Contain("CREATE TABLE dbo.WarmTenantCatalogStandby");
+        ddl.Should().NotContain("see ArchLucid.Persistence/Migrations/System");
+    }
 }

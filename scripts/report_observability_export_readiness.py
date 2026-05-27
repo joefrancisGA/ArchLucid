@@ -228,6 +228,10 @@ def _truthy_json(val: Any) -> bool:
     return False
 
 
+def require_telemetry_export_enabled(cfg: dict[str, Any]) -> bool:
+    return _truthy_json(get_colon(cfg, "ProductionValidation:RequireTelemetryExport"))
+
+
 def analyze_export_paths(cfg: dict[str, Any]) -> tuple[list[str], list[str]]:
     """
     Returns (active_path_labels, warnings_or_notes).
@@ -328,6 +332,8 @@ def compute_release_verdict(
     api: HostReport,
     worker: HostReport,
     include_process_environment: bool,
+    honor_require_telemetry_export_config: bool = False,
+    require_telemetry_export_from_config: bool = False,
 ) -> tuple[str, list[str]]:
     """
     PASS — Api and Worker both have ≥1 durable export path and no JSON merge errors.
@@ -357,6 +363,14 @@ def compute_release_verdict(
                     "often omit `Observability` entirely in-repo."
                 )
 
+            if honor_require_telemetry_export_config and require_telemetry_export_from_config:
+                reasons.append(
+                    "ProductionValidation:RequireTelemetryExport is true in merged appsettings but no durable export "
+                    "path is configured — **FAIL** for release readiness."
+                )
+
+                return "FAIL", reasons
+
             return "WARN", reasons
 
         reasons.append(
@@ -379,6 +393,8 @@ def compute_release_verdict(
         return "WARN", reasons
 
     return "PASS", []
+
+
 def build_host_report(
     *,
     json_paths: list[Path],
@@ -619,6 +635,11 @@ def main() -> int:
         action="store_true",
         help="Exit 1 unless telemetry verdict is PASS (see Summary — WARN includes JSON-only uncertainty or missing Worker export).",
     )
+    parser.add_argument(
+        "--honor-require-telemetry-export-config",
+        action="store_true",
+        help="When merged appsettings set ProductionValidation:RequireTelemetryExport=true, fail if no durable export path is active.",
+    )
 
     args = parser.parse_args()
     env_name: str = args.environment.strip()
@@ -638,10 +659,20 @@ def main() -> int:
         include_process_environment=include_env,
     )
 
+    merged_api_cfg, _ = load_merged_json_objects(api_config_paths(env_name))
+    effective_api_cfg = (
+        deep_merge(merged_api_cfg, environment_variables_as_config_layer())
+        if include_env
+        else merged_api_cfg
+    )
+    require_telemetry_flag = require_telemetry_export_enabled(effective_api_cfg)
+
     verdict, verdict_reasons = compute_release_verdict(
         api=api_report,
         worker=worker_report,
         include_process_environment=include_env,
+        honor_require_telemetry_export_config=args.honor_require_telemetry_export_config,
+        require_telemetry_export_from_config=require_telemetry_flag,
     )
 
     body = render_markdown(
@@ -661,6 +692,13 @@ def main() -> int:
     print(body, end="")
 
     if args.strict_exit_code and verdict != "PASS":
+        return 1
+
+    if (
+        args.honor_require_telemetry_export_config
+        and require_telemetry_flag
+        and not api_report.has_export
+    ):
         return 1
 
     return 0

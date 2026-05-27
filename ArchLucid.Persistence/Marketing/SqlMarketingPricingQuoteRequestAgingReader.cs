@@ -27,6 +27,9 @@ public sealed class SqlMarketingPricingQuoteRequestAgingReader(ISqlConnectionFac
                                CompanyName,
                                TierInterest,
                                CreatedUtc,
+                               Status,
+                               FirstResponseUtc,
+                               AssignedOwner,
                                AgeHours,
                                BreachStatus
                            FROM dbo.MarketingPricingQuoteRequestsAging
@@ -45,6 +48,9 @@ public sealed class SqlMarketingPricingQuoteRequestAgingReader(ISqlConnectionFac
                 row.CompanyName,
                 row.TierInterest,
                 row.CreatedUtc,
+                row.Status,
+                row.FirstResponseUtc,
+                row.AssignedOwner,
                 row.AgeHours,
                 row.BreachStatus))
             .ToList();
@@ -78,6 +84,24 @@ public sealed class SqlMarketingPricingQuoteRequestAgingReader(ISqlConnectionFac
         } = string.Empty;
 
         public DateTime CreatedUtc
+        {
+            get;
+            init;
+        }
+
+        public string Status
+        {
+            get;
+            init;
+        } = string.Empty;
+
+        public DateTime? FirstResponseUtc
+        {
+            get;
+            init;
+        }
+
+        public string? AssignedOwner
         {
             get;
             init;

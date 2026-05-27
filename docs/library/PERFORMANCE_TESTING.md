@@ -79,6 +79,16 @@ See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 API smoke (ope
 
 **What this budget proves:** on a **fresh SQL catalog** with **Simulator** agents and **DevelopmentBypass**, the **first-pilot-shaped API sequence** stays within **documented CI/pilot smoke ceilings** and does not regress sharply on latency or check failures versus recent baseline PRs.
 
+### Post-commit operator path (local / optional CI)
+
+**`tests/load/post-commit-operator-path.js`** extends the finish path with read-heavy routes after commit: run detail, manifest summary, artifacts, aggregate explanation, provenance, executive ROI summary, and sponsor packet download. Uses **`k6pc:*`** tags and writes `tests/load/results/post-commit-operator-path.json` (slowest tagged route in summary).
+
+```bash
+ARCHLUCID_BASE_URL=http://127.0.0.1:5128 K6_COMPRESS=1 k6 run tests/load/post-commit-operator-path.js
+```
+
+Tune via **`ARCHLUCID_K6_P95_TIER2_MS`**, **`ARCHLUCID_K6_P95_TIER3_MS`**, **`K6_POST_COMMIT_VUS`**, **`K6_POST_COMMIT_DURATION`**. Requires internal **seed-fake-results** (DevelopmentBypass) like **`k6-api-smoke.js`**.
+
 **What it does *not* prove:** production throughput, multi-tenant isolation under adversarial load, real LLM latency, or contractual SLO adherence — see **`docs/library/API_SLOS.md`** for product-facing targets and **`docs/library/LOAD_TEST_BASELINE.md`** for heavier manual Compose profiles.
 
 For environments **without** internal seed/commit (for example strict ApiKey-only targets), set **`ARCHLUCID_K6_OPERATOR_MINIMAL=1`** so the script stops after the authority runs list (legacy four-call operator slice).
