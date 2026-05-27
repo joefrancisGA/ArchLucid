@@ -38,7 +38,10 @@ export default function DecisionRegisterClient() {
 
   return (
     <div className="space-y-6 p-6">
-      <OperatorPageHeader title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE} lead={BUYER_GOVERNANCE_DECISION_REGISTER_LEAD} />
+      <OperatorPageHeader
+        title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
+        subtitle={BUYER_GOVERNANCE_DECISION_REGISTER_LEAD}
+      />
 
       {loading ? <p className="text-sm text-muted-foreground">Loading decision register…</p> : null}
 
