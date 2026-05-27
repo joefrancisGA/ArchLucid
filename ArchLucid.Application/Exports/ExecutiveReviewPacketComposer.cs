@@ -39,6 +39,7 @@ public static class ExecutiveReviewPacketComposer
         AppendRunSummarySection(sb, detail, executiveSummary, topFindingTitles);
         AppendPortfolioSignalsSection(sb, portfolioSignals);
         AppendRoiBasisSection(sb, roiSummary);
+        AppendRealizedValueSection(sb, roiSummary);
 
         return sb.ToString().TrimEnd() + Environment.NewLine;
     }
@@ -151,5 +152,32 @@ public static class ExecutiveReviewPacketComposer
 
         sb.AppendLine(
             $"**Estimated savings (USD):** {roiSummary.TotalEstimatedUsdSavings.ToString("N2", CultureInfo.InvariantCulture)}");
+    }
+
+    private static void AppendRealizedValueSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)
+    {
+        RealizedValueSummary? realized = roiSummary.RealizedValue;
+
+        if (realized is null)
+            return;
+
+        sb.AppendLine();
+        sb.AppendLine("## Realized value (computed)");
+        sb.AppendLine();
+        sb.AppendLine(
+            $"- **Findings remediated (30d):** {realized.FindingsRemediatedCount30Days.ToString(CultureInfo.InvariantCulture)}");
+
+        if (realized.MedianTimeToRemediationDays is not null)
+        {
+            sb.AppendLine(
+                $"- **Median time to remediation (days):** {realized.MedianTimeToRemediationDays.Value.ToString("0.#", CultureInfo.InvariantCulture)}");
+        }
+
+        sb.AppendLine(
+            $"- **Active waivers:** {realized.ActiveWaiversCount.ToString(CultureInfo.InvariantCulture)}");
+        sb.AppendLine(
+            $"- **Waivers retired (30d):** {realized.WaiversRetiredCount30Days.ToString(CultureInfo.InvariantCulture)}");
+        sb.AppendLine(
+            $"- **Waiver expiry reversions (30d):** {realized.WaiverExpiryReversionCount30Days.ToString(CultureInfo.InvariantCulture)}");
     }
 }

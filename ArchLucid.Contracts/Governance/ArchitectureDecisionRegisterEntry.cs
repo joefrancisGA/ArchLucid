@@ -57,6 +57,13 @@ public sealed class ArchitectureDecisionRegisterEntry
         init;
     }
 
+    /// <summary>Buyer-facing collapse of <see cref="ConfidenceSource" /> (Evidence-backed, Model-assisted, Unknown).</summary>
+    public string? BuyerConfidenceSource
+    {
+        get;
+        init;
+    }
+
     public DateTimeOffset RecordedAtUtc
     {
         get;

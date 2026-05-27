@@ -264,6 +264,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingReviewTrailAppendService, FindingReviewTrailAppendService>();
         services.AddScoped<IFindingDispositionService, FindingDispositionService>();
         services.AddScoped<IRiskExceptionService, RiskExceptionService>();
+        services.AddScoped<IRealizedValueAttestationService, RealizedValueAttestationService>();
         services.AddScoped<IArchitectureRiskRegisterService, ArchitectureRiskRegisterService>();
         services.AddScoped<IArchitectureDecisionRegisterService, ArchitectureDecisionRegisterService>();
         services.AddScoped<IGovernanceDigestDecisionNeededComposer, GovernanceDigestDecisionNeededComposer>();

@@ -1,4 +1,4 @@
-> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
+﻿> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
 # Tech backlog
 
@@ -20,17 +20,39 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-050 – TB-056** were added 2026-05-27 from a Decisioning explainability and uncertainty audit (`ArchLucid.Decisioning` — authority `RuleBasedDecisionEngine` / `RuleAuditTracePayload` vs coordinator `DecisionEngineV2` / `DecisionNode`). They close gaps where operators cannot trace manifest decisions to inputs, rules/prompts, and honest confidence. Cross-ref **TB-036** (provenance ↔ agent trace correlation), **TB-037** (provenance snapshot materialization). Canvas audit: `canvases/decisioning-explainability-audit.canvas.tsx` (IDE-only).
 
+**TB-057 – TB-063** were added 2026-05-27 from a commercial stickiness review. They do **not** create a parallel GRC product. They consolidate existing signed review package primitives — findings, monitored risks, manifest decisions, governance approvals, digests, ROI, compare/drift, audit, and integration correlations — into a recurring operating workflow. **TB-063** is explicitly **V1.1** because first-party ITSM productization is release-windowed there per [`V1_SCOPE.md`](V1_SCOPE.md) §2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6.
+
+**TB-064 – TB-070** were added 2026-05-27 from a DDL hygiene and migration-safety audit (`ArchLucid.Persistence` DbUp + `Scripts/ArchLucid.sql` + `Persistence.MigrateVerify`). They close gaps against the repo **one DDL file per DB** rule, journal-only verification, IaC/generated-schema drift, and rolling-deploy risk from non-additive migrations. **TB-065** and **TB-068** are deploy-safety critical; **TB-064** closes the system-catalog DDL gap; **TB-066**–**TB-067** are CI/docs parity; **TB-069**–**TB-070** are maintainability hygiene. Canvas audit: `canvases/ddl-hygiene-audit.canvas.tsx` (IDE-only).
+
+**TB-071 – TB-078** were added 2026-05-27 from a multi-tenancy and blast-radius audit (API ingress → Application → Persistence → Retrieval / knowledge graph → operator UI). They close gaps where `tenantId` is derived but not enforced at the query layer, and where cross-tenant data could leak via ID-only snapshot reads, unbound auth schemes, client-controlled scope headers, or retrieval index writes. **TB-071** and **TB-072** are security-critical (P0); **TB-073**–**TB-075** are high (P1); **TB-076**–**TB-078** are defense-in-depth (P2). Cross-ref **TB-048** / **RAG-V1-010** (retrieval query filter — partial; production Azure client still missing), **TB-010** (**INV-001** tenant boundary), **TB-005** (owner pen-test). Canvas audit: `canvases/multitenant-blast-radius-audit.canvas.tsx` (IDE-only).
+
+**TB-079 – TB-084** were added 2026-05-27 from a secrets, identity, and tool-sandboxing audit (`Integrations.AzureDevOps`, `Integrations.AzureExtractor`, agent tool surfaces, prompt-injection paths). No WIQL/LLM→ADO API injection path exists; the integration is event-driven with config-fixed targets. Identified gaps: unescaped markdown from compare data echoed into ADO PR bodies (**TB-079**, Low–Med); Azure OpenAI still using symmetric `ApiKey` instead of Entra/MI (**TB-080**, Info); Service Bus raw connection string permitted in production with no safety rule (**TB-081**, Info); `AgentTask.AllowedTools` advisory-only with no runtime enforcer at handler dispatch (**TB-082**, Med); `ArchLucidApiKey` header secret has no production Key Vault reference requirement (**TB-083**, Info); `SubscriptionId` not validated as GUID before ARM URL construction (**TB-084**, Low). Cross-ref **TB-005** (pen-test), **TB-072** (scope-to-identity binding).
+
+**TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
+
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Partial (Batch H, 2026-05-26) — **INV-002** persisted mode + trust card + operator UI badge; INV-004/012/013 remain | L |
 | TB-033 | Agent execution trace — persist LLM sampling params + reasoning token count | Forensic replay completeness — temperature / maxTokens / top_p and reasoning tokens are not on `AgentExecutionTrace` | XS |
-| TB-048 | Tenancy isolation hardening — retrieval index + query | Done (Batch G, 2026-05-26) — null policy-pack assignment safe default, Azure filter builder, tests | S |
+| TB-071 | Azure Search production client — wire tenant OData filter on every search/delete | Security (P0) — `AzureSearchTenantScopeFilterBuilder` exists but only `NotConfiguredAzureSearchClient` is registered; cross-tenant retrieval unverifiable in production | S–M |
+| TB-072 | Scope-to-identity binding at API ingress (ApiKey, DevBypass, header/claim reconciliation) | Security (P0) — ApiKey and DevBypass carry zero tenant claims; `x-tenant-id` alone resolves scope | M |
+| TB-073 | Scoped snapshot repository reads (findings / graph / context + relational child loads) | Security (P1) — `GetByIdAsync(Guid)` and child queries filter by snapshot/record ID only; IDOR in SingleCatalog mode | M |
+| TB-074 | Retrieval indexing write-path tenant validation | Security (P1) — `RetrievalIndexingService` copies `TenantId` from document metadata without validating against ambient `ScopeContext` | S |
+| TB-075 | Operator UI server-side scope (proxy strips client headers; SSR from session) | Security (P1) — browser `localStorage` and forwarded `x-tenant-id` choose tenant; SSR hardcodes dev GUIDs | S–M |
+| TB-082 | Agent `AllowedTools` — runtime enforcement at handler dispatch | Security (P2) — advisory/prompt-only allowlist; empty = unrestricted; no enforcer at `RealAgentExecutor` dispatch | S |
+| TB-079 | ADO PR markdown — sanitize `SummaryHighlights` + deep-link fields before writing PR comment body | Security (P2) — unescaped compare data echoed verbatim into ADO PR bodies; markdown/HTML injection risk | XS |
+| TB-083 | Service Bus — production safety rule: require namespace FQDN, disallow raw connection string | Security hardening — `IntegrationEvents:ServiceBusConnectionString` permitted in production with no Key Vault enforcement | XS |
+| TB-081 | `ArchLucidApiKey` — production safety rule: require Key Vault reference | Security hardening — long-lived API key in config with no enforcement rule analogous to ADO PAT guard | XS |
+| TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | Security hardening — symmetric key in config; Entra/MI reduces credential-rotation burden; aligns with blob/KV/ACS posture | S |
+| TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | Defense-in-depth — whitespace rejected but malformed IDs pass through to ARM without format guard | XS |
+| TB-048 | Tenancy isolation hardening — retrieval index + query | Done (Batch G, 2026-05-26) — null policy-pack assignment safe default, Azure filter builder, tests; **TB-071** closes remaining Azure client gap | S |
 | TB-045 | Embedding model identity and drift guard | Done (Batch G, 2026-05-26) — chunk metadata, mismatch metric, startup drift validator | S–M |
 | TB-049 | Retrieval IR eval harness — recall@k, MRR, golden dataset | Done (Batch E, 2026-05-26) — `eval_retrieval_ir.py` + `tests/eval-datasets/retrieval-golden/cases.json`; see **RAG-V1-011** | M |
 | TB-046 | Index freshness + ContentHash skip + indexer observability | Reliability — stale index undetected; `ContentHash` unused; startup indexer fail-open; see **RAG-V1-008** | S–M |
 | TB-047 | Chunking strategy fingerprint and invalidation | Correctness — mixed-generation chunks when chunker defaults change; see **RAG-V1-009** | S |
+| TB-087 | Findings backfill slice — DB-level idempotency (remove double COUNT race) | Correctness — service + repo both gate on `COUNT(1)` without UNIQUE/MERGE; concurrent reruns can duplicate `FindingRecords` | XS–S |
 | TB-034 | Degraded-handler minimal `AgentExecutionTrace` rows | Support / honesty — resilience fallbacks (`AgentHandlerDegradedResultFactory`) write no trace; prompts and model calls are unrecoverable | S |
 | TB-050 | Manifest `ResolvedArchitectureDecision` — confidence + `ConfidenceSource` | Operator correctness — decision rows carry zero uncertainty; upstream nullable scores coerced without provenance | S |
 | TB-051 | Decisioning V2 merge — consume `CalibratedConfidence` | Uncertainty honesty — calibration written on `AgentResult` but merge strategies use raw `Confidence` + hardcoded priors | S |
@@ -39,6 +61,14 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-054 | Unified run decision explainability API (authority audit + V2 nodes) | Operator UX — two non-unified decision records per authority run | M |
 | TB-055 | Propagate `AgentResult.ReasoningTrace` into `Finding` explainability | Forensic replay — LLM reasoning dropped at `FindingFactory` boundary | S |
 | TB-056 | Decisioning partial-failure surfacing + sentinel trace inflation guard | Operator honesty — per-engine failures continue silently; completeness sentinel counts as populated | S–M |
+| TB-057 | Architecture risk register framing over governance findings | Stickiness — make `/governance/findings` behave like an owned risk register without creating a duplicate risk subsystem | S–M |
+| TB-058 | Finding disposition workflow API + UI | Stickiness / trust — wire existing `FindingReviewEvents` into accept, defer, needs-evidence, remediated decisions | M |
+| TB-059 | First-class waiver / exception records | Governance stickiness — waiver rationale, owner, expiry, evidence, and audit make risk acceptance operationally durable | M |
+| TB-060 | Review-package decision register consolidation | Executive value — surface manifest decisions + approval lineage as the authoritative decision history | S |
+| TB-061 | Decision-needed governance digest | Recurrence — turn existing digests into weekly/monthly management packets with stale risks, expiring waivers, and decisions needed | S–M |
+| TB-089 | Digest delivery scanners — record delivery before send (ACA retry idempotency) | Operator correctness — weekly/exec digest jobs may resend on Container Apps retry if delivery is logged after send | S |
+| TB-062 | Executive dashboard live KPI replacement | Trust / ROI — remove illustrative KPI cards where live ROI/drift data exists; fewer real numbers beat broader mock-looking metrics | S |
+| TB-063 | ITSM one-click issue creation from findings — **V1.1** | Workflow embeddedness — expose existing outbound ITSM create/correlation in UI; first-party Jira/ServiceNow productization belongs to V1.1 | M |
 | TB-035 | Persist intermediate LLM attempts on schema-remediation retries | Forensic replay — `LlmAgentSchemaCompletion` records only the final attempt; earlier prompts/responses are metric-only | M |
 | TB-036 | Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace` | Done (Batch F, 2026-05-26) — `ProvenanceCorrelationId`, finding node trace id, API field | M |
 | TB-037 | Production write path for `DecisionProvenanceSnapshot` | Performance + durability — `IProvenanceSnapshotRepository.SaveAsync` has no callers; graph rebuilt on every API read | S |
@@ -52,7 +82,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
 | TB-027 | Introduce `IAgentExecutor` port — eliminate AgentSimulator coupling from production assemblies | Done (Batch H, 2026-05-26) — Core `FakeScenarioFactory`, port-only AgentRuntime/Cost/Host.Core, positive-list Architecture.Tests | M |
 | TB-028 | Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition | Composition-root discipline — Api entry point directly names an infrastructure adapter; violates single-composition-root rule | XS |
-| TB-029 | Replace `Decisioning → Notifications` with domain events | Domain/infrastructure decoupling — domain analysis service hard-coupled to notification infrastructure; correct pattern is domain events + host-layer subscriber | M–L |
+| TB-029 | Replace `Decisioning → Notifications` with domain events | Domain/infrastructure decoupling — domain analysis service hard-coupled to notification infrastructure; correct pattern is domain events + host-layer subscriber | M–L | **Shipped 2026-05-27** — `ArchLucid.Decisioning` no longer references `ArchLucid.Notifications`; delivery channels register in `Host.Composition`; `DecisioningNotificationsBoundaryArchitectureTests` |
 | TB-030 | Architecture.Tests gap closure — add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s | Done (Batch H, 2026-05-26) — csproj refs + Mcp/Integrations/Jobs.Cli/AgentSimulator allowlist facts; Api→AzureExtractor `_by_design` until TB-028 | S |
 | TB-031 | Disambiguate ArtifactSynthesis / Decisioning layer position | Architecture maintainability — both are nominally at the same layer but ArtifactSynthesis depends on Decisioning; needs explicit layer decision or type extraction | XS–S |
 | TB-032 | Replace `Mcp → Retrieval` direct coupling with a query port | Infrastructure/application boundary — MCP adapter bypasses port abstraction and directly couples to Retrieval's concrete implementation and its transitive application-layer deps | M |
@@ -72,6 +102,20 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-016 | ITSM + chat vendor sandbox accounts — provision, secrets, inbound webhooks — for recurring live smoke | Trust / interoperability — mocks are not proofs; gated CI + CONNECTOR_READINESS_MATRIX need operator-owned URLs + tokens | S–M |
 | TB-017 | Trial orphaned-catalog teardown SOP + only then tighten unattended `Trial:Lifecycle` purge | Hosted COGS — idle dormant trials burn negligible AOAI; manual Azure SQL/catalog drop suffices at low cardinality (`TRIAL_AND_SIGNUP` §4, `TRIAL_LIFECYCLE`) | S |
 | TB-018 | Warm tenant catalogs in elastic pool — replenish + fast claim (`RunTenant`-skip path) | Signup SLA — elastic pool amortizes DDL; standby empties shorten hot path (`TENANT_DATABASE_TOPOLOGY` Operational notes warm catalogs) | M |
+| TB-065 | MigrateVerify — deployed schema vs DDL drift detection | Deploy safety — journal-only check misses column/type/index drift and manual DDL edits on live catalogs | M |
+| TB-076 | Run-child SQL scope predicates + in-memory repository tenant keys | Security (P2) — `AgentTask`, `AgentExecutionTrace`, `EvidenceBundle` query by `RunId` only; in-memory snapshot repos globally keyed | S–M |
+| TB-077 | Operator UI resource ownership checks + governance mutation path hardening | Security (P2) — dynamic routes use ID only; `recordFindingDisposition` keys on `findingId` without required `runId` | S |
+| TB-078 | Cross-tenant isolation integration test matrix | Security (P2) — no tests for snapshot IDOR, indexing tenant mismatch rejection, or Azure filter wiring | S |
+| TB-068 | DbUp migration rolling-deploy guardrails (CI lint + runbook) | Reliability — non-additive migrations (215 NOT NULL, 223 UNIQUE+DELETE) break old pods during rolling deploy | S–M |
+| TB-088 | Container App jobs — per-entity error isolation in multi-tenant loops | Reliability — `trial-lifecycle` / `advisory-scan` abort whole job on first entity failure; ACA retries healthy work repeatedly | S |
+| TB-064 | System catalog consolidated DDL (`ArchLucid.System.sql`) | Repo SQL discipline — one DDL file per DB; system plane fragmented across three migration scripts only | S |
+| TB-066 | CI gate — `ArchLucid_Unified_Schema.sql` matches generator output | IaC drift — generated tenant schema can silently diverge from `ArchLucid.sql` | XS |
+| TB-067 | `SQL_SCRIPTS.md` migration catalog — backfill 051–227 + automation | Ops/docs honesty — §4.2 documents fewer than 30% of forward migrations | S |
+| TB-085 | SqlRelationalBackfill — paged entity scans + durable checkpoint table | Ops at scale — all header IDs loaded into memory; no resume cursor after interrupt | M |
+| TB-086 | SqlRelationalBackfill — poison-row quarantine (`BackfillFailures` + `--max-retries`) | Ops safety — corrupt JSON rows retried forever; no skip-after-N-failures | S |
+| TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | Ops observability — console-only output; no machine-readable report for CI/pipelines | XS |
+| TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
+| TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
 | TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | Paid + organic honesty — **`SEO_AND_PAID_ACQUISITION.md`** data flow requires measurable **`TenantProvisioningService`** outcomes; avoids raw-UTM metric cardinality explosions | M |
 | TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | SERP + honest analytics posture | S–M |
 
@@ -909,6 +953,8 @@ The Api entry point is an HTTP host, not a composition root. Naming a specific i
 
 ## TB-029 — Replace `Decisioning → Notifications` with domain events
 
+**Status:** **Shipped 2026-05-27.** `ArchLucid.Decisioning` removed the `ArchLucid.Notifications` project reference; webhook/chat-ops delivery channels remain in `ArchLucid.Notifications` and register from `ArchLucid.Host.Composition` only. Architecture tests: `Decisioning_must_not_reference_Notifications_assembly`, `DecisioningNotificationsBoundaryArchitectureTests`.
+
 **Source:** Dependency graph audit (2026-05-26). `ArchLucid.Decisioning` carries a direct `<ProjectReference>` to `ArchLucid.Notifications`. Decisioning is a domain analysis service (L2); Notifications is an infrastructure concern (L1/L4 depending on the implementation). The current `Decisioning_csproj_references_Notifications_by_design` test acknowledges the coupling without a resolution path.
 
 **Problem:**
@@ -1484,11 +1530,11 @@ Full execute retry (see **TB-039**) appends additional trace rows for the same l
 
 ## TB-048 — Tenancy isolation hardening (retrieval)
 
-**Status:** Done (Batch G, 2026-05-26).
+**Status:** Done (Batch G, 2026-05-26). **Remaining gap:** production Azure Search client + delete path — see **TB-071** / **RAG-V1-010** P1.
 
 **Source:** Retrieval correctness & drift audit (2026-05-26). `InMemoryVectorIndex` treats `AllowedPolicyPackRulePackIds == null` as allow-all for policy packs. Azure Search filter path not auditable in-repo.
 
-**What to do:** See **RAG-V1-010**. **P0:** safe default on null assignment list + integration test. **P1:** Azure Search tenant `$filter` when client ships.
+**What to do:** See **RAG-V1-010**. **P0:** safe default on null assignment list + integration test. **P1:** Azure Search tenant `$filter` when client ships — tracked as **TB-071**.
 
 **Schedule under:** **TB-021** — treat as **security** item; pick up before broad MCP retrieval exposure (**TB-032**).
 
@@ -1737,3 +1783,1442 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 
 ---
 
+## TB-057 — Architecture risk register framing over governance findings
+
+**Source:** Commercial stickiness review (2026-05-27). ArchLucid already has cross-review findings, monitored risks, signed manifests, governance decisions, and audit. The gap is not a missing risk engine; it is that operators do not see one durable, owned risk register over time.
+
+**Problem:**
+
+`/governance/findings` already aggregates findings and decisions, but it reads like a findings queue rather than a customer-owned architecture risk register. Without owner, disposition, due date, review cadence, waiver expiry, aging, and correlation columns, ArchLucid can still feel like a point-in-time assessment tool.
+
+**What to do:**
+
+1. Reframe `/governance/findings` as the **Architecture Risk Register** in operator copy, nav labels, and empty states where appropriate. Avoid introducing a separate `RiskRegister` aggregate unless existing findings/manifest semantics cannot represent the workflow.
+2. Add risk-register columns and filters backed by existing or newly added finding-review metadata: owner, disposition, due date, review cadence, last reviewed UTC, aging, waiver expiry, severity, status, and linked review / manifest.
+3. Treat manifest **monitored risks** and warning-severity findings as register entries when they cross review boundaries.
+4. Add stale-risk logic: a risk is stale when it has no review event after the configured cadence, or when its waiver expires.
+5. Keep export shape buyer-friendly: system, risk, impact, owner, decision needed, current disposition, evidence link, last reviewed, next review.
+
+**Acceptance criteria:**
+
+- An operator can answer "what risks do we own right now?" from `/governance/findings` without opening individual reviews.
+- Findings, monitored risks, and manifest decisions are linked, not duplicated into a second subsystem.
+- Stale risks and expiring waivers are visible in list filters.
+- Export uses buyer-facing language and cites review / manifest evidence.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/governance/findings/`
+- `ArchLucid.Api/Controllers/Governance/*`
+- `ArchLucid.Application/Governance/*`
+- `ArchLucid.Persistence/Governance/*`
+- `ArchLucid.Contracts/Findings/*`
+- `docs/library/GOVERNANCE_WORKFLOW_UI.md`
+
+**Size estimate:** **S–M** — mostly UI/query projection if **TB-058** supplies disposition metadata.
+
+---
+
+## TB-058 — Finding disposition workflow API + UI
+
+**Source:** Commercial stickiness review (2026-05-27). `dbo.FindingReviewEvents` / review-trail plumbing exists and appears to feed ROI rollups, but operators need a visible workflow for accepting, deferring, requesting evidence, and marking remediation.
+
+**Problem:**
+
+Finding feedback and advisory recommendation statuses exist, but there is no obvious public operator loop for durable finding disposition. That weakens trust and stickiness because ArchLucid remembers analysis, but not enough of the human decision trail.
+
+**What to do:**
+
+1. Add a small API over `FindingReviewEvents` for dispositions: `Accepted`, `Deferred`, `NeedsEvidence`, `Remediated`, and `RejectedAsNotApplicable`.
+2. Require rationale for `Accepted`, `Deferred`, and `RejectedAsNotApplicable`; require revisit date for `Deferred`; require evidence request text for `NeedsEvidence`.
+3. Add list and detail UI actions on finding inspect and governance findings queue.
+4. Surface latest disposition, actor, timestamp, and rationale on finding detail.
+5. Emit durable audit events for each disposition change.
+6. Feed disposition changes into existing ROI/value rollups only when the status represents real work completed or risk accepted; do not count mere clicks as value.
+
+**Acceptance criteria:**
+
+- A finding can be dispositioned without leaving ArchLucid.
+- Latest disposition and full history are visible.
+- Audit trail includes actor, timestamp, finding id, run id, disposition, and rationale metadata.
+- Deferred findings appear in a revisit-needed filter when their revisit date arrives.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Scripts/ArchLucid.sql`
+- `ArchLucid.Persistence/*FindingReview*`
+- `ArchLucid.Api/Controllers/*`
+- `ArchLucid.Application/*FindingReview*`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/`
+- `archlucid-ui/src/app/(operator)/governance/findings/`
+- `ArchLucid.Api.Client/Generated/ArchLucidApiClient.g.cs` after OpenAPI regeneration
+
+**Size estimate:** **M** — API, persistence, UI, audit, and tests.
+
+---
+
+## TB-059 — First-class waiver / exception records
+
+**Source:** Commercial stickiness review (2026-05-27). Waivers are the highest-leverage missing governance object because enterprise buyers need controlled risk acceptance, expiry, and evidence.
+
+**Problem:**
+
+ArchLucid has governance approvals, policy packs, findings, audit, and copy around accepted risks, but no first-class waiver / exception workflow with rationale, owner, expiration, linked evidence, and renewal/expiry behavior. A simple "accepted" status is not enough for enterprise governance.
+
+**What to do:**
+
+1. Add a `Waiver` / `RiskException` model linked to finding id, run id, manifest id, policy rule id when available, tenant, owner, expiration UTC, rationale, and evidence links.
+2. Store DDL in the single consolidated SQL file plus DbUp migration per repo SQL discipline.
+3. Require expiration and rationale; no indefinite waiver without an explicit owner decision.
+4. Wire waiver create/renew/expire/revoke flows through the same governance approval and audit posture used elsewhere.
+5. Surface expiring and expired waivers in `/governance/findings`, governance dashboard, and digest inputs.
+6. Make waiver effects explicit: waived risk is not "fixed"; it remains monitored until remediated or expired.
+
+**Acceptance criteria:**
+
+- Waiver creation requires rationale, owner, evidence, and expiration.
+- Expired waivers re-open decision-needed state.
+- Audit export can prove who accepted risk and why.
+- Digests and risk-register filters highlight expiring waivers.
+
+**Affected files / projects:**
+
+- `ArchLucid.Contracts/Governance/*`
+- `ArchLucid.Persistence/Scripts/ArchLucid.sql`
+- `ArchLucid.Persistence/Governance/*`
+- `ArchLucid.Application/Governance/*`
+- `ArchLucid.Api/Controllers/Governance/*`
+- `archlucid-ui/src/app/(operator)/governance/*`
+- `docs/library/STATE_MACHINES.md`
+- `docs/library/AUDIT_COVERAGE_MATRIX.md`
+
+**Size estimate:** **M** — new governed object, but can reuse approval/audit patterns.
+
+---
+
+## TB-060 — Review-package decision register consolidation
+
+**Source:** Commercial stickiness review (2026-05-27). `ResolvedArchitectureDecision`, signed manifests, approval lineage, rationale endpoints, and audit already form a decision record system, but the product should expose that fact directly.
+
+**Problem:**
+
+Manifest decisions are valuable, but users may experience them as run artifacts instead of a durable decision register. Creating a separate ADR-like store would duplicate the source of truth and create reconciliation problems.
+
+**What to do:**
+
+1. Add a **Decision Register** view over existing signed manifest decisions, governance approval lineage, and audit events.
+2. Link each decision to review, manifest, supporting findings, rationale, approval request, and current environment activation when available.
+3. Add filters for decision category, status, environment, date, owner/approver, and confidence source after **TB-050** ships.
+4. Use executive language: decision made, evidence, risk if ignored, business impact, owner, and next review.
+5. Do not add a new decision table unless a required field cannot be derived from manifest + approval + audit history.
+
+**Acceptance criteria:**
+
+- Operators can browse durable decisions across reviews without opening each manifest manually.
+- Each decision can be traced to supporting findings and approval lineage.
+- The view labels uncertainty / confidence source when available.
+- There is no second, conflicting decision lifecycle.
+
+**Affected files / projects:**
+
+- `ArchLucid.Core/Manifest/ResolvedArchitectureDecision.cs`
+- `ArchLucid.Api/Controllers/Governance/*`
+- `ArchLucid.Application/Governance/*`
+- `archlucid-ui/src/app/(operator)/governance/*`
+- `archlucid-ui/src/app/(operator)/manifests/[manifestId]/`
+
+**Size estimate:** **S** — mostly query/view consolidation if existing lineage endpoints are sufficient.
+
+---
+
+## TB-061 — Decision-needed governance digest
+
+**Source:** Commercial stickiness review (2026-05-27). Existing digests and executive email plumbing can drive recurring management rhythm if they focus on decisions, stale risk, and value delivered.
+
+**Problem:**
+
+Generic summaries do not create durable operating habits. A sticky digest must tell leaders what changed, what decision is needed, which risks are stale, which waivers are expiring, and what value was delivered.
+
+**What to do:**
+
+1. Extend digest generation with a **decision-needed** section: approvals pending, stale risks, deferred items due, expiring waivers, high-severity unowned findings, and evidence requests.
+2. Add "what changed since last digest" using compare / recent delta / compliance drift sources.
+3. Add "value delivered" using live ROI and completed disposition events, with assumptions visible and no fake precision.
+4. Support role-aware variants: executive, architect, compliance, and engineering.
+5. Keep scheduling and delivery on existing digest subscription / exec digest paths.
+
+**Acceptance criteria:**
+
+- A weekly digest can drive a governance meeting without manual assembly.
+- Digest separates FYI from "decision needed".
+- Each item links to finding, decision, waiver, approval, or evidence.
+- No mock values are included in customer-facing digest output.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Advisory/*`
+- `ArchLucid.Application/Advisory/*Digest*`
+- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+- `ArchLucid.Persistence/Governance/*`
+- `archlucid-ui/src/app/(operator)/digests/`
+- `docs/library/PRODUCT_PACKAGING.md`
+
+**Size estimate:** **S–M** — projection and template work over existing data.
+
+---
+
+## TB-062 — Executive dashboard live KPI replacement
+
+**Source:** Commercial stickiness review (2026-05-27). Executive Value Visibility and Proof-of-ROI Readiness improve more from fewer live, defensible numbers than from broader illustrative dashboards.
+
+**Problem:**
+
+Any executive card that mixes live ROI with mock or illustrative KPIs weakens trust. Buyers will treat the whole dashboard as less reliable if they cannot tell what is measured versus sample/demo content.
+
+**What to do:**
+
+1. Inventory executive dashboard cards and identify which are live, mock, illustrative, or simulator-backed.
+2. Replace mock KPI cards with `ExecutiveRoiSummary`, compliance drift trend, finding disposition counts, waiver expiry counts, and completed-review counts where live data exists.
+3. Clearly label simulator/demo values if they remain in demo-only routes; do not show them in production executive surfaces.
+4. Prefer fewer cards with inspectable assumptions over a comprehensive dashboard with weak provenance.
+5. Add regression tests or fixture assertions that production executive pages do not import mock KPI modules.
+
+**Acceptance criteria:**
+
+- Production executive dashboard uses live APIs or explicit empty states.
+- No mock-looking KPI appears without a demo/simulator label.
+- ROI assumptions are inspectable.
+- Executive page can answer top risks, decisions needed, and value delivered.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/dashboard/`
+- `archlucid-ui/src/app/(operator)/executive/`
+- `archlucid-ui/src/lib/*executive*mock*`
+- `ArchLucid.Api/Controllers/Analytics/RoiAnalyticsController.cs`
+- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+
+**Size estimate:** **S** — UI cleanup plus data-source alignment.
+
+---
+
+## TB-063 — ITSM one-click issue creation from findings — **V1.1**
+
+**Source:** Commercial stickiness review (2026-05-27) plus owner scope: first-party Jira / ServiceNow productization is **V1.1**, not V1 GA. See [`V1_SCOPE.md`](V1_SCOPE.md) §2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6.
+
+**Problem:**
+
+ArchLucid has backend ITSM primitives (`POST /v1/integrations/itsm/outbound/issues`, `ItsmFindingCorrelations`, inbound webhook sync), but the UI appears closer to copy-as-work-item than one-click operational embedding. That leaves workflow stickiness on the table. However, first-party ITSM is explicitly V1.1 scope, so this must not be treated as a V1 GA blocker.
+
+**What to do in V1.1:**
+
+1. Add a one-click **Create Jira issue** / **Create ServiceNow incident** action from finding detail and risk-register rows when tenant ITSM settings are configured.
+2. Reuse `POST /v1/integrations/itsm/outbound/issues`; do not create target-specific finding projection schemas.
+3. Show existing external issue link when `ItsmFindingCorrelations` already has a row; prevent duplicate creation or require explicit override.
+4. Preserve evidence links, recommended action, severity, owner, due date, waiver/disposition state, and expected outcome in created work items.
+5. Surface sync status and last inbound update on the finding/risk row.
+6. Keep credentials in Key Vault / configuration references; no secrets in source or SQL rows beyond approved secret-name references.
+
+**Acceptance criteria for V1.1:**
+
+- From a finding, an operator can create a Jira / ServiceNow item without copying Markdown manually.
+- Duplicate creation is blocked or clearly warned.
+- ArchLucid stores and displays the external issue URL/id.
+- Inbound status sync updates the finding state according to configured mapping.
+- Audit events capture create success, skip, failure, and inbound status update.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`
+- `ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs`
+- `ArchLucid.Application/Integrations/Itsm/*`
+- `ArchLucid.Persistence/Scripts/ArchLucid.sql`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/`
+- `archlucid-ui/src/app/(operator)/governance/findings/`
+- `docs/go-to-market/INTEGRATION_CATALOG.md`
+- `docs/library/V1_SCOPE.md` §2.13 if scope changes
+
+**Size estimate:** **M** — UI productization over existing backend, plus sync-state display and tests.
+
+---
+
+## TB-064 — System catalog consolidated DDL (`ArchLucid.System.sql`)
+
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). Tenant catalog has a proper consolidated file (`ArchLucid.Persistence/Scripts/ArchLucid.sql`); system catalog does not.
+
+**Problem:**
+
+`ArchLucid.System.sql` is a nine-line pointer stub. System-plane objects (`Tenants` directory shape, `TenantDatabaseBindings`, `TenantDatabaseProvisioningJobs`, warm-catalog standby) exist only as three discrete files under `Migrations/System/`. That violates the repo **one DDL file per DB** rule and makes greenfield system-catalog provisioning harder to review than tenant DDL.
+
+**What to do:**
+
+1. Author a full idempotent consolidated `ArchLucid.Persistence/Scripts/ArchLucid.System.sql` mirroring the tenant pattern (`IF OBJECT_ID … IS NULL` + inline indexes).
+2. Keep `Migrations/System/001–003` as the authoritative DbUp upgrade path for brownfield; update consolidated DDL whenever those migrations change.
+3. Wire `SqlSchemaBootstrapper` (or a dedicated system bootstrapper) into the system-catalog startup path after `DatabaseMigrator.RunSystem`, matching tenant **DbUp-first → bootstrap** order documented in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §1.
+4. Update [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §2 inventory and the schema-change checklist in §5.
+5. Extend `DatabaseMigrationScriptTests` or a small architecture test asserting system consolidated DDL exists and lists expected tables.
+
+**Acceptance criteria:**
+
+- One readable consolidated DDL file describes the entire system catalog.
+- Greenfield system catalog provisioning does not require reading three migration files.
+- Forward system migrations and consolidated DDL stay in parity (same rule as tenant `ArchLucid.sql`).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Scripts/ArchLucid.System.sql`
+- `ArchLucid.Persistence/Migrations/System/*.sql`
+- `ArchLucid.Persistence/Sql/SqlSchemaBootstrapper.cs`
+- `ArchLucid.Host.Core/Startup/ArchLucidPersistenceStartup.cs`
+- `docs/library/SQL_SCRIPTS.md`
+
+**Size estimate:** **S** — ~4–8 h.
+
+---
+
+## TB-065 — MigrateVerify — deployed schema vs DDL drift detection
+
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). `Persistence.MigrateVerify` applies DbUp only; it does not compare live schema to DDL.
+
+**Problem:**
+
+`ArchLucid.Persistence.MigrateVerify` runs `DatabaseMigrator.Run` against an empty catalog and asserts `dbo.SchemaVersions` has rows. `DbUpMigrationStatusEvaluator` compares **embedded script names** to journal rows only. Neither detects:
+
+- Column-level drift (missing columns, wrong nullability or types)
+- Divergence between DbUp migrations and `ArchLucid.sql` bootstrap output
+- Manual DDL edits on a live database
+- Rewritten migration script content (journal name unchanged)
+
+**What to do:**
+
+1. After DbUp (and optional bootstrap), query `INFORMATION_SCHEMA.COLUMNS`, `sys.indexes`, and `sys.foreign_keys` for a curated sentinel set of tables/columns/indexes derived from `ArchLucid.sql` (or a compiled manifest checked into the repo).
+2. Fail CI when live catalog shape differs from expected manifest.
+3. Optionally: provision two empty catalogs — DbUp-only vs DbUp+bootstrap — and assert zero structural drift between them (closes the two-pathway gap in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §1).
+4. Extend Tier 1.5 GitHub Actions job (or add a sibling job) to run the drift check after existing MigrateVerify.
+5. Document operator interpretation in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §6 troubleshooting.
+
+**Acceptance criteria:**
+
+- CI fails when a forward migration ships without matching `ArchLucid.sql` column/index parity (beyond the existing PR diff gate on file touch).
+- CI fails when a catalog is missing a sentinel column or index after MigrateVerify.
+- Drift report names table, object, expected vs actual (actionable for DBAs).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence.MigrateVerify/Program.cs`
+- `ArchLucid.Persistence/Data/Infrastructure/DbUpMigrationStatusEvaluator.cs` (or new evaluator)
+- `ArchLucid.Persistence.Tests/` (fixture + contract tests)
+- `scripts/ci/` (new or extended check)
+- `.github/workflows/` (Tier 1.5 job)
+- `docs/library/SQL_SCRIPTS.md`
+
+**Size estimate:** **M** — ~1–2 eng days.
+
+---
+
+## TB-066 — CI gate — `ArchLucid_Unified_Schema.sql` matches generator output
+
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). `ArchLucid_Unified_Schema.sql` is generated by `scripts/ci/build_archlucid_unified_schema_sql.py` for IaC alignment but is not validated in CI.
+
+**Problem:**
+
+The checked-in unified schema file can drift from `ArchLucid.sql` when developers update migrations and consolidated DDL but forget to regenerate. There is no merge-blocking check analogous to OpenAPI contract snapshots.
+
+**What to do:**
+
+1. Add `scripts/ci/check_archlucid_unified_schema_snapshot.ps1` / `.sh` (or extend an existing script) that runs the generator and diffs output against `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`.
+2. Wire the check into PR CI (same posture as `check_openapi_contract_snapshot`).
+3. Document regenerate command in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §2 and schema-change checklist §5.
+4. Optionally pair with `update_archlucid_unified_schema_snapshot` helper scripts mirroring OpenAPI update scripts.
+
+**Acceptance criteria:**
+
+- PR fails when unified schema snapshot is stale.
+- Contributor docs state when to run the update script (any `ArchLucid.sql` change).
+
+**Affected files / projects:**
+
+- `scripts/ci/build_archlucid_unified_schema_sql.py`
+- `scripts/ci/check_archlucid_unified_schema_snapshot.*`
+- `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`
+- `docs/library/SQL_SCRIPTS.md`
+
+**Size estimate:** **XS** — ~2–4 h.
+
+---
+
+## TB-067 — `SQL_SCRIPTS.md` migration catalog — backfill 051–227 + automation
+
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). §4.2 catalog stops around migration ~050 plus a handful of later entries; migrations **051–227** are largely undocumented.
+
+**Problem:**
+
+Operators and contributors cannot rely on [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §4.2 for deploy history or intent. The schema-change checklist requires updating §4.2 for every migration, but enforcement has lapsed (~170 migrations missing).
+
+**What to do:**
+
+1. Backfill §4.2 with one-line summaries for migrations **051–227** (parse migration file headers where present; otherwise derive from filename and first comment block).
+2. Add a CI script that fails when the highest `Migrations/NNN_*.sql` number exceeds the highest documented entry in §4.2 (or when a new forward migration lands without a catalog line).
+3. Prefer generating the catalog table from migration metadata to avoid manual drift (optional follow-up within this item).
+4. Cross-link rolling-deploy notes for known risky migrations (**215**, **223**, **214**, **116**, **216**) to **TB-068** runbook.
+
+**Acceptance criteria:**
+
+- §4.2 documents every forward migration through the current highest number.
+- New forward migration PRs cannot merge without a catalog entry (CI or review bot).
+
+**Affected files / projects:**
+
+- `docs/library/SQL_SCRIPTS.md`
+- `scripts/ci/` (catalog freshness check)
+- `ArchLucid.Persistence/Migrations/*.sql`
+
+**Size estimate:** **S** — ~4–8 h for backfill + gate.
+
+---
+
+## TB-068 — DbUp migration rolling-deploy guardrails (CI lint + runbook)
+
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). Several shipped migrations are not zero-downtime safe for rolling deploy.
+
+**Problem:**
+
+Forward migrations can break old application pods when schema changes are not purely additive:
+
+| Migration | Risk |
+|-----------|------|
+| **215** `ScopeColumnsNotNull` | `ALTER NOT NULL` after backfill — old app writing NULL fails |
+| **223** `AgentExecutionTraces_RunTaskAgentType_Unique` | Deletes duplicates then `CREATE UNIQUE INDEX` — old app can recreate duplicates |
+| **214** / **116** | `CHECK` constraints reject legacy values |
+| **216** | Drops old unique index before adding filtered replacement — uniqueness gap |
+
+There is no CI lint forbidding these patterns in new migrations and no operator runbook for coordinated deploy order.
+
+**What to do:**
+
+1. Author `docs/runbooks/ROLLING_DEPLOY_MIGRATIONS.md` with required patterns: nullable add → backfill → NOT NULL; `WITH NOCHECK` for CHECK/FK; add-new-index-before-drop-old; deploy app before enforcing UNIQUE.
+2. Add CI static analysis over new/changed `Migrations/NNN_*.sql` files flagging: bare `ALTER COLUMN … NOT NULL` without prior nullable-add migration in same PR; `DELETE` before `CREATE UNIQUE`; `DROP INDEX` before replacement `CREATE UNIQUE` in same script.
+3. Annotate known historical migrations in §4.2 (via **TB-067**) with **rolling-deploy: coordinated** tags.
+4. For future breaking changes, require paired application change + feature flag note in migration header comment block.
+
+**Acceptance criteria:**
+
+- New migrations matching anti-patterns fail CI unless explicitly allow-listed with justification comment.
+- Runbook linked from [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §5 checklist and [`MIGRATION_ROLLBACK.md`](../runbooks/MIGRATION_ROLLBACK.md).
+- On-call can determine deploy order (migrate vs app first) from migration catalog tags.
+
+**Affected files / projects:**
+
+- `docs/runbooks/ROLLING_DEPLOY_MIGRATIONS.md` (new)
+- `scripts/ci/` (migration pattern linter)
+- `docs/library/SQL_SCRIPTS.md`
+- `ArchLucid.Persistence/Migrations/*.sql` (header annotations only for historical items)
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-069 — Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path
+
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). Baseline runner stamps migrations **001–050** into `SchemaVersions` without always executing them, with complex drift-repair branches.
+
+**Problem:**
+
+`GreenfieldBaselineMigrationRunner` handles partial CI catalog drift (tenant tables present but journal incomplete) via multiple catch-and-stamp code paths. This is hard to reason about, untested against edge cases (RLS, columnstore, mixed schema names), and performs no post-stamp schema verification (**TB-065** would close verification separately).
+
+**What to do:**
+
+1. Document current runner behavior and all drift branches in [`SQL_SCRIPTS.md`](SQL_SCRIPTS.md) §4.0 with a sequence diagram.
+2. Evaluate replacing multi-branch stamp logic with a single idempotent migration that records **001–050** as applied when sentinel tenant tables exist and journal is empty/inconsistent — without re-executing DDL that would duplicate objects.
+3. Add integration tests for: empty catalog, partial journal, tenant tables in non-`dbo` schema, duplicate-table catch path.
+4. Do not remove baseline until **TB-065** drift detection covers stamped catalogs.
+
+**Acceptance criteria:**
+
+- Runner behavior is documented and covered by at least three integration scenarios.
+- Code paths reduced or explicitly justified; no silent stamp without sentinel table checks.
+- CI shared-catalog parallel tests remain stable (mutex + stamp semantics unchanged or improved).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Data/Infrastructure/GreenfieldBaselineMigrationRunner.cs`
+- `ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs`
+- `ArchLucid.Persistence.Tests/`
+- `docs/library/SQL_SCRIPTS.md`
+
+**Size estimate:** **M** — ~2–3 eng days (refactor + test matrix).
+
+**Depends on:** **TB-065** recommended before simplifying stamp paths.
+
+---
+
+## TB-070 — `PersistenceContractSupplement.sql` stale refs + test catalog parity
+
+**Source:** DDL hygiene and migration-safety audit (2026-05-27). Test supplement modified in working tree; comments reference retired product name.
+
+**Problem:**
+
+`ArchLucid.Persistence.Tests/Scripts/PersistenceContractSupplement.sql` comments refer to **`ArchiForge.sql`** instead of **`ArchLucid.sql`**. The supplement is applied instead of full bootstrap in contract tests and can drift from latest migrations (e.g. **226** `SourceRevisionHash` was added to supplement separately). Misleading comments cause contributors to update the wrong file.
+
+**What to do:**
+
+1. Replace all `ArchiForge.sql` references with `ArchLucid.sql` in the supplement and any sibling test SQL comments.
+2. Add a short header comment listing which production tables/columns the supplement intentionally diverges from (FK-relaxed shapes, nullable JSON for guard tests).
+3. When **TB-065** ships, optionally assert supplement sentinel columns are a subset of migration+DDL manifest (or document explicit exceptions).
+4. Grep repo for other stale `ArchiForge` SQL doc references and fix in the same PR.
+
+**Acceptance criteria:**
+
+- No `ArchiForge.sql` references in Persistence test SQL or related docs.
+- Supplement header documents intentional divergences from production DDL.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence.Tests/Scripts/PersistenceContractSupplement.sql`
+- `ArchLucid.Persistence.Tests/` (fixture comments)
+- `docs/library/SQL_SCRIPTS.md` (test pathway note)
+
+**Size estimate:** **XS** — ~1–2 h.
+
+---
+
+## TB-071 — Azure Search production client — wire tenant OData filter on every search/delete
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). **TB-048** / **RAG-V1-010** shipped the in-memory query filter and `AzureSearchTenantScopeFilterBuilder`, but production registration still uses `NotConfiguredAzureSearchClient`.
+
+**Problem:**
+
+`AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` produces correct OData clauses (`tenantId`, `workspaceId`, `projectId`), yet no in-repo `IAzureSearchClient` implementation calls it during `SearchAsync`. Tenant isolation for Azure AI Search cannot be verified from the codebase. Additionally, `AzureAiSearchVectorIndex.RemoveChunksForDocumentAsync` is a no-op — deleted tenant data persists in the index indefinitely.
+
+**What to do:**
+
+1. Implement a production `IAzureSearchClient` (or complete `AzureAiSearchVectorIndex`) that attaches `BuildScopeFilter(query)` to **every** search request.
+2. Implement `RemoveChunksForDocumentAsync` with the same document-id filter used on upsert (or tenant-scoped delete when document metadata includes scope).
+3. Add integration test asserting the OData filter clause is present on search (mock or recorded HTTP).
+4. Update **RAG-V1-010** status and operator runbook for Azure Search deployment checklist.
+
+**Out of scope:** Per-tenant index partitioning (query-time filter is the chosen model).
+
+**Depends on:** none (closes remaining **TB-048** / **RAG-V1-010** P1 gap).
+
+**Affected files / projects:**
+
+- `ArchLucid.Retrieval/Indexing/AzureAiSearchVectorIndex.cs`
+- `ArchLucid.Retrieval/Indexing/AzureSearchTenantScopeFilterBuilder.cs`
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`
+- `ArchLucid.Retrieval.Tests/` (Azure filter integration test)
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-072 — Scope-to-identity binding at API ingress
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `HttpScopeContextProvider` resolves tenant from JWT claims → `x-*` headers → dev defaults, but **no middleware validates that the authenticated principal may use the resolved tenant**.
+
+**Problem:**
+
+- **`ApiKeyAuthenticationHandler`** — roles/permissions only; zero scope claims. Valid key + arbitrary `x-tenant-id` ⇒ any tenant's data (especially in SingleCatalog mode).
+- **`DevelopmentBypassAuthenticationHandler`** — no `tenant_id` / `workspace_id` / `project_id` claims; headers fully control scope.
+- **SCIM bearer** — `tenant_id` only; workspace/project fall through to headers/defaults.
+- **`TenantOrProjectCapabilityAuthorizationHandler`** — augments project capabilities but does not prove caller ∈ `scope.TenantId` for tenant-wide JWT roles.
+
+Production safety currently depends on per-tenant catalog routing (`ScopedRoutingSqlConnectionFactory`) plus repository SQL filters — not on identity binding.
+
+**What to do:**
+
+1. **Production auth schemes:** Require `tenant_id` (and ideally `workspace_id` / `project_id`) claims on all non-anonymous schemes; reject requests where scope headers disagree with claims (extend existing claim-over-header precedence to **fail** rather than silently prefer claims only when present).
+2. **ApiKey:** Embed scope in key record or issue per-tenant keys; derive scope server-side from key metadata — never trust client headers alone.
+3. **DevBypass:** Document as break-glass only; add startup guard preventing DevBypass in production-like profiles (align with **INV-005** / **TB-010**).
+4. Optional middleware after auth: `scope.TenantId != Guid.Empty` for tenant APIs; SCIM user ∈ tenant for non-platform roles.
+5. Extend `TenantIsolationSmokeTests` to cover ApiKey/header mismatch rejection.
+
+**Out of scope:** Replacing database-per-tenant topology (**TB-018**); operator cross-tenant analytics (intentional, admin-gated).
+
+**Depends on:** none. Complements **TB-010** (**INV-001**).
+
+**Affected files / projects:**
+
+- `ArchLucid.Host.Core/Auth/Services/HttpScopeContextProvider.cs`
+- `ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs`
+- `ArchLucid.Api/Auth/Services/DevelopmentBypassAuthenticationHandler.cs`
+- `ArchLucid.Host.Core/Authorization/TenantOrProjectCapabilityAuthorizationHandler.cs`
+- `ArchLucid.Api/Middleware/` (optional scope-validation middleware)
+- `ArchLucid.Api.Tests/` (`HttpScopeContextProviderTests`, integration isolation tests)
+
+**Size estimate:** **M** — ~2–3 eng days.
+
+---
+
+## TB-073 — Scoped snapshot repository reads (findings / graph / context)
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Findings inspect and mute paths enforce full scope via `Runs` joins; snapshot repositories use GUID-only reads.
+
+**Problem:**
+
+These methods query by snapshot/record ID **without** `TenantId` / `WorkspaceId` / `ProjectId` in SQL:
+
+| Repository | Method | Risk |
+|------------|--------|------|
+| `SqlFindingsSnapshotRepository` | `GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` | Leaked `FindingsSnapshotId` → read/mutate another tenant's findings |
+| `FindingsSnapshotRelationalRead` | Child loads by `FindingsSnapshotId` / `FindingRecordId` | Full finding payload without tenant gate |
+| `SqlGraphSnapshotRepository` | `GetByIdAsync` | Leaked `GraphSnapshotId` → entire knowledge graph |
+| `SqlContextSnapshotRepository` | `GetByIdAsync` | Leaked `ContextSnapshotId` → context snapshot |
+| `InMemoryFindingsSnapshotRepository` | `GetByIdAsync` | Global `Dictionary<Guid, string>` — no tenant key |
+
+Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev / test when a GUID is known. `DapperAuthorityQueryService` loads snapshots by bare GUID after a scoped run gate — indirect risk if run row is corrupt or repository called elsewhere.
+
+**What to do:**
+
+1. Add `ScopeContext` parameter to `IFindingsSnapshotRepository.GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` — mirror `SqlGoldenManifestRepository` (`WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId`).
+2. Same pattern for `IGraphSnapshotRepository`, `IContextSnapshotRepository`, and their relational read helpers.
+3. In `FindingsSnapshotRelationalRead`, join `FindingsSnapshots` / `Runs` or filter `FindingRecords.TenantId` when scope is available.
+4. Key `InMemoryFindingsSnapshotRepository` by `(TenantId, SnapshotId)` or validate snapshot's `RunId` against scoped run before return.
+5. Update all callers (including `DapperAuthorityQueryService`, `GraphSnapshotCommittedReuseResolver`) to pass scope.
+6. Integration tests: tenant A's snapshot GUID rejected under tenant B's scope in SingleCatalog mode.
+
+**Out of scope:** Intentional admin paths (`GetByRunIdAdminAsync`, worker dequeue).
+
+**Depends on:** none.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs`
+- `ArchLucid.Persistence/Findings/FindingsSnapshotRelationalRead.cs`
+- `ArchLucid.Persistence/Repositories/SqlGraphSnapshotRepository.cs`
+- `ArchLucid.Persistence/Repositories/SqlContextSnapshotRepository.cs`
+- `ArchLucid.Decisioning/Repositories/InMemoryFindingsSnapshotRepository.cs`
+- `ArchLucid.Persistence/Queries/DapperAuthorityQueryService.cs`
+- `ArchLucid.Persistence.Tests/`
+
+**Size estimate:** **M** — ~2–3 eng days.
+
+---
+
+## TB-074 — Retrieval indexing write-path tenant validation
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Retrieval uses a shared global vector index with query-time metadata filtering.
+
+**Problem:**
+
+`RetrievalIndexingService` copies `TenantId` / `WorkspaceId` / `ProjectId` from each `RetrievalDocument` into chunks without validating against the caller's ambient `ScopeContext`. A miswired or malicious caller can index data into another tenant's retrieval namespace (data poisoning). `InMemoryVectorIndex.UpsertChunksAsync` and `RemoveChunksForDocumentAsync` perform no tenant validation on write/delete.
+
+**What to do:**
+
+1. In `RetrievalIndexingService`, reject documents whose scope fields disagree with `IScopeContextProvider.GetCurrentScope()` (or explicit `ScopeContext` parameter).
+2. In `InMemoryVectorIndex.UpsertChunksAsync`, optionally assert chunk scope matches query scope on upsert (defense in depth).
+3. Scope `RemoveChunksForDocumentAsync` by tenant metadata when deleting (mitigate document-id collision).
+4. Tests: document with mismatched `TenantId` → rejected; matching scope → indexed.
+
+**Out of scope:** Per-tenant index partitioning; platform corpora indexing (`PlatformSentinelTenantId` — by design).
+
+**Depends on:** none. Complements **TB-071** (query-side filter).
+
+**Affected files / projects:**
+
+- `ArchLucid.Retrieval/Indexing/RetrievalIndexingService.cs`
+- `ArchLucid.Retrieval/Indexing/InMemoryVectorIndex.cs`
+- `ArchLucid.Retrieval/Indexing/RetrievalRunCompletionIndexer.cs`
+- `ArchLucid.Retrieval.Tests/`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-075 — Operator UI server-side scope (proxy + SSR)
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). The operator UI declares the API as the authoritative security boundary but forwards client-controlled scope headers.
+
+**Problem:**
+
+- **`proxy/[...path]/route.ts`** — forwards browser `x-tenant-id` / `x-workspace-id` / `x-project-id` when present; `localStorage` (`archlucid_operator_scope_v1`) is the authoritative tenant source in the browser.
+- **`scope.ts` `getScopeHeaders()`** — hardcoded `DEV_SCOPE_*` GUIDs for all SSR requests.
+- **`middleware.ts`** — no auth or tenant gate (demo alias redirects only).
+- **`downloadValueReportDocx`** — `tenantId` in URL path can disagree with scope headers.
+
+For Entra JWT with embedded `tenant_id`, the API ignores hostile headers. For DevBypass / API key / missing claims, the UI + proxy effectively choose the tenant.
+
+**What to do:**
+
+1. In the proxy route handler, **strip** incoming `x-tenant-id` / `x-workspace-id` / `x-project-id` from browser requests and set them server-side from authenticated session (`/api/auth/me` claims or secure cookie).
+2. Replace SSR `getScopeHeaders()` dev GUIDs with server-derived scope (cookie or server-side `/me` call).
+3. Remove client-chosen `tenantId` from value-report URL path; use scope-only or server-side generation.
+4. Document that scope switcher changes workspace/project only; tenant comes from identity.
+
+**Out of scope:** Backend enforcement (**TB-072**); UI post-load ownership checks (**TB-077**).
+
+**Depends on:** **TB-072** recommended for full end-to-end binding.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/api/proxy/[...path]/route.ts`
+- `archlucid-ui/src/lib/scope.ts`
+- `archlucid-ui/src/lib/operator-scope-storage.ts`
+- `archlucid-ui/src/lib/api/http.ts`
+- `archlucid-ui/src/lib/api/downloads-api.ts`
+- `archlucid-ui/src/components/GenerateSponsorValueReportButton.tsx`
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-076 — Run-child SQL scope predicates + in-memory repository tenant keys
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). After a scoped run load, child data is often loaded by `RunId` only.
+
+**Problem:**
+
+| Repository | Pattern | Safe when |
+|------------|---------|-----------|
+| `AgentTaskRepository` | `WHERE RunId = @RunId` | Per-tenant catalog routing guaranteed |
+| `AgentExecutionTraceRepository` | `WHERE RunId = @RunId` | Same |
+| `EvidenceBundleRepository` | `WHERE EvidenceBundleId = @EvidenceBundleId` | Same |
+| `RunDetailQueryService` | Calls above after scoped run gate | Catalog routing + run gate |
+
+Residual risk in **SingleCatalog** / dev if run gate is skipped or connection targets wrong catalog. `TenantErasureQuarantineMiddleware` skips `/v1/admin` entirely — quarantined tenants with Admin credentials still reach admin routes.
+
+**What to do:**
+
+1. Add `TenantId` (or full `ScopeContext`) to run-child `GetByRunIdAsync` methods, or document and test that catalog routing is mandatory with an architecture test guard.
+2. Extend `TenantErasureQuarantineMiddleware` to cover `/v1/admin` (or document admin-while-quarantined as acceptable with platform-only credentials).
+3. Audit callers of `GetByRunIdAdminAsync` (`FindingPriorityReranker`, archival jobs) — ensure system/background context only.
+
+**Out of scope:** Snapshot repository scoping (**TB-073**); intentional admin cross-tenant analytics.
+
+**Depends on:** **TB-073** (related persistence hardening).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Repositories/AgentTaskRepository.cs`
+- `ArchLucid.Persistence/Repositories/AgentExecutionTraceRepository.cs`
+- `ArchLucid.Persistence/Repositories/EvidenceBundleRepository.cs`
+- `ArchLucid.Application/RunDetailQueryService.cs`
+- `ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs`
+- `ArchLucid.Persistence/Repositories/SqlRunRepository.cs`
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-077 — Operator UI resource ownership checks + governance mutation hardening
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Dynamic operator routes use resource IDs only; no post-load tenant ownership validation.
+
+**Problem:**
+
+- Routes `[runId]`, `[manifestId]`, `[findingId]` call APIs with ID alone — URL manipulation is IDOR if API returns cross-scope data.
+- `recordFindingDisposition(findingId, …)` — `findingId` in URL; `runId` optional in body.
+- `getArchitectureDecisionRegister()` — no `projectId` from active scope.
+- `compareRuns(leftRunId, rightRunId)` — two run IDs, no scope validation in UI.
+- SSR `/reviews?projectId=…` can mismatch hardcoded `x-project-id` on server renders.
+
+**What to do:**
+
+1. After loading run/manifest/finding detail, compare resource `projectId` (and `tenantId` if API returns it) to effective scope; call `notFound()` on mismatch (defense in depth — API remains authoritative).
+2. Require `runId` in URL path for `recordFindingDisposition`; reject finding-only mutations.
+3. Pass active `projectId` from scope into `getArchitectureDecisionRegister(projectId)`.
+4. Align SSR list `projectId` query param with server-derived scope headers.
+
+**Out of scope:** Server-side scope binding (**TB-075**); backend IDOR fixes (**TB-072**, **TB-073**).
+
+**Depends on:** **TB-075** for consistent scope source.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/load-run-detail-page-model.ts`
+- `archlucid-ui/src/lib/api/governance-stickiness-api.ts`
+- `archlucid-ui/src/app/(operator)/governance/decision-register/DecisionRegisterClient.tsx`
+- `archlucid-ui/src/lib/load-finding-inspect-for-route.ts`
+- `archlucid-ui/src/lib/api/architecture-runs.ts`
+- `archlucid-ui/src/app/(operator)/reviews/_sections/load-runs-page-model.ts`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-078 — Cross-tenant isolation integration test matrix
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `TenantIsolationSmokeTests` cover API + SQL under header-scoped isolation but not several audit-identified gaps.
+
+**Problem:**
+
+No tests assert:
+
+- `SqlFindingsSnapshotRepository.GetByIdAsync` rejects a GUID belonging to another tenant (SingleCatalog mode).
+- `RetrievalIndexingService` rejects documents whose `TenantId` disagrees with caller scope.
+- Azure Search client applies OData tenant filter on every `SearchAsync` (when **TB-071** ships).
+- In-memory snapshot/vector stores reject cross-tenant reads by leaked GUID.
+- ApiKey / DevBypass + mismatched scope headers are rejected (**TB-072**).
+
+**What to do:**
+
+1. Add `ArchLucid.Persistence.Tests` integration tests for snapshot IDOR under SingleCatalog (two tenants, one catalog).
+2. Add `ArchLucid.Retrieval.Tests` for indexing tenant mismatch rejection.
+3. Add API integration test for scope-header vs claim mismatch (when **TB-072** ships).
+4. Wire tests into CI Tier 1.5 or dedicated security job.
+5. Reference test matrix in owner pen-test runbook (**TB-005**).
+
+**Out of scope:** Implementing the fixes (each TB item owns its tests).
+
+**Depends on:** Ships alongside **TB-071**–**TB-077** (tests added per item; this item tracks the consolidated matrix and CI wiring).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence.Tests/` (tenant isolation / SingleCatalog fixtures)
+- `ArchLucid.Retrieval.Tests/`
+- `ArchLucid.Api.Tests/` (`TenantIsolationSmokeTests.cs`)
+- `docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md` (coverage note)
+
+**Size estimate:** **S** — ~1 eng day (incremental; spread across sibling items).
+
+---
+
+## TB-071 — Azure Search production client — wire tenant OData filter on every search/delete
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). **TB-048** / **RAG-V1-010** shipped the in-memory query filter and `AzureSearchTenantScopeFilterBuilder`, but production registration still uses `NotConfiguredAzureSearchClient`.
+
+**Problem:**
+
+`AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` produces correct OData clauses (`tenantId`, `workspaceId`, `projectId`), yet no in-repo `IAzureSearchClient` implementation calls it during `SearchAsync`. Tenant isolation for Azure AI Search cannot be verified from the codebase. Additionally, `AzureAiSearchVectorIndex.RemoveChunksForDocumentAsync` is a no-op — deleted tenant data persists in the index indefinitely.
+
+**What to do:**
+
+1. Implement a production `IAzureSearchClient` (or complete `AzureAiSearchVectorIndex`) that attaches `BuildScopeFilter(query)` to **every** search request.
+2. Implement `RemoveChunksForDocumentAsync` with the same document-id filter used on upsert (or tenant-scoped delete when document metadata includes scope).
+3. Add integration test asserting the OData filter clause is present on search (mock or recorded HTTP).
+4. Update **RAG-V1-010** status and operator runbook for Azure Search deployment checklist.
+
+**Out of scope:** Per-tenant index partitioning (query-time filter is the chosen model).
+
+**Depends on:** none (closes remaining **TB-048** / **RAG-V1-010** P1 gap).
+
+**Affected files / projects:**
+
+- `ArchLucid.Retrieval/Indexing/AzureAiSearchVectorIndex.cs`
+- `ArchLucid.Retrieval/Indexing/AzureSearchTenantScopeFilterBuilder.cs`
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`
+- `ArchLucid.Retrieval.Tests/` (Azure filter integration test)
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-072 — Scope-to-identity binding at API ingress
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `HttpScopeContextProvider` resolves tenant from JWT claims → `x-*` headers → dev defaults, but **no middleware validates that the authenticated principal may use the resolved tenant**.
+
+**Problem:**
+
+- **`ApiKeyAuthenticationHandler`** — roles/permissions only; zero scope claims. Valid key + arbitrary `x-tenant-id` ⇒ any tenant's data (especially in SingleCatalog mode).
+- **`DevelopmentBypassAuthenticationHandler`** — no `tenant_id` / `workspace_id` / `project_id` claims; headers fully control scope.
+- **SCIM bearer** — `tenant_id` only; workspace/project fall through to headers/defaults.
+- **`TenantOrProjectCapabilityAuthorizationHandler`** — augments project capabilities but does not prove caller ∈ `scope.TenantId` for tenant-wide JWT roles.
+
+Production safety currently depends on per-tenant catalog routing (`ScopedRoutingSqlConnectionFactory`) plus repository SQL filters — not on identity binding.
+
+**What to do:**
+
+1. **Production auth schemes:** Require `tenant_id` (and ideally `workspace_id` / `project_id`) claims on all non-anonymous schemes; reject requests where scope headers disagree with claims (extend existing claim-over-header precedence to **fail** rather than silently prefer claims only when present).
+2. **ApiKey:** Embed scope in key record or issue per-tenant keys; derive scope server-side from key metadata — never trust client headers alone.
+3. **DevBypass:** Document as break-glass only; add startup guard preventing DevBypass in production-like profiles (align with **INV-005** / **TB-010**).
+4. Optional middleware after auth: `scope.TenantId != Guid.Empty` for tenant APIs; SCIM user ∈ tenant for non-platform roles.
+5. Extend `TenantIsolationSmokeTests` to cover ApiKey/header mismatch rejection.
+
+**Out of scope:** Replacing database-per-tenant topology (**TB-018**); operator cross-tenant analytics (intentional, admin-gated).
+
+**Depends on:** none. Complements **TB-010** (**INV-001**).
+
+**Affected files / projects:**
+
+- `ArchLucid.Host.Core/Auth/Services/HttpScopeContextProvider.cs`
+- `ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs`
+- `ArchLucid.Api/Auth/Services/DevelopmentBypassAuthenticationHandler.cs`
+- `ArchLucid.Host.Core/Authorization/TenantOrProjectCapabilityAuthorizationHandler.cs`
+- `ArchLucid.Api/Middleware/` (optional scope-validation middleware)
+- `ArchLucid.Api.Tests/` (`HttpScopeContextProviderTests`, integration isolation tests)
+
+**Size estimate:** **M** — ~2–3 eng days.
+
+---
+
+## TB-073 — Scoped snapshot repository reads (findings / graph / context)
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Findings inspect and mute paths enforce full scope via `Runs` joins; snapshot repositories use GUID-only reads.
+
+**Problem:**
+
+These methods query by snapshot/record ID **without** `TenantId` / `WorkspaceId` / `ProjectId` in SQL:
+
+| Repository | Method | Risk |
+|------------|--------|------|
+| `SqlFindingsSnapshotRepository` | `GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` | Leaked `FindingsSnapshotId` → read/mutate another tenant's findings |
+| `FindingsSnapshotRelationalRead` | Child loads by `FindingsSnapshotId` / `FindingRecordId` | Full finding payload without tenant gate |
+| `SqlGraphSnapshotRepository` | `GetByIdAsync` | Leaked `GraphSnapshotId` → entire knowledge graph |
+| `SqlContextSnapshotRepository` | `GetByIdAsync` | Leaked `ContextSnapshotId` → context snapshot |
+| `InMemoryFindingsSnapshotRepository` | `GetByIdAsync` | Global `Dictionary<Guid, string>` — no tenant key |
+
+Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev / test when a GUID is known. `DapperAuthorityQueryService` loads snapshots by bare GUID after a scoped run gate — indirect risk if run row is corrupt or repository called elsewhere.
+
+**What to do:**
+
+1. Add `ScopeContext` parameter to `IFindingsSnapshotRepository.GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` — mirror `SqlGoldenManifestRepository` (`WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId`).
+2. Same pattern for `IGraphSnapshotRepository`, `IContextSnapshotRepository`, and their relational read helpers.
+3. In `FindingsSnapshotRelationalRead`, join `FindingsSnapshots` / `Runs` or filter `FindingRecords.TenantId` when scope is available.
+4. Key `InMemoryFindingsSnapshotRepository` by `(TenantId, SnapshotId)` or validate snapshot's `RunId` against scoped run before return.
+5. Update all callers (including `DapperAuthorityQueryService`, `GraphSnapshotCommittedReuseResolver`) to pass scope.
+6. Integration tests: tenant A's snapshot GUID rejected under tenant B's scope in SingleCatalog mode.
+
+**Out of scope:** Intentional admin paths (`GetByRunIdAdminAsync`, worker dequeue).
+
+**Depends on:** none.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs`
+- `ArchLucid.Persistence/Findings/FindingsSnapshotRelationalRead.cs`
+- `ArchLucid.Persistence/Repositories/SqlGraphSnapshotRepository.cs`
+- `ArchLucid.Persistence/Repositories/SqlContextSnapshotRepository.cs`
+- `ArchLucid.Decisioning/Repositories/InMemoryFindingsSnapshotRepository.cs`
+- `ArchLucid.Persistence/Queries/DapperAuthorityQueryService.cs`
+- `ArchLucid.Persistence.Tests/`
+
+**Size estimate:** **M** — ~2–3 eng days.
+
+---
+
+## TB-074 — Retrieval indexing write-path tenant validation
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Retrieval uses a shared global vector index with query-time metadata filtering.
+
+**Problem:**
+
+`RetrievalIndexingService` copies `TenantId` / `WorkspaceId` / `ProjectId` from each `RetrievalDocument` into chunks without validating against the caller's ambient `ScopeContext`. A miswired or malicious caller can index data into another tenant's retrieval namespace (data poisoning). `InMemoryVectorIndex.UpsertChunksAsync` and `RemoveChunksForDocumentAsync` perform no tenant validation on write/delete.
+
+**What to do:**
+
+1. In `RetrievalIndexingService`, reject documents whose scope fields disagree with `IScopeContextProvider.GetCurrentScope()` (or explicit `ScopeContext` parameter).
+2. In `InMemoryVectorIndex.UpsertChunksAsync`, optionally assert chunk scope matches query scope on upsert (defense in depth).
+3. Scope `RemoveChunksForDocumentAsync` by tenant metadata when deleting (mitigate document-id collision).
+4. Tests: document with mismatched `TenantId` → rejected; matching scope → indexed.
+
+**Out of scope:** Per-tenant index partitioning; platform corpora indexing (`PlatformSentinelTenantId` — by design).
+
+**Depends on:** none. Complements **TB-071** (query-side filter).
+
+**Affected files / projects:**
+
+- `ArchLucid.Retrieval/Indexing/RetrievalIndexingService.cs`
+- `ArchLucid.Retrieval/Indexing/InMemoryVectorIndex.cs`
+- `ArchLucid.Retrieval/Indexing/RetrievalRunCompletionIndexer.cs`
+- `ArchLucid.Retrieval.Tests/`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-075 — Operator UI server-side scope (proxy + SSR)
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). The operator UI declares the API as the authoritative security boundary but forwards client-controlled scope headers.
+
+**Problem:**
+
+- **`proxy/[...path]/route.ts`** — forwards browser `x-tenant-id` / `x-workspace-id` / `x-project-id` when present; `localStorage` (`archlucid_operator_scope_v1`) is the authoritative tenant source in the browser.
+- **`scope.ts` `getScopeHeaders()`** — hardcoded `DEV_SCOPE_*` GUIDs for all SSR requests.
+- **`middleware.ts`** — no auth or tenant gate (demo alias redirects only).
+- **`downloadValueReportDocx`** — `tenantId` in URL path can disagree with scope headers.
+
+For Entra JWT with embedded `tenant_id`, the API ignores hostile headers. For DevBypass / API key / missing claims, the UI + proxy effectively choose the tenant.
+
+**What to do:**
+
+1. In the proxy route handler, **strip** incoming `x-tenant-id` / `x-workspace-id` / `x-project-id` from browser requests and set them server-side from authenticated session (`/api/auth/me` claims or secure cookie).
+2. Replace SSR `getScopeHeaders()` dev GUIDs with server-derived scope (cookie or server-side `/me` call).
+3. Remove client-chosen `tenantId` from value-report URL path; use scope-only or server-side generation.
+4. Document that scope switcher changes workspace/project only; tenant comes from identity.
+
+**Out of scope:** Backend enforcement (**TB-072**); UI post-load ownership checks (**TB-077**).
+
+**Depends on:** **TB-072** recommended for full end-to-end binding.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/api/proxy/[...path]/route.ts`
+- `archlucid-ui/src/lib/scope.ts`
+- `archlucid-ui/src/lib/operator-scope-storage.ts`
+- `archlucid-ui/src/lib/api/http.ts`
+- `archlucid-ui/src/lib/api/downloads-api.ts`
+- `archlucid-ui/src/components/GenerateSponsorValueReportButton.tsx`
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-076 — Run-child SQL scope predicates + in-memory repository tenant keys
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). After a scoped run load, child data is often loaded by `RunId` only.
+
+**Problem:**
+
+| Repository | Pattern | Safe when |
+|------------|---------|-----------|
+| `AgentTaskRepository` | `WHERE RunId = @RunId` | Per-tenant catalog routing guaranteed |
+| `AgentExecutionTraceRepository` | `WHERE RunId = @RunId` | Same |
+| `EvidenceBundleRepository` | `WHERE EvidenceBundleId = @EvidenceBundleId` | Same |
+| `RunDetailQueryService` | Calls above after scoped run gate | Catalog routing + run gate |
+
+Residual risk in **SingleCatalog** / dev if run gate is skipped or connection targets wrong catalog. `TenantErasureQuarantineMiddleware` skips `/v1/admin` entirely — quarantined tenants with Admin credentials still reach admin routes.
+
+**What to do:**
+
+1. Add `TenantId` (or full `ScopeContext`) to run-child `GetByRunIdAsync` methods, or document and test that catalog routing is mandatory with an architecture test guard.
+2. Extend `TenantErasureQuarantineMiddleware` to cover `/v1/admin` (or document admin-while-quarantined as acceptable with platform-only credentials).
+3. Audit callers of `GetByRunIdAdminAsync` (`FindingPriorityReranker`, archival jobs) — ensure system/background context only.
+
+**Out of scope:** Snapshot repository scoping (**TB-073**); intentional admin cross-tenant analytics.
+
+**Depends on:** **TB-073** (related persistence hardening).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Repositories/AgentTaskRepository.cs`
+- `ArchLucid.Persistence/Repositories/AgentExecutionTraceRepository.cs`
+- `ArchLucid.Persistence/Repositories/EvidenceBundleRepository.cs`
+- `ArchLucid.Application/RunDetailQueryService.cs`
+- `ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs`
+- `ArchLucid.Persistence/Repositories/SqlRunRepository.cs`
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-077 — Operator UI resource ownership checks + governance mutation hardening
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Dynamic operator routes use resource IDs only; no post-load tenant ownership validation.
+
+**Problem:**
+
+- Routes `[runId]`, `[manifestId]`, `[findingId]` call APIs with ID alone — URL manipulation is IDOR if API returns cross-scope data.
+- `recordFindingDisposition(findingId, …)` — `findingId` in URL; `runId` optional in body.
+- `getArchitectureDecisionRegister()` — no `projectId` from active scope.
+- `compareRuns(leftRunId, rightRunId)` — two run IDs, no scope validation in UI.
+- SSR `/reviews?projectId=…` can mismatch hardcoded `x-project-id` on server renders.
+
+**What to do:**
+
+1. After loading run/manifest/finding detail, compare resource `projectId` (and `tenantId` if API returns it) to effective scope; call `notFound()` on mismatch (defense in depth — API remains authoritative).
+2. Require `runId` in URL path for `recordFindingDisposition`; reject finding-only mutations.
+3. Pass active `projectId` from scope into `getArchitectureDecisionRegister(projectId)`.
+4. Align SSR list `projectId` query param with server-derived scope headers.
+
+**Out of scope:** Server-side scope binding (**TB-075**); backend IDOR fixes (**TB-072**, **TB-073**).
+
+**Depends on:** **TB-075** for consistent scope source.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/load-run-detail-page-model.ts`
+- `archlucid-ui/src/lib/api/governance-stickiness-api.ts`
+- `archlucid-ui/src/app/(operator)/governance/decision-register/DecisionRegisterClient.tsx`
+- `archlucid-ui/src/lib/load-finding-inspect-for-route.ts`
+- `archlucid-ui/src/lib/api/architecture-runs.ts`
+- `archlucid-ui/src/app/(operator)/reviews/_sections/load-runs-page-model.ts`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-078 — Cross-tenant isolation integration test matrix
+
+**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `TenantIsolationSmokeTests` cover API + SQL under header-scoped isolation but not several audit-identified gaps.
+
+**Problem:**
+
+No tests assert:
+
+- `SqlFindingsSnapshotRepository.GetByIdAsync` rejects a GUID belonging to another tenant (SingleCatalog mode).
+- `RetrievalIndexingService` rejects documents whose `TenantId` disagrees with caller scope.
+- Azure Search client applies OData tenant filter on every `SearchAsync` (when **TB-071** ships).
+- In-memory snapshot/vector stores reject cross-tenant reads by leaked GUID.
+- ApiKey / DevBypass + mismatched scope headers are rejected (**TB-072**).
+
+**What to do:**
+
+1. Add `ArchLucid.Persistence.Tests` integration tests for snapshot IDOR under SingleCatalog (two tenants, one catalog).
+2. Add `ArchLucid.Retrieval.Tests` for indexing tenant mismatch rejection.
+3. Add API integration test for scope-header vs claim mismatch (when **TB-072** ships).
+4. Wire tests into CI Tier 1.5 or dedicated security job.
+5. Reference test matrix in owner pen-test runbook (**TB-005**).
+
+**Out of scope:** Implementing the fixes (each TB item owns its tests).
+
+**Depends on:** Ships alongside **TB-071**–**TB-077** (tests added per item; this item tracks the consolidated matrix and CI wiring).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence.Tests/` (tenant isolation / SingleCatalog fixtures)
+- `ArchLucid.Retrieval.Tests/`
+- `ArchLucid.Api.Tests/` (`TenantIsolationSmokeTests.cs`)
+- `docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md` (coverage note)
+
+**Size estimate:** **S** — ~1 eng day (incremental; spread across sibling items).
+
+---
+
+
+
+## TB-079 — ADO PR markdown — sanitize `SummaryHighlights` and deep-link fields
+
+**Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
+
+**Problem:**
+
+`GoldenManifestCompareMarkdownFormatter.cs` (L34–36) echoes `SummaryHighlights` from the compare response verbatim into the Azure DevOps PR comment body. `AzureDevOpsRunSummaryMarkdown` similarly embeds `operatorRunDeepLink` into a Markdown link without format validation. If compare metadata or run configuration is poisoned (e.g. via a malicious architecture run, a compromised evidence package, or a supply-chain attack on the compare endpoint), arbitrary Markdown — including HTML rendered in ADO's PR UI — can appear in PR comment threads visible to all reviewers.
+
+This is not a WIQL or API-injection path (no ADO query APIs are used in C#), but it is a reflected-content injection into a developer-facing surface with potential for phishing links or hidden instructions embedded in PR threads.
+
+**What to do:**
+
+1. In `GoldenManifestCompareMarkdownFormatter`, strip or escape `SummaryHighlights` through a static `SanitizeMarkdownLine(string)` helper that removes bare HTML tags, trims to a maximum safe length (e.g. 500 chars), and rejects strings containing `<script`, `javascript:`, or `data:` prefixes.
+2. In `AzureDevOpsRunSummaryMarkdown`, validate `operatorRunDeepLink` / `StatusTargetUrl` against an allowlist of URL schemes (`https://` only) and hostname suffix (your own domain) before embedding in `[...](url)` syntax.
+3. Add unit tests in `ArchLucid.Integrations.AzureDevOps.Tests` covering both helpers with malicious inputs.
+4. Consider a separate `AzureDevOpsMarkdownSanitizer` class so the policy is applied in one place and is testable independently.
+
+**Affected files:**
+
+- `ArchLucid.Integrations.AzureDevOps/GoldenManifestCompareMarkdownFormatter.cs`
+- `ArchLucid.Integrations.AzureDevOps/AzureDevOpsRunSummaryMarkdown.cs`
+- `ArchLucid.Integrations.AzureDevOps/AzureDevOpsPullRequestWireFormat.cs` (review `UnsafeRelaxedJsonEscaping` scope)
+- `ArchLucid.Integrations.AzureDevOps.Tests/` (new sanitizer tests)
+
+**Size estimate:** **XS** -- ~2-4 h.
+
+---
+
+## TB-080 — Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential`
+
+**Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
+
+**Problem:**
+
+`ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` registers the Azure OpenAI client using `AzureOpenAI:ApiKey` from configuration (symmetric key). All other Azure SDK clients in the production path use `DefaultAzureCredential` (blob, Key Vault, ACS email, marketplace billing, cross-tenant ARM via WIF). The OpenAI key is a long-lived symmetric secret requiring manual rotation and Key Vault reference discipline, and it cannot benefit from short-lived federated tokens or conditional access policies.
+
+Azure OpenAI supports Entra ID (AAD) token-based authentication via `DefaultAzureCredential` on dedicated deployments (`https://{resource}.openai.azure.com`). Content Safety supports the same pattern.
+
+**What to do:**
+
+1. In `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`, when `AzureOpenAI:Endpoint` is set and `AzureOpenAI:ApiKey` is absent or empty, instantiate `AzureOpenAIClient` with `new DefaultAzureCredential()` instead of `new ApiKeyCredential(...)`.
+2. Allow `ApiKey` as a fallback for local development (consistent with how `BlobProvider=Local` vs `BlobProvider=AzureBlob` works elsewhere).
+3. Add a production safety rule in `ProductionSafetyRules.cs`: if `AgentExecution:Mode` is not `Simulator`, warn (not fail) when `AzureOpenAI:ApiKey` is non-empty and does not start with `@Microsoft.KeyVault(`.
+4. Update `appsettings.KeyVault.sample.json` to show the Key Vault reference pattern for `AzureOpenAI:ApiKey` alongside the managed-identity alternative.
+5. Apply the same pattern to `AzureContentSafety:ApiKey` if it is wired similarly.
+
+**Affected files:**
+
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`
+- `ArchLucid.Host.Core/Startup/Validation/Rules/ProductionSafetyRules.cs`
+- `ArchLucid.Api/appsettings.KeyVault.sample.json`
+
+**Size estimate:** **S** -- ~half day.
+
+---
+
+## TB-081 — `ArchLucidApiKey` — production safety rule: require Key Vault reference
+
+**Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
+
+**Problem:**
+
+`AzureDevOpsPullRequestDecorator.cs` (L118-120) attaches an `ArchLucidApiKey` header to the `GET /v1/compare` call that the ADO worker makes back to the ArchLucid API. This key is read from `AzureDevOps:ArchLucidApiKey` in configuration. Unlike the ADO PAT (which has a production guard in `ProductionSafetyRules.cs` requiring a Key Vault reference), no analogous rule exists for this key. A developer could accidentally commit a production key in `appsettings.json` with no enforcement feedback.
+
+**What to do:**
+
+1. In `ProductionSafetyRules.cs`, add a rule alongside `CollectAzureDevOpsPersonalAccessTokenKeyVaultReference`: if `AzureDevOps:Enabled` is true and `AzureDevOps:ArchLucidApiKey` is non-empty and does not start with `@Microsoft.KeyVault(`, emit a `ProductionSafetyViolation`.
+2. Add a matching entry to `appsettings.KeyVault.sample.json`.
+3. Add a unit test in `ArchLucid.Host.Core.Tests` covering the new rule.
+
+**Affected files:**
+
+- `ArchLucid.Host.Core/Startup/Validation/Rules/ProductionSafetyRules.cs`
+- `ArchLucid.Api/appsettings.KeyVault.sample.json`
+- `ArchLucid.Host.Core.Tests/` (production safety rule tests)
+
+**Size estimate:** **XS** -- ~1-2 h.
+
+---
+
+## TB-082 — Agent `AllowedTools` — runtime enforcement at handler dispatch
+
+**Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
+
+**Problem:**
+
+`AgentTask.AllowedTools` (L88-93) is documented as "empty = unrestricted" and is used only as a hint inside prompt text (`AgentUserPromptBuilder.cs` L132-135). No code in `RealAgentExecutor` or the handler pipeline checks `AllowedTools` before dispatching to an `IAgentHandler`. This means a crafted agent task (or a prompt that manipulates which handler is chosen) cannot be blocked at the execution boundary by the allowlist.
+
+While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed as agent-callable tools -- so there is no immediate LLM->integration dispatch path -- the advisory-only posture leaves the architecture open to future accidental exposure if a handler is registered without an allowlist guard.
+
+**What to do:**
+
+1. In `RealAgentExecutor`, after resolving the handler by `AgentTypeKey`, check that `task.AllowedTools` is empty (unrestricted) **or** contains the resolved `AgentTypeKey`. Throw `AgentToolNotAllowedException` (new typed exception) if the check fails.
+2. Treat `null` and empty collections as unrestricted (preserving current behaviour for existing callers).
+3. Add unit tests covering: allowlist present and matching, allowlist present and not matching, null/empty allowlist.
+4. Document the enforcement semantics in a comment on `AgentTask.AllowedTools`.
+
+**Affected files:**
+
+- `ArchLucid.AgentRuntime/RealAgentExecutor.cs`
+- `ArchLucid.Core/Agents/AgentTask.cs` (comment update)
+- `ArchLucid.AgentRuntime.Tests/` (new enforcement tests)
+
+**Depends on:** No hard dependencies; pure behavioural guard.
+
+**Size estimate:** **S** -- ~half day including tests.
+
+---
+
+## TB-083 — Service Bus — production safety rule: require namespace FQDN, disallow raw connection string
+
+**Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
+
+**Problem:**
+
+`ServiceCollectionExtensions.SchedulingAndAlerts.cs` (L368-378) supports two Service Bus registration paths: FQDN namespace + `DefaultAzureCredential`, or raw `IntegrationEvents:ServiceBusConnectionString`. The validator only requires that one of the two is set; there is no production rule forbidding the raw connection string analogous to the ADO PAT guard. A raw connection string contains a shared access key, bypasses Entra, and cannot be scoped to least-privilege roles via RBAC.
+
+**What to do:**
+
+1. In `ProductionSafetyRules.cs`, add a rule: if `IntegrationEvents:ServiceBusConnectionString` is non-empty and does not start with `@Microsoft.KeyVault(`, emit a `ProductionSafetyViolation`.
+2. This still allows Key Vault-referenced connection strings in environments where FQDN + MI is not yet available (e.g. staging with SAS). Operators must actively opt out via Key Vault reference.
+3. Add a matching entry to `appsettings.KeyVault.sample.json` showing both the Key Vault reference and the preferred FQDN pattern.
+4. Add a unit test covering the new rule.
+
+**Affected files:**
+
+- `ArchLucid.Host.Core/Startup/Validation/Rules/ProductionSafetyRules.cs`
+- `ArchLucid.Api/appsettings.KeyVault.sample.json`
+- `ArchLucid.Host.Core.Tests/`
+
+**Size estimate:** **XS** -- ~1-2 h.
+
+---
+
+## TB-084 — AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction
+
+**Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
+
+**Problem:**
+
+`GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` (L32-33) embeds `subscriptionId` directly into the ARM URL (`https://management.azure.com/subscriptions/{subscriptionId}/resources`). The current guard in `HostedAzureExtractorClient` only rejects whitespace. A malformed or path-traversal-style subscription ID (e.g. `../../tenants`) would be forwarded to ARM, which would return a 400/404 rather than being blocked locally. While ARM itself safely rejects invalid subscription IDs, a local format guard is cheap and closes the surface completely.
+
+**What to do:**
+
+1. In `HostedAzureExtractorClient` (or the request record validator), assert `Guid.TryParse(request.SubscriptionId, out _)` and throw `ArgumentException` with a clear message if the parse fails.
+2. Apply the same guard to `CustomerTenantId` and `CustomerAppId` (both should be GUIDs per the WIF flow).
+3. Add unit tests covering valid GUIDs, empty strings, whitespace, and path-segment strings.
+
+**Affected files:**
+
+- `ArchLucid.Integrations.AzureExtractor/HostedAzureExtractorClient.cs`
+- `ArchLucid.Integrations.AzureExtractor.Tests/` (new validation tests)
+
+**Size estimate:** **XS** -- ~1 h.
+
+---
+
+## TB-085 — SqlRelationalBackfill — paged entity scans + durable checkpoint table
+
+**Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
+
+**Problem:**
+
+`SqlRelationalBackfillService` loads every header key for each stage into a `List<Guid>` (or tuple list for golden manifests) before processing one entity at a time. Memory use grows with table size; there is no resume cursor if the process is killed mid-run. Re-runs are safe at the slice level (count-before-insert guards) but restart from row 1 and repeat redundant SQL.
+
+**What to do:**
+
+1. Add `--batch-size N` (default 500) to `ArchLucid.Backfill.Cli` and thread through `SqlRelationalBackfillOptions`.
+2. Replace full-table ID loads with paged queries (`ORDER BY CreatedUtc OFFSET @Skip FETCH NEXT @Take ROWS ONLY`) or Dapper `QueryUnbufferedAsync` with a manual page cursor.
+3. Add `dbo.BackfillCheckpoints` (`Stage`, `LastProcessedKey`, `UpdatedUtc`) via DbUp + consolidated `ArchLucid.sql`; on start, read checkpoint and page from `LastProcessedKey` forward.
+4. Update checkpoint after each successful page (or each successful entity within a page).
+5. Document operator flow in [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md) (resume, reset checkpoint, batch-size tuning).
+
+**Acceptance criteria:**
+
+- Backfill of a large catalog stays within bounded memory regardless of header count.
+- Interrupt + re-run resumes from last checkpoint without reprocessing completed pages.
+- `--readiness` mode unchanged.
+
+**Affected files / projects:**
+
+- `ArchLucid.Backfill.Cli/Program.cs`
+- `ArchLucid.Persistence/Coordination/Backfill/SqlRelationalBackfillService.cs`
+- `ArchLucid.Persistence/Coordination/Backfill/SqlRelationalBackfillOptions.cs`
+- `ArchLucid.Persistence/Migrations/` + `ArchLucid.Persistence/Scripts/ArchLucid.sql`
+- `docs/library/SqlRelationalBackfill.md`
+
+**Cross-ref:** **TB-090** (machine-readable report for pipeline verification).
+
+**Size estimate:** **M** — ~1–2 days.
+
+---
+
+## TB-086 — SqlRelationalBackfill — poison-row quarantine (`BackfillFailures` + `--max-retries`)
+
+**Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
+
+**Problem:**
+
+A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch) is caught, logged, and added to `SqlRelationalBackfillReport.Failures`, but the next run attempts the same entity again. There is no quarantine, dead-letter list, or skip-after-N-failures mechanism. An operator or CI loop chasing exit code 0 can spin forever on one bad row.
+
+**What to do:**
+
+1. Add `dbo.BackfillFailures` (`Stage`, `EntityKey`, `FailureCount`, `LastError`, `LastAttemptUtc`, `SkippedAfterMaxRetries`) via DbUp + consolidated DDL.
+2. On failure, upsert failure row; on success, delete failure row for that `(Stage, EntityKey)`.
+3. Add `--max-retries N` (default 3) to Backfill.Cli; skip entities where `FailureCount >= N` unless `--force-retry` is passed.
+4. Include skipped/quarantined entities in console summary and (when **TB-090** lands) JSON report output.
+5. Document quarantine reset procedure in [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md).
+
+**Acceptance criteria:**
+
+- Third consecutive failure on the same entity is skipped on the next run (default).
+- Operator can inspect quarantined rows in SQL and force retry when source data is repaired.
+
+**Affected files / projects:**
+
+- `ArchLucid.Backfill.Cli/Program.cs`
+- `ArchLucid.Persistence/Coordination/Backfill/SqlRelationalBackfillService.cs`
+- `ArchLucid.Persistence/Coordination/Backfill/SqlRelationalBackfillReport.cs`
+- `ArchLucid.Persistence/Migrations/` + `ArchLucid.Persistence/Scripts/ArchLucid.sql`
+
+**Size estimate:** **S** — ~4–8 h.
+
+---
+
+## TB-087 — Findings backfill slice — DB-level idempotency (remove double COUNT race)
+
+**Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
+
+**Problem:**
+
+`BackfillFindingsSnapshotsAsync` checks `COUNT(1)` on `FindingRecords` in the service, then calls `SqlFindingsSnapshotRepository.BackfillRelationalSlicesAsync`, which performs the same check. The service-level check uses a separate connection without sharing the insert transaction, so two concurrent backfill processes can both observe `COUNT = 0` and insert duplicate finding rows. Safety today relies on manual serialization, not database enforcement. Golden-manifest provenance slices use per-table count guards inside one transaction and are lower risk; this item closes the findings-specific gap.
+
+**What to do:**
+
+1. Remove the redundant service-level count gate in `SqlRelationalBackfillService.BackfillFindingsSnapshotsAsync`; rely on repository logic inside the entity transaction only.
+2. Add a DbUp migration + consolidated DDL constraint preventing duplicate slice materialization — prefer `UNIQUE` on the natural child key or `MERGE`/upsert semantics in `InsertFindingRecordsRelationalAsync`.
+3. Add integration test: two concurrent backfill attempts for the same `FindingsSnapshotId` yield exactly one set of child rows.
+4. Note in [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md) that re-runs do not duplicate provenance or cost rows (backfill touches no cost tables).
+
+**Acceptance criteria:**
+
+- Concurrent reruns cannot double-insert `FindingRecords` for the same snapshot.
+- Idempotent rerun after partial success remains safe.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Coordination/Backfill/SqlRelationalBackfillService.cs`
+- `ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs`
+- `ArchLucid.Persistence/Migrations/` + `ArchLucid.Persistence/Scripts/ArchLucid.sql`
+- `ArchLucid.Persistence.Tests/` (concurrency or duplicate-guard test)
+
+**Cross-ref:** **TB-012** (**INV-009** idempotency).
+
+**Size estimate:** **XS–S** — ~2–4 h.
+
+---
+
+## TB-088 — Container App jobs — per-entity error isolation in multi-tenant loops
+
+**Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
+
+**Problem:**
+
+`TrialLifecycleArchLucidJob` and `AdvisoryScanArchLucidJob` catch a single top-level `Exception` and return `JobFailure` for the entire run. One bad tenant or schedule causes Azure Container Apps to retry the whole job, re-processing healthy entities. `ServiceBusIntegrationEventsArchLucidJob` and `AuditEventChangeFeedArchLucidJob` already bound work and delegate poison handling to the broker or Cosmos SDK; multi-entity jobs do not.
+
+**What to do:**
+
+1. In `TrialLifecycleArchLucidJob`, wrap each `TryAdvanceTenantAsync` call in try/catch; log tenant id + error; continue loop; return `JobFailure` only if any entity failed (aggregate failure count in log/metric).
+2. Apply the same pattern in `AdvisoryScanArchLucidJob` / `AdvisoryDueScheduleProcessor` if failures currently bubble out of per-schedule processing.
+3. Add structured log fields: `TenantId` or `ScheduleId`, `FailureCount`, `SuccessCount`.
+4. Optional: emit OTel counter `archlucid_container_job_entity_failures_total` tagged by `job_name`.
+5. Document ACA retry semantics in [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
+
+**Acceptance criteria:**
+
+- One failing trial tenant does not prevent other tenants from advancing in the same invocation.
+- Job still exits non-zero when any entity failed so ACA can alert, without re-running successful entities on every retry (downstream idempotency required).
+
+**Affected files / projects:**
+
+- `ArchLucid.Host.Core/Jobs/TrialLifecycleArchLucidJob.cs`
+- `ArchLucid.Host.Core/Jobs/AdvisoryScanArchLucidJob.cs`
+- `ArchLucid.Application/` (if `AdvisoryDueScheduleProcessor` needs per-schedule catch)
+- `docs/runbooks/CONTAINER_APPS_JOBS.md`
+
+**Size estimate:** **S** — ~4–8 h.
+
+---
+
+## TB-089 — Digest delivery scanners — record delivery before send (ACA retry idempotency)
+
+**Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
+
+**Problem:**
+
+`ExecDigestWeeklyArchLucidJob`, `WeeklyExecutiveSummaryJob`, and related delivery scanners delegate to Application-layer scanners. If delivery is recorded **after** send and Azure Container Apps retries the job on non-zero exit, operators may receive duplicate digest emails. Jobs.Cli does not write cost or provenance rows; the risk here is customer-visible duplicate notifications, not FinOps double-counting.
+
+**What to do:**
+
+1. Audit `ExecDigestWeeklyDeliveryScanner`, `WeeklyExecutiveSummaryDeliveryScanner`, and `WeeklyArchitectureDigestJobRunner` for send vs persist order.
+2. Ensure idempotency key (tenant + digest period + channel) is written **before** outbound send, or use outbox pattern with at-least-once safe consumers.
+3. Add unit/integration tests: simulated retry after send does not enqueue a second delivery for the same period.
+4. Document idempotency contract in scanner XML comments and [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
+
+**Acceptance criteria:**
+
+- ACA job retry for the same schedule window does not send a second email when the first send succeeded.
+- Failed send before record leaves room for legitimate retry.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/` (digest scanner implementations — locate via `ExecDigestWeeklyDeliveryScanner`, `WeeklyExecutiveSummaryDeliveryScanner`)
+- `ArchLucid.Host.Core/Jobs/ExecDigestWeeklyArchLucidJob.cs`
+- `ArchLucid.Host.Core/Jobs/WeeklyExecutiveSummaryJob.cs`
+- `ArchLucid.Host.Core/Jobs/WeeklyArchitectureDigestArchLucidJob.cs`
+- Application tests for scanner idempotency
+
+**Cross-ref:** **TB-061** (decision-needed governance digest recurrence).
+
+**Size estimate:** **S** — ~4–8 h.
+
+---
+
+## TB-090 — Backfill.Cli — `--output-json` report + per-stage timing
+
+**Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
+
+**Problem:**
+
+Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3` are machine-readable, but failure details and per-stage duration are not available to CI pipelines or audit logs without log scraping. Jobs.Cli already has Serilog + OTel via `JobRunTelemetry`; Backfill is the gap.
+
+**What to do:**
+
+1. Add `--output-json <path>` to Backfill.Cli; serialize `SqlRelationalBackfillReport` (and readiness report when `--readiness`) including stage timings, processed/success/failure counts, and failure list.
+2. Record elapsed milliseconds per stage in `SqlRelationalBackfillReport`.
+3. Optional: single OTel counter `archlucid_backfill_entities_processed_total` tagged by `stage` and `outcome` when run under an OTel-enabled host (lower priority than JSON file).
+4. Document flag in `Program.cs` help text and [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md).
+
+**Acceptance criteria:**
+
+- CI can assert backfill success/failure from JSON without parsing unstructured console output.
+- Readiness mode writes equivalent JSON shape for slice coverage.
+
+**Affected files / projects:**
+
+- `ArchLucid.Backfill.Cli/Program.cs`
+- `ArchLucid.Persistence/Coordination/Backfill/SqlRelationalBackfillReport.cs`
+- `ArchLucid.Persistence/Coordination/Backfill/CutoverReadinessReport.cs` (if extended)
+- `docs/library/SqlRelationalBackfill.md`
+
+**Cross-ref:** **TB-085**, **TB-086** (quarantine/skipped rows in JSON output).
+
+**Size estimate:** **XS** — ~2–4 h.
+
+---

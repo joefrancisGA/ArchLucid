@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { ReviewsNewPathSwitcher } from "./QuickReviewWizard";
 
@@ -24,9 +25,14 @@ export default function NewRunPage() {
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         Start fast with a pasted brief (Quick review) or use the full multi-step wizard with templates and imports.
       </p>
-      <Suspense fallback={<NewRunWizardSkeleton />}>
-        <ReviewsNewPathSwitcher />
-      </Suspense>
+      <div className="mt-3">
+        <FirstWeekRouteGuidance variant="new-review" />
+      </div>
+      <div id="new-review-wizard" className="scroll-mt-24">
+        <Suspense fallback={<NewRunWizardSkeleton />}>
+          <ReviewsNewPathSwitcher />
+        </Suspense>
+      </div>
     </div>
   );
 }

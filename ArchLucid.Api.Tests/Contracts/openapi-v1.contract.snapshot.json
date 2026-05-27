@@ -2276,6 +2276,12 @@
       },
       "ArchitectureDecisionRegisterEntry": {
         "properties": {
+          "buyerConfidenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "category": {
             "type": "string"
           },
@@ -5835,6 +5841,12 @@
             "format": "uuid",
             "type": "string"
           },
+          "sourceRevisionHash": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "tenantId": {
             "format": "uuid",
             "type": "string"
@@ -7521,6 +7533,18 @@
             },
             "type": "array"
           },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reasoningTraceDigestSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "rulesApplied": {
             "items": {
               "type": "string"
@@ -8502,6 +8526,18 @@
             ]
           },
           "reasoningSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reasoningTraceDigestSha256": {
             "type": [
               "null",
               "string"
@@ -16357,10 +16393,23 @@
             },
             "type": "array"
           },
+          "degradedFindingCoverage": {
+            "type": "boolean"
+          },
           "executionFlavorBuyerSummary": {
             "type": [
               "null",
               "string"
+            ]
+          },
+          "findingCoverageSummary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunFindingCoverageSummary"
+              }
             ]
           },
           "findingsSnapshot": {
@@ -16689,6 +16738,38 @@
         "properties": {
           "record": {
             "$ref": "#/components/schemas/RunExportRecord"
+          }
+        },
+        "type": "object"
+      },
+      "RunFindingCoverageSummary": {
+        "properties": {
+          "enginesAttempted": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "enginesFailed": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "enginesSucceeded": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "failedEngineLabels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "generationStatus": {
+            "$ref": "#/components/schemas/FindingsSnapshotGenerationStatus"
+          },
+          "hasCommitBlockingFailures": {
+            "type": "boolean"
+          },
+          "isDegraded": {
+            "type": "boolean"
           }
         },
         "type": "object"

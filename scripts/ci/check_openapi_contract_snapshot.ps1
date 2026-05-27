@@ -1,4 +1,4 @@
-# Build ArchLucid.Api.Tests and verify OpenAPI v1 matches the committed snapshot.
+# Build ArchLucid.Api.Tests and verify OpenAPI v1 matches the CI baseline snapshot.
 # Same assertion as CI job "openapi-contract-snapshot".
 #
 # Usage (from repo root):

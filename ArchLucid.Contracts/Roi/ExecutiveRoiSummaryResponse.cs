@@ -106,6 +106,13 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     } = [];
+
+    /// <summary>Hybrid realized-value metrics from disposition and waiver workflow (Batch B item 20).</summary>
+    public RealizedValueSummary? RealizedValue
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>

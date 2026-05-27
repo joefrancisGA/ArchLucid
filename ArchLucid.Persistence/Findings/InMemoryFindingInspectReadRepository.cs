@@ -106,7 +106,9 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ConfidenceLevel = match.ConfidenceLevel,
             HumanReviewStatus = match.HumanReviewStatus,
             IsMuted = match.IsMuted,
-            MuteReason = match.MuteReason
+            MuteReason = match.MuteReason,
+            ReasoningTrace = match.Trace.ReasoningTrace,
+            ReasoningTraceDigestSha256 = match.Trace.ReasoningTraceDigestSha256
         };
     }
 

@@ -417,6 +417,45 @@ public sealed class AuthorityPipelineStagesExecutorTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAfterRunPersistedAsync_aborts_decisioning_when_security_engine_failed_even_if_halt_disabled()
+    {
+        _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
+
+        DateTime utc = TimeProvider.System.UtcNowDateTime();
+        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
+            configureFindings: s =>
+            {
+                s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
+                s.EngineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = "security-baseline",
+                        Category = "Security",
+                        ErrorMessage = "critical",
+                        ExceptionType = nameof(InvalidOperationException),
+                        DurationMs = 1,
+                        OccurredUtc = utc
+                    });
+            },
+            authorityPipelineOptions: new AuthorityPipelineOptions { HaltOnPartialFindings = false });
+
+        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+
+        Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*only partially complete*");
+
+        decision.Verify(
+            d => d.DecideAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_skips_completed_stages_on_checkpoint_retry()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageSkippedCheckpointTotal;

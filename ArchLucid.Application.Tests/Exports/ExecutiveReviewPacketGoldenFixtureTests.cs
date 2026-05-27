@@ -58,4 +58,38 @@ public sealed class ExecutiveReviewPacketGoldenFixtureTests
         markdown.Should().Contain("PHI minimization risk at intake boundary");
         markdown.Should().Contain("Claims Intake Modernization");
     }
+
+    [Fact]
+    public void Seeded_demo_run_packet_preserves_required_sponsor_sections()
+    {
+        ExecutiveReviewPacketDemoFixture.DemoPacketInputs inputs =
+            ExecutiveReviewPacketDemoFixture.CreateSeededDemoRun();
+
+        string markdown = ExecutiveReviewPacketComposer.ComposeMarkdown(
+            inputs.Detail,
+            inputs.ExecutiveSummary,
+            inputs.TopFindingTitles,
+            inputs.RoiSummary,
+            ExecutiveReviewPacketDemoFixture.StableGeneratedUtc,
+            inputs.TopDecisions,
+            inputs.PortfolioSignals);
+
+        string[] requiredSections =
+        [
+            "## Manifest summary",
+            "## Top decisions",
+            "## Run summary",
+            "## Portfolio signals (live)",
+            "## ROI basis",
+            "## Realized value (computed)",
+            "Confidence:",
+            "Evidence:",
+            "**Cost evidence freshness:**",
+        ];
+
+        foreach (string section in requiredSections)
+        {
+            markdown.Should().Contain(section, because: $"sponsor packet must retain {section}");
+        }
+    }
 }

@@ -1,4 +1,6 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
@@ -6,6 +8,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Roi;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -41,6 +44,19 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             .Setup(repo => repo.ListSinceUtcAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(service => service.ListActiveAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
+        riskExceptions
+            .Setup(service => service.ListRetiredSinceAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
+
+        Mock<ITenantSettingsRepository> tenantSettings = new();
+        tenantSettings
+            .Setup(repo => repo.TryGetAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
         Mock<IAzureExtractorPackageRepository> packageRepository = new();
         packageRepository
             .Setup(repo => repo.HasAnyInWorkspaceAsync(resolvedScope, It.IsAny<CancellationToken>()))
@@ -65,6 +81,8 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             packageRepository.Object,
             scopeProvider.Object,
             findingReviewTrailRepository ?? reviewTrail.Object,
+            riskExceptions.Object,
+            tenantSettings.Object,
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 
         return (service, packageRepository);

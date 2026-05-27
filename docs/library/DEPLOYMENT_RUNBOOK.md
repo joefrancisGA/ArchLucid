@@ -102,6 +102,16 @@ API and worker hosts evaluate **production-profile dangerous misconfiguration** 
 
 Validation runs when **ASP.NET Core** is **Production**, when **`ARCHLUCID_ENVIRONMENT=Production`**, or when **`ProductionValidation:Strict=true`** together with **Staging** (ASP.NET Core or ArchLucid environment name). Optional **`ProductionValidation:RequireTelemetryExport=true`** requires at least one telemetry sink: OTLP endpoint, Application Insights connection string, or Prometheus enabled. Operators can dry-run matching checks with **`archlucid config lint`** (use **`--simulate-production`** and optional **`--strict-staging`** with **`--hosting-advisor`** for advisory parity).
 
+**Observability readiness artifact (repo-only, no secrets printed):**
+
+```powershell
+python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md
+```
+
+Add **`--strict-exit-code`** for release gates. See [`OBSERVABILITY.md`](OBSERVABILITY.md) for warn vs fail behavior on hosts vs the report script.
+
+**Scale decisions:** when single-replica assumptions stop holding, see [`SCALE_THRESHOLD_RUNBOOK.md`](SCALE_THRESHOLD_RUNBOOK.md).
+
 ---
 
 For **Azure Container Apps**, set a head-based sampling ratio so OTLP trace volume stays manageable in production (see [OBSERVABILITY.md](OBSERVABILITY.md) §Sampling strategy).
@@ -118,5 +128,7 @@ For **Azure Container Apps**, set a head-based sampling ratio so OTLP trace volu
 |--------|----------|
 | CD jobs, secrets, post-deploy script | [DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md) |
 | Umbrella deploy / rollback story | [DEPLOYMENT.md](DEPLOYMENT.md) |
+| Observability export readiness report | [OBSERVABILITY.md](OBSERVABILITY.md) |
+| Hosted SaaS scale thresholds | [SCALE_THRESHOLD_RUNBOOK.md](SCALE_THRESHOLD_RUNBOOK.md) |
 | Local / release smoke depth | [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | SQL / migration rollback | [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md) |

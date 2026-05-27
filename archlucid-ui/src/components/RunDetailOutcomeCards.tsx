@@ -27,6 +27,10 @@ type RunDetailOutcomeCardsProps = {
   readonly governanceGateLabel?: string | null;
   /** Aggregate posture from explanation summary (buyer strip severity signal). */
   readonly aggregateRiskPosture?: string | null;
+  /** When true, one or more finding engines failed but the review may still be committable. */
+  readonly degradedFindingCoverage?: boolean;
+  /** Sanitized engine labels from finding coverage summary (engine/category). */
+  readonly failedEngineLabels?: readonly string[];
   /** Buyer-polished strip only: prominent link to read-only pack detail (showcase demo). */
   readonly showcasePolicyPackStrip?: ShowcasePolicyPackStripLink | null;
 };
@@ -39,6 +43,31 @@ const samePageJumpClass =
 
 const stripShell =
   "rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30";
+
+function DegradedFindingCoverageBanner({
+  failedEngineLabels,
+}: {
+  readonly failedEngineLabels: readonly string[];
+}) {
+  const labelText =
+    failedEngineLabels.length > 0
+      ? failedEngineLabels.join(", ")
+      : "one or more finding engines";
+
+  return (
+    <div
+      className="rounded-lg border border-amber-300/80 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100"
+      data-testid="degraded-finding-coverage-banner"
+      role="status"
+    >
+      <p className="m-0 font-semibold">Degraded finding coverage</p>
+      <p className="m-0 mt-1 text-xs leading-relaxed">
+        This review completed with incomplete finding-engine coverage ({labelText}). Treat unresolved findings as
+        advisory until coverage is restored.
+      </p>
+    </div>
+  );
+}
 
 function manifestWarningsSecondaryCopy(warningCountDisplay: number | null): string | null {
   if (typeof warningCountDisplay !== "number" || !Number.isFinite(warningCountDisplay)) {
@@ -305,10 +334,16 @@ export function RunDetailOutcomeCards({
   governanceGateLabel,
   aggregateRiskPosture,
   showcasePolicyPackStrip,
+  degradedFindingCoverage = false,
+  failedEngineLabels = [],
 }: RunDetailOutcomeCardsProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const coverageBanner =
+    degradedFindingCoverage === true ? (
+      <DegradedFindingCoverageBanner failedEngineLabels={failedEngineLabels} />
+    ) : null;
 
-  if (buyerPolishedShell) {  
+  if (buyerPolishedShell) {
   const statusHeadline = buildBuyerReviewPackagePlainStatusHeadline({
     hasGoldenManifest,
     findingCountDisplay,
@@ -320,6 +355,7 @@ export function RunDetailOutcomeCards({
 
   return (
     <div className="space-y-3">
+      {coverageBanner}
       {statusHeadline !== null ? (
         <div
           className="rounded-xl border-2 border-teal-600/75 bg-teal-50/70 px-4 py-3 shadow-sm dark:border-teal-500/60 dark:bg-teal-950/35"
@@ -424,7 +460,9 @@ export function RunDetailOutcomeCards({
   );
 
   return (
-    <section aria-label="Review outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-3">
+      {coverageBanner}
+      <section aria-label="Review outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Manifest</CardTitle>
@@ -509,5 +547,6 @@ export function RunDetailOutcomeCards({
         </CardContent>
       </Card>
     </section>
+    </div>
   );
 }

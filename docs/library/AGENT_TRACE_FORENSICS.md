@@ -98,6 +98,21 @@ For investigations that start from a **finding** rather than a single trace row,
 
 **Awaited** persistence (with timeout) ensures the run does not move on while operators still see **null** blob keys for content that was intended to be retained. The retry loop adds transient-fault tolerance without introducing a dependency on Polly in the recorder. The `BlobUploadFailed` flag and **`AgentTraceBlobPersistenceFailed`** audit give a queryable signal to re-upload or investigate without scanning logs alone.
 
+## Known gaps (scheduled)
+
+Replay completeness audit (2026-05-26) — decision lineage lives in **`ArchLucid.Provenance`**; LLM forensics live here. Scheduled engineering work:
+
+| Gap | Backlog |
+|-----|---------|
+| Sampling params + reasoning token count not on trace row | **TB-033** |
+| Degraded handler writes no trace | **TB-034** |
+| Schema-remediation intermediate attempts not persisted | **TB-035** |
+| Provenance graph not linked to trace IDs | **TB-036** |
+| `DecisionProvenanceSnapshot` not written in production | **TB-037** |
+| Retrieval grounding: query/scores/document IDs; non-Compliance agents | **TB-038** / **RAG-V1-006** |
+
+See [`TECH_BACKLOG.md`](TECH_BACKLOG.md) §TB-033–TB-038.
+
 ## DDL
 
 Schema additions ship in migrations **`053`**, **`056`**, **`062`** (inline columns), **`064`** (**`InlineFallbackFailed`**), **`065`** (filtered index **`IX_AgentExecutionTraces_InlineFallbackFailed`**), and **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.

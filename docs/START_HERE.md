@@ -12,6 +12,7 @@ START_HERE.md (you are here)
 │   ├─ https://archlucid.net
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story)
 │   ├─ runbooks/FIRST_PILOT_OPERATOR_PATH.md     (single V1 pilot path — start here for operators)
+│   ├─ library/walkthroughs/README.md            (accelerator pack index — Azure SaaS, AI governance, healthcare)
 │   ├─ onboarding/EVALUATION_GUIDE.md     (guided architecture review / review package in product)
 │   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (printable evidence checklist — companion to operator path)
 │   ├─ runbooks/PILOT_RESCUE_PLAYBOOK.md  (stuck mid-pilot — symptom index)

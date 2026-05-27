@@ -107,6 +107,7 @@ When upgrading ArchLucid:
 
 ## Related documents
 
+- [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md) — capability layers; extensibility table links here
 - [`START_HERE.md`](../START_HERE.md) — integrator spine (contributor row links here)
 - [`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md) — week-one developer onboarding
 - [`CONTRIBUTOR_CODE_MAP.md`](CONTRIBUTOR_CODE_MAP.md) — where to change agents and pipelines

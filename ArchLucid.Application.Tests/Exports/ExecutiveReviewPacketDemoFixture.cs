@@ -147,7 +147,15 @@ internal static class ExecutiveReviewPacketDemoFixture
                     CommittedUtc = new DateTime(2026, 5, 16, 8, 5, 0, DateTimeKind.Utc),
                     EstimatedUsdSavings = 8400m
                 }
-            ]
+            ],
+            RealizedValue = new RealizedValueSummary
+            {
+                FindingsRemediatedCount30Days = 1,
+                MedianTimeToRemediationDays = 4.5,
+                ActiveWaiversCount = 0,
+                WaiversRetiredCount30Days = 0,
+                WaiverExpiryReversionCount30Days = 0,
+            }
         };
 
         return new DemoPacketInputs

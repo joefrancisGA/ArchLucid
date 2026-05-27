@@ -6,11 +6,13 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Application.Governance;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Logging;
 
@@ -27,6 +29,8 @@ public sealed class ExecutiveRoiSummaryService(
     IAzureExtractorPackageRepository azureExtractorPackageRepository,
     IScopeContextProvider scopeContextProvider,
     IFindingReviewTrailRepository findingReviewTrailRepository,
+    IRiskExceptionService riskExceptionService,
+    ITenantSettingsRepository tenantSettingsRepository,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
 {
     /// <summary>Max distinct systems whose run details are loaded per request (defense against huge tenants).</summary>
@@ -59,6 +63,12 @@ public sealed class ExecutiveRoiSummaryService(
 
     private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
         findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
+    private readonly IRiskExceptionService _riskExceptionService =
+        riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));
+
+    private readonly ITenantSettingsRepository _tenantSettingsRepository =
+        tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
 
     /// <inheritdoc/>
     public async Task<ExecutiveRoiSummaryResponse> BuildAsync(CancellationToken cancellationToken = default)
@@ -106,12 +116,21 @@ public sealed class ExecutiveRoiSummaryService(
         decimal totalSavings = systems.Sum(static system => system.EstimatedUsdSavings ?? 0m);
 
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
+        Guid? projectId = _scopeContextProvider.GetCurrentScope().ProjectId;
         (int resolvedCount, int newlyDiscoveredCount) =
             await ExecutiveRoiTrailing30DayMetricsCalculator.ComputeAsync(
                 _runDetailQueryService,
                 _findingReviewTrailRepository,
                 tenantId,
                 cancellationToken).ConfigureAwait(false);
+
+        RealizedValueSummary realizedValue = await RealizedValueMetricsCalculator.ComputeAsync(
+            _findingReviewTrailRepository,
+            _riskExceptionService,
+            _tenantSettingsRepository,
+            tenantId,
+            projectId,
+            cancellationToken).ConfigureAwait(false);
 
         ExecutiveRoiPricingLabels pricingLabels =
             await ResolveExecutiveRoiPricingLabelsAsync(latestDetails, cancellationToken).ConfigureAwait(false);
@@ -132,6 +151,7 @@ public sealed class ExecutiveRoiSummaryService(
             ResolvedFindingsCount30Days = resolvedCount,
             NewlyDiscoveredFindingsCount30Days = newlyDiscoveredCount,
             HistoricalTrends = historicalTrends,
+            RealizedValue = realizedValue,
         };
     }
 

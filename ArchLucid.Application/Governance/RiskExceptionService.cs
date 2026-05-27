@@ -32,13 +32,8 @@ public sealed class RiskExceptionService(IRiskExceptionRepository repository, IA
         if (string.IsNullOrWhiteSpace(request.OwnerUserId))
             throw new ArgumentException("Owner user id is required.", nameof(request));
 
-        if (string.IsNullOrWhiteSpace(request.Rationale))
-            throw new ArgumentException("Rationale is required.", nameof(request));
-
-        if (request.ExpiresAtUtc <= TimeProvider.System.UtcNowDateTime())
-            throw new ArgumentException("Expiration must be in the future.", nameof(request));
-
         DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
+        RiskExceptionValidation.Validate(request, now);
 
         RiskExceptionRecord record = new()
         {
@@ -124,5 +119,17 @@ public sealed class RiskExceptionService(IRiskExceptionRepository repository, IA
         await _repository.MarkExpiredAsync(tenantId, TimeProvider.System.UtcNowDateTime(), cancellationToken);
 
         return await _repository.ListActiveForTenantAsync(tenantId, projectId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<RiskExceptionRecord>> ListRetiredSinceAsync(
+        Guid tenantId,
+        Guid? projectId,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        return await _repository.ListRetiredSinceUtcAsync(tenantId, projectId, sinceUtc, cancellationToken);
     }
 }

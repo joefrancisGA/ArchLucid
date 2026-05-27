@@ -386,18 +386,21 @@ public sealed class AuthorityPipelineStagesExecutor(
             throw new InvalidOperationException(
                 $"Findings snapshot generation failed for all engines (RunId={runId:D}); aborting authority decisioning.");
 
-        if (snapshot.GenerationStatus == FindingsSnapshotGenerationStatus.PartiallyComplete && opts.HaltOnPartialFindings)
-            throw new InvalidOperationException(
-                $"Findings snapshot is only partially complete (RunId={runId:D}); authority pipeline halts before decisioning when AuthorityPipeline:HaltOnPartialFindings is true.");
+        if (snapshot.GenerationStatus == FindingsSnapshotGenerationStatus.PartiallyComplete)
+        {
+            bool blocking = FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(snapshot.EngineFailures);
 
-        if (snapshot.GenerationStatus == FindingsSnapshotGenerationStatus.PartiallyComplete
-            && !opts.HaltOnPartialFindings
-            && _logger.IsEnabled(LogLevel.Warning))
+            if (blocking || opts.HaltOnPartialFindings)
+                throw new InvalidOperationException(
+                    $"Findings snapshot is only partially complete (RunId={runId:D}); authority pipeline halts before decisioning when a safety-critical engine failed or AuthorityPipeline:HaltOnPartialFindings is true.");
 
-            _logger.LogWarning(
-                "Authority pipeline continuing decisioning with partially complete findings: RunId={RunId}, FailedEngineCount={FailedEngineCount}",
-                runId,
-                snapshot.EngineFailures.Count);
+            if (_logger.IsEnabled(LogLevel.Warning))
+
+                _logger.LogWarning(
+                    "Authority pipeline continuing decisioning with degraded finding coverage: RunId={RunId}, FailedEngineCount={FailedEngineCount}",
+                    runId,
+                    snapshot.EngineFailures.Count);
+        }
     }
 
     private async Task ExecuteStageAsync(

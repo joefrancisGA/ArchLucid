@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -13,6 +14,7 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
         Guid tenantId,
         Guid? projectId,
         int maxRows,
+        ArchitectureDecisionRegisterQueryOptions? filters,
         CancellationToken cancellationToken)
     {
         if (tenantId == Guid.Empty)
@@ -65,6 +67,7 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
                     Rationale = row.Rationale,
                     Confidence = row.Confidence,
                     ConfidenceSource = row.ConfidenceSource,
+                    BuyerConfidenceSource = DecisionConfidenceSourceMapper.ToBuyerLabel(row.ConfidenceSource),
                     RecordedAtUtc = new DateTimeOffset(DateTime.SpecifyKind(row.RecordedAtUtc, DateTimeKind.Utc)),
                     SupportingFindingIds = [],
                 });
@@ -120,12 +123,52 @@ public sealed class ArchitectureDecisionRegisterReader(ISqlConnectionFactory con
                     Rationale = decision.Rationale,
                     Confidence = decision.Confidence,
                     ConfidenceSource = decision.ConfidenceSource,
+                    BuyerConfidenceSource = decision.BuyerConfidenceSource,
                     RecordedAtUtc = decision.RecordedAtUtc,
                     SupportingFindingIds = findingIds,
                 });
         }
 
-        return enriched;
+        return ApplyFilters(enriched, filters);
+    }
+
+    private static IReadOnlyList<ArchitectureDecisionRegisterEntry> ApplyFilters(
+        IReadOnlyList<ArchitectureDecisionRegisterEntry> decisions,
+        ArchitectureDecisionRegisterQueryOptions? filters)
+    {
+        if (filters is null)
+            return decisions;
+
+        IEnumerable<ArchitectureDecisionRegisterEntry> query = decisions;
+
+        if (!string.IsNullOrWhiteSpace(filters.Category))
+        {
+            string category = filters.Category.Trim();
+
+            query = query.Where(d => string.Equals(d.Category, category, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (filters.RecordedAfterUtc is not null)
+            query = query.Where(d => d.RecordedAtUtc >= filters.RecordedAfterUtc);
+
+        if (filters.RecordedBeforeUtc is not null)
+            query = query.Where(d => d.RecordedAtUtc <= filters.RecordedBeforeUtc);
+
+        if (filters.MinConfidence is not null)
+            query = query.Where(d => d.Confidence is not null && d.Confidence >= filters.MinConfidence);
+
+        if (filters.MaxConfidence is not null)
+            query = query.Where(d => d.Confidence is not null && d.Confidence <= filters.MaxConfidence);
+
+        if (!string.IsNullOrWhiteSpace(filters.BuyerConfidenceSource))
+        {
+            string label = filters.BuyerConfidenceSource.Trim();
+
+            query = query.Where(d =>
+                string.Equals(d.BuyerConfidenceSource, label, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return query.ToList();
     }
 
     private sealed class DecisionRow

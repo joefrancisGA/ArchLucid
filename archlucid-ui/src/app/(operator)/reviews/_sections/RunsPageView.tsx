@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { EmptyState } from "@/components/EmptyState";
+import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -51,6 +52,9 @@ export function RunsPageView(props: Props) {
         helpKey="runs-list-overview"
         docsPageKey="/runs"
       />
+      <div className="mt-3 max-w-3xl">
+        <FirstWeekRouteGuidance variant="reviews-list" />
+      </div>
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         {isBuyerPolishedOperatorShellEnv() ? (
           m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (

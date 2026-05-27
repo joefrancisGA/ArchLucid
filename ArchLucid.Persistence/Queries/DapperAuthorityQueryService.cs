@@ -135,6 +135,7 @@ public sealed class DapperAuthorityQueryService(
         };
 
         RunExecutionDegradation.Apply(detail, run, await degradedAgentsTask);
+        RunFindingCoverageProjection.Apply(detail, detail.FindingsSnapshot);
 
         return detail;
     }

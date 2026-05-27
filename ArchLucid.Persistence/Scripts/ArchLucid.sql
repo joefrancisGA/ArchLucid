@@ -1220,6 +1220,12 @@ IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Findi
 GO
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteReason') IS NULL
     ALTER TABLE dbo.FindingRecords ADD MuteReason NVARCHAR(2000) NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ReasoningTrace') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ReasoningTrace NVARCHAR(2000) NULL;
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ReasoningTraceDigestSha256') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ReasoningTraceDigestSha256 NVARCHAR(64) NULL;
 GO
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'MuteExpiresAtUtc') IS NULL
     ALTER TABLE dbo.FindingRecords ADD MuteExpiresAtUtc DATETIME2(3) NULL;

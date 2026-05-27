@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -57,13 +58,30 @@ public sealed class GovernanceStickinessController(
     public async Task<IActionResult> GetDecisionRegister(
         [FromQuery] Guid? projectId,
         [FromQuery] int maxRows = 200,
+        [FromQuery] string? category = null,
+        [FromQuery] DateTimeOffset? recordedAfterUtc = null,
+        [FromQuery] DateTimeOffset? recordedBeforeUtc = null,
+        [FromQuery] double? minConfidence = null,
+        [FromQuery] double? maxConfidence = null,
+        [FromQuery] string? buyerConfidenceSource = null,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ArchitectureDecisionRegisterQueryOptions filters = new()
+        {
+            Category = category,
+            RecordedAfterUtc = recordedAfterUtc,
+            RecordedBeforeUtc = recordedBeforeUtc,
+            MinConfidence = minConfidence,
+            MaxConfidence = maxConfidence,
+            BuyerConfidenceSource = buyerConfidenceSource,
+        };
+
         ArchitectureDecisionRegisterResponse response = await decisionRegisterService.GetRegisterAsync(
             scope.TenantId,
             projectId ?? scope.ProjectId,
             Math.Clamp(maxRows, 1, 500),
+            filters,
             cancellationToken);
 
         return Ok(response);
@@ -174,6 +192,25 @@ public sealed class GovernanceStickinessController(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         await riskExceptionService.RevokeAsync(scope.TenantId, riskExceptionId, actorContext.GetActorId(), cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpPut("realized-value/attestation")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [MutatingAuditExcluded("Audit: attestation is stored in TenantSettings; no separate durable audit row in V1.")]
+    public async Task<IActionResult> UpsertRealizedValueAttestation(
+        [FromBody] UpsertRealizedValueAttestationRequest? request,
+        [FromServices] IRealizedValueAttestationService attestationService,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        await attestationService.SaveAttestationAsync(scope.TenantId, request, cancellationToken);
 
         return NoContent();
     }

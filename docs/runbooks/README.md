@@ -23,6 +23,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 
 | Priority | Runbook | When to use |
 |----------|---------|-------------|
+| **P1** | [FIRST_PILOT_OPERATOR_PATH.md](./FIRST_PILOT_OPERATOR_PATH.md) | **Single V1 pilot path** — storage/auth → evidence → create → commit → sponsor export → next action (no V1.1 connectors required). |
 | **P1** | [DATABASE_FAILOVER.md](./DATABASE_FAILOVER.md) | Azure SQL HA / geo-failover, listeners, RPO/RTO, post-failover checks. |
 | **P1** | [SECRET_AND_CERT_ROTATION.md](./SECRET_AND_CERT_ROTATION.md) | Keys, SQL passwords, JWT, webhooks, TLS. |
 | **P1** | [API_KEY_ROTATION.md](./API_KEY_ROTATION.md) | API key lifecycle for automation principals and smoke probes. |
@@ -41,6 +42,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [DATA_ARCHIVAL_HEALTH.md](./DATA_ARCHIVAL_HEALTH.md) | `data_archival` health degraded or archival host errors. |
 | **P2** | [PROVENANCE_INDEXING.md](./PROVENANCE_INDEXING.md) | Provenance indexing lag or failures. |
 | **P2** | [AUTHORITY_PIPELINE_OBSERVABILITY.md](./AUTHORITY_PIPELINE_OBSERVABILITY.md) | Grafana / Prometheus: authority outbox backlog, stale rows, data-consistency counters vs alerts; scale and SQL triage. |
+| **P2** | [../library/SCALE_THRESHOLD_RUNBOOK.md](../library/SCALE_THRESHOLD_RUNBOOK.md) | When to enable Redis, read replicas, worker split, outbox scaling, and query p95 triage for hosted SaaS. |
 | **P2** | [BILLING_WEBHOOK_REPLAY_GUARD.md](./BILLING_WEBHOOK_REPLAY_GUARD.md) | Stripe/Marketplace webhook replay vs signature verification, SQL ledger investigation, safe resend. |
 | **P2** | [INTEGRATION_EVENT_DLQ_RETRY_POLICY.md](./INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) | Outbox dead-letter auto-retry cadence, permanent failure, manual retry/suppress. |
 | **P2** | [GRAFANA_DASHBOARD_BINDING_GUIDE.md](./GRAFANA_DASHBOARD_BINDING_GUIDE.md) | Import/provision Grafana JSON; datasource UIDs; RAG per-tenant tag cardinality. |

@@ -38,8 +38,15 @@ BEGIN
         RunId UNIQUEIDENTIFIER NOT NULL,
         GraphJson NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
+        SourceRevisionHash NVARCHAR(64) NULL,
         INDEX IX_ProvenanceSnapshots_Scope_Run NONCLUSTERED (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC)
     );
+END;
+GO
+
+IF COL_LENGTH('dbo.ProvenanceSnapshots', 'SourceRevisionHash') IS NULL
+BEGIN
+    ALTER TABLE dbo.ProvenanceSnapshots ADD SourceRevisionHash NVARCHAR(64) NULL;
 END;
 GO
 

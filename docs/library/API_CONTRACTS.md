@@ -21,15 +21,16 @@
 - **Breaking changes:** Ship breaking changes only in a **new major** API version (new path prefix, e.g. `/v2/...`), keep **`v1`** stable for the published sunset window, and document migration in release notes.
 - **Non-breaking:** Minor additive changes (new optional fields, new endpoints under the same major version) do not require a new major version; regenerate and commit the OpenAPI snapshot when the HTTP contract changes so CI catches accidental breaks.
 
-## Contract artifacts
+## Contract surface and CI controls
 
 **Canonical OpenAPI (APIM, codegen, integrators):** Use **`GET /openapi/v1.json`** (Microsoft.AspNetCore.OpenApi). It is the document guarded by **`OpenApiContractSnapshotTests`** and must stay aligned with published npm/PyPI/.NET clients. Azure API Management and external gateways should import this URL, not the Swashbuckle document.
 
 **Explorer-only OpenAPI:** **`GET /swagger/v1/swagger.json`** exists so Scalar loads an interactive UI in development/staging. Do **not** treat it as a second contract of record — it can drift from **`/openapi/v1.json`** if generators diverge.
 
-| Artifact | Location | Purpose |
+| Surface / control | Location | Purpose |
 |----------|----------|-------|
-| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | **Canonical.** CI requires an exact canonical match (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. Use for **APIM import**, **OpenAPI Generator**, and downstream SDK artifacts. |
+| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`** | **Canonical product contract.** Use for **APIM import**, **OpenAPI Generator**, and downstream SDK artifacts. |
+| OpenAPI snapshot baseline | **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | **CI drift-control fixture, not a product artifact.** CI requires an exact canonical match (`OpenApiContractSnapshotTests`) and uploads the generated canonical JSON as the **`openapi-v1-generated-canonical`** workflow artifact for review evidence. Regenerate the baseline only for intentional contract changes: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. |
 | OpenAPI (Swashbuckle) | **`/swagger/v1/swagger.json`** | **Interactive explorer only** (Scalar); not the authoritative import surface for APIM or client SDKs. |
 | AsyncAPI (webhooks) | **`docs/contracts/archlucid-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
 | Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |
@@ -72,7 +73,7 @@ UI alignment: **`docs/operator-shell.md`**.
 
 When you add or change **`v1`** controllers, route templates, or JSON DTOs that surface on **`GET /openapi/v1.json`**:
 
-1. Regenerate and commit **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** (`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` — see **`OPENAPI_CONTRACT_DRIFT.md`**).
+1. Regenerate **`GET /openapi/v1.json`** and update the CI snapshot baseline **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** only when the contract change is intentional (`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` — see **`OPENAPI_CONTRACT_DRIFT.md`**).
 2. Rebuild **`ArchLucid.Api.Client`** so **`Generated/ArchLucidApiClient.g.cs`** tracks the snapshot.
 3. Run **`npm run generate:api-types`** under **`archlucid-ui/`** so **`api-types.generated.ts`** stays aligned (CI may run **`scripts/ci/assert_api_types_in_sync.sh`**).
 4. Update human-readable docs touched by the behavior change (`docs/library/*`, runbooks, **`CONFIGURATION_REFERENCE.md`** when **`ConfigurationKeyCatalog`** rows change).

@@ -25,7 +25,7 @@ internal static class FindingsSnapshotRelationalRead
                                       ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
                                       ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
                                       HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
-                                      IsMuted, MuteReason
+                                      IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
                                   FROM dbo.FindingRecords
                                   WHERE FindingsSnapshotId = @FindingsSnapshotId
                                   ORDER BY SortOrder;
@@ -118,7 +118,9 @@ internal static class FindingsSnapshotRelationalRead
                     DecisionsTaken = traceDecisionsByRecord.GetValueOrDefault(rec.FindingRecordId) ?? [],
                     AlternativePathsConsidered =
                         tracePathsByRecord.GetValueOrDefault(rec.FindingRecordId) ?? [],
-                    Notes = traceNotesByRecord.GetValueOrDefault(rec.FindingRecordId) ?? []
+                    Notes = traceNotesByRecord.GetValueOrDefault(rec.FindingRecordId) ?? [],
+                    ReasoningTrace = rec.ReasoningTrace,
+                    ReasoningTraceDigestSha256 = rec.ReasoningTraceDigestSha256,
                 }
             };
 
@@ -527,6 +529,18 @@ internal static class FindingsSnapshotRelationalRead
         }
 
         public string? MuteReason
+        {
+            get;
+            init;
+        }
+
+        public string? ReasoningTrace
+        {
+            get;
+            init;
+        }
+
+        public string? ReasoningTraceDigestSha256
         {
             get;
             init;

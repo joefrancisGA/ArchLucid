@@ -150,6 +150,10 @@ export function CorePilotBuyerStepHint() {
           {buyerHintBody(progress, latestRunId, firstCommittedRunId)}
         </p>
         <HelpLink docPath="/docs/CORE_PILOT.md" label="Core Pilot steps — guide on GitHub (new tab)" />
+        <HelpLink
+          docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
+          label="First-pilot operator path — full walkthrough on GitHub (new tab)"
+        />
       </div>
     </section>
   );

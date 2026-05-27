@@ -665,6 +665,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             return;
 
         manifest.Warnings.Add(
+            "Degraded finding coverage: one or more finding engines failed during snapshot generation; review findings may be incomplete.");
+
+        manifest.Warnings.Add(
             $"Finding engines: {findingsSnapshot.EngineFailures.Count} failed during snapshot generation; findings may be incomplete.");
 
         foreach (FindingEngineFailure failure in findingsSnapshot.EngineFailures)

@@ -146,6 +146,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "excerpt": "When configuring a generic OIDC issuer (such as Okta or Auth0), use `JwtBearer` mode and specify the authority."
   },
   {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "saml-20-sp-claim-mapping-examples",
+    "sectionHeading": "SAML 2.0 SP claim mapping examples",
+    "excerpt": "When `ArchLucidAuth:Saml2:Enabled=true`, map IdP assertion attributes to ArchLucid scope and roles using the `ArchLucidAuth:Saml2:*ClaimType` keys above. Validate attribute names with your IdP administrator — URIs differ by vendor."
+  },
+  {
     "docPath": "docs/library/CORE_PILOT.md",
     "docTitle": "Core Pilot (pointer)",
     "sectionSlug": "",

@@ -292,6 +292,7 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_pricing_json_checkout_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_data_consistency_mode_readiness_report.py"
           python -m unittest discover -s scripts/ci/tests -p "test_report_observability_export_readiness.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_accessibility_route_evidence_freshness.py"
           python -m unittest discover -s scripts/ci/tests -p "test_invoke_real_llm_evidence_gate.py"
           python -m unittest discover -s scripts/ci/tests -p "test_production_profile_preflight_md.py"
 
@@ -304,6 +305,9 @@ jobs:
 
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
         run: python scripts/ci/assert_marketing_accessibility_in_sync.py
+
+      - name: Accessibility route evidence freshness (priority routes vs Playwright PAGES)
+        run: python scripts/ci/assert_accessibility_route_evidence_freshness.py
 
       - name: Buyer first-30-minutes path — vertical picker + q35 prose guard
         run: python scripts/ci/assert_buyer_first_30_minutes_in_sync.py

@@ -6,6 +6,7 @@ import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
+import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { HelpLink } from "@/components/HelpLink";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
@@ -44,6 +45,18 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         <WelcomeBanner />
 
         {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
+
+        {buyerPolishedShell ? null : (
+          <div className="max-w-prose space-y-3">
+            <FirstWeekRouteGuidance variant="home" />
+            <div className="flex flex-wrap items-center gap-2">
+              <HelpLink
+                docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
+                label="First-pilot operator path — full walkthrough on GitHub (new tab)"
+              />
+            </div>
+          </div>
+        )}
 
         {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
 

@@ -23,6 +23,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
 {
     private const string OpenApiDocumentPath = "/openapi/v1.json";
     private const string SnapshotFileName = "openapi-v1.contract.snapshot.json";
+    private const string SnapshotArtifactPathVariable = "ARCHLUCID_OPENAPI_SNAPSHOT_ARTIFACT_PATH";
 
     [SkippableFact]
     public async Task OpenApi_v1_json_is_backward_compatible_with_committed_snapshot()
@@ -51,6 +52,9 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
             return;
         }
 
+        JsonNode canonicalActual = OpenApiJsonCanonicalizer.Canonicalize(actualNode);
+        await WriteCanonicalArtifactAsync(canonicalActual);
+
         string snapshotOnDisk = Path.Combine(AppContext.BaseDirectory, "Contracts", SnapshotFileName);
         Assert.True(
             File.Exists(snapshotOnDisk),
@@ -60,7 +64,6 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         JsonNode? expectedNode = JsonNode.Parse(expectedJson);
         Assert.NotNull(expectedNode);
 
-        JsonNode canonicalActual = OpenApiJsonCanonicalizer.Canonicalize(actualNode);
         JsonNode canonicalExpected = OpenApiJsonCanonicalizer.Canonicalize(expectedNode);
 
         if (canonicalExpected is not JsonObject)
@@ -87,6 +90,23 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
 
     private static XunitException BuildOpenApiMustBeCanonicalObjectException() =>
         new XunitException("Canonical OpenAPI root must deserialize as JsonObject.");
+
+    private static async Task WriteCanonicalArtifactAsync(JsonNode canonicalActual)
+    {
+        string? artifactPath = Environment.GetEnvironmentVariable(SnapshotArtifactPathVariable);
+
+        if (string.IsNullOrWhiteSpace(artifactPath))
+            return;
+
+        string fullArtifactPath = Path.GetFullPath(artifactPath);
+        string? artifactDirectory = Path.GetDirectoryName(fullArtifactPath);
+
+        if (!string.IsNullOrWhiteSpace(artifactDirectory))
+            Directory.CreateDirectory(artifactDirectory);
+
+        string normalized = OpenApiJsonCanonicalizer.SerializeIndented(canonicalActual);
+        await File.WriteAllTextAsync(fullArtifactPath, normalized);
+    }
 
     private static string ResolveSourceSnapshotPath()
     {

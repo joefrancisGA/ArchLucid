@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
+import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
+import { HelpLink } from "@/components/HelpLink";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
@@ -35,6 +37,17 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
         </Link>
         .
       </p>
+      <FirstWeekRouteGuidance variant="onboarding" />
+      <div className="flex flex-wrap items-center gap-2">
+        <HelpLink
+          docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
+          label="First-pilot operator path — full walkthrough on GitHub (new tab)"
+        />
+        <HelpLink
+          docPath="/docs/library/walkthroughs/README.md"
+          label="Accelerator packs — Azure SaaS, AI governance, healthcare (new tab)"
+        />
+      </div>
       <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} />
       <div>
         <OperatorFirstRunWorkflowPanel />

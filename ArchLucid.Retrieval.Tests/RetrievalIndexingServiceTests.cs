@@ -166,4 +166,65 @@ public sealed class RetrievalIndexingServiceTests
 
         conversation.Should().NotBe(policyPack);
     }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_reindexes_when_chunking_fingerprint_changes()
+    {
+        int embedCalls = 0;
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Callback(() => embedCalls++)
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = new(
+            new SimpleTextChunker(),
+            new PolicyPackChunker(),
+            new PriorManifestChunker(),
+            embeddings.Object,
+            identity.Object,
+            index,
+            catalog,
+            caps.Object);
+
+        RetrievalDocument doc = new()
+        {
+            DocumentId = "d-fingerprint",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "corpus for fingerprint invalidation",
+            ContentHash = "HASH-FP",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+
+        RetrievalDocument policyDoc = new()
+        {
+            DocumentId = doc.DocumentId,
+            TenantId = doc.TenantId,
+            WorkspaceId = doc.WorkspaceId,
+            ProjectId = doc.ProjectId,
+            CorpusKind = CorpusKind.PolicyPack,
+            Content = doc.Content,
+            ContentHash = doc.ContentHash,
+            CreatedUtc = doc.CreatedUtc,
+        };
+
+        await sut.IndexDocumentsAsync([policyDoc], CancellationToken.None);
+
+        embedCalls.Should().Be(2);
+    }
 }

@@ -153,6 +153,7 @@ Authorization: Bearer {token}
 
 ## Related
 
+- [`README.md`](README.md) — accelerator pack index
 - [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) — full first-pilot spine
 - [`REFERENCE_SAAS_STACK_ORDER.md`](../REFERENCE_SAAS_STACK_ORDER.md) — hosted SaaS Terraform ordering (operators)
 - [`CORE_PILOT.md`](../../CORE_PILOT.md) — four-step Core Pilot

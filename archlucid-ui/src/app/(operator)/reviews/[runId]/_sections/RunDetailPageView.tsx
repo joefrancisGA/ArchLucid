@@ -1,4 +1,5 @@
 import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
+import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
@@ -95,6 +96,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       aggregateRiskPosture={m.explanationSummary?.riskPosture ?? null}
       governanceGateLabel={m.governanceGateLabel}
       showcasePolicyPackStrip={showcasePolicyPackStrip}
+      degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
+      failedEngineLabels={m.resolvedDetail.findingCoverageSummary?.failedEngineLabels ?? []}
     />
   );
 
@@ -130,6 +133,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
               })
             : null
         }
+      />
+
+      <FirstWeekRouteGuidance
+        variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
       {changesSinceLastReviewBannerEl}

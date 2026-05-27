@@ -18,6 +18,9 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 - **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — pilot measurement companion
 - **[PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
 - **[CORE_PILOT.md](CORE_PILOT.md)** — operator first-pilot motion
+- **[runbooks/FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md)** — single end-to-end V1 pilot path with failure recovery
+- **[library/walkthroughs/README.md](library/walkthroughs/README.md)** — Azure SaaS, AI governance, and healthcare accelerator packs
+- **[go-to-market/INTEGRATION_CATALOG.md](go-to-market/INTEGRATION_CATALOG.md)** — V1 vs V1.1 integration boundaries for procurement
 - **[go-to-market/POSITIONING.md](go-to-market/POSITIONING.md)** — positioning aligned to this brief
 - **[go-to-market/GTM_BACKLOG.md](go-to-market/GTM_BACKLOG.md)** — internal service-led sequencing (named offers, outreach, monetization tasks); **`SERVICE_LED_OFFERS.md`** productized SKU menu
 

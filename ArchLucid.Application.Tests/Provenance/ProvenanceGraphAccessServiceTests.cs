@@ -82,6 +82,59 @@ public sealed class ProvenanceGraphAccessServiceTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task ResolveGraphAsync_rebuilds_when_stored_revision_is_stale()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        RunDetailDto detail = CreateCompleteDetail(scope);
+        DecisionProvenanceGraph storedGraph = new() { RunId = detail.Run.RunId, Nodes = [], Edges = [] };
+        DecisionProvenanceGraph rebuiltGraph = new()
+        {
+            RunId = detail.Run.RunId,
+            Nodes =
+            [
+                new ProvenanceNode
+                {
+                    Id = Guid.NewGuid(),
+                    Type = ProvenanceNodeType.Manifest,
+                    ReferenceId = detail.GoldenManifest!.ManifestId.ToString("D"),
+                    Name = "Manifest",
+                },
+            ],
+            Edges = [],
+        };
+
+        Mock<IProvenanceSnapshotRepository> repo = new();
+        repo
+            .Setup(r => r.GetByRunIdAsync(scope, detail.Run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot
+            {
+                RunId = detail.Run.RunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                GraphJson = ProvenanceGraphSerializer.Serialize(storedGraph),
+                SourceRevisionHash = "stale-hash",
+            });
+        repo
+            .Setup(r => r.SaveAsync(It.IsAny<ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+
+        Mock<IProvenanceBuilder> builder = new();
+        builder.Setup(b => b.Build(It.IsAny<ProvenanceBuildInput>())).Returns(rebuiltGraph);
+
+        ProvenanceGraphAccessService sut = new(repo.Object, builder.Object, TimeProvider.System);
+
+        DecisionProvenanceGraph? graph = await sut.ResolveGraphAsync(scope, detail, CancellationToken.None);
+
+        graph.Should().NotBeNull();
+        graph!.Nodes.Should().ContainSingle();
+        builder.Verify(b => b.Build(It.IsAny<ProvenanceBuildInput>()), Times.Once);
+        repo.Verify(
+            r => r.SaveAsync(It.IsAny<ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot>(), It.IsAny<CancellationToken>(), null, null),
+            Times.Once);
+    }
+
     private static RunDetailDto CreateCompleteDetail(ScopeContext scope)
     {
         Guid runId = Guid.NewGuid();

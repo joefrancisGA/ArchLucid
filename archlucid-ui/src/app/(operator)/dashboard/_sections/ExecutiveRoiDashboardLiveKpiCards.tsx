@@ -119,6 +119,8 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
 
   const resolved = state.summary?.resolvedFindingsCount30Days;
   const discovered = state.summary?.newlyDiscoveredFindingsCount30Days;
+  const remediated = state.summary?.realizedValue?.findingsRemediatedCount30Days;
+  const costFreshness = state.summary?.costEvidenceFreshnessStatus;
 
   return (
     <>
@@ -185,6 +187,38 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         <CardContent>
           <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
             {loading ? "…" : formatCount(state.expiringWaiversCount)}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card data-testid="exec-kpi-remediated-30d">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            Findings remediated (30d)
+          </CardTitle>
+          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+            Computed from disposition workflow evidence
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            {loading ? "…" : formatCount(remediated)}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card data-testid="exec-kpi-cost-evidence-freshness">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            Cost evidence freshness
+          </CardTitle>
+          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+            Azure extractor evidence backing ROI cost findings
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="font-mono text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            {loading ? "…" : costFreshness ?? "—"}
           </p>
         </CardContent>
       </Card>

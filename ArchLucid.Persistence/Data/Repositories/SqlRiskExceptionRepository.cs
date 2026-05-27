@@ -134,6 +134,41 @@ public sealed class SqlRiskExceptionRepository(ISqlConnectionFactory connectionF
                 cancellationToken: cancellationToken));
     }
 
+    public async Task<IReadOnlyList<RiskExceptionRecord>> ListRetiredSinceUtcAsync(
+        Guid tenantId,
+        Guid? projectId,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        string sql = """
+                     SELECT RiskExceptionId, TenantId, WorkspaceId, ProjectId, FindingId, RunId, ManifestId,
+                            OwnerUserId, Rationale, EvidenceRef, ExpiresAtUtc, Status, CreatedAtUtc, CreatedByUserId,
+                            RevokedAtUtc, RevokedByUserId
+                     FROM dbo.RiskExceptions
+                     WHERE TenantId = @TenantId
+                       AND Status IN (N'Revoked', N'Expired')
+                       AND (
+                           (Status = N'Revoked' AND RevokedAtUtc >= @SinceUtc)
+                           OR (Status = N'Expired' AND ExpiresAtUtc >= @SinceUtc)
+                       )
+                     """;
+
+        if (projectId.HasValue)
+            sql += " AND ProjectId = @ProjectId";
+
+        sql += " ORDER BY ExpiresAtUtc DESC;";
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<RiskExceptionRow> rows = await conn.QueryAsync<RiskExceptionRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, ProjectId = projectId, SinceUtc = sinceUtc.UtcDateTime },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
     private static RiskExceptionRecord Map(RiskExceptionRow row)
     {
         Enum.TryParse(row.Status, true, out RiskExceptionStatus status);

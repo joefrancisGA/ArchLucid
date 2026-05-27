@@ -149,4 +149,18 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    /// <summary>Bounded agent reasoning copied into explainability (TB-055).</summary>
+    public string? ReasoningTrace
+    {
+        get;
+        init;
+    }
+
+    /// <summary>SHA-256 hex digest when <see cref="ReasoningTrace" /> was truncated.</summary>
+    public string? ReasoningTraceDigestSha256
+    {
+        get;
+        init;
+    }
 }

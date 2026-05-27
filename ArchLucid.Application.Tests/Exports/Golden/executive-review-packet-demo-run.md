@@ -58,3 +58,11 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 **Pricing basis note:** Cost-category findings use EA-adjusted Azure Retail rates for the demo tenant.
 **Cost evidence freshness:** Fresh (stale after 90 days)
 **Estimated savings (USD):** 8,400.00
+
+## Realized value (computed)
+
+- **Findings remediated (30d):** 1
+- **Median time to remediation (days):** 4.5
+- **Active waivers:** 0
+- **Waivers retired (30d):** 0
+- **Waiver expiry reversions (30d):** 0

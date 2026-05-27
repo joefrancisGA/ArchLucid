@@ -12,10 +12,11 @@ public sealed class ArchitectureDecisionRegisterService(IArchitectureDecisionReg
         Guid tenantId,
         Guid? projectId,
         int maxRows,
+        ArchitectureDecisionRegisterQueryOptions? filters,
         CancellationToken cancellationToken = default)
     {
         IReadOnlyList<ArchitectureDecisionRegisterEntry> decisions =
-            await _reader.ListAsync(tenantId, projectId, maxRows, cancellationToken);
+            await _reader.ListAsync(tenantId, projectId, maxRows, filters, cancellationToken);
 
         return new ArchitectureDecisionRegisterResponse { Decisions = decisions };
     }

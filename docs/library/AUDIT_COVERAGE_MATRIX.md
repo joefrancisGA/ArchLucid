@@ -288,9 +288,9 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `FindingReviewApproved` | `FindingReviewApproved` | `FindingReviewTrailAppendService` |
 | `FindingReviewRejected` | `FindingReviewRejected` | `FindingReviewTrailAppendService` |
 | `FindingReviewOverridden` | `FindingReviewOverridden` | `FindingReviewTrailAppendService` |
-| `FindingReviewDispositionRecorded` | `FindingReviewDispositionRecorded` | `FindingReviewTrailAppendService` (`RecordDisposition`) |
-| `RiskExceptionCreated` | `RiskExceptionCreated` | `RiskExceptionService` |
-| `RiskExceptionRevoked` | `RiskExceptionRevoked` | `RiskExceptionService` |
+| `FindingReviewDispositionRecorded` | `FindingReviewDispositionRecorded` | `GovernanceStickinessController` (`POST /v1/governance/findings/{findingId}/dispositions`); `FindingReviewTrailAppendService` (`RecordDisposition`) |
+| `RiskExceptionCreated` | `RiskExceptionCreated` | `GovernanceStickinessController` (`POST /v1/governance/risk-exceptions`); `RiskExceptionService` |
+| `RiskExceptionRevoked` | `RiskExceptionRevoked` | `GovernanceStickinessController` (`POST /v1/governance/risk-exceptions/{riskExceptionId}/revoke`); `RiskExceptionService` |
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
 | `RunPinStateChanged` | `RunPinStateChanged` | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) |

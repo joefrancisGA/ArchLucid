@@ -16,6 +16,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
+import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
 
 /** Compares authority run ids from URL vs API (hyphenated vs `N` GUID, case). */
 export function sameAuthorityRunId(a: string, b: string): boolean
@@ -152,6 +153,8 @@ export function FindingInspectView({
         payload={payload}
         variant="inspect"
       />
+
+      <FindingInspectGovernanceStickinessPanel findingId={decodedFindingId} runId={runId} />
 
       <OperatorEvidenceLimitsFooter
         runId={runId}

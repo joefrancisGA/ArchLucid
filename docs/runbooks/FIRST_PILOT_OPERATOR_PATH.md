@@ -43,7 +43,7 @@ Every step below maps to a **shipped** API, operator UI route, or CLI verb. Opti
 
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
-| C1 | **Create** architecture review — operator **New review** (`/runs/new`) or `archlucid run create`. | Review appears in **Reviews** with status progressing past **Created**. | UI · CLI · `POST /v1/architecture/request` |
+| C1 | **Create** architecture review — operator **New review** (`/reviews/new`; legacy `/runs/new`) or `archlucid run create`. | Review appears in **Reviews** with status progressing past **Created**. | UI · CLI · `POST /v1/architecture/request` |
 | C2 | **Upload extractor ZIP** to the review (`POST /v1/azure-extractor/upload` or review-detail upload). | Upload 200; ingest event in timeline. | API · UI |
 | C3 | **Execute** agents on the review. | Status **Ready for commit** (or explicit failure with correlation id). | `POST /v1/architecture/run/{runId}/execute` · pipeline timeline |
 | C4 | *(Optional)* Assign a **V1 policy pack** and run pre-commit dry-run when governance is in pilot scope. | Dry-run shows blocking vs warning findings. | `POST /v1/governance/policy-packs/dry-run` · [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) |
@@ -72,7 +72,7 @@ Every step below maps to a **shipped** API, operator UI route, or CLI verb. Opti
 | Need a vertical accelerator narrative | Run a packaged walkthrough (V1 only). | [`library/walkthroughs/`](../library/walkthroughs/) (see below) |
 | Stuck or regressed | Symptom index + rescue playbook. | [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) |
 
-**Accelerator walkthroughs (buyer-recognizable, V1-only):**
+**Accelerator walkthroughs (buyer-recognizable, V1-only):** full index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md).
 
 | Walkthrough | Buyer outcome |
 |-------------|----------------|

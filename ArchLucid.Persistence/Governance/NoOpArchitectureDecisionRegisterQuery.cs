@@ -9,6 +9,7 @@ public sealed class NoOpArchitectureDecisionRegisterQuery : IArchitectureDecisio
         Guid tenantId,
         Guid? projectId,
         int maxRows,
+        ArchitectureDecisionRegisterQueryOptions? filters,
         CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<ArchitectureDecisionRegisterEntry>>([]);
 }

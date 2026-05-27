@@ -47,6 +47,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                                fr.HumanReviewStatus,
                                fr.IsMuted,
                                fr.MuteReason,
+                               fr.ReasoningTrace,
+                               fr.ReasoningTraceDigestSha256,
                                r.RunId,
                                r.CurrentManifestVersion,
                                r.GoldenManifestId,
@@ -185,7 +187,9 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             ConfidenceLevel = evaluationLevel,
             HumanReviewStatus = humanReview,
             IsMuted = row.IsMuted,
-            MuteReason = row.MuteReason
+            MuteReason = row.MuteReason,
+            ReasoningTrace = row.ReasoningTrace,
+            ReasoningTraceDigestSha256 = row.ReasoningTraceDigestSha256
         };
     }
 
@@ -317,6 +321,18 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public string? MuteReason
+        {
+            get;
+            init;
+        }
+
+        public string? ReasoningTrace
+        {
+            get;
+            init;
+        }
+
+        public string? ReasoningTraceDigestSha256
         {
             get;
             init;

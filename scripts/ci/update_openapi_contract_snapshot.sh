@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerate the committed OpenAPI v1 contract snapshot from the live test host.
+# Regenerate the OpenAPI v1 CI baseline snapshot from the live test host.
 # Optional downstream client refresh via env flags (see OPENAPI_CONTRACT_DRIFT.md).
 #
 # Usage (repo root):

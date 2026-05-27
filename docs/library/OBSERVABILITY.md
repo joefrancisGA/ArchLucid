@@ -36,6 +36,17 @@ python scripts/report_observability_export_readiness.py --environment Production
 
 `appsettings.Advanced.json` can override environment-specific `Observability` (for example it ships `Observability:Prometheus:Enabled` **false**), so the JSON-only report may show **no** durable exporter until deployment sets `APPLICATIONINSIGHTS_CONNECTION_STRING`, `Observability__Otlp__Endpoint`, or flips Prometheus via env. That matches runtime layering in **`ArchLucid.Api/Program.cs`**.
 
+### Production warn vs fail (host startup)
+
+| Layer | Behavior | When |
+| --- | --- | --- |
+| **Repo report** (`report_observability_export_readiness.py`) | **WARN** by default when merged Api/Worker JSON (and optional env overlay) show no exporter; **FAIL** with `--strict-exit-code` | Release checklist / CI artifact — no host boot required |
+| **OTLP/Prometheus shape** | **FAIL** startup when enabled keys are inconsistent (for example OTLP enabled without endpoint) | `ObservabilityRules` in `ArchLucidConfigurationRules` |
+| **`ProductionValidation:RequireTelemetryExport=true`** | **FAIL** startup on production-profile hosts when no Application Insights connection string, active OTLP endpoint, or Prometheus scrape is configured | `ProductionDangerousMisconfigurationLint` → `ArchLucidConfigurationRules.CollectErrors` (Api **and** Worker) |
+| **Advisory only** | Missing export on non-production hosts, or when `RequireTelemetryExport` is **false** | Logged via `archlucid_startup_config_warnings_total` when other production-profile advisories fire — not a silent blind spot |
+
+Dry-run the fail-fast rules locally: `archlucid config lint --simulate-production --hosting-advisor` (see [`DEPLOYMENT_RUNBOOK.md`](DEPLOYMENT_RUNBOOK.md)).
+
 **Post-deploy smoke (agent-output metrics):** run one successful **`POST` … `/execute`**, then confirm the backend lists **`archlucid_agent_output_structural_completeness_ratio`**, **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_quality_gate_total`**, **`archlucid_agent_output_parse_failures_total`**, and **`archlucid_agent_trace_blob_upload_failures_total`** (see generated report and **`docs/library/TECH_BACKLOG.md`** TB-004).
 
 ### Agent-output quality alerts (Prometheus / Grafana)

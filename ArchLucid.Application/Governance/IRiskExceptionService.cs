@@ -21,4 +21,10 @@ public interface IRiskExceptionService
         Guid tenantId,
         Guid? projectId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RiskExceptionRecord>> ListRetiredSinceAsync(
+        Guid tenantId,
+        Guid? projectId,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken = default);
 }

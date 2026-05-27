@@ -1,6 +1,8 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
@@ -10,6 +12,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Roi;
+using ArchLucid.Persistence.Tenancy;
 
 using FluentAssertions;
 
@@ -129,6 +132,8 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             packageRepository.Object,
             ambientScopeProvider.Object,
             CreateEmptyFindingReviewTrailRepository(),
+            CreateEmptyRiskExceptionService(),
+            CreateEmptyTenantSettingsRepository(),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 
         List<(Guid TenantId, decimal TotalUsd)> observed = [];
@@ -323,6 +328,29 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
         repository
             .Setup(repo => repo.ListSinceUtcAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+
+        return repository.Object;
+    }
+
+    private static IRiskExceptionService CreateEmptyRiskExceptionService()
+    {
+        Mock<IRiskExceptionService> service = new();
+        service
+            .Setup(s => s.ListActiveAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
+        service
+            .Setup(s => s.ListRetiredSinceAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
+
+        return service.Object;
+    }
+
+    private static ITenantSettingsRepository CreateEmptyTenantSettingsRepository()
+    {
+        Mock<ITenantSettingsRepository> repository = new();
+        repository
+            .Setup(repo => repo.TryGetAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
 
         return repository.Object;
     }

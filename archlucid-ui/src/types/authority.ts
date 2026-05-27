@@ -164,6 +164,11 @@ export type RunTrustEvidenceCard = {
 type RunDetailOptionalWireExtras = {
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   agentExecutionLlmCostEstimate?: components["schemas"]["RunAgentLlmCostEstimateResponse"] | null;
+  degradedFindingCoverage?: boolean;
+  findingCoverageSummary?: {
+    failedEngineLabels?: string[];
+    isDegraded?: boolean;
+  } | null;
 };
 
 type RunDetailDtoBase = components["schemas"]["RunDetailDto"];

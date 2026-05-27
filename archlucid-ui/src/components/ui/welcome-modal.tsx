@@ -37,12 +37,12 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Define your architecture",
     description:
-      "Start with a short brief: system identity, goals, and constraints. The new review wizard submits a pipeline run and keeps you on the critical path to a finalized package.",
+      "Start with a short brief: system identity, goals, and constraints. Each architecture review is tracked as one run — the new review wizard submits the pipeline job and keeps you on the path to a finalized package.",
   },
   {
     title: "Review AI findings",
     description:
-      "When the pipeline completes, open a review to read findings, evidence, and narrative. Finalize when you are ready to lock the reviewed manifest and deliverables.",
+      "When the pipeline completes, open the architecture review to read findings, evidence, and narrative. Finalize when you are ready to lock the reviewed manifest and sponsor exports.",
   },
 ];
 

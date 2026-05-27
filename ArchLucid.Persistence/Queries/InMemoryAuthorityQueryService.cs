@@ -129,6 +129,7 @@ public sealed class InMemoryAuthorityQueryService(
         };
 
         RunExecutionDegradation.Apply(detail, run, await degradedAgentsTask);
+        RunFindingCoverageProjection.Apply(detail, detail.FindingsSnapshot);
 
         return detail;
     }

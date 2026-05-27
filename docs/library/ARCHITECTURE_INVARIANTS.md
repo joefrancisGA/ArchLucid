@@ -25,6 +25,7 @@
 | [INV-013](#inv-013-replay-read-only-scope) | Replay reads the original run but writes outputs under a separate replay scope; original artefact hashes are unchanged after replay. | P2 | Integration hash assertions |
 | [INV-014](#inv-014-no-mutable-statics) | `Application` and `AgentRuntime` carry no mutable static state; shared state lives in DI services with explicit lifetimes. | P2 | Analyzer |
 | [INV-015](#inv-015-inbound-webhook-pipeline-order) | External webhooks run verify-signature → size-cap → rate-limit → schema-parse before dispatch to handlers. | P1 | Shared middleware pipeline + ordering tests |
+| [INV-016](#inv-016-decisioning-notification-boundary) | Domain decisioning (`ArchLucid.Decisioning`) must not reference notification delivery infrastructure (`ArchLucid.Notifications`); channels register in Host.Composition only. | P1 | **Enforced** — `DecisioningNotificationsBoundaryArchitectureTests` + `DependencyConstraintTests` |
 
 **Tier legend:** **P0** — ship risk or trust regression if violated. **P1** — correctness / cost / security adjacent. **P2** — hygiene that prevents creep.
 
@@ -161,6 +162,14 @@
 **Intent:** Reduce parser-DoS and signature-bypass bugs; aligns with TB-007 security theme and connector backlog.
 
 **Enforcement sketch:** Single pipeline entry type; controllers must delegate through it.
+
+---
+
+## INV-016: Decisioning notification boundary
+
+**Intent:** Keep domain analysis (`ArchLucid.Decisioning`) free of notification transport types. Email and webhook delivery adapters live in `ArchLucid.Notifications` and register from `ArchLucid.Host.Composition` (TB-029).
+
+**Enforcement sketch:** Architecture tests fail csproj and source-level `ArchLucid.Notifications` imports under `ArchLucid.Decisioning/`.
 
 ---
 

@@ -11,6 +11,10 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
+import {
+  getArchitectureRiskRegister,
+  type ArchitectureRiskRegisterEntry,
+} from "@/lib/api/governance-stickiness-api";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
@@ -62,6 +66,10 @@ export type GovernanceFindingQueueRow = {
   recommended: string;
   recordKind: GovernanceFindingQueueRecordKind;
   traceConfidenceLevel?: FindingConfidenceLevel | null;
+  ownerUserId?: string | null;
+  agingDays?: number;
+  waiverExpiresAtUtc?: string | null;
+  evidenceHref?: string;
 };
 
 function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind, buyerPolishedShell: boolean): string {
@@ -123,6 +131,34 @@ function staticDemoGovernanceRows(): GovernanceFindingQueueRow[] {
   }));
 
   return [phi, ...decisionRows];
+}
+
+function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceFindingQueueRow[] {
+  return entries.map((entry) => {
+    const runId = (entry.runId ?? "").trim();
+    const recommended =
+      entry.latestDisposition !== null && entry.latestDisposition !== undefined
+        ? `Latest disposition: ${entry.latestDisposition}. Owner: ${entry.ownerUserId ?? "unassigned"}.`
+        : "Open the finding inspector to record disposition or a time-bounded waiver.";
+
+    return {
+      runId: runId.length > 0 ? runId : "—",
+      runLabel: runId.length > 0 ? runId : "—",
+      manifestId: entry.manifestId ?? "—",
+      findingId: entry.findingId,
+      title: entry.title,
+      severity: entry.severity,
+      category: entry.category,
+      status: entry.statusLabel,
+      recommended,
+      recordKind: "finding",
+      traceConfidenceLevel: null,
+      ownerUserId: entry.ownerUserId ?? null,
+      agingDays: entry.agingDays,
+      waiverExpiresAtUtc: entry.waiverExpiresAtUtc ?? null,
+      evidenceHref: entry.evidenceHref,
+    };
+  });
 }
 
 function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): GovernanceFindingQueueRow[] {
@@ -370,6 +406,18 @@ export default function GovernanceFindingsQueueClient() {
       }
 
       try {
+        const riskRegister = await getArchitectureRiskRegister();
+        const registerRows = riskRegisterRows(riskRegister.entries ?? []);
+
+        if (registerRows.length > 0) {
+          if (!cancelled) {
+            setRows(registerRows);
+            setLoading(false);
+          }
+
+          return;
+        }
+
         const page = await listRunsByProjectPaged("default", 1, 25);
         const runItems = page.items ?? [];
         const maxRuns = Math.min(runItems.length, 12);

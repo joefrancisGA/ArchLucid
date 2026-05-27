@@ -218,13 +218,24 @@ Use **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** for the scorecard and suggested
 
 Packaged operator sequences that map **request → evidence → policy packs → findings → commit → sponsor export** using **shipped V1** surfaces only (no V1.1 connector required):
 
-| Accelerator | Walkthrough | Typical buyer question |
-|-------------|-------------|------------------------|
-| Azure SaaS readiness | [walkthroughs/AZURE_SAAS_READINESS_REVIEW.md](walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) | “Does our Azure SaaS posture hold up on WAF and security baseline themes?” |
-| AI governance | [walkthroughs/AI_GOVERNANCE_REVIEW.md](walkthroughs/AI_GOVERNANCE_REVIEW.md) | “Can we show Responsible AI governance on a real review package?” |
-| Healthcare claims (demo) | [walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md](walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) | “How does PHI-minimization policy land on findings before commit?” |
+| Accelerator | Buyer job (outcome) | Operator walkthrough | Typical buyer question |
+|-------------|---------------------|----------------------|------------------------|
+| Azure SaaS readiness | [../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md](../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) | [walkthroughs/AZURE_SAAS_READINESS_REVIEW.md](walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) | “Does our Azure SaaS posture hold up on WAF and security baseline themes?” |
+| AI governance | [../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md](../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) | [walkthroughs/AI_GOVERNANCE_REVIEW.md](walkthroughs/AI_GOVERNANCE_REVIEW.md) | “Can we show Responsible AI governance on a real review package?” |
+| Healthcare claims (demo) | [../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md](../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) | [walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md](walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) | “How does PHI-minimization policy land on findings before commit?” |
 
-**First-pilot spine (all accelerators):** [../runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Integration boundaries:** [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md).
+**First-pilot spine (all accelerators):** [../runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Accelerator index:** [walkthroughs/README.md](walkthroughs/README.md) · **Integration boundaries:** [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md).
+
+### Extensibility (advanced integrators — not required for Pilot)
+
+V1 supports **in-repo** custom agent handlers and **out-of-process** webhook handlers for teams that extend the authority pipeline on self-hosted deployments. This is **not** a public plugin marketplace or downloadable SDK.
+
+| Surface | Doc | Notes |
+|---------|-----|-------|
+| Register `IAgentHandler` in host | [CUSTOM_AGENT_HANDLER_GUIDE.md](CUSTOM_AGENT_HANDLER_GUIDE.md) | Prerequisites, DI registration, safety posture, tests, non-goals |
+| Isolated HTTPS `AgentResult` service | [CUSTOM_AGENT_HANDLERS.md](CUSTOM_AGENT_HANDLERS.md) | Out-of-process contract; no in-host DLL drop-in |
+| V1 scope boundary | [V1_SCOPE.md](V1_SCOPE.md) §2.18 | Engineering contract — not a buyer Pilot requirement |
+| Integration boundaries (V1 vs V1.1) | [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) | Connectors vs handler extension |
 
 ---
 

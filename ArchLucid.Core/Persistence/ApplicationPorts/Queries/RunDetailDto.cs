@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 
-using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
@@ -58,6 +58,23 @@ public class RunDetailDto
         get;
         set;
     } = [];
+
+    /// <summary>
+    ///     <see langword="true" /> when finding-engine coverage was partial or enrichment was skipped; distinct from
+    ///     <see cref="RunDegradedExecution" /> (agent/simulator fallback).
+    /// </summary>
+    public bool DegradedFindingCoverage
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Structured finding-engine coverage summary when a findings snapshot is hydrated.</summary>
+    public RunFindingCoverageSummary? FindingCoverageSummary
+    {
+        get;
+        set;
+    }
 
     /// <summary>Context payload when <see cref="RunRecord.ContextSnapshotId" /> resolves.</summary>
     public ContextSnapshot? ContextSnapshot

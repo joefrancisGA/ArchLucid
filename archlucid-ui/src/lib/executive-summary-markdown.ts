@@ -36,6 +36,16 @@ export type ExecutiveRoiSummary = {
   resolvedFindingsCount30Days?: number;
   newlyDiscoveredFindingsCount30Days?: number;
   historicalTrends?: ExecutiveRoiSystemicIssueTrendSeries[];
+  realizedValue?: {
+    findingsRemediatedCount30Days: number;
+    medianTimeToRemediationDays?: number | null;
+    activeWaiversCount: number;
+    waiversRetiredCount30Days: number;
+    waiverExpiryReversionCount30Days: number;
+    attestedIncidentsAvoided?: number | null;
+    attestedRevenueOrRetentionImpact?: string | null;
+    attestedReviewerTimeSavedNote?: string | null;
+  };
 };
 
 function formatUsd(value: number | null): string {
@@ -104,6 +114,18 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
       lines.push(
         `| ${normalizeInline(system.systemName)} | \`${normalizeInline(system.runId)}\` | ${formatUsd(system.estimatedUsdSavings)} |`,
       );
+    }
+  }
+
+  if (summary.realizedValue) {
+    lines.push("## Realized value (computed)");
+    lines.push("");
+    lines.push(`- **Findings remediated (30d):** ${summary.realizedValue.findingsRemediatedCount30Days}`);
+    lines.push(`- **Active waivers:** ${summary.realizedValue.activeWaiversCount}`);
+    lines.push(`- **Waivers retired (30d):** ${summary.realizedValue.waiversRetiredCount30Days}`);
+
+    if (summary.realizedValue.medianTimeToRemediationDays != null) {
+      lines.push(`- **Median time to remediation (days):** ${summary.realizedValue.medianTimeToRemediationDays}`);
     }
   }
 

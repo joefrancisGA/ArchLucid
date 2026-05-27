@@ -134,6 +134,7 @@ public sealed class SqlFindingsSnapshotRepository(
 
             FindingsSnapshot snapshot =
                 await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
+            FindingsSnapshotMetadataMerger.MergeFromFindingsJson(snapshot, row.FindingsJson);
             FindingsSnapshotMigrator.Apply(snapshot);
             return snapshot;
         }
@@ -454,7 +455,7 @@ public sealed class SqlFindingsSnapshotRepository(
                                ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
                                ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
                                HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
-                               IsMuted, MuteReason
+                               IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
                            )
                            VALUES
                            (
@@ -466,7 +467,7 @@ public sealed class SqlFindingsSnapshotRepository(
                                @ModelDeploymentName, @ModelVersion, @PromptTemplateId, @PromptTemplateVersion,
                                @ConfidenceScore, @EvaluationConfidenceScore, @EvaluationConfidenceLevel, @PolicyRuleId,
                                @HumanReviewStatus, @ReviewedByUserId, @ReviewedAtUtc, @ReviewNotes,
-                               @IsMuted, @MuteReason
+                               @IsMuted, @MuteReason, @ReasoningTrace, @ReasoningTraceDigestSha256
                            );
                            """;
 
@@ -504,7 +505,9 @@ public sealed class SqlFindingsSnapshotRepository(
             finding.ReviewedAtUtc,
             finding.ReviewNotes,
             finding.IsMuted,
-            finding.MuteReason
+            finding.MuteReason,
+            ReasoningTrace = finding.Trace.ReasoningTrace,
+            ReasoningTraceDigestSha256 = finding.Trace.ReasoningTraceDigestSha256
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));

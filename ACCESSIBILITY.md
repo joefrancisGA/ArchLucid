@@ -1,6 +1,6 @@
 # Accessibility
 
-Last reviewed: 2026-05-02
+Last reviewed: 2026-05-27
 
 ## Target compliance level
 
@@ -10,20 +10,22 @@ Playwright axe runs attach the **`wcag22aa`** ruleset bundle alongside **`wcag21
 
 ## Current status
 
-**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**62** URL patterns as of 2026-05-02, including the **15** high-traffic operator paths in the table below, plus marketing routes, legacy `/onboarding` redirects, run provenance, findings (showcase run), manifest variants, governance findings/policy packs, settings surfaces, product-learning, executive reviews, and admin/help routes). Deferred matrix-only routes are documented as `PAGES_DEFERRED` in the same spec. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**81** URL patterns as of 2026-05-27, including the **16** high-traffic operator and marketing paths in the table below, plus legacy `/onboarding` redirects, run provenance, findings (showcase run), manifest variants, governance findings/policy packs, settings surfaces, product-learning, executive reviews, and admin/help routes). Deferred matrix-only routes are documented as `PAGES_DEFERRED` in the same spec. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+
+Automated axe evidence supports procurement disclosure but **does not imply** formal WCAG certification or participant assistive-technology (AT) lab testing unless separately performed and documented.
 
 The **Vitest** axe job (`npm run test:axe-components`) is separate; see the **Tooling** table.
 
 ### Pages with automated checks
 
-The following **15** routes are the **priority operator coverage** set (wizard, list/detail, compare, analysis, graph, governance, settings, and shared pilot surfaces). They are a **subset** of the full `PAGES` array in the Playwright file above; CI scans **all** `PAGES` entries.
+The following **16** routes are the **priority operator coverage** set (wizard, list/detail, compare, analysis, graph, governance, settings, marketing attestation, and shared pilot surfaces). They are a **subset** of the full `PAGES` array in the Playwright file above; CI scans **all** `PAGES` entries. Legacy `/runs/*` aliases remain scanned; canonical buyer paths use `/reviews/*`.
 
 | Page | Route | Status |
 | ---- | ----- | ------ |
 | Home | `/` | Scanned |
-| New run (wizard) | `/runs/new` | Scanned |
-| Runs | `/runs?projectId=default` | Scanned |
-| Run detail (fixture) | `/runs/{runId}` (see `e2e/fixtures/ids.ts`) | Scanned |
+| New review (wizard) | `/reviews/new` (alias `/runs/new`) | Scanned |
+| Reviews list | `/reviews?projectId=default` (alias `/runs?projectId=default`) | Scanned |
+| Review detail (fixture) | `/reviews/{runId}` (alias `/runs/{runId}`; see `e2e/fixtures/ids.ts`) | Scanned |
 | Compare | `/compare` | Scanned |
 | Ask | `/ask` | Scanned |
 | Graph | `/graph` | Scanned |
@@ -35,6 +37,7 @@ The following **15** routes are the **priority operator coverage** set (wizard, 
 | Audit | `/audit` | Scanned |
 | Policy packs | `/policy-packs` | Scanned |
 | Alerts inbox (hub) | `/alerts` | Scanned |
+| Accessibility statement (marketing) | `/accessibility` | Scanned |
 
 ## Tooling
 
@@ -75,7 +78,7 @@ Place the **annual accessibility policy review** on the **same owner calendar** 
 
 To add accessibility checks for a new page:
 
-1. Add an entry to the `PAGES` array in `archlucid-ui/e2e/live-api-accessibility.spec.ts` (and update this document’s table if the route is product-significant).
+1. Add an entry to the `PAGES` array in `archlucid-ui/e2e/live-api-accessibility.spec.ts` (and update this document’s table if the route is product-significant). CI guard: `python scripts/ci/assert_accessibility_route_evidence_freshness.py`.
 2. For **live** e2e: ensure the live API + SQL happy path in `e2e/start-e2e-live-api.ts` / fixture IDs (`e2e/fixtures/ids.ts`) includes data for dynamic routes when needed. For **mock** Playwright: use `npx playwright test -c playwright.mock.config.ts` (that config ignores `live-api-*.spec.ts`).
 3. For route-level axe against a live API, run `npx playwright test` from **`archlucid-ui/`** with **`ArchLucid.Api`** up (see **`docs/LIVE_E2E_HAPPY_PATH.md`**). For component axe only: **`npm run test:axe-components`**.
 

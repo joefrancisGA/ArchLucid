@@ -7,7 +7,7 @@
 
 **Audience:** Technical evaluators and integration engineers assessing how ArchLucid connects to their ecosystem.
 
-**Last reviewed:** 2026-05-18 — First-party **Jira**, **ServiceNow**, **Slack**, **Confluence**, **Microsoft Teams** incoming webhooks, **CloudEvents** outbound webhooks, and copy-paste **recipes** are **V1.1 buyer-contract** commitments ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3; *Resolved 2026-05-18* in [`../PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). **V1** buyer contract: **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, **Azure extractor ZIP**, and other **V1 GA** capabilities enumerated in **§2** — not Teams/webhook/recipe **obligations**. **Engineering order (V1.1):** **ServiceNow** → **Confluence** → **Jira** — **Atlassian** paired, **Confluence** first (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*).
+**Last reviewed:** 2026-05-27 — First-party **Jira**, **ServiceNow**, **Slack**, **Confluence**, **Microsoft Teams** incoming webhooks, **CloudEvents** outbound webhooks, **MCP** agent-tool membrane, and copy-paste **recipes** are **V1.1 buyer-contract** commitments ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8, §2.13–§2.15, §3; *Resolved 2026-05-18* in [`../PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). **V1** buyer contract: **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, **Azure extractor ZIP**, and other **V1 GA** capabilities enumerated in **§2** — not Teams/webhook/recipe **obligations**. **Engineering order (V1.1):** **ServiceNow** → **Confluence** → **Jira** — **Atlassian** paired, **Confluence** first (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*).
 
 **Philosophy:** ArchLucid connects to your tools — you do not run our agents in your infrastructure. Integrations operate via the hosted **REST**/**CLI**/**UI** surfaces for **V1** GA; **webhooks**, **Teams**, **Service Bus** fan-out, and managed/first-party connectors are **V1.1 buyer-contract** paths per [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md).
 
@@ -21,8 +21,8 @@
 
 | Window | Buyer-contract surfaces | Not implied |
 |--------|-------------------------|-------------|
-| **V1 GA** | REST API / OpenAPI, .NET client, CLI, operator UI, SCIM provisioning, Azure DevOps / GitHub CI surfaces, Azure extractor ZIP ingest, procurement ZIP, SIEM-friendly audit export docs | First-party Jira / ServiceNow / Confluence / Slack / Teams obligations; CloudEvents webhook delivery as a buyer-contract path; customer-operated recipe support obligations |
-| **V1.1 committed** | First-party ServiceNow, Confluence, Jira, Microsoft Teams, Slack, integration events / CloudEvents webhooks, and customer-operated bridge recipes as documented in [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8 and §2.13–§2.15 | Marketplace / store listings on day one; OAuth upgrades where the V1.1 MVP says basic auth or API token is enough; arbitrary connector expansion |
+| **V1 GA** | REST API / OpenAPI, .NET client, CLI, operator UI, SCIM provisioning, Azure DevOps / GitHub CI surfaces, Azure extractor ZIP ingest, procurement ZIP, SIEM-friendly audit export docs | First-party Jira / ServiceNow / Confluence / Slack / Teams obligations; CloudEvents webhook delivery as a buyer-contract path; MCP server or outbound MCP client obligations; customer-operated recipe support obligations |
+| **V1.1 committed** | First-party ServiceNow, Confluence, Jira, Microsoft Teams, Slack, integration events / CloudEvents webhooks, **MCP read-only membrane** (seven tools per [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](../library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) §5.1), and customer-operated bridge recipes as documented in [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.8 and §2.13–§2.15 | Marketplace / store listings on day one; OAuth upgrades where the V1.1 MVP says basic auth or API token is enough; outbound MCP client calling external tool servers (default **V2**); arbitrary connector expansion |
 | **Later / unpinned** | Azure DevOps Work Items native connector, Structurizr DSL, ArchiMate XML, Terraform state import expansion, SIEM export productization beyond current methods | Any promise of a release window without a separate owner decision |
 
 Use this table when answering procurement questions: implementation may exist early in the repo, but the buyer contract follows the window above unless `V1_SCOPE.md` is amended.
@@ -33,7 +33,7 @@ Use this table for **first-pilot and procurement “day one”** integrations. D
 
 | Need today | Use (V1) | Concrete entry point |
 |------------|----------|----------------------|
-| Create and commit an architecture review | REST + operator UI + CLI | `POST /v1/architecture/request` · `/runs/new` · `archlucid run create` — [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| Create and commit an architecture review | REST + operator UI + CLI | `POST /v1/architecture/request` · `/reviews/new` (legacy `/runs/new`) · `archlucid run create` — [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
 | Azure subscription evidence (read-only, customer-run) | Azure extractor Tier 1 ZIP upload | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · `POST /v1/azure-extractor/upload` |
 | CI/CD manifest delta on pull requests | GitHub Actions + Azure DevOps pipeline task | [`integrations/CICD_INTEGRATION.md`](../integrations/CICD_INTEGRATION.md) · ADO PR decoration (server-side) [`AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md`](../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md) |
 | Identity provisioning | SCIM | [`integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md) |
@@ -45,8 +45,12 @@ Use this table for **first-pilot and procurement “day one”** integrations. D
 | Chat-ops (Teams / Slack) notifications | **Not V1-required** | V1.1 §2.14 — [`CONNECTOR_READINESS_MATRIX.md`](../library/CONNECTOR_READINESS_MATRIX.md) |
 | Outbound CloudEvents / Service Bus fan-out | **Not V1-required** | V1.1 §2.8 — [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 | Confluence page publish | **Not V1-required** | V1.1 §2.15 |
+| Agent tool access (MCP server membrane) | **Not V1-required** | V1.1 §5.1 — [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](../library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) · [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6d |
+| Outbound MCP client (call external tool servers) | **Not V1-required** | Default **V2** unless separately promoted — same backlog |
 
-**Accelerator walkthroughs (V1-only narratives):** [Azure SaaS readiness](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) · [AI governance](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) · [Healthcare claims pilot](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md).
+**Buyer-job packaging (outcome-led, V1-only):** [Azure SaaS readiness](buyer-jobs/AZURE_SAAS_READINESS.md) · [AI governance](buyer-jobs/AI_GOVERNANCE_REVIEW.md) · [Healthcare claims policy](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md).
+
+**Operator walkthroughs (step-by-step):** index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md) · [Azure SaaS readiness](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) · [AI governance](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) · [Healthcare claims pilot](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md).
 
 ---
 
@@ -125,6 +129,8 @@ Broader recipe hub: [ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPE
 | **CI/CD** | Azure DevOps Pipelines | Architecture review as a pipeline task | [Example available] — see [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) |
 | **CI/CD** | Azure DevOps Repos (pipelines) | Same `GET /v1/compare` Markdown as GitHub Actions — job summary + sticky PR thread (`integrations/azure-devops-task-manifest-delta*`) | [Shipped] — see [../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md](../integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md) · [ADR 0024](../architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md) |
 | **CI/CD** | Azure DevOps Repos (Service Bus) | PR thread + status on manifest commit (`com.archlucid.authority.run.completed`) — **zero pipeline changes** | [Shipped] — opt-in Worker handler — see [../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md](../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md) |
+| **Agent ecosystem** | MCP server (inbound membrane) | Tenant-scoped **read-only** tool surface over REST-equivalent reads — Streamable HTTP (production) | **[V1.1 — committed]** — [matrix](../library/CONNECTOR_READINESS_MATRIX.md), [V1_SCOPE](../library/V1_SCOPE.md), [MCP backlog §5.1](../library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md), [V1_DEFERRED §6d](../library/V1_DEFERRED.md) |
+| **Agent ecosystem** | MCP client (outbound) | ArchLucid calling external MCP tool servers | **[Later / V2 default]** — not a V1 or V1.1 pilot gate |
 
 ---
 
@@ -151,9 +157,15 @@ Contact your **ArchLucid account team** or the address on your **order form** wi
 
 | Doc | Use |
 |-----|-----|
+| [../runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) | Single V1 pilot path — storage through sponsor export |
+| [../library/walkthroughs/README.md](../library/walkthroughs/README.md) | Accelerator pack index (Azure SaaS, AI governance, healthcare) |
+| [../library/CUSTOM_AGENT_HANDLER_GUIDE.md](../library/CUSTOM_AGENT_HANDLER_GUIDE.md) | In-repo handler extension (not required for Pilot) |
 | [../library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md) | Shipped vs planned; auth/secrets; code + tests + smoke |
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
 | [POSITIONING.md](POSITIONING.md) | Product positioning |
 | [../API_CONTRACTS.md](../library/API_CONTRACTS.md) | API surface detail |
 | [SIEM_EXPORT.md](SIEM_EXPORT.md) | Audit export for SIEM |
 | [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) | CI/CD pipeline examples |
+| [buyer-jobs/AZURE_SAAS_READINESS.md](buyer-jobs/AZURE_SAAS_READINESS.md) | Outcome-led Azure SaaS pilot packaging |
+| [buyer-jobs/AI_GOVERNANCE_REVIEW.md](buyer-jobs/AI_GOVERNANCE_REVIEW.md) | Outcome-led Responsible AI pilot packaging |
+| [buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md](buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) | Outcome-led healthcare claims pilot packaging |

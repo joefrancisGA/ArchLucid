@@ -31,6 +31,7 @@ function formatCount(value: number): string {
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
 }
 
+/** @deprecated Demo/legacy only — production `/dashboard` uses `ExecutiveRoiDashboardLiveKpiCards` (TB-062). */
 /** Executive ROI tiles backed by `GET /v1/analytics/roi` (mocked on the API until persistence is defined). */
 export function ExecutiveRoiDashboard() {
   const [data, setData] = useState<ExecutiveRoiAggregates | null>(null);

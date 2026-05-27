@@ -156,6 +156,7 @@ Authorization: Bearer {token}
 
 ## Related
 
+- [`README.md`](README.md) — accelerator pack index
 - [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md)
 - [`POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) — regulated vertical variant
 - [`CUSTOM_AGENT_HANDLER_GUIDE.md`](../CUSTOM_AGENT_HANDLER_GUIDE.md) — in-repo agent extension (advanced)

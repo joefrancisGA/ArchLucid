@@ -8,5 +8,6 @@ public interface IArchitectureDecisionRegisterQuery
         Guid tenantId,
         Guid? projectId,
         int maxRows,
+        ArchitectureDecisionRegisterQueryOptions? filters,
         CancellationToken cancellationToken);
 }

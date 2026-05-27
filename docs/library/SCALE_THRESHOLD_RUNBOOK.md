@@ -8,11 +8,35 @@ Operators use this runbook to decide when a **single-replica / small-fleet** pos
 
 | Signal | Typical threshold | First response |
 | --- | --- | --- |
-| API p95 latency sustained above SLO | >2× baseline for 30+ minutes | Enable hot-path cache; split worker role |
+| API p95 latency sustained above SLO | >2× baseline for 30+ minutes | Enable hot-path cache; split worker role; review SQL query plans (see **Query p95 checks** below) |
 | SQL CPU >70% during business hours | 3+ consecutive days | Read replica for reporting; tune list indexes |
 | Retrieval index lag | Outbox oldest age >15m (metric `archlucid_retrieval_indexing_outbox_oldest_pending_age_seconds`) | Dedicated indexing worker; increase batch size |
 | Graph projection rebuild cost | High `KnowledgeGraph:ProjectionCache` miss rate | Distributed projection cache (Redis) |
 | Per-tenant metric cardinality | OTel label explosion warnings | Enable tenant metric cardinality guard (see below) |
+| Integration event outbox depth | Oldest pending age >15m or dead-letter growth | Scale worker role; tune outbox batch; see **Outbox scaling** |
+| Authority pipeline outbox depth | `archlucid_authority_pipeline_work_pending` elevated | Dedicated worker; review poison messages — [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md) |
+
+## Query p95 checks (V1 — observability-driven)
+
+Before adding replicas or Redis, confirm the bottleneck is not a missing index or hot list endpoint:
+
+| Signal | Where to look | First response |
+| --- | --- | --- |
+| HTTP server duration p95 | App Insights / OTLP traces or Prometheus `http.server.request.duration` | Identify top routes (`/v1/architecture/runs`, governance lists, graph reads) |
+| SQL command duration p95 | SQL DMVs + `archlucid_*` stage histograms | Tune indexes; route heavy readers to replica (below) |
+| Authority stage p95 | `archlucid_authority_pipeline_stage_duration_ms` by `stage` | Split worker if `findings` / `artifacts` stages dominate API CPU |
+
+**V1 posture:** observability-first triage — no mandatory APM SKU beyond Application Insights / OTLP already documented in [`OBSERVABILITY.md`](OBSERVABILITY.md).
+
+## Outbox scaling (V1.x optional, configuration-driven)
+
+| Outbox | Metric / signal | Keys / docs |
+| --- | --- | --- |
+| Retrieval indexing | `archlucid_retrieval_indexing_outbox_oldest_pending_age_seconds` | Worker separation; batch size in retrieval host options — [`PROVENANCE_INDEXING.md`](../runbooks/PROVENANCE_INDEXING.md) |
+| Integration events | Dead-letter count + publish lag | `IntegrationEvents:TransactionalOutboxEnabled`, Service Bus namespace — [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](INTEGRATION_EVENTS_AND_WEBHOOKS.md), DLQ [`INTEGRATION_EVENT_DLQ_RETRY_POLICY.md`](../runbooks/INTEGRATION_EVENT_DLQ_RETRY_POLICY.md) |
+| Authority pipeline | `archlucid_authority_pipeline_work_pending` | [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md) |
+
+**Trade-off:** Larger outbox batches improve throughput but increase poison-message blast radius — keep DLQ retry policy enabled before raising batch sizes.
 
 ## V1 controls (optional, configuration-driven)
 
@@ -37,7 +61,8 @@ Operators use this runbook to decide when a **single-replica / small-fleet** pos
 ### Worker separation
 
 - **When:** Background jobs (retrieval indexing outbox, integration event outbox, advisory scans) steal CPU from interactive API.
-- **V1 pattern:** Deploy `ArchLucid.Host` with `ArchLucid:HostRole=Worker` (or dedicated worker profile in your Helm/Terraform module) so outbox processors and scans do not share the API process pool.
+- **Keys:** `ArchLucid:HostRole=Worker` (or dedicated worker profile in Helm/Terraform module) — see [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md).
+- **V1 pattern:** Deploy `ArchLucid.Host` with worker role so outbox processors and scans do not share the API process pool.
 - **Trade-off:** Second fleet to patch and monitor; simpler blast radius for API latency.
 
 ### Warm tenant catalogs
@@ -68,6 +93,8 @@ Operators use this runbook to decide when a **single-replica / small-fleet** pos
 
 ## Related docs
 
-- [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md) — authoritative keys
+- [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md) — authoritative keys (`HotPathCache:*`, `ArchLucid:HostRole`, `IntegrationEvents:*`)
+- [OBSERVABILITY.md](OBSERVABILITY.md) — export paths and p95-friendly metrics
+- [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) — production-profile fail-fast including telemetry export
 - [MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) — tenant isolation when adding replicas
-- [TECH_BACKLOG.md](TECH_BACKLOG.md) — TB-037 provenance materialization, TB-029 notification decoupling
+- [TECH_BACKLOG.md](TECH_BACKLOG.md) — TB-037 provenance materialization; TB-029 notification boundary (shipped)
