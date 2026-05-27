@@ -126,13 +126,27 @@ public sealed class RealAgentExecutorIdempotencyTests
             Environment = "prod"
         };
 
+    private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    {
+        public AgentPromptCatalogOptions CurrentValue { get; } = value;
+
+        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
+
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
+    }
+
+    private sealed class FixedScopeProvider(ScopeContext scope) : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() => scope;
+    }
+
     private sealed class CountingStubHandler(AgentType agentType) : IAgentHandler
     {
         public int InvocationCount { get; private set; }
 
         public AgentType AgentType => agentType;
 
-        public string AgentTypeKey => AgentTypeKeys.ResolveDispatchKey(agentType);
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
 
         public Task<AgentResult> ExecuteAsync(
             string runId,
