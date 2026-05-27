@@ -32,7 +32,8 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         Guid? runId,
         Guid? comparedToRunId,
         ImprovementPlan plan,
-        IReadOnlyList<AlertRecord>? evaluatedAlerts = null)
+        IReadOnlyList<AlertRecord>? evaluatedAlerts = null,
+        string? decisionNeededMarkdown = null)
     {
         ArgumentNullException.ThrowIfNull(plan);
 
@@ -94,6 +95,12 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
                 sb.AppendLine($"- [{alert.Severity}] {alert.Title} — {alert.Description}");
 
         sb.AppendLine();
+
+        if (!string.IsNullOrWhiteSpace(decisionNeededMarkdown))
+        {
+            sb.AppendLine(decisionNeededMarkdown.Trim());
+            sb.AppendLine();
+        }
 
         string summary = top.Count == 0
             ? NoIssuesSummary

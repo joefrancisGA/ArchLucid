@@ -147,6 +147,9 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IOperatorStickinessSnapshotReader, InMemoryOperatorStickinessSnapshotReader>();
         services.AddSingleton<IFindingFeedbackRepository, InMemoryFindingFeedbackRepository>();
         services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
+        services.AddSingleton<IRiskExceptionRepository, NoOpRiskExceptionRepository>();
+        services.AddSingleton<IArchitectureRiskRegisterQuery, NoOpArchitectureRiskRegisterQuery>();
+        services.AddSingleton<IArchitectureDecisionRegisterQuery, NoOpArchitectureDecisionRegisterQuery>();
         services.AddSingleton<IImportedArchitectureRequestRepository, NoOpImportedArchitectureRequestRepository>();
         services.AddSingleton<IAzureExtractorPackageRepository, NoOpAzureExtractorPackageRepository>();
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();

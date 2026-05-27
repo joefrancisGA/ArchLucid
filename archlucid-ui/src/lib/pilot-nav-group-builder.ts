@@ -89,7 +89,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/governance/findings",
-          label: OPERATOR_NAV_LINK_LABELS.findings,
+          label: "Risk register",
           title: this.shortcutTitle(
             "Findings — open risks from completed reviews, severity and recommended actions",
             "alt+f",

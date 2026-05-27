@@ -413,6 +413,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IOperatorStickinessSnapshotReader, SqlOperatorStickinessSnapshotReader>();
         services.AddScoped<IFindingFeedbackRepository, SqlFindingFeedbackRepository>();
         services.AddScoped<IFindingReviewTrailRepository, SqlFindingReviewTrailRepository>();
+        services.AddScoped<IRiskExceptionRepository, SqlRiskExceptionRepository>();
+        services.AddScoped<IArchitectureRiskRegisterQuery, ArchitectureRiskRegisterReader>();
+        services.AddScoped<IArchitectureDecisionRegisterQuery, ArchitectureDecisionRegisterReader>();
         services.AddScoped<IImportedArchitectureRequestRepository, SqlImportedArchitectureRequestRepository>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
         services.AddScoped<ITenantNotificationChannelPreferencesRepository, DapperTenantNotificationChannelPreferencesRepository>();

@@ -50,11 +50,17 @@ public sealed class ExecDigestComposerTests
         Mock<IRunDetailQueryService> runDetails = new();
         Mock<IPilotRunDeltaComputer> deltas = new();
 
+        Mock<IGovernanceDigestDecisionNeededComposer> decisionNeeded = new();
+        decisionNeeded
+            .Setup(x => x.BuildDecisionNeededMarkdownAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
         ExecDigestComposer composer = new(
             compliance.Object,
             authority.Object,
             runDetails.Object,
             deltas.Object,
+            decisionNeeded.Object,
             NullLogger<ExecDigestComposer>.Instance);
 
         Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");

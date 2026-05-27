@@ -28,5 +28,6 @@ public interface IArchitectureDigestBuilder
         Guid? runId,
         Guid? comparedToRunId,
         ImprovementPlan plan,
-        IReadOnlyList<AlertRecord>? evaluatedAlerts = null);
+        IReadOnlyList<AlertRecord>? evaluatedAlerts = null,
+        string? decisionNeededMarkdown = null);
 }

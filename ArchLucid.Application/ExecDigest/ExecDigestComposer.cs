@@ -19,6 +19,7 @@ public sealed class ExecDigestComposer(
     IAuthorityQueryService authorityQueryService,
     IRunDetailQueryService runDetailQueryService,
     IPilotRunDeltaComputer pilotRunDeltaComputer,
+    IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
     ILogger<ExecDigestComposer> logger) : IExecDigestComposer
 {
     private const int MaxListRuns = 200;
@@ -50,7 +51,20 @@ public sealed class ExecDigestComposer(
         (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta) =
             await TryBuildManifestAndFindingSectionsAsync(authorityScope, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
         string sponsorUrl = string.IsNullOrWhiteSpace(latestRunHex) ? dashboardUrl : $"{baseUrl}/runs/{latestRunHex}";
-        return new ExecDigestComposition(weekLabel, complianceMarkdown, manifestCount, highlights, findingsDelta, dashboardUrl, sponsorUrl, latestRunHex);
+        string? decisionNeededMarkdown = await governanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync(
+            tenantId,
+            authorityScope.ProjectId,
+            cancellationToken);
+        return new ExecDigestComposition(
+            weekLabel,
+            complianceMarkdown,
+            manifestCount,
+            highlights,
+            findingsDelta,
+            dashboardUrl,
+            sponsorUrl,
+            latestRunHex,
+            decisionNeededMarkdown);
     }
 
     private async Task<string?> TryBuildComplianceMarkdownAsync(Guid tenantId, DateTime fromUtc, DateTime toUtc, CancellationToken cancellationToken)

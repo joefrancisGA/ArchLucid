@@ -75,6 +75,15 @@ public static class AuditEventTypes
     /// <summary>Privileged override applied after rejection.</summary>
     public const string FindingReviewOverridden = "FindingReviewOverridden";
 
+    /// <summary>Operator recorded a TB-058 finding disposition.</summary>
+    public const string FindingReviewDispositionRecorded = "FindingReviewDispositionRecorded";
+
+    /// <summary>Operator created a TB-059 risk exception (waiver).</summary>
+    public const string RiskExceptionCreated = "RiskExceptionCreated";
+
+    /// <summary>Operator revoked a TB-059 risk exception (waiver).</summary>
+    public const string RiskExceptionRevoked = "RiskExceptionRevoked";
+
     /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
     public const string FindingMuted = "FindingMuted";
 

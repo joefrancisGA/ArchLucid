@@ -48,10 +48,17 @@ export const BUYER_ASK_PAGE_TITLE = "Evidence-backed review questions";
 
 export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance decision record";
 
-export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
-  "Review records and dispositions — monitored risks, recorded decisions, and follow-up monitors tied to the selected review package. Open a row for evidence and rationale.";
+export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Architecture risk register";
 
-export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks and observations";
+export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
+  "Owned architecture risks across reviews — disposition, owner, aging, waiver expiry, and evidence links. Open a row for inspect and trail.";
+
+export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
+
+export const BUYER_GOVERNANCE_DECISION_REGISTER_TITLE = "Decision register";
+
+export const BUYER_GOVERNANCE_DECISION_REGISTER_LEAD =
+  "Durable manifest decisions across signed reviews — category, confidence source, supporting findings, and lineage.";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View risk observation and evidence";
 

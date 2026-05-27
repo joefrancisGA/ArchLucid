@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Integration;
@@ -72,6 +73,7 @@ public sealed class AdvisoryScanRunnerTests
             Mock.Of<IImprovementAdvisorService>(),
             Mock.Of<IComparisonService>(),
             Mock.Of<IArchitectureDigestBuilder>(),
+            Mock.Of<IGovernanceDigestDecisionNeededComposer>(),
             Mock.Of<IArchitectureDigestRepository>(),
             Mock.Of<IDigestDeliveryDispatcher>(),
             Mock.Of<IAlertService>(),

@@ -2274,6 +2274,70 @@
         },
         "type": "object"
       },
+      "ArchitectureDecisionRegisterEntry": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "confidenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionId": {
+            "type": "string"
+          },
+          "manifestId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "recordedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "selectedOption": {
+            "type": "string"
+          },
+          "supportingFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureDecisionRegisterResponse": {
+        "properties": {
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureDecisionRegisterEntry"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureDigest": {
         "properties": {
           "archivedUtc": {
@@ -2715,6 +2779,98 @@
           "id",
           "name"
         ],
+        "type": "object"
+      },
+      "ArchitectureRiskRegisterEntry": {
+        "properties": {
+          "agingDays": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "evidenceHref": {
+            "type": "string"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "isStale": {
+            "type": "boolean"
+          },
+          "lastReviewedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestDisposition": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingDisposition"
+              }
+            ]
+          },
+          "manifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownerUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "revisitDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "severity": {
+            "type": "string"
+          },
+          "statusLabel": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "waiverExpiresAtUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureRiskRegisterResponse": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureRiskRegisterEntry"
+            },
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "ArchitectureRun": {
@@ -5054,6 +5210,50 @@
         },
         "type": "object"
       },
+      "CreateRiskExceptionRequest": {
+        "properties": {
+          "evidenceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expiresAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "manifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownerUserId": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "expiresAtUtc",
+          "findingId",
+          "ownerUserId",
+          "rationale"
+        ],
+        "type": "object"
+      },
       "CrossTenantPortfolioSummaryResponse": {
         "properties": {
           "isKAnonymitySatisfied": {
@@ -5448,6 +5648,9 @@
         "type": "object"
       },
       "DatastoreType": {
+        "type": "integer"
+      },
+      "DecisionConfidenceSource": {
         "type": "integer"
       },
       "DecisionDelta": {
@@ -7910,6 +8113,57 @@
       "FindingConfidenceLevel": {
         "type": "integer"
       },
+      "FindingDisposition": {
+        "type": "integer"
+      },
+      "FindingDispositionEventDto": {
+        "properties": {
+          "disposition": {
+            "$ref": "#/components/schemas/FindingDisposition"
+          },
+          "eventId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "evidenceRequestText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "occurredAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewerUserId": {
+            "type": "string"
+          },
+          "revisitDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "FindingEngineFailure": {
         "properties": {
           "category": {
@@ -8500,6 +8754,9 @@
               "$ref": "#/components/schemas/FindingEngineFailure"
             },
             "type": "array"
+          },
+          "evaluationConfidenceEnrichmentSkipped": {
+            "type": "boolean"
           },
           "findings": {
             "items": {
@@ -14871,6 +15128,47 @@
         },
         "type": "object"
       },
+      "RecordFindingDispositionRequest": {
+        "properties": {
+          "disposition": {
+            "$ref": "#/components/schemas/FindingDisposition"
+          },
+          "evidenceRequestText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "revisitDueUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "disposition",
+          "findingId"
+        ],
+        "type": "object"
+      },
       "RegisterItsmCorrelationRequest": {
         "properties": {
           "externalKey": {
@@ -15416,17 +15714,16 @@
             "type": "string"
           },
           "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
               "null",
-              "number"
-            ],
-            "format": "double"
-          },
-          "confidenceSource": {
-            "type": [
-              "null",
+              "number",
               "string"
             ]
+          },
+          "confidenceSource": {
+            "$ref": "#/components/schemas/DecisionConfidenceSource"
           },
           "decisionId": {
             "type": "string"
@@ -15584,6 +15881,86 @@
           }
         },
         "type": "object"
+      },
+      "RiskExceptionRecord": {
+        "properties": {
+          "createdAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdByUserId": {
+            "type": "string"
+          },
+          "evidenceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expiresAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "manifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownerUserId": {
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "revokedAtUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "revokedByUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "riskExceptionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/RiskExceptionStatus"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RiskExceptionStatus": {
+        "type": "integer"
       },
       "RoiBulletinPreviewResponse": {
         "properties": {
@@ -44097,6 +44474,203 @@
         ]
       }
     },
+    "/v1/governance/decision-register": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maxRows",
+            "schema": {
+              "default": 200,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureDecisionRegisterResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureDecisionRegisterResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureDecisionRegisterResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
+    "/v1/governance/findings/{findingId}/dispositions": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FindingDispositionEventDto"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FindingDispositionEventDto"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FindingDispositionEventDto"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordFindingDispositionRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordFindingDispositionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordFindingDispositionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingDispositionEventDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingDispositionEventDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingDispositionEventDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
     "/v1/governance/policy-pack-content-schema": {
       "get": {
         "responses": {
@@ -44933,6 +45507,216 @@
         },
         "tags": [
           "Governance"
+        ]
+      }
+    },
+    "/v1/governance/risk-exceptions": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RiskExceptionRecord"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RiskExceptionRecord"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RiskExceptionRecord"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateRiskExceptionRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateRiskExceptionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateRiskExceptionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskExceptionRecord"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskExceptionRecord"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskExceptionRecord"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
+    "/v1/governance/risk-exceptions/{riskExceptionId}/revoke": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "riskExceptionId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
+    "/v1/governance/risk-register": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "maxRows",
+            "schema": {
+              "default": 200,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRiskRegisterResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRiskRegisterResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRiskRegisterResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
         ]
       }
     },
@@ -57090,6 +57874,9 @@
     },
     {
       "name": "GovernanceResolution"
+    },
+    {
+      "name": "GovernanceStickiness"
     },
     {
       "name": "Graph"

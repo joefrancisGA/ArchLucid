@@ -44,7 +44,10 @@ internal static class ExecutiveRoiTrailing30DayMetricsCalculator
 
         foreach (FindingReviewEventRecord reviewEvent in events)
         {
-            if (reviewEvent.Action is not (FindingReviewAction.Approve or FindingReviewAction.Override))
+            bool resolved = reviewEvent.Action is FindingReviewAction.Approve or FindingReviewAction.Override
+                            || reviewEvent.Disposition is FindingDisposition.Accepted or FindingDisposition.Remediated;
+
+            if (!resolved)
                 continue;
 
             if (string.IsNullOrWhiteSpace(reviewEvent.FindingId))

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
@@ -62,6 +63,7 @@ public sealed class AdvisoryScanRunner(
     IImprovementAdvisorService improvementAdvisorService,
     IComparisonService comparisonService,
     IArchitectureDigestBuilder digestBuilder,
+    IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
     IArchitectureDigestRepository digestRepository,
     IDigestDeliveryDispatcher deliveryDispatcher,
     IAlertService alertService,
@@ -211,8 +213,19 @@ public sealed class AdvisoryScanRunner(
         AlertEvaluationOutcome alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct);
         CompositeAlertEvaluationResult compositeOutcome = await compositeAlertService.EvaluateAndPersistAsync(alertContext, ct);
         List<AlertRecord> digestAlerts = alertOutcome.Evaluated.Concat(compositeOutcome.Created).ToList();
-        ArchitectureDigest digest = digestBuilder.Build(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, comparedToRunId, plan,
-            digestAlerts);
+        string? decisionNeededMarkdown = await governanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync(
+            schedule.TenantId,
+            schedule.ProjectId,
+            ct);
+        ArchitectureDigest digest = digestBuilder.Build(
+            schedule.TenantId,
+            schedule.WorkspaceId,
+            schedule.ProjectId,
+            latest.RunId,
+            comparedToRunId,
+            plan,
+            digestAlerts,
+            decisionNeededMarkdown);
         await digestRepository.CreateAsync(digest, ct);
         await deliveryDispatcher.DeliverAsync(digest, ct);
         TraceCompletenessSummary traceCompletenessSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);

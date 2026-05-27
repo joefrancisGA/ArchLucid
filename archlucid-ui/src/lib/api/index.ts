@@ -27,6 +27,7 @@ export * from "./advisory-digests-api";
 export * from "./alerts-api";
 export * from "./audit-api";
 export * from "./policy-governance-api";
+export * from "./governance-stickiness-api";
 export * from "./recommendation-replay-api";
 export * from "./comparison-replay-cost-api";
 export * from "./downloads-api";

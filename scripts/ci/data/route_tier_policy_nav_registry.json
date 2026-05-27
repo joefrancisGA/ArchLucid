@@ -942,6 +942,16 @@
       "nav_operator_href": "/governance-resolution"
     },
     {
+      "controller_file": "Governance/GovernanceStickinessController.cs",
+      "class_name": "GovernanceStickinessController",
+      "route_template": "v{version:apiVersion}/governance",
+      "normalized_prefix": "/v1/governance",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Governance/ManifestsController.cs",
       "class_name": "ManifestsController",
       "route_template": "v{version:apiVersion}/architecture",

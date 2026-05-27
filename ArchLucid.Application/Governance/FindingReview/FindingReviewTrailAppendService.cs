@@ -50,6 +50,7 @@ public sealed class FindingReviewTrailAppendService(IFindingReviewTrailRepositor
             FindingReviewAction.Reject => AuditEventTypes.FindingReviewRejected,
             FindingReviewAction.Override => AuditEventTypes.FindingReviewOverridden,
             FindingReviewAction.Escalate => AuditEventTypes.FindingReviewOverridden,
+            FindingReviewAction.RecordDisposition => AuditEventTypes.FindingReviewDispositionRecorded,
             _ => throw new ArgumentOutOfRangeException(nameof(action), action,
                 string.Create(CultureInfo.InvariantCulture,
                     $"Unsupported finding review Action '{action}'. Extend MapActionToAuditEventType when adding new verbs.")),

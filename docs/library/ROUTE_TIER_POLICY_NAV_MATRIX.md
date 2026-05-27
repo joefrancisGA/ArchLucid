@@ -38,7 +38,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:154 -->
+<!-- route-tier-policy-nav-registry-count:155 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -136,6 +136,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Governance/GovernancePreCommitSimulationController.cs` | `/v1/governance/pre-commit` | standard | ReadAuthority |  |  |
 | `Governance/GovernancePreviewController.cs` | `/v1/governance-preview` | standard | ReadAuthority |  |  |
 | `Governance/GovernanceResolutionController.cs` | `/v1/governance-resolution` | standard | ReadAuthority | /governance-resolution |  |
+| `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/ManifestsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /policy-packs |  |
 | `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ExecuteAuthority |  |  |

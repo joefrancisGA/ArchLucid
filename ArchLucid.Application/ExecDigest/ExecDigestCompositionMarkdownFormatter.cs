@@ -45,6 +45,12 @@ public static class ExecDigestCompositionMarkdownFormatter
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(composition.DecisionNeededMarkdown))
+        {
+            sb.AppendLine();
+            sb.AppendLine(composition.DecisionNeededMarkdown.Trim());
+        }
+
         if (string.IsNullOrWhiteSpace(composition.ComplianceDriftMarkdown))
             return sb.ToString();
         sb.AppendLine();

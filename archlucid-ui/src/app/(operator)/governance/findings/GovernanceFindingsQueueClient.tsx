@@ -18,6 +18,7 @@ import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEna
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
+  BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
   BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE,
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
@@ -447,7 +448,9 @@ export default function GovernanceFindingsQueueClient() {
           </span>
         </nav>
       ) : null}
-      <OperatorPageHeader title={buyerPolishedShell ? "Review records and dispositions" : "Findings"} />
+      <OperatorPageHeader
+        title={buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : "Architecture risk register"}
+      />
 
         <div className="mt-4 space-y-4">
           {buyerPolishedShell ? (

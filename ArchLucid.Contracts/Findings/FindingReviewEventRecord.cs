@@ -62,4 +62,23 @@ public sealed class FindingReviewEventRecord
         get;
         init;
     }
+
+    /// <summary>TB-058 disposition when <see cref="Action" /> is <see cref="FindingReviewAction.RecordDisposition" />.</summary>
+    public FindingDisposition? Disposition
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? RevisitDueUtc
+    {
+        get;
+        init;
+    }
+
+    public string? EvidenceRequestText
+    {
+        get;
+        init;
+    }
 }

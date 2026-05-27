@@ -6,5 +6,6 @@ public enum FindingReviewAction
     Approve = 0,
     Reject = 1,
     Override = 2,
-    Escalate = 3
+    Escalate = 3,
+    RecordDisposition = 4,
 }
