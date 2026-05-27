@@ -151,6 +151,7 @@ public sealed class AgentExecutionTraceRecorder(
             RunId = runId,
             TaskId = taskId,
             AgentType = agentType,
+            ProvenanceCorrelationId = AgentProvenanceCorrelationId.Format(runId, taskId, agentType),
             SystemPrompt = Truncate(storeSystem, MaxContentLength),
             UserPrompt = Truncate(storeUser, MaxContentLength),
             RawResponse = Truncate(storeRaw, MaxContentLength),

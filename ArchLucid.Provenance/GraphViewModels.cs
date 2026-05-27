@@ -52,6 +52,13 @@ public class GraphNodeVm
         set;
     }
 
+    /// <summary>Optional agent execution trace id for provenance ↔ LLM forensics deep links (TB-036).</summary>
+    public string? AgentExecutionTraceId
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optional agent/heuristic narration for operator graph explainability.</summary>
     public string? ReasoningTrace
     {

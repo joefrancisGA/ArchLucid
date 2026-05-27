@@ -47,16 +47,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
             AddNode(
                 $"finding:{f.FindingId}",
-                new ProvenanceNode
-                {
-                    Type = ProvenanceNodeType.Finding,
-                    ReferenceId = f.FindingId,
-                    Name = f.Title,
-                    Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        ["findingType"] = f.FindingType, ["category"] = f.Category
-                    }
-                });
+                CreateFindingNode(f));
 
 
         foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
@@ -187,6 +178,38 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         return result;
+
+        ProvenanceNode CreateFindingNode(Finding finding)
+        {
+            Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["findingType"] = finding.FindingType,
+                ["category"] = finding.Category
+            };
+
+            string? agentTraceId = ResolveAgentExecutionTraceId(finding);
+            ProvenanceNode node = new()
+            {
+                Type = ProvenanceNodeType.Finding,
+                ReferenceId = finding.FindingId,
+                Name = finding.Title,
+                Metadata = metadata,
+                AgentExecutionTraceId = agentTraceId
+            };
+
+            if (!string.IsNullOrWhiteSpace(agentTraceId))
+                metadata[ProvenanceMetadataKeys.AgentExecutionTraceId] = agentTraceId;
+
+            return node;
+        }
+
+        static string? ResolveAgentExecutionTraceId(Finding finding)
+        {
+            if (!string.IsNullOrWhiteSpace(finding.AgentExecutionTraceId))
+                return finding.AgentExecutionTraceId;
+
+            return finding.Trace?.SourceAgentExecutionTraceId;
+        }
 
         Guid AddNode(string key, ProvenanceNode node)
         {

@@ -31,13 +31,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-047 | Chunking strategy fingerprint and invalidation | Correctness — mixed-generation chunks when chunker defaults change; see **RAG-V1-009** | S |
 | TB-034 | Degraded-handler minimal `AgentExecutionTrace` rows | Support / honesty — resilience fallbacks (`AgentHandlerDegradedResultFactory`) write no trace; prompts and model calls are unrecoverable | S |
 | TB-035 | Persist intermediate LLM attempts on schema-remediation retries | Forensic replay — `LlmAgentSchemaCompletion` records only the final attempt; earlier prompts/responses are metric-only | M |
-| TB-036 | Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace` | Analytical integrity — decision lineage and LLM forensics share no foreign key; cannot navigate provenance node → agent step | M |
+| TB-036 | Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace` | Done (Batch F, 2026-05-26) — `ProvenanceCorrelationId`, finding node trace id, API field | M |
 | TB-037 | Production write path for `DecisionProvenanceSnapshot` | Performance + durability — `IProvenanceSnapshotRepository.SaveAsync` has no callers; graph rebuilt on every API read | S |
 | TB-038 | `RetrievalGroundingTrace` forensic enrichment (+ non-Compliance agents) | Forensic replay — only chunk IDs persisted for Compliance; query, top-K, scores, document IDs missing; see **RAG-V1-006** | S–M |
 | TB-039 | Agent execute retry — per-`(RunId, TaskId)` skip before handler dispatch | Done (Batch E, 2026-05-26) — `RealAgentExecutor` skips persisted non-degraded results; metric `archlucid_agent_execute_task_skipped_idempotent_total` | M |
 | TB-043 | Schema remediation — non-retried completion client (decouple from Polly stack) | Done (Batch E, 2026-05-26) — `ISchemaRemediationAgentCompletionClient` without Polly retry wrapper | XS–S |
-| TB-041 | Authority pipeline — per-stage completion checkpoint on retry | Reliability — pipeline restarts from stage 1; duplicate context/graph/findings snapshots on transient failure | M |
-| TB-042 | Graph snapshot supersession — skip rebuild when `RunRecord.GraphSnapshotId` set | Storage / lineage — orphaned graph snapshots when save succeeds but run header update fails; Cosmos path outside SQL txn | S |
+| TB-041 | Authority pipeline — per-stage completion checkpoint on retry | Done (Batch F, 2026-05-26) — FK checkpoint skip, hydrator, metric, tests | M |
+| TB-042 | Graph snapshot supersession — skip rebuild when `RunRecord.GraphSnapshotId` set | Done (Batch F, 2026-05-26) — header/orphan reuse resolver, aligned with TB-041 | S |
 | TB-040 | `LlmCompletionAccountingClient` — await metering with `CancellationToken.None` | FinOps honesty — fire-and-forget metering skipped under linked cancellation; budget trackers vs `IUsageMeteringService` diverge | XS |
 | TB-044 | `AgentExecutionTraces` — unique index on `(RunId, TaskId, AgentType)` + upsert semantics | Done (Batch E, 2026-05-26) — DbUp 223 + delete-then-insert upsert | XS |
 | TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
@@ -1161,6 +1161,8 @@ Only the **final** attempt is passed to `IAgentExecutionTraceRecorder.RecordAsyn
 
 ## TB-036 — Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace`
 
+**Status:** Done (Batch F, 2026-05-26).
+
 **Source:** Replay / provenance completeness audit (2026-05-26). `ArchLucid.Provenance` builds decision lineage; `AgentRuntime` stores LLM forensics — no link between them.
 
 **Problem:**
@@ -1296,6 +1298,8 @@ In `LlmCompletionAccountingClient.CompleteJsonAsync`, `TryRecordLlmUsageMetering
 
 ## TB-041 — Authority pipeline — per-stage completion checkpoint on retry
 
+**Status:** Done (Batch F, 2026-05-26).
+
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `AuthorityPipelineStagesExecutor.ExecuteStageAsync` has no “stage already completed” guard.
 
 **Problem:**
@@ -1325,6 +1329,8 @@ If the authority pipeline throws mid-run (e.g. after context ingestion and graph
 ---
 
 ## TB-042 — Graph snapshot supersession — skip rebuild when `RunRecord.GraphSnapshotId` set
+
+**Status:** Done (Batch F, 2026-05-26).
 
 **Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `KnowledgeGraphService.BuildSnapshotAsync` always assigns new `GraphSnapshotId`; `SaveGraphAsync` has no supersession check.
 

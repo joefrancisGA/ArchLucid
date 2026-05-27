@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -45,6 +46,15 @@ public sealed class AuthorityPipelineStagesExecutor(
     IFindingsSnapshotEvaluationConfidenceEnricher findingsSnapshotEvaluationConfidenceEnricher,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
+    private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
+        new(
+            contextSnapshotRepository,
+            graphSnapshotRepository,
+            findingsSnapshotRepository,
+            decisionTraceRepository,
+            goldenManifestRepository,
+            artifactBundleRepository);
+
     private readonly IArtifactBundleRepository _artifactBundleRepository =
         artifactBundleRepository ?? throw new ArgumentNullException(nameof(artifactBundleRepository));
 
@@ -131,6 +141,36 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         await ExecuteStageAsync(ctx, "authority.graph", "graph", async (_, token) =>
         {
+            GraphSnapshotResolutionResult? committedReuse = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+                run.RunId,
+                run.GraphSnapshotId,
+                ctx.ContextSnapshot!.SnapshotId,
+                _graphSnapshotRepository,
+                token);
+
+            if (committedReuse is not null)
+            {
+                ctx.GraphResolution = committedReuse;
+                ctx.GraphSnapshot = committedReuse.Snapshot;
+
+                if (_logger.IsEnabled(LogLevel.Information))
+
+                    _logger.LogInformation(
+                        "Authority pipeline graph reused: RunId={RunId}, GraphResolutionMode={GraphResolutionMode}, GraphSnapshotId={GraphSnapshotId}",
+                        run.RunId,
+                        committedReuse.ResolutionMode,
+                        committedReuse.Snapshot.GraphSnapshotId);
+
+
+                if (run.GraphSnapshotId != committedReuse.Snapshot.GraphSnapshotId)
+                {
+                    run.GraphSnapshotId = committedReuse.Snapshot.GraphSnapshotId;
+                    await UpdateRunAsync(run, uow, token);
+                }
+
+                return;
+            }
+
             GraphSnapshotResolutionResult graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
                 ctx.PriorCommittedContext,
                 ctx.ContextSnapshot!,
@@ -402,6 +442,37 @@ public sealed class AuthorityPipelineStagesExecutor(
                     stageName,
                     nextStage);
 
+
+            if (AuthorityPipelineStageCheckpoint.IsComplete(ctx.Run, stageName))
+            {
+                bool hydrated = await _stageContextHydrator.TryHydrateAsync(ctx, stageName, ct);
+
+                if (hydrated)
+                {
+                    outcome = "skipped_checkpoint";
+                    activity?.SetTag("archlucid.stage.skipped", true);
+
+                    ArchLucidInstrumentation.AuthorityPipelineStageSkippedCheckpointTotal.Add(
+                        1,
+                        new KeyValuePair<string, object?>("stage", stageName));
+
+                    if (_logger.IsEnabled(LogLevel.Information))
+
+                        _logger.LogInformation(
+                            "Authority pipeline stage skipped (checkpoint): RunId={RunId}, Stage={Stage}",
+                            ctx.Run.RunId,
+                            stageName);
+
+                    return;
+                }
+
+                if (_logger.IsEnabled(LogLevel.Warning))
+
+                    _logger.LogWarning(
+                        "Authority pipeline checkpoint FK set but artefact missing; re-running stage: RunId={RunId}, Stage={Stage}",
+                        ctx.Run.RunId,
+                        stageName);
+            }
 
             await stageWork(activity, ct);
 

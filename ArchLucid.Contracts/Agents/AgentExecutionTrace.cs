@@ -288,4 +288,13 @@ public sealed class AgentExecutionTrace
         get;
         set;
     }
+
+    /// <summary>
+    ///     Stable correlation key for provenance graph navigation (<c>{runId}:{taskId}:{agentType}</c>; TB-036).
+    /// </summary>
+    public string? ProvenanceCorrelationId
+    {
+        get;
+        set;
+    }
 }

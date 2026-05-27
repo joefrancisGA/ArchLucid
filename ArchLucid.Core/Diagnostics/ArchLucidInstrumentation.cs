@@ -482,6 +482,14 @@ public static class ArchLucidInstrumentation
             "ms",
             "Per-stage wall time inside the authority pipeline (labels: stage, outcome).");
 
+    /// <summary>
+    ///     Authority pipeline stages skipped because run header checkpoint FKs were already set (label <c>stage</c>).
+    /// </summary>
+    public static readonly Counter<long> AuthorityPipelineStageSkippedCheckpointTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_authority_pipeline_stage_skipped_checkpoint_total",
+            description: "Authority pipeline stage skipped on retry due to persisted checkpoint (labels: stage).");
+
     /// <summary>Successful self-service trial activations (labels: <c>source</c>, <c>mode</c>).</summary>
     public static readonly Counter<long> TrialSignupsTotal =
         AppMeter.CreateCounter<long>(

@@ -417,6 +417,69 @@ public sealed class AuthorityPipelineStagesExecutorTests
     }
 
     [SkippableFact]
+    public async Task ExecuteAfterRunPersistedAsync_skips_completed_stages_on_checkpoint_retry()
+    {
+        _ = ArchLucidInstrumentation.AuthorityPipelineStageSkippedCheckpointTotal;
+
+        Guid runGuid = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+
+        ContextSnapshot committedContext = new()
+        {
+            SnapshotId = contextId,
+            RunId = runGuid,
+            ProjectId = "p1",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        GraphSnapshot committedGraph = new()
+        {
+            GraphSnapshotId = graphId,
+            ContextSnapshotId = contextId,
+            RunId = runGuid,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        Mock<IContextIngestionService> ingest = new();
+        Mock<IKnowledgeGraphService> kg = new();
+        Mock<IContextSnapshotRepository> ctxRepo = new();
+        ctxRepo
+            .Setup(r => r.GetByIdAsync(contextId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(committedContext);
+
+        Mock<IGraphSnapshotRepository> graphRepo = new();
+        graphRepo
+            .Setup(r => r.GetByIdAsync(graphId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(committedGraph);
+
+        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor(
+            ingestMock: ingest,
+            contextSnapshotRepositoryMock: ctxRepo,
+            graphSnapshotRepositoryMock: graphRepo,
+            knowledgeGraphServiceMock: kg);
+
+        AuthorityPipelineContext ctx = CreateContext(runId: runGuid);
+        ctx.Run.ContextSnapshotId = contextId;
+        ctx.Run.GraphSnapshotId = graphId;
+
+        await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        ingest.Verify(
+            s => s.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        kg.Verify(
+            k => k.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        graphRepo.Verify(
+            r => r.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>(), null, null),
+            Times.Never);
+
+        ctx.ContextSnapshot!.SnapshotId.Should().Be(contextId);
+        ctx.GraphSnapshot!.GraphSnapshotId.Should().Be(graphId);
+    }
+
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_when_artifact_synthesis_throws_logs_ArtifactSynthesisFailed_and_rethrows()
     {
         Guid runGuid = Guid.NewGuid();
@@ -476,6 +539,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
     private static (AuthorityPipelineStagesExecutor Executor, Mock<IDecisionEngine> Decision, Mock<IAuditService> Audit)
         CreateExecutor(
         Mock<IContextIngestionService>? ingestMock = null,
+        Mock<IContextSnapshotRepository>? contextSnapshotRepositoryMock = null,
+        Mock<IGraphSnapshotRepository>? graphSnapshotRepositoryMock = null,
+        Mock<IKnowledgeGraphService>? knowledgeGraphServiceMock = null,
         Action<FindingsSnapshot>? configureFindings = null,
         AuthorityPipelineOptions? authorityPipelineOptions = null,
         Action<Mock<IArtifactSynthesisService>>? configureSynthesis = null)
@@ -508,7 +574,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     });
         }
 
-        Mock<IContextSnapshotRepository> ctxRepo = new();
+        Mock<IContextSnapshotRepository> ctxRepo = contextSnapshotRepositoryMock ?? new Mock<IContextSnapshotRepository>();
         ctxRepo
             .Setup(r => r.GetLatestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ContextSnapshot?)null);
@@ -516,19 +582,23 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(r => r.SaveAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
-        Mock<IKnowledgeGraphService> kg = new();
-        kg
-            .Setup(k => k.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new GraphSnapshot
-                {
-                    GraphSnapshotId = graphId,
-                    ContextSnapshotId = snapshotId,
-                    RunId = Guid.Empty,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
-                });
+        Mock<IKnowledgeGraphService> kg = knowledgeGraphServiceMock ?? new Mock<IKnowledgeGraphService>();
 
-        Mock<IGraphSnapshotRepository> graphRepo = new();
+        if (knowledgeGraphServiceMock is null)
+        {
+            kg
+                .Setup(k => k.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    new GraphSnapshot
+                    {
+                        GraphSnapshotId = graphId,
+                        ContextSnapshotId = snapshotId,
+                        RunId = Guid.Empty,
+                        CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                    });
+        }
+
+        Mock<IGraphSnapshotRepository> graphRepo = graphSnapshotRepositoryMock ?? new Mock<IGraphSnapshotRepository>();
         graphRepo
             .Setup(r => r.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
