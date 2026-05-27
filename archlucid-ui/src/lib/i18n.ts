@@ -112,7 +112,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   capture: "Capture",
   onboarding: "Onboarding",
-  findings: "Findings",
+  findings: "Risk register",
   help: "Help",
   scorecard: "Scorecard",
   alerts: "Alerts",

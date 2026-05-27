@@ -80,7 +80,11 @@ describe("SidebarNav (primary navigation)", () => {
       );
       expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a review" })).toHaveAttribute("href", "/replay");
-      expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
+      expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute("href", "/governance/findings");
+      expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute(
+        "title",
+        "Findings — open risks from completed reviews, severity and recommended actions (Alt+F)",
+      );
       expect(screen.getByRole("link", { name: "Scorecard" })).toHaveAttribute("href", "/scorecard");
 
       const linksWithKeyShortcuts = screen
@@ -147,31 +151,26 @@ describe("SidebarNav pilot_operator default preset", () => {
     localStorage.clear();
   });
 
-  it("hides compare and governance workflow until Show all features and disclosure toggles", () => {
+  it("keeps analysis and governance destinations off the sidebar until full navigator preset", () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
 
     expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Risk register" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
 
-    expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
+    // pilot_operator allow-list prunes operate-analysis/operate-governance hrefs even after expand-all.
+    expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
     fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
     fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
 
-    expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
-
-    fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }));
-    fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
-
-    fireEvent.click(screen.getByRole("button", { name: "Governance" }));
-
-    expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
+    expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Risk register" })).toBeNull();
   });
 });

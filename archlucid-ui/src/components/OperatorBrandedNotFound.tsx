@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 /**
  * Shared 404 body for invalid or stale deep links. With `notFound()` from an operator route, the nearest
@@ -24,7 +25,7 @@ export function OperatorBrandedNotFound() {
           Reviews
         </Link>
         <Link className="text-teal-800 underline dark:text-teal-300" href="/governance/findings">
-          Findings
+          {OPERATOR_NAV_LINK_LABELS.findings}
         </Link>
       </div>
       <p className="m-0 mt-6 text-[11px] uppercase tracking-wide text-neutral-800 dark:text-neutral-300">
