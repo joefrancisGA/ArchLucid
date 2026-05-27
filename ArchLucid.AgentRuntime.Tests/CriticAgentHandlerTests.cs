@@ -87,6 +87,7 @@ public sealed class CriticAgentHandlerTests
 
         CriticAgentHandler handler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
             parser,
             traceRecorder,
             catalog,
@@ -202,6 +203,7 @@ public sealed class CriticAgentHandlerTests
 
         CriticAgentHandler handler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
             parser,
             traceRecorder,
             catalog,

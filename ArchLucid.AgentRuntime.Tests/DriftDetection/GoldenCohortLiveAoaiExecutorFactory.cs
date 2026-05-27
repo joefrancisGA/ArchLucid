@@ -5,6 +5,7 @@ using CapabilitiesCostAgentHandler = ArchLucid.Capabilities.Cost.CostAgentHandle
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -56,6 +57,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
 
         TopologyAgentHandler topology = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
+            SchemaRemediationCompletionClientTestFactory.Create(completion),
             parser,
             recorder,
             promptCatalog,
@@ -65,6 +67,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
 
         ComplianceAgentHandler compliance = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
+            SchemaRemediationCompletionClientTestFactory.Create(completion),
             parser,
             recorder,
             promptCatalog,
@@ -80,6 +83,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
 
         CriticAgentHandler critic = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
+            SchemaRemediationCompletionClientTestFactory.Create(completion),
             parser,
             recorder,
             promptCatalog,
@@ -100,7 +104,8 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         return (executor, recorder);
     }

@@ -92,6 +92,7 @@ public sealed class ComplianceAgentHandlerTests
 
         ComplianceAgentHandler handler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
             parser,
             traceRecorder,
             catalog,

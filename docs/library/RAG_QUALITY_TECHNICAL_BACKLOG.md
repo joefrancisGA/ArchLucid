@@ -45,7 +45,7 @@
 
 **Objective:** Raise **faithfulness** and **citation density** using existing retrieval infrastructure — no new vector store, no agentic multi-hop retrieval.
 
-**Recommended implementation order:** **RAG-V1-000** (shared seam) → **RAG-V1-001** → **RAG-V1-003** → **RAG-V1-002** → **RAG-V1-004**. **RAG-V1-005** (eval harness) ships alongside or immediately after **RAG-V1-001**.
+**Recommended implementation order:** **RAG-V1-000** (shared seam) → **RAG-V1-001** → **RAG-V1-003** → **RAG-V1-002** → **RAG-V1-004**. **RAG-V1-005** (citation faithfulness eval) ships alongside or immediately after **RAG-V1-001**. **Retrieval correctness & drift (2026-05-26 audit):** **RAG-V1-010** (tenancy) → **RAG-V1-007** (embedding drift) → **RAG-V1-011** (IR eval harness) → **RAG-V1-008** (index freshness) → **RAG-V1-009** (chunking versioning).
 
 **First implementation slice (design approved 2026-05-23):** [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) — **RAG-V1-000 partial** (`CorpusKind`, `ICorpusSource`, platform-sentinel search) + **RAG-V1-001** (`PolicyPackCorpusIndexer`, `ComplianceAgentHandler` wiring). Pick up as one PR under **TB-021**.
 
@@ -173,13 +173,14 @@
 
 ---
 
-### RAG-V1-005 — Faithfulness eval harness for RAG
+### RAG-V1-005 — Faithfulness eval harness for RAG (output-side citation coverage)
 
 | Field | Value |
 |-------|-------|
 | **Priority** | P1 |
 | **Size** | M (~2 eng days) |
 | **Quality axis** | AI/Agent Readiness |
+| **Scheduling** | [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-021** |
 
 **What**
 
@@ -187,11 +188,181 @@
 - Score `RetrievalGroundingTrace.citationCoverage` per agent in simulator + optional real-mode path (align with **TB-007** Gap C).
 - Dashboard or CI artifact: `% findings with pack citation` trend.
 
+**Scope boundary (2026-05-26 audit):** This item measures **output-side citation faithfulness** (`RetrievalFaithfulnessEvaluator` — SourceId substring in agent text). It does **not** measure retrieval **recall@k**, **precision@k**, or **MRR** — see **RAG-V1-011**.
+
 **Acceptance**
 
 - CI job fails (or `--enforce` warn) when citation coverage drops below configured floor on templates-pack scenarios.
 
 **Refs:** **TB-007**; [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md).
+
+---
+
+### RAG-V1-006 — `RetrievalGroundingTrace` forensic enrichment
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Size** | S–M (~1–2 eng days) |
+| **Quality axis** | Supportability, forensic replay |
+| **Scheduling** | [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-038** |
+
+**Context (2026-05-26):** **RAG-V1-000** shipped `dbo.RetrievalGroundingTrace` with `RetrievedChunkIds`, token counts, and `CitationCoverage` for **Compliance** (`ComplianceAgentHandler.AppendGroundingTraceAsync`). Replay audit found insufficient fields to reconstruct retrieval inputs for a single agent task.
+
+**What**
+
+1. Extend `RetrievalGroundingTraceInsert` + DbUp / `Scripts/ArchLucid.sql`: `QueryText` (truncated, e.g. 4K), `TopK`, `CorpusKind`, optional bounded `ScoresJson` and `DocumentIdsJson`.
+2. Optional `AgentExecutionTraceId` (or `TraceId`) FK/correlation when trace row exists.
+3. Write grounding trace from every handler that invokes `IRetrievalQueryService` (Topology, Cost where applicable — not only Compliance).
+4. Fail-open unchanged — empty trace + warning on retrieval error; never fail run commit.
+
+**Acceptance**
+
+- Integration test: Compliance run persists query text + chunk IDs + trace correlation.
+- Architecture test or handler audit: no agent using retrieval skips grounding writer after this ships.
+
+**Replay note:** Enriched trace rows still do **not** put retrieved chunk text into manifest canonical fingerprint unless a future ADR promotes content-hash snapshotting (**RAG-V1-000** replay note stands).
+
+**Refs:** Replay / provenance completeness audit (2026-05-26); [`AGENT_TRACE_FORENSICS.md`](AGENT_TRACE_FORENSICS.md).
+
+---
+
+### RAG-V1-007 — Embedding model identity and drift guard
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Size** | S–M (~1–2 eng days) |
+| **Quality axis** | Reliability, AI/Agent Readiness |
+| **Scheduling** | [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-045** |
+
+**Context (2026-05-26):** Retrieval correctness audit — `RetrievalChunk` stores `float[] Embedding` only; deployment name is config + telemetry only. `InMemoryVectorIndex.Cosine()` returns `0` on dimension mismatch (e.g. `FakeEmbeddingService` 32-dim vs Azure 1536-dim) with no alert. ADR 0036 reserves `embedding:model` / `dim` / `hash` on graph nodes — not on retrieval chunks.
+
+**What**
+
+1. Add `EmbeddingModelId` (deployment name or stable alias) and `EmbeddingDimension` to `RetrievalChunk` (and index upsert path).
+2. At query time: reject or filter chunks whose dimension ≠ query embedding dimension; emit warning metric (`archlucid.retrieval.embedding_dimension_mismatch_total`).
+3. At host startup (or first index write): compare active config deployment + dimension against index metadata; enqueue **full re-embed** for affected corpora when model id or dimension changes.
+4. Document operator runbook: model swap requires re-index (until automatic re-embed ships).
+
+**Acceptance**
+
+- Unit test: cosine path logs/emits metric when vector lengths differ.
+- Integration test: after simulated deployment change, startup triggers re-index or fails closed with actionable error (not silent zero scores).
+- No mixed-dimension chunks served in top-K for tenant-bound queries.
+
+**Refs:** [ADR 0036](../architecture/adrs/0036-graph-rag-embedding-strategy.md); `AzureOpenAiEmbeddingClient.cs`; `RetrievalChunk.cs`.
+
+---
+
+### RAG-V1-008 — Index freshness, ContentHash skip, and indexer observability
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 (ContentHash skip: **P0** within this item) |
+| **Size** | S–M (~1–2 eng days) |
+| **Quality axis** | Reliability, Supportability |
+| **Scheduling** | [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-046** |
+
+**Context (2026-05-26):** `RetrievalDocument.ContentHash` is set for dedupe hints but **never read** in `RetrievalIndexingService`. Startup indexers are fail-open; outbox failure leaves stale vectors with no operator signal. `InMemoryVectorIndex` trims at 10_000 chunks (capacity, not staleness).
+
+**What**
+
+1. **P0:** In `RetrievalIndexingService`, skip re-chunk/re-embed when document `ContentHash` unchanged and chunk metadata matches (coordinate with **RAG-V1-009** fingerprint).
+2. Persist **last-indexed-at** per corpus kind (SQL metadata table or lightweight sidecar — single DDL file per DB rule).
+3. Startup corpus indexers: log + increment failure metric on exception; optional health check endpoint field `retrievalIndexFreshness`.
+4. **P2 (optional):** Scheduled re-index job with configurable max-age per `CorpusKind`.
+
+**Acceptance**
+
+- Unit test: unchanged `ContentHash` → no embedding API calls on second `IndexDocumentsAsync`.
+- Integration test: simulated outbox stall surfaces stale freshness in health/readiness probe.
+- Startup indexer failure increments `archlucid.retrieval.indexer_failure_total` (or equivalent) — not swallowed silently.
+
+**Refs:** `RetrievalIndexingService.cs`; `ExemplarCorpusStartupIndexerHostedService.cs`; ADR 0004 outbox.
+
+---
+
+### RAG-V1-009 — Chunking strategy fingerprint and invalidation
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Size** | S (~1 eng day) |
+| **Quality axis** | Reliability, AI/Agent Readiness |
+| **Scheduling** | [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-047** |
+
+**Context (2026-05-26):** Chunk sizes/overlap are method defaults in `SimpleTextChunker` (1200/150), `PolicyPackChunker` (900/120), `PriorManifestChunker` (800/100). No strategy version on `RetrievalChunk`; code-default changes produce mixed-generation indexes silently.
+
+**What**
+
+1. Compute stable **chunking fingerprint** (hash of strategy name + maxChars + overlap + corpus kind) at index time; store on each `RetrievalChunk`.
+2. Move defaults from method signatures to `IOptions<ChunkingOptions>` (or per-corpus options) so changes are config-visible.
+3. When fingerprint differs from stored chunks for a document, delete stale chunk IDs for that document before upsert (full document invalidation).
+4. Query-time guard (optional): exclude chunks whose fingerprint ≠ active config fingerprint.
+
+**Acceptance**
+
+- Unit test: changing `ChunkingOptions` invalidates and re-indexes document; old chunk IDs not returned in search.
+- Architecture test or doc: chunker defaults are not silent magic numbers in method signatures.
+
+**Refs:** `RetrievalIndexingService.SelectChunker()`; `Chunking/*.cs`.
+
+---
+
+### RAG-V1-010 — Tenancy isolation hardening (retrieval index + query)
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Size** | S (~1 eng day) |
+| **Quality axis** | Security, Reliability |
+| **Scheduling** | [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-048** |
+
+**Context (2026-05-26):** `InMemoryVectorIndex` enforces tenant/workspace/project match and has anti-leak tests. **Gap:** when `AllowedPolicyPackRulePackIds == null`, all policy-pack chunks match (`return true`). Direct `IVectorIndex` callers bypass `RetrievalQueryService` assignment resolver. Azure Search path has no in-repo client implementation to audit `$filter` on `tenantId`.
+
+**What**
+
+1. **P0:** Change `InMemoryVectorIndex.MatchesAssignedPolicyPack`: `AllowedPolicyPackRulePackIds == null` → **exclude all** `CorpusKind.PolicyPack` chunks (safe default).
+2. **P0:** Integration test: direct `IVectorIndex.SearchAsync` with null assignment list returns no policy-pack hits.
+3. **P1:** When `AzureAiSearchVectorIndex` client is implemented, require OData `$filter` including tenant scope on every query; add integration test asserting filter clause.
+4. **P2:** Upsert-time validation — indexed chunk `TenantId` must match authorized indexing context (fail index write on mismatch).
+
+**Acceptance**
+
+- Existing `SearchAsync_TenantScopedPriorManifest_DoesNotLeakOtherTenant` passes; new test locks null-assignment policy-pack behavior.
+- Architecture test remains green for tenant-bound `RetrievalQuery` at product call sites.
+
+**Refs:** `InMemoryVectorIndex.cs`; `RetrievalQueryService.cs`; `TenantBoundRetrievalQueryArchitectureTests.cs`; ADR 0031 (cross-tenant aggregates ≠ embedding-RAG).
+
+---
+
+### RAG-V1-011 — Retrieval IR eval harness (recall@k, MRR, golden dataset) — **Done (Batch E, 2026-05-26)**
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P0 |
+| **Size** | M (~2–3 eng days) |
+| **Quality axis** | AI/Agent Readiness, Correctness |
+| **Scheduling** | [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-049** — shipped |
+
+**Context (2026-05-26):** No recall@k, precision@k, MRR, or NDCG in codebase. `RetrievalFaithfulnessEvaluator` and `eval_agent_faithfulness.py` measure **citation coverage in agent output**, not whether the **correct chunks** were retrieved. Chunking, reranker, or embedding changes can degrade retrieval with no CI gate.
+
+**What**
+
+1. Golden dataset: `tests/eval-datasets/retrieval-golden/cases.json` — 30–50 rows of `(query, tenantScope, corpusKind, expectedChunkIds[])` covering PolicyPack, PriorManifest, PlatformDoc.
+2. Harness script: `scripts/ci/eval_retrieval_ir.py` (mirror `eval_agent_corpus.py`) — index fixture corpora, run `IRetrievalQueryService.SearchAsync`, compute **recall@5**, **MRR**; optional **precision@3**.
+3. CI job: fail (or `--enforce` warn) when recall@5 or MRR drops below configured floor vs baseline artifact.
+4. Pre-merge gate doc: run harness after chunking, reranking, or embedding deployment changes.
+
+**Acceptance**
+
+- CI produces artifact with per-corpus recall@5 and MRR; regression on seeded fixture fails build when `--enforce`.
+- Documented distinction from **RAG-V1-005** (output citation faithfulness) in [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md).
+
+**P2 follow-on:** NDCG@10 for policy-pack ordering-sensitive scenarios.
+
+**Refs:** **RAG-V1-005**; `RetrievalFaithfulnessEvaluator.cs`; `RetrievalQuerySmokeIntegrationTests.cs`.
 
 ---
 
@@ -229,10 +400,10 @@
 
 | Concern | V1 posture |
 |---------|------------|
-| **Security** | Azure OpenAI embeddings + Azure AI Search only; private endpoints; corpus allow/deny lists; no PII free-text in cross-tenant paths |
-| **Scalability** | Index on publish/commit cadence; query O(TopK), TopK≤8 default; embedding cache keyed on chunk hash |
-| **Reliability** | Retrieval fail-open (match `AskService`); log warning + empty grounding trace — never fail commit |
-| **Cost** | `LlmMonthlyTenantDollarBudgetTracker` gates embedding spend; do not embed full artifact bundles or entire Retail catalog |
+| **Security** | Azure OpenAI embeddings + Azure AI Search only; private endpoints; corpus allow/deny lists; no PII free-text in cross-tenant paths; **RAG-V1-010** closes policy-pack null-assignment bypass |
+| **Scalability** | Index on publish/commit cadence; query O(TopK), TopK≤8 default; embedding cache keyed on chunk hash; **RAG-V1-008** ContentHash skip reduces redundant embed calls |
+| **Reliability** | Retrieval fail-open (match `AskService`); log warning + empty grounding trace — never fail commit; **RAG-V1-007** / **RAG-V1-008** add drift + freshness signals without failing run commit |
+| **Cost** | `LlmMonthlyTenantDollarBudgetTracker` gates embedding spend; do not embed full artifact bundles or entire Retail catalog; ContentHash skip (**RAG-V1-008**) avoids re-embed on unchanged docs |
 
 ---
 

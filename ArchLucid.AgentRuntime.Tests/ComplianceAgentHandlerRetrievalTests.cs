@@ -79,6 +79,7 @@ public sealed class ComplianceAgentHandlerRetrievalTests
 
         ComplianceAgentHandler handler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
             parser,
             traceRecorder,
             catalog,
@@ -174,6 +175,7 @@ public sealed class ComplianceAgentHandlerRetrievalTests
 
         ComplianceAgentHandler handler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
             parser,
             traceRecorder,
             catalog,
@@ -290,6 +292,7 @@ public sealed class ComplianceAgentHandlerRetrievalTests
 
         ComplianceAgentHandler handler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
             parser,
             traceRecorder,
             catalog,

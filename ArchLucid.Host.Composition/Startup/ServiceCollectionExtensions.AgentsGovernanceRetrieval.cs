@@ -546,6 +546,7 @@ public static partial class ServiceCollectionExtensions
                 });
 
                 RegisterTieredAzureCompletionRouter(services);
+                RegisterSchemaRemediationAgentCompletionClient(services, useAzureOpenAi: true);
                 RegisterAgentCompletionClientFromTierRouter(services);
             }
             else
@@ -692,6 +693,7 @@ public static partial class ServiceCollectionExtensions
         });
 
         RegisterPassThroughTierCompletionRouter(services);
+        RegisterSchemaRemediationAgentCompletionClient(services, useAzureOpenAi: false);
         RegisterAgentCompletionClientFromTierRouter(services);
     }
 
@@ -764,6 +766,7 @@ public static partial class ServiceCollectionExtensions
             })));
 
         RegisterPassThroughTierCompletionRouter(services);
+        RegisterSchemaRemediationAgentCompletionClient(services, useAzureOpenAi: false);
         RegisterAgentCompletionClientFromTierRouter(services);
     }
 
@@ -1134,6 +1137,41 @@ public static partial class ServiceCollectionExtensions
         CircuitBreakerGate gate,
         string cachingDeploymentLabel)
     {
+        IAgentCompletionClient completionPipeline =
+            BuildAzureOpenAiScopedCompletionChainCore(sp, azureInner, cachingDeploymentLabel);
+
+        ILogger<CircuitBreakingAgentCompletionClient> logger =
+            sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
+        AgentExecutionResilienceOptions resOpts =
+            sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
+        resOpts.Normalize();
+        AzureOpenAiOptions azureOpenAiOptions = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
+        int maxRetryAttempts = ResolveLlmMaxRetryAttempts(azureOpenAiOptions, resOpts);
+
+        ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            logger: logger,
+            maxRetryAttempts: maxRetryAttempts,
+            baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
+            maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
+            gateName: gate.GateName);
+
+        return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, logger);
+    }
+
+    /// <summary>
+    ///     Schema remediation completions share accounting and safety envelopes but omit the Polly retry stack (TB-043).
+    /// </summary>
+    private static IAgentCompletionClient BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry(
+        IServiceProvider sp,
+        AzureOpenAiCompletionClient azureInner,
+        string cachingDeploymentLabel) =>
+        BuildAzureOpenAiScopedCompletionChainCore(sp, azureInner, cachingDeploymentLabel);
+
+    private static IAgentCompletionClient BuildAzureOpenAiScopedCompletionChainCore(
+        IServiceProvider sp,
+        AzureOpenAiCompletionClient azureInner,
+        string cachingDeploymentLabel)
+    {
         LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
         IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
         IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
@@ -1222,22 +1260,31 @@ public static partial class ServiceCollectionExtensions
                 logger: cacheLogger);
         }
 
-        ILogger<CircuitBreakingAgentCompletionClient> logger =
-            sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
-        AgentExecutionResilienceOptions resOpts =
-            sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
-        resOpts.Normalize();
-        AzureOpenAiOptions azureOpenAiOptions = sp.GetRequiredService<IOptions<AzureOpenAiOptions>>().Value;
-        int maxRetryAttempts = ResolveLlmMaxRetryAttempts(azureOpenAiOptions, resOpts);
+        return completionPipeline;
+    }
 
-        ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
-            logger: logger,
-            maxRetryAttempts: maxRetryAttempts,
-            baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
-            maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
-            gateName: gate.GateName);
+    private static void RegisterSchemaRemediationAgentCompletionClient(IServiceCollection services, bool useAzureOpenAi)
+    {
+        services.AddScoped<ISchemaRemediationAgentCompletionClient>(sp =>
+        {
+            if (useAzureOpenAi)
+            {
+                IAgentModelTierResolver resolver = sp.GetRequiredService<IAgentModelTierResolver>();
+                string deployment = resolver.ResolveDeploymentName(LlmModelTier.Economy);
+                AzureOpenAiCompletionClientCache clientCache = sp.GetRequiredService<AzureOpenAiCompletionClientCache>();
+                AzureOpenAiCompletionClient azureInner = clientCache.GetOrAdd(deployment);
+                IAgentCompletionClient client =
+                    BuildAzureOpenAiScopedCompletionChainWithoutPollyRetry(sp, azureInner, deployment);
 
-        return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, logger);
+                return new SchemaRemediationAgentCompletionClientAdapter(client);
+            }
+
+            IAgentTierCompletionRouter router = sp.GetRequiredService<IAgentTierCompletionRouter>();
+            (IAgentCompletionClient remediation, _) =
+                router.ResolveForAgent(AgentType.Topology, LlmModelTier.Economy);
+
+            return new SchemaRemediationAgentCompletionClientAdapter(remediation);
+        });
     }
 
     private static int ResolveLlmMaxRetryAttempts(

@@ -96,6 +96,7 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         TopologyAgentHandler topology = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
+            SchemaRemediationCompletionClientTestFactory.Create(completion),
             parser,
             traceSpy,
             promptCatalog,
@@ -105,6 +106,7 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         ComplianceAgentHandler compliance = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
+            SchemaRemediationCompletionClientTestFactory.Create(completion),
             parser,
             traceSpy,
             promptCatalog,
@@ -131,7 +133,8 @@ public sealed class RealAzureOpenAIEndToEndTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         ArchitectureRequest request = new()
         {

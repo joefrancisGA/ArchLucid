@@ -25,6 +25,7 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public sealed class ComplianceAgentHandler(
     IAgentTierCompletionRouter tierCompletionRouter,
+    ISchemaRemediationAgentCompletionClient schemaRemediationClient,
     IAgentResultParser resultParser,
     IAgentExecutionTraceRecorder traceRecorder,
     IAgentSystemPromptCatalog systemPromptCatalog,
@@ -94,7 +95,11 @@ public sealed class ComplianceAgentHandler(
         try
         {
             (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
-                AgentHandlerLlmResolution.ResolveCompletionClients(tierCompletionRouter, AgentType.Compliance, task);
+                AgentHandlerLlmResolution.ResolveCompletionClients(
+                    tierCompletionRouter,
+                    schemaRemediationClient,
+                    AgentType.Compliance,
+                    task);
 
             (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
                 completionClient,

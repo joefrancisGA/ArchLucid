@@ -10,12 +10,43 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-022 – TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
 
+**TB-027 – TB-032** were added 2026-05-26 from a full dependency-graph audit across all 59 `.csproj` files (239 edges). They address violations against the intended `Contracts → Core → Application → Host/Adapters` layering and close gaps in `ArchLucid.Architecture.Tests` / `DependencyConstraintTests`.
+
+**TB-033 – TB-038** were added 2026-05-26 from a replay / provenance completeness audit (`ArchLucid.Provenance` decision lineage vs `AgentRuntime` `AgentExecutionTrace` forensics). They close gaps where a single agent task cannot be fully reconstructed from durable storage. Retrieval grounding enrichment is also tracked as **RAG-V1-006** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md).
+
+**TB-039 – TB-044** were added 2026-05-26 from an AgentRuntime determinism and idempotency audit (retry, fan-out, partial-failure, and authority-pipeline replay paths). They close gaps where LLM calls, token metering, or graph snapshots can be applied more than once without supersession. **TB-039** and **TB-043** are FinOps / economics fixes; **TB-041** + **TB-042** are authority-pipeline replay guards; **TB-040** and **TB-044** are metering honesty and trace deduplication. Cross-ref **TB-012** (**INV-009** idempotency) and **TB-035** (remediation attempt forensics — complementary, not duplicate).
+
+**TB-045 – TB-049** were added 2026-05-26 from a retrieval correctness & drift audit (`ArchLucid.Retrieval` — embedding model drift, index staleness, chunking invalidation, tenancy bleed, IR eval harness). Authoritative sub-IDs **RAG-V1-007** through **RAG-V1-011** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md). **TB-048** (tenancy) is security-critical; **TB-049** (IR eval) blocks silent retrieval regressions.
+
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Honesty + economics — persisted execution mode, durable budget coherence, single quality-gate truth, replay scope isolation | L |
+| TB-033 | Agent execution trace — persist LLM sampling params + reasoning token count | Forensic replay completeness — temperature / maxTokens / top_p and reasoning tokens are not on `AgentExecutionTrace` | XS |
+| TB-048 | Tenancy isolation hardening — retrieval index + query | Security — policy-pack null-assignment bypass on `InMemoryVectorIndex`; Azure Search `$filter` unauditable; see **RAG-V1-010** | S |
+| TB-045 | Embedding model identity and drift guard | Correctness — silent dimension mismatch when deployment or Fake vs Azure vectors mix; see **RAG-V1-007** | S–M |
+| TB-049 | Retrieval IR eval harness — recall@k, MRR, golden dataset | Done (Batch E, 2026-05-26) — `eval_retrieval_ir.py` + `tests/eval-datasets/retrieval-golden/cases.json`; see **RAG-V1-011** | M |
+| TB-046 | Index freshness + ContentHash skip + indexer observability | Reliability — stale index undetected; `ContentHash` unused; startup indexer fail-open; see **RAG-V1-008** | S–M |
+| TB-047 | Chunking strategy fingerprint and invalidation | Correctness — mixed-generation chunks when chunker defaults change; see **RAG-V1-009** | S |
+| TB-034 | Degraded-handler minimal `AgentExecutionTrace` rows | Support / honesty — resilience fallbacks (`AgentHandlerDegradedResultFactory`) write no trace; prompts and model calls are unrecoverable | S |
+| TB-035 | Persist intermediate LLM attempts on schema-remediation retries | Forensic replay — `LlmAgentSchemaCompletion` records only the final attempt; earlier prompts/responses are metric-only | M |
+| TB-036 | Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace` | Analytical integrity — decision lineage and LLM forensics share no foreign key; cannot navigate provenance node → agent step | M |
+| TB-037 | Production write path for `DecisionProvenanceSnapshot` | Performance + durability — `IProvenanceSnapshotRepository.SaveAsync` has no callers; graph rebuilt on every API read | S |
+| TB-038 | `RetrievalGroundingTrace` forensic enrichment (+ non-Compliance agents) | Forensic replay — only chunk IDs persisted for Compliance; query, top-K, scores, document IDs missing; see **RAG-V1-006** | S–M |
+| TB-039 | Agent execute retry — per-`(RunId, TaskId)` skip before handler dispatch | Done (Batch E, 2026-05-26) — `RealAgentExecutor` skips persisted non-degraded results; metric `archlucid_agent_execute_task_skipped_idempotent_total` | M |
+| TB-043 | Schema remediation — non-retried completion client (decouple from Polly stack) | Done (Batch E, 2026-05-26) — `ISchemaRemediationAgentCompletionClient` without Polly retry wrapper | XS–S |
+| TB-041 | Authority pipeline — per-stage completion checkpoint on retry | Reliability — pipeline restarts from stage 1; duplicate context/graph/findings snapshots on transient failure | M |
+| TB-042 | Graph snapshot supersession — skip rebuild when `RunRecord.GraphSnapshotId` set | Storage / lineage — orphaned graph snapshots when save succeeds but run header update fails; Cosmos path outside SQL txn | S |
+| TB-040 | `LlmCompletionAccountingClient` — await metering with `CancellationToken.None` | FinOps honesty — fire-and-forget metering skipped under linked cancellation; budget trackers vs `IUsageMeteringService` diverge | XS |
+| TB-044 | `AgentExecutionTraces` — unique index on `(RunId, TaskId, AgentType)` + upsert semantics | Done (Batch E, 2026-05-26) — DbUp 223 + delete-then-insert upsert | XS |
 | TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
+| TB-027 | Introduce `IAgentExecutor` port — eliminate AgentSimulator coupling from production assemblies | Architecture correctness — production assemblies (AgentRuntime, Capabilities.Cost, Host.Core) depend on a test simulator; port inversion removes 3 violations in one move | M |
+| TB-028 | Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition | Composition-root discipline — Api entry point directly names an infrastructure adapter; violates single-composition-root rule | XS |
+| TB-029 | Replace `Decisioning → Notifications` with domain events | Domain/infrastructure decoupling — domain analysis service hard-coupled to notification infrastructure; correct pattern is domain events + host-layer subscriber | M–L |
+| TB-030 | Architecture.Tests gap closure — add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s | Engineering governance — four product assemblies have zero architecture test coverage; 10 layer-boundary assertions are missing from `DependencyConstraintTests` | S |
+| TB-031 | Disambiguate ArtifactSynthesis / Decisioning layer position | Architecture maintainability — both are nominally at the same layer but ArtifactSynthesis depends on Decisioning; needs explicit layer decision or type extraction | XS–S |
+| TB-032 | Replace `Mcp → Retrieval` direct coupling with a query port | Infrastructure/application boundary — MCP adapter bypasses port abstraction and directly couples to Retrieval's concrete implementation and its transitive application-layer deps | M |
 | TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Done (Improvement **#19**, 2026-05-25) | XS |
 | TB-026 | `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` | Done (Improvement **#19**, 2026-05-25) | XS |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | **Done (Improvement #22, 2026-05-25)** — `prometheus_agent_output_rules.tf` + `archlucid-alerts.yml` faithfulness p50 | ~1–2 h |
@@ -577,7 +608,7 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 
 **Decision (engineering, 2026-05-23):** **Greenlit in principle** — RAG infrastructure already ships (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox, ADR 0005 LLM pipeline). V1 work **extends** that stack to raise agent **faithfulness** and **citation density** without new vector stores or agentic multi-hop retrieval.
 
-**Authoritative task breakdown:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) — stable sub-IDs **RAG-V1-000** through **RAG-V1-005**.
+**Authoritative task breakdown:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) — stable sub-IDs **RAG-V1-000** through **RAG-V1-011**.
 
 **First implementation slice (approved design):** [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) — implement **RAG-V1-000 partial** + **RAG-V1-001** as one PR (~3–5 eng days). Remaining **RAG-V1-000** items (`RetrievalGroundingTrace`, citation formatter, architecture test) follow in a second PR.
 
@@ -588,11 +619,13 @@ After each smoke wave, update **`docs/library/CONNECTOR_READINESS_MATRIX.md`** (
 | Sub-ID | Title | Size | Design |
 |--------|-------|------|--------|
 | **RAG-V1-000** (partial) + **RAG-V1-001** | `CorpusKind` seam + policy-pack indexer + compliance retrieval | S–M | [`RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md`](RAG_CORPUS_KIND_POLICY_PACK_DESIGN.md) |
-| **RAG-V1-000** (remainder) | Citation formatter, `RetrievalGroundingTrace`, scope architecture test | S | Backlog only |
-| **RAG-V1-003** | Azure Retail Prices structured lookup (non-embedding) | S | Backlog only |
-| **RAG-V1-002** | Tenant prior-manifest chunks (decisions + findings) | M | Backlog only |
-| **RAG-V1-004** | Platform docs corpus for Ask / Explanation | S | Backlog only |
-| **RAG-V1-005** | Faithfulness eval harness + citation coverage CI | M | Backlog only |
+| **RAG-V1-005** | Faithfulness eval harness + citation coverage CI | M | Backlog only — output-side; IR metrics → **RAG-V1-011** |
+| **RAG-V1-006** | `RetrievalGroundingTrace` forensic enrichment — **TB-038** | S–M | [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) §RAG-V1-006 |
+| **RAG-V1-010** | Tenancy isolation hardening — **TB-048** | S | Retrieval audit 2026-05-26 — P0 security |
+| **RAG-V1-007** | Embedding model drift guard — **TB-045** | S–M | Retrieval audit 2026-05-26 |
+| **RAG-V1-011** | Retrieval IR eval (recall@k, MRR) — **TB-049** | Done (Batch E, 2026-05-26) | Retrieval audit 2026-05-26 — P0 correctness |
+| **RAG-V1-008** | Index freshness + ContentHash skip — **TB-046** | S–M | Retrieval audit 2026-05-26 |
+| **RAG-V1-009** | Chunking strategy fingerprint — **TB-047** | S | Retrieval audit 2026-05-26 |
 
 **Hard constraints (summary)**
 
@@ -786,4 +819,675 @@ Neither the interface XML doc nor the aggregator XML doc currently states this b
 - [`ArchLucid.Core/Configuration/ILlmCostEstimator.cs`](../../ArchLucid.Core/Configuration/ILlmCostEstimator.cs)
 
 **Size estimate:** **XS** — ~20 min (comments + description string updates).
+
+---
+
+## TB-027 — Introduce `IAgentExecutor` port — eliminate AgentSimulator coupling from production assemblies
+
+**Source:** Dependency graph audit (2026-05-26). Three production assemblies — `ArchLucid.AgentRuntime`, `ArchLucid.Capabilities.Cost`, and `ArchLucid.Host.Core` — directly reference `ArchLucid.AgentSimulator`. Because `Application` depends on `Capabilities.Cost`, the simulator is a transitive runtime dependency of every production code path through Application. The existing `AgentRuntime_references_AgentSimulator_by_design` test documents the coupling without resolving it.
+
+**Problem:**
+
+`AgentSimulator` contains test-only simulation logic. Shipping it in the production assembly closure means:
+- Test code is present at runtime in production, increasing attack surface and binary size.
+- Any future change to the simulator (e.g. adding test helpers) is a production build change.
+- The coupling is invisible to callers who depend on `Application` — it emerges transitively via `Capabilities.Cost`.
+
+**What to do:**
+
+1. Define `IAgentExecutor` (or reuse an existing equivalent interface) in `ArchLucid.Core` or `ArchLucid.Contracts`. The interface must capture the execution contract currently fulfilled by `AgentSimulator` without naming it.
+2. Update `ArchLucid.AgentRuntime` to depend on `IAgentExecutor` where it currently uses the concrete simulator type. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator`.
+3. Update `ArchLucid.Capabilities.Cost` — audit which simulator types are used directly and replace with the port. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator`.
+4. Update `ArchLucid.Host.Core` — move any simulator registration or conditional wiring to `ArchLucid.Host.Composition`. Remove the `<ProjectReference>` to `ArchLucid.AgentSimulator` from `Host.Core.csproj`.
+5. In `ArchLucid.Host.Composition`, bind `AgentSimulator`'s concrete type to `IAgentExecutor` for non-production environments (the composition root is the correct place for this — it already references `AgentSimulator`).
+6. Delete the `AgentRuntime_references_AgentSimulator_by_design` test from `DependencyConstraintTests` and replace with: `AgentRuntime_must_not_reference_AgentSimulator_assembly` (hard fail) and `AgentSimulator_may_only_be_referenced_by_allowlisted_assemblies` (positive-list guard: `{Host.Composition, *.Tests}`).
+
+**Correctness / safety:**
+
+- No behavioural change to simulation paths — `AgentSimulator` is still wired by Host.Composition in non-production; callers just see the port.
+- All existing `AgentRuntime.Tests` and `Application.Tests` that use the simulator directly through project references are unaffected — test projects may still reference `AgentSimulator` directly.
+- Run the full Architecture.Tests suite and compile-check all affected projects before closing.
+
+**Affected files / projects:**
+
+- `ArchLucid.Core` or `ArchLucid.Contracts` — new `IAgentExecutor.cs`
+- `ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj` — remove `AgentSimulator` reference
+- `ArchLucid.Capabilities.Cost/ArchLucid.Capabilities.Cost.csproj` — remove `AgentSimulator` reference
+- `ArchLucid.Host.Core/ArchLucid.Host.Core.csproj` — remove `AgentSimulator` reference; move wiring to `Host.Composition`
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.*.cs` — bind `IAgentExecutor`
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — delete `_by_design` tests; add hard-fail + positive-list guards
+
+**Size estimate:** **M** — ~1–2 eng days (interface definition + reference removal + host composition wiring + Architecture.Tests updates + test regression).
+
+---
+
+## TB-028 — Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition
+
+**Source:** Dependency graph audit (2026-05-26). `ArchLucid.Api.csproj` carries a direct `<ProjectReference>` to `ArchLucid.Integrations.AzureExtractor`. This violates the single-composition-root rule enforced by `SingleCompositionRootServiceCollectionExtensionsTests` — adapter wiring belongs exclusively in `Host.Composition`.
+
+**Problem:**
+
+The Api entry point is an HTTP host, not a composition root. Naming a specific infrastructure adapter in its project file means:
+- The adapter's assembly is loaded unconditionally regardless of configuration.
+- Adding or swapping adapters requires changes to the Api project rather than to Host.Composition.
+- The boundary between "entry point" and "composition root" is eroded, making future adapter splits harder.
+
+**What to do:**
+
+1. Audit `ArchLucid.Api` source files for all usages of types from `ArchLucid.Integrations.AzureExtractor`. Identify which, if any, are referenced from controller code (unlikely — should only be DI registration).
+2. Move any registration calls (`services.AddAzureExtractor(...)` or similar) from Api's `Program.cs` / startup extensions into `ArchLucid.Host.Composition`'s `ServiceCollectionExtensions.ApplicationPipeline.cs` (already the canonical composition root).
+3. Delete the `<ProjectReference Include="..\ArchLucid.Integrations.AzureExtractor\..." />` line from `ArchLucid.Api.csproj`.
+4. Verify that `ArchLucid.Host.Composition` already references `ArchLucid.Integrations.AzureExtractor` — it does; no new reference is needed there.
+5. Add the assertion `Api_must_not_reference_Integrations_AzureExtractor_assembly` to `DependencyConstraintTests` (both NetArchTest namespace check and csproj `ReadProjectReferenceAssemblyNames` check, matching the existing `Api_csproj_must_not_declare_Decisioning_project_reference` pattern).
+
+**Correctness / safety:**
+
+- `Api → Host.Composition → Integrations.AzureExtractor` is already the transitive path; removing the direct reference does not change what is registered at runtime.
+- Compile-check `ArchLucid.Api` after removing the reference to confirm no direct type usages remain.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/ArchLucid.Api.csproj` — delete `AzureExtractor` project reference
+- `ArchLucid.Api/Program.cs` or startup code — move any direct registration calls
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` — receive the registration (likely already there)
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — add hard-fail assertion
+
+**Size estimate:** **XS** — ~30 min (delete one csproj line, possibly move one registration call, add one test).
+
+---
+
+## TB-029 — Replace `Decisioning → Notifications` with domain events
+
+**Source:** Dependency graph audit (2026-05-26). `ArchLucid.Decisioning` carries a direct `<ProjectReference>` to `ArchLucid.Notifications`. Decisioning is a domain analysis service (L2); Notifications is an infrastructure concern (L1/L4 depending on the implementation). The current `Decisioning_csproj_references_Notifications_by_design` test acknowledges the coupling without a resolution path.
+
+**Problem:**
+
+A domain analysis service should not know about notification mechanisms. The current coupling means:
+- Adding a new notification channel (Teams, Slack, etc.) can force changes in Decisioning.
+- The notification send path is directly reachable from within decision logic, making it harder to test Decisioning in isolation.
+- If Notifications ever needs to consume Decisioning (e.g. to enrich alert text), a cycle forms.
+
+**What to do:**
+
+1. Identify all Decisioning call sites that invoke Notifications types (search for `using ArchLucid.Notifications` in Decisioning source).
+2. Define a domain event (e.g. `DecisionReachedDomainEvent`, `DecisionAlertRaisedDomainEvent`) in `ArchLucid.Core` or `ArchLucid.Contracts`. The event carries only value-typed data; no Notifications types.
+3. Publish the domain event via an `IDomainEventPublisher` interface (define in `ArchLucid.Core` if not already present). Decisioning takes a constructor dependency on `IDomainEventPublisher`.
+4. In `ArchLucid.Host.Composition`, register an event handler that reads the domain event and dispatches to the Notifications channel. The handler lives in `ArchLucid.Notifications` or a thin adapter.
+5. Remove the `<ProjectReference>` to `ArchLucid.Notifications` from `ArchLucid.Decisioning.csproj`.
+6. Delete `Decisioning_csproj_references_Notifications_by_design` from `DependencyConstraintTests` and add `Decisioning_must_not_reference_Notifications_assembly` (hard fail).
+
+**Correctness / safety:**
+
+- All existing notification behaviour must be preserved — verify end-to-end in `Decisioning.Tests` (use a fake `IDomainEventPublisher`) and in integration smoke.
+- `IDomainEventPublisher` must be non-blocking (fire-and-forget or outbox-backed) to avoid coupling Decisioning's execution time to notification delivery latency.
+- If an outbox is used, align with ADR 0004 (transactional outbox) to avoid double-delivery risk.
+
+**Affected files / projects:**
+
+- `ArchLucid.Core` — new `IDomainEventPublisher.cs` (if not already present), domain event records
+- `ArchLucid.Decisioning/ArchLucid.Decisioning.csproj` — remove `Notifications` reference
+- `ArchLucid.Decisioning` source — replace direct notification calls with `IDomainEventPublisher.Publish`
+- `ArchLucid.Notifications` or adapter — new domain event handler
+- `ArchLucid.Host.Composition` — register handler
+- `ArchLucid.Decisioning.Tests` — update to use fake publisher; remove Notifications test doubles
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — replace `_by_design` test with hard-fail assertion
+
+**Size estimate:** **M–L** — ~1–3 eng days depending on how widely Notifications types are used within Decisioning and whether a domain event bus is already in place.
+
+---
+
+## TB-030 — Architecture.Tests gap closure — add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s
+
+**Source:** Dependency graph audit (2026-05-26). Four production assemblies are not referenced in `ArchLucid.Architecture.Tests.csproj` and therefore have zero layer-boundary assertions. Additionally, 10 `[Fact]` methods are absent from `DependencyConstraintTests` for violations that are currently unguarded.
+
+**Problem:**
+
+Without project references in Architecture.Tests, NetArchTest cannot load the assemblies and any `HaveDependencyOn` check silently passes against an empty type set. The four unguarded assemblies are:
+
+| Assembly | Risk |
+|---|---|
+| `ArchLucid.Mcp` | No guard against `Mcp → Application` or `Mcp → Persistence` — can silently gain prohibited dependencies |
+| `ArchLucid.Integrations.AzureExtractor` | No guard against `AzureExtractor → Application` |
+| `ArchLucid.AgentSimulator` | No positive-list guard on which assemblies may reference it |
+| `ArchLucid.Jobs.Cli` | No layer-bound assertions at all |
+
+**What to do:**
+
+1. Add four `<ProjectReference>` entries to `ArchLucid.Architecture.Tests.csproj`:
+   - `ArchLucid.Mcp`
+   - `ArchLucid.Integrations.AzureExtractor`
+   - `ArchLucid.AgentSimulator`
+   - `ArchLucid.Jobs.Cli`
+
+2. Add the following `[Fact]` methods to `DependencyConstraintTests.cs` (use existing patterns — `ReadProjectReferenceAssemblyNames` + `Types.InAssembly(...).ShouldNot().HaveDependencyOn(...)`):
+
+   | Fact name | What it asserts |
+   |---|---|
+   | `Mcp_must_not_depend_on_Application_layer_namespaces` | `ArchLucid.Mcp` has no dependency on `ArchLucid.Application` namespace |
+   | `Mcp_must_not_depend_on_Persistence` | `ArchLucid.Mcp` has no dependency on `ArchLucid.Persistence` namespace |
+   | `Mcp_csproj_must_not_reference_Application_or_Persistence` | csproj check for both |
+   | `Integrations_must_not_depend_on_Application` | Both AzureExtractor and AzureDevOps assemblies checked |
+   | `Integrations_csproj_must_not_reference_Application` | csproj check for both integrations |
+   | `Api_must_not_reference_Integrations_AzureExtractor_assembly` | csproj check (pair with TB-028) |
+   | `AgentSimulator_may_only_be_referenced_by_allowlisted_assemblies` | Positive-list: only `{ArchLucid.Host.Composition}` + `*.Tests` assemblies may reference AgentSimulator via csproj |
+   | `Capabilities_Cost_references_AgentSimulator_by_design` | Temporary `_by_design` acknowledgement until TB-027 ships; flip to hard-fail after TB-027 |
+   | `Host_Core_must_not_reference_AgentSimulator_assembly` | csproj check; paired with TB-027 |
+   | `Jobs_Cli_must_not_depend_on_Application_directly` | `Jobs.Cli` must reach Application only via `Host.Composition` |
+   | `Notifications_Email_RazorLight_must_not_depend_on_Application_or_above` | Infrastructure adapter stays at L4 |
+
+3. Run `ArchLucid.Architecture.Tests` and fix any newly-discovered violations before committing.
+
+**Correctness / safety:**
+
+- Some facts (e.g. `Capabilities_Cost_references_AgentSimulator_by_design`) should start as `_by_design` acknowledgements until the corresponding TB (TB-027) ships; flip to hard-fail in the same PR that closes TB-027.
+- Do not add `AgentSimulator` or `Jobs.Cli` to `SingleCompositionRootArchitectureTestConstants.CompositionRootScannedProductAssemblyNames` — they are not product assemblies subject to the composition-root scan.
+
+**Affected files / projects:**
+
+- `ArchLucid.Architecture.Tests/ArchLucid.Architecture.Tests.csproj` — four new `<ProjectReference>` entries
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — 10+ new `[Fact]` methods
+
+**Size estimate:** **S** — ~2–4 h (mostly mechanical: reference adds + test method authoring + one test run to catch any pre-existing violations).
+
+---
+
+## TB-031 — Disambiguate ArtifactSynthesis / Decisioning layer position
+
+**Source:** Dependency graph audit (2026-05-26). `ArchLucid.ArtifactSynthesis` depends directly on `ArchLucid.Decisioning` (`ArtifactSynthesis → Decisioning`). Both are positioned at the same nominal layer (analysis / domain services, below Application), yet the dependency is unidirectional. Neither assembly has an Architecture.Tests assertion stating which is "above" the other, making future bidirectional coupling a silent regression.
+
+**Problem:**
+
+Without an explicit layer ordering, it is valid to ask: can Decisioning depend on ArtifactSynthesis? The current graph says no (there is no such edge), but there is no test enforcing that. Over time, a developer could add `Decisioning → ArtifactSynthesis` and create a cycle.
+
+**Decision required (owner / engineering lead):** Choose one:
+
+- **Option A (preferred):** ArtifactSynthesis is strictly *above* Decisioning. Decisioning may not depend on ArtifactSynthesis. Enforce with `Decisioning_must_not_depend_on_ArtifactSynthesis` in Architecture.Tests.
+- **Option B:** Extract the types that ArtifactSynthesis needs from Decisioning into `ArchLucid.Contracts` or a new `ArchLucid.DecisioningContracts` assembly, eliminating the dependency entirely. Both assemblies are then at the same layer with no edge between them.
+
+**What to do (once option is chosen):**
+
+- **Option A:** Add `Decisioning_must_not_depend_on_ArtifactSynthesis` to `DependencyConstraintTests`. Add a corresponding `ArtifactSynthesis_depends_on_Decisioning_by_design` acknowledgement that documents the layering decision. Update layer documentation in `docs/library/SYSTEM_MAP.md` or a new architecture note.
+- **Option B:** Identify which Decisioning types ArtifactSynthesis uses. Move them to `ArchLucid.Contracts`. Update both csproj files. Add mutual `must_not_depend_on` assertions in Architecture.Tests.
+
+**Affected files / projects (Option A — minimal):**
+
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — two new facts
+- `docs/library/SYSTEM_MAP.md` — layer clarification
+
+**Affected files / projects (Option B — full):**
+
+- `ArchLucid.Contracts` — new type(s) moved from Decisioning
+- `ArchLucid.Decisioning/ArchLucid.Decisioning.csproj` — no change (already references Contracts)
+- `ArchLucid.ArtifactSynthesis/ArchLucid.ArtifactSynthesis.csproj` — remove Decisioning reference
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — two new hard-fail assertions
+
+**Size estimate:** **XS–S** — Option A ~30 min; Option B ~2–4 h depending on how many types need to move.
+
+---
+
+## TB-032 — Replace `Mcp → Retrieval` direct coupling with a query port
+
+**Source:** Dependency graph audit (2026-05-26). `ArchLucid.Mcp` (a protocol adapter — infrastructure layer, L4) depends directly on `ArchLucid.Retrieval` (application orchestration layer, L3). `Retrieval` itself depends on `Decisioning`, `Provenance`, and `ArtifactSynthesis`, giving the Mcp adapter a wide transitive footprint into the application layer. This violates the principle that infrastructure adapters depend on port *interfaces*, not on application layer *implementations*.
+
+**Problem:**
+
+- A change to `Retrieval`'s internals can break the Mcp build even when the MCP surface is unchanged.
+- The MCP adapter cannot be tested in isolation without pulling in the full application layer.
+- Adding a second retrieval implementation (e.g. a cached or tenant-sharded variant) requires updating Mcp rather than just rebinding at the composition root.
+
+**What to do:**
+
+1. Define an `IMcpRetrievalPort` (or extend an existing query port if one already exists in Application/Contracts) that exposes only the operations Mcp requires. Place the interface in `ArchLucid.Application` or `ArchLucid.Contracts`.
+2. Implement the port in `ArchLucid.Retrieval` (a thin adapter implementing `IMcpRetrievalPort` by delegating to existing Retrieval services).
+3. Update `ArchLucid.Mcp` to depend on `IMcpRetrievalPort` instead of Retrieval types directly. Replace the `<ProjectReference>` to `ArchLucid.Retrieval` with one to the assembly that defines the port (Contracts or Application).
+4. In `ArchLucid.Host.Composition`, bind `IMcpRetrievalPort` → the Retrieval implementation.
+5. Add Architecture.Tests assertions: `Mcp_must_not_depend_on_Application_layer_namespaces` and `Mcp_csproj_must_not_reference_Retrieval` (pair with TB-030).
+
+**Correctness / safety:**
+
+- No behavioural change — the Retrieval implementation is still wired at runtime; the port is a compile-time boundary only.
+- Unit-test `ArchLucid.Mcp` against a fake `IMcpRetrievalPort` after the change. This should reveal any implicit assumptions Mcp has about Retrieval's concrete type.
+- Coordinate with TB-030 (Architecture.Tests gap closure) — the `Mcp_must_not_depend_on_*` assertions added in TB-030 should turn green when this item ships.
+
+**Affected files / projects:**
+
+- `ArchLucid.Contracts` or `ArchLucid.Application` — new `IMcpRetrievalPort.cs`
+- `ArchLucid.Retrieval` — new `McpRetrievalPortAdapter.cs` (implements the port)
+- `ArchLucid.Mcp/ArchLucid.Mcp.csproj` — swap `Retrieval` reference for port-defining assembly
+- `ArchLucid.Mcp` source — replace concrete Retrieval usages with port calls
+- `ArchLucid.Host.Composition` — bind `IMcpRetrievalPort`
+- `ArchLucid.Architecture.Tests/DependencyConstraintTests.cs` — assertions (pair with TB-030)
+
+**Size estimate:** **M** — ~1–2 eng days (port definition + Retrieval adapter + Mcp refactor + composition binding + tests).
+
+---
+
+## TB-033 — Agent execution trace — persist LLM sampling params + reasoning token count
+
+**Source:** Replay / provenance completeness audit (2026-05-26). Operators and support need to reconstruct the exact LLM call configuration for a single agent task.
+
+**Problem:**
+
+`AgentExecutionTrace` persists `ModelDeploymentName`, `ModelVersion`, and prompt-template identity (`PromptTemplateId`, `PromptTemplateVersion`, `SystemPromptContentSha256`, `PromptReleaseLabel`) but **not** the completion request parameters actually sent to Azure OpenAI:
+
+- `temperature` (handler default **0.1** today — not stored)
+- `maxTokens` / `max_completion_tokens`
+- `top_p`, presence/frequency penalties (if ever enabled)
+
+`ReasoningTokenCount` (or equivalent) is consumed when estimating cost in `LlmCompletionAccountingClient` / `LlmCostEstimator` but is **not** written to the trace row — only input/output token totals are stored.
+
+**What to do:**
+
+1. Extend `AgentExecutionTrace` contract + `dbo.AgentExecutionTraces` / `TraceJson` schema (DbUp + consolidated `Scripts/ArchLucid.sql`) with nullable fields for sampling params actually passed to the completion client (capture at record time, not defaults from config unless that is what was sent).
+2. Add `ReasoningTokenCount` (or provider-specific reasoning field) to the trace row when the completion response reports it.
+3. Populate fields in `AgentExecutionTraceRecorder.RecordAsync` from `AgentCompletionModelMetadata` / completion result DTO — single source at record time.
+4. Update OpenAPI/codegen if trace detail DTOs are customer-visible; extend `docs/library/AGENT_TRACE_FORENSICS.md` §Model metadata.
+5. Unit tests: recorder persists non-default sampling when handler overrides; reasoning tokens round-trip when provider returns them.
+
+**Out of scope:** LLM tool-call loops (architecture is single-shot JSON completion today — no tool persistence layer).
+
+**Depends on:** none (orthogonal to **TB-011** replay *scope* isolation — **INV-013**).
+
+**Affected files / projects:**
+
+- `ArchLucid.Contracts/Agents/AgentExecutionTrace.cs`
+- `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`, `Traces/AgentExecutionTraceMapper.cs`
+- `ArchLucid.AgentRuntime/LlmAgentSchemaCompletion.cs`, `AzureOpenAiCompletionClient.cs` (pass-through metadata)
+- Persistence migration + `AgentExecutionTraceRecorderTests` (or equivalent)
+
+**Size estimate:** **XS** — ~2–4 h.
+
+---
+
+## TB-034 — Degraded-handler minimal `AgentExecutionTrace` rows
+
+**Source:** Replay / provenance completeness audit (2026-05-26). `RealAgentExecutor` resilience path uses `AgentHandlerDegradedResultFactory` when handlers time out, circuits open, or resilience fails.
+
+**Problem:**
+
+Degraded paths emit **`archlucid_agent_handler_degradations_total`** and activity event **`agent.handler.degraded`** (confirmed prompt-free in `AgentHandlerDegradationTelemetryTests`) and return a **zero-confidence placeholder** `AgentResult`, but **`IAgentExecutionTraceRecorder.RecordAsync` is not called**. Investigators cannot recover what prompt would have been sent, which model was selected, or whether an LLM call was attempted.
+
+**What to do:**
+
+1. On degradation (before returning placeholder), record a **minimal** trace row: `FailureReasonCode` / `degradation_reason`, `AgentType`, `RunId`, `TaskId`, optional **truncated** system/user prompt hashes or template metadata (no full blob requirement if degradation happened pre-LLM — document which fields are best-effort).
+2. Set `ParseSucceeded=false`, `EstimatedCostUsd=0` (or null), sentinel model metadata if no completion occurred.
+3. Audit event optional: `AgentHandlerDegradedTraceRecorded` for operator search (or reuse existing degradation audit with `traceId`).
+4. Document in `docs/library/AGENT_TRACE_FORENSICS.md` and `docs/library/OBSERVABILITY.md` that degraded traces are **partial** by design.
+5. Extend `AgentHandlerDegradationTelemetryTests` to assert trace row exists (or explicit skip reason when degradation is pre-prompt).
+
+**Correctness / safety:**
+
+- Do **not** block degradation return on trace insert failure — same best-effort contract as blob persistence (**TB-001** informational posture for secondary writes).
+- Redaction (**`LlmPromptRedaction`**) applies if prompts are included.
+
+**Affected files / projects:**
+
+- `ArchLucid.AgentRuntime/RealAgentExecutorHandlerResiliencePipeline.cs`, `AgentHandlerDegradedResultFactory.cs`
+- `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`
+- `ArchLucid.AgentRuntime.Tests/AgentHandlerDegradationTelemetryTests.cs`
+
+**Size estimate:** **S** — ~4–8 h.
+
+---
+
+## TB-035 — Persist intermediate LLM attempts on schema-remediation retries
+
+**Source:** Replay / provenance completeness audit (2026-05-26). `LlmAgentSchemaCompletion` retries JSON parse / schema validation failures before surfacing error to the handler.
+
+**Problem:**
+
+Only the **final** attempt is passed to `IAgentExecutionTraceRecorder.RecordAsync`. Intermediate prompts and raw responses are discarded; `RecordAgentSchemaRemediationRetry` is a **metric counter only**. Support cannot answer “what did the model return on attempt 1 vs 3?” for schema drift incidents.
+
+**What to do:**
+
+1. **Option A (preferred):** Child trace rows per attempt — same `RunId`/`TaskId`, distinct `TraceId`, `AttemptIndex` column (migration), `ParentTraceId` nullable for final consolidated row OR final row references `AttemptCount`.
+2. **Option B:** Append `RemediationAttempts[]` JSON array on a single trace row (bounded size; truncate with audit if exceeded).
+3. Record each attempt’s `RawResponse`, parse error, and token/cost slice when a completion occurred.
+4. Cap max attempts in config; document retention alignment with **`DataArchival:PurgeArchivedAgentExecutionTracesAfterDays`**.
+5. Tests: two-failure-then-success path produces three durable attempt records (or array length 3).
+
+**Out of scope:** Changing remediation policy or max retry count (product decision).
+
+**Affected files / projects:**
+
+- `ArchLucid.AgentRuntime/LlmAgentSchemaCompletion.cs`
+- `ArchLucid.Contracts/Agents/AgentExecutionTrace.cs`
+- `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`
+- Persistence migration
+
+**Size estimate:** **M** — ~1–2 eng days.
+
+---
+
+## TB-036 — Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace`
+
+**Source:** Replay / provenance completeness audit (2026-05-26). `ArchLucid.Provenance` builds decision lineage; `AgentRuntime` stores LLM forensics — no link between them.
+
+**Problem:**
+
+`ProvenanceBuilder` / `GET …/provenance` answer “which findings and decisions contributed to this run?” but not “which agent trace produced this decision narrative?” `AgentExecutionTrace` rows have `RunId` + `TaskId` + `AgentType` but no provenance node IDs. Cross-navigation requires manual correlation by timestamp and agent type.
+
+**What to do:**
+
+1. Product/engineering agree correlation grain: **per agent task** (`TaskId` + `AgentType`) vs **per decision key** vs **per finding id**.
+2. Add stable correlation fields — e.g. `ProvenanceCorrelationId` on trace row; optional `AgentExecutionTraceId` on `ProvenanceNode.Metadata` for `Decision` / `Finding` nodes when builder can infer mapping.
+3. Populate during handler execute + `ProvenanceBuilder` build (or post-run linker service in Application).
+4. Expose in provenance API + trace detail API for operator UI deep links (pair with **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** in UI backlog if needed).
+5. Architecture test: Provenance assembly must not reference AgentRuntime (correlation via Contracts IDs only).
+
+**Depends on:** clarity on UX (run detail vs graph node click-through).
+
+**Refs:** [`docs/library/KNOWLEDGE_GRAPH.md`](KNOWLEDGE_GRAPH.md); [`docs/library/AGENT_TRACE_FORENSICS.md`](AGENT_TRACE_FORENSICS.md).
+
+**Size estimate:** **M** — ~2–3 eng days.
+
+---
+
+## TB-037 — Production write path for `DecisionProvenanceSnapshot`
+
+**Source:** Replay / provenance completeness audit (2026-05-26). `DecisionProvenanceSnapshot` table and `IProvenanceSnapshotRepository.SaveAsync` exist; production code rebuilds the graph on read.
+
+**Problem:**
+
+`AuthorityQueryController` / provenance query paths invoke `ProvenanceBuilder` on demand. **`SaveAsync` has no production callers** — snapshots are never materialized. Every provenance read recomputes from findings, manifest, and decision trace artefacts (higher latency, harder point-in-time audit).
+
+**What to do:**
+
+1. After successful authority commit (or run terminal state), build graph once and **`SaveAsync`** with idempotent upsert on `RunId` (respect tenant RLS).
+2. Read path: load snapshot when present and fresh (hash manifest / findings revision); fall back to rebuild when stale or missing.
+3. Wire invalidation when run artefacts are superseded (align with replay scope rules — **INV-013** / **TB-011**).
+4. Metrics: `archlucid_provenance_snapshot_writes_total`, rebuild fallback counter.
+5. Tests: commit → snapshot exists; second read does not call builder when snapshot valid.
+
+**Out of scope:** Changing graph semantics or node types.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application` (or worker) — post-commit hook
+- `ArchLucid.Provenance/ProvenanceBuilder.cs`
+- `IProvenanceSnapshotRepository` implementation in Persistence
+- `AuthorityQueryController` / `ProvenanceQueryController`
+
+**Size estimate:** **S** — ~4–8 h.
+
+---
+
+## TB-038 — `RetrievalGroundingTrace` forensic enrichment (+ non-Compliance agents)
+
+**Source:** Replay / provenance completeness audit (2026-05-26). **RAG-V1-000** shipped `dbo.RetrievalGroundingTrace` with chunk IDs for **Compliance** only.
+
+**Problem:**
+
+Durable grounding rows store `RetrievedChunkIds`, token counts, and `CitationCoverage` but **not** the retrieval **query text**, **TopK**, **similarity scores**, or **document IDs**. Retrieved text is only recoverable indirectly via the user-prompt blob on the agent trace. Topology, Cost, and Critic agents do not write grounding traces even when they use retrieval-like evidence paths.
+
+**What to do:**
+
+See **RAG-V1-006** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) for phased deliverables. Summary:
+
+1. Extend `RetrievalGroundingTraceInsert` + migration: `QueryText` (truncated), `TopK`, `CorpusKind`, optional `ScoresJson` / `DocumentIdsJson` (bounded).
+2. Write from all handlers that call `IRetrievalQueryService` (not only Compliance).
+3. Link grounding row to `AgentExecutionTrace.TraceId` when both exist.
+4. Document replay note: retrieval hits remain prompt-context unless chunk content hashes are snapshotted (**RAG-V1-000** replay note).
+
+**Schedule under:** **TB-021** / assessment **CPB-T21** when faithfulness work is active.
+
+**Size estimate:** **S–M** — ~1–2 eng days (schema + writers + tests).
+
+---
+
+## TB-039 — Agent execute retry — per-`(RunId, TaskId)` skip before handler dispatch
+
+**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `ArchitectureRunExecuteOrchestrator.TryReturnExistingExecuteResultsAsync` skips idempotent early return when stored results are incomplete vs scheduled tasks.
+
+**Problem:**
+
+When execute is retried after a partial batch (some handlers succeeded, run still `TasksGenerated`), the orchestrator calls `agentExecutor.ExecuteAsync` with the **full** task list. There is no per-task “already executed” gate. `AgentResultRepository.CreateManyAsync` delete-then-insert prevents duplicate SQL rows, but every handler is re-invoked and **LLM tokens are charged again** via `LlmCompletionAccountingClient` (accounting in `finally` on each successful `CompleteJsonAsync`). The completion cache (`CachingLlmCompletionClient`) deduplicates identical prompts only — not `(RunId, TaskId)` identity.
+
+**What to do:**
+
+1. Before `ExecuteSingleAsync` in `RealAgentExecutor`, load existing `AgentResults` for the run (or accept a preloaded map from the orchestrator).
+2. For each `(RunId, TaskId)` with a persisted successful result (define: non-degraded, parse succeeded, or explicit product rule), return the stored `AgentResult` without calling the handler or LLM.
+3. Optionally restrict skip to results from the same run revision / evidence package hash if product requires re-run on evidence change.
+4. Log metric `archlucid_agent_execute_task_skipped_idempotent_total` with labels `agent_type`, `reason`.
+5. Tests: partial batch persisted → retry executes only missing tasks; full batch idempotent early return unchanged; degraded placeholder does not skip unless product says so.
+
+**Out of scope:** Changing execute idempotency terminal statuses or create-run idempotency keys.
+
+**Depends on:** none (complements **TB-012** / **INV-009**; orthogonal to **TB-035** remediation forensics).
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs`
+- `ArchLucid.AgentRuntime/RealAgentExecutor.cs`
+- `ArchLucid.Persistence/Data/Repositories/AgentResultRepository.cs`
+- `ArchLucid.AgentRuntime.Tests/RealAgentExecutorTests.cs` (or orchestrator integration tests)
+
+**Size estimate:** **M** — ~1–2 eng days.
+
+---
+
+## TB-040 — `LlmCompletionAccountingClient` — await metering with `CancellationToken.None`
+
+**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). Parallel fan-out uses linked cancellation; completed handlers may cancel peers after budget or fault.
+
+**Problem:**
+
+In `LlmCompletionAccountingClient.CompleteJsonAsync`, `TryRecordLlmUsageMeteringAsync` is invoked as fire-and-forget (`_ = …`) with the **original** `cancellationToken`. When linked cancellation fires immediately after a successful LLM response, metering can be silently skipped while `_dailyTenantBudgetTracker` / `_monthlyDollarBudgetTracker` still record usage (they use `CancellationToken.None`). Retry then bills LLM again — budget ledgers and `IUsageMeteringService` event logs diverge.
+
+**What to do:**
+
+1. Await `TryRecordLlmUsageMeteringAsync` in the `finally` block (same pattern as budget trackers), passing **`CancellationToken.None`**.
+2. Keep best-effort semantics: catch and log metering failures without failing the completion (existing `catch` in `TryRecordLlmUsageMeteringAsync`).
+3. Apply the same fix to `StreamJsonAsync` path.
+4. Tests: simulate cancelled token after inner completion returns — assert metering `RecordAsync` still called once; budget and metering counts align.
+
+**Out of scope:** Idempotent dedupe of metering events by correlation id (separate if needed).
+
+**Depends on:** none.
+
+**Affected files / projects:**
+
+- `ArchLucid.AgentRuntime/LlmCompletionAccountingClient.cs`
+- `ArchLucid.AgentRuntime.Tests/` (accounting / cancellation tests)
+
+**Size estimate:** **XS** — ~2–4 h.
+
+---
+
+## TB-041 — Authority pipeline — per-stage completion checkpoint on retry
+
+**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `AuthorityPipelineStagesExecutor.ExecuteStageAsync` has no “stage already completed” guard.
+
+**Problem:**
+
+If the authority pipeline throws mid-run (e.g. after context ingestion and graph save, before findings completes), a retry restarts from **stage 1** (`context_ingestion`). Each stage’s `SaveAsync` is insert-oriented; cross-stage work is not atomically rolled back. Retries can produce duplicate context snapshots, duplicate findings snapshots, and duplicate connector fetches — even when earlier stage outputs are already durable on `RunRecord` (`ContextSnapshotId`, `GraphSnapshotId`, etc.).
+
+**What to do:**
+
+1. Define stage completion predicates from persisted run header + snapshot FKs (e.g. `ContextSnapshotId` set ⇒ skip `context_ingestion`; `GraphSnapshotId` set ⇒ skip `graph` unless fingerprint changed).
+2. At start of each `ExecuteStageAsync`, short-circuit `stageWork` when checkpoint indicates stage output already committed for this run revision.
+3. Document interaction with **TB-042** (graph supersession) and `GraphSnapshotReuseEvaluator` clone vs fresh paths.
+4. Metrics: `archlucid_authority_pipeline_stage_skipped_checkpoint_total` by `stage`.
+5. Integration tests: fail after graph stage → retry skips ingestion + graph, continues at findings.
+
+**Out of scope:** Full Durable Task Framework checkpoint/replay (**V1_DEFERRED**); changing stage ordering.
+
+**Depends on:** **TB-042** recommended for graph stage skip semantics when `GraphSnapshotId` already set.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs`
+- `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs`
+- Persistence tests / authority pipeline integration tests
+
+**Size estimate:** **M** — ~1–2 eng days.
+
+---
+
+## TB-042 — Graph snapshot supersession — skip rebuild when `RunRecord.GraphSnapshotId` set
+
+**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `KnowledgeGraphService.BuildSnapshotAsync` always assigns new `GraphSnapshotId`; `SaveGraphAsync` has no supersession check.
+
+**Problem:**
+
+If `SaveAsync` succeeds but `UpdateRunAsync` fails (transient SQL), retry builds and saves a **second** graph snapshot. When Cosmos graph storage is enabled, graph save runs **outside** the SQL authority transaction — orphaned snapshots are not rolled back. Run header eventually points at the latest id; earlier snapshots remain as orphans (storage + lineage noise).
+
+**What to do:**
+
+1. At graph stage entry: if `run.GraphSnapshotId` is non-null and load-by-id succeeds, reuse that snapshot (set `ctx.GraphSnapshot`, resolution mode `reused_from_run_header`) — skip `GraphSnapshotReuseEvaluator` rebuild/save.
+2. When save + header update must be atomic, consider single UoW ordering: persist run FK in same transaction as SQL graph save where supported.
+3. For Cosmos path: write run header pointer only after successful blob/document save, or implement compensating delete of orphan on header update failure (product choice — document).
+4. Align with **TB-041** checkpoint rules.
+5. Tests: simulate failure after `SaveAsync` before `UpdateRunAsync` → retry does not create second snapshot id.
+
+**Out of scope:** Deleting historical orphaned snapshots (ops cleanup backlog if needed).
+
+**Depends on:** **TB-041** (stage skip uses same header fields).
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs`
+- `ArchLucid.Core/Persistence/Graph/GraphSnapshotReuseEvaluator.cs`
+- `ArchLucid.KnowledgeGraph/Services/KnowledgeGraphService.cs`
+- Graph snapshot repository implementations
+
+**Size estimate:** **S** — ~4–8 h.
+
+---
+
+## TB-043 — Schema remediation — non-retried completion client (decouple from Polly stack)
+
+**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `LlmAgentSchemaCompletion.CompleteAsync` calls `activeClient.CompleteJsonAsync`, which is typically `CircuitBreakingAgentCompletionClient` with an inner Polly retry pipeline.
+
+**Problem:**
+
+Maximum billed LLM calls per handler task scales as **`MaxCompletionAttempts × (1 + LlmCallMaxRetryAttempts)`** (e.g. 3 × 4 = 12). Each Polly retry that reaches Azure and returns usage is charged in `LlmCompletionAccountingClient`. Remediation attempts use **different user prompts** (remediation text appended), so completion cache does not dedupe across attempts. This is intentional retry behaviour for reliability but unbounded for FinOps unless capped.
+
+**What to do:**
+
+1. Register a dedicated **`IAgentCompletionClient`** for remediation attempts (same Azure endpoint, **no** Polly retry wrapper — or max 1 attempt) and pass as `remediationCompletionClient` into `LlmAgentSchemaCompletion.CompleteAsync` (parameter already exists).
+2. Keep Polly retries on the **first** attempt only (transient 429/5xx on initial completion).
+3. Document max billed calls formula in `docs/library/LLM_RETRY_AND_CIRCUIT_BREAKER.md` and `RESILIENCE_CONFIGURATION.md`.
+4. Tests: schema violation triggers remediation → assert Polly retry count applies only to first attempt; token accounting call count bounded.
+5. Coordinate with **TB-035** if persisting intermediate attempts (forensics) — billing and trace rows should align per attempt.
+
+**Out of scope:** Reducing `MaxCompletionAttempts` (product decision); changing Polly policy for non-remediation calls.
+
+**Depends on:** none (complements **TB-035**).
+
+**Affected files / projects:**
+
+- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` (DI registration)
+- `ArchLucid.AgentRuntime/LlmAgentSchemaCompletion.cs`
+- Handler call sites (Topology, Compliance, Critic)
+- `ArchLucid.AgentRuntime.Tests/LlmAgentSchemaCompletionTests.cs` (or equivalent)
+
+**Size estimate:** **XS–S** — ~4–8 h.
+
+---
+
+## TB-044 — `AgentExecutionTraces` — unique index on `(RunId, TaskId, AgentType)` + upsert semantics
+
+**Source:** AgentRuntime determinism and idempotency audit (2026-05-26). `AgentExecutionTraceRepository.CreateAsync` is plain INSERT; each execute retry generates new `TraceId`.
+
+**Problem:**
+
+Full execute retry (see **TB-039**) appends additional trace rows for the same logical agent task. Forensics queries (`GetByTaskIdAsync`) return multiple rows ordered by `CreatedUtc` — ambiguous “canonical” trace for support. Not a direct double-charge risk, but violates one-trace-per-task-per-run expectation and complicates cost aggregation.
+
+**What to do:**
+
+1. DbUp migration + consolidated `Scripts/ArchLucid.sql`: unique index on `(RunId, TaskId, AgentType)` (confirm cardinality — one row per agent type per task per run).
+2. Change `CreateAsync` to **MERGE** or delete-then-insert for that key (mirror `AgentResultRepository` pattern), or skip insert when row exists unless **TB-035** multi-attempt model requires child rows (if so, use `(RunId, TaskId, AgentType, AttemptIndex)` unique key instead — coordinate with **TB-035**).
+3. Backfill / dedupe strategy for existing duplicates (keep latest `CreatedUtc` per key).
+4. Tests: retry execute → single trace row per task (or explicit attempt index set if **TB-035** shipped first).
+
+**Out of scope:** Trace blob re-upload idempotency (existing blob keys are content-addressed per trace id).
+
+**Depends on:** Prefer locking schema with **TB-035** attempt-index design before migration if both ship in same release.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Data/Repositories/AgentExecutionTraceRepository.cs`
+- `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`
+- DbUp migration scripts
+
+**Size estimate:** **XS** — ~2–4 h.
+
+---
+
+## TB-045 — Embedding model identity and drift guard
+
+**Source:** Retrieval correctness & drift audit (2026-05-26). `RetrievalChunk` stores embeddings without model id or dimension; deployment name is config-only; dimension mismatch yields silent zero cosine scores.
+
+**Problem:** Swapping embedding deployment (or mixing `FakeEmbeddingService` with Azure) leaves incompatible vectors in the same index. Queries degrade with no operator signal.
+
+**What to do:** See **RAG-V1-007** in [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md). Summary:
+
+1. Add `EmbeddingModelId` + `EmbeddingDimension` to `RetrievalChunk`.
+2. Query-time filter/metric on dimension mismatch.
+3. Startup compare config vs index metadata → full re-embed on change.
+
+**Schedule under:** **TB-021** / assessment **CPB-T21** when retrieval correctness work is active.
+
+**Affected files:** `ArchLucid.Retrieval/Models/RetrievalChunk.cs`, `Indexing/InMemoryVectorIndex.cs`, `Indexing/RetrievalIndexingService.cs`, `Embedding/AzureOpenAiEmbeddingClient.cs`.
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-046 — Index freshness, ContentHash skip, and indexer observability
+
+**Source:** Retrieval correctness & drift audit (2026-05-26). `ContentHash` on documents is never read at index time; startup indexers fail-open; no freshness metric.
+
+**What to do:** See **RAG-V1-008**. Priority within item: **ContentHash skip (P0)** → last-indexed-at + health signal → optional scheduled re-index.
+
+**Schedule under:** **TB-021**. Coordinate with **RAG-V1-009** (chunking fingerprint) for skip logic.
+
+**Affected files:** `RetrievalIndexingService.cs`, `*CorpusStartupIndexerHostedService.cs`, `RetrievalDocument.cs`.
+
+**Size estimate:** **S–M** — ~1–2 eng days.
+
+---
+
+## TB-047 — Chunking strategy fingerprint and invalidation
+
+**Source:** Retrieval correctness & drift audit (2026-05-26). Chunk parameters are hardcoded method defaults; changing them produces mixed-generation indexes with no invalidation.
+
+**What to do:** See **RAG-V1-009**. Store chunking fingerprint on chunks; move defaults to `IOptions`; invalidate stale chunk IDs on fingerprint change.
+
+**Schedule under:** **TB-021**. Depends on **TB-046** ContentHash/fingerprint coordination for skip vs invalidate semantics.
+
+**Affected files:** `ArchLucid.Retrieval/Chunking/*.cs`, `RetrievalIndexingService.cs`.
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-048 — Tenancy isolation hardening (retrieval)
+
+**Source:** Retrieval correctness & drift audit (2026-05-26). `InMemoryVectorIndex` treats `AllowedPolicyPackRulePackIds == null` as allow-all for policy packs. Azure Search filter path not auditable in-repo.
+
+**What to do:** See **RAG-V1-010**. **P0:** safe default on null assignment list + integration test. **P1:** Azure Search tenant `$filter` when client ships.
+
+**Schedule under:** **TB-021** — treat as **security** item; pick up before broad MCP retrieval exposure (**TB-032**).
+
+**Affected files:** `InMemoryVectorIndex.cs`, `RetrievalQueryService.cs`, future `AzureAiSearchVectorIndex` client.
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-049 — Retrieval IR eval harness (recall@k, MRR)
+
+**Source:** Retrieval correctness & drift audit (2026-05-26). No recall@k, precision@k, MRR, or NDCG. Existing **RAG-V1-005** / `RetrievalFaithfulnessEvaluator` measures output citation coverage only.
+
+**What to do:** See **RAG-V1-011**. Golden dataset + `scripts/ci/eval_retrieval_ir.py` + CI floor on recall@5 and MRR.
+
+**Schedule under:** **TB-021** alongside **RAG-V1-005** — complementary gates (retrieval quality vs output faithfulness).
+
+**Affected files:** `tests/eval-datasets/retrieval-golden/`, `scripts/ci/eval_retrieval_ir.py`, `ArchLucid.Retrieval.Tests/`.
+
+**Size estimate:** **M** — ~2–3 eng days.
+
+---
 

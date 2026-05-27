@@ -132,4 +132,51 @@ public sealed class LlmAgentSchemaCompletionTests
             c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task CompleteAsync_uses_dedicated_remediation_client_for_retry_attempts()
+    {
+        Mock<IAgentCompletionClient> primary = new();
+        Mock<IAgentCompletionClient> remediation = new();
+
+        primary
+            .Setup(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("{ not valid json");
+
+        remediation
+            .Setup(c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ValidTopologyJson);
+
+        AgentResultParser parser = new();
+
+        IOptionsMonitor<AgentSchemaRemediationOptions> remediationOptions =
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(maxCompletionAttempts: 3);
+
+        (string _, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
+            primary.Object,
+            parser,
+            remediationOptions,
+            AgentType.Topology,
+            "run1",
+            "task1",
+            "sys",
+            "user base",
+            remediationCompletionClient: remediation.Object,
+            cancellationToken: CancellationToken.None);
+
+        parsed.ResultId.Should().Be("res1");
+
+        primary.Verify(
+            c => c.CompleteJsonAsync("sys", It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        remediation.Verify(
+            c => c.CompleteJsonAsync(
+                "sys",
+                It.Is<string>(u => u.Contains("Remediation:", StringComparison.Ordinal)),
+                It.IsAny<int?>(),
+                It.IsAny<float?>(),
+                It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce());
+    }
 }

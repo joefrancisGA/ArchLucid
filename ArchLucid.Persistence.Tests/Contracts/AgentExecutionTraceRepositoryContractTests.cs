@@ -41,15 +41,42 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         DateTime first = TimeProvider.System.UtcNowDateTime().AddMinutes(-2);
         DateTime second = TimeProvider.System.UtcNowDateTime().AddMinutes(-1);
+        AgentTask taskB = NewTask(runId, "task-aet-b");
+
+        await PrepareRunAndTaskAsync(requestId, runId, taskB, CancellationToken.None);
 
         await repo.CreateAsync(NewTrace(runId, task.TaskId, "t1", first), CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "t2", second), CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, taskB.TaskId, "t2", second), CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].TraceId.Should().Be("t1");
         list[1].TraceId.Should().Be("t2");
+    }
+
+    [SkippableFact]
+    public async Task CreateAsync_upserts_same_run_task_and_agent_type()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-upsert-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-upsert");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "first-trace", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "second-trace", TimeProvider.System.UtcNowDateTime()),
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+
+        list.Should().ContainSingle();
+        list[0].TraceId.Should().Be("second-trace");
     }
 
     [SkippableFact]

@@ -722,6 +722,15 @@ public static class ArchLucidInstrumentation
             description: "Agent handler invocations by type and outcome.");
 
     /// <summary>
+    ///     Execute retry skipped handler dispatch because a persisted non-degraded result exists (labels:
+    ///     <c>agent_type</c>, <c>reason</c>).
+    /// </summary>
+    public static readonly Counter<long> AgentExecuteTaskSkippedIdempotentTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_execute_task_skipped_idempotent_total",
+            description: "Agent execute retry skipped handler dispatch for idempotent task (labels: agent_type, reason).");
+
+    /// <summary>
     ///     Non-Critic handler resilience fallbacks that returned a degraded placeholder (labels: <c>agent_type_key</c>,
     ///     <c>degradation_reason</c>).
     /// </summary>

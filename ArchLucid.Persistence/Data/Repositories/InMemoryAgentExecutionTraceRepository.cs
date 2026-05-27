@@ -21,8 +21,14 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
+        {
+            _items.RemoveAll(t =>
+                string.Equals(t.RunId, trace.RunId, StringComparison.Ordinal)
+                && string.Equals(t.TaskId, trace.TaskId, StringComparison.Ordinal)
+                && t.AgentType == trace.AgentType);
 
             _items.Add(Clone(trace));
+        }
 
         return Task.CompletedTask;
     }

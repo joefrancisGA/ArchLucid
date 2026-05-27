@@ -21,6 +21,7 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public sealed class CriticAgentHandler(
     IAgentTierCompletionRouter tierCompletionRouter,
+    ISchemaRemediationAgentCompletionClient schemaRemediationClient,
     IAgentResultParser resultParser,
     IAgentExecutionTraceRecorder traceRecorder,
     IAgentSystemPromptCatalog systemPromptCatalog,
@@ -68,7 +69,11 @@ public sealed class CriticAgentHandler(
         try
         {
             (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
-                AgentHandlerLlmResolution.ResolveCompletionClients(tierCompletionRouter, AgentType.Critic, task);
+                AgentHandlerLlmResolution.ResolveCompletionClients(
+                    tierCompletionRouter,
+                    schemaRemediationClient,
+                    AgentType.Critic,
+                    task);
 
             (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
                 completionClient,

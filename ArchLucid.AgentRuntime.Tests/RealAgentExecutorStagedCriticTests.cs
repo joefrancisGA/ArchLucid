@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -52,7 +53,8 @@ public sealed class RealAgentExecutorStagedCriticTests
             stagedOptions,
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
     }
 
     [SkippableFact]

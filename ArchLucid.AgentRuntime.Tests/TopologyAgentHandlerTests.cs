@@ -109,6 +109,7 @@ public sealed class TopologyAgentHandlerTests
 
         TopologyAgentHandler handler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completionClient),
+            SchemaRemediationCompletionClientTestFactory.Create(completionClient),
             parser,
             traceRecorder,
             catalog,

@@ -24,6 +24,11 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     {
         ArgumentNullException.ThrowIfNull(trace);
 
+        const string deleteSql = """
+                                 DELETE FROM AgentExecutionTraces
+                                 WHERE RunId = @RunId AND TaskId = @TaskId AND AgentType = @AgentType;
+                                 """;
+
         const string sql = """
                            INSERT INTO AgentExecutionTraces
                            (
@@ -62,6 +67,16 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string json = JsonSerializer.Serialize(trace, ContractJson.Default);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(new CommandDefinition(
+            deleteSql,
+            new
+            {
+                trace.RunId,
+                trace.TaskId,
+                AgentType = trace.AgentType.ToString()
+            },
+            cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,

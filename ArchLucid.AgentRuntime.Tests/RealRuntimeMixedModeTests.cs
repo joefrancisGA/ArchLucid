@@ -213,6 +213,7 @@ public sealed class RealRuntimeMixedModeTests
 
         TopologyAgentHandler topologyHandler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(topologyJson)),
+            SchemaRemediationCompletionClientTestFactory.Create(new StubAgentCompletionClient(topologyJson)),
             parser,
             traceRecorder,
             promptCatalog,
@@ -222,6 +223,7 @@ public sealed class RealRuntimeMixedModeTests
 
         ComplianceAgentHandler complianceHandler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(complianceJson)),
+            SchemaRemediationCompletionClientTestFactory.Create(new StubAgentCompletionClient(complianceJson)),
             parser,
             traceRecorder,
             promptCatalog,
@@ -237,6 +239,7 @@ public sealed class RealRuntimeMixedModeTests
 
         CriticAgentHandler criticHandler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(criticJson)),
+            SchemaRemediationCompletionClientTestFactory.Create(new StubAgentCompletionClient(criticJson)),
             parser,
             traceRecorder,
             promptCatalog,
@@ -262,7 +265,8 @@ public sealed class RealRuntimeMixedModeTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         ArchitectureRequest request = new()
         {

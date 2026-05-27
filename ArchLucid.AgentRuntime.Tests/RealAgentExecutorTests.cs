@@ -11,6 +11,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.AgentRuntime.Tests.Support;
 
@@ -67,7 +68,8 @@ public sealed class RealAgentExecutorTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             promptRedactor,
-            archLucidLlm);
+            archLucidLlm,
+            new InMemoryAgentResultRepository());
     }
 
     [SkippableFact]

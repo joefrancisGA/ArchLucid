@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.AgentRuntime.Tests.Support;
 
@@ -54,7 +55,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -88,7 +90,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -125,7 +128,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -161,7 +165,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -202,7 +207,8 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new StagedCriticAgentOptions()),
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
-            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()));
+            new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
+            new InMemoryAgentResultRepository());
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();

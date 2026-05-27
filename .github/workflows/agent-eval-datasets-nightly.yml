@@ -31,3 +31,6 @@ jobs:
 
       - name: Eval corpus (recall + simulator AgentResult quality)
         run: python3 scripts/ci/eval_agent_corpus.py --markdown-report "${{ runner.temp }}/eval-corpus-nightly.md"
+
+      - name: Retrieval IR golden harness (recall@5 + MRR)
+        run: python3 scripts/ci/eval_retrieval_ir.py --report "${{ runner.temp }}/retrieval-ir-report.md"

@@ -11,6 +11,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -45,6 +46,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
     private readonly IOptions<AgentExecutionResilienceOptions> _resilienceOptions;
     private readonly IOptions<StagedCriticAgentOptions> _stagedCriticOptions;
     private readonly IScopeContextProvider _scopeContextProvider;
+    private readonly IAgentResultRepository _agentResultRepository;
 
     /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey" /> (duplicates throw).</summary>
     public RealAgentExecutor(
@@ -57,7 +59,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IOptions<StagedCriticAgentOptions> stagedCriticOptions,
         IOptions<AgentOutputQualityGateOptions> agentOutputBudgetGate,
         IPromptRedactor promptRedactor,
-        IOptionsMonitor<ArchLucidLlmOptions> archLucidLlmOptions)
+        IOptionsMonitor<ArchLucidLlmOptions> archLucidLlmOptions,
+        IAgentResultRepository agentResultRepository)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -69,6 +72,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         _agentOutputBudgetGate = agentOutputBudgetGate ?? throw new ArgumentNullException(nameof(agentOutputBudgetGate));
         _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
         _archLucidLlmOptions = archLucidLlmOptions ?? throw new ArgumentNullException(nameof(archLucidLlmOptions));
+        _agentResultRepository = agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -117,6 +121,13 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         ScopeContext batchScope = _scopeContextProvider.GetCurrentScope();
 
+        IReadOnlyList<AgentResult> persistedResults =
+            await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        Dictionary<string, AgentResult> persistedByTaskId = persistedResults
+            .GroupBy(static r => r.TaskId, StringComparer.Ordinal)
+            .ToDictionary(static g => g.Key, static g => g.Last(), StringComparer.Ordinal);
+
         AgentExecutionLlmCallAccumulator llmCalls = new();
 
         using (ArchLucidInstrumentation.BeginLlmCallsPerRunAccumulation(llmCalls))
@@ -150,6 +161,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                                 request,
                                 evidence,
                                 phase1,
+                                persistedByTaskId,
                                 linked)
                             .ConfigureAwait(false);
                     }
@@ -172,6 +184,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                                 request,
                                 evidence,
                                 phase2,
+                                persistedByTaskId,
                                 stagedOpts,
                                 linked)
                             .ConfigureAwait(false);
@@ -198,6 +211,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                             request,
                             evidence,
                             orderedTasks,
+                            persistedByTaskId,
                             linked)
                         .ConfigureAwait(false);
                 }
@@ -236,6 +250,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentTask> criticTasks,
+        IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
         StagedCriticAgentOptions stagedOpts,
         CancellationTokenSource linkedCancellation)
     {
@@ -249,6 +264,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                     request,
                     evidence,
                     criticTasks,
+                    persistedByTaskId,
                     linkedCancellation)
                 .ConfigureAwait(false);
         }
@@ -265,6 +281,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                     request,
                     evidence,
                     criticTasks,
+                    persistedByTaskId,
                     criticPhaseCancellation)
                 .ConfigureAwait(false);
         }
@@ -317,6 +334,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentTask> phaseTasks,
+        IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
         CancellationTokenSource linkedCancellation)
     {
         if (phaseTasks.Count == 0)
@@ -327,8 +345,15 @@ public sealed class RealAgentExecutor : IAgentExecutor
         for (int i = 0; i < phaseTasks.Count; i++)
         {
             AgentTask phaseTaskItem = phaseTasks[i];
+            persistedByTaskId.TryGetValue(phaseTaskItem.TaskId, out AgentResult? persistedResult);
             tasks[i] =
-                ExecuteSingleAsync(runId, request, evidence, phaseTaskItem, linkedCancellation.Token);
+                ExecuteSingleAsync(
+                    runId,
+                    request,
+                    evidence,
+                    phaseTaskItem,
+                    persistedResult,
+                    linkedCancellation.Token);
         }
 
         if (!_agentOutputBudgetGate.Value.PersistPartialOutputsOnBudgetExceeded)
@@ -459,11 +484,32 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         AgentTask task,
+        AgentResult? persistedResult,
         CancellationToken cancellationToken)
     {
         using (AgentHandlerLlmReasoningTrace.BeginHandlerScope())
         {
             string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
+
+            if (AgentExecuteIdempotentResultPolicy.ShouldSkipRetry(persistedResult, out string? skipReason))
+            {
+                ArchLucidInstrumentation.AgentExecuteTaskSkippedIdempotentTotal.Add(
+                    1,
+                    new KeyValuePair<string, object?>("agent_type", task.AgentType.ToString()),
+                    new KeyValuePair<string, object?>("reason", skipReason ?? "unknown"));
+
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "Skipping idempotent agent execute for RunId={RunId} TaskId={TaskId} Agent={AgentType} Reason={Reason}.",
+                        runId,
+                        task.TaskId,
+                        dispatchKey,
+                        skipReason);
+                }
+
+                return persistedResult!;
+            }
 
             if (!_handlers.TryGetValue(dispatchKey, out IAgentHandler? handler))
 
