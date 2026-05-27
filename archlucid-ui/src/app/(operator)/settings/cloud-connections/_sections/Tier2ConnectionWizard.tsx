@@ -90,7 +90,6 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
   }, [allChecklistChecked, clientId, savedConnection, step, subscriptionIds, tenantId]);
 
   const canProceedStep0 = allChecklistChecked;
-  const canProceedStep1 = true;
 
   const canProceed = step === 0 ? canProceedStep0 : true;
 
