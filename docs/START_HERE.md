@@ -11,8 +11,9 @@ START_HERE.md (you are here)
 ├─ Buyer / evaluator — no Docker / SQL / .NET install
 │   ├─ https://archlucid.net
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story)
+│   ├─ runbooks/FIRST_PILOT_OPERATOR_PATH.md     (single V1 pilot path — start here for operators)
 │   ├─ onboarding/EVALUATION_GUIDE.md     (guided architecture review / review package in product)
-│   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (V1 pilot: SQL, extractor ZIP, execute/commit, sponsor export)
+│   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (printable evidence checklist — companion to operator path)
 │   ├─ runbooks/PILOT_RESCUE_PLAYBOOK.md  (stuck mid-pilot — symptom index)
 │   └─ library/PILOT_ROI_MODEL.md         (optional depth)
 │

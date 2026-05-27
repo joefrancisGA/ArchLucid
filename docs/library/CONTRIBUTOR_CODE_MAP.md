@@ -31,6 +31,7 @@ Use this quick-reference to find where to make changes in the ArchLucid codebase
 - **What to know:** 
   - The pipeline orchestrates the sequence of agent execution.
   - Golden Manifests have been renamed in the UI to "Committed Architecture Manifest", but internal types remain `GoldenManifest`.
+  - **Custom in-repo handlers:** register `IAgentHandler` in `ArchLucid.Host.Composition` — see [`CUSTOM_AGENT_HANDLER_GUIDE.md`](CUSTOM_AGENT_HANDLER_GUIDE.md). **Out-of-process:** [`CUSTOM_AGENT_HANDLERS.md`](CUSTOM_AGENT_HANDLERS.md). V1 contract: [`V1_SCOPE.md`](V1_SCOPE.md) §2.18.
 
 ## 5. Adding a New Integration or Connector
 **"I need to add a new ITSM sink (like Jira) or Slack webhook."**

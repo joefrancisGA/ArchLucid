@@ -188,7 +188,7 @@ Until **V1.1** surfaces in **§2.8** (integration events), **§2.14** (Teams / S
 
 **In scope for V1 GA** — pattern-level documentation for advanced integrators (buyer engineering or self-hosted operators) describing how to **add or register a custom agent handler** aligned with the product orchestration contracts: prerequisites, safety/authority posture, registration expectations, and versioning boundaries (*promoted 2026-05-12; supersedes prior V2-only deferral in [V1_DEFERRED.md §6h](V1_DEFERRED.md)*).
 
-- **What this is:** guides and clarity — walkthrough quality bar consistent with other engineering-facing docs in `docs/library/` (exact filename is owner-chosen; link from [Navigation.mdc](../../.cursor/rules/Navigation.mdc) / onboarding spine when published).
+- **What this is:** guides and clarity — canonical guide [`CUSTOM_AGENT_HANDLER_GUIDE.md`](CUSTOM_AGENT_HANDLER_GUIDE.md) (in-repo registration, safety posture, tests, non-goals); out-of-process boundary in [`CUSTOM_AGENT_HANDLERS.md`](CUSTOM_AGENT_HANDLERS.md). Linked from [`START_HERE.md`](../START_HERE.md), [`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md), and [`CONTRIBUTOR_CODE_MAP.md`](CONTRIBUTOR_CODE_MAP.md).
 - **What this is not:** no **mandatory** third-party plugin SDK, marketplace listing, or new public HTTP contracts unless separately promoted (**speculative ecosystem** row in §3 below remains unchanged).
 
 #### 2.19 Multi-cloud architecture **analysis** (AWS and GCP targets; Azure-hosted product)

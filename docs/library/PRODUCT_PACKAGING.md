@@ -214,6 +214,18 @@ A strong **Pilot** result should demonstrate:
 
 Use **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** for the scorecard and suggested pilot metrics.
 
+### Accelerator walkthroughs (V1 — buyer-recognizable)
+
+Packaged operator sequences that map **request → evidence → policy packs → findings → commit → sponsor export** using **shipped V1** surfaces only (no V1.1 connector required):
+
+| Accelerator | Walkthrough | Typical buyer question |
+|-------------|-------------|------------------------|
+| Azure SaaS readiness | [walkthroughs/AZURE_SAAS_READINESS_REVIEW.md](walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) | “Does our Azure SaaS posture hold up on WAF and security baseline themes?” |
+| AI governance | [walkthroughs/AI_GOVERNANCE_REVIEW.md](walkthroughs/AI_GOVERNANCE_REVIEW.md) | “Can we show Responsible AI governance on a real review package?” |
+| Healthcare claims (demo) | [walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md](walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) | “How does PHI-minimization policy land on findings before commit?” |
+
+**First-pilot spine (all accelerators):** [../runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Integration boundaries:** [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md).
+
 ---
 
 ## Layer B — Operate

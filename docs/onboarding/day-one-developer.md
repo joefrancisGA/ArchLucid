@@ -22,6 +22,7 @@
   `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` ([TEST_EXECUTION_MODEL.md](../library/TEST_EXECUTION_MODEL.md)).
 - [ ] **3. One contract** — Skim [API_CONTRACTS.md](../library/API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
 - [ ] **4. Small change** — Open a PR with a **tiny** change (doc typo, test name, log message) so you practice the full loop (build + Core tests + green CI).
+- [ ] **5. (Optional) Custom agent handler** — If you extend the authority pipeline, skim [`CUSTOM_AGENT_HANDLER_GUIDE.md`](../library/CUSTOM_AGENT_HANDLER_GUIDE.md) (in-repo) vs [`CUSTOM_AGENT_HANDLERS.md`](../library/CUSTOM_AGENT_HANDLERS.md) (out-of-process). Not required for week one.
 
 ---
 

@@ -27,6 +27,27 @@
 
 Use this table when answering procurement questions: implementation may exist early in the repo, but the buyer contract follows the window above unless `V1_SCOPE.md` is amended.
 
+### What to use today (V1 pilots)
+
+Use this table for **first-pilot and procurement “day one”** integrations. Do **not** plan a V1 go-live that **requires** a row marked **V1.1**.
+
+| Need today | Use (V1) | Concrete entry point |
+|------------|----------|----------------------|
+| Create and commit an architecture review | REST + operator UI + CLI | `POST /v1/architecture/request` · `/runs/new` · `archlucid run create` — [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| Azure subscription evidence (read-only, customer-run) | Azure extractor Tier 1 ZIP upload | [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md) · `POST /v1/azure-extractor/upload` |
+| CI/CD manifest delta on pull requests | GitHub Actions + Azure DevOps pipeline task | [`integrations/CICD_INTEGRATION.md`](../integrations/CICD_INTEGRATION.md) · ADO PR decoration (server-side) [`AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md`](../integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md) |
+| Identity provisioning | SCIM | [`integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md) |
+| Automation / scripts | REST OpenAPI + .NET client + API keys | [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) · [`SECURITY.md`](../library/contributor-reference/SECURITY.md) |
+| Procurement / trust artifacts | Procurement ZIP build script | `scripts/build_procurement_pack.ps1` · [`TRUST_CENTER.md`](TRUST_CENTER.md) |
+| Custom agent logic (advanced, in-repo) | Register `IAgentHandler` in host | [`CUSTOM_AGENT_HANDLER_GUIDE.md`](../library/CUSTOM_AGENT_HANDLER_GUIDE.md) |
+| Custom agent logic (isolated service) | HTTPS webhook `AgentResult` contract | [`CUSTOM_AGENT_HANDLERS.md`](../library/CUSTOM_AGENT_HANDLERS.md) |
+| Push finding → Jira / ServiceNow incident | **Not V1-required** | V1.1 first-party connectors · V1.1 recipes — §1 *V1.1 committed* below |
+| Chat-ops (Teams / Slack) notifications | **Not V1-required** | V1.1 §2.14 — [`CONNECTOR_READINESS_MATRIX.md`](../library/CONNECTOR_READINESS_MATRIX.md) |
+| Outbound CloudEvents / Service Bus fan-out | **Not V1-required** | V1.1 §2.8 — [`INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
+| Confluence page publish | **Not V1-required** | V1.1 §2.15 |
+
+**Accelerator walkthroughs (V1-only narratives):** [Azure SaaS readiness](../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) · [AI governance](../library/walkthroughs/AI_GOVERNANCE_REVIEW.md) · [Healthcare claims pilot](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md).
+
 ---
 
 ## 1. Available today (code) — V1 GA buyer contract

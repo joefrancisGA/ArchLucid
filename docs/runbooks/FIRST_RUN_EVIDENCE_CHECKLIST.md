@@ -6,7 +6,7 @@
 
 **Audience:** Buyer operators running the default V1 pilot path (Azure extractor Tier 1, no vendor-held cloud credentials).
 
-Use this checklist before a sponsor demo or design-partner kickoff. Each step links to deeper docs; this page stays under two printed pages.
+**Canonical operator path:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) sequences the same work with failure recovery and next-action guidance. Use this checklist before a sponsor demo or design-partner kickoff when you want a **printable table**; each step links to deeper docs; this page stays under two printed pages.
 
 | Step | Action | Success signal | Deeper doc |
 |------|--------|----------------|------------|

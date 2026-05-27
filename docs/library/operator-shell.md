@@ -32,7 +32,7 @@ Canonical buyer ↔ technical mapping (REST paths and type names unchanged): **[
 - **Architecture snapshot** / **Snapshot** ↔ manifest / `GoldenManifest`.
 - **Evidence graph** ↔ internal knowledge-graph projections; route **`/graph`** is unchanged.
 
-Onboarding pointers: **[`CORE_PILOT.md`](../CORE_PILOT.md)** (also mirrored at **[`library/CORE_PILOT.md`](CORE_PILOT.md)**), **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**. Keep wording aligned with **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** and **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**.
+Onboarding pointers: **[`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** (single V1 pilot path), **[`CORE_PILOT.md`](../CORE_PILOT.md)** (also mirrored at **[`library/CORE_PILOT.md`](CORE_PILOT.md)**), **[`PILOT_GUIDE.md`](PILOT_GUIDE.md)**. Keep wording aligned with **[`CONCEPT_VOCABULARY.md`](CONCEPT_VOCABULARY.md)** and **[UI Glossary V1](../go-to-market/UI_GLOSSARY_V1.md)**.
 
 ### In-product layer hints (UI)
 

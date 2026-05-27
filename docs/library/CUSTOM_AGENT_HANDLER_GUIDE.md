@@ -4,9 +4,11 @@
 
 This guide explains how an advanced integrator can author and register a custom agent handler in the ArchLucid orchestration pipeline.
 
-**Note:** This capability is strictly for in-repo / self-hosted extensions. It is not designed for a public plugin marketplace.
+**Note:** This capability is strictly for in-repo / self-hosted extensions. It is not designed for a public plugin marketplace, store listing, or downloadable plugin SDK.
 
 For out-of-process handlers (separate service, HTTP contract), see [`CUSTOM_AGENT_HANDLERS.md`](CUSTOM_AGENT_HANDLERS.md).
+
+**V1 scope contract:** [`V1_SCOPE.md`](V1_SCOPE.md) §2.18.
 
 ## 1. When to use in-repo vs out-of-process
 
@@ -75,7 +77,25 @@ The orchestrator resolves all registered `IAgentHandler` implementations and dis
 
 Configure via `AgentExecution:Mode` and related appsettings. Test both paths before promoting to production tenants.
 
-## 7. Versioning / upgrade checklist
+## 7. Tests and verification
+
+| Check | Command / location |
+|-------|-------------------|
+| Handler unit tests | Your handler assembly + `ArchLucid.AgentRuntime.Tests` patterns |
+| Host DI resolution | Boot API with handler registered — missing required handlers fail fast at startup |
+| Simulator smoke | Create → execute → commit on a dev tenant ([`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase C) |
+| Architecture boundary | `ArchLucid.Architecture.Tests` — Decisioning must not reference Notifications directly when adding side effects (use domain events) |
+
+Do not load third-party assemblies via `Assembly.LoadFrom` in the host — that path is explicitly out of scope (see [`CUSTOM_AGENT_HANDLERS.md`](CUSTOM_AGENT_HANDLERS.md)).
+
+## 8. Non-goals (do not imply these ship)
+
+- Public **plugin marketplace**, NuGet “agent packs,” or unsigned DLL drop-ins.
+- In-process loading of **customer-supplied binaries** without a forked host deployment.
+- **MCP** tool servers as a substitute for handler registration — MCP is a separate V1.1 membrane ([`V1_SCOPE.md`](V1_SCOPE.md) §2.8 / [`V1_DEFERRED.md`](V1_DEFERRED.md)).
+- Guaranteed **backward-compatible** handler contracts across major versions without reading [`BREAKING_CHANGES.md`](../BREAKING_CHANGES.md).
+
+## 9. Versioning / upgrade checklist
 
 When upgrading ArchLucid:
 
@@ -87,6 +107,9 @@ When upgrading ArchLucid:
 
 ## Related documents
 
-- [`START_HERE.md`](../START_HERE.md) — integrator spine
+- [`START_HERE.md`](../START_HERE.md) — integrator spine (contributor row links here)
+- [`onboarding/day-one-developer.md`](../onboarding/day-one-developer.md) — week-one developer onboarding
+- [`CONTRIBUTOR_CODE_MAP.md`](CONTRIBUTOR_CODE_MAP.md) — where to change agents and pipelines
 - [`CUSTOM_AGENT_HANDLERS.md`](CUSTOM_AGENT_HANDLERS.md) — out-of-process contract
 - [`API_CONTRACTS.md`](API_CONTRACTS.md) — HTTP surfaces handlers may call indirectly
+- [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) — V1 vs V1.1 integration boundaries

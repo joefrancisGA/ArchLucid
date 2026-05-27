@@ -152,6 +152,8 @@ On block: `409` with `#governance-pre-commit-blocked` and `blockingFindingIds` e
 
 ## Related docs
 
-- [`CORE_PILOT.md`](../CORE_PILOT.md) — four-step Core Pilot spine
+- [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) — single V1 first-pilot path
+- [`CORE_PILOT.md`](../../CORE_PILOT.md) — four-step Core Pilot spine
+- [`AZURE_SAAS_READINESS_REVIEW.md`](AZURE_SAAS_READINESS_REVIEW.md) · [`AI_GOVERNANCE_REVIEW.md`](AI_GOVERNANCE_REVIEW.md) — sibling accelerators
 - [`docs/samples/policy-packs/README.md`](../samples/policy-packs/README.md) — sample pack JSON shapes
 - [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) — full evaluator depth
