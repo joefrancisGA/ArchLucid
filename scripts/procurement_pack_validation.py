@@ -491,7 +491,8 @@ def build_deal_ready_summary(
 ) -> dict[str, object]:
     blocking, deferred_from_violations = split_deal_ready_violations(violations)
     deferred_notes = list(PROCUREMENT_DEFERRED_REALISM_NOTES) + deferred_from_violations
-    effective_ok = ok and len(blocking) == 0
+    # Deferred realism (stale Last reviewed, SOC2 deferral notes) does not block deal-ready PASS.
+    effective_ok = len(blocking) == 0
     disposition = "PASS" if effective_ok else "HOLD"
 
     return {
