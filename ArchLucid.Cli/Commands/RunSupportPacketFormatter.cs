@@ -78,15 +78,15 @@ internal static class RunSupportPacketFormatter
         return status switch
         {
             ArchitectureRunStatus.ReadyForCommit =>
-                "Ready for commit — run `archlucid commit <runId>` (or use the operator UI commit control).",
+                "Ready for commit — run `archlucid commit <runId>` (legacy coordinator path) or confirm authority pipeline status via `GET /v1/architecture/run/{runId}` before retrying.",
             ArchitectureRunStatus.WaitingForResults or ArchitectureRunStatus.TasksGenerated =>
-                "Awaiting agent results — use `archlucid status <runId>` and submit any pending tasks.",
+                "Legacy coordinator path — submit pending agent results; do not call execute if authority pipeline already committed (see API_CONTRACTS § authority vs coordinator).",
             ArchitectureRunStatus.Failed =>
                 "Run failed — inspect operator UI / API logs; run `archlucid doctor` for host readiness.",
             ArchitectureRunStatus.Retrying =>
                 "Retry in progress — poll `archlucid status <runId>` until status stabilizes.",
             _ =>
-                "Continue the pipeline — create tasks, execute agents, then commit when `ReadyForCommit`."
+                "Inspect `GET /v1/architecture/run/{runId}` first — authority pipeline runs on SQL after create; execute/commit only when legacy coordinator tasks are required (see ARCHITECTURE_FLOWS Flow A1)."
         };
     }
 }

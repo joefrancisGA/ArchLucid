@@ -58,7 +58,10 @@ Validation commands:
 ```powershell
 archlucid config check
 archlucid config lint --simulate-production --hosting-advisor
+archlucid config lint --profile production-like-hosted-pilot --json-out config-lint-production-like-hosted-pilot.json --markdown-out config-lint-production-like-hosted-pilot.md
 ```
+
+**Production-like hosted pilot profile** (`--profile production-like-hosted-pilot`) implies `--simulate-production`, `--strict-staging`, and `--hosting-advisor`. It emits structured JSON/Markdown with **PASS/HOLD** disposition, a profile check map (SQL via companion preflight, auth posture, telemetry export, LLM redaction, quality-gate and billing rows via first-pilot proof), and stable blocking vs advisory findings. `scripts/collect-first-pilot-proof.ps1 -ProductionLikeHostedPilot` or `-SponsorHandoff` runs this profile and **BLOCK**s sponsor handoff on HOLD.
 
 For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md). Never paste raw connection strings, API keys, SAML secrets, or Key Vault secret values into evidence bundles.
 

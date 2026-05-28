@@ -6,19 +6,25 @@ Each recipe under [smoke/](smoke/) is written so an operator can execute it **wi
 
 **Catalog entry point:** [go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) · **Readiness matrix (status, tests, code):** [library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md)
 
-**Scope contract:** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 (Azure extractor) is **V1**; **§2.13–§2.15** first-party ITSM / Slack / Confluence are **V1.1** — smoke here validates those surfaces when implemented.
+**Scope contract:** [library/V1_SCOPE.md](../library/V1_SCOPE.md) §2.16 (Azure extractor) is **V1**; **§2.13–§2.15** first-party ITSM / Slack / Confluence are **V1.1** — smoke in the ITSM section below validates those surfaces when implemented. **ITSM/chat/doc connectors are not required for V1 first-pilot success.**
 
 **Customer-owned bridges** (Logic Apps / Power Automate), **canonical OpenAPI (`/openapi/v1.json`)**, and **webhook configuration** entry tables: [integrations/recipes/README.md](recipes/README.md).
 
-## Evidence types (legend)
+## V1 GA buyer-contract surfaces — smoke pointers
 
-| Label | Meaning |
-|-------|---------|
-| **Automated (mocked)** | Unit/Core tests with mocked HTTP or webhook posters — safe for CI; **no** live vendor calls. |
-| **Automated (API host)** | HTTP tests against a controlled API fixture (e.g. in-memory / test DB) — still **not** a substitute for your tenant’s live ITSM. |
-| **Manual / live-provider** | Operator or pilot validates against **real Jira, ServiceNow, Confluence, or Slack** — required for end-to-end vendor proof; **not** fully reproducible in OSS CI. |
+These shipped surfaces support V1 pilots and workflow handoff. They are **not** the same as V1.1 ITSM/chat connectors below.
 
-## V1 first-party connectors — smoke doc ↔ tests
+| Surface | Smoke / runbook pointer | Primary automated tests | Notes |
+|---------|-------------------------|-------------------------|-------|
+| **REST / OpenAPI** | [library/RELEASE_SMOKE.md](../library/RELEASE_SMOKE.md) · `GET /openapi/v1.json` | `ArchLucid.Api.Tests/OpenApiContractSnapshotTests.cs` | Contract: [API_CONTRACTS.md](../library/API_CONTRACTS.md) |
+| **CLI** | [library/CLI_USAGE.md](../library/CLI_USAGE.md) · `archlucid pilot preflight` | `ArchLucid.Cli.Tests/CliSmokeTests.cs` | Includes `run-support-packet`, `first-value-report` |
+| **SCIM 2.0** | [SCIM_PROVISIONING.md](SCIM_PROVISIONING.md) | `ArchLucid.Api.Tests/Scim/ScimUsersPostEntraProvisioningIntegrationTests.cs` | IdP → ArchLucid provisioning |
+| **GitHub** (manifest delta) | [GITHUB_PR_MANIFEST_DELTA.md](GITHUB_PR_MANIFEST_DELTA.md), [GITHUB_ACTION_MANIFEST_DELTA.md](GITHUB_ACTION_MANIFEST_DELTA.md) | `ArchLucid.Integrations.AzureDevOps.Tests/AzureDevOpsRequestBodyParityWithPipelineTaskTests.cs` | Manual attach runbook: [V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
+| **Azure DevOps** (pipeline task) | [AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md](AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md) | `ArchLucid.Integrations.AzureDevOps.Tests/AzureDevOpsRequestBodyParityWithPipelineTaskTests.cs` | Same workflow handoff runbook |
+| **Azure extractor ZIP** | [smoke/CONNECTOR_SMOKE_AZURE_EXTRACTOR.md](smoke/CONNECTOR_SMOKE_AZURE_EXTRACTOR.md) | `ArchLucid.Api.Tests/AzureExtractorUploadEndpointTests.cs` | Customer-run collector + upload |
+| **Procurement pack ZIP** | [../go-to-market/PROCUREMENT_PACK_INDEX.md](../go-to-market/PROCUREMENT_PACK_INDEX.md) | `scripts/ci/tests/test_procurement_pack_validation.py` | `python scripts/build_procurement_pack.py --dry-run --deal-ready` |
+
+## V1.1 first-party connectors — smoke doc ↔ tests
 
 | Connector | Smoke recipe | Primary automated tests (repository paths) | Evidence type for those tests |
 |-----------|--------------|--------------------------------------------|-------------------------------|
@@ -29,7 +35,15 @@ Each recipe under [smoke/](smoke/) is written so an operator can execute it **wi
 
 **API controllers (reference only):** `ArchLucid.Api/Controllers/Integrations/ItsmOutboundIssuesController.cs`, `ItsmInboundWebhooksController.cs`, `ArchLucid.Api/Controllers/Admin/ConfluencePublishingAdminController.cs`, `ArchLucid.Api/Controllers/Alerts/AlertRoutingSubscriptionsController.cs`, `ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs`, `ArchLucid.Api/Controllers/Integrations/WebhookConnectionsController.cs`.
 
-## Related — Azure extractor smoke
+## Evidence types (legend)
+
+| Label | Meaning |
+|-------|---------|
+| **Automated (mocked)** | Unit/Core tests with mocked HTTP or webhook posters — safe for CI; **no** live vendor calls. |
+| **Automated (API host)** | HTTP tests against a controlled API fixture (e.g. in-memory / test DB) — still **not** a substitute for your tenant’s live ITSM. |
+| **Manual / live-provider** | Operator or pilot validates against **real Jira, ServiceNow, Confluence, or Slack** — required for end-to-end vendor proof; **not** fully reproducible in OSS CI. |
+
+## Related — Azure extractor smoke (detail)
 
 | Connector | Smoke recipe | Primary automated tests | Evidence type |
 |-----------|--------------|-------------------------|---------------|

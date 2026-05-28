@@ -2,6 +2,8 @@
 
 # Buyer job — Azure SaaS readiness review
 
+**Classification:** **Specialty** template (optional). Use when the buyer’s job is Azure SaaS production readiness — not as a mandatory pre-first-value checklist. **Core path:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
+
 **Audience:** Cloud architects, platform engineers, and pilot sponsors evaluating Azure-hosted SaaS posture before production.
 
 **Full operator walkthrough:** [`../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md`](../../library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md)
@@ -90,6 +92,12 @@ Spine reference: [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPE
 ## Sponsor outcome
 
 A **board- or architecture-review-ready package** that ties Azure posture evidence to actionable findings and a committed manifest — without claiming third-party certification. Align narrative with [`EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md).
+
+---
+
+## How to measure success
+
+Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): committed manifest present, top findings traceable to Azure extractor or labeled demo evidence, sponsor disposition **SEND** or documented HOLD, and ROI basis labels that do not present demo-derived hours as buyer outcomes.
 
 ---
 

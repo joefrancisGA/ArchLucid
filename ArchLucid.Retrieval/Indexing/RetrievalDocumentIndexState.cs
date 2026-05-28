@@ -15,6 +15,12 @@ public sealed class RetrievalDocumentIndexState
         set;
     } = string.Empty;
 
+    public string CorpusKind
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public DateTimeOffset LastIndexedUtc
     {
         get;

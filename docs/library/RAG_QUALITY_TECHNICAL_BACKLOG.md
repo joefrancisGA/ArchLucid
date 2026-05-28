@@ -221,6 +221,8 @@
 - Integration test: Compliance run persists query text + chunk IDs + trace correlation.
 - Architecture test or handler audit: no agent using retrieval skips grounding writer after this ships.
 
+**Status (2026-05-28):** **Shipped** — forensic columns on `dbo.RetrievalGroundingTrace`, builder enrichment, Compliance grounding writer, architecture guard for retrieval-using agent handlers.
+
 **Replay note:** Enriched trace rows still do **not** put retrieved chunk text into manifest canonical fingerprint unless a future ADR promotes content-hash snapshotting (**RAG-V1-000** replay note stands).
 
 **Refs:** Replay / provenance completeness audit (2026-05-26); [`AGENT_TRACE_FORENSICS.md`](AGENT_TRACE_FORENSICS.md).
@@ -251,6 +253,8 @@
 - Integration test: after simulated deployment change, startup triggers re-index or fails closed with actionable error (not silent zero scores).
 - No mixed-dimension chunks served in top-K for tenant-bound queries.
 
+**Status (2026-05-28):** **Shipped** — `EmbeddingModelId` / `EmbeddingDimension` on chunks, dimension mismatch metric, startup drift validator.
+
 **Refs:** [ADR 0036](../architecture/adrs/0036-graph-rag-embedding-strategy.md); `AzureOpenAiEmbeddingClient.cs`; `RetrievalChunk.cs`.
 
 ---
@@ -279,6 +283,8 @@
 - Integration test: simulated outbox stall surfaces stale freshness in health/readiness probe.
 - Startup indexer failure increments `archlucid.retrieval.indexer_failure_total` (or equivalent) — not swallowed silently.
 
+**Status (2026-05-28):** **Shipped** — ContentHash skip, chunking fingerprint coordination, per-corpus freshness summaries, startup indexer failure metric, `retrieval_index_freshness` health check.
+
 **Refs:** `RetrievalIndexingService.cs`; `ExemplarCorpusStartupIndexerHostedService.cs`; ADR 0004 outbox.
 
 ---
@@ -305,6 +311,8 @@
 
 - Unit test: changing `ChunkingOptions` invalidates and re-indexes document; old chunk IDs not returned in search.
 - Architecture test or doc: chunker defaults are not silent magic numbers in method signatures.
+
+**Status (2026-05-28):** **Shipped** — chunking fingerprint on chunks, invalidation on fingerprint change, options-backed chunkers.
 
 **Refs:** `RetrievalIndexingService.SelectChunker()`; `Chunking/*.cs`.
 

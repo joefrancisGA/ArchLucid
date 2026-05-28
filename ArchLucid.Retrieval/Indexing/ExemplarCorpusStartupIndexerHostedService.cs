@@ -52,6 +52,8 @@ public sealed class ExemplarCorpusStartupIndexerHostedService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            RetrievalCorpusStartupIndexerTelemetry.RecordFailure(nameof(Models.CorpusKind.ReferenceArchitecture));
+
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Exemplar corpus startup indexing failed; retrieval will continue fail-open.");
         }

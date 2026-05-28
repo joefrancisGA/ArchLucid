@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { SponsorArtifactEvidenceBadge } from "@/components/SponsorArtifactEvidenceBadge";
 import { formatUsd } from "@/components/BeforeAfterDelta/formatDelta";
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -327,6 +328,15 @@ export function EmailRunToSponsorBanner({
         </a>
         .{buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for sponsor-ready collateral."}
       </p>
+
+      {proofGate.status === "ok" ? (
+        <div className="mt-3">
+          <SponsorArtifactEvidenceBadge
+            isDemoTenant={proofGate.payload.isDemoTenant}
+            proofPackageCompleteness={proofGate.payload.proofPackageCompleteness}
+          />
+        </div>
+      ) : null}
 
       {blockSponsorPdfForRoi ? (
         <div

@@ -332,8 +332,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ArchLucid.Core.Alerts.Tuning.IThresholdRecommendationService, ThresholdRecommendationService>();
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
 
+        services.AddScoped<ArchLucid.Core.Governance.PolicyPacks.IPolicyPackResolver, PolicyPackResolver>();
         services.AddScoped<IPolicyPackResolver, PolicyPackResolver>();
         services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
+        services.AddScoped<ArchLucid.Core.Governance.Resolution.IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
         services.AddScoped<IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
         services.AddScoped<EffectiveGovernanceLoader>();
         services.AddScoped<ArchLucid.Core.Persistence.Ports.IEffectiveGovernanceLoader>(static sp =>

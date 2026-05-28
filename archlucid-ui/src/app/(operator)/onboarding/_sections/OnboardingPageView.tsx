@@ -45,7 +45,7 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
         />
         <HelpLink
           docPath="/docs/library/walkthroughs/README.md"
-          label="Accelerator packs — Azure SaaS, AI governance, healthcare (new tab)"
+          label="Specialty templates (optional, after first commit) — Azure SaaS, AI governance, healthcare (new tab)"
         />
       </div>
       <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} />

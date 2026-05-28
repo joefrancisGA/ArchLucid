@@ -16,9 +16,11 @@ import {
 } from "@/lib/first-pilot-readiness-cockpit";
 import {
   buildFirstPilotOperatingRailSignals,
+  readFirstPilotDeferredBuyerRequirements,
   readFirstPilotEvidenceAcknowledged,
   type FirstPilotOperatingRailSignals,
 } from "@/lib/first-pilot-operating-rail-status";
+import { mapReadinessStatusToOperatorLabel } from "@/lib/first-pilot-operator-status-vocabulary";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
@@ -46,21 +48,7 @@ function statusClass(status: FirstPilotReadinessStatus): string {
 }
 
 function statusLabel(status: FirstPilotReadinessStatus): string {
-  switch (status) {
-    case "ready":
-      return "Ready";
-    case "attention":
-      return "Needs action";
-    case "blocked":
-      return "Blocked";
-    case "unknown":
-      return "Unknown";
-    default: {
-      const exhaustive: never = status;
-
-      return exhaustive;
-    }
-  }
+  return mapReadinessStatusToOperatorLabel(status);
 }
 
 function firstBlockingRow(rows: readonly FirstPilotReadinessRow[]): FirstPilotReadinessRow | null {
@@ -75,6 +63,8 @@ function sponsorDispositionClass(disposition: FirstPilotCommandCenterPhaseSummar
       return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
     case "readiness-only":
       return "border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-200";
+    case "deferred":
+      return "border-violet-200 bg-violet-50 text-violet-950 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-100";
     default: {
       const exhaustive: never = disposition;
 
@@ -91,6 +81,8 @@ function sponsorDispositionLabel(disposition: FirstPilotCommandCenterPhaseSummar
       return "Sponsor hold";
     case "readiness-only":
       return "Readiness only";
+    case "deferred":
+      return "Deferred scope";
     default: {
       const exhaustive: never = disposition;
 
@@ -196,6 +188,7 @@ export function FirstPilotReadinessCockpit() {
         baselinesEntered,
         canExecute,
         hasBlockingRow: blocker !== null,
+        deferredBuyerRequirements: readFirstPilotDeferredBuyerRequirements(),
       }),
     [signals, baselinesEntered, canExecute, blocker],
   );
@@ -222,12 +215,12 @@ export function FirstPilotReadinessCockpit() {
             First-pilot operator command center
           </h2>
           <p className="m-0 mt-1 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-            One place to see the next blocking step: platform, authority, evidence, review pipeline, ROI baselines,
-            proof collection, and sponsor send/hold posture.
+            One place to see the next blocking step: platform, authority, evidence, architecture review pipeline, ROI
+            baselines, proof collection, and sponsor SEND/HOLD/DEFERRED posture.
           </p>
         </div>
         <Link href={commandCenter.href} className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
-          Next: {commandCenter.cta}
+          Next action: {commandCenter.cta}
         </Link>
       </div>
 

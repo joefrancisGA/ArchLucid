@@ -44,7 +44,7 @@ On the operator Home page, **Start with sample review** opens the curated Claims
 **CLI:** `archlucid run` (reads `archlucid.json` + `inputs/brief.md` — CLI verb unchanged).
 
 ### Step 2 — Execute the review
-After creation, the coordinator fills context snapshots and authority steps automatically. 
+After creation on SQL hosts, the **authority pipeline** runs server-side (ingestion → graph → findings → decisioning → artifacts). You do **not** need a separate coordinator **execute** loop unless your integration explicitly uses legacy external agent tasks — see [`library/ARCHITECTURE_FLOWS.md`](../library/ARCHITECTURE_FLOWS.md) Flow A1 and [`library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) § authority vs coordinator. 
 **Check status:** Operator UI → **Reviews** (or **Runs** in legacy labels) → open the row → Pipeline timeline.
 
 ### Step 3 — Commit the manifest

@@ -2,6 +2,8 @@
 
 # Buyer job — AI governance review
 
+**Classification:** **Specialty** template (optional). Use when the buyer’s job is Responsible AI oversight — not as a mandatory pre-first-value checklist. **Core path:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
+
 **Audience:** Risk, compliance, and architecture leaders who need a **Responsible AI** review package for internal or sponsor audiences.
 
 **Full operator walkthrough:** [`../../library/walkthroughs/AI_GOVERNANCE_REVIEW.md`](../../library/walkthroughs/AI_GOVERNANCE_REVIEW.md)
@@ -92,6 +94,12 @@ Spine reference: [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPE
 ## Sponsor outcome
 
 A **defensible Responsible AI narrative** anchored in a committed review package — showing oversight themes, findings, and governance status — without claiming regulatory certification. Cross-check claims with [`EXECUTIVE_SPONSOR_BRIEF.md`](../EXECUTIVE_SPONSOR_BRIEF.md) and [`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md).
+
+---
+
+## How to measure success
+
+Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `ai-gov-*` findings dispositioned, pre-commit gate status recorded when configured, sponsor export bundle attached, and ROI basis labels explicit (no mock production KPIs on live tenant paths).
 
 ---
 

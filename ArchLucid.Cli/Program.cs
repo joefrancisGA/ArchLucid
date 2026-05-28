@@ -537,10 +537,10 @@ public static class Program
                             Console.Error,
                             CliExitCode.UsageError,
                             "usage",
-                            "Expected: archlucid config check [--no-api] | archlucid config lint [--simulate-production] [--hosting-advisor] | archlucid config bootstrap [--out <path>] [--force]");
+                            "Expected: archlucid config check [--no-api] | archlucid config lint [--simulate-production] [--hosting-advisor] [--profile production-like-hosted-pilot] [--json] [--json-out <path>] [--markdown-out <path>] | archlucid config bootstrap [--out <path>] [--force]");
                     else
                         Console.WriteLine(
-                            "Usage: archlucid config check [--no-api] · archlucid config lint [--simulate-production] [--hosting-advisor] · archlucid config bootstrap [--out <path>] [--force]");
+                            "Usage: archlucid config check [--no-api] · archlucid config lint [--simulate-production] [--hosting-advisor] [--profile production-like-hosted-pilot] [--json] [--json-out <path>] [--markdown-out <path>] · archlucid config bootstrap [--out <path>] [--force]");
 
                     return CliExitCode.UsageError;
 

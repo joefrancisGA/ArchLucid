@@ -56,6 +56,16 @@ Rollback: revert tenant override (`DELETE …/agent-output-quality-gate-mode`) o
 - Say: *"PilotStrict mode blocked output that did not meet our evidence and faithfulness floors."*
 - Do not say: *"The AI was wrong"* without citing the specific gate (structural, semantic, citation coverage, or faithfulness ratio).
 
+## First-pilot proof collection
+
+`scripts/collect-first-pilot-evidence.ps1` stamps buyer-safe quality posture into `pilot-observability-summary.json`:
+
+- `qualityGateMode`, `qualityGateEnforceOnReject`, `qualityGateBlockRunOnReject`
+- `pilotStrictMinAgentResultFaithfulnessSupportRatio`
+- `qualityGateDisposition` and `unresolvedQualitySignalsPresent`
+
+In `-SponsorHandoff` mode, `scripts/collect-first-pilot-proof.ps1` emits **HOLD** when PilotStrict signals are unresolved or violate sponsor evidence. The Markdown summary names the gate that caused HOLD.
+
 ## Related
 
 - [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) — quality gate rejection path

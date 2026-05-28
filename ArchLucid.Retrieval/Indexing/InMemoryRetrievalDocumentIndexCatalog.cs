@@ -32,8 +32,26 @@ public sealed class InMemoryRetrievalDocumentIndexCatalog : IRetrievalDocumentIn
             {
                 ContentHash = document.ContentHash ?? string.Empty,
                 ChunkingFingerprint = chunkingFingerprint,
+                CorpusKind = document.CorpusKind.ToString(),
                 LastIndexedUtc = indexedUtc,
             };
+        }
+    }
+
+    public IReadOnlyList<RetrievalCorpusFreshnessSummary> GetCorpusFreshnessSummaries()
+    {
+        lock (_sync)
+        {
+            return _states.Values
+                .GroupBy(static state => state.CorpusKind, StringComparer.OrdinalIgnoreCase)
+                .Select(static group => new RetrievalCorpusFreshnessSummary
+                {
+                    CorpusKind = string.IsNullOrWhiteSpace(group.Key) ? "Unknown" : group.Key,
+                    DocumentCount = group.Count(),
+                    LastIndexedUtc = group.Max(static state => state.LastIndexedUtc),
+                })
+                .OrderBy(static summary => summary.CorpusKind, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
     }
 

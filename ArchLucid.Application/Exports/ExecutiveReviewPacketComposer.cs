@@ -2,11 +2,14 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Application.Exports;
 
@@ -39,10 +42,78 @@ public static class ExecutiveReviewPacketComposer
         AppendRunSummarySection(sb, detail, executiveSummary, topFindingTitles);
         AppendPortfolioSignalsSection(sb, portfolioSignals);
         AppendRoiBasisSection(sb, roiSummary);
+        AppendSponsorArtifactEvidenceBadgeSection(sb, roiSummary);
         AppendDispositionRoiBasisSection(sb, roiSummary);
         AppendRealizedValueSection(sb, roiSummary);
 
         return sb.ToString().TrimEnd() + Environment.NewLine;
+    }
+
+    private static void AppendSponsorArtifactEvidenceBadgeSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)
+    {
+        SponsorArtifactEvidenceBadgeSummary badges = SponsorArtifactEvidenceBadgeMarkdownFormatter.Resolve(
+            new PilotRunDeltas(),
+            new ProofPackageCompletenessResponse(),
+            CreateEmptyValueReportSnapshot(),
+            roiSummary.SavingsPricingBasis,
+            roiSummary.CostEvidenceFreshnessStatus);
+
+        sb.AppendLine();
+        sb.AppendLine("## Sponsor artifact evidence badges");
+        sb.AppendLine();
+        sb.AppendLine(
+            $"- **Evidence source:** **{badges.SourceLabel}** (`{badges.SourceToken}`)");
+        sb.AppendLine(
+            $"- **Evidence freshness:** **{badges.FreshnessLabel}** (`{badges.FreshnessToken}`)");
+
+        if (badges.WarnBeforeSponsorSend)
+        {
+            sb.AppendLine();
+            sb.AppendLine(
+                "> **HOLD posture:** Stale, missing, demo-derived, or heuristic-only evidence must **not** be presented as current customer proof.");
+        }
+    }
+
+    private static ValueReportSnapshot CreateEmptyValueReportSnapshot()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        return new ValueReportSnapshot(
+            TenantId: tenantId,
+            WorkspaceId: workspaceId,
+            ProjectId: projectId,
+            PeriodFromUtc: DateTimeOffset.MinValue,
+            PeriodToUtc: DateTimeOffset.MinValue,
+            RunStatusRows: [],
+            RunsCompletedCount: 0,
+            ManifestsCommittedCount: 0,
+            GovernanceEventsHandledCount: 0,
+            DriftAlertEventsCaughtCount: 0,
+            EstimatedArchitectHoursSavedFromManifests: 0m,
+            EstimatedArchitectHoursSavedFromGovernanceEvents: 0m,
+            EstimatedArchitectHoursSavedFromDriftEvents: 0m,
+            EstimatedTotalArchitectHoursSaved: 0m,
+            EstimatedLlmCostForWindowUsd: 0m,
+            EstimatedLlmCostMethodologyNote: "",
+            AnnualizedHoursValueUsd: 0m,
+            AnnualizedLlmCostUsd: 0m,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 0m,
+            NetAnnualizedValueVersusRoiBaselineUsd: 0m,
+            RoiAnnualizedPercentVersusRoiBaseline: 0m,
+            TenantBaselineReviewCycleHours: 0m,
+            TenantBaselineReviewCycleSource: null,
+            TenantBaselineReviewCycleCapturedUtc: null,
+            MeasuredAverageReviewCycleHoursForWindow: null,
+            MeasuredReviewCycleSampleSize: 0,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.NoMeasurementYet,
+            ReviewCycleHoursDelta: null,
+            ReviewCycleHoursDeltaPercent: null,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null);
     }
 
     private static void AppendDispositionRoiBasisSection(StringBuilder sb, ExecutiveRoiSummaryResponse roiSummary)

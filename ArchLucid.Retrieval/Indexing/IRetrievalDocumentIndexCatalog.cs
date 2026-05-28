@@ -10,4 +10,6 @@ public interface IRetrievalDocumentIndexCatalog
     void RecordIndexed(RetrievalDocument document, string chunkingFingerprint, DateTimeOffset indexedUtc);
 
     void Remove(string documentId);
+
+    IReadOnlyList<RetrievalCorpusFreshnessSummary> GetCorpusFreshnessSummaries();
 }

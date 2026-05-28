@@ -54,17 +54,19 @@ foreach ($row in $Checks) {
 }
 
 $payload = [ordered]@{
-    formatVersion = '1.0'
+    formatVersion = '1.1'
     generatedUtc  = $timestamp
     verdict       = $Verdict
     baseUrl       = $BaseUrl
     profile       = $Profile
+    evidenceKind  = if ($Profile -eq 'LiveUiSql') { 'live-ui-sql-parity' } else { 'release-smoke' }
     checks        = $normalizedChecks
     notProven     = @(
         'Full merge-blocking SQL regression (run in CI)',
         'Third-party pen test or CPA SOC 2 attestation',
         'Production customer tenant isolation at scale'
     )
+    notMockPlaywright = ($Profile -eq 'LiveUiSql')
 }
 
 $jsonDir = Split-Path -Parent $ResultJsonOut
@@ -93,6 +95,18 @@ Generated (UTC): **$timestamp**
 | Verdict | **$Verdict** |
 | Base URL | $BaseUrl |
 | Profile | $(if ([string]::IsNullOrWhiteSpace($Profile)) { '(default)' } else { $Profile }) |
+| Evidence kind | $(if ($Profile -eq 'LiveUiSql') { 'live-ui-sql-parity' } else { 'release-smoke' }) |
+"@
+
+    if ($Profile -eq 'LiveUiSql') {
+        $md += @"
+
+> **Not mock Playwright:** This profile exercises live-api browser specs against the smoke-started API and SQL — distinct from mock Playwright lanes.
+
+"@
+    }
+
+    $md += @"
 
 | Check | Result | Detail |
 | --- | --- | --- |

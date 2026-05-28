@@ -227,4 +227,53 @@ public sealed class RetrievalIndexingServiceTests
 
         embedCalls.Should().Be(2);
     }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_records_corpus_freshness_summaries()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = new(
+            new SimpleTextChunker(),
+            new PolicyPackChunker(),
+            new PriorManifestChunker(),
+            embeddings.Object,
+            identity.Object,
+            new InMemoryVectorIndex(),
+            catalog,
+            caps.Object);
+
+        RetrievalDocument doc = new()
+        {
+            DocumentId = "freshness-doc",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.PolicyPack,
+            Content = "policy pack freshness probe",
+            ContentHash = "HASH-FRESH",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+
+        IReadOnlyList<RetrievalCorpusFreshnessSummary> summaries = catalog.GetCorpusFreshnessSummaries();
+
+        summaries.Should().ContainSingle();
+        summaries[0].CorpusKind.Should().Be(nameof(CorpusKind.PolicyPack));
+        summaries[0].DocumentCount.Should().Be(1);
+        summaries[0].LastIndexedUtc.Should().NotBeNull();
+    }
 }

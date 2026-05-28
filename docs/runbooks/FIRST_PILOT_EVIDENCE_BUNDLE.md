@@ -14,7 +14,9 @@ After Phase C step **Commit** in [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OP
 
 ## One-command proof pipeline
 
-Use this before and after the first committed review. Without `-RunId`, the pipeline produces a readiness-only go/no-go report and records the missing run id as a **WARN**, not a blocking failure. For external sponsor handoff, pass `-SponsorHandoff`; in that mode a missing `-RunId` is a **BLOCK** and the summary emits a `sponsorPacketDisposition` of `SEND` or `HOLD`.
+Use this before and after the first committed review. Without `-RunId`, the pipeline produces a readiness-only go/no-go report and records the missing run id as a **WARN**, not a blocking failure. For external sponsor handoff, pass `-SponsorHandoff`; in that mode a missing `-RunId` is a **BLOCK** and the summary emits a `sponsorPacketDisposition` of `SEND`, `HOLD`, or `DEFERRED_SCOPE`.
+
+Optional `-DeferredBuyerRequirement` values document buyer requirements that are explicitly V1.1/V2/(B) (for example `SOC 2 CPA`, `live marketplace checkout`). When V1 proof passes but deferred buyer requirements remain, disposition is `DEFERRED_SCOPE` rather than `SEND`.
 
 ```powershell
 ./scripts/collect-first-pilot-proof.ps1 `
@@ -25,7 +27,70 @@ Use this before and after the first committed review. Without `-RunId`, the pipe
   -OutputDirectory artifacts/first-pilot-proof
 ```
 
-The pipeline emits `go-no-go-summary.md`, `go-no-go-summary.json`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `procurement-deal-ready-check.txt`, data-consistency readiness output, and the committed-run evidence bundle when `-RunId` is supplied. Triage IDs in the summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
+The pipeline emits `go-no-go-summary.md`, `go-no-go-summary.json`, `quote-to-proof-packet.md`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `procurement-deal-ready-check.txt`, data-consistency readiness output, and the committed-run evidence bundle when `-RunId` is supplied. Triage IDs in the summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
+
+## GitHub / Azure DevOps workflow handoff (optional)
+
+After proof collection, attach buyer-safe artifacts to an existing PR, issue, or Azure DevOps work item using [`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md). This path does **not** require Jira, ServiceNow, Confluence, Slack, Teams, CloudEvents, or MCP (V1.1).
+
+## Sponsor handoff disposition rules
+
+| Disposition | When |
+| --- | --- |
+| `READINESS_ONLY` | Default without `-SponsorHandoff` |
+| `SEND` | `-SponsorHandoff`, no blocking findings, and no deferred buyer requirements recorded |
+| `HOLD` | Any blocking finding: missing `RunId`, unresolved PilotStrict signals, unsafe ROI basis, data-consistency HOLD, stale procurement pack, route/tier/policy/nav drift, or other BLOCK rows |
+| `DEFERRED_SCOPE` | V1 proof passes (`blockCount=0`) but `-DeferredBuyerRequirement` or procurement output documents V1.1/V2/(B) buyer requirements such as SOC 2 CPA, public reference customer, live marketplace checkout, MCP, or first-party ITSM/chat/doc connectors |
+
+`go-no-go-summary.json` includes `blockingReasons`, `deferredScopeReasons`, `dataConsistencyStatus`, `roiBasisStatus`, `roiSponsorSafe`, and `aiQualityProof` when a committed run is collected.
+
+## AI Quality Proof
+
+When `-RunId` is supplied, `go-no-go-summary.md` includes an **AI Quality Proof** section and `go-no-go-summary.json` includes `aiQualityProof`. Signals are pulled from `pilot-observability-summary.json` and optional `retrieval-grounding.json` in the committed-run bundle:
+
+| Signal | Meaning |
+| --- | --- |
+| PilotStrict disposition | Quality gate posture for sponsor evidence |
+| Retrieval grounding trace present | Run attests redaction-safe retrieval traces |
+| Citation coverage (mean) | Mean citation coverage across grounding rows |
+| LLM call count resolved | Real vs simulator LLM posture is known |
+| Raw prompt/completion included | Must remain **false** for buyer-safe handoff |
+| Secrets included | Must remain **false** for buyer-safe handoff |
+
+Missing signals are labeled **WARN** or **BLOCK** (sponsor handoff) — the pipeline does not invent pass values.
+
+## Retrieval IR evidence (offline)
+
+When `docs/quality/retrieval-ir-report.md` exists (from `scripts/ci/eval_retrieval_ir.py`), the proof pipeline copies it into the proof folder as `retrieval-ir-report.md` plus optional `retrieval-ir-summary.json`. This measures golden-fixture recall@5/MRR — distinct from live run citation faithfulness.
+
+## Live UI-SQL parity (optional)
+
+Attach release-candidate browser parity with `-LiveUiSqlResultPath` or pre-generate `artifacts/release-smoke-live-ui-sql-result.json` via:
+
+```powershell
+./scripts/release-smoke-live-ui-sql.ps1 -ResultOut artifacts/release-smoke-live-ui-sql-result.json
+```
+
+Proof copies `live-ui-sql-parity-result.json` (+ Markdown companion). This is **live-api** browser parity against the smoke-started API — not mock Playwright.
+
+## Support summary
+
+Committed-run evidence bundles include `support-summary.md` — a one-page buyer/operator index with base URL, version, health status, run/manifest ids, artifact manifest checksum, correlation-id guidance, and buyer-safe vs internal-only file notes.
+
+## Sponsor artifact evidence badges
+
+Sponsor-facing exports and the review-detail sponsor banner surface **evidence source** and **freshness** badges:
+
+| Badge | Meaning |
+| --- | --- |
+| Buyer-provided | Tenant-captured ROI baseline posture |
+| Uploaded actual/amortized | Extractor or uploaded cost evidence drives pricing |
+| Azure Retail catalog | Retail/EA-adjusted list pricing |
+| Heuristic fallback | Conservative estimates — review before dollar claims |
+| Demo-derived | Sample/demo tenant — not externally publishable |
+| Fresh / Stale / Missing / Not collected | Cost evidence collection posture |
+
+Stale, missing, demo-derived, or heuristic-only badges must **not** be presented as current customer proof in Markdown, PDF, DOCX, or sponsor email.
 
 ## Committed-run evidence command
 

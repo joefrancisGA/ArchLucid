@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 
 using FluentAssertions;
 
@@ -99,6 +100,130 @@ public sealed class ConfigLintCommandTests
             {
                 Console.SetError(prevE);
             }
+        }
+
+        finally
+        {
+            Environment.CurrentDirectory = prevCwd;
+            RestoreEnv(saved);
+
+            try
+            {
+                Directory.Delete(temp, true);
+            }
+
+            catch
+            {
+                // best-effort cleanup
+            }
+        }
+    }
+
+    [Fact]
+    public async Task ConfigLint_ProductionLikeProfile_WithCleanDevelopmentConfig_WritesJsonReport()
+    {
+        string prevCwd = Environment.CurrentDirectory;
+
+        Dictionary<string, string?> saved = SaveClearEnv(
+          ["ASPNETCORE_ENVIRONMENT", "DOTNET_ENVIRONMENT", "ARCHLUCID_ENVIRONMENT", "ARCHLUCID_API_URL"]);
+
+        string temp =
+            Path.Combine(Path.GetTempPath(), "ArchLucid.Cli.Tests.configLint." + Guid.NewGuid().ToString("N")[..8]);
+        Directory.CreateDirectory(temp);
+
+        await File.WriteAllTextAsync(
+            Path.Combine(temp, "appsettings.json"),
+            "{\"ArchLucidAuth\":{\"Mode\":\"ApiKey\"},\"Authentication\":{\"ApiKey\":{\"Enabled\":true}}}");
+
+        string jsonPath = Path.Combine(temp, "config-lint-production-like-hosted-pilot.json");
+
+        try
+        {
+            Environment.CurrentDirectory = temp;
+
+            int exit = await Program.RunAsync(
+              [
+                  "config",
+                  "lint",
+                  "--profile",
+                  "production-like-hosted-pilot",
+                  "--json-out",
+                  jsonPath,
+              ]);
+
+            exit.Should().Be(CliExitCode.Success);
+            File.Exists(jsonPath).Should().BeTrue();
+
+            using JsonDocument document = JsonDocument.Parse(await File.ReadAllTextAsync(jsonPath));
+            JsonElement root = document.RootElement;
+            root.GetProperty("profileName").GetString().Should().Be("production-like-hosted-pilot");
+            root.GetProperty("ok").GetBoolean().Should().BeTrue();
+            root.GetProperty("hostingEnvironmentName").GetString().Should().Be("Production");
+        }
+
+        finally
+        {
+            Environment.CurrentDirectory = prevCwd;
+            RestoreEnv(saved);
+
+            try
+            {
+                Directory.Delete(temp, true);
+            }
+
+            catch
+            {
+                // best-effort cleanup
+            }
+        }
+    }
+
+    [Fact]
+    public async Task ConfigLint_ProductionLikeProfile_WithDevelopmentBypass_ReturnsFailureJson()
+    {
+        string prevCwd = Environment.CurrentDirectory;
+
+        Dictionary<string, string?> saved = SaveClearEnv(
+          ["ASPNETCORE_ENVIRONMENT", "DOTNET_ENVIRONMENT", "ARCHLUCID_ENVIRONMENT", "ARCHLUCID_API_URL"]);
+
+        string temp =
+            Path.Combine(Path.GetTempPath(), "ArchLucid.Cli.Tests.configLint." + Guid.NewGuid().ToString("N")[..8]);
+        Directory.CreateDirectory(temp);
+
+        await File.WriteAllTextAsync(
+            Path.Combine(temp, "appsettings.json"),
+            "{\"ArchLucidAuth\":{\"Mode\":\"DevelopmentBypass\"}}");
+
+        string jsonPath = Path.Combine(temp, "config-lint-production-like-hosted-pilot.json");
+
+        try
+        {
+            Environment.CurrentDirectory = temp;
+
+            int exit = await Program.RunAsync(
+              [
+                  "config",
+                  "lint",
+                  "--profile",
+                  "production-like-hosted-pilot",
+                  "--json-out",
+                  jsonPath,
+              ]);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            File.Exists(jsonPath).Should().BeTrue();
+
+            using JsonDocument document = JsonDocument.Parse(await File.ReadAllTextAsync(jsonPath));
+            JsonElement root = document.RootElement;
+            root.GetProperty("ok").GetBoolean().Should().BeFalse();
+            root.GetProperty("blockingFindings").GetArrayLength().Should().BeGreaterThan(0);
+            root.GetRawText().Should().Contain("DevelopmentBypass");
+            JsonElement blocking = root.GetProperty("blockingFindings")[0];
+            blocking.GetProperty("ruleName").GetString().Should().NotBeNullOrWhiteSpace();
+            blocking.GetProperty("whyItMatters").GetString().Should().NotBeNullOrWhiteSpace();
+            blocking.GetProperty("configKeys").GetString().Should().Contain("ArchLucidAuth:Mode");
+            blocking.GetProperty("remediationHint").GetString().Should().NotBeNullOrWhiteSpace();
+            blocking.GetProperty("expectedProofArtifact").GetString().Should().NotBeNullOrWhiteSpace();
         }
 
         finally

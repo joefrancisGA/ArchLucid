@@ -36,13 +36,13 @@ Do not ask for annual conversion from a vague demo. Ask after the buyer can poin
 
 | Status | Criteria | Action |
 | --- | --- | --- |
-| Send | Buyer evidence or accepted demo is clear; quality gate is passing or caveated; ROI basis is labeled; sponsor package exists | Send sponsor packet and ask for the selected next step |
-| Hold | Missing `runId`, unresolved PilotStrict signals, absent proof ZIP, unlabeled ROI defaults, stale procurement pack, or failed route/tier/policy/nav guard | Re-run the relevant proof, procurement, or drift guard before sponsor send |
-| Defer | Buyer requires SOC 2 CPA attestation, public reference customer, marketplace checkout, MCP, or V1.1 connectors before purchase | Mark as deferred scope; do not imply those items are V1 prerequisites |
+| Send | Buyer evidence or accepted demo is clear; quality gate is passing or caveated; ROI basis is labeled and sponsor-safe; sponsor package exists; `go-no-go-summary.json` disposition is `SEND` | Send sponsor packet and ask for the selected next step |
+| Hold | Missing `runId`, unresolved PilotStrict signals, absent proof ZIP, unlabeled or unsafe ROI basis, data-consistency HOLD, stale procurement pack, or failed route/tier/policy/nav guard | Re-run the relevant proof, procurement, or drift guard before sponsor send |
+| Defer | Buyer requires SOC 2 CPA attestation, public reference customer, marketplace checkout, MCP, or V1.1 connectors before purchase | Mark as deferred scope (`DEFERRED_SCOPE` when V1 proof otherwise passes); do not imply those items are V1 prerequisites |
 
 ## 4. Annual conversion handoff
 
-Use [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) only after the sponsor has accepted the evidence packet and the commercial tier is clear. The guided pilot credit remains governed by [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4; this checklist does not change pricing.
+Use [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) only after the sponsor has accepted the evidence packet and the commercial tier is clear. Map proof outputs to the sales packet with [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md). The guided pilot credit remains governed by [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4; this checklist does not change pricing.
 
 ## 5. Enterprise operations preflight
 
@@ -59,6 +59,7 @@ For hosted Azure pilots, also follow [`../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMEN
 ## Related
 
 - [`QUOTE_TO_PILOT_PACK.md`](QUOTE_TO_PILOT_PACK.md)
+- [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md)
 - [`PILOT_SUCCESS_SCORECARD.md`](PILOT_SUCCESS_SCORECARD.md)
 - [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - [`../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md)

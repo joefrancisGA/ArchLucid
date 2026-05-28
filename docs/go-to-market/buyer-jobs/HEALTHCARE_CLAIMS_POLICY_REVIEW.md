@@ -2,6 +2,8 @@
 
 # Buyer job — Healthcare claims policy review
 
+**Classification:** **Specialty** template (optional). Use when the buyer’s job is PHI-minimization / claims intake policy — not as a mandatory pre-first-value checklist. **Core path:** [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
+
 **Audience:** Pilot champions in regulated healthcare-adjacent workflows who need to show **PHI-minimization and intake boundary** policy landing on findings before commit.
 
 **Full operator walkthrough:** [`../../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](../../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md)
@@ -93,11 +95,17 @@ A **policy-anchored review package** that shows how healthcare claims controls s
 
 ---
 
+## How to measure success
+
+Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `healthcare-claims-v3` assigned and pinned, critical findings dispositioned before commit, synthetic-only demo payloads, and sponsor export with labeled ROI basis (never real PHI).
+
+---
+
 ## Related
 
 | Doc | Use |
 |-----|-----|
-| [`library/walkthroughs/README.md`](../../library/walkthroughs/README.md) | Accelerator pack index |
+| [`library/walkthroughs/README.md`](../../library/walkthroughs/README.md) | Specialty accelerator template index |
 | [`CORE_PILOT.md`](../../CORE_PILOT.md) | Four-step Core Pilot spine |
 | [`PRODUCT_PACKAGING.md`](../../library/PRODUCT_PACKAGING.md) | Capability inventory |
 | [`PRE_COMMIT_GOVERNANCE_GATE.md`](../../library/PRE_COMMIT_GOVERNANCE_GATE.md) | Gate behavior |

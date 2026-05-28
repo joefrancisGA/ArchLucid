@@ -3,7 +3,7 @@
 
 Mirrors ``InMemoryVectorIndex`` cosine search with tenant scope filters. Reads
 ``tests/eval-datasets/retrieval-golden/cases.json`` and writes
-``docs/quality/retrieval-ir-report.md``. Exit 0 by default; use ``--enforce`` to fail
+``docs/quality/retrieval-ir-report.md`` and ``docs/quality/retrieval-ir-summary.json``. Exit 0 by default; use ``--enforce`` to fail
 when mean recall@5 or MRR drops below configured floors.
 """
 
@@ -110,6 +110,64 @@ def _mrr(retrieved: list[str], expected: list[str]) -> float:
     return 0.0
 
 
+def _summarize_by_corpus(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    grouped: dict[str, list[dict[str, object]]] = {}
+
+    for row in rows:
+        corpus_kind = str(row.get("corpusKind") or "unknown")
+        grouped.setdefault(corpus_kind, []).append(row)
+
+    summaries: list[dict[str, object]] = []
+
+    for corpus_kind in sorted(grouped.keys()):
+        bucket = grouped[corpus_kind]
+        recalls = [float(row["recallAt5"]) for row in bucket]
+        mrr_values = [float(row["mrr"]) for row in bucket]
+        summaries.append(
+            {
+                "corpusKind": corpus_kind,
+                "caseCount": len(bucket),
+                "meanRecallAt5": sum(recalls) / len(recalls),
+                "meanMrr": sum(mrr_values) / len(mrr_values),
+            }
+        )
+
+    return summaries
+
+
+def _write_json_summary(
+    path: Path,
+    *,
+    rows: list[dict[str, object]],
+    mean_recall: float,
+    mean_mrr: float,
+    min_recall: float,
+    min_mrr: float,
+    corpus_breakdown: list[dict[str, object]],
+) -> None:
+    payload = {
+        "formatVersion": "1.0",
+        "casesEvaluated": len(rows),
+        "meanRecallAt5": mean_recall,
+        "meanMrr": mean_mrr,
+        "floorRecallAt5": min_recall,
+        "floorMrr": min_mrr,
+        "corpusBreakdown": corpus_breakdown,
+        "cases": [
+            {
+                "id": row["id"],
+                "corpusKind": row.get("corpusKind"),
+                "recallAt5": row["recallAt5"],
+                "mrr": row["mrr"],
+            }
+            for row in rows
+        ],
+    }
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
 def _write_report(
     path: Path,
     *,
@@ -130,11 +188,26 @@ def _write_report(
         f"- **Floor recall@5:** {min_recall:.4f}",
         f"- **Floor MRR:** {min_mrr:.4f}",
         "",
+        "## Per-corpus breakdown",
+        "",
+        "| Corpus | Cases | Mean recall@5 | Mean MRR |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+
+    for bucket in _summarize_by_corpus(rows):
+        lines.append(
+            f"| {bucket['corpusKind']} | {bucket['caseCount']} | {float(bucket['meanRecallAt5']):.4f} | {float(bucket['meanMrr']):.4f} |"
+        )
+
+    lines.extend(
+        [
+        "",
         "## Per-case results",
         "",
         "| Case | Corpus | recall@5 | MRR |",
         "|------|--------|----------|-----|",
-    ]
+        ]
+    )
 
     for row in rows:
         lines.append(
@@ -160,11 +233,18 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Override report output path (default: docs/quality/retrieval-ir-report.md).",
     )
+    parser.add_argument(
+        "--json-summary",
+        type=Path,
+        default=None,
+        help="Override JSON summary path (default: docs/quality/retrieval-ir-summary.json).",
+    )
     args = parser.parse_args(argv)
 
     root = _repo_root()
     cases_path = args.cases or (root / "tests" / "eval-datasets" / "retrieval-golden" / "cases.json")
     report_path = args.report or (root / "docs" / "quality" / "retrieval-ir-report.md")
+    json_summary_path = args.json_summary or (root / "docs" / "quality" / "retrieval-ir-summary.json")
 
     if not cases_path.is_file():
         print(f"::error::Missing {cases_path}")
@@ -232,6 +312,7 @@ def main(argv: list[str] | None = None) -> int:
 
     mean_recall = sum(recalls) / len(recalls)
     mean_mrr = sum(mrrs) / len(mrrs)
+    corpus_breakdown = _summarize_by_corpus(evaluated)
     _write_report(
         report_path,
         rows=evaluated,
@@ -240,8 +321,18 @@ def main(argv: list[str] | None = None) -> int:
         min_recall=min_recall,
         min_mrr=min_mrr,
     )
+    _write_json_summary(
+        json_summary_path,
+        rows=evaluated,
+        mean_recall=mean_recall,
+        mean_mrr=mean_mrr,
+        min_recall=min_recall,
+        min_mrr=min_mrr,
+        corpus_breakdown=corpus_breakdown,
+    )
 
     print(f"Wrote {report_path}")
+    print(f"Wrote {json_summary_path}")
     print(f"Mean recall@5: {mean_recall:.4f} (floor {min_recall:.4f})")
     print(f"Mean MRR: {mean_mrr:.4f} (floor {min_mrr:.4f})")
 

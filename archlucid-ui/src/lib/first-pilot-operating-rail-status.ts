@@ -25,6 +25,7 @@ export type FirstPilotOperatingRailResolvedStep = {
 };
 
 const EVIDENCE_ACK_STORAGE_KEY = "archlucid_first_pilot_evidence_ack_v1";
+const DEFERRED_BUYER_REQUIREMENTS_STORAGE_KEY = "archlucid_first_pilot_deferred_buyer_requirements_v1";
 
 /** Optional operator acknowledgement when using sample-only evidence (no extractor upload). */
 export function writeFirstPilotEvidenceAcknowledged(): void {
@@ -42,6 +43,47 @@ export function readFirstPilotEvidenceAcknowledged(): boolean {
     return typeof window !== "undefined" && window.localStorage.getItem(EVIDENCE_ACK_STORAGE_KEY) === "1";
   } catch {
     return false;
+  }
+}
+
+/** Records buyer requirements explicitly deferred to V1.1/V2/(B) for sponsor disposition (cockpit only). */
+export function writeFirstPilotDeferredBuyerRequirements(requirements: readonly string[]): void {
+  try {
+    if (typeof window === "undefined")
+      return;
+
+    const normalized = requirements.map((item) => item.trim()).filter((item) => item.length > 0);
+
+    if (normalized.length === 0) {
+      window.localStorage.removeItem(DEFERRED_BUYER_REQUIREMENTS_STORAGE_KEY);
+
+      return;
+    }
+
+    window.localStorage.setItem(DEFERRED_BUYER_REQUIREMENTS_STORAGE_KEY, JSON.stringify(normalized));
+  } catch {
+    /* private mode */
+  }
+}
+
+export function readFirstPilotDeferredBuyerRequirements(): string[] {
+  try {
+    if (typeof window === "undefined")
+      return [];
+
+    const raw = window.localStorage.getItem(DEFERRED_BUYER_REQUIREMENTS_STORAGE_KEY);
+
+    if (raw === null || raw.trim().length === 0)
+      return [];
+
+    const parsed: unknown = JSON.parse(raw);
+
+    if (!Array.isArray(parsed))
+      return [];
+
+    return parsed.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  } catch {
+    return [];
   }
 }
 

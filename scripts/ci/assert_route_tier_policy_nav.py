@@ -430,6 +430,13 @@ def render_markdown_report(root: Path, errors: list[str]) -> str:
         "",
         "_UI nav is not authorization; this artifact checks operator-shell parity with API route families._",
         "",
+        "## Commercial and authority boundaries",
+        "",
+        "- **401 / 403:** authentication or policy denial on the API — UI hiding a route does not grant access.",
+        "- **402:** commercial tier gate on the API — nav may preview a surface, but the server enforces entitlement.",
+        "- **404:** route family absent or not registered for the caller scope — distinct from policy denial.",
+        "- **Authoritative source:** API route policies and commercial tier attributes in `scripts/ci/data/route_tier_policy_nav_registry.json`.",
+        "",
     ]
 
     if errors:
@@ -446,7 +453,19 @@ def render_markdown_report(root: Path, errors: list[str]) -> str:
             safe = error.replace("|", "\\|")
             lines.append(f"| {index} | {safe} |")
 
-        lines.append("")
+        lines.extend(
+            [
+                "",
+                "## Next action",
+                "",
+                "1. Run `python scripts/ci/assert_route_tier_policy_nav.py --sync` from the repo root.",
+                "2. If sync reports manual follow-up, add nav/exemption overrides in "
+                "`scripts/ci/data/route_tier_policy_nav_overrides.json` or exemption codes in "
+                "`scripts/ci/data/route_tier_policy_nav_exemptions.json`.",
+                "3. Re-run first-pilot proof with commercial handoff checks enabled.",
+                "",
+            ]
+        )
     else:
         lines.extend(
             [
@@ -465,6 +484,25 @@ def render_markdown_report(root: Path, errors: list[str]) -> str:
     return "\n".join(lines)
 
 
+def build_json_summary(root: Path, errors: list[str]) -> dict[str, object]:
+    registry = load_registry(root)
+    entries = registry.get("entries", [])
+    if not isinstance(entries, list):
+        entries = []
+
+    return {
+        "sync_status": "PASS" if not errors else "FAIL",
+        "registry_entry_count": len(entries),
+        "parity_failure_count": len(errors),
+        "parity_failures": errors,
+        "next_action": (
+            "Run python scripts/ci/assert_route_tier_policy_nav.py --sync and resolve parity failures."
+            if errors
+            else "No action required; registry and nav parity are in sync."
+        ),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -472,6 +510,12 @@ def main() -> int:
         type=Path,
         default=None,
         help="Write buyer-safe Markdown summary to this path (does not change exit code semantics).",
+    )
+    parser.add_argument(
+        "--json-summary-out",
+        type=Path,
+        default=None,
+        help="Write machine-readable parity summary JSON to this path.",
     )
     parser.add_argument("--dump-registry", action="store_true", help="print scaffold JSON to stdout")
     parser.add_argument(
@@ -519,6 +563,14 @@ def main() -> int:
         report_path = args.markdown_report.expanduser().resolve()
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(render_markdown_report(root, errors), encoding="utf-8")
+
+    if args.json_summary_out is not None:
+        json_path = args.json_summary_out.expanduser().resolve()
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(
+            json.dumps(build_json_summary(root, errors), indent=2) + "\n",
+            encoding="utf-8",
+        )
 
     if errors:
         print("assert_route_tier_policy_nav failures:", file=sys.stderr)

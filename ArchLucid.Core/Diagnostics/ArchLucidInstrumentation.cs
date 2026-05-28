@@ -380,6 +380,12 @@ public static class ArchLucidInstrumentation
             "archlucid_retrieval_embedding_dimension_mismatch_total",
             description: "Retrieval chunks skipped because stored/query embedding dimensions differ.");
 
+    /// <summary>Startup corpus indexer failures (fail-open) by corpus kind (TB-046).</summary>
+    public static readonly Counter<long> RetrievalCorpusStartupIndexerFailureTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_retrieval_corpus_startup_indexer_failure_total",
+            description: "Startup corpus indexer failures by corpus kind.");
+
     /// <summary>Decision provenance snapshots persisted (TB-037).</summary>
     public static readonly Counter<long> ProvenanceSnapshotWritesTotal =
         AppMeter.CreateCounter<long>(
@@ -1425,6 +1431,13 @@ public static class ArchLucidInstrumentation
     public static void RecordRetrievalIndexChunkingFingerprintInvalidated()
     {
         RetrievalIndexChunkingFingerprintInvalidatedTotal.Add(1);
+    }
+
+    /// <summary>Records one startup corpus indexer failure for the given corpus kind.</summary>
+    public static void RecordRetrievalCorpusStartupIndexerFailure(string corpusKind)
+    {
+        KeyValuePair<string, object?> tag = new("corpus_kind", corpusKind);
+        RetrievalCorpusStartupIndexerFailureTotal.Add(1, tag);
     }
 
     /// <summary>Records one provenance snapshot upsert.</summary>

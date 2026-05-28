@@ -9,6 +9,8 @@
 
 **Evidence inventory:** [`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md) — artefact paths validated in CI (`scripts/ci/check_procurement_pack_index.py`).
 
+**Quote-to-proof packet index:** [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md) — sales-led handoff from first-pilot proof to order form (validated in CI via `scripts/ci/check_quote_to_proof_packet.py`).
+
 **Related:** [`../runbooks/README.md`](../runbooks/README.md) (operations), [`../library/DOCUMENTATION_BY_AUDIENCE.md`](../library/DOCUMENTATION_BY_AUDIENCE.md) (role routing).
 
 **Welcome hero (CTAs + Clarity analytics + compliance checklist):** [`WELCOME_HERO_CTA_ANALYTICS.md`](WELCOME_HERO_CTA_ANALYTICS.md) · demo Workspace A URLs: [`DEMO_WORKSPACES.md`](DEMO_WORKSPACES.md).

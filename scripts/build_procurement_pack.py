@@ -299,6 +299,12 @@ def main() -> int:
         default=120,
         help="Maximum Last reviewed age for required deal-ready docs (default: 120).",
     )
+    parser.add_argument(
+        "--json-summary-out",
+        type=Path,
+        default=None,
+        help="Optional machine-readable deal-ready summary JSON (used by first-pilot proof).",
+    )
     args = parser.parse_args()
 
     strict_env = os.environ.get("PROCUREMENT_PACK_STRICT", "").strip().lower() in ("1", "true", "yes")
@@ -321,13 +327,36 @@ def main() -> int:
         deal_ready_bundle=deal_ready,
     )
 
+    def _maybe_write_deal_ready_json(*, ok: bool, violations: list[str]) -> pp_val.build_deal_ready_summary:
+        summary = pp_val.build_deal_ready_summary(
+            ok=ok,
+            violations=violations,
+            strict_mode=strict,
+            deal_ready_mode=deal_ready,
+        )
+
+        if args.json_summary_out is not None:
+            pp_val.write_deal_ready_summary_json(args.json_summary_out.expanduser().resolve(), summary)
+
+        return summary
+
     if pre_checks:
 
         scope = "procurement pack dry-run" if args.dry_run else "procurement pack precondition"
 
+        summary = _maybe_write_deal_ready_json(ok=False, violations=pre_checks)
+        blocking = list(summary["blocking_violations"])
+
+        if deal_ready:
+            print(pp_val.format_deal_ready_disposition(ok=len(blocking) == 0, violations=pre_checks))
+
+        if not blocking and deal_ready and args.dry_run:
+            print("procurement pack dry-run: OK (deferred procurement realism notes only).")
+            return 0
+
         print(f"error: {scope} failed:", file=sys.stderr)
 
-        for err in pre_checks:
+        for err in (blocking if blocking else pre_checks):
             print(f"  - {err}", file=sys.stderr)
 
         return 1
@@ -339,6 +368,10 @@ def main() -> int:
         if args.dry_run_preview_dir is not None:
 
             suffix = f" Preview manifest/redaction wrote to `{args.dry_run_preview_dir}`."
+
+        if deal_ready:
+            print(pp_val.format_deal_ready_disposition(ok=True, violations=[]))
+            _maybe_write_deal_ready_json(ok=True, violations=[])
 
         print(f"procurement pack dry-run: OK.{suffix}")
 
@@ -388,6 +421,9 @@ def main() -> int:
 
             for v in deal_violations:
                 print(f"  - {v}", file=sys.stderr)
+
+            print(pp_val.format_deal_ready_disposition(ok=False, violations=deal_violations))
+            _maybe_write_deal_ready_json(ok=False, violations=deal_violations)
 
             return 1
 

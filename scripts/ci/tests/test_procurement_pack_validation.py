@@ -201,6 +201,43 @@ class TestProcurementPackValidation(unittest.TestCase):
         self.assertEqual(data["files"][0]["last_reviewed_utc"], "See source document")
 
 
+    def test_format_deal_ready_disposition_pass_and_hold(self) -> None:
+        passed = pp_val.format_deal_ready_disposition(ok=True, violations=[])
+        held = pp_val.format_deal_ready_disposition(
+            ok=False,
+            violations=["missing canonical source `docs/go-to-market/TRUST_CENTER.md`"],
+        )
+
+        self.assertIn("Deal-ready disposition: PASS", passed)
+        self.assertIn("Deferred procurement realism", passed)
+        self.assertIn("Deal-ready disposition: HOLD", held)
+        self.assertIn("Blocking reasons:", held)
+        self.assertIn("TRUST_CENTER.md", held)
+
+    def test_split_deal_ready_violations_classifies_stale_review_as_deferred(self) -> None:
+        blocking, deferred = pp_val.split_deal_ready_violations(
+            [
+                "docs/go-to-market/TRUST_CENTER.md: Last reviewed is 200 days old (max 120)",
+                "missing required deal-ready doc: docs/go-to-market/TRUST_CENTER.md",
+            ]
+        )
+
+        self.assertEqual(len(blocking), 1)
+        self.assertEqual(len(deferred), 1)
+        self.assertIn("missing required deal-ready doc", blocking[0])
+
+    def test_build_deal_ready_summary_passes_when_only_deferred_violations(self) -> None:
+        summary = pp_val.build_deal_ready_summary(
+            ok=False,
+            violations=["docs/go-to-market/TRUST_CENTER.md: Last reviewed is 200 days old (max 120)"],
+            strict_mode=True,
+            deal_ready_mode=True,
+        )
+
+        self.assertEqual(summary["disposition"], "PASS")
+        self.assertEqual(summary["blocking_violation_count"], 0)
+
+
     def test_collect_quality_snapshot_passes_on_minimal_fixture(self) -> None:
 
         with tempfile.TemporaryDirectory() as tmp:

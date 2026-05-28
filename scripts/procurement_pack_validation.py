@@ -438,6 +438,104 @@ def procurement_pack_quick_checks(
     return errors
 
 
+PROCUREMENT_DEFERRED_REALISM_NOTES: tuple[str, ...] = (
+    "SOC 2 Type II CPA report: not currently issued — procurement realism deferral "
+    "(see docs/go-to-market/SOC2_STATUS_PROCUREMENT.md).",
+    "Third-party penetration test against V1: deferred — not a V1 product gate "
+    "(see docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md).",
+)
+
+
+def classify_deal_ready_violation(violation: str) -> str:
+    """Split deal-ready findings into blocking product/proc defects vs deferred realism."""
+    lowered = violation.lower()
+
+    if "implies" in lowered or "placeholder" in lowered:
+        return "blocking"
+
+    if "missing required deal-ready doc" in lowered or "missing canonical source" in lowered:
+        return "blocking"
+
+    if "missing **last reviewed:**" in lowered or "missing artifact_status" in lowered:
+        return "blocking"
+
+    if "security@archlucid.net" in lowered:
+        return "blocking"
+
+    if "last reviewed is" in lowered and "days old" in lowered:
+        return "deferred_realism"
+
+    return "blocking"
+
+
+def split_deal_ready_violations(violations: list[str]) -> tuple[list[str], list[str]]:
+    blocking: list[str] = []
+    deferred: list[str] = []
+
+    for violation in violations:
+        if classify_deal_ready_violation(violation) == "deferred_realism":
+            deferred.append(violation)
+            continue
+
+        blocking.append(violation)
+
+    return blocking, deferred
+
+
+def build_deal_ready_summary(
+    *,
+    ok: bool,
+    violations: list[str],
+    strict_mode: bool,
+    deal_ready_mode: bool,
+) -> dict[str, object]:
+    blocking, deferred_from_violations = split_deal_ready_violations(violations)
+    deferred_notes = list(PROCUREMENT_DEFERRED_REALISM_NOTES) + deferred_from_violations
+    effective_ok = ok and len(blocking) == 0
+    disposition = "PASS" if effective_ok else "HOLD"
+
+    return {
+        "generated_utc": datetime.now(timezone.utc).isoformat(),
+        "disposition": disposition,
+        "deal_ready_mode": deal_ready_mode,
+        "strict_mode": strict_mode,
+        "blocking_violation_count": len(blocking),
+        "deferred_realism_note_count": len(deferred_notes),
+        "blocking_violations": blocking,
+        "deferred_realism_notes": deferred_notes,
+        "all_violations": violations,
+    }
+
+
+def write_deal_ready_summary_json(path: Path, summary: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+
+
+def format_deal_ready_disposition(*, ok: bool, violations: list[str]) -> str:
+    """Buyer-safe disposition with blocking vs deferred procurement realism sections."""
+    summary = build_deal_ready_summary(
+        ok=ok,
+        violations=violations,
+        strict_mode=True,
+        deal_ready_mode=True,
+    )
+    disposition = str(summary["disposition"])
+    blocking = list(summary["blocking_violations"])
+    deferred_notes = list(summary["deferred_realism_notes"])
+    lines = [f"Deal-ready disposition: {disposition}"]
+
+    if blocking:
+        lines.append("Blocking reasons:")
+        lines.extend(f"  - {violation}" for violation in blocking)
+
+    if deferred_notes:
+        lines.append("Deferred procurement realism (not V1 product failure):")
+        lines.extend(f"  - {note}" for note in deferred_notes)
+
+    return "\n".join(lines)
+
+
 def collect_quality_snapshot(
     root: Path,
     *,

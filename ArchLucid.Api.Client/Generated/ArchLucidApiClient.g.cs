@@ -55094,6 +55094,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("degradationReasonCode")]
+        public string? DegradationReasonCode { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> EvidenceRefs { get; set; } = new System.Collections.ObjectModel.Collection<string>();

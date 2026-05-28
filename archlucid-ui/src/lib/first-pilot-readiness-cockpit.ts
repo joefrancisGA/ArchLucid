@@ -40,6 +40,21 @@ function allBaselinesEntered(scorecard: PilotScorecardJson | null): boolean {
     && baselines?.baselineArchitectHourlyCost !== undefined;
 }
 
+function mapDataConsistencyStatus(input: {
+  healthStatus: string | null;
+  healthLoadFailed: boolean;
+}): "ready" | "attention" | "blocked" | "unknown" {
+  if (input.healthLoadFailed)
+    return "unknown";
+
+  const normalized = input.healthStatus?.trim().toLowerCase() ?? "";
+
+  if (normalized.includes("unhealthy") || normalized.includes("down") || normalized.includes("fail"))
+    return "blocked";
+
+  return "attention";
+}
+
 export function buildFirstPilotReadinessRows(input: {
   healthStatus: string | null;
   healthLoadFailed: boolean;
@@ -140,6 +155,18 @@ export function buildFirstPilotReadinessRows(input: {
           : "Read-only role can view ROI but cannot update baseline assumptions.",
       href: "/scorecard",
       cta: "Open scorecard",
+    },
+    {
+      id: "data-consistency",
+      label: "Data consistency readiness",
+      status: mapDataConsistencyStatus({
+        healthStatus: input.healthStatus,
+        healthLoadFailed: input.healthLoadFailed,
+      }),
+      summary:
+        "Run the first-pilot proof pipeline for authoritative PASS/WARN/HOLD/NOT_RUN status. This row uses platform health as a coarse signal only.",
+      href: "/health",
+      cta: "Review health and runbook",
     },
     {
       id: "sponsor-packet",

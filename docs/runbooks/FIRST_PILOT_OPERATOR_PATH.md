@@ -4,9 +4,25 @@
 
 **Audience:** Buyer operators, design partners, and sales engineers guiding a first architecture review without jumping across unrelated docs.
 
-**Last reviewed:** 2026-05-27
+**Last reviewed:** 2026-05-28
 
 **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **In-product rail:** operator **Home** → **First-pilot operating path** (setup verification through sponsor packet). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md).
+
+---
+
+## Operator status vocabulary
+
+Use this small vocabulary across cockpit rows, proof summaries, and sponsor handoff — do not invent parallel checklists.
+
+| Label | Meaning | Typical next step |
+| --- | --- | --- |
+| **READY** | Row or phase is green for first-pilot work | Continue to the linked surface |
+| **WARN** | Review before sponsor send or external circulation | Open the linked runbook row |
+| **HOLD** | Blocking for sponsor handoff or procurement follow-up | Resolve blockers, re-run proof |
+| **DEFERRED** | Explicitly out of V1 first-pilot scope (V1.1/V2/(B)) | Record in proof `-DeferredBuyerRequirement`; use `DEFERRED_SCOPE` disposition |
+| **NEXT ACTION** | One primary link on operator Home command center | Follow the phase card CTA only |
+
+**Canonical operational checklist:** this file. **Canonical narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **Post-commit evidence:** [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).
 
 ---
 
@@ -66,7 +82,7 @@ Until you have one **committed** architecture review package, you do **not** nee
 | D1 | Inspect **findings**, explanation aggregate, and **artifacts** on review detail. | Sponsor-readable summary; severity badges; evidence refs present. | UI review detail · `GET /v1/architecture/run/{runId}` |
 | D2 | Export **sponsor packet** (markdown/DOCX/PDF per tenant config) or **Email this review to your sponsor** when manifest exists. | Download succeeds; ROI basis labels show evidence source (not placeholder-only unless static demo). | UI exports · [`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | D3 | Record **run id**, manifest id, and any **`X-Correlation-ID`** for support before escalating. | Ticket-ready notes. | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
-| D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | `go-no-go-summary.md` plus committed-run evidence folder with checksum manifest and buyer-safe artifacts. | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
+| D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | `go-no-go-summary.md` plus committed-run evidence folder with checksum manifest and buyer-safe artifacts. Production-like or sponsor handoff also collects `config-lint-production-like-hosted-pilot.md`, `route-tier-policy-nav-parity.md`, and `procurement-deal-ready-check.txt` (deal-ready **PASS/HOLD**). | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | D5 | *(Optional workflow handoff)* Attach proof artifacts to a GitHub PR/issue or Azure DevOps work item. | Work item links to the sponsor packet, evidence manifest, and send/hold status without requiring a V1.1 connector. | [`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
 
 ---
@@ -77,10 +93,10 @@ Until you have one **committed** architecture review package, you do **not** nee
 |---------|-----------|-----|
 | Pilot proved value; sponsor wants depth | Stay on **Pilot** for a second real review, or open **Operate (analysis)** for compare/replay/graph only if a concrete question appears. | [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) |
 | Governance / audit questions emerged | Enable **Operate (governance)** — policy packs, approvals, audit log. | [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md) Layer B.2 |
-| Need a vertical accelerator narrative | Run a packaged walkthrough (V1 only). | [`library/walkthroughs/`](../library/walkthroughs/) (see below) |
+| Need a **Specialty** buyer-job narrative (optional — after first Core value) | Choose a Specialty template from [`library/walkthroughs/README.md`](../library/walkthroughs/README.md) (Azure SaaS, AI governance, healthcare). | Buyer-job pages under [`go-to-market/buyer-jobs/`](../go-to-market/buyer-jobs/) |
 | Stuck or regressed | Symptom index + rescue playbook. | [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) |
 
-**Accelerator walkthroughs (buyer-recognizable, V1-only):** full index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md).
+**Specialty accelerator templates (optional, V1-only):** index [`library/walkthroughs/README.md`](../library/walkthroughs/README.md). These are **not** mandatory before first Core commit.
 
 | Walkthrough | Buyer outcome |
 |-------------|----------------|

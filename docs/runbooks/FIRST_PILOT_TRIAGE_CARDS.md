@@ -23,7 +23,12 @@
 | FP-T013 | Telemetry export missing | Hosted handoff has no durable Application Insights, OTLP, or Prometheus path | `observability-export-readiness.md` | `python scripts/report_observability_export_readiness.py --strict-exit-code` |
 | FP-T014 | Route/tier/policy/nav drift | Controller registry, matrix appendix, or nav href parity failed | `route-tier-policy-nav-parity.md` | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
 | FP-T015 | Procurement deal-ready failure | Stale, placeholder, or buyer-unsafe procurement artifact | `procurement-deal-ready-check.txt` | `python scripts/build_procurement_pack.py --dry-run --deal-ready` |
+| FP-T022 | Production-like config lint failure | Auth bypass, telemetry, LLM redaction, or hosting-advisor blocking findings under production-like profile | `config-lint-production-like-hosted-pilot.md` | `archlucid config lint --profile production-like-hosted-pilot --markdown-out <path>` |
+| FP-T023 | Demo workspace / preview HOLD | Demo run anchors, preview essentials, or demo-derived ROI labels failed validation | `demo-workspace-validation.txt` | `./scripts/verify-demo-workspace.ps1 -BaseUrl <url>` |
 | FP-T016 | ROI basis labels missing | Sponsor report lacks ROI evidence sections or baseline label | `first-value-report.md`, `pilot-run-deltas.json` | Regenerate first-value report after baseline capture |
 | FP-T017 | Pricing quote aging breach | Open quote requests exceeded SLA warn/breach thresholds | `GET /v1/admin/marketing/pricing-quote-aging` | `/admin/pricing-quote-aging` |
+| FP-T018 | ROI basis hold | Projected dollar claims rely on defaulted, demo-derived, missing, stale, or not-collected ROI basis without caveat | `first-value-report.md`, `pilot-run-deltas.json`, `go-no-go-summary.json` | Capture buyer baselines or add explicit ROI caveat before sponsor send |
+| FP-T019 | Data consistency hold/warn | Readiness or orphan probes failed or were skipped | `data-consistency-summary.json`, `/health/diagnostics` | [`DATA_CONSISTENCY_READINESS.md`](DATA_CONSISTENCY_READINESS.md) |
+| FP-T021 | Pilot preflight exit failure | CLI preflight exited non-zero with blocking config/health/OpenAPI rows | `preflight.json`, `preflight-output.txt` | `archlucid --json pilot preflight --api-base-url <url>` |
 
 **Never paste secrets** into tickets. Attach buyer-safe bundles via [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).

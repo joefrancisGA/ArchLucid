@@ -102,6 +102,10 @@ If you add realism, prefer clearly fake domains (**`*.example`** / **`northwind-
 
 Use this checklist before tagging **GA / external pilot freeze** aligned with the sequenced prompts in **`[CURSOR_PROMPTS_GA_TASKS_27_32.md](../../archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md)`** (and related **`CURSOR_PROMPTS_GA_TASK_*.md`** under **`docs/archive/agent-prompts/`** — historical task lists, not product documentation).
 
+- [ ] **Golden demo validation:** `./scripts/verify-demo-workspace.ps1` reports **`Demo workspace disposition: PASS`** (or documented **HOLD** with stable reason codes) including **`GET /v1/demo/preview`** essentials via `scripts/demo_preview_essentials.py`. First-pilot proof collects `demo-workspace-validation.txt` when commercial handoff runs.
+
+- [ ] **Demo-derived ROI labeling:** First-value reports for demo runs include **Demo-derived** evidence badges — never present demo hours or dollars as buyer outcomes.
+
 - [ ] **`demo-workspaces-fixture-parity` + manifest pins:** Workflow job **`Go-to-market: demo workspace pins (manifest vs docs + seeds)`** green — validates **`DEMO_WORKSPACES.md`** anchors vs **`fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json`** and runs **`DemoWorkspaceFixtureManifestParityTests`** (finding/evidence counts vs seed builders). Branch protection should require this job wherever GA is certified.
 
 - [ ] **`@release-gate` discipline:** **`ui-e2e-live`** executes **`demo-workspace-*.smoke.spec.ts`** when it runs (**`ci.yml`**: job `if:` is **`github.event_name != 'pull_request`** — **`push`** to default branch / **`workflow_dispatch`** / **`merge_group`**, depending on triggers). Confirm org branch protection attaches that check wherever you certify GA. Before tagging, additionally run **`cd archlucid-ui`** → **`npm exec playwright test --grep "@release-gate"`** and **`scripts/release-smoke`** live parity when claiming SQL/UI alignment.

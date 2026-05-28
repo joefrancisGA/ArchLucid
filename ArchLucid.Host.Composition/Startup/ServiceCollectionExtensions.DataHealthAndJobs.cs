@@ -99,6 +99,10 @@ public static partial class ServiceCollectionExtensions
                 VectorStoreHealthCheck.RegistrationName,
                 failureStatus: HealthStatus.Degraded,
                 tags: [ReadinessTags.Ready])
+            .AddCheck<RetrievalIndexFreshnessHealthCheck>(
+                RetrievalIndexFreshnessHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
             .AddCheck<KeyVaultHealthCheck>(
                 "keyvault",
                 failureStatus: HealthStatus.Unhealthy,

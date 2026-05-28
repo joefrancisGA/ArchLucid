@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.Roi;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -114,6 +115,13 @@ public sealed class FirstValueReportBuilder(
             "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
+        SponsorArtifactEvidenceBadgeMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            deltas,
+            proofCompleteness,
+            valueWindowSnapshot,
+            ResolveSavingsPricingBasisForBadges(proofCompleteness, valueWindowSnapshot, deltas),
+            ResolveCostEvidenceFreshnessForBadges(proofCompleteness, deltas));
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -481,5 +489,35 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine("| Decision traceability (qualitative) |  |  |  |");
         sb.AppendLine("| Reviewer / sponsor confidence |  |  |  |");
         sb.AppendLine();
+    }
+
+    private static string ResolveSavingsPricingBasisForBadges(
+        ProofPackageCompletenessResponse proof,
+        ValueReportSnapshot snapshot,
+        PilotRunDeltas deltas)
+    {
+        bool hasUploadedCostEvidence = proof.RoiConfidenceLabel.Contains("uploaded", StringComparison.OrdinalIgnoreCase)
+            || proof.RoiConfidenceLabel.Contains("extractor", StringComparison.OrdinalIgnoreCase);
+
+        return ExecutiveRoiSavingsPricingBasis.Resolve(
+            1.0m,
+            hasUploadedCostEvidence,
+            hasHeuristicCostEvidence: !hasUploadedCostEvidence
+                && proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low
+                && !deltas.IsDemoTenant);
+    }
+
+    private static string ResolveCostEvidenceFreshnessForBadges(
+        ProofPackageCompletenessResponse proof,
+        PilotRunDeltas deltas)
+    {
+        if (deltas.IsDemoTenant || proof.DemoTenantWarningRequired)
+            return RoiCostEvidenceFreshness.Missing;
+
+        if (proof.RoiConfidenceLabel.Contains("uploaded", StringComparison.OrdinalIgnoreCase)
+            || proof.RoiConfidenceLabel.Contains("extractor", StringComparison.OrdinalIgnoreCase))
+            return RoiCostEvidenceFreshness.Fresh;
+
+        return RoiCostEvidenceFreshness.Missing;
     }
 }

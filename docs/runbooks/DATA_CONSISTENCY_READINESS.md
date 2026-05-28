@@ -28,6 +28,8 @@ For first-pilot handoff, prefer the combined proof pipeline so data consistency 
 
 Never delete or quarantine from this script. Use admin diagnostics dry-run endpoints documented in [`DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md).
 
+The collector writes `data-consistency-summary.json` with `dataConsistencyStatus` of `PASS`, `WARN`, or `HOLD`. The first-pilot proof pipeline maps skipped collection to `NOT_RUN`.
+
 ## Related
 
 - [`DATA_CONSISTENCY_MATRIX.md`](../library/DATA_CONSISTENCY_MATRIX.md)

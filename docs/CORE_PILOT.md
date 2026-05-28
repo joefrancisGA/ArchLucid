@@ -3,10 +3,14 @@
 
 # Core Pilot
 
-Use this page when you need the **four-step Core Pilot** narrative without scrolling the full evaluator guide. The operational checklist remains [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md); this page only explains the shape of first value.
+Use this page when you need the **Core** first-pilot workflow — the canonical four-step path from “new review” to committed manifest + review package. It is **not** one template among many: **Specialty** accelerator templates (Azure SaaS, AI governance, healthcare) are optional buyer-job narratives you choose **after** Core first value or when the buyer’s job clearly matches that template.
+
+The operational checklist remains [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md); this page only explains the shape of first value.
 
 **Input:** buyer architecture evidence or an explicitly accepted demo workspace.  
 **Output:** one defensible architecture review package with committed findings, evidence labels, artifacts, and sponsor handoff material.
+
+**Status vocabulary:** operator Home and proof scripts use **READY / WARN / HOLD / DEFERRED / NEXT ACTION** — see [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md#operator-status-vocabulary).
 
 ---
 
@@ -33,7 +37,7 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 | Need | Doc |
 |------|-----|
 | **Single first-pilot path** (storage → evidence → commit → export → next action) | [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
-| **Accelerator pack index** (Azure SaaS, AI governance, healthcare) | [`library/walkthroughs/README.md`](library/walkthroughs/README.md) |
+| **Specialty accelerator templates** (optional buyer-job narratives — not mandatory before first value) | [`library/walkthroughs/README.md`](library/walkthroughs/README.md) |
 | Step-by-step UI + “what good looks like” | [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) (**Part 2 — Core Pilot**, depth doc) |
 | Azure SaaS readiness — buyer outcome | [`go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md`](go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) · walkthrough [`library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md`](library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) |
 | AI governance — buyer outcome | [`go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md`](go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) · walkthrough [`library/walkthroughs/AI_GOVERNANCE_REVIEW.md`](library/walkthroughs/AI_GOVERNANCE_REVIEW.md) |

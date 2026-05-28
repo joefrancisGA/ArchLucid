@@ -106,6 +106,35 @@ describe("buildFirstPilotReadinessRows", () => {
     expect(rows.find((r) => r.id === "roi-baselines")?.status).toBe("blocked");
   });
 
+  it("surfaces a data consistency row that stays non-ready until proof collection", () => {
+    const rows = buildFirstPilotReadinessRows({
+      healthStatus: "Healthy",
+      healthLoadFailed: false,
+      runsLoadFailed: false,
+      principal: principal(AUTHORITY_RANK.AdminAuthority),
+      signals: signals(),
+      scorecard: scorecard(true),
+      scorecardLoadFailed: false,
+    });
+
+    expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("attention");
+    expect(rows.find((r) => r.id === "data-consistency")?.summary).toContain("proof pipeline");
+  });
+
+  it("marks data consistency blocked when health is unhealthy", () => {
+    const rows = buildFirstPilotReadinessRows({
+      healthStatus: "Unhealthy",
+      healthLoadFailed: false,
+      runsLoadFailed: false,
+      principal: principal(AUTHORITY_RANK.AdminAuthority),
+      signals: signals({ setupUnhealthy: true, setupReady: false }),
+      scorecard: scorecard(true),
+      scorecardLoadFailed: false,
+    });
+
+    expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("blocked");
+  });
+
   it("surfaces API failure states without leaking details", () => {
     const rows = buildFirstPilotReadinessRows({
       healthStatus: null,
@@ -121,5 +150,6 @@ describe("buildFirstPilotReadinessRows", () => {
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("unknown");
     expect(rows.find((r) => r.id === "azure-extractor")?.status).toBe("unknown");
     expect(rows.find((r) => r.id === "roi-baselines")?.status).toBe("unknown");
+    expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("unknown");
   });
 });

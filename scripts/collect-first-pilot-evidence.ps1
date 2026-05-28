@@ -150,6 +150,28 @@ function Get-CollectionCount {
     return $null
 }
 
+function Get-QualityGateDiagnosticsSnapshot {
+    $uri = "$normalizedBase/v1/admin/diagnostics/quality-gates"
+    $req = @{
+        Uri             = $uri
+        Method          = 'Get'
+        UseBasicParsing = $true
+        TimeoutSec      = 60
+    }
+
+    if ($headers.Count -gt 0) {
+        $req.Headers = $headers
+    }
+
+    try {
+        $response = Invoke-WebRequest @req
+        return $response.Content | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        return $null
+    }
+}
+
 Write-Host "Collecting first-pilot evidence for run $RunId @ $normalizedBase"
 
 Invoke-ArchLucidGet -RelativePath '/health/live' -OutFile (Join-Path $bundleDir 'health-live.json')
@@ -173,6 +195,18 @@ $runJson = Invoke-ArchLucidGetText -RelativePath "/v1/architecture/run/$([Uri]::
 $runFile = Join-Path $bundleDir 'run-detail-summary.json'
 [System.IO.File]::WriteAllText($runFile, $runJson, [System.Text.UTF8Encoding]::new($false))
 
+$retrievalGroundingJson = $null
+$retrievalGroundingPath = "/v1/authority/runs/$([Uri]::EscapeDataString($RunId))/retrieval-grounding"
+
+try {
+    $retrievalGroundingJson = Invoke-ArchLucidGetText -RelativePath $retrievalGroundingPath
+    $retrievalGroundingFile = Join-Path $bundleDir 'retrieval-grounding.json'
+    [System.IO.File]::WriteAllText($retrievalGroundingFile, $retrievalGroundingJson, [System.Text.UTF8Encoding]::new($false))
+}
+catch {
+    Write-Host "Retrieval grounding not collected (non-fatal): $($_.Exception.Message)"
+}
+
 $healthReadyJson = [System.IO.File]::ReadAllText((Join-Path $bundleDir 'health-ready.json'))
 $versionJson = [System.IO.File]::ReadAllText((Join-Path $bundleDir 'version.json'))
 $openApiJson = [System.IO.File]::ReadAllText((Join-Path $bundleDir 'openapi-v1.json'))
@@ -182,6 +216,21 @@ $openApi = Convert-JsonTextToObject $openApiJson
 $deltas = Convert-JsonTextToObject $deltasJson
 $audit = Convert-JsonTextToObject $auditJson
 $run = Convert-JsonTextToObject $runJson
+$retrievalGrounding = Convert-JsonTextToObject $retrievalGroundingJson
+$retrievalGroundingRows = if ($null -ne $retrievalGrounding) { @($retrievalGrounding.rows) } else { @() }
+$retrievalGroundingTraceCount = if ($null -ne $retrievalGrounding) { [int]$retrievalGrounding.traceCount } else { 0 }
+$retrievalGroundingTracePresent = ($retrievalGroundingTraceCount -gt 0)
+$citationCoverageValues = @(
+    $retrievalGroundingRows |
+        ForEach-Object { $_.citationCoverage } |
+        Where-Object { $null -ne $_ }
+)
+$meanCitationCoverage = if ($citationCoverageValues.Count -gt 0) {
+    ($citationCoverageValues | Measure-Object -Average).Average
+}
+else {
+    $null
+}
 
 $auditItems = Get-JsonPropertyValue $audit 'items'
 $auditCount = Get-CollectionCount $auditItems
@@ -254,6 +303,19 @@ else {
     [string]$roiConfidenceLabel
 }
 
+$qualityGateDiagnostics = Get-QualityGateDiagnosticsSnapshot
+$qualityGateMode = if ($null -ne $qualityGateDiagnostics) { [string]$qualityGateDiagnostics.mode } else { $null }
+$qualityGateEnforceOnReject = if ($null -ne $qualityGateDiagnostics) { $qualityGateDiagnostics.enforceOnReject } else { $null }
+$qualityGateBlockRunOnReject = if ($null -ne $qualityGateDiagnostics) { $qualityGateDiagnostics.blockRunOnReject } else { $null }
+$qualityGatePilotStrictMinFaithfulness = if ($null -ne $qualityGateDiagnostics) {
+    $qualityGateDiagnostics.pilotStrictMinAgentResultFaithfulnessSupportRatio
+}
+else {
+    $null
+}
+$qualityGateDiagnosticsResolved = ($null -ne $qualityGateDiagnostics)
+$unresolvedQualitySignalsPresent = ($pilotStrictSignalsResolved -eq $false) -or ($qualityGateDisposition -eq 'pilot-strict-signals-unresolved')
+
 $observability = [ordered]@{
     formatVersion                 = '1.0'
     generatedUtc                  = $timestamp
@@ -273,12 +335,21 @@ $observability = [ordered]@{
     agentOutputPilotStrictSignalsResolved = $pilotStrictSignalsResolved
     agentOutputPilotStrictViolatesSponsorEvidence = $pilotStrictViolatesSponsorEvidence
     qualityGateDisposition        = $qualityGateDisposition
+    qualityGateMode               = $qualityGateMode
+    qualityGateEnforceOnReject    = $qualityGateEnforceOnReject
+    qualityGateBlockRunOnReject   = $qualityGateBlockRunOnReject
+    pilotStrictMinAgentResultFaithfulnessSupportRatio = $qualityGatePilotStrictMinFaithfulness
+    qualityGateDiagnosticsResolved = $qualityGateDiagnosticsResolved
+    unresolvedQualitySignalsPresent = $unresolvedQualitySignalsPresent
     estimatedUsdSavings           = $estimatedUsdSavings
     estimatedUsdSavingsBasisLabel = $estimatedUsdSavingsBasisLabel
     roiEvidenceConfidence         = $roiEvidenceConfidence
     sponsorProofReadiness         = $sponsorProofReadiness
     llmCostBasisLabel             = $llmCostBasisLabel
     llmCostEvidenceResolved       = $llmCostEvidenceResolved
+    retrievalGroundingTracePresent = $retrievalGroundingTracePresent
+    retrievalGroundingTraceCount  = $retrievalGroundingTraceCount
+    citationCoverageMean          = $meanCitationCoverage
     rawPromptOrCompletionIncluded = $false
     secretsIncluded               = $false
 }
@@ -305,12 +376,21 @@ Generated (UTC): **$timestamp**
 | PilotStrict signals resolved | $($observability.agentOutputPilotStrictSignalsResolved) |
 | PilotStrict violates sponsor evidence | $($observability.agentOutputPilotStrictViolatesSponsorEvidence) |
 | Quality gate disposition | $($observability.qualityGateDisposition) |
+| Quality gate mode | $($observability.qualityGateMode) |
+| EnforceOnReject | $($observability.qualityGateEnforceOnReject) |
+| BlockRunOnReject | $($observability.qualityGateBlockRunOnReject) |
+| PilotStrict min agent faithfulness ratio | $($observability.pilotStrictMinAgentResultFaithfulnessSupportRatio) |
+| Quality gate diagnostics resolved | $($observability.qualityGateDiagnosticsResolved) |
+| Unresolved quality signals present | $($observability.unresolvedQualitySignalsPresent) |
 | Estimated USD savings | $($observability.estimatedUsdSavings) |
 | Estimated savings basis | $($observability.estimatedUsdSavingsBasisLabel) |
 | ROI evidence confidence | $($observability.roiEvidenceConfidence) |
 | Sponsor proof readiness | $($observability.sponsorProofReadiness) |
 | LLM cost basis label | $($observability.llmCostBasisLabel) |
 | LLM cost evidence resolved | $($observability.llmCostEvidenceResolved) |
+| Retrieval grounding trace present | $($observability.retrievalGroundingTracePresent) |
+| Retrieval grounding trace count | $($observability.retrievalGroundingTraceCount) |
+| Citation coverage (mean) | $($observability.citationCoverageMean) |
 
 ## Safety
 
@@ -357,6 +437,7 @@ $metadata = [ordered]@{
         'pilot-observability-summary.json',
         'pilot-observability-summary.md',
         'pilot-cost-summary.md',
+        'support-summary.md',
         'README.md',
         'artifact-manifest.json'
     )
@@ -393,6 +474,7 @@ Generated (UTC): **$timestamp**
 | ``run-detail-summary.json`` | Run status, manifest linkage, and findings surface for the review. |
 | ``pilot-observability-summary.json`` / ``pilot-observability-summary.md`` | Buyer-safe operational stamp: health, version, OpenAPI, audit sample count, LLM usage fields when available. |
 | ``pilot-cost-summary.md`` | Buyer-safe LLM usage and savings basis labels (estimated/simulator/demo-derived/unavailable). |
+| ``support-summary.md`` | One-page buyer/operator issue-reporting index with manifest checksum and correlation-id guidance. |
 
 ## Buyer-safe vs internal-only
 
@@ -426,6 +508,47 @@ $manifest = [ordered]@{
 }
 $manifestPath = Join-Path $bundleDir 'artifact-manifest.json'
 $manifest | ConvertTo-Json -Depth 6 | Set-Content -Path $manifestPath -Encoding UTF8
+
+$manifestRootSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $manifestPath).Hash.ToLowerInvariant()
+$healthReadyStatusLabel = if ($null -ne $healthReadyStatus) { [string]$healthReadyStatus } else { 'unknown' }
+$goldenManifestLabel = if ($null -ne $goldenManifestId) { [string]$goldenManifestId } else { 'not resolved' }
+
+$supportSummaryMd = @"
+# Buyer-safe support summary
+
+Generated (UTC): **$timestamp**
+
+| Field | Value |
+| --- | --- |
+| Base URL | $normalizedBase |
+| API version | $($observability.apiVersion) |
+| API commit | $($observability.apiCommit) |
+| Health ready status | $healthReadyStatusLabel |
+| Run id | ``$RunId`` |
+| Golden manifest id | $goldenManifestLabel |
+| Artifact manifest SHA-256 | ``$manifestRootSha`` |
+| Buyer-safe file count | $($manifestEntries.Count) |
+
+## How to report an issue
+
+1. Include this file, ``artifact-manifest.json``, and ``go-no-go-summary.md`` from the proof pipeline when available.
+2. Capture the **X-Correlation-ID** response header from failing API calls.
+3. Run ``archlucid support-bundle`` for internal diagnostics — do **not** attach raw support bundles to external sponsor email.
+
+## Buyer-safe vs internal-only
+
+**Buyer-safe:** files listed in ``run-metadata.json`` → ``buyerSafe``.
+
+**Internal-only:** raw LLM traces, prompts, secrets, connection strings, and full support bundle internals.
+
+## Troubleshooting
+
+- Operator path: ``docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md``
+- Symptom tree: ``docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md``
+- Data consistency: ``docs/runbooks/DATA_CONSISTENCY_READINESS.md``
+"@
+$supportSummaryFile = Join-Path $bundleDir 'support-summary.md'
+[System.IO.File]::WriteAllText($supportSummaryFile, $supportSummaryMd, [System.Text.UTF8Encoding]::new($false))
 
 Write-Host "Wrote first-pilot evidence bundle: $bundleDir"
 exit 0

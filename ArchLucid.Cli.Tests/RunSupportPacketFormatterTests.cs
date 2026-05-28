@@ -27,6 +27,22 @@ public sealed class RunSupportPacketFormatterTests
     }
 
     [Fact]
+    public void ResolveNextStep_default_branch_mentions_authority_inspection()
+    {
+        RunSupportPacketFormatter.ResolveNextStep(ArchitectureRunStatus.Committed, null)
+            .Should()
+            .Contain("GET /v1/architecture/run");
+    }
+
+    [Fact]
+    public void ResolveNextStep_waiting_for_results_mentions_legacy_coordinator()
+    {
+        RunSupportPacketFormatter.ResolveNextStep(ArchitectureRunStatus.WaitingForResults, null)
+            .Should()
+            .Contain("Legacy coordinator");
+    }
+
+    [Fact]
     public void FormatPlainText_includes_trace_and_manifest_projection_lines()
     {
         ArchLucidApiClient.GetRunResult detail =

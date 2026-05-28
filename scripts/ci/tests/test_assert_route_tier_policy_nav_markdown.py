@@ -28,3 +28,4 @@ def test_render_markdown_report_includes_failures() -> None:
 
     assert "**FAIL**" in body
     assert "sample failure" in body
+    assert "## Next action" in body
