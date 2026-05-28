@@ -6,13 +6,30 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { isApiTimeoutLoadFailure } from "@/lib/api-load-failure";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 
 export type OperatorBrandedTransientFailureProps = {
   readonly failure?: ApiLoadFailureState | null;
   readonly retryLabel?: string;
 };
+
+function isTimeoutFailure(failure: ApiLoadFailureState | null | undefined): boolean {
+  if (failure === null || failure === undefined) {
+    return false;
+  }
+
+  if (failure.httpStatus === 408 || failure.httpStatus === 504) {
+    return true;
+  }
+
+  if (failure.problem?.errorCode?.trim() === "DATABASE_TIMEOUT") {
+    return true;
+  }
+
+  const message = failure.message.toLowerCase();
+
+  return message.includes("timeout") || message.includes("timed out") || message.includes("aborterror");
+}
 
 /**
  * Buyer-safe recovery when ArchLucid or the API is slow or temporarily unreachable — not a missing deep link.
@@ -21,7 +38,7 @@ export function OperatorBrandedTransientFailure({
   failure = null,
   retryLabel = "Retry",
 }: OperatorBrandedTransientFailureProps) {
-  const timedOut = isApiTimeoutLoadFailure(failure);
+  const timedOut = isTimeoutFailure(failure);
   const title = timedOut ? "ArchLucid is taking longer than expected" : "ArchLucid is temporarily unavailable";
   const defaultBody = timedOut
     ? "The server did not respond in time. This is usually temporary — retry in a moment, or return to Reviews while processing continues."
