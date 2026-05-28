@@ -267,6 +267,77 @@
         },
         "type": "object"
       },
+      "AdminFleetLlmCogsDashboardResponse": {
+        "properties": {
+          "costBasisLabel": {
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AdminFleetLlmCogsRowResponse"
+            },
+            "type": "array"
+          },
+          "utcMonth": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminFleetLlmCogsRowResponse": {
+        "properties": {
+          "blocksAdditionalLlmExecution": {
+            "type": "boolean"
+          },
+          "costBasisLabel": {
+            "type": "string"
+          },
+          "estimatedUsdPressureUtcMonth": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "grossMarginRiskLabel": {
+            "type": "string"
+          },
+          "hardCapUsdUtcMonth": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "hardCapUtilizationFraction": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tenantName": {
+            "type": "string"
+          },
+          "trialFirstManifestCommittedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AdminIdentityProviderDiagnosticsResponse": {
         "properties": {
           "oidc": {
@@ -1198,6 +1269,15 @@
           "emptyClaimCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "findingCitationCoverageRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "findingsQualityRatio": {
             "format": "double",
@@ -11296,6 +11376,62 @@
         },
         "type": "object"
       },
+      "LlmCostDailyBucketResponse": {
+        "properties": {
+          "bucketUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "completionTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "promptTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "LlmCostReportingDashboardResponse": {
+        "properties": {
+          "byWorkspaceProject": {
+            "items": {
+              "$ref": "#/components/schemas/LlmCostWorkspaceProjectRowResponse"
+            },
+            "type": "array"
+          },
+          "costBasisLabel": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "daily": {
+            "items": {
+              "$ref": "#/components/schemas/LlmCostDailyBucketResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "LlmCostTuningRequest": {
         "properties": {
           "inputUsdPerMillionTokens": {
@@ -11313,6 +11449,49 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "LlmCostWorkspaceProjectRowResponse": {
+        "properties": {
+          "completionTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "projectName": {
+            "type": "string"
+          },
+          "promptTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceName": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -15104,6 +15283,33 @@
           },
           "version": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RealizedValueAttestationResponse": {
+        "properties": {
+          "attestedIncidentsAvoided": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "attestedRevenueOrRetentionImpact": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attestedReviewerTimeSavedNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasAttestation": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -22832,6 +23038,35 @@
         },
         "tags": [
           "MeteringAdmin"
+        ]
+      }
+    },
+    "/v1/admin/operational/fleet-llm-cogs": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminFleetLlmCogsDashboardResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminFleetLlmCogsDashboardResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminFleetLlmCogsDashboardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminFleetLlmCogs"
         ]
       }
     },
@@ -46326,6 +46561,33 @@
       }
     },
     "/v1/governance/realized-value/attestation": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealizedValueAttestationResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealizedValueAttestationResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealizedValueAttestationResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      },
       "put": {
         "requestBody": {
           "content": {
@@ -51767,6 +52029,65 @@
           "404": {
             "content": {
               "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
+    "/v1/pilots/runs/{runId}/sponsor-proof-pack.zip": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/zip": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -57556,6 +57877,50 @@
         ]
       }
     },
+    "/v1/tenant/llm-cost-reporting": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "schema": {
+              "default": 30,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmCostReportingDashboardResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmCostReportingDashboardResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LlmCostReportingDashboardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantLlmCostReporting"
+        ]
+      }
+    },
     "/v1/tenant/measured-roi": {
       "get": {
         "responses": {
@@ -58627,6 +58992,9 @@
       "name": "AdminAuthDiagnostics"
     },
     {
+      "name": "AdminFleetLlmCogs"
+    },
+    {
       "name": "AdminIdentityProviderDiagnostics"
     },
     {
@@ -59027,6 +59395,9 @@
     },
     {
       "name": "TenantIntegrationsOperations"
+    },
+    {
+      "name": "TenantLlmCostReporting"
     },
     {
       "name": "TenantMeasuredRoi"
