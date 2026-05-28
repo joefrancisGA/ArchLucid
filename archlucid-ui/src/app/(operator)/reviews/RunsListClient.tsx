@@ -572,10 +572,17 @@ export function RunsListClient({
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
           <div className="space-y-8">
             {showBuyerPackageCards ? (
-              <div className="grid gap-4">
-                {filteredSorted.map((run) => (
-                  <RunsListBuyerFeaturedCard key={run.runId} run={run} />
-                ))}
+              <div className="space-y-2">
+                {filteredSorted.every((r) => r.hasGoldenManifest === true) ? (
+                  <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                    Finalized review packages
+                  </h3>
+                ) : null}
+                <div className="grid gap-4">
+                  {filteredSorted.map((run) => (
+                    <RunsListBuyerFeaturedCard key={run.runId} run={run} />
+                  ))}
+                </div>
               </div>
             ) : null}
 
