@@ -8,7 +8,7 @@ describe("HelpProductGuide", () => {
     render(<HelpProductGuide />);
 
     expect(screen.getByRole("heading", { name: "Using ArchLucid" })).toBeInTheDocument();
-    expect(screen.getByText("Golden path (first walkthrough)")).toBeInTheDocument();
+    expect(screen.getByText("Your first review package")).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Open executive summary" })).toBeInTheDocument();
 

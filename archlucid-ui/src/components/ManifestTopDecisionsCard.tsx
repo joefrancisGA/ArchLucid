@@ -91,23 +91,28 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
             Grouped by control area — main architecture choices captured in this review package.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
-          {sections.map((section) => (
-            <div key={section.area}>
-              <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                {section.area}
-              </p>
-              <ul className="m-0 mt-2 list-none space-y-2 p-0">
+        <CardContent className="space-y-3">
+          {sections.map((section, idx) => (
+            <details key={section.area} open={idx === 0} className="rounded-lg border border-neutral-200 dark:border-neutral-700">
+              <summary className="flex cursor-pointer select-none items-center justify-between px-3 py-2.5">
+                <span className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                  {section.area}
+                </span>
+                <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                  {section.lines.length} decision{section.lines.length === 1 ? "" : "s"}
+                </span>
+              </summary>
+              <ul className="m-0 list-none space-y-2 border-t border-neutral-200 p-3 dark:border-neutral-700">
                 {section.lines.map((line) => (
                   <li
                     key={line}
-                    className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+                    className="rounded-md border border-neutral-100 bg-white px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700/60 dark:bg-neutral-900/40 dark:text-neutral-200"
                   >
                     {line}
                   </li>
                 ))}
               </ul>
-            </div>
+            </details>
           ))}
         </CardContent>
       </Card>

@@ -31,6 +31,22 @@ type RunDetailOutcomeCardsProps = {
   readonly degradedFindingCoverage?: boolean;
   /** Sanitized engine labels from finding coverage summary (engine/category). */
   readonly failedEngineLabels?: readonly string[];
+  readonly findingCoverageSummary?: {
+    readonly enginesAttempted?: number | null;
+    readonly enginesSucceeded?: number | null;
+    readonly enginesFailed?: number | null;
+    readonly hasCommitBlockingFailures?: boolean;
+    readonly generationStatus?: string | null;
+    readonly dispositionCoverage?: {
+      readonly openCount?: number | null;
+      readonly acceptedCount?: number | null;
+      readonly deferredCount?: number | null;
+      readonly needsEvidenceCount?: number | null;
+      readonly remediatedCount?: number | null;
+      readonly rejectedNotApplicableCount?: number | null;
+      readonly waivedCount?: number | null;
+    } | null;
+  } | null;
   /** Buyer-polished strip only: prominent link to read-only pack detail (showcase demo). */
   readonly showcasePolicyPackStrip?: ShowcasePolicyPackStripLink | null;
 };
@@ -66,6 +82,70 @@ function DegradedFindingCoverageBanner({
         advisory until coverage is restored.
       </p>
     </div>
+  );
+}
+
+function finiteCoverageCount(value: number | null | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+}
+
+function FindingCoverageDispositionPanel({
+  summary,
+}: {
+  readonly summary: NonNullable<RunDetailOutcomeCardsProps["findingCoverageSummary"]>;
+}) {
+  const disposition = summary.dispositionCoverage;
+
+  if (disposition === null || disposition === undefined) {
+    return null;
+  }
+
+  const rows = [
+    ["Open", disposition.openCount],
+    ["Accepted", disposition.acceptedCount],
+    ["Remediated", disposition.remediatedCount],
+    ["Deferred", disposition.deferredCount],
+    ["Needs evidence", disposition.needsEvidenceCount],
+    ["Rejected / N/A", disposition.rejectedNotApplicableCount],
+    ["Waived", disposition.waivedCount],
+  ] as const;
+
+  return (
+    <section
+      className={cn(
+        "rounded-lg border px-3 py-3 text-sm",
+        summary.hasCommitBlockingFailures === true
+          ? "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950/40 dark:text-red-50"
+          : "border-neutral-200 bg-neutral-50/80 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-100",
+      )}
+      data-testid="finding-coverage-disposition-panel"
+      role={summary.hasCommitBlockingFailures === true ? "alert" : "status"}
+    >
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <p className="m-0 font-semibold">
+          {summary.hasCommitBlockingFailures === true
+            ? "Commit-blocking finding coverage"
+            : "Finding disposition coverage"}
+        </p>
+        <p className="m-0 text-xs text-current/80">
+          Engines {finiteCoverageCount(summary.enginesSucceeded)}/{finiteCoverageCount(summary.enginesAttempted)} succeeded
+          {finiteCoverageCount(summary.enginesFailed) > 0 ? ` · ${finiteCoverageCount(summary.enginesFailed)} failed` : ""}
+        </p>
+      </div>
+      {summary.hasCommitBlockingFailures === true ? (
+        <p className="m-0 mt-2 text-xs leading-relaxed">
+          Finalization should remain blocked until the coverage gap is resolved or explicitly regenerated.
+        </p>
+      ) : null}
+      <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {rows.map(([label, value]) => (
+          <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
+            <dt className="text-[0.65rem] font-semibold uppercase tracking-wide opacity-70">{label}</dt>
+            <dd className="m-0 text-base font-semibold tabular-nums">{finiteCoverageCount(value)}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 
@@ -336,12 +416,15 @@ export function RunDetailOutcomeCards({
   showcasePolicyPackStrip,
   degradedFindingCoverage = false,
   failedEngineLabels = [],
+  findingCoverageSummary = null,
 }: RunDetailOutcomeCardsProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const coverageBanner =
     degradedFindingCoverage === true ? (
       <DegradedFindingCoverageBanner failedEngineLabels={failedEngineLabels} />
     ) : null;
+  const dispositionPanel =
+    findingCoverageSummary !== null ? <FindingCoverageDispositionPanel summary={findingCoverageSummary} /> : null;
 
   if (buyerPolishedShell) {
   const statusHeadline = buildBuyerReviewPackagePlainStatusHeadline({
@@ -356,6 +439,7 @@ export function RunDetailOutcomeCards({
   return (
     <div className="space-y-3">
       {coverageBanner}
+      {dispositionPanel}
       {statusHeadline !== null ? (
         <div
           className="rounded-xl border-2 border-teal-600/75 bg-teal-50/70 px-4 py-3 shadow-sm dark:border-teal-500/60 dark:bg-teal-950/35"
@@ -470,6 +554,7 @@ export function RunDetailOutcomeCards({
   return (
     <div className="space-y-3">
       {coverageBanner}
+      {dispositionPanel}
       <section aria-label="Review outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">

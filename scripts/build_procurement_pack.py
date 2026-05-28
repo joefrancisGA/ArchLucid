@@ -52,6 +52,24 @@ _DEAL_READY_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\[Legal\s*[-—]\s*describe\]", re.IGNORECASE),
 )
 
+_DEFAULT_OWNER_BY_STATUS: dict[str, str] = {
+    "Evidence": "Security / product owner",
+    "Self-assessment": "Security / procurement owner",
+    "Template": "Legal / procurement owner",
+    "Deferred": "Executive owner",
+    "NDA-gated": "Security / legal owner",
+    "Owner-input-required": "Named deal owner",
+}
+
+_DEFAULT_CAVEAT_BY_STATUS: dict[str, str] = {
+    "Evidence": "Evidence describes implemented or documented ArchLucid posture; verify freshness before buyer distribution.",
+    "Self-assessment": "Self-attested control narrative; not a third-party attestation or certification.",
+    "Template": "Template only until reviewed and executed for a specific customer or vendor.",
+    "Deferred": "Deferred scope; do not present as complete for V1 readiness.",
+    "NDA-gated": "Distribution depends on NDA, assessor, or customer-specific legal approval.",
+    "Owner-input-required": "Requires owner-supplied deal details before external use.",
+}
+
 
 def entry_should_scan_for_placeholders(entry: dict) -> bool:
     status = entry.get("artifact_status", "Evidence")
@@ -92,11 +110,16 @@ def scan_packed_files_for_markers(
 def write_artifact_status_index(stage: Path, entries: list[dict]) -> None:
     rows: list[dict] = []
     for e in entries:
+        status = e.get("artifact_status", "Evidence")
         rows.append(
             {
                 "pack_path": e["pack_path"],
-                "artifact_status": e.get("artifact_status", "Evidence"),
+                "source_repo_path": e.get("source_repo_path", ""),
+                "artifact_status": status,
+                "owner_function": e.get("owner_function", _DEFAULT_OWNER_BY_STATUS.get(status, "Security / procurement owner")),
+                "last_reviewed_utc": e.get("last_reviewed_utc", "See source document"),
                 "description": e.get("description", ""),
+                "caveat": e.get("caveat", _DEFAULT_CAVEAT_BY_STATUS.get(status, "Review source caveats before buyer distribution.")),
             }
         )
 
@@ -108,14 +131,21 @@ def write_artifact_status_index(stage: Path, entries: list[dict]) -> None:
     lines = [
         "# Artifact status index",
         "",
-        "Each row reflects `artifact_status` from the canonical procurement list (`scripts/procurement_pack_canonical.json`).",
+        "Each row reflects `artifact_status` from the canonical procurement list (`scripts/procurement_pack_canonical.json`). "
+        "Labels distinguish externally shareable evidence, self-assessments, templates, deferred scope, and gated material so reviewers do not mistake templates or roadmaps for attestations.",
         "",
-        "| Pack file | Status | Description |",
-        "| --- | --- | --- |",
+        "| Pack file | Source | Status | Owner / function | Last reviewed | Buyer-safe summary | Caveat |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for r in rows:
         desc = str(r.get("description", "")).replace("|", "\\|")
-        lines.append(f"| `{r['pack_path']}` | **{r['artifact_status']}** | {desc} |")
+        caveat = str(r.get("caveat", "")).replace("|", "\\|")
+        owner = str(r.get("owner_function", "")).replace("|", "\\|")
+        source = str(r.get("source_repo_path", "")).replace("|", "\\|")
+        reviewed = str(r.get("last_reviewed_utc", "")).replace("|", "\\|")
+        lines.append(
+            f"| `{r['pack_path']}` | `{source}` | **{r['artifact_status']}** | {owner} | {reviewed} | {desc} | {caveat} |"
+        )
 
     lines.append("")
     (stage / "ARTIFACT_STATUS_INDEX.md").write_text("\n".join(lines), encoding="utf-8")
@@ -131,8 +161,8 @@ This bundle was produced by **`scripts/build_procurement_pack.py`** (or `archluc
 
 | File | Purpose |
 | --- | --- |
-| **`ARTIFACT_STATUS_INDEX.md`** | Table of **Evidence** vs **Template** vs **Self-assessment** vs **Deferred** — use this so templates are not mistaken for attestations. |
-| **`artifact_status_index.json`** | Same classification in JSON (automation / SIEM). |
+| **`ARTIFACT_STATUS_INDEX.md`** | Reviewer table of **Evidence** vs **Template** vs **Self-assessment** vs **Deferred**, including source path, owner function, review pointer, summary, and caveat. |
+| **`artifact_status_index.json`** | Same classification and caveats in JSON (automation / SIEM). |
 | **`manifest.json`** | Per-file **SHA-256**, size, and **`artifact_status`**. |
 | **`versions.txt`** | Git commit, build UTC, CLI package version. |
 | **`redaction_report.md`** | Repository paths **intentionally omitted** from the canonical pack and why. |

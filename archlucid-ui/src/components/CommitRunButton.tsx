@@ -31,12 +31,14 @@ export type CommitRunButtonProps = {
   runId: string;
   /** When true, the review already has a reviewed manifest — commit is not offered. */
   disabled: boolean;
+  /** Existing server-side finding coverage says finalize will be blocked. */
+  commitBlockedReason?: string | null;
 };
 
 /**
  * Commits the architecture run via POST /v1/architecture/run/{runId}/commit (ExecuteAuthority).
  */
-export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
+export function CommitRunButton({ runId, disabled, commitBlockedReason = null }: CommitRunButtonProps) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
@@ -92,6 +94,22 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         This review is already finalized (reviewed architecture snapshot present).
       </p>
+    );
+  }
+
+  if (commitBlockedReason !== null && commitBlockedReason.trim().length > 0) {
+    return (
+      <div
+        className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-950 dark:border-red-800 dark:bg-red-950/40 dark:text-red-50"
+        data-testid="commit-blocked-finding-coverage"
+        role="alert"
+      >
+        <p className="m-0 font-semibold">Finalize is blocked by finding coverage</p>
+        <p className="m-0 mt-2 leading-relaxed">{commitBlockedReason.trim()}</p>
+        <p className="m-0 mt-2 text-xs leading-relaxed">
+          Resolve the blocking engine failure or regenerate coverage before finalizing this architecture review.
+        </p>
+      </div>
     );
   }
 

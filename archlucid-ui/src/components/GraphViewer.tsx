@@ -448,33 +448,31 @@ export function GraphViewer({
 
           {selectedNode ? (
             <>
-              <h3 className="mt-0">Node detail</h3>
-              {!buyerTrailPanel ? (
-                <p>
-                  <strong>ID:</strong> {selectedNode.id}
-                </p>
-              ) : null}
-
               {buyerTrailPanel ? (
                 (() => {
                   const recordType = graphBuyerTrailRecordTypeLine(selectedNode);
 
                   return (
-                    <p className="m-0 text-sm leading-snug text-neutral-800 dark:text-neutral-200">
-                      <strong>{recordType.primary}</strong>
+                    <div className="space-y-0.5">
+                      <p className="m-0 text-base font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
+                        {recordType.primary}
+                      </p>
                       {recordType.secondary !== null ? (
-                        <>
-                          <br />
-                          <span className="text-neutral-700 dark:text-neutral-300">{recordType.secondary}</span>
-                        </>
+                        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{recordType.secondary}</p>
                       ) : null}
-                    </p>
+                    </div>
                   );
                 })()
               ) : (
-                <p>
-                  <strong>Label:</strong> {selectedNode.label}
-                </p>
+                <>
+                  <h3 className="mt-0">Node detail</h3>
+                  <p>
+                    <strong>ID:</strong> {selectedNode.id}
+                  </p>
+                  <p>
+                    <strong>Label:</strong> {selectedNode.label}
+                  </p>
+                </>
               )}
 
               {!buyerTrailPanel ? (
@@ -496,7 +494,7 @@ export function GraphViewer({
 
                     return (
                       <p className="m-0 mt-2 rounded-md border border-amber-200/85 bg-amber-50/75 px-2.5 py-2 text-sm leading-snug text-neutral-800 dark:border-amber-900/55 dark:bg-amber-950/35 dark:text-neutral-200">
-                        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Disposition</span>{" "}
+                        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Decision:</span>{" "}
                         {dispositionLine}
                       </p>
                     );
@@ -576,22 +574,28 @@ export function GraphViewer({
                   return (
                     <>
                       {summaryLines.length > 0 ? (
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-semibold">At a glance</h4>
-                          <ul className="m-0 list-none space-y-2 p-0 text-sm">
+                        <div className="rounded-lg border border-teal-200/70 bg-teal-50/40 p-3 dark:border-teal-800/50 dark:bg-teal-950/20">
+                          <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-400">
+                            At a glance
+                          </p>
+                          <dl className="m-0 mt-2 grid gap-y-1.5">
                             {summaryLines.map((row) => (
-                              <li key={`${row.label}-${row.value}`}>
-                                <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.label}:</span>{" "}
-                                <span className="text-neutral-700 dark:text-neutral-300">{row.value}</span>
-                              </li>
+                              <div key={`${row.label}-${row.value}`} className="flex gap-x-2">
+                                <dt className="shrink-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+                                  {row.label}
+                                </dt>
+                                <dd className="m-0 min-w-0 text-xs text-neutral-800 dark:text-neutral-200">
+                                  {row.value}
+                                </dd>
+                              </div>
                             ))}
-                          </ul>
+                          </dl>
                         </div>
                       ) : null}
                       {technicalLines.length > 0 ? (
                         <details className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/50">
                           <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                            Technical references
+                            Technical appendix
                           </summary>
                           <ul className="m-0 list-none space-y-1 px-3 pb-3 pt-0 text-xs">
                             {technicalLines.map((row) => (

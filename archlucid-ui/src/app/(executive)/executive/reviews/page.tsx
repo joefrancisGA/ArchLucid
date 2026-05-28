@@ -34,7 +34,7 @@ export default async function ExecutiveReviewsPage() {
   } catch (e) {
     if (isApiRequestError(e) && e.httpStatus === 401) {
       loadError =
-        "Sign in is required. Open Operator shell and sign in with your organization account, then return here.";
+        "Sign in is required. Sign in with your organization account to access this view.";
     } else if (isApiRequestError(e) && e.httpStatus === 403) {
       loadError = "You do not have access to list reviews for this workspace.";
     } else {
@@ -85,7 +85,7 @@ export default async function ExecutiveReviewsPage() {
                 <Link href="/auth/signin">Sign in</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/">Open operator shell</Link>
+                <Link href="/">Open review portal</Link>
               </Button>
             </div>
           </CardContent>
@@ -102,7 +102,7 @@ export default async function ExecutiveReviewsPage() {
               Finalized reviews appear here after an operator completes the review and locks the architecture package.
             </p>
             <Button asChild variant="outline" size="sm">
-              <Link href="/reviews/new">Start a review (operator shell)</Link>
+              <Link href="/reviews/new">Start a review</Link>
             </Button>
           </CardContent>
         </Card>

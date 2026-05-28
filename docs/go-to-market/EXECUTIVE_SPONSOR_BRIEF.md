@@ -30,12 +30,13 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 ## 1. What ArchLucid is
 
-ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package.
+ArchLucid shortens the path from an architecture request to one reviewable, defensible architecture proof package.
 
 It helps teams produce:
 
 - a committed manifest,
-- reviewable artifacts,
+- evidence-linked findings,
+- reviewable artifacts and sponsor-ready summaries,
 - clearer evidence for architecture and governance review,
 - and better visibility into what changed and why.
 
@@ -108,6 +109,15 @@ A successful Pilot should prove that a team can:
 - and create stronger evidence for architecture or governance review.
 
 That is the main V1 buying motion.
+
+### Manual review vs ArchLucid proof package
+
+| Manual architecture review | ArchLucid proof package |
+| --- | --- |
+| Evidence is gathered across meetings, tickets, diagrams, and spreadsheets. | Evidence, findings, manifest, exports, and sponsor summary are linked in one review package. |
+| Reviewers reconstruct why a decision was made after the fact. | Findings and decisions carry explainability, provenance, and audit pointers at review time. |
+| Sponsor updates often become slideware detached from the evidence trail. | Sponsor-ready outputs stay tied to the committed review and label estimates, defaults, and customer-entered values explicitly. |
+| Follow-up reviews depend on manual comparison. | A second review can compare against the prior package and keep governance questions separate from the first-pilot proof. |
 
 **Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](library/API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical.
 

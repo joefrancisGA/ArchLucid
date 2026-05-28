@@ -514,9 +514,6 @@ export function GovernanceWorkflowPageContent() {
             auditTrailHref={`/audit?runId=${encodeURIComponent(activeRunId)}`}
             emphasizeComplete
           />
-          <p className="mb-4 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-            Production execution remains controlled by the customer&apos;s enterprise change-management process.
-          </p>
         </>
       ) : null}
       {!showBuyerApprovalStory ? (
@@ -529,7 +526,7 @@ export function GovernanceWorkflowPageContent() {
       ) : null}
 
       {buyerPolishedShell ? (
-        <CollapsibleSection title="Related governance links" defaultOpen={false}>
+        <CollapsibleSection title="Supporting approval records" defaultOpen={false}>
           <GovernanceInteractiveQuickstartCard hideFirst30DaysLink suppressCardTitle className="mb-0" />
         </CollapsibleSection>
       ) : (

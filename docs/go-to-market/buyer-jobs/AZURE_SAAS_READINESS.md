@@ -14,6 +14,35 @@
 
 ---
 
+## Target buyer and trigger event
+
+Platform engineering, cloud architecture, or a founder/CTO sponsor uses this accelerator when a SaaS workload is nearing production, a board/customer diligence review asks for Azure posture evidence, or a platform team wants a single reviewable package before a release gate.
+
+## Expected first finding types
+
+- Public exposure or missing private endpoint patterns on data/control-plane dependencies.
+- Cost or topology mismatches between the architecture brief and uploaded Azure evidence.
+- Missing audit, backup, or identity posture evidence for production-readiness claims.
+- Policy-pack findings around tenant isolation, operational readiness, and SaaS baseline controls.
+
+## Sponsor artifact example
+
+A proof package that opens with: “This Azure SaaS review links customer-run Azure inventory, policy-pack checks, findings, and a committed manifest into one architecture decision record.” Attach the review package export plus the Azure extractor ingest summary; do not attach raw secrets or customer identifiers.
+
+## ROI and procurement proof points
+
+- Time saved versus manual Azure architecture review, labeled as customer-entered baseline, model default, or measured review runtime.
+- Evidence provenance from Azure extractor ZIP to finding to manifest.
+- Procurement-safe caveat: evidence is self-attested/customer-provided unless a buyer supplies separate third-party assurance.
+
+## What not to claim
+
+- Do not claim Well-Architected certification, SOC 2 readiness, production SLA compliance, or Azure invoice accuracy.
+- Do not imply AWS/GCP analysis in V1.
+- Do not require V1.1 connectors for the pilot path.
+
+---
+
 ## Required inputs
 
 | Input | Notes |

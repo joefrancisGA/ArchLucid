@@ -3,9 +3,9 @@
 import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { isApiNotFoundFailure } from "@/lib/api-load-failure";
+import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 
 import { PlanningPlanDetailSections } from "./PlanningPlanDetailSections";
 import type { UsePlanningPlanDetailPageModel } from "./use-planning-plan-detail-page";
@@ -19,8 +19,8 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
 
   return (
     <div className="max-w-3xl">
-      {failure !== null && isApiNotFoundFailure(failure) ? (
-        <OperatorBrandedNotFound />
+      {failure !== null && resolveApiLoadFailurePresentation(failure) !== "error" ? (
+        <OperatorBrandedRouteLoadFailure failure={failure} retryLabel="Retry loading plan" />
       ) : (
         <>
           <p className="mt-0 mb-4">
@@ -44,7 +44,7 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
             </OperatorLoadingNotice>
           ) : null}
 
-          {failure !== null && !isApiNotFoundFailure(failure) ? (
+          {failure !== null && resolveApiLoadFailurePresentation(failure) === "error" ? (
             <div role="alert" className="mb-4">
               <OperatorApiProblem
                 problem={failure.problem}

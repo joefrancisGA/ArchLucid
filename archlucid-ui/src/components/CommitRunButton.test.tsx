@@ -25,6 +25,19 @@ describe("CommitRunButton", () => {
     expect(screen.getByText(/already finalized/i)).toBeInTheDocument();
   });
 
+  it("renders commit-blocked coverage message without primary finalize control", () => {
+    render(
+      <CommitRunButton
+        runId="abc"
+        disabled={false}
+        commitBlockedReason="Finding coverage is commit-blocking. Failed engines: Security."
+      />,
+    );
+
+    expect(screen.getByTestId("commit-blocked-finding-coverage")).toHaveTextContent("Security");
+    expect(screen.queryByRole("button", { name: /^finalize review$/i })).not.toBeInTheDocument();
+  });
+
   it("surfaces finalize tooltip on the primary control", () => {
     render(<CommitRunButton runId="x" disabled={false} />);
 

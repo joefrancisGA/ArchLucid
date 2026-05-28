@@ -55,7 +55,7 @@ export function FleetLlmCogsPageClient() {
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Fleet LLM COGS</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Per-tenant estimated UTC-month LLM pressure, budget cap utilization, and gross-margin risk labels. Values are
-          estimates — not Azure invoice totals.
+          internal COGS estimates — not Azure invoice totals or customer charges.
         </p>
         <Button type="button" variant="outline" size="sm" className="mt-3" disabled={loading} onClick={() => void refresh()}>
           {loading ? "Refreshing…" : "Refresh"}
@@ -72,7 +72,29 @@ export function FleetLlmCogsPageClient() {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">UTC month {data?.utcMonth ?? "—"}</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardContent className="space-y-4 overflow-x-auto">
+          <div className="grid gap-3 text-sm sm:grid-cols-4">
+            <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Monitoring</p>
+              <p className="m-0 mt-1 font-semibold">
+                {data?.monthlyBudgetMonitoringActive ? "Active" : "Disabled"}
+              </p>
+            </div>
+            <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Cost rates</p>
+              <p className="m-0 mt-1 font-semibold">
+                {data?.costRatesConfigured ? "Configured" : "Missing"}
+              </p>
+            </div>
+            <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Near threshold</p>
+              <p className="m-0 mt-1 font-semibold tabular-nums">{data?.budgetWarningTenantCount ?? 0}</p>
+            </div>
+            <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
+              <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500">Hard stops</p>
+              <p className="m-0 mt-1 font-semibold tabular-nums">{data?.hardStopTenantCount ?? 0}</p>
+            </div>
+          </div>
           <table className="min-w-full text-left text-sm">
             <thead>
               <tr className="border-b border-neutral-200 dark:border-neutral-800">
@@ -81,6 +103,7 @@ export function FleetLlmCogsPageClient() {
                 <th className="py-2 pr-4 font-medium">Hard cap</th>
                 <th className="py-2 pr-4 font-medium">Utilization</th>
                 <th className="py-2 pr-4 font-medium">Risk</th>
+                <th className="py-2 pr-4 font-medium">Budget completeness</th>
               </tr>
             </thead>
             <tbody>
@@ -97,6 +120,11 @@ export function FleetLlmCogsPageClient() {
                       : "—"}
                   </td>
                   <td className="py-2 pr-4">{row.grossMarginRiskLabel}</td>
+                  <td className="py-2 pr-4">
+                    <span className={row.costRatesConfigured ? "" : "font-medium text-amber-800 dark:text-amber-200"}>
+                      {row.budgetCompletionLabel}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

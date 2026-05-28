@@ -9,6 +9,7 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { getScopeHeaders } from "@/lib/scope";
+import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
 /** Shared HTTP helpers (JSON + proxy routing). */
@@ -114,6 +115,23 @@ export function withCorrelationHeaders(headers: HeadersInit): Headers {
   return h;
 }
 
+function serverFetchInit(
+  headers: Headers,
+  init?: { readonly method?: string; readonly body?: string },
+): RequestInit {
+  const requestInit: RequestInit = {
+    cache: "no-store",
+    headers,
+    ...init,
+  };
+
+  if (!isBrowser()) {
+    requestInit.signal = AbortSignal.timeout(SERVER_UPSTREAM_FETCH_TIMEOUT_MS);
+  }
+
+  return requestInit;
+}
+
 export function throwApiRequestError(response: Response, bodyText: string): never {
   const err = buildApiRequestErrorFromParts(response, bodyText);
 
@@ -163,10 +181,7 @@ export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseW
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
-  const response = await fetch(url, {
-    cache: "no-store",
-    headers: h,
-  });
+  const response = await fetch(url, serverFetchInit(h));
   const text = await response.text();
   const traceId = extractTraceId(response);
 
@@ -201,12 +216,10 @@ export async function apiPostJson<T>(
     }
   }
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: h,
-    cache: "no-store",
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(
+    url,
+    serverFetchInit(h, { method: "POST", body: JSON.stringify(body) }),
+  );
   const text = await response.text();
 
   if (!response.ok) {
@@ -224,12 +237,10 @@ export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
-  const response = await fetch(url, {
-    method: "PATCH",
-    headers: h,
-    cache: "no-store",
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(
+    url,
+    serverFetchInit(h, { method: "PATCH", body: JSON.stringify(body) }),
+  );
   const text = await response.text();
 
   if (!response.ok) {
@@ -247,12 +258,10 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
-  const response = await fetch(url, {
-    method: "POST",
-    headers: h,
-    cache: "no-store",
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(
+    url,
+    serverFetchInit(h, { method: "POST", body: JSON.stringify(body) }),
+  );
   const text = await response.text();
 
   if (!response.ok) {
@@ -268,12 +277,7 @@ export async function apiPutNoContent(path: string, body: unknown): Promise<void
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
-  const response = await fetch(url, {
-    method: "PUT",
-    headers: h,
-    cache: "no-store",
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
   const text = await response.text();
 
   if (!response.ok) {
@@ -288,11 +292,7 @@ export async function apiDelete(path: string): Promise<void> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
-  const response = await fetch(url, {
-    method: "DELETE",
-    headers: h,
-    cache: "no-store",
-  });
+  const response = await fetch(url, serverFetchInit(h, { method: "DELETE" }));
   const text = await response.text();
 
   if (!response.ok) {

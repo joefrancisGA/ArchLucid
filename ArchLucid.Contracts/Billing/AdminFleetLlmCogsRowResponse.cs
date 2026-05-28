@@ -57,6 +57,36 @@ public sealed class AdminFleetLlmCogsRowResponse
         get;
         init;
     } = "estimated";
+
+    public bool MonthlyBudgetMonitoringActive
+    {
+        get;
+        init;
+    }
+
+    public bool CostRatesConfigured
+    {
+        get;
+        init;
+    }
+
+    public decimal? IncludedUsdUtcMonth
+    {
+        get;
+        init;
+    }
+
+    public decimal? BudgetWarningUsdUtcMonth
+    {
+        get;
+        init;
+    }
+
+    public string BudgetCompletionLabel
+    {
+        get;
+        init;
+    } = "unknown";
 }
 
 public sealed class AdminFleetLlmCogsDashboardResponse
@@ -78,4 +108,34 @@ public sealed class AdminFleetLlmCogsDashboardResponse
         get;
         init;
     } = "estimated";
+
+    public bool MonthlyBudgetMonitoringActive
+    {
+        get;
+        init;
+    }
+
+    public bool CostRatesConfigured
+    {
+        get;
+        init;
+    }
+
+    public int BudgetWarningTenantCount
+    {
+        get;
+        init;
+    }
+
+    public int HardStopTenantCount
+    {
+        get;
+        init;
+    }
+
+    public int MissingRateTenantCount
+    {
+        get;
+        init;
+    }
 }

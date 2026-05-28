@@ -8,3 +8,6 @@ export const MARKETING_UPSTREAM_FETCH_TIMEOUT_MS = 12_000;
 
 /** Browser-originated proxy forwards to the ArchLucid API — allow typical latency but still cap hangs. */
 export const PROXY_UPSTREAM_FETCH_TIMEOUT_MS = 60_000;
+
+/** Server components and RSC loaders calling the API directly — cap hangs before the platform kills the route. */
+export const SERVER_UPSTREAM_FETCH_TIMEOUT_MS = 45_000;

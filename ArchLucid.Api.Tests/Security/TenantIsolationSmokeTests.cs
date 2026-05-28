@@ -218,6 +218,104 @@ public sealed class TenantIsolationSmokeTests
         getA.StatusCode.Should().Be(HttpStatusCode.NotFound, "tenant A admin batch should archive only tenant A runs.");
     }
 
+    [SkippableFact]
+    public async Task Tenant_b_cannot_read_tenant_a_run_provenance_sql_rls()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        using HttpClient clientA = factory.CreateClient();
+        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        string requestId = "REQ-TNTPROV-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage create = await PostArchitectureRequestAsync(
+            clientA,
+            TestRequestFactory.CreateArchitectureRequest(requestId));
+        await create.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
+        string runId = created!.Run.RunId;
+
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        HttpResponseMessage provenance = await clientB.GetAsync($"/v1/architecture/runs/{runId}/provenance");
+        provenance.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_read_tenant_a_executive_roi_summary_sql_rls()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        using HttpClient clientA = factory.CreateClient();
+        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        string requestId = "REQ-TNTROI2-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage create = await PostArchitectureRequestAsync(
+            clientA,
+            TestRequestFactory.CreateArchitectureRequest(requestId));
+        await create.EnsureSuccessForTestAsync();
+
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        HttpResponseMessage summary = await clientB.GetAsync("/v1/roi/executive-summary");
+        await summary.EnsureSuccessForTestAsync();
+        string body = await summary.Content.ReadAsStringAsync();
+        body.Should().NotContain(requestId, "tenant B executive summary must not include tenant A run data.");
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_audit_export_does_not_include_tenant_a_run_events()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        using HttpClient clientA = factory.CreateClient();
+        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        string requestId = "REQ-TNTAUD-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage create = await PostArchitectureRequestAsync(
+            clientA,
+            TestRequestFactory.CreateArchitectureRequest(requestId));
+        await create.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
+        string runId = created!.Run.RunId;
+
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        HttpResponseMessage audit = await clientB.GetAsync("/v1/audit?take=200");
+        await audit.EnsureSuccessForTestAsync();
+        string auditJson = await audit.Content.ReadAsStringAsync();
+        auditJson.Should().NotContain(runId, "tenant B audit listing must not surface tenant A run identifiers.");
+    }
+
     private static Task<HttpResponseMessage> PostArchitectureRequestAsync(HttpClient client, object body)
     {
         string idempotencyKey = "tenant-iso-smoke-" + Guid.NewGuid().ToString("N");

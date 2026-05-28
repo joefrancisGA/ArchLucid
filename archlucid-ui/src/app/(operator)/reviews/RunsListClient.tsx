@@ -25,7 +25,8 @@ import {
   dedupeRunSummariesByRunId,
   normalizeRunSummaryForDemoPicker,
 } from "@/lib/demo-run-canonical";
-import { getBuyerSafeReviewsTableLink, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer-safe-review-navigation";
+import { getBuyerSafeReviewsTableLink, getBuyerSafeReviewsTableLinkForRun, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer-safe-review-navigation";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
@@ -254,7 +255,7 @@ export function RunsListClient({
   const [filterText, setFilterText] = useState("");
   const [buyerPackageScope, setBuyerPackageScope] = useState<BuyerPackageScopeFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
-  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(() => (safeRuns.length > 0 ? safeRuns[0] : null));
+  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
   const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
   const mobileInspectorShellRef = useRef<HTMLDivElement>(null);
   const viewportNarrow = useViewportNarrow();
@@ -274,7 +275,8 @@ export function RunsListClient({
         return current;
       }
 
-      return safeRuns[0] ?? null;
+      // Keep drawer closed on initial load; only auto-close if the selected run was removed.
+      return null;
     });
   }, [safeRuns]);
 
@@ -324,6 +326,13 @@ export function RunsListClient({
     }
 
     return [...list].sort((left, right) => {
+      const leftIsShowcase = canonicalizeDemoRunId(left.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
+      const rightIsShowcase = canonicalizeDemoRunId(right.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
+
+      if (leftIsShowcase) return -1;
+
+      if (rightIsShowcase) return 1;
+
       const leftTime = new Date(left.createdUtc).getTime();
       const rightTime = new Date(right.createdUtc).getTime();
 
@@ -414,7 +423,7 @@ export function RunsListClient({
       )}
     >
       <Label htmlFor="runs-filter-input">
-        {buyerPolished ? "Search reviews" : "Filter by review name or description"}
+        {buyerPolished ? "Search review packages" : "Filter by review name or description"}
       </Label>
       <input
         id="runs-filter-input"
@@ -645,7 +654,9 @@ export function RunsListClient({
                           const isSelected = selectedRun?.runId === run.runId;
                           const title = runListPrimaryTitle(run);
                           const countsLine = runRowExplicitCountsLine(run, buyerPolished);
-                          const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
+                          const primaryExplore = buyerPolished
+                            ? getBuyerSafeReviewsTableLinkForRun(run)
+                            : getBuyerSafeReviewsTableLink(run.runId);
                           const signedManifestExplore = buyerPolished
                             ? getBuyerSafeSignedManifestTableLink(run.runId)
                             : null;
@@ -696,7 +707,22 @@ export function RunsListClient({
           </TooltipContent>
         </Tooltip>
                                   </div>
-                                  {buyerPolished ? null : (
+                                  {buyerPolished ? (() => {
+                                    const meta = buyerDemoPackageCardMeta(run.runId);
+
+                                    if (meta === null) return null;
+
+                                    return (
+                                      <div className="mt-1.5 space-y-0.5">
+                                        <p className="m-0 text-[11px] font-medium text-neutral-800 dark:text-neutral-200">
+                                          {meta.decisionSummary}
+                                        </p>
+                                        <p className="m-0 text-[11px] text-neutral-500 dark:text-neutral-400">
+                                          Authority: {meta.approvalAuthority}
+                                        </p>
+                                      </div>
+                                    );
+                                  })() : (
                                     <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
                                       {run.runId}
                                     </code>

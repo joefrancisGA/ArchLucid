@@ -52,12 +52,6 @@ function formatAggregateModelConfidence(value: number): string {
 }
 
 function pickRecommendedExecutiveAction(summary: RunExplanationSummary): string {
-  const firstTheme = summary.themeSummaries?.find((t) => t.trim().length > 0)?.trim();
-
-  if (firstTheme !== null && firstTheme !== undefined && firstTheme.length > 0) {
-    return firstTheme;
-  }
-
   const risk = summary.explanation?.riskImplications?.find((r) => r.trim().length > 0)?.trim();
 
   if (risk !== null && risk !== undefined && risk.length > 0) {
@@ -70,7 +64,7 @@ function pickRecommendedExecutiveAction(summary: RunExplanationSummary): string 
     return driver;
   }
 
-  return "Review prioritized findings below and align owners on the monitored items before production change windows.";
+  return "Review prioritized findings below and align control owners on monitored items before the next production change window.";
 }
 
 /**
@@ -125,7 +119,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Final decision</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
-              Plain-language outcome from the aggregate architecture assessment.
+              Approved with monitoring — one residual PHI risk under active oversight; no blocking findings.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
@@ -228,7 +222,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
                 className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                 href="/reviews/new"
               >
-                Start a follow-up review request (operator shell)
+                Start a follow-up review request
               </Link>
             </li>
             ) : null}

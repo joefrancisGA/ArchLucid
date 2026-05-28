@@ -67,8 +67,12 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
       >
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-          Finalized sample architecture review (read-only)
+          Finalized sample architecture proof package (read-only)
         </h2>
+        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          One package links the review, evidence-backed findings, policy pack, artifacts, and sponsor-ready export so
+          the proof is understandable before the platform depth.
+        </p>
         <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Review</dt>
@@ -117,7 +121,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
             href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
             download="why-archlucid-pack.pdf"
           >
-            Download proof pack (PDF)
+            Download evidence package (PDF)
           </a>
         </Button>
         <Link

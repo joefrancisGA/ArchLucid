@@ -13,10 +13,11 @@ import {
   isBuyerSafeDemoMarketingChromeEnv,
   isNextPublicDemoMode,
 } from "@/lib/demo-ui-env";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { formatInstantForBuyerGovernance, formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
   getBuyerSafeReviewsTableLink,
+  getBuyerSafeReviewsTableLinkForRun,
   getBuyerSafeSignedManifestTableLink,
   getCanonicalReviewWorkspaceHref,
   getShowcaseExecutiveHref,
@@ -24,6 +25,7 @@ import {
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { cn } from "@/lib/utils";
 import {
@@ -55,7 +57,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const showcaseStory = canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
   const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
-  const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
+  const primaryExplore = buyerPolished
+    ? getBuyerSafeReviewsTableLinkForRun(run)
+    : getBuyerSafeReviewsTableLink(run.runId);
   const signedManifestExplore = getBuyerSafeSignedManifestTableLink(run.runId);
   const workspaceHref = getCanonicalReviewWorkspaceHref(run.runId);
   const showcaseWalkthroughHref = getShowcaseWalkthroughHref();
@@ -64,8 +68,10 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const createdLabel = showcaseStory
     ? demoChrome
       ? "Sample finalized (illustrative)"
-      : formatInstantForLocale(run.createdUtc)
-    : formatInstantForLocale(run.createdUtc);
+      : formatInstantForBuyerGovernance(run.createdUtc)
+    : buyerPolished
+      ? formatInstantForBuyerGovernance(run.createdUtc)
+      : formatInstantForLocale(run.createdUtc);
   const compareHref = comparePageHrefAdaptive(run.runId);
   const graphEvidenceHref = `/graph?runId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
@@ -173,6 +179,38 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </Button>
         </section>
       ) : null}
+
+      {buyerPolished && !showcaseStory ? (() => {
+        const meta = buyerDemoPackageCardMeta(run.runId);
+
+        if (meta === null) return null;
+
+        return (
+          <section
+            aria-label="Review package decision summary"
+            className="space-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
+          >
+            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{meta.decisionSummary}</p>
+            <dl className="m-0 grid gap-y-1 text-xs">
+              <div className="flex gap-x-2">
+                <dt className="shrink-0 font-medium text-neutral-500 dark:text-neutral-400">Authority</dt>
+                <dd className="m-0 text-neutral-800 dark:text-neutral-200">{meta.approvalAuthority}</dd>
+              </div>
+              <div className="flex gap-x-2">
+                <dt className="shrink-0 font-medium text-neutral-500 dark:text-neutral-400">Risk owner</dt>
+                <dd className="m-0 text-neutral-800 dark:text-neutral-200">{meta.riskOwner}</dd>
+              </div>
+              <div className="flex gap-x-2">
+                <dt className="shrink-0 font-medium text-neutral-500 dark:text-neutral-400">Last event</dt>
+                <dd className="m-0 text-neutral-800 dark:text-neutral-200">{meta.lastAuditEvent}</dd>
+              </div>
+            </dl>
+            <Button variant="primary" size="sm" className="mt-1 w-full" asChild>
+              <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
+            </Button>
+          </section>
+        );
+      })() : null}
 
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">

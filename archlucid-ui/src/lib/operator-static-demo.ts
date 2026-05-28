@@ -654,7 +654,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.contextSnapshotId ?? "ctx-demo",
 
-        name: "Source context captured",
+        name: "Source context reviewed",
 
       },
 
@@ -690,7 +690,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.graphSnapshotId ?? "graph-demo",
 
-        name: "Evidence graph created",
+        name: "Evidence trail assembled",
 
       },
 
@@ -714,7 +714,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.findingsSnapshotId ?? "find-demo",
 
-        name: "Findings captured",
+        name: "Findings identified",
 
       },
 
@@ -769,7 +769,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: manifest.manifestId,
 
-        name: "Manifest finalized",
+        name: "Signed decision record finalized",
 
       },
 
@@ -793,7 +793,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 
         referenceId: chain.artifactBundleId ?? "bundle-demo",
 
-        name: "Artifacts bundled",
+        name: "Evidence package assembled",
 
       },
 

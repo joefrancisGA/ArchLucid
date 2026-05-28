@@ -17,7 +17,8 @@ public sealed class AdminFleetLlmCogsService(
     TimeProvider timeProvider,
     ITenantRepository tenantRepository,
     ILlmTenantBudgetRepository budgetRepository,
-    IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> budgetOptionsMonitor) : IAdminFleetLlmCogsService
+    IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> budgetOptionsMonitor,
+    IOptionsMonitor<LlmCostEstimationOptions> costOptionsMonitor) : IAdminFleetLlmCogsService
 {
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -31,12 +32,17 @@ public sealed class AdminFleetLlmCogsService(
     private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _budgetOptionsMonitor =
         budgetOptionsMonitor ?? throw new ArgumentNullException(nameof(budgetOptionsMonitor));
 
+    private readonly IOptionsMonitor<LlmCostEstimationOptions> _costOptionsMonitor =
+        costOptionsMonitor ?? throw new ArgumentNullException(nameof(costOptionsMonitor));
+
     public async Task<AdminFleetLlmCogsDashboardResponse> BuildDashboardAsync(
         CancellationToken cancellationToken = default)
     {
         DateTime utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         string utcMonth = utcNow.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture);
         LlmMonthlyTenantDollarBudgetOptions opts = _budgetOptionsMonitor.CurrentValue;
+        LlmCostEstimationOptions costOpts = _costOptionsMonitor.CurrentValue;
+        bool costRatesConfigured = CostRatesConfigured(costOpts);
         IReadOnlyList<TenantRecord> tenants = await _tenantRepository.ListAsync(cancellationToken).ConfigureAwait(false);
         List<AdminFleetLlmCogsRowResponse> rows = [];
 
@@ -57,6 +63,8 @@ public sealed class AdminFleetLlmCogsService(
             bool blocks = opts.Enabled
                           && hardCap > 0m
                           && state.TotalUsdPressure >= hardCap;
+            decimal? included = opts.Enabled ? opts.IncludedUsdPerUtcMonth : null;
+            decimal? warningAt = opts.Enabled ? opts.IncludedUsdPerUtcMonth * opts.WarnFraction : null;
 
             rows.Add(new AdminFleetLlmCogsRowResponse
             {
@@ -69,6 +77,11 @@ public sealed class AdminFleetLlmCogsService(
                 GrossMarginRiskLabel = ClassifyRisk(utilization, blocks),
                 TrialFirstManifestCommittedUtc = tenant.TrialFirstManifestCommittedUtc,
                 CostBasisLabel = "estimated",
+                MonthlyBudgetMonitoringActive = opts.Enabled,
+                CostRatesConfigured = costRatesConfigured,
+                IncludedUsdUtcMonth = included,
+                BudgetWarningUsdUtcMonth = warningAt,
+                BudgetCompletionLabel = ClassifyBudgetCompletion(opts.Enabled, costRatesConfigured, utilization, blocks),
             });
         }
 
@@ -77,6 +90,11 @@ public sealed class AdminFleetLlmCogsService(
             Rows = rows,
             UtcMonth = utcMonth,
             CostBasisLabel = "estimated",
+            MonthlyBudgetMonitoringActive = opts.Enabled,
+            CostRatesConfigured = costRatesConfigured,
+            BudgetWarningTenantCount = rows.Count(static r => r.GrossMarginRiskLabel == "warn"),
+            HardStopTenantCount = rows.Count(static r => r.BlocksAdditionalLlmExecution),
+            MissingRateTenantCount = rows.Count(static r => !r.CostRatesConfigured),
         };
     }
 
@@ -89,5 +107,35 @@ public sealed class AdminFleetLlmCogsService(
             return "warn";
 
         return "healthy";
+    }
+
+    private static bool CostRatesConfigured(LlmCostEstimationOptions options)
+    {
+        if (options is null || !options.Enabled)
+            return false;
+
+        return options.InputUsdPerMillionTokens > 0m
+               && options.OutputUsdPerMillionTokens > 0m;
+    }
+
+    private static string ClassifyBudgetCompletion(
+        bool monthlyBudgetActive,
+        bool costRatesConfigured,
+        double? utilization,
+        bool blocks)
+    {
+        if (!costRatesConfigured)
+            return "missing-cost-rates";
+
+        if (!monthlyBudgetActive)
+            return "monitoring-disabled";
+
+        if (blocks)
+            return "hard-stop";
+
+        if (utilization is >= 0.85)
+            return "near-threshold";
+
+        return "complete";
     }
 }

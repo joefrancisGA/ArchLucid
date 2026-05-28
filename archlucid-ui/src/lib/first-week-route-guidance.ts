@@ -22,38 +22,38 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review package.",
     bridgeCopy:
-      "Each architecture review is tracked as one run in the product — the same object from capture through export.",
+      "Each architecture review is tracked as one review package — the same object from capture through signed manifest and export.",
     primaryAction: { label: "Start new review", href: "/reviews/new" },
     operateDeferralNote:
-      "Graph, Compare, Replay, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
+      "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
   },
   onboarding: {
-    useWhen: "You want a guided checklist before opening the full operator shell.",
+    useWhen: "You want a guided checklist before opening the full product.",
     bridgeCopy:
-      "The checklist below walks one architecture review from capture to committed manifest; APIs and support still refer to it as a run.",
+      "The checklist below walks one architecture review from capture to committed signed manifest.",
     primaryAction: { label: "Open new review wizard", href: "/reviews/new" },
     operateDeferralNote: "Finish this four-step path before exploring Operate analysis or governance lanes.",
   },
   "new-review": {
-    useWhen: "You are ready to describe a system and start pipeline execution.",
+    useWhen: "You are ready to describe a system and start the review.",
     bridgeCopy:
-      "Submitting here creates one architecture review (one run) — you will return to review detail to execute, finalize, and export.",
+      "Submitting here creates one architecture review package — you will return to review detail to finalize and export.",
     primaryAction: { label: "Continue in wizard below", href: "#new-review-wizard" },
     operateDeferralNote: "Policy packs and governance depth can wait until after your first committed package unless your pilot requires them.",
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review package.",
     bridgeCopy:
-      "The list shows every architecture review in this workspace; each row is one run with its own manifest and exports.",
+      "The list shows every review package in this workspace — each with its own signed manifest and exports.",
     primaryAction: { label: "Start new review", href: "/reviews/new" },
-    operateDeferralNote: "Compare and Replay are optional — not required for first-pilot success.",
+    operateDeferralNote: "Compare is optional — not required for first-pilot success.",
   },
   "review-detail-in-progress": {
-    useWhen: "The pipeline is running or findings are ready but the manifest is not finalized yet.",
+    useWhen: "The review is running or findings are ready but the signed manifest is not finalized yet.",
     bridgeCopy:
-      "Stay on this page until you finalize — that locks the reviewed manifest and unlocks sponsor exports.",
+      "Stay on this page until you finalize — that locks the signed decision record and unlocks sponsor exports.",
     primaryAction: { label: "Go to finalize actions", href: "#run-actions" },
-    operateDeferralNote: "Skip graph, replay, and governance dashboards until after commit unless your pilot explicitly needs them.",
+    operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
   },
   "review-detail-committed": {
     useWhen: "The manifest is committed and you need sponsor-ready exports or an executive summary.",

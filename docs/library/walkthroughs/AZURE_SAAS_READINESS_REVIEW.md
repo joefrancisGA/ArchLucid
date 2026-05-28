@@ -8,6 +8,8 @@
 
 **Grounding rule:** V1 only — REST, operator UI, CLI, **Azure extractor Tier 1 ZIP**, bundled policy pack templates. **Jira / ServiceNow / Teams / Slack** are **V1.1** ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md)).
 
+**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`AZURE_SAAS_READINESS.md`](../../go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md). Use that page for sponsor-facing framing; use this walkthrough for operator steps.
+
 ---
 
 ## Demo fast path (no extractor)

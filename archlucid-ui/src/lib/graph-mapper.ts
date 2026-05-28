@@ -253,13 +253,13 @@ export function mapGraphToReactFlow(
           }
         : { stroke: "#94a3b8", strokeWidth: 1.25 },
       labelStyle: isBuyerTrail
-        ? { fill: touchesHero ? "#9a3412" : "#0f172a", fontWeight: 600, fontSize: touchesHero ? 14 : 13 }
-        : { fill: "#64748b", fontSize: 11 },
+        ? { fill: touchesHero ? "#7c2d12" : "#1e293b", fontWeight: 700, fontSize: touchesHero ? 16 : 14 }
+        : { fill: "#475569", fontSize: 12 },
       labelBgStyle:
         isBuyerTrail
-          ? { fill: "#ffffff", fillOpacity: 0.97 }
+          ? { fill: "#ffffff", fillOpacity: 0.98 }
           : { fill: "#f8fafc", fillOpacity: 0.9 },
-      labelBgPadding: [6, 3] as [number, number],
+      labelBgPadding: [7, 4] as [number, number],
     };
   });
 

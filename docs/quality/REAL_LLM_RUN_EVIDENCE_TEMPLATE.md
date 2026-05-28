@@ -21,7 +21,7 @@
 | **Structural / semantic scores** | If surfaced (UI, diagnostics, export) |
 | **Follow-ups** | Prompt, brief quality, agent-specific defects |
 
-## Checklist (align with [MANUAL_QA_CHECKLIST.md](MANUAL_QA_CHECKLIST.md) §8.3)
+## Checklist (align with [MANUAL_QA_CHECKLIST.md](MANUAL_QA_CHECKLIST.md) §B.7)
 
 - [ ] Skimmed agent-backed findings for plausible claims vs manifest.
 - [ ] Opened at least one execution trace; model addressed the request shape.

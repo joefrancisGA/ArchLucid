@@ -3,6 +3,8 @@ using ArchLucid.Api.Services.Admin;
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services;
 
@@ -32,6 +34,7 @@ public sealed class AdminAuthDiagnosticsController(
     ISamlOperationalDiagnosticsService samlOperationalDiagnosticsService,
     IOptionsMonitor<ArchLucidSamlAuthOptions> samlAuthOptionsMonitor,
     ITenantIdentityProviderConfigurationRepository tenantIdentityProviderConfigurationRepository,
+    IScimTenantTokenRepository scimTenantTokenRepository,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private const int MaxAuthDiagnosticsEntries = 200;
@@ -51,6 +54,9 @@ public sealed class AdminAuthDiagnosticsController(
     private readonly ITenantIdentityProviderConfigurationRepository _tenantIdentityProviderConfigurationRepository =
         tenantIdentityProviderConfigurationRepository
         ?? throw new ArgumentNullException(nameof(tenantIdentityProviderConfigurationRepository));
+
+    private readonly IScimTenantTokenRepository _scimTenantTokenRepository =
+        scimTenantTokenRepository ?? throw new ArgumentNullException(nameof(scimTenantTokenRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -119,12 +125,32 @@ public sealed class AdminAuthDiagnosticsController(
             .TryGetAsync(scope.TenantId, cancellationToken)
             .ConfigureAwait(false);
 
+        AuthConfigurationScimDiagnostics? scimDiagnostics =
+            await BuildScimDiagnosticsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
         AdminAuthConfigurationDiagnosticsResponse response = AuthConfigurationDiagnosticsComposer.Compose(
             oidc,
             saml,
             _samlAuthOptionsMonitor.CurrentValue,
-            tenantRow);
+            tenantRow,
+            scimDiagnostics);
 
         return Ok(response);
+    }
+
+    private async Task<AuthConfigurationScimDiagnostics?> BuildScimDiagnosticsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        if (tenantId == Guid.Empty)
+            return null;
+
+        IReadOnlyList<ScimTokenSummaryRow> tokens =
+            await _scimTenantTokenRepository.ListForTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        bool provisioned = tokens.Count > 0;
+        bool active = tokens.Any(static row => row.RevokedUtc is null);
+
+        return new AuthConfigurationScimDiagnostics(provisioned, active);
     }
 }

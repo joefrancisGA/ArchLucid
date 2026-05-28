@@ -83,6 +83,15 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           label: policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion),
         }
       : null;
+  const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
+  const commitBlockedReason =
+    findingCoverageSummary?.hasCommitBlockingFailures === true
+      ? `Finding coverage is commit-blocking. Failed engines: ${
+          findingCoverageSummary.failedEngineLabels?.length
+            ? findingCoverageSummary.failedEngineLabels.join(", ")
+            : "one or more required finding engines"
+        }.`
+      : null;
 
   const outcomeCardsEl = (
     <RunDetailOutcomeCards
@@ -97,7 +106,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       governanceGateLabel={m.governanceGateLabel}
       showcasePolicyPackStrip={showcasePolicyPackStrip}
       degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
-      failedEngineLabels={m.resolvedDetail.findingCoverageSummary?.failedEngineLabels ?? []}
+      failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
+      findingCoverageSummary={findingCoverageSummary}
     />
   );
 
@@ -133,6 +143,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
               })
             : null
         }
+        commitBlockedReason={commitBlockedReason}
       />
 
       <FirstWeekRouteGuidance

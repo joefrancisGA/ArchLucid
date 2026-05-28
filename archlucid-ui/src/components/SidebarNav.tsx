@@ -49,7 +49,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
-import { OPEN_COMMAND_PALETTE_EVENT, registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
@@ -804,22 +804,6 @@ export function SidebarNav() {
             ? NAV_DISCLOSURE.advancedOperationsSidebar.hide
             : NAV_DISCLOSURE.advancedOperationsSidebar.show}
         </Button>
-        {mounted && !buyerPolishedShell ? (
-          <button
-            type="button"
-            className="sidebar-disclosure-trigger mt-3 w-full rounded-md px-0.5 text-left text-[10px] leading-snug text-neutral-700 hover:text-neutral-900 dark:text-neutral-200 dark:hover:text-neutral-50"
-            aria-label="Open command palette to search pages. Keyboard shortcuts: Control+K or Command+K."
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent(OPEN_COMMAND_PALETTE_EVENT));
-            }}
-          >
-            Search pages — <kbd className="rounded border border-neutral-300 bg-neutral-100 px-1 font-mono text-[9px] dark:border-neutral-600 dark:bg-neutral-800">Ctrl+K</kbd>{" "}
-            <span className="text-neutral-600 dark:text-neutral-400" aria-hidden>
-              /
-            </span>{" "}
-            <kbd className="rounded border border-neutral-300 bg-neutral-100 px-1 font-mono text-[9px] dark:border-neutral-600 dark:bg-neutral-800">⌘ K</kbd>
-          </button>
-        ) : null}
       </div>
       ) : null}
 

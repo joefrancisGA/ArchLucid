@@ -115,8 +115,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
       </h3>
       {buyerPolishedShell && !buyerOmitSearchFiltersChrome ? (
         <p className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400">
-          Optional — open filters only when you need to narrow events. The audit timeline below is the primary
-          walkthrough.
+          Open filters if you need to narrow events or switch reviews.
         </p>
       ) : null}
       {buyerPolishedShell && buyerOmitSearchFiltersChrome ? (
@@ -124,8 +123,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
           className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400"
           data-testid="audit-buyer-short-timeline-filter-omit"
         >
-          This sample timeline is short — scroll the milestones below. Open filters only if you switch reviews or need to
-          narrow event types.
+          Open filters if you need to switch reviews or narrow event types.
         </p>
       ) : null}
       {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (

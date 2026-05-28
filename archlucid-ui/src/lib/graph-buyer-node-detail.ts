@@ -225,7 +225,7 @@ export function graphBuyerTrailMetadataLines(
     };
 
     attachStructuredField("Severity", "High");
-    attachStructuredField("Disposition", "Accepted with monitoring");
+    attachStructuredField("Decision", "Accepted with monitoring");
     attachStructuredField("Blocking status", "Non-blocking");
     attachStructuredField(
       "Monitoring cadence",

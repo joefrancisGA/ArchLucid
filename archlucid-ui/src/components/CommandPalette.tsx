@@ -29,7 +29,7 @@ import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Buyer-polished header search: route-aware label for ⌘K control (accessible name matches visible chip). */
+/** Buyer-polished header search: route-aware label for the Ctrl+K command palette trigger. */
 function buyerPolishedCommandPaletteLabel(pathname: string): string {
   const path = (pathname ?? "").split("?")[0] ?? "";
 
@@ -255,7 +255,7 @@ function RunIdQuickOpen({
 }
 
 /**
- * Ctrl+K / ⌘K command palette: jump to operator pages surfaced in nav config.
+ * Ctrl+K command palette (metaKey+K on macOS): jump to operator pages surfaced in nav config.
  * Uses **`listNavGroupsVisibleInOperatorShell`** (tier → authority, omit empty groups) — same as sidebar and mobile drawer.
  * Optional run UUID quick-open is unchanged.
  */
@@ -376,14 +376,14 @@ export function CommandPalette() {
                 ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
                 : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
             }
-            aria-label={buyerPolishedShell ? polishedPaletteLabel : "Open command palette"}
+            aria-label={buyerPolishedShell ? polishedPaletteLabel : "Open command palette (Ctrl+K)"}
             onClick={() => {
               setOpen(true);
             }}
           >
             {buyerPolishedShell ? null : (
               <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
-                ⌘K
+                Ctrl+K
               </span>
             )}
             <span>{buyerPolishedShell ? polishedPaletteLabel : "Search"}</span>
@@ -391,8 +391,8 @@ export function CommandPalette() {
         </TooltipTrigger>
         <TooltipContent sideOffset={6}>
           {buyerPolishedShell
-            ? `${polishedPaletteLabel} — ⌘K to jump destinations and documentation.`
-            : "Search pages or open a workflow with the keyboard shortcut."}
+            ? `${polishedPaletteLabel} — Ctrl+K to jump destinations and documentation.`
+            : "Search pages — Ctrl+K."}
         </TooltipContent>
       </Tooltip>
       <CommandDialog open={open} onOpenChange={setOpen}>

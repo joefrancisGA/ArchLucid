@@ -51,27 +51,27 @@ export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance decision record";
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Review records and dispositions";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
-  "Owned architecture risks across reviews — disposition, owner, aging, waiver expiry, and evidence links. Open a row for inspect and trail.";
+  "Architecture risks across reviews — disposition, owner, and evidence links.";
 
 export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 
 export const BUYER_GOVERNANCE_DECISION_REGISTER_TITLE = "Decision register";
 
 export const BUYER_GOVERNANCE_DECISION_REGISTER_LEAD =
-  "Durable manifest decisions across signed reviews — category, confidence source, supporting findings, and lineage.";
+  "Signed decisions across reviews — category, supporting findings, and lineage.";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and evidence";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA = "View evidence trail";
 
 export const BUYER_ASK_GROUNDING_ONCE =
-  "In connected workspaces, answers are scoped to selected review evidence and cited evidence sources. Validate conclusions against your finalized signed manifest — Ask does not replace formal governance records.";
+  "Answers are scoped to selected review evidence. Validate conclusions against the finalized signed manifest — Ask does not replace formal governance records.";
 
 export const BUYER_ASK_SHOWCASE_ANCHORS_LINE =
   "On the Claims Intake review package, replies include quick links to executive summary, manifest, policy basis, evidence trail, and audit anchors where available.";
 
 export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
-  "Advanced review comparison is a secondary diligence view. Start from the finalized review package, then load a prior vs later pair when you need an explicit delta.";
+  "Load a prior vs. later review pair to see an explicit delta between signed decision records.";
 
 export const BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER =
   "The monitored PHI risk is counted among findings but does not block approval — it remains under active oversight.";

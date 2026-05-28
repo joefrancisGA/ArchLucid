@@ -58,4 +58,14 @@ public static class DataConsistencyOrphanProbeSql
                                                    FROM dbo.Runs r
                                                    WHERE r.RunId = ab.RunId);
                                                """;
+
+    /// <summary>Orphan <c>RetrievalGroundingTrace</c> rows whose <c>RunId</c> is missing from <c>dbo.Runs</c>.</summary>
+    public const string RetrievalGroundingTraceRunId = """
+                                                      SELECT COUNT_BIG(1)
+                                                      FROM dbo.RetrievalGroundingTrace rgt
+                                                      WHERE NOT EXISTS (
+                                                          SELECT 1
+                                                          FROM dbo.Runs r
+                                                          WHERE r.RunId = rgt.RunId);
+                                                      """;
 }

@@ -8,6 +8,8 @@
 
 **Grounding rule:** No **Jira**, **Teams**, or **ServiceNow** required ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md) V1.1). Synthetic demo storyline uses **fabricated** Meridian / Alpine names only ([`DEMO_WORKSPACES.md`](../../go-to-market/DEMO_WORKSPACES.md)).
 
+**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`AI_GOVERNANCE_REVIEW.md`](../../go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md). Use that page for sponsor-facing framing; use this walkthrough for operator steps.
+
 ---
 
 ## Demo fast path (committed storyline)

@@ -8,7 +8,7 @@
 ArchLucid is an architecture authority platform: multi-agent analysis, manifest lifecycle, governance workflows, and audit trails for enterprise architecture decisions.
 
 **How do I try it locally?**  
-Follow **[CONTRIBUTOR_QUICK_START.md](../CONTRIBUTOR_QUICK_START.md)** — build, fast tests, optional SQL, run **ArchLucid.Api** and **archlucid-ui**.
+Follow **[day-one-developer.md](../../onboarding/day-one-developer.md)** — build, fast tests, optional SQL, run **ArchLucid.Api** and **archlucid-ui**.
 
 **Do I need Azure OpenAI?**  
 Not for all paths: simulator/deterministic modes exist for engineering. Real LLM analysis uses Azure OpenAI per deployment configuration (see **[FIRST_REAL_VALUE.md](../FIRST_REAL_VALUE.md)**).
@@ -36,7 +36,7 @@ Versioned REST under **`/v1/*`** with OpenAPI; AsyncAPI where published for work
 SCIM 2.0 is **in V1 scope**; validate against your IdP and staging tenant per **[V1_SCOPE.md](../V1_SCOPE.md)**.
 
 **Can I connect ITSM in V1?**  
-Core ITSM connectors are **deferred** (see **[V1_DEFERRED.md](../V1_DEFERRED.md)**). Events, GitHub, Azure DevOps, and Teams patterns exist today.
+First-party ITSM/chat connectors are **V1.1** buyer-contract items, not V1 GA obligations. V1 pilots use REST, CLI, operator UI, SCIM, Azure DevOps, and GitHub — see **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)** and **[V1_DEFERRED.md](../V1_DEFERRED.md)**.
 
 ## Pricing
 

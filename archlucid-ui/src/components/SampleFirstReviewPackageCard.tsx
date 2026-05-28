@@ -62,6 +62,14 @@ export function SampleFirstReviewPackageCard() {
 
           {buyerPolished === true ? (
             <>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300">
+                  Approved with monitoring
+                </span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                  {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored risk
+                </span>
+              </div>
               <p className="m-0 mt-1 text-sm text-neutral-500 dark:text-neutral-400">{BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE}</p>
               <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {BUYER_HOME_SAMPLE_PACKAGE_LEAD}
@@ -130,14 +138,12 @@ export function SampleFirstReviewPackageCard() {
             </div>
 
             {buyerPolished === true ? (
-              <div className="m-0 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-                <Link
-                  href={sampleReviewHref}
-                  onClick={recordSampleOpened}
-                  className="inline-flex min-h-[24px] items-center font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                >
-                  {BUYER_HOME_SECONDARY_CTA}
-                </Link>
+              <div className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <Button asChild variant="outline" size="lg" className="h-11 min-h-[44px] px-7 text-base">
+                  <Link href={sampleReviewHref} onClick={recordSampleOpened}>
+                    {BUYER_HOME_SECONDARY_CTA}
+                  </Link>
+                </Button>
               </div>
             ) : null}
           </div>

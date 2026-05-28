@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 import subprocess
 import sys
 import tempfile
@@ -16,6 +17,19 @@ if str(_SCRIPTS_ROOT) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_ROOT))
 
 import procurement_pack_validation as pp_val  # noqa: E402
+
+
+def _load_pack_builder():
+    script = _REPO_ROOT / "scripts" / "build_procurement_pack.py"
+    spec = importlib.util.spec_from_file_location("build_procurement_pack_tested", script)
+
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Cannot load procurement pack builder.")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    return module
 
 
 class TestProcurementPackValidation(unittest.TestCase):
@@ -158,6 +172,33 @@ class TestProcurementPackValidation(unittest.TestCase):
             self.assertEqual(errs, [])
             self.assertTrue((out_dir / "manifest.json").is_file())
             self.assertTrue((out_dir / "redaction_report.md").is_file())
+
+    def test_artifact_status_index_includes_owner_caveat_and_review_pointer(self) -> None:
+
+        builder = _load_pack_builder()
+
+        with tempfile.TemporaryDirectory() as tmp:
+            stage = Path(tmp)
+            builder.write_artifact_status_index(
+                stage,
+                [
+                    {
+                        "pack_path": "SOC2_STATUS.md",
+                        "source_repo_path": "docs/go-to-market/SOC2_STATUS_PROCUREMENT.md",
+                        "description": "SOC 2 status statement",
+                        "artifact_status": "Deferred",
+                    }
+                ],
+            )
+
+            markdown = (stage / "ARTIFACT_STATUS_INDEX.md").read_text(encoding="utf-8")
+            data = json.loads((stage / "artifact_status_index.json").read_text(encoding="utf-8"))
+
+        self.assertIn("Owner / function", markdown)
+        self.assertIn("Caveat", markdown)
+        self.assertIn("Deferred scope", markdown)
+        self.assertEqual(data["files"][0]["owner_function"], "Executive owner")
+        self.assertEqual(data["files"][0]["last_reviewed_utc"], "See source document")
 
 
     def test_collect_quality_snapshot_passes_on_minimal_fixture(self) -> None:

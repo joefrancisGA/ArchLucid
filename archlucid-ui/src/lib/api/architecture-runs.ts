@@ -19,6 +19,7 @@ import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-proven
 import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationSummaryPayload,
+  RunRetrievalGroundingPayload,
 } from "@/types/agent-forensics";
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
@@ -201,6 +202,15 @@ export async function getRunAgentEvaluation(
 ): Promise<ApiResponseWithTrace<AgentOutputEvaluationSummaryPayload>> {
   return apiGetJsonWithTrace<AgentOutputEvaluationSummaryPayload>(
     `/v1/architecture/run/${encodeURIComponent(runId)}/agent-evaluation`,
+  );
+}
+
+/** Redaction-safe retrieval grounding diagnostics for one authority run. */
+export async function getRunRetrievalGrounding(
+  runId: string,
+): Promise<ApiResponseWithTrace<RunRetrievalGroundingPayload>> {
+  return apiGetJsonWithTrace<RunRetrievalGroundingPayload>(
+    `/v1/authority/runs/${encodeURIComponent(runId)}/retrieval-grounding`,
   );
 }
 

@@ -63,6 +63,9 @@ internal static class AuthDiagnosticsCommand
 
         PrintReport(parsed);
 
+        if (AuthDiagnosticsBlockingEvaluator.HasBlockingMisconfiguration(parsed))
+            return CliExitCode.ConfigurationError;
+
         return CliExitCode.Success;
     }
 
@@ -86,6 +89,10 @@ internal static class AuthDiagnosticsCommand
         Console.WriteLine($"SP entity id configured:        {TriState(parsed.SpEntityIdConfigured)}");
         Console.WriteLine($"SAML role claim sources:        {TriState(parsed.SamlRoleClaimSourcesConfigured)}");
         Console.WriteLine($"Tenant claim mapping configured:{TriState(parsed.TenantClaimMappingConfigured)}");
+        Console.WriteLine($"JWKS configured:                {TriState(parsed.JwksConfigured)}");
+        Console.WriteLine($"Role claim name configured:     {TriState(parsed.RoleClaimNameConfigured)}");
+        Console.WriteLine($"SCIM provisioning configured:   {TriState(parsed.ScimProvisioningConfigured)}");
+        Console.WriteLine($"SCIM bearer token active:       {TriState(parsed.ScimBearerTokenActive)}");
 
         if (!string.IsNullOrWhiteSpace(parsed.TenantIdentityProviderProtocol))
             Console.WriteLine($"Tenant IdP protocol:            {parsed.TenantIdentityProviderProtocol}");

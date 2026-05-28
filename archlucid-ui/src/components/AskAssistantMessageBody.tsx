@@ -177,9 +177,9 @@ export function AskAssistantMessageBody(props: {
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks)}</p>
         ) : null}
         {sectionsForRender.map((section, index) => (
-          <section key={`${section.key}-${index}`} aria-label={section.title}>
-            <h4 className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">{section.title}</h4>
-            <div className={`${bodyClass} mt-1.5`}>
+          <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
+            <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{section.title}</h4>
+            <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks) : "—"}
             </div>
           </section>
@@ -199,11 +199,11 @@ export function AskAssistantMessageBody(props: {
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks)}</p>
         ) : null}
         {structured.sections.map((section, index) => (
-          <section key={`${section.key}-${index}`} aria-label={section.title}>
-            <h4 className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+          <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
+            <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               {section.title}
             </h4>
-            <div className={`${bodyClass} mt-1.5`}>
+            <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
                 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks)
                 : "—"}

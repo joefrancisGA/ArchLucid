@@ -122,5 +122,63 @@ public sealed class AuthConfigurationDiagnosticsComposerTests
             tenantIdentityProvider: null);
 
         response.MisconfigurationHints.Should().ContainSingle(h => h.Contains("ApiKey", StringComparison.Ordinal));
+        AuthConfigurationDiagnosticsComposer.HasBlockingMisconfiguration(response).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Compose_JwtBearer_discovery_without_jwks_uri_marks_jwks_unconfigured()
+    {
+        AdminOidcDiagnosticsResponse oidc = new()
+        {
+            AuthMode = "JwtBearer",
+            ConfiguredAuthority = "https://idp.example/",
+            ConfiguredAudience = "api://archlucid",
+            DiscoveryAttempted = true,
+            DiscoverySucceeded = true,
+            JwksUri = null,
+        };
+
+        AdminAuthConfigurationDiagnosticsResponse response = AuthConfigurationDiagnosticsComposer.Compose(
+            oidc,
+            new AdminSamlOperationalHealthResponse { Saml2Enabled = false },
+            new ArchLucidSamlAuthOptions(),
+            tenantIdentityProvider: null);
+
+        response.JwksConfigured.Should().BeFalse();
+        response.MisconfigurationHints.Should().Contain(h => h.Contains("jwks_uri", StringComparison.OrdinalIgnoreCase));
+        AuthConfigurationDiagnosticsComposer.HasBlockingMisconfiguration(response).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Compose_scim_provisioned_without_active_token_emits_informational_hint()
+    {
+        AdminOidcDiagnosticsResponse oidc = new()
+        {
+            AuthMode = "JwtBearer",
+            ConfiguredAuthority = "https://idp.example/",
+            ConfiguredAudience = "api",
+            DiscoveryAttempted = true,
+            DiscoverySucceeded = true,
+            JwksUri = "https://idp.example/jwks",
+        };
+
+        AdminAuthConfigurationDiagnosticsResponse response = AuthConfigurationDiagnosticsComposer.Compose(
+            oidc,
+            new AdminSamlOperationalHealthResponse { Saml2Enabled = false },
+            new ArchLucidSamlAuthOptions(),
+            tenantIdentityProvider: null,
+            new AuthConfigurationScimDiagnostics(ScimProvisioningConfigured: true, ScimBearerTokenActive: false));
+
+        response.ScimProvisioningConfigured.Should().BeTrue();
+        response.ScimBearerTokenActive.Should().BeFalse();
+        response.MisconfigurationHints.Should().Contain(h => h.Contains("SCIM", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void HasBlockingMisconfiguration_returns_true_for_development_bypass()
+    {
+        AdminAuthConfigurationDiagnosticsResponse response = new() { AuthMode = "DevelopmentBypass" };
+
+        AuthConfigurationDiagnosticsComposer.HasBlockingMisconfiguration(response).Should().BeTrue();
     }
 }

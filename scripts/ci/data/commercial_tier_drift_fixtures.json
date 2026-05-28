@@ -7,21 +7,40 @@
       "controller_file": "Pilots/PilotsController.cs",
       "expected_commercial_tier": "none",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/reviews?projectId=default"
+      "expected_nav_operator_href": "/reviews?projectId=default",
+      "trial_limit_behavior": "Pilot review entry remains trial-safe; run/seat/expiry limits are surfaced through trial status rather than commercial tier gating."
     },
     {
       "label": "Operate analysis — ask",
       "controller_file": "Planning/AskController.cs",
       "expected_commercial_tier": "standard",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/ask"
+      "expected_nav_operator_href": "/ask",
+      "trial_limit_behavior": "Operate Ask remains a paid-tier surface; trial tenants should see progressive disclosure rather than unrestricted capability promises."
     },
     {
       "label": "Operate governance — policy packs",
       "controller_file": "Governance/PolicyPacksController.cs",
       "expected_commercial_tier": "standard",
       "expected_class_policy": "ReadAuthority",
-      "expected_nav_operator_href": "/policy-packs"
+      "expected_nav_operator_href": "/policy-packs",
+      "trial_limit_behavior": "Policy-pack visibility is progressive; trial limits do not override the Standard minimum tier."
+    },
+    {
+      "label": "Operate governance — dashboard",
+      "controller_file": "Governance/GovernanceController.cs",
+      "expected_commercial_tier": "standard",
+      "expected_class_policy": "ReadAuthority",
+      "expected_nav_operator_href": "/governance",
+      "trial_limit_behavior": "Governance workflow access is checked separately from trial run counters and authority."
+    },
+    {
+      "label": "Operate alerts — inbox",
+      "controller_file": "Alerts/AlertsController.cs",
+      "expected_commercial_tier": "standard",
+      "expected_class_policy": "ReadAuthority",
+      "expected_nav_operator_href": "/alerts",
+      "trial_limit_behavior": "Alerts are an Operate capability; trial UX should not expose hidden alerting capability names to sub-tier tenants."
     },
     {
       "label": "Operate analysis — manifests",
@@ -29,6 +48,7 @@
       "expected_commercial_tier": "standard",
       "expected_class_policy": "ReadAuthority",
       "expected_nav_operator_href": null,
+      "trial_limit_behavior": "Manifest access is tied to governance packaging; trial usage counters stay separate from export availability.",
       "notes": "Enterprise CSV export tier gate is action-scoped on AuditController.ExportAudit, not class-level."
     }
   ]

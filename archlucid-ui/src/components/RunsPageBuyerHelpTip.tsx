@@ -16,13 +16,13 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
 
   const label =
     variant === "search"
-      ? "How to use Search reviews on this page"
+      ? "How to use Search review packages on this page"
       : "About this demonstration workspace";
 
   const body =
     variant === "search" ? (
       <>
-        Use <strong className="font-medium text-neutral-900 dark:text-neutral-100">Search reviews</strong> below to narrow
+        Use <strong className="font-medium text-neutral-900 dark:text-neutral-100">Search review packages</strong> below to narrow
         by title or description. Each row opens the full review package — manifest, evidence trail, findings, and
         deliverables — for that run.
       </>

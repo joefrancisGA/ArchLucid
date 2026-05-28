@@ -205,6 +205,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRunRoiEstimator, RunRoiEstimator>();
         services.AddScoped<ITraceabilityBundleBuilder, TraceabilityBundleBuilder>();
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
+        services.AddScoped<IRunRetrievalGroundingService, RunRetrievalGroundingService>();
         services.AddScoped<IRunTrustEvidenceCardBuilder, RunTrustEvidenceCardBuilder>();
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
         services.AddScoped<IAgentOutputQualityGateOptionsResolver, AgentOutputQualityGateOptionsResolver>();

@@ -384,7 +384,7 @@ export function AskPageContent() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(220px,280px)_1fr]">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(180px,220px)_1fr]">
         <AskThreadHistoryPanel
           buyerPolishedShell={buyerPolishedShell}
           runId={runId}

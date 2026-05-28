@@ -197,7 +197,7 @@ export function listNavGroupsVisibleInOperatorShell(
 
 /**
  * Hrefs the operator shell currently exposes (tier ∩ authority ∩ publish gates, all nav groups).
- * Used to filter curated command-palette tasks so ⌘K never lists destinations the sidebar would hide.
+ * Used to filter curated command-palette tasks so Ctrl+K never lists destinations the sidebar would hide.
  */
 export function visibleOperatorShellHrefSet(
   showExtended: boolean,

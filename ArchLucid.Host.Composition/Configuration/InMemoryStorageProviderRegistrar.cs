@@ -32,6 +32,7 @@ using ArchLucid.Persistence.Search;
 using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Advisory.Delivery;
@@ -114,7 +115,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IWarmTenantCatalogStandbyRepository, NoOpWarmTenantCatalogStandbyRepository>();
         services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
         services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();
-        services.AddSingleton<IFindingsSnapshotRepository, InMemoryFindingsSnapshotRepository>();
+        services.AddSingleton<IFindingsSnapshotRepository>(static sp =>
+            new InMemoryFindingsSnapshotRepository(sp.GetRequiredService<IScopeContextProvider>()));
         services.AddSingleton<IFindingRecordMuteRepository, InMemoryFindingRecordMuteRepository>();
         services.AddSingleton<IFindingInspectReadRepository>(sp =>
             new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));

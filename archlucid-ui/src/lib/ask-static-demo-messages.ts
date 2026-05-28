@@ -32,7 +32,7 @@ export function tryStaticDemoConversationMessages(threadId: string): Conversatio
           "Risk:\n\nExpanded breach and audit scope if minimization is understated at the intake boundary.\n\n" +
           "Evidence:\n\nSigned manifest disposition, evidence trail anchors, and audit events for approval and findings capture.\n\n" +
           "Mitigation:\n\nAlign adapters to the minimization posture documented in the review package before sign-off.\n\n" +
-          "Validation:\n\nConfirm checklist completion on the findings panel and manifest summary before go-live.",
+          "Validation:\n\nConfirm checklist completion on the findings record and signed decision record before go-live.",
         createdUtc: "2026-01-12T10:06:12.000Z",
         metadataJson: "{}",
       },

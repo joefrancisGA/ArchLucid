@@ -4,10 +4,10 @@ import Link from "next/link";
 
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
-import { isApiNotFoundFailure } from "@/lib/api-load-failure";
+import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
@@ -19,8 +19,8 @@ type GovernanceApprovalLineagePageViewProps = {
 export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalLineagePageViewProps) {
   const { buyerPolishedShell, data, failure, load, loading, nextDemo } = model;
 
-  if (failure !== null && isApiNotFoundFailure(failure)) {
-    return <OperatorBrandedNotFound />;
+  if (failure !== null && resolveApiLoadFailurePresentation(failure) !== "error") {
+    return <OperatorBrandedRouteLoadFailure failure={failure} retryLabel="Retry loading lineage" />;
   }
 
   if (loading) {

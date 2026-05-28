@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
@@ -2572,6 +2573,43 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("contains a Password", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionApiRequiresTelemetryExportAndNoSink_contains_fail_fast_rule()
+    {
+        Dictionary<string, string?> data = ProductionApiBaselineWithBillingNoop();
+        data["ProductionValidation:RequireTelemetryExport"] = "true";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e => e.Contains(
+                ProductionLikeHostingMisconfigurationAdvisorRuleNames.TelemetryExportRequiredMissing,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionWorkerRequiresTelemetryExportAndNoSink_contains_fail_fast_rule()
+    {
+        Dictionary<string, string?> data = ProductionApiBaselineWithBillingNoop();
+        data["Hosting:Role"] = "Worker";
+        data["ProductionValidation:RequireTelemetryExport"] = "true";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e => e.Contains(
+                ProductionLikeHostingMisconfigurationAdvisorRuleNames.TelemetryExportRequiredMissing,
+                StringComparison.OrdinalIgnoreCase));
     }
 
     private static Dictionary<string, string?> ProductionApiBaselineWithBillingNoop() =>

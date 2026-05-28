@@ -142,6 +142,7 @@ describe("SidebarNav (primary navigation)", () => {
     render(<SidebarNav />);
 
     expect(screen.queryByText("Press Shift+? for help and keyboard shortcuts")).toBeNull();
+    expect(screen.queryByText(/Search pages/i)).toBeNull();
   });
 });
 

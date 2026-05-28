@@ -59,6 +59,34 @@ export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExplor
   };
 }
 
+/**
+ * State-aware label for the primary review CTA — differentiates finalized, monitoring, and in-progress packages.
+ * Use on buyer-polished review cards and inspector panels where the run state is known.
+ */
+export function getBuyerSafeReviewsTableLinkForRun(run: {
+  runId: string;
+  hasGoldenManifest?: boolean;
+  hasGovernanceWarnings?: boolean;
+  hasFindingsSnapshot?: boolean;
+}): PrimaryReviewExploreLink {
+  const id = canonicalizeDemoRunId(run.runId.trim());
+  const href = getCanonicalReviewWorkspaceHref(id);
+
+  if (run.hasGoldenManifest === true && run.hasGovernanceWarnings === true) {
+    return { href, label: "Open approved package" };
+  }
+
+  if (run.hasGoldenManifest === true) {
+    return { href, label: "Open approved package" };
+  }
+
+  if (run.hasFindingsSnapshot === true) {
+    return { href, label: "View review in progress" };
+  }
+
+  return { href, label: "Track review progress" };
+}
+
 /** Signed manifest for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
 export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());

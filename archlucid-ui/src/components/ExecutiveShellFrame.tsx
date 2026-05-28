@@ -45,7 +45,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
                 |
               </span>
               <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-700 dark:text-neutral-300">
-                <Link href="/">Operator shell</Link>
+                <Link href="/">Review portal</Link>
               </Button>
             </div>
             <div className="flex items-center gap-2">

@@ -73,7 +73,7 @@ export const SHOWCASE_STATIC_DEMO_DECISION_ITEMS: readonly ShowcaseStaticDemoDec
   { controlArea: "Auditability", text: "Disaster recovery favors replay-from-journal over dual-active intake writers." },
   { controlArea: "Integration", text: "Feature flags scope rollout by cohort; kill switches are tested each release." },
   { controlArea: "Auditability", text: "Data residency constraints are enforced at the storage account boundary." },
-  { controlArea: "Sponsor evidence", text: "Sponsor KPI pack ties modernization outcomes to defensible operational metrics." },
+  { controlArea: "Sponsor KPIs", text: "Sponsor KPI pack ties modernization outcomes to defensible operational metrics." },
 ];
 
 export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = SHOWCASE_STATIC_DEMO_DECISION_ITEMS.map(

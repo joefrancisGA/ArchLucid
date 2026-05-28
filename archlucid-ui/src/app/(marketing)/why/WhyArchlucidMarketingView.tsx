@@ -64,7 +64,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="why-brand-category-paragraph"
       >
-        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable proof pack carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
+        {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence package carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
       </p>
 
       <section className="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950">
@@ -86,7 +86,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           Where ArchLucid fits (adjacent tooling)
         </h2>
         <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
-          Summarized wording only — citations and benchmark detail are included in the proof pack linked from this page.
+          Summarized wording only — citations and benchmark detail are included in the evidence package linked from this page.
         </p>
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
           <table
@@ -142,7 +142,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       </section>
 
       <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side proof pack</h2>
+        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side audit evidence package</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           Download a single PDF that bundles the same read-only sample output as the{" "}
           <a className="font-medium text-sky-800 underline underline-offset-2 dark:text-sky-300" href="/demo/preview">
@@ -159,7 +159,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
             href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
             download="why-archlucid-pack.pdf"
           >
-            Download the side-by-side proof pack (PDF)
+            Download the audit evidence package (PDF)
           </a>
         </p>
       </section>

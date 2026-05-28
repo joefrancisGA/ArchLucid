@@ -147,7 +147,8 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
       });
     }
 
-    return { layouts, width, height: Math.max(height, 160) };
+    // Extra bottom padding ensures node labels below the bottom row are never clipped by the SVG boundary.
+    return { layouts, width, height: Math.max(height + 32, 160) };
   }, [nodes]);
 
   const posById = useMemo(() => new Map(layouts.map((l) => [l.id, l])), [layouts]);
@@ -181,13 +182,14 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
       <p className="mt-1 text-[13px] text-neutral-600 dark:text-neutral-400">
         Layered view of coordinator linkage. Click a node to scroll to its row in the table below.
       </p>
-      <div className="overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950">
+      <div className="overflow-x-auto overflow-y-visible rounded-md border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950">
         <svg
           width={width}
           height={height}
           viewBox={`0 0 ${width} ${height}`}
           role="img"
           aria-label="Provenance nodes and edges"
+          style={{ overflow: "visible" }}
         >
           <defs>
             <marker id="prov-arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">

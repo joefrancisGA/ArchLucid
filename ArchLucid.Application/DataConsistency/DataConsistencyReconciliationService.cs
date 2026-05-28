@@ -64,6 +64,14 @@ public sealed class DataConsistencyReconciliationService(
             await AddCountAndFindingsAsync(connection, DataConsistencyReconciliationSql.ArtifactBundlesRunId, "orphan_artifact_bundles_run",
                 "ArtifactBundles reference a RunId with no dbo.Runs row.", DataConsistencyReconciliationSql.SampleArtifactBundleOrphans, list,
                 cancellationToken).ConfigureAwait(false);
+            await AddCountAndFindingsAsync(
+                connection,
+                DataConsistencyReconciliationSql.RetrievalGroundingTraceRunId,
+                "orphan_retrieval_grounding_trace_run",
+                "RetrievalGroundingTrace rows reference a RunId with no dbo.Runs row.",
+                DataConsistencyReconciliationSql.SampleRetrievalGroundingTraceOrphans,
+                list,
+                cancellationToken).ConfigureAwait(false);
             await AddStaleRunFindingsAsync(connection, list, cancellationToken).ConfigureAwait(false);
             await AddCacheVersusDatabaseFindingsAsync(connection, list, cancellationToken).ConfigureAwait(false);
         }

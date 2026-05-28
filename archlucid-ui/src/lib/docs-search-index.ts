@@ -9,7 +9,7 @@ export type DocumentationSearchItem = {
 };
 
 /**
- * Curated operator-facing docs for ⌘K search. Paths match the repository layout on `main`.
+ * Curated operator-facing docs for Ctrl+K search. Paths match the repository layout on `main`.
  */
 export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {

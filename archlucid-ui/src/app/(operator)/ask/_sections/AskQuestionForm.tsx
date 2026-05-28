@@ -79,7 +79,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
               </div>
             </div>
           ) : null}
-          {buyerPolishedShell && !hideBuyerStarterPromptGroups
+          {buyerPolishedShell && !hideBuyerStarterPromptGroups && !showRunDeepLinkPrompts
             ? ASK_BUYER_PROMPT_GROUPS.map((group) => (
                 <div key={group.heading} className="space-y-1.5">
                   <p className="m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400">{group.heading}</p>
@@ -117,7 +117,7 @@ export function AskQuestionForm(props: AskQuestionFormProps) {
       </div>
 
       <Button type="button" variant="primary" className="w-fit" onClick={() => void onAsk()} disabled={askDisabled}>
-        {loading ? "Thinking…" : "Ask"}
+        {loading ? "Thinking…" : "Ask this review"}
       </Button>
     </>
   );

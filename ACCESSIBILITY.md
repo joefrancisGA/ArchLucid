@@ -14,6 +14,8 @@ Playwright axe runs attach the **`wcag22aa`** ruleset bundle alongside **`wcag21
 
 Automated axe evidence supports procurement disclosure but **does not imply** formal WCAG certification or participant assistive-technology (AT) lab testing unless separately performed and documented.
 
+Manual author spot-check evidence for critical operator routes lives in [`docs/quality/ACCESSIBILITY_MANUAL_SPOT_CHECK_EVIDENCE.md`](docs/quality/ACCESSIBILITY_MANUAL_SPOT_CHECK_EVIDENCE.md). Use it for keyboard, focus, zoom, reduced-motion, and screen-reader notes on touched first-pilot routes; it does not replace automated axe gates.
+
 The **Vitest** axe job (`npm run test:axe-components`) is separate; see the **Tooling** table.
 
 ### Pages with automated checks
@@ -93,3 +95,5 @@ Automated scanning catches roughly **30–40%** of accessibility issues encounte
 - **Reduced motion**: With **`prefers-reduced-motion: reduce`** enabled at the OS level, verify UI remains usable (**`globals.css`** coerces **`animation`** / **`transition`** durations toward zero for layered components)
 
 Pull requests that touch **`archlucid-ui/src/app/(operator)/`** or **`archlucid-ui/src/components/`** should include at least one author keyboard pass (minimum: open the touched route, Esc closes modals, Tab does not leak focus from open overlays where trapping is intentional).
+
+For critical first-pilot routes, use the evidence template in [`docs/quality/ACCESSIBILITY_MANUAL_SPOT_CHECK_EVIDENCE.md`](docs/quality/ACCESSIBILITY_MANUAL_SPOT_CHECK_EVIDENCE.md) so manual checks are distinguishable from automated axe evidence.

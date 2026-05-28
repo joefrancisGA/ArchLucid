@@ -23,7 +23,7 @@ export const BUYER_SURFACE_VOCABULARY = {
 export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   pageTitle: "Executive summary",
   pageLead:
-    "High-level ROI and governance indicators for sponsors. Portfolio savings, 30-day finding activity, and risk-register signals load from live APIs; empty tiles show an em dash when data is unavailable.",
+    "Portfolio savings, finding activity, and risk-register signals for sponsors.",
   roiMetricsSrOnly: "Executive ROI metrics",
   resolvedFindings30dMetric: {
     title: "Findings resolved (30 days)",

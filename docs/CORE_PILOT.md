@@ -16,7 +16,7 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 | Defer | Why |
 |-------|-----|
 | **Operate** compare, replay, graph-at-scale, governance dashboards | Not required to prove first architecture review value |
-| **V1.1 connectors** (Jira, ServiceNow, Confluence, Slack, Teams) | See [`go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md) |
+| **V1.1 connectors** (Jira, ServiceNow, Confluence, Slack, Teams) | See [`go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md) for the commitment boundary |
 | Advanced policy packs beyond one optional dry-run | Add only when governance is in pilot scope |
 | MCP, live commerce, hosted Tier 2 extractor WIF | Out of V1 first-hour path |
 | Reading full **V1 scope** or integration catalog before starting | Use [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) instead |

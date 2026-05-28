@@ -46,3 +46,7 @@ Use this quick-reference to find where to make changes in the ArchLucid codebase
 - **What to know:** 
   - Add your strongly-typed configuration class.
   - Do not add boilerplate defaults to `appsettings.json`—rely on the C# class defaults to keep the pilot startup clean.
+
+## 7. Before Opening a PR
+**"What else must I update for this change type?"**
+- **Checklist:** [`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md) covers API routes/DTOs, SQL, config, operator UI, commercial tiers, audit events, retrieval/agent behavior, pricing/trust docs, and V1 scope boundaries.

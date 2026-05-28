@@ -355,39 +355,76 @@ export function RunsDashboardPanel() {
         </CardHeader>
         <CardContent className="space-y-3 px-3 pb-3 text-sm">
           <div
-            className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50"
+            className="flex flex-wrap items-center gap-x-2 gap-y-2"
             data-testid="runs-dashboard-filters"
+            role="group"
+            aria-label="Filter review packages"
           >
-            <div className="flex items-center gap-2">
-              <input
-                id="runs-dashboard-governance-warnings-only"
-                type="checkbox"
-                className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
-                checked={governanceWarningsOnly}
-                onChange={(e) => {
-                  setGovernanceWarningsOnly(e.target.checked);
-                }}
-                data-testid="runs-dashboard-governance-warnings-only"
-              />
-              <Label htmlFor="runs-dashboard-governance-warnings-only" className="text-xs font-medium">
-                {RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                id="runs-dashboard-show-archived"
-                type="checkbox"
-                className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
-                checked={showArchived}
-                onChange={(e) => {
-                  setShowArchived(e.target.checked);
-                }}
-                data-testid="runs-dashboard-show-archived"
-              />
-              <Label htmlFor="runs-dashboard-show-archived" className="text-xs font-medium">
-                {RUNS_DASHBOARD_LABELS.showArchived}
-              </Label>
-            </div>
+            {buyerPolishedShell ? (
+              <>
+                <button
+                  type="button"
+                  data-testid="runs-dashboard-governance-warnings-only"
+                  aria-pressed={governanceWarningsOnly}
+                  onClick={() => { setGovernanceWarningsOnly((v) => !v); }}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    governanceWarningsOnly
+                      ? "border-amber-500 bg-amber-50 text-amber-800 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-300"
+                      : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600"
+                  }`}
+                >
+                  <span aria-hidden="true">{governanceWarningsOnly ? "✕" : "+"}</span>
+                  Needs attention
+                </button>
+                <button
+                  type="button"
+                  data-testid="runs-dashboard-show-archived"
+                  aria-pressed={showArchived}
+                  onClick={() => { setShowArchived((v) => !v); }}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    showArchived
+                      ? "border-neutral-500 bg-neutral-100 text-neutral-800 dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-200"
+                      : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600"
+                  }`}
+                >
+                  <span aria-hidden="true">{showArchived ? "✕" : "+"}</span>
+                  Archived
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="runs-dashboard-governance-warnings-only"
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                    checked={governanceWarningsOnly}
+                    onChange={(e) => {
+                      setGovernanceWarningsOnly(e.target.checked);
+                    }}
+                    data-testid="runs-dashboard-governance-warnings-only"
+                  />
+                  <Label htmlFor="runs-dashboard-governance-warnings-only" className="text-xs font-medium">
+                    {RUNS_DASHBOARD_LABELS.governanceWarningsOnly}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="runs-dashboard-show-archived"
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                    checked={showArchived}
+                    onChange={(e) => {
+                      setShowArchived(e.target.checked);
+                    }}
+                    data-testid="runs-dashboard-show-archived"
+                  />
+                  <Label htmlFor="runs-dashboard-show-archived" className="text-xs font-medium">
+                    {RUNS_DASHBOARD_LABELS.showArchived}
+                  </Label>
+                </div>
+              </>
+            )}
           </div>
 
           {tab === "recent" ? (

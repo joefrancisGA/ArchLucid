@@ -24,9 +24,22 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
     private const int MaxEntries = 500;
     private readonly Lock _lock = new();
 
+    private readonly IScopeContextProvider? _scopeContextProvider;
+
     private readonly Dictionary<Guid, string> _store = [];
 
+    private readonly Dictionary<Guid, ScopeContext> _scopeBySnapshotId = [];
+
     private readonly Dictionary<(Guid SnapshotId, string FindingId), int> _priorityRanks = new();
+
+    public InMemoryFindingsSnapshotRepository()
+    {
+    }
+
+    public InMemoryFindingsSnapshotRepository(IScopeContextProvider scopeContextProvider)
+    {
+        _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    }
 
     public Task SaveAsync(
         FindingsSnapshot snapshot,
@@ -39,6 +52,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         _ = transaction;
         FindingsSnapshotMigrator.Apply(snapshot);
         string json = FindingsSerialization.SerializeSnapshot(snapshot);
+        ScopeContext? savedScope = CaptureScopeAtSave();
         lock (_lock)
         {
 
@@ -46,9 +60,15 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
             {
                 Guid evict = _store.Keys.First();
                 _store.Remove(evict);
+                _scopeBySnapshotId.Remove(evict);
             }
 
             _store[snapshot.FindingsSnapshotId] = json;
+
+            if (savedScope is not null)
+                _scopeBySnapshotId[snapshot.FindingsSnapshotId] = savedScope;
+            else
+                _scopeBySnapshotId.Remove(snapshot.FindingsSnapshotId);
         }
 
         return Task.CompletedTask;
@@ -56,14 +76,20 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
     public Task<FindingsSnapshot?> GetByIdAsync(ScopeContext scope, Guid findingsSnapshotId, CancellationToken ct)
     {
-        _ = scope;
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         string? json;
+        ScopeContext? savedScope;
         lock (_lock)
-
+        {
             _store.TryGetValue(findingsSnapshotId, out json);
+            _scopeBySnapshotId.TryGetValue(findingsSnapshotId, out savedScope);
+        }
 
         if (json is null)
+            return Task.FromResult<FindingsSnapshot?>(null);
+
+        if (savedScope is not null && !ScopeMatches(savedScope, scope))
             return Task.FromResult<FindingsSnapshot?>(null);
 
         FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
@@ -242,5 +268,28 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
     private static string? NormalizeFilter(string? raw) =>
         string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
+
+    private ScopeContext? CaptureScopeAtSave()
+    {
+        if (_scopeContextProvider is null)
+            return null;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+            return null;
+
+        return scope;
+    }
+
+    private static bool ScopeMatches(ScopeContext saved, ScopeContext requested)
+    {
+        if (requested.TenantId == Guid.Empty)
+            return true;
+
+        return saved.TenantId == requested.TenantId
+               && saved.WorkspaceId == requested.WorkspaceId
+               && saved.ProjectId == requested.ProjectId;
+    }
 }
 

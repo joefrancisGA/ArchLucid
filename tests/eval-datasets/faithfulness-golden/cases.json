@@ -4,26 +4,66 @@
   "cases": [
     {
       "id": "faithfulness-policy-cited",
+      "expectedCorpusKind": "PolicyPack",
       "retrievalHits": [
-        { "sourceId": "rule-kv-01", "title": "Key Vault" },
-        { "sourceId": "rule-mi-02", "title": "Managed Identity" }
+        { "sourceId": "rule-kv-01", "title": "Key Vault", "corpusKind": "PolicyPack" },
+        { "sourceId": "rule-mi-02", "title": "Managed Identity", "corpusKind": "PolicyPack" }
       ],
       "agentOutputText": "Per rule-kv-01, use Key Vault references. Managed Identity (rule-mi-02) should access secrets."
     },
     {
       "id": "faithfulness-partial-citation",
+      "expectedCorpusKind": "AzureRetail",
       "retrievalHits": [
-        { "sourceId": "chunk-a", "title": "Front Door" },
-        { "sourceId": "chunk-b", "title": "App Service" }
+        { "sourceId": "chunk-a", "title": "Front Door", "corpusKind": "AzureRetail" },
+        { "sourceId": "chunk-b", "title": "App Service", "corpusKind": "AzureRetail" }
       ],
       "agentOutputText": "HTTPS terminates at Front Door before App Service."
     },
     {
       "id": "faithfulness-uncited",
+      "expectedCorpusKind": "PolicyPack",
       "retrievalHits": [
-        { "sourceId": "fabricated-1", "title": "Fabricated Service" }
+        { "sourceId": "fabricated-1", "title": "Fabricated Service", "corpusKind": "PolicyPack" }
       ],
       "agentOutputText": "No retrieval grounding in this answer."
+    },
+    {
+      "id": "azure-saas-readiness-citation-required",
+      "expectedCorpusKind": "AzureRetail",
+      "retrievalHits": [
+        { "sourceId": "azure-frontdoor-waf-standard", "title": "Azure Front Door WAF", "corpusKind": "AzureRetail" },
+        { "sourceId": "azure-sql-zone-redundant", "title": "Azure SQL zone redundancy", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Use Azure Front Door WAF (azure-frontdoor-waf-standard) and Azure SQL zone redundancy (azure-sql-zone-redundant) for the public SaaS edge and data tier."
+    },
+    {
+      "id": "ai-governance-wrong-corpus-detected",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "ai-gov-human-review-required", "title": "Human review required", "corpusKind": "PriorManifest" },
+        { "sourceId": "ai-gov-audit-log-retention", "title": "Audit log retention", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "AI governance requires Human review required (ai-gov-human-review-required) and Audit log retention (ai-gov-audit-log-retention)."
+    },
+    {
+      "id": "healthcare-claims-policy-review-citation-required",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "hipaa-minimum-necessary", "title": "Minimum necessary PHI", "corpusKind": "PolicyPack" },
+        { "sourceId": "claims-denial-audit-trail", "title": "Claims denial audit trail", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "For claims processing, cite Minimum necessary PHI (hipaa-minimum-necessary) and Claims denial audit trail (claims-denial-audit-trail)."
+    },
+    {
+      "id": "roi-cost-claim-unsupported",
+      "expectedCorpusKind": "AzureRetail",
+      "requiredEvidenceTokens": ["azure-cost-baseline-q2"],
+      "claimIssueKind": "unsupported-roi-cost-claim",
+      "retrievalHits": [
+        { "sourceId": "azure-app-service-p1v3", "title": "App Service P1v3", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "The review should save $42,000 per quarter by resizing App Service P1v3."
     }
   ]
 }

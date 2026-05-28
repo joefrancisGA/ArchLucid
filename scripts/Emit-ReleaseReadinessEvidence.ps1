@@ -86,9 +86,78 @@ function Add-CheckRow {
         }) | Out-Null
 }
 
+function Get-GitCommitSha {
+    try {
+        [string] $sha = (& git rev-parse HEAD 2>$null)
+
+        if ([string]::IsNullOrWhiteSpace($sha)) {
+            return "unknown"
+        }
+
+        return $sha.Trim()
+    }
+    catch {
+        return "unknown"
+    }
+}
+
+function Get-ArchLucidCliVersion {
+    [string] $csproj = Join-Path $root "ArchLucid.Cli/ArchLucid.Cli.csproj"
+
+    if (-not (Test-Path -LiteralPath $csproj)) {
+        return "unknown"
+    }
+
+    [string] $text = Get-Content -LiteralPath $csproj -Raw
+    [regex] $versionRegex = [regex]::new("<Version>([^<]+)</Version>")
+    [System.Text.RegularExpressions.Match] $match = $versionRegex.Match($text)
+
+    if (-not $match.Success) {
+        return "unknown"
+    }
+
+    return $match.Groups[1].Value.Trim()
+}
+
+function Invoke-LiveJsonProbe {
+    param(
+        [string] $BaseUrl,
+        [string] $RelativePath,
+        [string] $OutFile
+    )
+
+    if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
+        [ordered]@{ status = "SKIPPED"; reason = "pass -ApiBaseUrl to probe live endpoint"; relativePath = $RelativePath } |
+            ConvertTo-Json -Depth 4 |
+            Set-Content -LiteralPath $OutFile -Encoding utf8
+
+        return [ordered]@{ exitCode = 999; detail = "pass -ApiBaseUrl to probe live endpoint" }
+    }
+
+    try {
+        [string] $base = $BaseUrl.TrimEnd("/")
+        [string] $url = "$base$RelativePath"
+        Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 15 | Select-Object -ExpandProperty Content |
+            Set-Content -LiteralPath $OutFile -Encoding utf8
+
+        return [ordered]@{ exitCode = 0; detail = "GET $RelativePath succeeded" }
+    }
+    catch {
+        [string] $message = $_.Exception.Message
+        [ordered]@{ error = $message; relativePath = $RelativePath } |
+            ConvertTo-Json -Depth 4 |
+            Set-Content -LiteralPath $OutFile -Encoding utf8
+
+        return [ordered]@{ exitCode = 1; detail = "GET $RelativePath failed; see artifact" }
+    }
+}
+
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
 [System.Collections.Generic.List[object]] $checks = [System.Collections.Generic.List[object]]::new()
+
+[string] $gitCommitSha = Get-GitCommitSha
+[string] $cliVersion = Get-ArchLucidCliVersion
 
 [int] $prodExit = Invoke-PythonReport -EnvName $Environment -OutFile (Join-Path $OutDir "observability-export-readiness-$Environment.md")
 [int] $stagingExit = Invoke-PythonReport -EnvName "Staging" -OutFile (Join-Path $OutDir "observability-export-readiness-Staging.md")
@@ -102,6 +171,14 @@ New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 Add-CheckRow $checks "Observability export ($Environment)" (Map-ExitToVerdict $prodExit).verdict (Map-ExitToVerdict $prodExit).detail "observability-export-readiness-$Environment.md"
 Add-CheckRow $checks "Observability export (Staging)" (Map-ExitToVerdict $stagingExit).verdict (Map-ExitToVerdict $stagingExit).detail "observability-export-readiness-Staging.md"
 Add-CheckRow $checks "Observability strict + RequireTelemetryExport" (Map-ExitToVerdict $strictExit).verdict (Map-ExitToVerdict $strictExit).detail "observability-export-readiness-$Environment-strict.md"
+
+[string] $healthReadyPath = Join-Path $OutDir "health-ready.json"
+[object] $healthProbe = Invoke-LiveJsonProbe -BaseUrl $ApiBaseUrl -RelativePath "/health/ready" -OutFile $healthReadyPath
+Add-CheckRow $checks "Health readiness (live API)" (Map-ExitToVerdict $healthProbe.exitCode "pass -ApiBaseUrl for /health/ready").verdict $healthProbe.detail "health-ready.json" "operator"
+
+[string] $versionPath = Join-Path $OutDir "version.json"
+[object] $versionProbe = Invoke-LiveJsonProbe -BaseUrl $ApiBaseUrl -RelativePath "/version" -OutFile $versionPath
+Add-CheckRow $checks "Version endpoint (live API)" (Map-ExitToVerdict $versionProbe.exitCode "pass -ApiBaseUrl for /version").verdict $versionProbe.detail "version.json" "operator"
 
 [string] $preflightPath = Join-Path $OutDir "production-profile-preflight.md"
 & pwsh -NoProfile -File (Join-Path $root "scripts/Emit-ProductionProfilePreflightMarkdown.ps1") -MarkdownOut $preflightPath
@@ -150,6 +227,36 @@ Generated as part of the unified release-readiness evidence bundle.
 
 Add-CheckRow $checks "Rollback runbook reference" "WARN" "operator must confirm rollback steps before prod" "rollback-readiness-note.md" "operator"
 
+[string] $dbMigrationNote = Join-Path $OutDir "db-migration-status-note.md"
+@"
+# Database migration status
+
+This repo-local bundle does not connect to SQL or run DbUp. Attach the target-environment migration verification output here before production promotion.
+
+Expected operator evidence:
+
+- DbUp / migration verify result for the target database
+- Schema version or migration list when available
+- Rollback note cross-check against ``docs/runbooks/MIGRATION_ROLLBACK.md``
+"@ | Set-Content -LiteralPath $dbMigrationNote -Encoding utf8
+
+Add-CheckRow $checks "DB migration status" "SKIPPED" "attach target-environment DbUp/migration verification output when available" "db-migration-status-note.md" "operator"
+
+[string] $k6SmokeNote = Join-Path $OutDir "k6-smoke-status-note.md"
+@"
+# k6 smoke status
+
+This bundle does not run k6 automatically. Attach the k6 production-like smoke output when a reachable staging or production-like API is available.
+
+Expected operator evidence:
+
+- Scenario name and target base URL class (staging / production-like)
+- Pass/fail result and thresholds
+- Link to CI run or local output, with customer identifiers redacted
+"@ | Set-Content -LiteralPath $k6SmokeNote -Encoding utf8
+
+Add-CheckRow $checks "k6 smoke status" "SKIPPED" "attach k6 production-like smoke output when available" "k6-smoke-status-note.md" "operator"
+
 [int] $deploymentEvidenceExit = 999
 
 if (-not [string]::IsNullOrWhiteSpace($ApiBaseUrl)) {
@@ -184,6 +291,9 @@ Do not attach live tfvars, customer cover letters, or procurement NDA material t
 [ordered] $jsonDoc = [ordered]@{
     schema = "archlucid.release-readiness-index.v1"
     generatedUtc = $generatedUtc
+    environment = $Environment
+    gitCommitSha = $gitCommitSha
+    archLucidCliVersion = $cliVersion
     rollup = $rollup
     failCount = $failCount
     warnCount = $warnCount
@@ -198,8 +308,12 @@ $jsonDoc | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonPath -Encodin
 [void] $md.AppendLine("# Release readiness evidence (unified)")
 [void] $md.AppendLine("")
 [void] $md.AppendLine("Generated (UTC): **$generatedUtc**")
+[void] $md.AppendLine("Environment label: **$Environment**")
+[void] $md.AppendLine("Commit/version: **$gitCommitSha** / ArchLucid CLI **$cliVersion**")
 [void] $md.AppendLine("")
 [void] $md.AppendLine("Rollup: **$rollup** (FAIL=$failCount, WARN=$warnCount)")
+[void] $md.AppendLine("")
+[void] $md.AppendLine("Missing optional evidence is labeled **SKIPPED** instead of inferred. This bundle does not claim production SLA compliance unless live probe, migration, and smoke artifacts are attached.")
 [void] $md.AppendLine("")
 [void] $md.AppendLine("| Check | Verdict | Owner | Artifact | Detail |")
 [void] $md.AppendLine("| --- | --- | --- | --- | --- |")

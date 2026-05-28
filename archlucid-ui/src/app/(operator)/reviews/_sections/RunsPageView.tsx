@@ -52,9 +52,11 @@ export function RunsPageView(props: Props) {
         helpKey="runs-list-overview"
         docsPageKey="/runs"
       />
-      <div className="mt-3 max-w-3xl">
-        <FirstWeekRouteGuidance variant="reviews-list" />
-      </div>
+      {!isBuyerPolishedOperatorShellEnv() ? (
+        <div className="mt-3 max-w-3xl">
+          <FirstWeekRouteGuidance variant="reviews-list" />
+        </div>
+      ) : null}
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         {isBuyerPolishedOperatorShellEnv() ? (
           m.totalCount === 1 && m.runs[0]?.hasGoldenManifest === true ? (
@@ -154,7 +156,7 @@ export function RunsPageView(props: Props) {
             >
               CORE_PILOT.md
             </a>
-            ). Compare, Replay, and heavy governance surfaces can wait until after your first committed package.
+            ). Compare and heavy governance surfaces can wait until after your first committed package.
           </div>
           <EmptyState
             {...RUNS_EMPTY}

@@ -18,6 +18,16 @@
 
 Representative map, not an exhaustive SKU matrix. For fuller route coverage see [`ROUTE_TIER_POLICY_NAV_MATRIX.md`](ROUTE_TIER_POLICY_NAV_MATRIX.md) and [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md).
 
+## Reviewer audit report
+
+Generate a reviewer-friendly boundary report locally with:
+
+```powershell
+python scripts/ci/generate_commercial_boundary_audit.py --out artifacts/commercial-boundary-audit.md
+```
+
+The report lists every controller route prefix, commercial tier gate, class-level authorization policy, operator nav mapping, curated drift fixtures, and trial-limit notes. It is secret-free, has no live billing dependency, and explains the four separate boundaries reviewers should not conflate: commercial tier, authority/role, progressive disclosure, and trial limits.
+
 | PRICING gate (§3 table) | Code enforcement (primary) |
 |-------------------------|----------------------------|
 | Architecture runs | Core run lifecycle on `RunsController` / `RunQueryController` — **not** tier-filtered so pilot tenants on `Free` keep the happy path. |

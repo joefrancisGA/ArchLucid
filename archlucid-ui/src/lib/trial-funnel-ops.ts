@@ -84,12 +84,22 @@ export type AdminFleetLlmCogsRow = {
   grossMarginRiskLabel: string;
   trialFirstManifestCommittedUtc: string | null;
   costBasisLabel: string;
+  monthlyBudgetMonitoringActive: boolean;
+  costRatesConfigured: boolean;
+  includedUsdUtcMonth: number | null;
+  budgetWarningUsdUtcMonth: number | null;
+  budgetCompletionLabel: string;
 };
 
 export type AdminFleetLlmCogsDashboard = {
   rows: AdminFleetLlmCogsRow[];
   utcMonth: string;
   costBasisLabel: string;
+  monthlyBudgetMonitoringActive: boolean;
+  costRatesConfigured: boolean;
+  budgetWarningTenantCount: number;
+  hardStopTenantCount: number;
+  missingRateTenantCount: number;
 };
 
 export async function fetchAdminFleetLlmCogsDashboard(): Promise<AdminFleetLlmCogsDashboard | null> {
@@ -112,6 +122,11 @@ export async function fetchAdminFleetLlmCogsDashboard(): Promise<AdminFleetLlmCo
   return {
     utcMonth: typeof json.utcMonth === "string" ? json.utcMonth : "",
     costBasisLabel: typeof json.costBasisLabel === "string" ? json.costBasisLabel : "estimated",
+    monthlyBudgetMonitoringActive: Boolean(json.monthlyBudgetMonitoringActive),
+    costRatesConfigured: Boolean(json.costRatesConfigured),
+    budgetWarningTenantCount: Number(json.budgetWarningTenantCount ?? 0),
+    hardStopTenantCount: Number(json.hardStopTenantCount ?? 0),
+    missingRateTenantCount: Number(json.missingRateTenantCount ?? 0),
     rows: rawRows.map((entry) => {
       const row = entry as Record<string, unknown>;
 
@@ -128,6 +143,13 @@ export async function fetchAdminFleetLlmCogsDashboard(): Promise<AdminFleetLlmCo
         trialFirstManifestCommittedUtc:
           typeof row.trialFirstManifestCommittedUtc === "string" ? row.trialFirstManifestCommittedUtc : null,
         costBasisLabel: String(row.costBasisLabel ?? "estimated"),
+        monthlyBudgetMonitoringActive: Boolean(row.monthlyBudgetMonitoringActive),
+        costRatesConfigured: Boolean(row.costRatesConfigured),
+        includedUsdUtcMonth:
+          typeof row.includedUsdUtcMonth === "number" ? row.includedUsdUtcMonth : null,
+        budgetWarningUsdUtcMonth:
+          typeof row.budgetWarningUsdUtcMonth === "number" ? row.budgetWarningUsdUtcMonth : null,
+        budgetCompletionLabel: String(row.budgetCompletionLabel ?? "unknown"),
       };
     }),
   };

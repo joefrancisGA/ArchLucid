@@ -77,6 +77,7 @@ export type RunDetailPageHeaderProps = {
   buyerGovernanceApprovalLabel?: string | null;
   /** Buyer-polished: one sentence beside the finalized pipeline pill. */
   buyerHeaderStatusCaption?: string | null;
+  commitBlockedReason?: string | null;
 };
 
 /**
@@ -90,6 +91,7 @@ export function RunDetailPageHeader({
   executionFlavorBuyerSummary,
   buyerGovernanceApprovalLabel,
   buyerHeaderStatusCaption,
+  commitBlockedReason,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const finalizedBuyerChrome = buyerPolishedShell === true && hasGoldenManifest === true;
@@ -204,7 +206,7 @@ export function RunDetailPageHeader({
                 Finalize package
                 <ContextualHelp helpKey="commit-manifest" />
               </p>
-              <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
+              <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
               {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
               <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
                 <span className="whitespace-nowrap">Governance approval</span>
@@ -218,7 +220,7 @@ export function RunDetailPageHeader({
               Finalize
               <ContextualHelp helpKey="commit-manifest" />
             </p>
-            <CommitRunButton runId={runId} disabled={hasGoldenManifest} />
+            <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
             {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
             <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
               <span className="whitespace-nowrap">Governance gate</span>

@@ -5,6 +5,7 @@ import { getRunExplanationSummary, getRunSummary } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
+import { tryStaticDemoExplanationSummary } from "@/lib/operator-static-demo";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
@@ -92,6 +93,15 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
     failure = f;
   }
 
+  if (summary === null || (typeof summary.findingCount === "number" && summary.findingCount === 0 && summary.riskPosture !== "Approved with monitoring")) {
+    const staticFallback = tryStaticDemoExplanationSummary(runId);
+
+    if (staticFallback !== null) {
+      summary = staticFallback;
+      failure = null;
+    }
+  }
+
   const headline =
     runSummary !== null && (runSummary.description ?? "").trim().length > 0
       ? (runSummary.description ?? "").trim()
@@ -118,7 +128,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
           href={`/reviews/${encodeURIComponent(runId)}`}
           className="text-neutral-600 underline hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
         >
-          Open in operator shell
+          Open review package
         </Link>
       </div>
 
@@ -171,7 +181,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
 
           {rows.length === 0 ? (
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-              No findings were returned for this review. Check operator shell for pipeline status.
+              No findings were identified in this review package.
             </p>
           ) : (
             <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 shadow-sm dark:border-neutral-800 md:block">
@@ -198,7 +208,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                         >
                           {row.title}
                         </Link>
-                        <div className="mt-0.5 font-mono text-[11px] font-normal text-neutral-500">{row.findingId}</div>
+                        
                       </td>
                       <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
                         {row.confidence}

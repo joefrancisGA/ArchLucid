@@ -37,7 +37,7 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
           </div>
           <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Human actors
+              Named reviewers
             </p>
             <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {buyerAuditTrailMetrics.humanActorCount}
@@ -45,13 +45,10 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
           </div>
           <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              Automatically recorded
+              System-recorded events
             </p>
             <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {buyerAuditTrailMetrics.systemRecordedCount}
-            </p>
-            <p className="m-0 mt-2 text-[11px] leading-snug text-neutral-500 dark:text-neutral-400">
-              Logged automatically by ArchLucid lifecycle logging when no named human submits the row.
             </p>
           </div>
         </div>

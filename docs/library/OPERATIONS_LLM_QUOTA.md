@@ -37,3 +37,21 @@ Use Grafana dashboard **`infra/grafana/dashboard-archlucid-authority.json`** (LL
 ## FinOps
 
 Combine these metrics with Azure Cost Management tags from Terraform (`finops_environment`, `finops_cost_center` in `infra/terraform-container-apps`).
+
+## Admin COGS Dashboard
+
+Admins can review internal fleet cost pressure at **Admin → Fleet LLM COGS** (`/admin/fleet-llm-cogs`) or through `GET /v1/admin/operational/fleet-llm-cogs`.
+
+Use the dashboard as an **internal COGS estimate**, not an invoice or customer charge:
+
+- **Estimated pressure** comes from `LlmMonthlyTenantBudgetState` for the current UTC month.
+- **Hard cap** and **near-threshold** labels come from `LlmMonthlyTenantDollarBudget:*`.
+- **Cost rates** are considered configured only when `AgentExecution:LlmCostEstimation` is enabled and positive input/output USD-per-million-token rates are present.
+- **Budget completeness** values mean: `complete`, `near-threshold`, `hard-stop`, `monitoring-disabled`, or `missing-cost-rates`.
+
+Operator response:
+
+- `missing-cost-rates`: configure positive `AgentExecution:LlmCostEstimation:InputUsdPerMillionTokens` and `OutputUsdPerMillionTokens`, or a persisted admin rate override, before treating spend rollups as margin evidence.
+- `monitoring-disabled`: monthly hard stops are not active; use this only for non-production or explicitly approved deployments.
+- `near-threshold`: review tenant usage and top up budget only when the pilot/commercial agreement supports it.
+- `hard-stop`: additional real-mode LLM execution is blocked for the tenant until the next UTC month or an approved cap bump.

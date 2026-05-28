@@ -37,7 +37,7 @@ export function AskBuyerRunAnchors(props: AskBuyerRunAnchorsProps) {
             Open signed manifest
           </Link>
           <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseCompareHref()}>
-            {BUYER_COMPARE_OPEN_FULL_LINK_LABEL}
+            {BUYER_COMPARE_OPEN_FULL_LINK_LABEL} — baseline vs. updated
           </Link>
         </>
       ) : null}

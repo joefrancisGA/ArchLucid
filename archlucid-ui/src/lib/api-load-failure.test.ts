@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { ApiRequestError } from "./api-request-error";
-import { isApiNotFoundFailure, toApiLoadFailure, uiFailureFromMessage } from "./api-load-failure";
+import {
+  isApiNotFoundFailure,
+  isApiTimeoutLoadFailure,
+  isApiTransientLoadFailure,
+  resolveApiLoadFailurePresentation,
+  toApiLoadFailure,
+  uiFailureFromMessage,
+} from "./api-load-failure";
 
 describe("toApiLoadFailure", () => {
   it("maps ApiRequestError to state", () => {
@@ -112,5 +119,116 @@ describe("uiFailureFromMessage", () => {
     expect(uiFailureFromMessage("")).toMatchObject({
       message: "Something went wrong.",
     });
+  });
+});
+
+describe("isApiTransientLoadFailure", () => {
+  it("is true for gateway timeout status", () => {
+    expect(
+      isApiTransientLoadFailure({
+        message: "m",
+        problem: null,
+        correlationId: null,
+        httpStatus: 504,
+        retryAfterSeconds: null,
+      }),
+    ).toBe(true);
+  });
+
+  it("is true for DATABASE_TIMEOUT error code", () => {
+    expect(
+      isApiTransientLoadFailure({
+        message: "m",
+        problem: { errorCode: "DATABASE_TIMEOUT" },
+        correlationId: null,
+        httpStatus: null,
+        retryAfterSeconds: null,
+      }),
+    ).toBe(true);
+  });
+
+  it("is true for AbortError message without status", () => {
+    expect(
+      isApiTransientLoadFailure({
+        message: "This operation was aborted due to timeout",
+        problem: null,
+        correlationId: null,
+        httpStatus: null,
+        retryAfterSeconds: null,
+      }),
+    ).toBe(true);
+  });
+
+  it("is false for 404", () => {
+    expect(
+      isApiTransientLoadFailure({
+        message: "m",
+        problem: null,
+        correlationId: null,
+        httpStatus: 404,
+        retryAfterSeconds: null,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("isApiTimeoutLoadFailure", () => {
+  it("is true for 408 and timeout messages", () => {
+    expect(
+      isApiTimeoutLoadFailure({
+        message: "The operation timed out",
+        problem: null,
+        correlationId: null,
+        httpStatus: null,
+        retryAfterSeconds: null,
+      }),
+    ).toBe(true);
+    expect(
+      isApiTimeoutLoadFailure({
+        message: "m",
+        problem: null,
+        correlationId: null,
+        httpStatus: 408,
+        retryAfterSeconds: null,
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("resolveApiLoadFailurePresentation", () => {
+  it("prefers transient over not-found when both signals appear", () => {
+    expect(
+      resolveApiLoadFailurePresentation({
+        message: "timeout",
+        problem: { status: 404 },
+        correlationId: null,
+        httpStatus: 504,
+        retryAfterSeconds: null,
+      }),
+    ).toBe("transient");
+  });
+
+  it("returns not-found for 404 without transient signals", () => {
+    expect(
+      resolveApiLoadFailurePresentation({
+        message: "missing",
+        problem: null,
+        correlationId: null,
+        httpStatus: 404,
+        retryAfterSeconds: null,
+      }),
+    ).toBe("not-found");
+  });
+
+  it("returns error for validation failures", () => {
+    expect(
+      resolveApiLoadFailurePresentation({
+        message: "bad",
+        problem: null,
+        correlationId: null,
+        httpStatus: 400,
+        retryAfterSeconds: null,
+      }),
+    ).toBe("error");
   });
 });

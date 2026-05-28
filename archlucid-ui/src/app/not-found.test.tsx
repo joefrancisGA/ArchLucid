@@ -18,6 +18,7 @@ describe("not-found", () => {
     render(<NotFound />);
 
     expect(screen.getByText("Page not found")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
     expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute("href", "/governance/findings");

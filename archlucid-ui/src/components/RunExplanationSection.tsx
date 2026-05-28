@@ -267,6 +267,14 @@ export function RunExplanationSection({
           className="m-0 rounded-md border border-orange-300 bg-orange-50 p-3 text-sm leading-relaxed text-orange-950 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-50"
         >
           {summary.faithfulnessWarning}
+          {!buyerPolishedShell ? (
+            <>
+              {" "}
+              <a className="font-semibold underline" href="#retrieval-grounding">
+                Review retrieval grounding diagnostics.
+              </a>
+            </>
+          ) : null}
         </p>
       ) : null}
 

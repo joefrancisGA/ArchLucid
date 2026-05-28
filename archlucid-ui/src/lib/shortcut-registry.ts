@@ -153,7 +153,7 @@ export const ALERTS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
 ];
 
 /**
- * Dispatched on `window` so the operator command palette can open from components that do not own palette state
- * (e.g. sidebar footer). {@link CommandPalette} listens and calls `setOpen(true)`.
+ * Dispatched on `window` so the operator command palette can open from shell chrome that does not own palette state.
+ * {@link CommandPalette} listens and calls `setOpen(true)`.
  */
 export const OPEN_COMMAND_PALETTE_EVENT = "archlucid-open-command-palette";

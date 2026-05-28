@@ -172,11 +172,11 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "claims-intake-modernization": "Claims Intake Modernization",
   "e2e-plan-001": "Demonstration plan",
   "e2e-finding-001": "Demonstration finding",
-  "e2e-approval-001": "Demonstration approval",
+  "e2e-approval-001": "Sample approval record",
   "e2e-policy-pack-001": "Demonstration policy pack",
-  "phi-minimization-risk": "PHI minimization (demonstration finding)",
+  "phi-minimization-risk": "PHI Minimization Risk",
   "claims-intake-modernization-plan": "Claims Intake Modernization (demonstration plan)",
-  "claims-intake-approval-001": "Claims Intake (demonstration approval)",
+  "claims-intake-approval-001": "Claims Intake Modernization Review",
   "healthcare-claims-v3-pack": "Healthcare claims policy pack (demonstration)",
 };
 

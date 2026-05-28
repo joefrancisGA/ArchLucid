@@ -130,15 +130,15 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
               governed architecture review export
             </Link>{" "}
-            and manifest bundle — use the download actions on this page when available.
+            and evidence package — use the download actions on this page when available.
           </p>
         ) : (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No decisions recorded for this manifest.</p>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No decisions recorded for this signed decision record.</p>
         )}
         {decisionRestCount > 0 ? (
           <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-            … and {decisionRestCount} more decisions in the governed export — open review detail or download the manifest
-            bundle for the full list.
+            … and {decisionRestCount} more decisions in the governed export — open review detail or download the evidence
+            package for the full list.
           </p>
         ) : null}
       </div>
@@ -162,14 +162,14 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           </ul>
         ) : summary.warningCount > 0 ? (
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            Monitored-risk detail travels with the governed manifest export — use{" "}
+            Monitored-risk detail travels with the governed evidence package — use{" "}
             <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
               review detail
             </Link>{" "}
             or download the bundle.
           </p>
         ) : (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No monitored risks recorded on this manifest record.</p>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No monitored risks recorded on this signed decision record.</p>
         )}
       </div>
     </details>
@@ -226,9 +226,9 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
   const buyerManifestProvesCallout =
     (buyerPolishedLayout ?? false) && isCuratedDemo ? (
       <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        What this signed manifest proves: a versioned decision record with enumerated outcomes, monitored risks under an
-        explicit governance cadence, stable identifiers for audit correlation, and packaged deliverables wired to the
-        evidence graph and audit trail.
+        What this signed decision record proves: a versioned decision record with enumerated outcomes, monitored risks
+        under an explicit governance cadence, stable identifiers for audit correlation, and packaged deliverables wired
+        to the evidence graph and audit trail.
       </p>
     ) : null;
 

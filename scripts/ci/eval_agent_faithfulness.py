@@ -33,27 +33,43 @@ def _contains_citation(output: str, token: str | None) -> bool:
     return str(token).lower() in output.lower()
 
 
-def _evaluate_case(hits: list[dict[str, object]], agent_output: str) -> tuple[int, int, float, list[str]]:
+def _evaluate_case(
+    hits: list[dict[str, object]],
+    agent_output: str,
+    *,
+    expected_corpus_kind: str | None = None,
+    required_evidence_tokens: list[str] | None = None,
+    claim_issue_kind: str | None = None,
+) -> tuple[int, int, float, list[str], list[str], list[str]]:
     if not hits:
-        return 0, 0, 1.0, []
+        return 0, 0, 1.0, [], [], []
 
     supported = 0
     unsupported: list[str] = []
+    wrong_corpus: list[str] = []
 
     for hit in hits:
         source_id = str(hit.get("sourceId") or "")
         title = str(hit.get("title") or "")
+        corpus_kind = str(hit.get("corpusKind") or "")
         cited = _contains_citation(agent_output, source_id) or _contains_citation(agent_output, title)
 
         if cited:
             supported += 1
-            continue
-
-        if source_id.strip():
+        elif source_id.strip():
             unsupported.append(source_id)
 
+        if expected_corpus_kind and corpus_kind.strip().lower() != expected_corpus_kind.strip().lower():
+            wrong_corpus.append(source_id or title or "unknown-hit")
+
+    unsupported_claims: list[str] = []
+
+    for token in required_evidence_tokens or []:
+        if not _contains_citation(agent_output, token):
+            unsupported_claims.append(claim_issue_kind or "unsupported-claim")
+
     ratio = supported / len(hits)
-    return len(hits), supported, ratio, unsupported
+    return len(hits), supported, ratio, unsupported, wrong_corpus, unsupported_claims
 
 
 def _write_report(
@@ -72,13 +88,16 @@ def _write_report(
         "",
         "## Per-case results",
         "",
-        "| Case | Retrieved | Supported | Ratio |",
-        "|------|-----------|-----------|-------|",
+        "| Case | Retrieved | Supported | Ratio | Missing citations | Wrong corpus | Unsupported ROI/cost |",
+        "|------|-----------|-----------|-------|-------------------|--------------|----------------------|",
     ]
 
     for row in cases:
         lines.append(
-            f"| {row['id']} | {row['retrieved']} | {row['supported']} | {row['ratio']:.4f} |"
+            f"| {row['id']} | {row['retrieved']} | {row['supported']} | {row['ratio']:.4f} | "
+            f"{', '.join(row['missingCitationIds']) or '-'} | "
+            f"{', '.join(row['wrongCorpusIds']) or '-'} | "
+            f"{', '.join(row['unsupportedRoiCostClaims']) or '-'} |"
         )
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -136,12 +155,25 @@ def main(argv: list[str] | None = None) -> int:
         case_id = str(entry.get("id") or "unknown")
         hits = entry.get("retrievalHits")
         output = str(entry.get("agentOutputText") or "")
+        expected_corpus_kind = entry.get("expectedCorpusKind")
+        raw_required_tokens = entry.get("requiredEvidenceTokens")
+        claim_issue_kind = str(entry.get("claimIssueKind") or "unsupported-claim")
 
         if not isinstance(hits, list):
             print(f"::error::case {case_id}: retrievalHits must be an array")
             return 1
 
-        retrieved, supported, ratio, unsupported = _evaluate_case(hits, output)
+        required_tokens: list[str] = []
+        if isinstance(raw_required_tokens, list):
+            required_tokens = [str(token) for token in raw_required_tokens if str(token).strip()]
+
+        retrieved, supported, ratio, unsupported, wrong_corpus, unsupported_claims = _evaluate_case(
+            hits,
+            output,
+            expected_corpus_kind=str(expected_corpus_kind) if expected_corpus_kind is not None else None,
+            required_evidence_tokens=required_tokens,
+            claim_issue_kind=claim_issue_kind,
+        )
         ratios.append(ratio)
         evaluated.append(
             {
@@ -149,12 +181,16 @@ def main(argv: list[str] | None = None) -> int:
                 "retrieved": retrieved,
                 "supported": supported,
                 "ratio": ratio,
-                "unsupported": unsupported,
+                "missingCitationIds": unsupported,
+                "wrongCorpusIds": wrong_corpus,
+                "unsupportedRoiCostClaims": unsupported_claims,
             }
         )
 
         print(
-            f"faithfulness case={case_id} retrieved={retrieved} supported={supported} ratio={ratio:.4f}"
+            f"faithfulness case={case_id} retrieved={retrieved} supported={supported} ratio={ratio:.4f} "
+            f"missing_citations={len(unsupported)} wrong_corpus={len(wrong_corpus)} "
+            f"unsupported_roi_cost={len(unsupported_claims)}"
         )
 
     mean_ratio = sum(ratios) / len(ratios)

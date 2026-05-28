@@ -2,310 +2,475 @@
 
 # ArchLucid Comprehensive Manual QA Checklist
 
-This checklist focuses **exclusively** on scenarios that are either impossible, extremely brittle, or computationally infeasible to automate. These tests rely on human judgment, subjective evaluation, empathy, and complex out-of-band interactions. Everything else (API contracts, state mutations, RBAC enforcement, standard UI flows) should be handled by automated tests (e.g., unit, integration, Playwright).
+This checklist focuses on scenarios that are **impossible, brittle, or infeasible to automate** — subjective comprehension, empathy, alert fatigue, and sponsor-readiness judgments. API contracts, RBAC, and standard UI flows belong in automated tests (Vitest, integration, Playwright).
 
-**Agent output quality (structural / semantic scores, release bar):** A **key** part of manual QA for AI-backed runs is understanding what those metrics mean, why numeric floors should not be pushed toward 1.0 without calibration, and what you can do in prompts and briefs to keep scores legitimately high. See **§8.4** (and canonical technical detail in [`docs/library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)).
+## How to use this document
 
-Each test includes a justification for why human intervention is strictly necessary.
+| Part | Where you run it | What you need |
+|------|------------------|---------------|
+| **[Part A — Local development machine](#part-a--local-development-machine)** | Your laptop: `archlucid-ui` dev server (optionally local API + SQL) | No Azure subscription required for most items; static demo payloads cover API-off walks |
+| **[Part B — Azure and integrated environments](#part-b--azure-and-integrated-environments)** | Staging / pilot tenant / customer Azure | Entra ID, Marketplace, webhooks, Azure OpenAI, hosted extractor, PR platforms, Teams/Slack |
 
----
+**Legacy section map** (bookmarks in older docs):
 
-## 1. User Experience & Cognitive Load (The "Architect" Persona)
+| Old § | New § |
+|-------|-------|
+| §1 | [A.6](#a6-ux--cognitive-load-the-architect-persona) |
+| §2.1–2.2 | [B.1–B.2](#b1-azure-marketplace--procurement-trial-funnel) |
+| §2.3 | [A.5](#a5-day-one-sre-guide-naive-reader-test) |
+| §3 | [B.3–B.5](#b3-pull-request-decoration-azure-devops--github) |
+| §4 | [A.7](#a7-pathological-data--edge-case-ui-states) |
+| §5 | [A.8](#a8-graceful-degradation--network-failures) |
+| §6 | [A.9](#a9-accessibility--inclusive-design-beyond-automated-scans) |
+| §7.1 | [B.6](#b6-intentional-misconfiguration-bad-integration-tokens) |
+| §7.2 | [A.10](#a10-dead-end-and-forbidden-route-analysis) |
+| §8.1–8.2 | [A.11](#a11-explainability--ai-trust-subjective) |
+| §8.3 | [B.7](#b7-real-llm--agent-output-quality-manual-q7-gate) |
+| §8.4 | [B.8](#b8-agent-output-scores--threshold-discipline) |
+| §9 | [A.12](#a12-runbook--incident-response-validation) |
+| §10 | [A.13](#a13-manual-screenshot-capture--operator-ui) |
 
-### 1.1. "Run Rationale" Comprehension
-- **Test:** Execute an architecture run that generates complex findings (e.g., multiple accepted/rejected findings, custom notes, and a generated Golden Manifest). Read the resulting `RunRationale` summary.
-- **Justification:** Automation can verify that the rationale is generated and contains the expected strings. However, **only a human** can determine if the generated summary is comprehensible, logically formatted, and intuitively helpful to an architect. If the summary is technically correct but confusing to read, the feature fails its business purpose.
+**Agent output quality (structural / semantic scores, release bar):** See **[B.8](#b8-agent-output-scores--threshold-discipline)** and canonical detail in [`docs/library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md).
 
-### 1.2. Graph Snapshot Visualization and Orientation
-- **Test:** Open an architecture run with a highly complex `GraphSnapshot` containing dozens of interconnected nodes. Attempt to find the "root cause" node of a specific security finding visually.
-- **Justification:** Automated visual tests only check pixel changes. A human must verify if the visual layout algorithm (e.g., directed graph rendering) results in an incomprehensible "spaghetti" mess, or if the visual hierarchy naturally guides the eye to the most critical architectural components.
-
-### 1.3. Finding Resolution Context
-- **Test:** Review a finding that requires a decision (Accept/Reject). Read the `Rationale`, `Category`, and `RecommendedActions`. Make a decision based *only* on the information presented on the screen.
-- **Justification:** Automation cannot judge if the provided context is actually sufficient to make a confident architectural governance decision. If the user has to constantly context-switch to external tools or codebases to understand the finding, the UX has failed.
-
----
-
-## 2. Onboarding & The "Day One" Experience
-
-### 2.1. Azure Marketplace & Procurement Flow (The "Trial Funnel")
-- **Test:** Go through the Azure Marketplace SaaS offer purchase and trial signup flow end-to-end as a new user. Review the landing pages, the initial onboarding emails, and the "First 30 Minutes" Pilot experience.
-- **Justification:** While the underlying webhooks and SCIM provisioning APIs are automated, the subjective experience of moving from the Azure Portal to the ArchLucid UI requires human empathy. A human needs to verify if the welcome emails feel spammy, if the instructions are clear, and if the psychological friction of the onboarding flow is acceptable.
-
-### 2.2. SCIM Provisioning and First Login
-- **Test:** Log in as a newly provisioned user via Entra ID (SCIM) who has no assigned projects yet. Evaluate the "empty state" of the dashboard.
-- **Justification:** Automation verifies the user can log in. A human verifies if the empty state feels like a "dead end" or if there are clear, encouraging calls to action (e.g., "Create your first project" or "View the Operator Guide").
-
-### 2.3. The "Day One SRE" Guide
-- **Test:** Give a junior engineer the `day-one-sre.md` document and ask them to complete the basic operational tasks. Observe where they get stuck without offering help.
-- **Justification:** Documentation validation requires a naive human perspective. Automation cannot tell you if a sentence in a runbook is ambiguously phrased or assumes domain knowledge the reader lacks.
+**Known cross-surface gaps (hard to automate):** Use **[Appendix — Hard-to-evaluate surfaces](#appendix--hard-to-evaluate-surfaces--known-consistency-gaps)** when walking the Claims Intake spine — executive summary, list badges, counts, and provenance/nav polish are active cleanup areas.
 
 ---
 
-## 3. Complex Integrations & Out-of-Band Workflows
+# Part A — Local development machine
 
-### 3.1. Pull Request Decoration (Azure DevOps / GitHub)
-- **Test:** Trigger the GitHub Action or AzDO pipeline that generates a manifest delta. Go to the PR in the respective platform and read the decorated comment left by ArchLucid.
-- **Justification:** The pipeline script can be automated, but the subjective usefulness of the PR comment cannot. A human must decide: "Is this comment too noisy? Does it drown out human code review? Does the formatting look broken in the GitHub/AzDO UI?"
+Run these on your laptop without provisioning customer Azure resources. Most buyer-polish and Claims Intake showcase checks work with **`npm run dev`** and static fallbacks even when the API is stopped.
 
-### 3.2. MS Teams / Slack Alert Fatigue
-- **Test:** Trigger a burst of 20 architectural violations within a 5-minute window. Observe the resulting notifications in MS Teams.
-- **Justification:** Automation verifies the webhooks fire 20 times. A human evaluates whether receiving 20 separate messages causes immediate "alert fatigue," or if the system appropriately rolls them up into a digest that is easy to read.
+## A.0 Local prerequisites
 
-### 3.3. Operator Shell CLI Usability
-- **Test:** Open the terminal and use the `Operator Shell` to execute a manual `RuleAudit` over a specific tenant, using only the CLI `--help` flags for guidance.
-- **Justification:** CLI automation tests exit codes and stdout. A human evaluates if the CLI flags are intuitive, if the error messages for missing arguments are helpful, and if the output table is readable on a standard 80-column terminal.
+### Start the UI
 
----
+From repo root:
 
-## 4. Pathological Data & Edge-Case UI States
+```powershell
+cd archlucid-ui
+npm ci   # first time only
+npm run dev
+```
 
-### 4.1. The "Wall of Text" Rule Description
-- **Test:** Create an architecture run or `RuleSet` with an intentionally massive, unformatted description, a title with 500+ characters, and 50+ recommended actions. View this in the ArchLucid UI across different window sizes.
-- **Justification:** Automation doesn't know if a layout "looks ugly" or "feels claustrophobic." A human must determine if pathological text wrapping, bizarre scrollbars, or text truncations render the screen practically unusable.
+Default dev URL is typically `http://localhost:3000` (see terminal output).
 
-### 4.2. Deeply Nested JSON Manifests
-- **Test:** View a `GoldenManifest` in the UI where the JSON payload is 15+ levels deep.
-- **Justification:** While the JSON parser handles it fine, a human must determine if the UI's tree-viewer component becomes un-navigable or if the indentation pushes the text entirely off the right side of the screen.
+### Environment flags (buyer vs engineer shell)
 
-### 4.3. The 10,000 Node Architecture
-- **Test:** Load a project with an absurdly large architecture graph. Attempt to scroll and zoom.
-- **Justification:** Playwright can assert the canvas renders, but a human must evaluate the subjective "feel" of the framerate, input lag, and browser memory pressure. Does the app feel sluggish and broken?
+| Variable | Typical local value | Effect |
+|----------|---------------------|--------|
+| `NEXT_PUBLIC_OPERATOR_EXPERIENCE` | `operator` in `.env.development` | **Unset** = buyer-default labels and softer chrome; **`operator`** = dense internal nav (engineer default locally) |
+| `NEXT_PUBLIC_DEMO_MODE` | `true` for screenshot/demo walks | Buyer-polished chrome + curated static rows when lists fail |
+| `NEXT_PUBLIC_DEMO_STATIC_OPERATOR` | `true` for UI-only demos | Same static spine without live authority |
+| `NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE` | `true` only when you must hit Compare under strict demo | Compare is hidden in buyer-safe demo navigation by default |
 
----
+See [`archlucid-ui/docs/DEMO_FLAGS_AND_UNIT_TESTS.md`](../../archlucid-ui/docs/DEMO_FLAGS_AND_UNIT_TESTS.md) and [`docs/library/OPERATOR_UI_EXPERIENCE_MODES.md`](../library/OPERATOR_UI_EXPERIENCE_MODES.md).
 
-## 5. Graceful Degradation & Network Failures
+### Optional: live API on localhost
 
-### 5.1. The "Subway Tunnel" Test (Intermittent Connectivity)
-- **Test:** Rapidly click between "Accept Finding" and "Reject Finding" on an architecture run while throttling the network to "Slow 3G" or toggling "Offline" in browser dev tools.
-- **Justification:** Human exploratory testing uncovers missing loading spinners, jarring layout shifts, confusing state rollbacks, and frustrating UX glitches that rigid scripted tests always miss.
+For **mutations** (accept finding, real Ask threads, audit search against DB), run **ArchLucid.Api** + SQL per [`docs/engineering/BUILD.md`](../engineering/BUILD.md). That is still **local** — not the same as **Part B** (Entra, Marketplace, production AOAI).
 
-### 5.2. In-Flight Mutation Failures
-- **Test:** Attempt to accept a finding, and simulate an HTTP 500 error (via proxy like Charles/Fiddler or dev tools). Try to navigate away, use the browser's back button, or close the modal.
-- **Justification:** How does the UI recover? Does it silently fail, leaving the user thinking they accepted the risk? A human must verify that the failure is communicated clearly and safely.
+### Claims Intake showcase spine (canonical URLs)
 
----
+Use these stable tokens for a **single** walkthrough session (aligned with `src/lib/showcase-static-demo.ts`):
 
-## 6. Accessibility & Inclusive Design (Beyond Automated Scans)
+| Step | URL |
+|------|-----|
+| Executive summary | `/executive/reviews/claims-intake-modernization` |
+| Review package detail | `/reviews/claims-intake-modernization` |
+| Provenance | `/reviews/claims-intake-modernization/provenance` |
+| Primary finding | `/reviews/claims-intake-modernization/findings/phi-minimization-risk` |
+| Manifest | `/manifests/a1c2e3f4-a5b6-7890-abcd-ef1234567890` or manifest link from review detail |
+| Evidence trail (graph) | `/graph` (select Claims Intake review, load graph) |
+| Ask | `/ask` |
+| Governance workflow | `/governance` |
+| Governance findings | `/governance/findings` |
+| Policy pack (demo) | `/governance/policy-packs/demo-healthcare-claims-pack` |
+| Approval lineage | `/governance/approval-requests/{id}/lineage` (from static approval row if shown) |
+| Audit | `/audit` |
+| Help | `/help` |
+| Marketing walkthrough | `/showcase/claims-intake-modernization` |
 
-### 6.1. Screen Reader Context (NVDA / VoiceOver)
-- **Test:** Disconnect your mouse and turn off your monitor. Navigate the `ArchitectureRunDetail` findings, drill down into `DecisionTraceEntries`, and resolve findings using *only* the keyboard and a screen reader.
-- **Justification:** Automated tools (like Axe) verify if ARIA attributes are technically present. They cannot tell you if the tab order is logically confusing, or if the screen reader's read-out actually makes sense to a visually impaired user (e.g., knowing *which* specific finding you are currently accepting).
-
-### 6.2. Keyboard Traps & Focus Management
-- **Test:** Open a complex modal (e.g., "Finding Rationale Details"). Press `Tab` repeatedly. Then press `Escape`.
-- **Justification:** Ensure focus remains trapped inside the modal while it's open, and that dismissing it returns focus to the logical previous element. Automation often misses the "natural flow" of focus management.
-
-### 6.3. High-Contrast & Color Blindness Simulation
-- **Test:** Turn on the OS-level High Contrast mode, or use a color blindness simulator (e.g., Deuteranopia). Look at the Severity indicators (High, Medium, Low).
-- **Justification:** If Severity is indicated *only* by red/yellow/green colors, automation won't care, but a color-blind user won't be able to distinguish them. A human verifies if there are accompanying icons or text labels.
+**Workspace label** on scope chrome should read **Claims Intake Workspace** (sample workspace), not a raw tenant id, when buyer-safe demo chrome is active.
 
 ---
 
-## 7. Error Messaging & Troubleshooting
+## A.1 Buyer-polished vocabulary consistency
 
-### 7.1. Intentional Misconfiguration (Bad Tokens)
-- **Test:** Follow the in-app UI guide to set up Azure DevOps or GitHub integration, acting as a user who has never done it before. Intentionally use an expired or invalid token.
-- **Justification:** Automation validates the 401 response. A human validates if the setup instructions are clear, and if the error messages for invalid tokens actually guide the user to a solution (e.g., "Your token has expired, please generate a new one here: [link]") rather than a generic "401 Unauthorized."
+**Goal:** Sponsors see the same words on every surface — not mixed “graph / provenance / sealed manifest” jargon.
 
-### 7.2. "Dead End" Analysis
-- **Test:** Try to view a run detail for a `RunId` that has been deleted, or that the current tenant does not have RBAC access to.
-- **Justification:** Does the UI crash with a white screen? Does it show a generic error? A human needs to ensure the user is gently guided back to safety (e.g., "This run could not be found. Return to the dashboard.").
+- [ ] **Evidence trail** appears in nav and graph-adjacent copy (not “provenance graph” as the primary label).
+- [ ] **Decision traceability graph** (or equivalent page title) matches graph viewer chrome; filter summary mentions evidence type / decision / risk.
+- [ ] **Audit trail** is used on audit pages and cross-links (not “event log” alone).
+- [ ] **Finalized signed manifest record** (or shortened **signed manifest** in tight UI) — tooltips explain hash-verified, write-locked record (see `BUYER_SEALED_MANIFEST_TOOLTIP` in `buyer-polish-copy.ts`).
+- [ ] **Finding** / **PHI minimization risk** labels match governance and review detail.
+- [ ] Breadcrumbs and page titles on **Executive summary** use portfolio-oriented copy (ROI metrics sr-only labels: findings resolved/discovered 30d, stale risks, waivers, SQL backup region verification).
 
----
+**Justification:** Vitest can assert strings exist; only a human catches awkward synonyms that break trust on a live walkthrough.
 
-## 8. Explainability & AI Trust
-
-### 8.1. Explainability Trace Completeness "Gut Check"
-- **Test:** Review a finding that has a `CompletenessRatio` of around 50-60%. Look at what data is missing (e.g., missing GraphNodeIds, missing Alternative Paths).
-- **Justification:** The `ExplainabilityTraceCompletenessAnalyzer` calculates a mathematical score. A human needs to do a subjective "gut check" to see if a 60% score accurately reflects the perceived usefulness of the trace. If a trace scores highly but still feels useless to an auditor, the scoring algorithm's weighting needs subjective tuning.
-
-### 8.2. LLM Hallucination / Tone Check (If Applicable)
-- **Test:** If AI generates the finding rationale or summaries, read 10-15 generated outputs.
-- **Justification:** Automation can check for restricted keywords, but only a human can tell if the AI is being overly pedantic, condescending, or hallucinates architectural components that don't exist in the manifest.
-
-### 8.3. Real-LLM / agent output quality (manual “Q7” gate)
-- **Test:** On **staging** (or another non-simulator host configured for **real** Azure OpenAI — see `docs/library/FIRST_REAL_VALUE.md` and your deployment secrets), run **at least one** full authority run through **create → execute → commit** with a **realistic** architecture brief (not the bare minimum one-liner). Then:
-  - Skim every agent-backed finding: are claims **plausible** given the manifest and context, or obvious nonsense?
-  - Open **agent execution trace** (prompts/response) for at least one agent (e.g. Topology) and confirm the model is **answering the actual request**, not a template mismatch.
-  - If your environment exposes it (UI, diagnostics, or Grafana): note **structural completeness** and **semantic**-style signals so you are not flying blind compared to the **simulator** on the same shape of request.
-  - Optionally: run a **second** run with **simulator** mode on the **same** or equivalent request to **feel** the difference in usefulness (simulator = deterministic for CI; real LLM = what pilots experience).
-- **Record (for you):** date, **environment URL**, model/deployment id if known, and one line: **“acceptable for pilot” / “not yet”** and why. This is your **manual** answer to the independent assessment **Q7** (agent eval / “last green” narrative) when you do **not** yet rely on a **published** 30-day rollup from `agent-eval-datasets-nightly` (`.github/workflows/agent-eval-datasets-nightly.yml`) or other automation. **Structured template:** [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](REAL_LLM_RUN_EVIDENCE_TEMPLATE.md).
-- **Release check-in stub:** [`REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md`](REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md) (steps + pointers — optional committed summary path is owner-defined).
-- **Release cohort green bar:** Tiered planning baseline (**`gpt-4o`**, structural **100%**, quality-gate rejects **0%** on canonical cohort, semantic **p10/p50**, explainability completeness mean, adversarial qualitative until baselined) — canonical table [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) §10.
-- **Justification:** Scheduled jobs can assert JSON shape and thresholds; they **cannot** stand in for a human judgment that **this** pipeline output is **credible and safe to show a sponsor** on a real engagement. This step turns anxiety into a **finite, repeatable** session you control.
-
-### 8.4. Agent output scores — layperson meaning, threshold discipline, and keeping scores high (key)
-
-Use this subsection whenever you run **real** Azure OpenAI paths (§8.3) or interpret **`archlucid_agent_output_*`** telemetry. Product stance: a **conservative** release bar for buyers who design on Azure and for AI systems — **block** releases on insufficient **reference** evidence, not **warn-only**; see [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) § **Quality gate** and **Release credibility posture**.
-
-#### What the numbers mean (plain English)
-
-| Metric | Range | Lay meaning |
-|--------|-------|-------------|
-| **Structural completeness** | 0–1 | “Did the model fill the **expected JSON fields**?” **1.0** ≈ all expected keys present and non-empty; **~0.55** ≈ about half; **~0.35** ≈ mostly empty or broken shape. |
-| **Semantic score** | 0–1 | “Is the **content** substantive, not hollow?” Built from **claims** (fraction with real **evidence** refs or evidence text) and **findings** (each needs severity, description **>** 10 chars, recommendation **>** 5 chars). Formula: **Claims × 0.4 + Findings × 0.6** (see [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)). |
-
-**Quality gate outcomes** (same config family as `ArchLucid:AgentOutput:QualityGate`): **accepted** = above warn floors; **warned** = soft fail band; **rejected** = catastrophic band. Shipped **defaults** in code use **warn below ~0.55** and **reject below ~0.35** on structural and semantic — those are **starting calibration points**, not the final “Azure architect credibility” bar if you tighten for release.
-
-#### Why you should **not** only “raise everything toward 1.0”
-
-- **LLMs are variable.** Even good models occasionally emit a claim without a citation or a slightly short finding. Floors in the **0.90+** range on **real** briefs often create **noise** (blocked releases for **non-regressions**) rather than signal.
-- **The checks are minimal by design.** “Description > 10 characters” is a **floor**, not proof of depth. A high numeric **target** does not, by itself, mean prose is **good** — only that it cleared a cheap detector.
-- **Simulator vs real differ.** Simulator runs may score **very high** deterministically; **real AOAI** is the distribution that matters for pilots. Calibrate thresholds on **reference deployment + realistic corpus**, not on wishful 1.0.
-- **Credibility is process + published bar**, not a magic number. Buyers care that you **name a reference model**, **run the gate**, and **do not ship when it fails** — not that your internal reject line is 0.92.
-
-#### Practical starting calibration (manual QA + release planning)
-
-After the **reference Azure OpenAI deployment** is fixed and you have **~10–20** real-mode runs on **realistic** briefs:
-
-- Consider **release-blocking** floors around **0.70 / 0.70** (structural / semantic) as a **first** tight bar — meaningfully **above** the shipped **reject** default (**0.35**), which is really a **catastrophic** detector.
-- **Tighten** toward **0.80+** only when **measured** pilot runs routinely sit there (prompt and corpus improvements landed).
-
-Record in your pilot notes: **date**, **deployment id**, **brief id**, and whether scores **passed your chosen bar**.
-
-#### What **you** can do to help scores stay **legitimately** high (not gaming the metric)
-
-- **Prompts:** Require **every claim** to cite evidence; require **every finding** to include a **concrete** recommendation. That directly feeds **semantic** scoring.
-- **Architecture briefs:** Well-structured briefs (named components, constraints, technologies) yield **better** structure and citations than one-line asks.
-- **Eval corpus:** Keep synthetic / pilot-safe briefs **realistic and well-formed** (see assessment prompt on eval corpus). Garbage-in produces garbage-out and unstable scores.
-- **Model & temperature:** Prefer **lower temperature** on reference / release paths for **repeatable** completeness; align **golden cohort real-LLM** with the same deployment you advertise.
-- **Future refinement:** **Per-`agent_type` floors** (Topology vs Compliance, etc.) allow a **true** bar per agent without forcing one average to satisfy every shape.
-
-#### Manual QA checklist actions (tie to §8.3)
-
-On each **real-LLM** validation session (§8.3), verify **at least**:
-
-- [ ] You can **explain** structural and semantic scores to a **non-engineer** using the table above.
-- [ ] You are **not** treating “warn” as “ship anyway” if your **release policy** says **block** — open a defect or defer the release.
-- [ ] You logged **one** concrete improvement when scores dipped (prompt gap, thin brief, wrong deployment, or agent-specific issue).
+**Source of truth:** `archlucid-ui/src/lib/buyer-surface-vocabulary.ts`, `buyer-polish-copy.ts`.
 
 ---
 
-## 9. Runbook & Incident Response Validation
+## A.2 Claims Intake showcase spine (end-to-end, ~25 minutes)
 
-### 9.1. The "3 AM On-Call" Test
-- **Test:** Open the `MIGRATION_ROLLBACK.md` or `ALERT_DELIVERY_FAILURES.md` runbook. Read through it rapidly as if you have been woken up at 3 AM by PagerDuty.
-- **Justification:** A runbook must be incredibly concise, copy-paste friendly, and free of unnecessary prose. A human must evaluate if the runbook induces anxiety or if it clearly and calmly leads the operator to mitigation. Automation cannot test human panic.
+**Setup:** `NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true` **or** API stopped (static fallback after list failure). One viewport (e.g. 1440×900).
+
+| # | Action | Pass criteria |
+|---|--------|---------------|
+| 1 | Open **Help** → “Your first review package” | Five steps: executive summary → signed manifest → evidence trail → governance + audit → Ask; primary CTA matches **Open executive summary** |
+| 2 | Open executive summary URL | Headline and KPI cards readable; monitored-risk narrative does not sound like a blocking failure |
+| 3 | Open review detail | H1 ~ **Claims Intake Modernization Review**; sample package card mentions signed manifest, evidence trail, governance approval, audit; CTAs **Open executive summary** / **View full review package** |
+| 4 | Scroll **finalize / exports** (committed story) | Downloads described as ZIP for diligence; **Executive briefing package** label if shown |
+| 5 | Open manifest | Sections **Decision**, **Evidence**, **Downloads**, **Diligence**; bundle download copy = finalized review package |
+| 6 | Open PHI finding | Post-approval lead mentions **residual PHI minimization risk** with monitoring; confidence explainer distinguishes **finding evaluation confidence** from product accuracy |
+| 7 | Open graph, load trail | **What this proves** line traces PHI risk → policy → decision → approval → manifest → audit; ~15 linked records / 7 audit events feel coherent (static counts) |
+| 8 | **Ask** — placeholder “Ask about this review package…” | Grounding line: scoped to review evidence; does not claim to replace governance records; showcase anchors mention executive summary, manifest, policy, evidence trail, audit |
+| 9 | **Governance** | Page title **Governance decision record**; approval lead = ADR-style copy; footnote: production still under customer change management |
+| 10 | **Governance → findings** | **Monitored risks** section; CTAs **View finding and evidence** / **View evidence trail** |
+| 11 | **Audit** | Intro **Recorded timeline for this review package**; **Audit trail complete** when story complete; **Download governance evidence package** |
+| 12 | **Reviews list** | Featured row **Claims Intake Modernization**; tabs **Approved** / **Approved with monitoring** / **Needs attention** make sense for demo data |
+| 13 | Home `/` | Sample package subtitle/lead matches review list story; no contradictory “zero reviews” if static fallback applied |
+
+**Justification:** This is the primary **2026 buyer-polish** pilot path; automation checks links, not whether a sponsor would sign the story.
 
 ---
 
-## 10. Manual screenshot capture — operator UI (API-not-running and empty-data coverage)
+## A.3 First-week route guidance
 
-Use this chapter when you need **evidence** that the operator shell behaves acceptably when the **authority/API layer is unavailable**, returns errors, or when the **database has no seeded runs**—distinct scenarios. Pair with demo/static-env documentation (`archlucid-ui` static demo flags) as applicable.
+Surfaces show **bridge copy**, **primary action**, and **operate deferral** when the user has not committed a first package (see `first-week-route-guidance.ts`).
 
-### 10.0. Before you start
+- [ ] **Home** — defers Graph/Compare/governance until first committed package; primary **Start new review**.
+- [ ] **Onboarding** (if enabled in your build) — four-step path before Operate lanes.
+- [ ] **Reviews list** — bridge explains one review package per row; Compare called optional.
+- [ ] **Review detail (in-progress)** — anchor `#run-actions` / finalize guidance; deferral note present.
+- [ ] **Review detail (committed)** — anchor `#artifacts-exports`; sidebar unlock messaging for Operate tools is encouraging, not alarming.
 
-1. **Decide the scenario** (pick **one** per session so filenames match intent):
-   - **A — API down / unreachable** (browser or host file blocked to API origin).
-   - **B — UI up, API up, empty DB** (no seeded runs—different from A; list pages may be empty without injection).
+**Justification:** Copy regressions are easy in refactors; humans verify the “first 30 minutes” narrative still holds.
 
-2. **Fix one viewport** (e.g. 1440×900 or 1920×1080) and reuse it for every shot.
+---
 
-3. **Same workspace / URL params** where the app expects them (e.g. `?projectId=default` on Reviews if you always use that).
+## A.4 Help and operator home hints
 
-4. **Wait for spinners** to stop (graph canvas, lists, timelines) before capture—**except** when you intentionally document a loading state.
+- [ ] `/help` product guide cards: **Review packages**, **Signed manifests**, evidence trail, governance, Ask — no broken links.
+- [ ] **Runs page buyer help tip** (if visible on `/reviews`) — aligns with featured package wording, not internal “run id” jargon.
+- [ ] **After core pilot checklist hint** (footer/sidebar when applicable) — does not contradict first-week deferral.
 
-5. **Naming:** `01-home.png`, `02-reviews-list.png`, `03-review-detail-{runId}.png`, etc., or `{area}-{state}-{scenario}.png`.
+---
 
-### 10.1. Home vs Reviews (consistency / “API not running” story)
+## A.5 Day One SRE guide (naive reader test)
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 1.1 | Open `/` (operator home) | Full page | Empty “latest” / checklist vs what Reviews will show. |
-| 1.2 | `/reviews?projectId=default` (or your default) | Full page | Whether the Claims Intake (or static) row appears when list API fails / empty. |
-| 1.3 | Optional: open Reviews drawer on a row (if present) | Drawer + table | CTAs to detail / package / findings without a live API. |
+- **Test:** Give a junior engineer `day-one-sre.md` (path in repo docs) and ask them to complete basic operational tasks without help.
+- **Justification:** Documentation ambiguity is a human judgment call.
 
-### 10.2. Review package (core path when API is off)
+---
 
-Use the **same review id** everywhere (e.g. `claims-intake-modernization-run`) so filenames line up.
+## A.6 UX & cognitive load (The "Architect" Persona)
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 2.1 | `/reviews/{runId}` | Full page above fold + scroll second shot if long | Detail: static fallback vs “could not be loaded”. |
-| 2.2 | `/reviews/{runId}/provenance` | Full page | Provenance: same `runId`; dependency on detail/authority APIs. |
-| 2.3 | `/reviews/{runId}/findings/phi-minimization-risk` (or your canonical finding slug) | Full page | Finding page (often fully API-backed). |
-| 2.4 | `/reviews/{runId}/findings/{findingId}/inspect` | Full page | Inspect payload (API-heavy). |
-| 2.5 | If you use executive mirror: `/executive/reviews/{runId}` | Full page | Parallel surface to operator detail. |
+### Run rationale comprehension
 
-### 10.3. Manifest and public-ish outputs (often API-backed)
+- **Test:** On a review with rich findings (or static Claims Intake), read the run rationale / summary end-to-end.
+- **Pass:** A practicing architect could explain the outcome to a peer without opening external tools.
+- **Justification:** Automation checks strings; not comprehension.
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 3.1 | From review detail, follow manifest link if visible, or `/manifests/{manifestId}` (id from docs/static demo) | Full page | Summary + artifact list without API. |
-| 3.2 | Marketing/static where applicable: `/see-it`, `/demo/preview`, `/showcase/{runId}` (as you use them) | One each | Whether they still tell the story with no backend (if that is your deploy). |
+### Graph snapshot orientation
 
-### 10.4. Graph
+- **Test:** On a busy graph (Claims Intake or large live run), find the root cause of the PHI finding visually.
+- **Pass:** Layout is navigable, not unreadable spaghetti; zoom/pan feel acceptable.
+- **Justification:** Pixel/regression tests do not judge layout quality.
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 4.1 | `/graph` — default review selected, Review trail graph, click **Load graph** if needed | Full page with canvas visible | Provenance mode + static fallback vs API errors. |
-| 4.2 | `/graph` — switch to Architecture graph, **Load graph** | Full page | Larger payload / errors when API off. |
+### Finding resolution context
 
-### 10.5. Ask (conversations = API)
+- **Test:** Decide accept/reject using **only** on-screen rationale, category, and recommended actions.
+- **Pass:** Enough context for a governance decision without mystery meat links.
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 5.1 | `/ask` — initial load | Full page | Thread list failure / empty; “No messages yet”. |
-| 5.2 | `/ask` — select a thread if any appear | Main column + picker | Review dropdown vs thread context mismatch. |
-| 5.3 | `/ask` — type a one-line question, **Ask** (optional) | Result or error | Dead submit vs error banner when API off. |
+---
 
-### 10.6. Governance (lists and findings queue)
+## A.7 Pathological data & edge-case UI states
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 6.1 | `/governance` | Full page | Static approval rows vs empty/error when API off. |
-| 6.2 | `/governance/findings` | Full page | PHI / sample finding visibility. |
-| 6.3 | `/governance/dashboard` | Full page | Thin dashboard when API off. |
-| 6.4 | `/governance/policy-packs` and `/governance/policy-packs/{id}` | Full page each | Registry counts vs sample story. |
-| 6.5 | If you deep-link approvals: `/governance/approval-requests/{id}/lineage` | Full page | Lineage completeness without API. |
+### Wall of text
 
-### 10.7. Audit
+- **Test:** Rule or finding with huge description, 500+ char title, many recommended actions — desktop and narrow widths.
+- **Pass:** Usable wrapping/truncation; no broken layout.
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 7.1 | `/audit` — default filters | Full page | Zero rows vs “complete review trail” narrative. |
-| 7.2 | `/audit` — set From/To to bracket sample dates, **Search** | Results area | Same, with explicit search attempt. |
+### Deep JSON manifest
 
-### 10.8. Alerts
+- **Test:** 15+ level nested manifest tree in UI.
+- **Pass:** Tree remains navigable; indentation does not destroy layout.
 
-| Step | Navigate | Capture | What this checks |
-|-------|----------|---------|------------------|
-| 8.1 | `/alerts` — Inbox | Full page | No alerts vs PHI risk story. |
-| 8.2 | `/alerts?tab=rules` (and routing / composite / simulation if you show them) | One shot per tab you care about | Empty operator console tabs. |
+### Very large graph
 
-### 10.9. Optional but useful (often API or config dependent)
+- **Test:** Project with very large architecture graph — scroll, zoom, pan.
+- **Pass:** Subjective performance acceptable (framerate, lag).
 
-| Step | Navigate | Capture | What this checks |
-|------|----------|---------|------------------|
-| 9.1 | `/compare`, `/replay` with sample `runId` | Full page | Partial UI vs API errors. |
-| 9.2 | `/admin/health`, `/admin/users`, `/admin/support` | Full page | Internal surfaces in demo story. |
-| 9.3 | `/settings/tenant` (and other Settings you cite in demos) | Full page | Blank profile / trial copy. |
-| 9.4 | Sign-in / auth callback path you expose publicly | Error or landing | Bad state inside shell. |
+---
 
-### 10.10. Coverage definition (“covered the surface”)
+## A.8 Graceful degradation & network failures
 
-You have covered the **API-not-running** (or empty-data) story when you have at least one screenshot each for:
+### Subway tunnel (intermittent connectivity)
 
-- Home and Reviews list (contrast).
-- Review detail + finding + inspect + provenance (same `runId`).
-- Manifest (if in golden path).
-- Graph (provenance + optionally architecture).
-- Ask (list + conversation state).
-- Governance (workflow + findings + one of policy/dashboard/lineage).
-- Audit + Alerts (inbox + one config tab).
+- **Test:** Throttle to Slow 3G / Offline in devtools; click accept/reject or navigate quickly between review tabs.
+- **Pass:** Loading states, no silent wrong state, recoverable errors.
 
-That matches surfaces where listing runs, finding detail, audit events, alerts, or conversation messages often **lack** a curated static fallback.
+### In-flight mutation failures
 
-**Single ordered walk (about 15–20 minutes):** follow **10.1 → 10.2 → 10.3 → 10.4 → 10.5 → 10.6 → 10.7 → 10.8** in order, using one fixed `runId` and manifest id from your static demo docs.
+- **Test:** Simulate 500 on accept finding (proxy or devtools); try back button / dismiss modal.
+- **Pass:** User never believes success when the server failed.
 
-### 10.11. Related automated regression (operator UI)
+---
 
-After changing operator shell or layer guidance, run Vitest locally. On Windows, if the default pool times out, prefer threads and a single worker:
+## A.9 Accessibility & inclusive design (beyond automated scans)
+
+### Screen reader context
+
+- **Test:** Keyboard + NVDA/VoiceOver through review findings and decision trace.
+- **Pass:** Tab order and announcements identify **which** finding is in focus.
+
+### Keyboard traps
+
+- **Test:** Modal rationale details — Tab cycle, Escape returns focus to trigger.
+
+### High contrast / color blindness
+
+- **Test:** OS high contrast or Deuteranopia simulation on severity chips.
+- **Pass:** Severity not **only** red/yellow/green — icons or text labels present.
+
+---
+
+## A.10 Dead-end and forbidden-route analysis
+
+- **Test:** Open deleted `runId`, forbidden tenant run, or `policy-packs/undefined` (should redirect to `/governance`).
+- **Pass:** Gentle recovery copy, not white screen; compare blocked in strict demo unless `NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE` set.
+
+---
+
+## A.11 Explainability & AI trust (subjective)
+
+### Explainability trace “gut check”
+
+- **Test:** Finding with ~50–60% completeness — inspect missing graph nodes / paths.
+- **Pass:** Score matches perceived usefulness to an auditor.
+
+### LLM tone (simulator or local)
+
+- **Test:** Read 10–15 generated rationales (simulator acceptable locally).
+- **Pass:** Not condescending; no obvious hallucinated components.
+
+---
+
+## A.12 Runbook & incident response validation
+
+- **Test:** Read `MIGRATION_ROLLBACK.md` or `ALERT_DELIVERY_FAILURES.md` as a 3 AM on-call reader.
+- **Pass:** Copy-paste friendly, calm, minimal prose.
+
+---
+
+## A.13 Manual screenshot capture — operator UI
+
+Use when capturing **API-not-running** or **empty DB** evidence. Pick **one** scenario per session:
+
+- **A — API unreachable** (block API origin or stop API process).
+- **B — API up, empty DB** (no seed — distinct empty states).
+
+**Before you start:** fixed viewport; consistent `?projectId=default` if you use it; wait for spinners; name files `01-home.png`, `02-reviews-list.png`, etc.
+
+### Ordered walk (~15–20 min)
+
+| Block | Routes | Capture focus |
+|-------|--------|---------------|
+| 10.1 Home vs reviews | `/`, `/reviews?projectId=default` | Empty vs Claims Intake row; drawer if present |
+| 10.2 Review package | `/reviews/claims-intake-modernization`, `/provenance`, finding, `/inspect`, optional `/executive/reviews/...` | Same `runId` throughout |
+| 10.3 Manifest / marketing | `/manifests/{id}`, `/see-it`, `/showcase/claims-intake-modernization` | Story without API |
+| 10.4 Graph | `/graph` provenance + architecture loads | Canvas visible |
+| 10.5 Ask | `/ask` list + one question attempt | Empty vs error |
+| 10.6 Governance | `/governance`, `/findings`, `/dashboard`, policy pack, lineage | Static rows vs error |
+| 10.7 Audit | `/audit` default + dated search | Zero vs sample |
+| 10.8 Alerts | `/alerts` inbox + rules tab | Empty console |
+| 10.9 Optional | `/compare`, `/replay`, `/admin/*`, `/settings/tenant` | Partial UI |
+
+**Coverage definition:** At least one shot each for home, reviews, detail+finding+inspect+provenance, manifest, graph, ask, governance (workflow+findings+one deep link), audit, alerts.
+
+**Related:** [`archlucid-ui/docs/OPERATOR_DEMO_RUNS_FALLBACK.md`](../../archlucid-ui/docs/OPERATOR_DEMO_RUNS_FALLBACK.md).
+
+---
+
+## A.14 Vitest sanity (after UI/nav/copy changes)
+
+From `archlucid-ui/` (Windows: prefer threads + single worker if pool times out):
 
 ```bash
-cd archlucid-ui
 npx vitest run src/components/LayerHeader.test.tsx src/lib/authority-seam-regression.test.ts src/lib/use-nav-surface.test.ts src/components/SidebarNav.test.tsx src/components/AfterCorePilotChecklistHint.test.tsx --pool=threads --maxWorkers=1
 ```
 
-A recent run of `LayerHeader.test.tsx` and `authority-seam-regression.test.ts` with `--pool=threads --maxWorkers=1` reported **28** tests passed in about **55s**.
+Expect on the order of **28** tests passing (~1 min). This does **not** replace Part A manual walks.
+
+---
+
+# Part B — Azure and integrated environments
+
+These items need **staging**, a **pilot tenant**, or **customer Azure** — Entra provisioning, Marketplace commerce, outbound webhooks, Azure OpenAI, or cross-tenant federation. Local UI-only work does not satisfy them.
+
+## B.0 When Azure is required
+
+| Capability | Why not local-only |
+|------------|-------------------|
+| Marketplace trial / SaaS subscription | Commerce webhooks and Azure portal UX |
+| SCIM / Entra first login | Real directory sync and app roles |
+| PR decoration (GitHub / AzDO) | Pipeline runs in customer DevOps |
+| Teams / Slack alert delivery | Tenant webhook endpoints |
+| Invalid/expired PAT validation | Real integration endpoints |
+| **Real** Azure OpenAI agent runs | `AgentExecution:Mode` + AOAI deployment on hosted API |
+| Hosted Azure extractor (Tier 2 WIF) | Customer SP + ArchLucid MI federation |
+| Golden cohort release gate | Documented staging deployment — [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) |
+
+**Local API + SQL** can substitute for **some** B items only when your team explicitly mirrors production config (uncommon for Marketplace/SCIM).
+
+---
+
+## B.1 Azure Marketplace & procurement (trial funnel)
+
+- **Test:** Purchase/trial via Azure Marketplace SaaS offer; landing pages, welcome email, first 30 minutes pilot.
+- **Justification:** Webhooks are automated; empathy for portal → product transition is not.
+
+---
+
+## B.2 SCIM provisioning and first login
+
+- **Test:** New Entra-provisioned user with no projects — empty dashboard.
+- **Pass:** Clear CTAs (create project, operator guide), not a dead end.
+
+---
+
+## B.3 Pull request decoration (Azure DevOps / GitHub)
+
+- **Test:** Run manifest-delta pipeline; read PR comment in GitHub/AzDO UI.
+- **Pass:** Useful signal-to-noise; formatting intact in host UI.
+
+---
+
+## B.4 MS Teams / Slack alert fatigue
+
+- **Test:** Burst ~20 violations in 5 minutes; observe Teams/Slack.
+- **Pass:** Digest or rollup acceptable; no immediate alert fatigue.
+
+---
+
+## B.5 Operator Shell CLI (against hosted or staging API)
+
+- **Test:** Terminal `Operator Shell` manual `RuleAudit` using only `--help`.
+- **Pass:** Flags intuitive; errors actionable; tables readable at 80 columns.
+
+---
+
+## B.6 Intentional misconfiguration (bad integration tokens)
+
+- **Test:** Configure AzDO/GitHub integration with expired/invalid token per in-app guide.
+- **Pass:** Error guides remediation (renew token, scope), not bare `401`.
+
+---
+
+## B.7 Real-LLM / agent output quality (manual “Q7” gate)
+
+- **Test:** On **staging** (or non-simulator host with **real** Azure OpenAI — [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)), run **create → execute → commit** with a **realistic** architecture brief.
+  - Skim agent findings for plausibility vs manifest.
+  - Open **agent execution trace** for at least one agent (e.g. Topology).
+  - Note structural/semantic signals if exposed (UI, diagnostics, Grafana).
+  - Optional: same-shaped **simulator** run to contrast usefulness.
+- **Record:** date, environment URL, deployment id, one line **acceptable for pilot** / **not yet** + why.
+- **Templates:** [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](REAL_LLM_RUN_EVIDENCE_TEMPLATE.md), [`REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md`](REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md).
+- **Release bar:** [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) §10.
+- **Justification:** Scheduled jobs assert JSON; they cannot certify sponsor-safe credibility.
+
+---
+
+## B.8 Agent output scores — threshold discipline
+
+Use whenever you interpret **real** Azure OpenAI runs (**B.7**) or `archlucid_agent_output_*` telemetry. Product stance: **block** on insufficient reference evidence when release policy requires it — see [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md).
+
+### Plain-English metrics
+
+| Metric | Range | Lay meaning |
+|--------|-------|-------------|
+| **Structural completeness** | 0–1 | Expected JSON fields filled |
+| **Semantic score** | 0–1 | Substantive claims/findings (claims×0.4 + findings×0.6) |
+
+**Gate outcomes:** accepted / warned / rejected — shipped defaults ~warn below **0.55**, reject below **0.35** (calibration starting points, not final pilot bar).
+
+### Why not chase 1.0 blindly
+
+- Real LLM variance; tight floors create false release blocks.
+- Floors detect shape, not prose quality.
+- Simulator distributions ≠ real AOAI — calibrate on reference deployment + realistic corpus.
+
+### Practical calibration
+
+After **~10–20** real-mode runs on realistic briefs: consider release-blocking floors around **0.70 / 0.70** first; tighten toward **0.80+** only when measured runs routinely clear it. Log date, deployment id, brief id, pass/fail vs your bar.
+
+### Legitimate score improvements (not gaming)
+
+- Prompts: every claim cites evidence; every finding has concrete recommendation.
+- Briefs: named components, constraints, technologies.
+- Eval corpus: realistic pilot-safe briefs.
+- Model/temperature: lower temperature on reference paths.
+
+### Manual checklist (with B.7)
+
+- [ ] Explain structural/semantic scores to a non-engineer.
+- [ ] Do not “ship anyway” on warn if policy says block.
+- [ ] Log one concrete improvement when scores dip.
+
+---
+
+## B.9 Hosted Azure extractor (Tier 2) — optional pilot
+
+When `HostedAzureExtractor:Enabled` and customer WIF templates are in play:
+
+- [ ] Customer Terraform/Bicep from [`deploy/customer-templates/`](../../deploy/customer-templates/) — Reader + Cost Management Reader, federated credential to ArchLucid MI.
+- [ ] `POST /v1/admin/azure-extractor/hosted/configure` persists tenant/subscription without customer secrets.
+- [ ] On-demand `hosted/run` ingests ZIP through upload pipeline; audit event recorded.
+
+**Reference:** [`docs/library/AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md), [`docs/runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md`](../runbooks/AZURE_EXTRACTOR_TIER2_CONTINUOUS.md).
+
+**Justification:** Trust-boundary and customer-tenant ARM access cannot be validated on UI-only localhost.
+
+---
+
+## Document maintenance
+
+When adding buyer copy or showcase spine tokens, update **A.1–A.2** and canonical URL table in **A.0**. When release gates change, update **B.7–B.8** and cross-links in [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md). When a gap in the **Appendix** is fixed, remove or reword that row and add a one-line note under **Appendix changelog**.
+
+---
+
+# Appendix — Hard-to-evaluate surfaces & known consistency gaps
+
+These items need **human cross-surface comparison** on the Claims Intake showcase (`claims-intake-modernization`) or equivalent pilot package. Automated tests can assert individual strings; they cannot yet certify that sponsors see one coherent story. Canonical spine counts for static demo data are **`9` findings**, **`1` monitored PHI risk**, **`12` decisions** (`SHOWCASE_STATIC_DEMO_SPINE_COUNTS` in `archlucid-ui/src/lib/showcase-static-demo.ts`).
+
+**How to record a session:** For each row, note **Pass** / **Fail** / **Blocked**, the URLs you opened, and a screenshot or one-sentence defect if Fail.
+
+| ID | Surfaces | Known gap | What to verify manually | Likely implementation locus |
+|----|----------|-----------|-------------------------|-----------------------------|
+| **E.1** | Executive summary · review detail · manifest · governance | **Executive summary data is inconsistent with the rest of the package.** Summary shows **0 findings** and **low risk** while the core package shows **9 findings** and **1 monitored PHI risk**. | Open `/executive/reviews/claims-intake-modernization`, then review detail and manifest. Counts and risk posture must match spine (9 / 1 monitored). Executive KPIs must not imply “no findings” when the package narrative cites PHI monitoring. | `ExecutiveReviewFirstViewport.tsx`, executive scorecard clients, static executive payloads vs `SHOWCASE_STATIC_DEMO_SPINE_COUNTS` |
+| **E.2** | Executive summary | **“Recommended executive action: Intake experience”** (or similar) appears **mis-seeded or mis-bound** — wrong field, placeholder, or unrelated to Claims Intake outcomes. | Read the recommended-action block aloud: would a sponsor act on it? It must align with Claims Intake modernization / PHI monitoring story, not a generic template. | `ExecutiveReviewFirstViewport.tsx`, `executive-risk-review-markdown.ts` |
+| **E.3** | Reviews list (`/reviews`) | **Multiple packages are plausible**, but **state combinations need cleanup.** Example: **“Pending governance approval”** must not appear alongside a **PACKAGE FINALIZED** (or equivalent) badge **without explanation**. | Scan every row: status line, phase chips, and badges must be mutually consistent. If both “pending” and “finalized” appear, inline copy must explain timing (e.g. manifest finalized, approval workflow open). | `RunsListClient.tsx`, `RunsListBuyerFeaturedCard.tsx`, `RunStatusBadge.tsx`, buyer package scope filters |
+| **E.4** | Governance approval lineage | Lineage is **seeded** but still exposes **environment promotion** and **raw pipeline** concepts unsuitable for buyer polish. | Open approval lineage for the showcase approval. Labels read as governance/decision history, not CI/CD jargon, unless explicitly marked **technical appendix**. | `GovernanceApprovalLineageDetailContent.tsx`, governance static demo payloads |
+| **E.5** | Executive summary · manifest · governance · audit · review detail | **UTC timestamps** shown without **buyer-local or tenant-timezone** conversion. | Spot-check 3–5 prominent dates (approval, commit, audit events). Display should use clear locale (e.g. “Jan 14, 2026, 5:05 PM EST”) or labeled UTC only when intentional. | Date formatting helpers across review/governance/audit components |
+| **E.6** | Evidence trail / graph (`/graph`) | **Graph node and edge labels** may still use internal names; need **normalized buyer-friendly names** per `BUYER_SURFACE_VOCABULARY`. | Load Claims Intake graph; selected node panel and legend use “finding”, “policy basis”, “approval path” language — not raw agent or pipeline tokens. | `GraphViewer.tsx`, `graph-mapper.ts`, `graph-buyer-node-detail.ts`, `ProvenanceGraphDiagram.tsx` |
+| **E.7** | Provenance route · nav · breadcrumbs | **`/reviews/{runId}/provenance`** is **raw technical/debug-shaped** data. It should be **hidden from buyer-polished primary navigation** unless opened deliberately as a **technical appendix** (operator shell or explicit link). | With buyer-default shell (no `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`): provenance not in sidebar/top nav. Deep link still works for engineers; page chrome warns or defers to “technical appendix” if exposed. | `provenance/page.tsx`, nav config / `breadcrumb-map.ts`, `layer-guidance.ts`, buyer nav visibility |
+| **E.8** | Home · reviews list · executive summary · manifest · governance · audit | **Finding counts, risk posture, and residual-risk summaries** lack a **single source of truth** — numbers drift between surfaces. | Same session: write down finding count, monitored-risk count, and “approved with monitoring” wording on Home, Reviews, Executive, Manifest summary, Governance findings, Audit intro. All must match **E.1** spine or live API truth. | `showcase-static-demo.ts`, `SampleFirstReviewPackageCard.tsx`, `RunsDashboardPanel.tsx`, `ManifestDetailSummaryPanel.tsx`, `AuditBuyerHeaderMetrics.tsx` |
+| **E.9** | All buyer-polished routes | **Raw identifiers** (run UUIDs, manifest ids, policy pack slugs, pipeline phase tokens) shown by default instead of **friendly display names**. | Scope chrome and tables show **Claims Intake Modernization Review** (or workspace title), not `claims-intake-modernization-run` unless user expands technical details. | `buyer-safe-review-navigation.ts`, `ScopeSwitcher.tsx`, run/manifest display mappers |
+| **E.10** | Scope chrome (header) | **“Sample workspace”** badge may be **environment-driven**; confirm it is **intentional in buyer mode** (demo/pilot), not leaking into production buyer tenants by mistake. | With buyer-polished shell + demo flags: badge reads **Sample workspace** with tooltip explaining demonstration data. Without demo: confirm product intent (hide vs show for sandboxes). | `ScopeSwitcher.tsx`, `BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL`, `demo-ui-env.ts` |
+
+### Appendix — quick cross-check (Claims Intake, ~10 minutes)
+
+Use after **[A.2](#a2-claims-intake-showcase-spine-end-to-end-25-minutes)** or when triaging sponsor feedback:
+
+1. **E.1 + E.8** — Record findings / monitored risk on Home → Reviews → Executive → Manifest → Governance → Audit; fail if any disagree with **9 / 1**.
+2. **E.2** — Executive recommended action reads as Claims Intake, not a stray template.
+3. **E.3** — No contradictory pending vs finalized badges on the same row without explanation.
+4. **E.7** — Buyer nav does not advertise Provenance as a primary lane.
+5. **E.5 + E.9 + E.10** — Dates, ids, and sample-workspace chrome feel deliberate for a pilot demo.
+
+### Appendix changelog
+
+| Date | Change |
+|------|--------|
+| 2026-05-27 | Initial appendix from pilot QA notes (executive inconsistency, list states, lineage jargon, provenance nav, count SSOT, identifiers, sample workspace). |

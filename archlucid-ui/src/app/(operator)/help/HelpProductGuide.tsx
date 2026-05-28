@@ -23,7 +23,7 @@ export function HelpProductGuide() {
 
       <Card className="border-2 border-teal-200/90 bg-teal-50/40 dark:border-teal-900/60 dark:bg-teal-950/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Golden path (first walkthrough)</CardTitle>
+          <CardTitle className="text-base">Your first review package</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 pt-0 text-sm text-neutral-800 dark:text-neutral-200">
           <ol className="m-0 list-decimal space-y-1.5 pl-5">
@@ -117,7 +117,7 @@ export function HelpProductGuide() {
       </div>
 
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        <strong>What to do next:</strong> open the{" "}
+        <strong>Start here:</strong> open the{" "}
         <Link className="text-teal-700 underline dark:text-teal-300" href={getShowcaseExecutiveHref()}>
           executive summary
         </Link>{" "}
@@ -125,7 +125,7 @@ export function HelpProductGuide() {
         <Link className="text-teal-700 underline dark:text-teal-300" href="/reviews?projectId=default">
           review packages
         </Link>{" "}
-        to continue the walkthrough.
+        to explore the Claims Intake Modernization Review.
       </p>
     </div>
   );

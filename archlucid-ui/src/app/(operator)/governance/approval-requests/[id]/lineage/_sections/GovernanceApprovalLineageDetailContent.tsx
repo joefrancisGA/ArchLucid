@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import {
   formatGovernanceLineageCompletenessPercent,
   formatGovernanceLineageWholeCount,
@@ -61,25 +61,25 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             ) : null}
           </div>
           <div>
-            <span className="text-muted-foreground">Review</span>{" "}
+            <span className="text-muted-foreground">Review package</span>{" "}
             <Link
               className="font-medium underline-offset-4 hover:underline"
               href={`/reviews/${encodeURIComponent(a.runId)}`}
             >
-              Open review
+              Open →
             </Link>
             <span className="sr-only"> ({a.runId})</span>
           </div>
           <div>
-            Manifest <span className="font-mono">{a.manifestVersion}</span> · {a.sourceEnvironment} →{" "}
-            {a.targetEnvironment}
+            <span className="text-muted-foreground">Signed decision record version</span>{" "}
+            <span className="font-mono">{a.manifestVersion}</span>
           </div>
           <div className="text-muted-foreground">
-            Requested {formatIsoUtcForDisplay(a.requestedUtc)} by {a.requestedBy}
+            Requested {formatInstantForBuyerGovernance(a.requestedUtc)} by {a.requestedBy}
             {a.reviewedUtc ? (
               <>
                 {" "}
-                · Reviewed {formatIsoUtcForDisplay(a.reviewedUtc)}
+                · Reviewed {formatInstantForBuyerGovernance(a.reviewedUtc)}
                 {a.reviewedBy ? ` by ${a.reviewedBy}` : ""}
               </>
             ) : null}
@@ -90,14 +90,14 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       {data.run ? (
         <Card>
           <CardHeader>
-            <CardTitle>Review pipeline checkpoint</CardTitle>
-            <CardDescription>Architecture review summary</CardDescription>
+          <CardTitle>Architecture review checkpoint</CardTitle>
+          <CardDescription>Status and completion record</CardDescription>
           </CardHeader>
           <CardContent className="text-sm">
             <div>Status {data.run.status}</div>
-            <div>Created {formatIsoUtcForDisplay(data.run.createdUtc)}</div>
+            <div>Created {formatInstantForBuyerGovernance(data.run.createdUtc)}</div>
             {data.run.completedUtc ? (
-              <div>Completed {formatIsoUtcForDisplay(data.run.completedUtc)}</div>
+              <div>Completed {formatInstantForBuyerGovernance(data.run.completedUtc)}</div>
             ) : null}
             {data.run.currentManifestVersion ? (
               <div>Current manifest {data.run.currentManifestVersion}</div>
@@ -110,7 +110,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
         <Card>
           <CardHeader>
             <CardTitle>Reviewed manifest</CardTitle>
-            <CardDescription>When the review id maps to a finalized manifest in scope</CardDescription>
+            <CardDescription>Signed decision record associated with this approval</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-1 text-sm">
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>
@@ -124,7 +124,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       <Card>
         <CardHeader>
           <CardTitle>Top findings</CardTitle>
-          <CardDescription>Up to ten by severity when a findings snapshot exists</CardDescription>
+          <CardDescription>Findings associated with this approval</CardDescription>
         </CardHeader>
         <CardContent>
           {data.topFindings.length === 0 ? (
@@ -163,11 +163,11 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
             <ul className="space-y-2 text-sm">
               {data.promotions.map((p) => (
                 <li key={p.promotionRecordId} className="rounded-md border p-2">
-                  <div>
-                    {p.sourceEnvironment} → {p.targetEnvironment} · {p.manifestVersion}
+                  <div className="font-medium">
+                    Decision record <span className="font-mono">{p.manifestVersion}</span>
                   </div>
                   <div className="text-muted-foreground text-xs">
-                    {formatIsoUtcForDisplay(p.promotedUtc)} · {p.promotedBy}
+                    {formatInstantForBuyerGovernance(p.promotedUtc)} · {p.promotedBy}
                   </div>
                 </li>
               ))}

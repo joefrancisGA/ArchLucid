@@ -6,6 +6,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Provenance;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
@@ -42,6 +43,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
     IRunRationaleService runRationaleService,
+    IRunRetrievalGroundingService runRetrievalGroundingService,
     IRunPipelineAuditTimelineService pipelineAuditTimeline,
     IScopeContextProvider scopeProvider,
     IProvenanceGraphAccessService provenanceGraphAccess,
@@ -173,6 +175,25 @@ public sealed class AuthorityQueryController(
 
         int findingCount = result.FindingsSnapshot?.Findings?.Count ?? 0;
         FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(GetRunDetail), findingCount);
+
+        return Ok(result);
+    }
+
+    /// <summary>Returns redaction-safe retrieval grounding diagnostics for one run.</summary>
+    [HttpGet("runs/{runId:guid}/retrieval-grounding")]
+    [ProducesResponseType(typeof(RunRetrievalGroundingResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetRunRetrievalGrounding(
+        Guid runId,
+        CancellationToken ct = default)
+    {
+        RunRetrievalGroundingResponse? result =
+            await runRetrievalGroundingService.BuildAsync(runId.ToString("D"), ct);
+
+        if (result is null)
+            return this.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
 
         return Ok(result);
     }

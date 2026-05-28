@@ -81,20 +81,22 @@ export function GovernanceApprovalStoryCard(props: {
             this review package. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>
           {reviewed ? (
-            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              {BUYER_SHOWCASE_APPROVER_ROLE}{" "}
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? "—"}</span>
-              {" · "}
-              {BUYER_SHOWCASE_REQUEST_OWNER_ROLE}{" "}
-              <span className="font-medium text-neutral-800 dark:text-neutral-200">{row.requestedBy ?? "—"}</span>
-              {" · "}
-              Residual-risk owner {BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}
-            </p>
-          ) : null}
-          {promoteReady ? (
-            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              {BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE} · Next review {BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}
-            </p>
+            <dl className="m-0 mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <dt className="text-neutral-500 dark:text-neutral-500">{BUYER_SHOWCASE_APPROVER_ROLE}</dt>
+              <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? "—"}</dd>
+              <dt className="text-neutral-500 dark:text-neutral-500">{BUYER_SHOWCASE_REQUEST_OWNER_ROLE}</dt>
+              <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{row.requestedBy ?? "—"}</dd>
+              <dt className="text-neutral-500 dark:text-neutral-500">Residual-risk owner</dt>
+              <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</dd>
+              {promoteReady ? (
+                <>
+                  <dt className="text-neutral-500 dark:text-neutral-500">Monitoring</dt>
+                  <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE}</dd>
+                  <dt className="text-neutral-500 dark:text-neutral-500">Next review</dt>
+                  <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}</dd>
+                </>
+              ) : null}
+            </dl>
           ) : null}
         </div>
       </CardHeader>

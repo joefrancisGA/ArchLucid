@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 
+import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { RunDetailMinimalChromeMount } from "@/components/RunDetailMinimalChromeMount";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
 import { loadRunDetailPageModel } from "./_sections/load-run-detail-page-model";
@@ -22,7 +24,13 @@ export default async function RunDetailPage({
   const result = await loadRunDetailPageModel(runId);
 
   if (result.kind === "not-found") {
-    notFound();
+    return (
+      <RunDetailMinimalChromeMount>
+        <div className="mx-auto max-w-4xl px-1 py-2 sm:px-0">
+          <OperatorBrandedNotFound showProcessingHint retryLabel="Retry loading review" />
+        </div>
+      </RunDetailMinimalChromeMount>
+    );
   }
 
   if (result.kind === "fetch-error") {

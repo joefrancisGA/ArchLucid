@@ -14,6 +14,35 @@
 
 ---
 
+## Target buyer and trigger event
+
+Healthcare-adjacent product, compliance, or architecture sponsors use this accelerator when claims intake modernization needs PHI-minimization evidence, governance wants a policy-backed review before approval, or a pilot champion needs a defensible demo using synthetic claims data.
+
+## Expected first finding types
+
+- PHI minimization or retention-risk findings tied to intake, routing, or export boundaries.
+- Missing evidence for policy-pack controls before commit.
+- Governance disposition gaps for critical/high healthcare claims findings.
+- Audit/export readiness gaps when a sponsor package is requested.
+
+## Sponsor artifact example
+
+A proof package that says: “This healthcare claims review shows how PHI-minimization policy maps to findings, governance disposition, audit trail, and a committed manifest.” Use the synthetic Claims Intake package or a buyer-provided architecture brief with PHI removed.
+
+## ROI and procurement proof points
+
+- Reduced review-prep and documentation hours, labeled by source.
+- Policy-pack assignment and pre-commit gate evidence.
+- Audit trail and manifest export showing what was reviewed and approved.
+
+## What not to claim
+
+- Do not claim HIPAA certification, legal compliance, or third-party audit completion.
+- Do not use real PHI in demo payloads or committed examples.
+- Do not imply Jira, Teams, ServiceNow, MCP, or outbound webhooks are required in V1.
+
+---
+
 ## Required inputs
 
 | Input | Notes |

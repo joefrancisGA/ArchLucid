@@ -11,6 +11,7 @@ if str(_CI_DIR) not in sys.path:
     sys.path.insert(0, str(_CI_DIR))
 
 from assert_commercial_tier_packaging_drift import repo_root, run_check  # noqa: E402
+from generate_commercial_boundary_audit import build_report  # noqa: E402
 
 
 class TestAssertCommercialTierPackagingDrift(unittest.TestCase):
@@ -19,6 +20,16 @@ class TestAssertCommercialTierPackagingDrift(unittest.TestCase):
         self.assertTrue((root / "ArchLucid.Api").is_dir())
         errors = run_check(root)
         self.assertEqual(errors, [], msg=";\n".join(errors))
+
+    def test_generated_report_explains_four_boundaries(self) -> None:
+        root = repo_root()
+        report = build_report(root)
+
+        self.assertIn("Commercial tier", report)
+        self.assertIn("Authority / role", report)
+        self.assertIn("Progressive disclosure", report)
+        self.assertIn("Trial limits", report)
+        self.assertIn("Curated Fixture Review", report)
 
 
 if __name__ == "__main__":

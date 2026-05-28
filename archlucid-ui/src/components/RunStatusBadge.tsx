@@ -80,13 +80,15 @@ export type RunStatusBadgeProps = {
 
 /**
  * Visual scan helper for run list rows — derived from snapshot flags on {@link RunSummary}.
+ * In buyer-polished mode shows a layered two-tier badge: pipeline state + governance state when applicable.
  */
 export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const internal = deriveRunListPipelineLabel(run);
-  const displayLabel = isBuyerPolishedOperatorShellEnv() ? buyerPipelineStatusDisplayLabel(internal) : internal;
+  const displayLabel = buyerPolished ? buyerPipelineStatusDisplayLabel(internal) : internal;
   const tooltipContent = getTooltipContent(internal);
 
-  return (
+  const pill = (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -105,4 +107,17 @@ export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
       </Tooltip>
     </TooltipProvider>
   );
+
+  if (buyerPolished && run.hasGovernanceWarnings === true && run.hasGoldenManifest === true) {
+    return (
+      <span className="inline-flex flex-wrap items-center gap-1">
+        {pill}
+        <span className="rounded-full border border-amber-400/70 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300">
+          Monitoring active
+        </span>
+      </span>
+    );
+  }
+
+  return pill;
 }

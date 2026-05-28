@@ -167,17 +167,27 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>
         <CardDescription>
-          Ask evidence-backed questions about this review package, or coordinate procurement questionnaires and security
-          follow-ups through our Trust Center contact.
+          Two paths: ask the evidence directly in this package, or route procurement and security questionnaires to our
+          Trust Center.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-wrap gap-2 pt-0">
-        <Button variant="primary" size="sm" asChild>
-          <Link href={`/ask?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
-        </Button>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/trust#trust-contact-review">Contact Trust Center</Link>
-        </Button>
+      <CardContent className="space-y-3 pt-0">
+        <div className="flex flex-col gap-1.5">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            Product &amp; evidence questions
+          </p>
+          <Button variant="primary" size="sm" asChild>
+            <Link href={`/ask?runId=${encodeURIComponent(summary.runId)}`}>Ask about this review</Link>
+          </Button>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            Procurement &amp; security follow-up
+          </p>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/trust#trust-contact-review">Contact Trust Center</Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   ) : null;
@@ -243,12 +253,12 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <>
             {showcasePackage === true ? (
               <>
-                This <strong>signed, versioned manifest</strong> is the authoritative reviewed architecture record for this
+                This <strong>signed decision record</strong> is the authoritative reviewed architecture record for this
                 package — decisions, findings, and downloadable deliverables.
               </>
             ) : (
               <>
-                This is the reviewed, versioned record for the architecture review: decisions, findings, and the files you can
+                This is the signed decision record for the architecture review — decisions, findings, and the files you can
                 open or download.
               </>
             )}
@@ -268,11 +278,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           data-testid="manifest-buyer-authority-summary"
         >
           <h2 id="manifest-authority-summary-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            What this signed manifest proves
+            What this signed decision record proves
           </h2>
           <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-            This signed manifest is the authoritative reviewed architecture record for the Claims Intake Modernization
-            package — decisions, findings, and downloadable deliverables.
+            This signed decision record is the authoritative reviewed architecture record for the Claims Intake
+            Modernization package — decisions, findings, and downloadable deliverables.
           </p>
         </section>
       ) : null}
@@ -302,11 +312,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
       {buyerPolishedLayout ? (
         <div id="manifest-decision-group" className="scroll-mt-24 space-y-6">
+          {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? monitoredRiskCard : null}
           {overviewSummaryCard}
           <div id="manifest-decisions" className="scroll-mt-24 space-y-6">
             {decisionsLeadCard}
           </div>
-          {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? monitoredRiskCard : null}
         </div>
       ) : (
         <>

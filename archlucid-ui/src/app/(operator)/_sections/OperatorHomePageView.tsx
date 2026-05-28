@@ -5,6 +5,7 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { FirstPilotOperatingRail } from "@/components/FirstPilotOperatingRail";
+import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
@@ -46,6 +47,8 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         <WelcomeBanner />
 
         <FirstPilotOperatingRail />
+
+        {buyerPolishedShell ? null : <FirstPilotReadinessCockpit />}
 
         {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
 

@@ -27,14 +27,31 @@ public static class GoldenCohortDriftMarkdown
         }
 
         sb.AppendLine(
-            "| Item | Expected SHA | Actual SHA | SHA match | Expected categories | Actual categories | Category match |");
+            "| Item | Model / prompt | Quality status | Faithfulness | Estimated LLM cost | Budget status | Expected SHA | Actual SHA | SHA match | Expected categories | Actual categories | Category match |");
         sb.AppendLine(
-            "|------|--------------|------------|-----------|---------------------|-------------------|----------------|");
+            "|------|----------------|----------------|--------------|--------------------|---------------|--------------|------------|-----------|---------------------|-------------------|----------------|");
 
         foreach (GoldenCohortDriftRow row in rows)
         {
+            string modelPrompt = string.IsNullOrWhiteSpace(row.ModelPromptLabel)
+                ? "-"
+                : Escape(row.ModelPromptLabel);
+            string qualityStatus = string.IsNullOrWhiteSpace(row.QualityStatus)
+                ? "-"
+                : Escape(row.QualityStatus);
+            string faithfulness = row.FaithfulnessSupportRatio is { } ratio
+                ? ratio.ToString("0.0000", CultureInfo.InvariantCulture)
+                : "-";
+            string cost = row.EstimatedLlmCostUsd is { } estimatedCost
+                ? $"USD {estimatedCost.ToString("0.0000", CultureInfo.InvariantCulture)}"
+                : "-";
+            string budgetStatus = string.IsNullOrWhiteSpace(row.BudgetStatus)
+                ? "-"
+                : Escape(row.BudgetStatus);
+
             sb.AppendLine(
-                $"| {Escape(row.ItemId)} | `{Escape(row.ExpectedSha)}` | `{Escape(row.ActualSha)}` | {row.ShaMatches} | "
+                $"| {Escape(row.ItemId)} | {modelPrompt} | {qualityStatus} | {faithfulness} | {cost} | {budgetStatus} | "
+                + $"`{Escape(row.ExpectedSha)}` | `{Escape(row.ActualSha)}` | {row.ShaMatches} | "
                 + $"{Escape(row.ExpectedCategories)} | {Escape(row.ActualCategories)} | {row.CategoryMatches} |");
         }
 
@@ -58,4 +75,9 @@ public sealed record GoldenCohortDriftRow(
     bool ShaMatches,
     string ExpectedCategories,
     string ActualCategories,
-    bool CategoryMatches);
+    bool CategoryMatches,
+    string? ModelPromptLabel = null,
+    string? QualityStatus = null,
+    double? FaithfulnessSupportRatio = null,
+    decimal? EstimatedLlmCostUsd = null,
+    string? BudgetStatus = null);

@@ -14,7 +14,7 @@ import {
 const showcaseRunEnc = encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID);
 
 /**
- * Golden-path jumps for buyer-polished ⌘K — uses showcase URLs even when sidebar omits compare/governance/audit.
+ * Golden-path jumps for buyer-polished Ctrl+K — uses showcase URLs even when sidebar omits compare/governance/audit.
  */
 export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] = [
   {

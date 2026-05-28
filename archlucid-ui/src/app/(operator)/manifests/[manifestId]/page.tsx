@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 
 import { loadManifestDetailPageModel } from "./_sections/load-manifest-detail-page-model";
@@ -25,7 +26,11 @@ export default async function ManifestDetailPage({
   const result = await loadManifestDetailPageModel(manifestId);
 
   if (result.kind === "not-found") {
-    notFound();
+    return (
+      <div className="mx-auto max-w-4xl px-1 py-2 sm:px-0">
+        <OperatorBrandedNotFound showProcessingHint retryLabel="Retry loading manifest" />
+      </div>
+    );
   }
 
   if (result.kind === "summary-error") {

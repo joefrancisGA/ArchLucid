@@ -1,23 +1,39 @@
 import Link from "next/link";
 
+import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
+export type OperatorBrandedNotFoundProps = {
+  /** When true, note that a review may still be processing (common after long waits). */
+  readonly showProcessingHint?: boolean;
+  readonly retryLabel?: string;
+};
 
 /**
  * Shared 404 body for invalid or stale deep links. With `notFound()` from an operator route, the nearest
  * `app/(operator)/not-found.tsx` wraps this in the normal operator shell.
  */
-export function OperatorBrandedNotFound() {
+export function OperatorBrandedNotFound({
+  showProcessingHint = false,
+  retryLabel = "Retry",
+}: OperatorBrandedNotFoundProps = {}) {
   return (
     <OperatorEmptyState title="We could not find that in ArchLucid">
       <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         The link may be mistyped, expired, or pointed at a resource that is not in this workspace. Use a fresh link
         from the product, or start from home.
       </p>
+      {showProcessingHint ? (
+        <p className="m-0 mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          If you opened this link while a review was still running, wait a moment and retry — it may not be listed yet.
+        </p>
+      ) : null}
       <p className="m-0 mt-3 text-xs text-neutral-600 dark:text-neutral-400">
         If you pasted an id, confirm the full value copied — truncated identifiers are rejected.
       </p>
-      <div className="mt-4 flex flex-wrap gap-4 text-sm font-medium">
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-medium">
+        <OperatorSectionRetryButton label={retryLabel} />
         <Link className="text-teal-800 underline dark:text-teal-300" href="/" data-testid="not-found-home">
           Home
         </Link>

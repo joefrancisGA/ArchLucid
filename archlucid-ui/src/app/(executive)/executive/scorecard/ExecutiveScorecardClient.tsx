@@ -173,7 +173,7 @@ export function ExecutiveScorecardClient() {
                 <Link href="/auth/signin">Sign in</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/">Open operator shell</Link>
+                <Link href="/">Open review portal</Link>
               </Button>
             </div>
           </CardContent>

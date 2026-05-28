@@ -116,6 +116,23 @@ describe("RunExplanationSection", () => {
     expect(screen.getByText("Overall OK.")).toBeInTheDocument();
   });
 
+  it("links faithfulness warnings to retrieval grounding diagnostics", () => {
+    render(
+      <RunExplanationSection
+        summary={mockSummary({ faithfulnessWarning: "Grounding dropped below threshold." })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("Grounding dropped below threshold.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /review retrieval grounding diagnostics/i })).toHaveAttribute(
+      "href",
+      "#retrieval-grounding",
+    );
+  });
+
   it("omits model confidence block when confidence is null", () => {
     const s = mockSummary({ explanation: { confidence: null } });
 

@@ -4,7 +4,9 @@
 
 **Audience:** Pilot champions running the Claims Intake sample in the operator shell or against a hosted trial tenant.
 
-**Grounding rule:** Every step maps to **shipped V1** API/UI surfaces. **Jira**, **Microsoft Teams**, and other first-party ITSM/chat connectors are **V1.1** — not required for this walkthrough ([`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md)).
+**Grounding rule:** Every step maps to **shipped V1** API/UI surfaces. **Jira**, **Microsoft Teams**, and other first-party ITSM/chat connectors are **V1.1** — not required for this walkthrough ([`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md)).
+
+**Buyer-job detail:** Target buyer, trigger event, expected first findings, sponsor artifact example, ROI/procurement proof points, and claim boundaries live in [`HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](../../go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md). Use that page for sponsor-facing framing; use this walkthrough for operator steps.
 
 ---
 
@@ -25,7 +27,7 @@ Static operator/demo mode serves curated payloads from `archlucid-ui/src/lib/ope
 ## Prerequisites
 
 1. **Operator shell** access with **ReadAuthority** (review) and **ExecuteAuthority** (commit) for your tenant.
-2. **Standard** tier (or trial) with governance features enabled per [`V1_SCOPE.md`](../library/V1_SCOPE.md).
+2. **Standard** tier (or trial) with governance features enabled per [`V1_SCOPE.md`](../V1_SCOPE.md).
 3. For live API steps: bearer token or session auth configured (`Authorization: Bearer …` or Entra SSO).
 
 ---

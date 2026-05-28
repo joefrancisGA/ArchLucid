@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorBrandedTransientFailure } from "@/components/OperatorBrandedTransientFailure";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import {
   OperatorErrorCallout,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
 
 type ManifestDetailPageErrorFrameProps = {
   readonly buyerPolishedLayout: boolean;
@@ -48,6 +50,17 @@ export function ManifestDetailSummaryLoadErrorView(props: {
   readonly buyerPolishedLayout: boolean;
   readonly summaryFailure: ApiLoadFailureState;
 }) {
+  if (isApiTransientLoadFailure(props.summaryFailure)) {
+    return (
+      <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
+        <OperatorBrandedTransientFailure
+          failure={props.summaryFailure}
+          retryLabel="Retry loading manifest"
+        />
+      </ManifestDetailPageErrorFrame>
+    );
+  }
+
   return (
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>
       <p className="m-0 text-sm font-semibold">Manifest summary could not be loaded.</p>

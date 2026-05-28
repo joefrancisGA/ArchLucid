@@ -39,6 +39,24 @@ public sealed class AdminAuthConfigurationDiagnosticsResponse
     /// <summary>Protocol from <c>TenantIdentityProviderConfigurations</c> when a row exists for the current tenant.</summary>
     public string? TenantIdentityProviderProtocol { get; init; }
 
+    /// <summary>
+    ///     Null when OIDC discovery was not attempted or local JWT signing is used; true when JWKS URI is present in
+    ///     discovery or local PEM validation is configured.
+    /// </summary>
+    public bool? JwksConfigured { get; init; }
+
+    /// <summary>Null when tenant scope is unavailable; true when at least one SCIM token row exists for the tenant.</summary>
+    public bool? ScimProvisioningConfigured { get; init; }
+
+    /// <summary>Null when tenant scope is unavailable; true when at least one active SCIM bearer token exists.</summary>
+    public bool? ScimBearerTokenActive { get; init; }
+
+    /// <summary>
+    ///     Null when no role-mapping surface is configured; true when host SAML role sources or tenant claim mapping
+    ///     includes a non-empty role claim name.
+    /// </summary>
+    public bool? RoleClaimNameConfigured { get; init; }
+
     /// <summary>Bounded operator hints — safe for logs and tickets (no secrets).</summary>
     public IReadOnlyList<string> MisconfigurationHints { get; init; } = [];
 }

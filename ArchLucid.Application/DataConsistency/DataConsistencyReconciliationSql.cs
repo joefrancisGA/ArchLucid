@@ -65,6 +65,15 @@ internal static class DataConsistencyReconciliationSql
                                                      WHERE r.RunId = ab.RunId);
                                                  """;
 
+    internal const string RetrievalGroundingTraceRunId = """
+                                                        SELECT COUNT_BIG(1)
+                                                        FROM dbo.RetrievalGroundingTrace rgt
+                                                        WHERE NOT EXISTS (
+                                                            SELECT 1
+                                                            FROM dbo.Runs r
+                                                            WHERE r.RunId = rgt.RunId);
+                                                        """;
+
     internal const string StaleInFlightRuns = """
                                               SELECT COUNT_BIG(1)
                                               FROM dbo.Runs r
@@ -159,4 +168,14 @@ internal static class DataConsistencyReconciliationSql
                                                             WHERE r.RunId = ab.RunId)
                                                         ORDER BY ab.CreatedUtc DESC;
                                                         """;
+
+    internal const string SampleRetrievalGroundingTraceOrphans = """
+                                                                SELECT TOP (50) CAST(rgt.TraceId AS NVARCHAR(36))
+                                                                FROM dbo.RetrievalGroundingTrace rgt
+                                                                WHERE NOT EXISTS (
+                                                                    SELECT 1
+                                                                    FROM dbo.Runs r
+                                                                    WHERE r.RunId = rgt.RunId)
+                                                                ORDER BY rgt.CreatedUtc DESC;
+                                                                """;
 }

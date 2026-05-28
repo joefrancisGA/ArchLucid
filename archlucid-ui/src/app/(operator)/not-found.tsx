@@ -4,7 +4,7 @@ import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 export default function OperatorNotFound() {
   return (
     <div className="mx-auto max-w-4xl px-1 py-6 sm:px-0">
-      <OperatorBrandedNotFound />
+      <OperatorBrandedNotFound showProcessingHint />
     </div>
   );
 }

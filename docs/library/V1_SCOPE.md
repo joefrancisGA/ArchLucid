@@ -218,6 +218,8 @@ Until **V1.1** surfaces in **§2.8** (integration events), **§2.14** (Teams / S
 
 ## 3. Out of scope for V1 (explicit non-goals or V1.1+)
 
+**Procurement narrative:** [`../go-to-market/INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) is the buyer-facing integration commitment summary. Update this engineering contract first, then refresh the catalog rather than duplicating commitment-boundary tables across docs.
+
 | Area | Rationale |
 |------|-----------|
 | **Global Reader or write-role access to customer Azure tenants** | ArchLucid will never request `Global Reader` (Entra ID directory role), `Owner`, `Contributor`, `User Access Administrator`, or any write or destructive ARM role. Tier 1 ingestion requires no vendor access; Tier 2 opt-in uses `Reader` + `Cost Management Reader` only. Publish in trust center. |

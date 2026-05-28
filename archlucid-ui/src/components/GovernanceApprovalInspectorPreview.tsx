@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatRelativeTime } from "@/lib/relative-time";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
@@ -21,10 +21,10 @@ export function approvalRequestPrimaryLabel(row: GovernanceApprovalRequest): str
  * Read-only approval request summary for the governance dashboard inspector (dashboard payload only).
  */
 export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprovalInspectorPreviewProps) {
-  const requestedLabel = formatIsoUtcForDisplay(request.requestedUtc);
+  const requestedLabel = formatInstantForBuyerGovernance(request.requestedUtc);
   const reviewedUtcRaw = request.reviewedUtc;
   const reviewedLabel =
-    reviewedUtcRaw !== null && reviewedUtcRaw.length > 0 ? formatIsoUtcForDisplay(reviewedUtcRaw) : null;
+    reviewedUtcRaw !== null && reviewedUtcRaw.length > 0 ? formatInstantForBuyerGovernance(reviewedUtcRaw) : null;
 
   return (
     <div

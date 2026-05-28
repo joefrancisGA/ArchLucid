@@ -108,17 +108,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
           .
         </p>
       ) : null}
-      {buyerPolishedShell && events.length > 0 ? (
-        <p
-          className="m-0 mb-3 max-w-2xl text-xs text-neutral-600 dark:text-neutral-400"
-          data-testid="audit-buyer-actor-legend"
-        >
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Named reviewers</span> appear with role
-          labels (for example architecture reviewer or approver).{" "}
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">System-recorded</span> events{" "}
-          {BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION}
-        </p>
-      ) : null}
+      
 
       <div className="mt-3">
         {events.length === 0 ? (
@@ -140,15 +130,23 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                         {group.events.length} event{group.events.length === 1 ? "" : "s"}
                       </p>
                     </div>
-                    <div className={cn("mt-3 grid", buyerPolishedShell ? "gap-2" : "gap-3")}>
-                      {group.events.map((ev) => (
-                        <AuditTimelineEventCard
-                          key={ev.eventId}
-                          ev={ev}
-                          buyerPolishedShell={buyerPolishedShell}
-                          uniformRunId={uniformRunIdForDisplay}
+                    <div className={cn("mt-3", buyerPolishedShell ? "relative pl-5" : "grid gap-3")}>
+                      {buyerPolishedShell ? (
+                        <div
+                          className="pointer-events-none absolute left-1.5 top-2 bottom-2 w-0.5 rounded-full bg-teal-200 dark:bg-teal-800"
+                          aria-hidden="true"
                         />
-                      ))}
+                      ) : null}
+                      <div className={cn(buyerPolishedShell ? "grid gap-2" : "grid gap-3")}>
+                        {group.events.map((ev) => (
+                          <AuditTimelineEventCard
+                            key={ev.eventId}
+                            ev={ev}
+                            buyerPolishedShell={buyerPolishedShell}
+                            uniformRunId={uniformRunIdForDisplay}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ))}

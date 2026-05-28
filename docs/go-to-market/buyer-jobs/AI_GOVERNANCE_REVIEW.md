@@ -14,6 +14,35 @@
 
 ---
 
+## Target buyer and trigger event
+
+Risk, compliance, architecture, or AI platform sponsors use this accelerator when an internal AI launch needs oversight evidence, an executive asks how model-assisted systems are governed, or a customer diligence review asks for Responsible AI controls.
+
+## Expected first finding types
+
+- Missing model/data lineage, monitoring, or human-review evidence.
+- Ambiguous policy ownership for AI-assisted decisions.
+- Insufficient safety, prompt-redaction, or evidence-grounding posture for the proposed AI workflow.
+- Governance findings that need disposition before a sponsor-ready package is committed.
+
+## Sponsor artifact example
+
+A proof package that states: “This Responsible AI review maps architecture evidence to AI governance findings, disposition status, and a committed manifest.” Include the review package export, finding explanations, and governance gate status.
+
+## ROI and procurement proof points
+
+- Reduced manual governance-review preparation time, clearly labeled as baseline/default/measured.
+- Evidence-backed finding explanations and faithfulness/grounding diagnostics where available.
+- Procurement-safe distinction between an internal Responsible AI review and formal regulatory certification.
+
+## What not to claim
+
+- Do not claim AI Act, NIST, ISO, HIPAA, or SOC certification.
+- Do not imply the model output proves factual truth; it is evidence-supported review assistance.
+- Do not require ITSM/chat/MCP connectors for V1 pilot success.
+
+---
+
 ## Required inputs
 
 | Input | Notes |

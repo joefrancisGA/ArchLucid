@@ -16,7 +16,8 @@ public static class AuthConfigurationDiagnosticsComposer
         AdminOidcDiagnosticsResponse oidc,
         AdminSamlOperationalHealthResponse saml,
         ArchLucidSamlAuthOptions samlOptions,
-        TenantIdentityProviderConfigurationRecord? tenantIdentityProvider)
+        TenantIdentityProviderConfigurationRecord? tenantIdentityProvider,
+        AuthConfigurationScimDiagnostics? scimDiagnostics = null)
     {
         ArgumentNullException.ThrowIfNull(oidc);
         ArgumentNullException.ThrowIfNull(saml);
@@ -27,6 +28,12 @@ public static class AuthConfigurationDiagnosticsComposer
         bool? spEntityIdConfigured = saml.Saml2Enabled ? IsSpEntityIdConfigured(samlOptions) : null;
         bool? samlRoleSourcesConfigured = saml.Saml2Enabled ? HasSamlRoleClaimSources(samlOptions) : null;
         (bool? tenantMappingConfigured, string? protocol) = EvaluateTenantClaimMapping(tenantIdentityProvider);
+        bool? jwksConfigured = EvaluateJwksConfigured(oidc);
+        bool? roleClaimNameConfigured = EvaluateRoleClaimNameConfigured(
+            saml.Saml2Enabled,
+            samlRoleSourcesConfigured,
+            tenantMappingConfigured,
+            tenantIdentityProvider);
 
         List<string> hints = BuildHints(
             oidc,
@@ -37,7 +44,10 @@ public static class AuthConfigurationDiagnosticsComposer
             spEntityIdConfigured,
             samlRoleSourcesConfigured,
             tenantMappingConfigured,
-            tenantIdentityProvider);
+            tenantIdentityProvider,
+            jwksConfigured,
+            roleClaimNameConfigured,
+            scimDiagnostics);
 
         return new AdminAuthConfigurationDiagnosticsResponse
         {
@@ -50,8 +60,49 @@ public static class AuthConfigurationDiagnosticsComposer
             SamlRoleClaimSourcesConfigured = samlRoleSourcesConfigured,
             TenantClaimMappingConfigured = tenantMappingConfigured,
             TenantIdentityProviderProtocol = protocol,
+            JwksConfigured = jwksConfigured,
+            ScimProvisioningConfigured = scimDiagnostics?.ScimProvisioningConfigured,
+            ScimBearerTokenActive = scimDiagnostics?.ScimBearerTokenActive,
+            RoleClaimNameConfigured = roleClaimNameConfigured,
             MisconfigurationHints = hints,
         };
+    }
+
+    /// <summary>
+    ///     True when enterprise JWT/SAML configuration has blocking misconfiguration hints (safe for CLI exit codes).
+    /// </summary>
+    public static bool HasBlockingMisconfiguration(AdminAuthConfigurationDiagnosticsResponse response)
+    {
+        ArgumentNullException.ThrowIfNull(response);
+
+        if (string.Equals(response.AuthMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(response.AuthMode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (!response.AudienceConfigured)
+            return true;
+
+        if (!response.IssuerOrAuthorityConfigured)
+            return true;
+
+        if (response.OpenIdDiscoverySucceeded == false)
+            return true;
+
+        if (response.JwksConfigured == false)
+            return true;
+
+        if (response.Saml2Enabled && response.SpEntityIdConfigured == false)
+            return true;
+
+        if (response.Saml2Enabled && response.SamlRoleClaimSourcesConfigured == false)
+            return true;
+
+        if (response.TenantClaimMappingConfigured == false)
+            return true;
+
+        return false;
     }
 
     private static bool IsAudienceConfigured(AdminOidcDiagnosticsResponse oidc)
@@ -79,6 +130,35 @@ public static class AuthConfigurationDiagnosticsComposer
             return true;
 
         return false;
+    }
+
+    private static bool? EvaluateJwksConfigured(AdminOidcDiagnosticsResponse oidc)
+    {
+        if (oidc.UsesLocalJwtSigningKey)
+            return true;
+
+        if (!oidc.DiscoveryAttempted)
+            return null;
+
+        if (oidc.DiscoverySucceeded != true)
+            return null;
+
+        return !string.IsNullOrWhiteSpace(oidc.JwksUri);
+    }
+
+    private static bool? EvaluateRoleClaimNameConfigured(
+        bool samlEnabled,
+        bool? samlRoleSourcesConfigured,
+        bool? tenantMappingConfigured,
+        TenantIdentityProviderConfigurationRecord? tenantIdentityProvider)
+    {
+        if (tenantIdentityProvider is not null)
+            return tenantMappingConfigured;
+
+        if (samlEnabled)
+            return samlRoleSourcesConfigured;
+
+        return null;
     }
 
     private static bool IsSpEntityIdConfigured(ArchLucidSamlAuthOptions samlOptions)
@@ -139,7 +219,10 @@ public static class AuthConfigurationDiagnosticsComposer
         bool? spEntityIdConfigured,
         bool? samlRoleSourcesConfigured,
         bool? tenantClaimMappingConfigured,
-        TenantIdentityProviderConfigurationRecord? tenantIdentityProvider)
+        TenantIdentityProviderConfigurationRecord? tenantIdentityProvider,
+        bool? jwksConfigured,
+        bool? roleClaimNameConfigured,
+        AuthConfigurationScimDiagnostics? scimDiagnostics)
     {
         List<string> hints = [];
 
@@ -167,11 +250,15 @@ public static class AuthConfigurationDiagnosticsComposer
                 audienceConfigured,
                 issuerOrAuthorityConfigured,
                 tenantClaimMappingConfigured,
-                tenantIdentityProvider);
+                tenantIdentityProvider,
+                jwksConfigured,
+                roleClaimNameConfigured);
         }
 
         if (saml.Saml2Enabled)
             AppendSamlHints(hints, saml, samlOptions, spEntityIdConfigured, samlRoleSourcesConfigured);
+
+        AppendScimHints(hints, scimDiagnostics);
 
         return hints;
     }
@@ -182,7 +269,9 @@ public static class AuthConfigurationDiagnosticsComposer
         bool audienceConfigured,
         bool issuerOrAuthorityConfigured,
         bool? tenantClaimMappingConfigured,
-        TenantIdentityProviderConfigurationRecord? tenantIdentityProvider)
+        TenantIdentityProviderConfigurationRecord? tenantIdentityProvider,
+        bool? jwksConfigured,
+        bool? roleClaimNameConfigured)
     {
         if (!oidc.UsesLocalJwtSigningKey && !issuerOrAuthorityConfigured)
         {
@@ -212,6 +301,18 @@ public static class AuthConfigurationDiagnosticsComposer
             string detail = oidc.DiscoveryError ?? oidc.DiagnosticSummary ?? "OpenID discovery failed.";
 
             hints.Add($"OIDC metadata is unreachable or invalid: {detail}");
+        }
+
+        if (jwksConfigured == false)
+        {
+            hints.Add(
+                "OpenID discovery succeeded but jwks_uri is missing — verify IdP metadata exposes a JWKS endpoint for token signature validation.");
+        }
+
+        if (roleClaimNameConfigured == false && tenantIdentityProvider is null)
+        {
+            hints.Add(
+                "Configure ArchLucidAuth:Saml2:RoleClaimSources or tenant SSO RoleClaimName mapping so ArchLucid roles can be resolved after sign-in.");
         }
 
         if (tenantIdentityProvider is not null && tenantClaimMappingConfigured == false)
@@ -253,5 +354,17 @@ public static class AuthConfigurationDiagnosticsComposer
 
         if (string.IsNullOrWhiteSpace(samlOptions.IdPMetadata?.Trim()))
             hints.Add("Set ArchLucidAuth:Saml2:IdPMetadata to the HTTPS federation metadata URL for your IdP.");
+    }
+
+    private static void AppendScimHints(List<string> hints, AuthConfigurationScimDiagnostics? scimDiagnostics)
+    {
+        if (scimDiagnostics?.ScimProvisioningConfigured != true)
+            return;
+
+        if (scimDiagnostics.ScimBearerTokenActive == false)
+        {
+            hints.Add(
+                "SCIM provisioning is configured but no active bearer token was found — issue or rotate a token under Settings → SCIM (see docs/integrations/SCIM_PROVISIONING.md).");
+        }
     }
 }
