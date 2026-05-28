@@ -79,6 +79,59 @@
         },
         "type": "object"
       },
+      "AdminAuthConfigurationDiagnosticsResponse": {
+        "properties": {
+          "audienceConfigured": {
+            "type": "boolean"
+          },
+          "authMode": {
+            "type": "string"
+          },
+          "issuerOrAuthorityConfigured": {
+            "type": "boolean"
+          },
+          "misconfigurationHints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "openIdDiscoverySucceeded": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "saml2Enabled": {
+            "type": "boolean"
+          },
+          "samlRoleClaimSourcesConfigured": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "spEntityIdConfigured": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "tenantClaimMappingConfigured": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "tenantIdentityProviderProtocol": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AdminCacheDiagnosticsResponse": {
         "properties": {
           "explanationCacheHits": {
@@ -7171,6 +7224,75 @@
         },
         "type": "object"
       },
+      "ExecutiveRoiBasisBreakdown": {
+        "properties": {
+          "acceptedRiskUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "deferredUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "needsEvidenceUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "openEstimatedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "realizedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "rejectedNotApplicableUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "totalPotentialUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "waivedUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ExecutiveRoiEnvironmentSavingsSlice": {
         "properties": {
           "environment": {
@@ -7310,6 +7432,16 @@
       },
       "ExecutiveRoiSummaryResponse": {
         "properties": {
+          "basisBreakdown": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExecutiveRoiBasisBreakdown"
+              }
+            ]
+          },
           "costEvidenceFreshnessStatus": {
             "type": "string"
           },
@@ -7345,6 +7477,16 @@
           "newlyDiscoveredFindingsCount30Days": {
             "format": "int32",
             "type": "integer"
+          },
+          "realizedValue": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RealizedValueSummary"
+              }
+            ]
           },
           "resolvedFindingsCount30Days": {
             "format": "int32",
@@ -8317,71 +8459,6 @@
         },
         "type": "object"
       },
-      "FindingForensicAgentTracePointer": {
-        "properties": {
-          "agentType": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "fullPromptBlobAvailable": {
-            "type": "boolean"
-          },
-          "fullResponseBlobAvailable": {
-            "type": "boolean"
-          },
-          "inlineFallbackFailed": {
-            "type": "boolean"
-          },
-          "modelDeploymentName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "provenanceCorrelationId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "traceId": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "FindingForensicRetrievalGroundingPointer": {
-        "properties": {
-          "agentExecutionTraceId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "agentName": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "citationCoverage": {
-            "format": "double",
-            "type": "number"
-          },
-          "corpusKind": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "traceId": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "FindingExplainabilityEvidence": {
         "properties": {
           "alternativePathsConsidered": {
@@ -8508,6 +8585,75 @@
         },
         "type": "object"
       },
+      "FindingForensicAgentTracePointer": {
+        "properties": {
+          "agentType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fullPromptBlobAvailable": {
+            "type": "boolean"
+          },
+          "fullResponseBlobAvailable": {
+            "type": "boolean"
+          },
+          "inlineFallbackFailed": {
+            "type": "boolean"
+          },
+          "modelDeploymentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceCorrelationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FindingForensicRetrievalGroundingPointer": {
+        "properties": {
+          "agentExecutionTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "agentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "citationCoverage": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "corpusKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "FindingHumanReviewStatus": {
         "type": "integer"
       },
@@ -8590,11 +8736,31 @@
           "findingId": {
             "type": "string"
           },
+          "hasActiveWaiver": {
+            "type": "boolean"
+          },
           "humanReviewStatus": {
             "$ref": "#/components/schemas/FindingHumanReviewStatus"
           },
           "isMuted": {
             "type": "boolean"
+          },
+          "latestDisposition": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingDisposition"
+              }
+            ]
+          },
+          "latestDispositionOccurredAtUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "manifestVersion": {
             "type": [
@@ -12008,6 +12174,17 @@
         },
         "type": "object"
       },
+      "MarketingPricingQuoteAcknowledgeRequest": {
+        "properties": {
+          "assignedOwner": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "MarketingPricingQuoteAgingItemResponse": {
         "properties": {
           "ageHours": {
@@ -12015,6 +12192,12 @@
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
               "number",
+              "string"
+            ]
+          },
+          "assignedOwner": {
+            "type": [
+              "null",
               "string"
             ]
           },
@@ -12028,8 +12211,18 @@
             "format": "date-time",
             "type": "string"
           },
+          "firstResponseUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "id": {
             "format": "uuid",
+            "type": "string"
+          },
+          "status": {
             "type": "string"
           },
           "tierInterest": {
@@ -14915,6 +15108,55 @@
         },
         "type": "object"
       },
+      "RealizedValueSummary": {
+        "properties": {
+          "activeWaiversCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "attestedIncidentsAvoided": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "attestedRevenueOrRetentionImpact": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attestedReviewerTimeSavedNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingsRemediatedCount30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "medianTimeToRemediationDays": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "waiverExpiryReversionCount30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "waiversRetiredCount30Days": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "RecentPilotRunDeltaSummaryResponse": {
         "properties": {
           "isDemoTenant": {
@@ -15841,6 +16083,12 @@
       },
       "ResolvedArchitectureDecision": {
         "properties": {
+          "buyerConfidenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "category": {
             "type": "string"
           },
@@ -16839,6 +17087,16 @@
       },
       "RunFindingCoverageSummary": {
         "properties": {
+          "dispositionCoverage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunFindingDispositionCoverage"
+              }
+            ]
+          },
           "enginesAttempted": {
             "format": "int32",
             "type": "integer"
@@ -16865,6 +17123,39 @@
           },
           "isDegraded": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "RunFindingDispositionCoverage": {
+        "properties": {
+          "acceptedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "deferredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "needsEvidenceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "openCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "rejectedNotApplicableCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "remediatedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "waivedCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -19446,6 +19737,82 @@
         },
         "type": "object"
       },
+      "TrialFunnelOperationalSummaryResponse": {
+        "properties": {
+          "activeSelfServiceTrials": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "billingCheckouts30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "cogsBasisLabel": {
+            "type": "string"
+          },
+          "estimatedFirstReviewCogsUsdHigh": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "estimatedFirstReviewCogsUsdLow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "estimatedFirstReviewCogsUsdMid": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "firstCommittedReviews30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "llmBudgetCutoffEvents30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "medianSignupToFirstCommitSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "signupAttempts30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "signupFailures30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "trialConversions30Days": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "TrialLocalRegisterRequest": {
         "properties": {
           "email": {
@@ -19599,6 +19966,30 @@
             "type": [
               "null",
               "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "UpsertRealizedValueAttestationRequest": {
+        "properties": {
+          "attestedIncidentsAvoided": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "attestedRevenueOrRetentionImpact": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attestedReviewerTimeSavedNote": {
+            "type": [
+              "null",
+              "string"
             ]
           }
         },
@@ -20373,6 +20764,35 @@
                     "$ref": "#/components/schemas/AuthDiagnosticEntry"
                   },
                   "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminAuthDiagnostics"
+        ]
+      }
+    },
+    "/v1/admin/auth/configuration-diagnostics": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAuthConfigurationDiagnosticsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAuthConfigurationDiagnosticsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAuthConfigurationDiagnosticsResponse"
                 }
               }
             },
@@ -22204,6 +22624,132 @@
         ]
       }
     },
+    "/v1/admin/marketing/pricing-quote-requests/{id}/acknowledge": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingPricingQuoteAcknowledgeRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingPricingQuoteAcknowledgeRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingPricingQuoteAcknowledgeRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "MarketingPricingQuoteFollowUpAdmin"
+        ]
+      }
+    },
+    "/v1/admin/marketing/pricing-quote-requests/{id}/close": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "MarketingPricingQuoteFollowUpAdmin"
+        ]
+      }
+    },
     "/v1/admin/metering/tenants/{tenantId}/summary": {
       "get": {
         "parameters": [
@@ -22286,6 +22832,45 @@
         },
         "tags": [
           "MeteringAdmin"
+        ]
+      }
+    },
+    "/v1/admin/operational/trial-funnel-summary": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrialFunnelOperationalSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "AdminTrialFunnelOperational"
         ]
       }
     },
@@ -44673,6 +45258,60 @@
                 "string"
               ]
             }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "recordedAfterUtc",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "recordedBeforeUtc",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "minConfidence",
+            "schema": {
+              "format": "double",
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+              "type": [
+                "number",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "maxConfidence",
+            "schema": {
+              "format": "double",
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+              "type": [
+                "number",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "buyerConfidenceSource",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -45683,6 +46322,78 @@
         },
         "tags": [
           "Governance"
+        ]
+      }
+    },
+    "/v1/governance/realized-value/attestation": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpsertRealizedValueAttestationRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpsertRealizedValueAttestationRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UpsertRealizedValueAttestationRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
         ]
       }
     },
@@ -50767,6 +51478,65 @@
               }
             },
             "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
+    "/v1/pilots/runs/{runId}/executive-review-packet": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "text/markdown": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -57875,6 +58645,9 @@
       "name": "AdminTenants"
     },
     {
+      "name": "AdminTrialFunnelOperational"
+    },
+    {
       "name": "Advisory"
     },
     {
@@ -58101,6 +58874,9 @@
     },
     {
       "name": "MarketingPricingQuoteAgingAdmin"
+    },
+    {
+      "name": "MarketingPricingQuoteFollowUpAdmin"
     },
     {
       "name": "MarketingPricingQuoteRequest"
