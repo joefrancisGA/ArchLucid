@@ -1,6 +1,7 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
@@ -15,7 +16,7 @@ public sealed class BuyerProofPackCommitGuardTests
         ArchitectureRunDetail detail = new()
         {
             Run = new ArchitectureRun { Status = ArchitectureRunStatus.Committed },
-            Manifest = new GoldenManifest { Version = "v1" },
+            Manifest = new GoldenManifest { Metadata = new ManifestMetadata { ManifestVersion = "v1" } },
         };
 
         bool ok = BuyerProofPackCommitGuard.TryValidateCommitted(detail, out string? error);
