@@ -19,6 +19,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Config lint guidance: ASP.NET configuration key names only (no credential values); generic-api-key false positives on Authentication:ApiKey:* paths"
+paths = [
+  '''(?:^|/)ArchLucid\.Cli/Commands/ConfigLintFindingGuidance\.cs$''',
+]
+
+[[allowlists]]
 description = "Documented non-production literals (SQL dev passwords, one retired Stripe-shaped test fixture in git history) — rotate SQL passwords if you reuse outside this repo"
 paths = [
   # TB-003 named-query perf thresholds only; generic-api-key false-positive on *Keyset* in metric names (*key* keyword).

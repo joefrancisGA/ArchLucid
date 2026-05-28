@@ -50,8 +50,8 @@ internal static class ConfigLintFindingGuidance
 
             ProductionLikeHostingMisconfigurationAdvisorRuleNames.ApiKeyModeDisabledWhenConfigured =>
                 new Guidance(
-                    "ArchLucidAuth:Mode=ApiKey requires Authentication:ApiKey:Enabled=true.",
-                    "ArchLucidAuth:Mode; Authentication:ApiKey:Enabled",
+                    "When ArchLucidAuth:Mode is ApiKey, the Authentication section API-key Enabled setting must be true.",
+                    "ArchLucidAuth:Mode; Authentication section (API key Enabled)",
                     "Enable API key authentication or switch ArchLucidAuth:Mode to JwtBearer.",
                     "config-lint-production-like-hosted-pilot.json"),
 
