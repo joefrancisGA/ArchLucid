@@ -90,6 +90,12 @@
           "issuerOrAuthorityConfigured": {
             "type": "boolean"
           },
+          "jwksConfigured": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "misconfigurationHints": {
             "items": {
               "type": "string"
@@ -102,10 +108,28 @@
               "boolean"
             ]
           },
+          "roleClaimNameConfigured": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "saml2Enabled": {
             "type": "boolean"
           },
           "samlRoleClaimSourcesConfigured": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "scimBearerTokenActive": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "scimProvisioningConfigured": {
             "type": [
               "null",
               "boolean"
@@ -269,8 +293,26 @@
       },
       "AdminFleetLlmCogsDashboardResponse": {
         "properties": {
+          "budgetWarningTenantCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "costBasisLabel": {
             "type": "string"
+          },
+          "costRatesConfigured": {
+            "type": "boolean"
+          },
+          "hardStopTenantCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "missingRateTenantCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "monthlyBudgetMonitoringActive": {
+            "type": "boolean"
           },
           "rows": {
             "items": {
@@ -289,8 +331,23 @@
           "blocksAdditionalLlmExecution": {
             "type": "boolean"
           },
+          "budgetCompletionLabel": {
+            "type": "string"
+          },
+          "budgetWarningUsdUtcMonth": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
           "costBasisLabel": {
             "type": "string"
+          },
+          "costRatesConfigured": {
+            "type": "boolean"
           },
           "estimatedUsdPressureUtcMonth": {
             "format": "double",
@@ -320,6 +377,18 @@
               "number",
               "string"
             ]
+          },
+          "includedUsdUtcMonth": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "monthlyBudgetMonitoringActive": {
+            "type": "boolean"
           },
           "tenantId": {
             "format": "uuid",
@@ -17743,6 +17812,131 @@
           "runId",
           "structuralExecutionMode"
         ],
+        "type": "object"
+      },
+      "RunRetrievalGroundingResponse": {
+        "properties": {
+          "hasDegradedMetadata": {
+            "type": "boolean"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/RunRetrievalGroundingRow"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "traceCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RunRetrievalGroundingRow": {
+        "properties": {
+          "agentExecutionTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "agentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "citationCoverage": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "corpusKind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "documentIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "documentMetadataMalformed": {
+            "type": "boolean"
+          },
+          "retrievedChunkCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "retrievedChunkIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "scoreMetadataMalformed": {
+            "type": "boolean"
+          },
+          "scoreSummaries": {
+            "items": {
+              "$ref": "#/components/schemas/RunRetrievalGroundingScoreSummary"
+            },
+            "type": "array"
+          },
+          "tokensIn": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "tokensOut": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "topK": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunRetrievalGroundingScoreSummary": {
+        "properties": {
+          "chunkId": {
+            "type": "string"
+          },
+          "score": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          }
+        },
         "type": "object"
       },
       "RunRoiScorecardDto": {
@@ -39536,6 +39730,126 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/RunRationale"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "AuthorityQuery"
+        ]
+      }
+    },
+    "/v1/authority/runs/{runId}/retrieval-grounding": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRetrievalGroundingResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRetrievalGroundingResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRetrievalGroundingResponse"
                 }
               }
             },
