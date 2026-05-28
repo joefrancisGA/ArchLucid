@@ -158,7 +158,6 @@ export function buildFirstPilotOperatingRailSignals(input: {
       normalizedHealth.includes("warn") ||
       input.runs.length > 0);
 
-  const latest = input.runs.length > 0 ? input.runs[0] : null;
   const evidenceOnRun =
     input.runs.some((r) => r.hasContextSnapshot === true || r.hasGraphSnapshot === true) ||
     input.hasCommittedManifest;
