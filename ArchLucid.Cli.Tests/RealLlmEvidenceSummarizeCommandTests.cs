@@ -68,4 +68,28 @@ public sealed class RealLlmEvidenceSummarizeCommandTests
         code.Should().Be(CliExitCode.OperationFailed);
         md.Should().Contain("total cost USD missing");
     }
+
+    [Fact]
+    public void Summarize_rejected_quality_gate_fails()
+    {
+        const string json = """
+                            {
+                              "simulatorOnlyRelease": false,
+                              "promptRedactionEnabled": true,
+                              "rawPromptIncludedInExport": false,
+                              "deploymentId": "dep-1",
+                              "inputTokens": 1,
+                              "outputTokens": 1,
+                              "totalCostUsd": 0.01,
+                              "qualityGateOutcome": "rejected",
+                              "committedFindingsCount": 1,
+                              "topFindingEvidenceChainResolved": true
+                            }
+                            """;
+
+        (int code, string md) = RealLlmEvidenceSummarizeCommand.Summarize(json);
+
+        code.Should().Be(CliExitCode.OperationFailed);
+        md.Should().Contain("quality gate outcome not passing: rejected");
+    }
 }

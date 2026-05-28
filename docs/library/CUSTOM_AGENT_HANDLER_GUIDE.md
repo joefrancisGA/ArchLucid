@@ -31,26 +31,43 @@ For out-of-process handlers (separate service, HTTP contract), see [`CUSTOM_AGEN
 
 ## 4. `IAgentHandler` — interface and minimal example
 
-Interface location: `ArchLucid.Contracts.Agents.IAgentHandler` (or the agent execution abstraction your branch registers against the orchestrator).
+Interface location: `ArchLucid.Contracts.Abstractions.Agents.IAgentHandler`.
 
-Minimal handler (pseudocode — align names with your branch):
+Minimal simulator-safe handler sample:
 
 ```csharp
-public sealed class SampleCostReviewHandler : IAgentHandler
+using ArchLucid.Contracts.Abstractions.Agents;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+
+public sealed class SampleRiskReviewHandler : IAgentHandler
 {
-    public AgentType AgentType => AgentType.Cost;
+    public AgentType AgentType => AgentType.Critic;
 
-    public Task<AgentResult> ExecuteAsync(AgentExecutionContext context, CancellationToken cancellationToken)
+    public string AgentTypeKey => "sample-risk-review";
+
+    public Task<AgentResult> ExecuteAsync(
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        AgentTask task,
+        CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(evidence);
+        ArgumentNullException.ThrowIfNull(task);
 
-        // Build structured JSON findings; never log raw prompts.
         AgentResult result = new()
         {
-            RunId = context.RunId,
-            AgentType = AgentType.Cost,
-            Status = AgentResultStatus.Succeeded,
-            Findings = []
+            RunId = runId,
+            TaskId = task.TaskId,
+            AgentType = AgentType,
+            Claims = ["Sample custom handler completed without live LLM calls."],
+            EvidenceRefs = [],
+            Confidence = 0.5,
+            Findings = [],
+            ReasoningTrace = "Simulator-safe custom handler sample; no raw prompts or secrets logged."
         };
 
         return Task.FromResult(result);
@@ -63,10 +80,10 @@ public sealed class SampleCostReviewHandler : IAgentHandler
 Register in `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` (or the partial that wires agent handlers):
 
 ```csharp
-services.AddTransient<IAgentHandler, SampleCostReviewHandler>();
+services.AddScoped<IAgentHandler, SampleRiskReviewHandler>();
 ```
 
-The orchestrator resolves all registered `IAgentHandler` implementations and dispatches by `AgentType`. Confirm your handler’s `AgentType` does not collide with built-in agents unless intentionally replacing simulator/real paths in a fork.
+The orchestrator resolves all registered `IAgentHandler` implementations and dispatches by `AgentTask.AgentTypeKey` when set, otherwise by `AgentTypeKeys.FromEnum(task.AgentType)`. Confirm your `AgentTypeKey` does not collide with built-in keys (`topology`, `cost`, `compliance`, `critic`) unless you are intentionally replacing a built-in handler in a fork.
 
 ## 6. Simulator vs real mode
 
@@ -85,6 +102,32 @@ Configure via `AgentExecution:Mode` and related appsettings. Test both paths bef
 | Host DI resolution | Boot API with handler registered — missing required handlers fail fast at startup |
 | Simulator smoke | Create → execute → commit on a dev tenant ([`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase C) |
 | Architecture boundary | `ArchLucid.Architecture.Tests` — Decisioning must not reference Notifications directly when adding side effects (use domain events) |
+
+Minimal test shape:
+
+```csharp
+[Fact]
+public async Task Custom_handler_returns_valid_agent_result()
+{
+    SampleRiskReviewHandler handler = new();
+    AgentTask task = new()
+    {
+        RunId = "run-1",
+        AgentType = AgentType.Critic,
+        AgentTypeKey = "sample-risk-review"
+    };
+
+    AgentResult result = await handler.ExecuteAsync(
+        "run-1",
+        new ArchitectureRequest(),
+        new AgentEvidencePackage(),
+        task);
+
+    result.RunId.Should().Be("run-1");
+    result.TaskId.Should().Be(task.TaskId);
+    result.AgentType.Should().Be(AgentType.Critic);
+}
+```
 
 Do not load third-party assemblies via `Assembly.LoadFrom` in the host — that path is explicitly out of scope (see [`CUSTOM_AGENT_HANDLERS.md`](CUSTOM_AGENT_HANDLERS.md)).
 

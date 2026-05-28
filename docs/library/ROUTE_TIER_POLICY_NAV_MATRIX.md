@@ -28,6 +28,24 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 3. **Nav:** `nav-config` builders + **`nav-shell-visibility`**.  
 4. **Narrative:** **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** — update the sample tables in this doc when buyer-visible behavior changes; refresh the appendix when controllers ship.
 
+## When to run the guard
+
+Run the guard before sponsor/procurement handoff when a branch changes any of these:
+
+- `ArchLucid.Api/Controllers/**`
+- `[RequiresCommercialTenantTier]` usage
+- `ArchLucidPolicies.*` authorization on buyer-visible controllers
+- operator navigation builders under `archlucid-ui/src/lib`
+- pricing, packaging, or route-tier documentation
+
+Use:
+
+```powershell
+python scripts/ci/assert_route_tier_policy_nav.py
+```
+
+Use `--sync` only when intentionally regenerating the registry and appendix after reviewing route/tier/policy changes. This check protects buyer claims; it does not grant access or replace API authorization.
+
 **Related:** **[PROCUREMENT_FAST_LANE.md](../go-to-market/PROCUREMENT_FAST_LANE.md)** (procurement skim), **[NAV_CONFIG_CONTRACT.md](NAV_CONFIG_CONTRACT.md)** if present.
 
 ## Appendix — per-controller registry (CI)

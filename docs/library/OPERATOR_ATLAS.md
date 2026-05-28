@@ -27,6 +27,7 @@
 | Getting started / trial checklist | — | `GET /v1/tenant/trial-status`, registration session, same checklist as Home | `/getting-started` | Read | [TRIAL_SIGNUP_UI.md](../../archlucid-ui/docs/TRIAL_SIGNUP_UI.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 | Sponsor PDF (post-commit) | `… sponsor-one-pager <runId> [--save]` | export endpoints on run | Run detail → exports | Read / Execute per op | [CORE_PILOT.md](../CORE_PILOT.md), [CLI_USAGE.md](CLI_USAGE.md) |
 | First-value Markdown | `… first-value-report <runId> [--save]` | value report API | Run detail | Read / Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
+| Workflow handoff | proof pipeline output | existing PR / issue / work item attachment | External GitHub / Azure DevOps | N/A (outside ArchLucid) | [V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
 | Recent committed-review delta panel | — | `GET /v1/pilots/runs/recent-deltas?count=N` | Top of `/runs`, sidebar "Recent activity" card, inline on `/runs/{runId}` | Read | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (`BeforeAfterDeltaPanel`) |
 
 ---

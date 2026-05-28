@@ -7,7 +7,7 @@
 
 **Audience:** Pilot champions, architecture team leads, and sales engineers who need to measure whether a pilot succeeded — and present the results to leadership for a purchase decision.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-05-28
 
 **Grounding rule:** Metrics reference shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md) and existing data collection per [PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md).
 
@@ -23,7 +23,7 @@ This scorecard defines **what to measure, when to measure it, and what "good" lo
 
 ## 2. Quantitative metrics
 
-Measure these before the pilot (baseline) and at pilot end (actual). The delta is the evidence.
+Measure these before the pilot (baseline) and at pilot end (actual). The delta is the evidence. Before any sponsor packet leaves the team, mark whether each baseline is **buyer-provided**, **defaulted**, **demo-derived**, or **not collected**.
 
 ### 2.1 Efficiency metrics
 
@@ -32,7 +32,17 @@ Measure these before the pilot (baseline) and at pilot end (actual). The delta i
 | **Time to complete an architecture review** | Wall-clock hours from "review requested" to "approved manifest" | _______ hours | _______ hours | Team tracking (Jira, calendar) |
 | **Architect hours per review** | Person-hours of architect effort per review (prep + sessions + documentation) | _______ hours | _______ hours | Time tracking |
 | **Documentation time per review** | Hours spent writing the architecture review report | _______ hours | _______ hours | Time tracking |
+| **Evidence assembly effort** | Hours spent collecting diagrams, cloud exports, review notes, and supporting proof before review | _______ hours | _______ hours | Team estimate or time tracking |
 | **Reviews completed per quarter** | Number of formal reviews completed in the pilot period (annualized) | _______ / qtr | _______ / qtr | Team tracking |
+
+### 2.1.1 ROI basis labels
+
+| Label | Meaning | Sponsor handling |
+| --- | --- | --- |
+| **Buyer-provided** | The buyer supplied the baseline or actual value for this pilot | Safe to include in the sponsor packet with normal caveats |
+| **Defaulted** | ArchLucid used a conservative model default because the buyer did not supply a value | Include only with a clear default label; do not lead with projected dollars |
+| **Demo-derived** | The value came from a seeded or agreed demo workspace | Use for walkthrough shape only; do not quote as buyer outcome |
+| **Not collected** | The value was unavailable | Keep the row blank or explain the gap; do not invent a number |
 
 ### 2.2 Quality metrics
 
@@ -146,6 +156,8 @@ Collect via stakeholder interviews at pilot midpoint and end. Score each on a 1�
 
 Use this structure when presenting pilot results to leadership for a purchase decision.
 
+Before presenting, run through [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md). It distinguishes send, hold, and deferred cases so the sponsor narrative does not outrun the evidence.
+
 ### Executive summary (1 paragraph)
 
 > We conducted a [X]-week pilot of ArchLucid with [N] architecture reviews. Architecture review cycle time decreased by [Y]% from [baseline] hours to [actual] hours. ArchLucid identified [N] compliance or architecture gaps that our manual process would have missed. The projected annual ROI based on pilot results is [Z]%. We recommend [proceeding to purchase / extending the pilot / not proceeding].
@@ -156,6 +168,7 @@ Use this structure when presenting pilot results to leadership for a purchase de
 |--------|----------|-------------|--------|-------------|
 | Review cycle time | ___ hrs | ___ hrs | -__% | Yes/No |
 | Architect hours per review | ___ hrs | ___ hrs | -__% | Yes/No |
+| Evidence assembly effort | ___ hrs | ___ hrs | -__% | Yes/No |
 | Findings per review | N/A | ___ | — | — |
 | Explainability trace completeness | N/A | ___% | — | — |
 | Governance compliance rate | N/A | ___% | — | Yes/No |

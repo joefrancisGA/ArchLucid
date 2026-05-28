@@ -86,6 +86,16 @@ python scripts/build_procurement_pack.py --deal-ready --max-review-age-days 180
 1. Complete a buyer-specific cover letter using [`PROCUREMENT_PACK_COVER.md`](PROCUREMENT_PACK_COVER.md) **outside** the committed tree (see scaffold warnings there).
 2. Send the ZIP **or** upload it to the buyer’s secure file exchange — do not email large binaries to unauthenticated mailboxes.
 
+## Pilot close-out gate
+
+Before a Readiness Review close-out or annual conversion ask, use **deal-ready** mode rather than a plain dry run:
+
+```powershell
+python scripts/build_procurement_pack.py --deal-ready
+```
+
+This is the procurement input named in [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md). It checks source presence, freshness, buyer-unsafe placeholders, and assurance wording coherence. It does **not** change the assurance posture: SOC 2 CPA attestation, public third-party pen-test results, public reference customers, live marketplace checkout, MCP, and V1.1 connectors remain deferred unless separately shipped.
+
 ## Trust Center index
 
 For narrative context and deep links, start at [`TRUST_CENTER.md`](TRUST_CENTER.md).

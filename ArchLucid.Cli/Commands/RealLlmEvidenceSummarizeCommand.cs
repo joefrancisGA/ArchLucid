@@ -110,6 +110,8 @@ internal static class RealLlmEvidenceSummarizeCommand
 
         if (string.IsNullOrWhiteSpace(gate))
             gaps.Add("quality gate outcome missing");
+        else if (!IsPassingQualityGateOutcome(gate))
+            gaps.Add(FormattableString.Invariant($"quality gate outcome not passing: {gate}"));
 
         if (inputTok < 0 || outputTok < 0)
             gaps.Add("token totals incomplete");
@@ -165,5 +167,13 @@ internal static class RealLlmEvidenceSummarizeCommand
         int code = gaps.Count == 0 ? CliExitCode.Success : CliExitCode.OperationFailed;
 
         return (code, sb.ToString());
+    }
+
+    private static bool IsPassingQualityGateOutcome(string gate)
+    {
+        return string.Equals(gate, "pass", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(gate, "passed", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(gate, "accepted", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(gate, "success", StringComparison.OrdinalIgnoreCase);
     }
 }

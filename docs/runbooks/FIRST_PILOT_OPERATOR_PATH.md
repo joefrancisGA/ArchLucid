@@ -6,7 +6,7 @@
 
 **Last reviewed:** 2026-05-27
 
-**Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **In-product six-step rail:** operator **Home** → **First-pilot operating path** (setup verification through sponsor packet). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md).
+**Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **In-product rail:** operator **Home** → **First-pilot operating path** (setup verification through sponsor packet). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md).
 
 ---
 
@@ -21,6 +21,8 @@ Every step below maps to a **shipped** API, operator UI route, or CLI verb. Opti
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
 | A1 | Configure SQL connection string, `ArchLucidAuth:Mode`, and hosting role (`Hosting:Role` for API and/or Worker). | `GET /health/ready` returns **Healthy** (or documented degraded entries are accepted). | API · [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) |
+| A0 | Run first-run preflight (`dotnet run --project ArchLucid.Cli -- --json pilot preflight`). | No **BLOCK** rows; warnings understood. | CLI · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
+| A0b | *(Preferred handoff)* Run the proof pipeline without `-RunId` for readiness-only go/no-go. | `go-no-go-summary.md` has no **BLOCK** rows; missing `RunId` appears as **WARN** until commit. | `./scripts/collect-first-pilot-proof.ps1` |
 | A2 | Start API + worker (or combined host); confirm DbUp migrations applied. | `GET /version` returns build identity; logs show catalog ready. | API · [`PILOT_GUIDE.md`](../library/PILOT_GUIDE.md) |
 | A3 | Sign in to operator UI (`/auth/signin` or dev bypass locally only). | Home loads; no endless 401/403 on `/api/proxy`. | UI · [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md) |
 
@@ -64,6 +66,8 @@ Until you have one **committed** architecture review package, you do **not** nee
 | D1 | Inspect **findings**, explanation aggregate, and **artifacts** on review detail. | Sponsor-readable summary; severity badges; evidence refs present. | UI review detail · `GET /v1/architecture/run/{runId}` |
 | D2 | Export **sponsor packet** (markdown/DOCX/PDF per tenant config) or **Email this review to your sponsor** when manifest exists. | Download succeeds; ROI basis labels show evidence source (not placeholder-only unless static demo). | UI exports · [`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | D3 | Record **run id**, manifest id, and any **`X-Correlation-ID`** for support before escalating. | Ticket-ready notes. | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
+| D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | `go-no-go-summary.md` plus committed-run evidence folder with checksum manifest and buyer-safe artifacts. | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
+| D5 | *(Optional workflow handoff)* Attach proof artifacts to a GitHub PR/issue or Azure DevOps work item. | Work item links to the sponsor packet, evidence manifest, and send/hold status without requiring a V1.1 connector. | [`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
 
 ---
 

@@ -30,7 +30,7 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 ## 1. What ArchLucid is
 
-ArchLucid shortens the path from an architecture request to one reviewable, defensible architecture proof package.
+ArchLucid turns buyer architecture evidence into one reviewable, defensible architecture proof package.
 
 It helps teams produce:
 
@@ -85,7 +85,7 @@ Architecture decisions in ArchLucid are not just analyzed — they are governed.
 
 ### 30-second pitch
 
-"ArchLucid turns messy architecture evidence into a prioritized risk review — in minutes, not weeks. Upload your architecture materials, and ArchLucid's AI agents identify the top risks across topology, cost, compliance, and design quality. Every finding cites its evidence. Every recommendation is actionable. You get an executive-ready summary your CTO can actually read."
+"ArchLucid turns architecture evidence into a defensible review package. Upload the buyer's materials, and ArchLucid identifies the top risks across topology, cost, compliance, and design quality. Every sponsor-facing finding is tied to evidence and confidence labels, with exports a CTO or architecture review board can read."
 
 ### 60-second pitch
 

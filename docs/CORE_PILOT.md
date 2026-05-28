@@ -3,7 +3,10 @@
 
 # Core Pilot
 
-Use this page when you need the **four-step Core Pilot** narrative without scrolling the full evaluator guide. **Buyer / hosted path** (no install) stays in **Part 1** of [**onboarding/EVALUATION_GUIDE.md**](onboarding/EVALUATION_GUIDE.md); Core Pilot specifics are expanded in **Part 2** of that guide.
+Use this page when you need the **four-step Core Pilot** narrative without scrolling the full evaluator guide. The operational checklist remains [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md); this page only explains the shape of first value.
+
+**Input:** buyer architecture evidence or an explicitly accepted demo workspace.  
+**Output:** one defensible architecture review package with committed findings, evidence labels, artifacts, and sponsor handoff material.
 
 ---
 
@@ -43,18 +46,20 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 
 ## First session checklist
 
-**In-product:** operator **Home** shows the **First-pilot operating path** (six steps: setup → evidence → create → execute → finalize → sponsor packet). **Docs depth:** four-step narrative below matches [**onboarding/EVALUATION_GUIDE.md**](onboarding/EVALUATION_GUIDE.md) Part 2.
+**In-product:** operator **Home** shows the **First-pilot operating path** (setup → evidence → create → execute → finalize → sponsor packet). **Docs depth:** four-step narrative below matches [**onboarding/EVALUATION_GUIDE.md**](onboarding/EVALUATION_GUIDE.md) Part 2.
 
 Four steps — canonical sequence for sponsor-facing copy:
 
 ### Step-by-step walkthrough
 
-1. **Create** an architecture review (operator **New review** wizard or **`archlucid run`** CLI with project inputs — the CLI verb remains `run` for backward compatibility).
-2. **Execute** the **review** (pipeline) and let the coordinator complete the work (timeline on the **review detail** page — legacy routes may still use `/runs/`).
+1. **Create** an architecture review. Next: open the new review detail page.
+2. **Execute** the review. Next: watch the pipeline timeline until it is ready to finalize.
 
 ### Review manifest and artifacts
 
-3. **Commit** the manifest (produces golden manifest + synthesized artifacts — nothing exportable before this step).
-4. **Open** the review package — manifest summary, artifacts table, and bundle export on the **review detail** page.
+3. **Finalize / commit** the manifest. Next: confirm the manifest id and artifacts table appear.
+4. **Open** the review package. Next: export the sponsor packet and collect the first-pilot proof bundle.
 
 **Sponsor-visible artifact:** after commit, use the operator **review detail** (**“Email this review to your sponsor”** banner when manifest exists; exact UI copy may still say *run* until label-only updates land) plus **[`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** for narrative context.
+
+`runId` is still the API/CLI tracking id. Use it in support tickets and commands, but keep buyer copy centered on the architecture review package.

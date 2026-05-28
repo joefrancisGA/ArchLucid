@@ -14,7 +14,8 @@ START_HERE.md (you are here)
 │   ├─ runbooks/FIRST_PILOT_TROUBLESHOOTING.md   (symptom decision tree — when stuck)
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story — after first commit)
 │   ├─ library/walkthroughs/README.md            (accelerator pack index — optional, after first commit)
-│   ├─ onboarding/EVALUATION_GUIDE.md     (depth — same four steps as Core Pilot)
+│   ├─ onboarding/EVALUATION_GUIDE.md     (depth — same steps; do not use as a second checklist)
+│   ├─ runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md   (post-commit evidence folder)
 │   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (printable evidence checklist)
 │   ├─ runbooks/PILOT_RESCUE_PLAYBOOK.md  (stuck mid-pilot — quick matrix)
 │   └─ library/PILOT_ROI_MODEL.md         (optional depth)
@@ -27,6 +28,8 @@ START_HERE.md (you are here)
 │   ├─ PENDING_QUESTIONS.md                    (owner decisions + gates)
 │   ├─ library/CONTRIBUTOR_CODE_MAP.md         (1-page decision tree for where to change code)
 │   ├─ library/CHANGE_IMPACT_CHECKLIST.md      (PR follow-through by change type)
+│   ├─ library/CHANGE_IMPACT_SUMMARY_TEMPLATE.md (short buyer/operator delta template)
+│   ├─ library/OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md (integrator + contributor contract hygiene)
 │   ├─ library/CUSTOM_AGENT_HANDLER_GUIDE.md   (register custom agent handlers in Host.Composition)
 │   └─ library/GLOSSARY.md                     (canonical product / governance vocabulary)
 │
@@ -37,6 +40,6 @@ START_HERE.md (you are here)
 
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).
 
-**Core Pilot — first session (four steps):** [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist) · **In-product six-step rail:** operator **Home** (`First-pilot operating path`) · **Operators installing locally:** [FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md) (two clicks from this page).
+**Core Pilot — first session:** create architecture review → execute → finalize/commit → open review package. Use [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist) for the short narrative and [FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md) for the operational checklist. Treat `runId` as tracking metadata; the buyer-facing object is the **architecture review**.
 
 **Writing and terminology:** [`library/CONCEPT_VOCABULARY.md`](library/CONCEPT_VOCABULARY.md) (canonical vs rejected phrasing) · [`library/GLOSSARY.md`](library/GLOSSARY.md) (definitions and record taxonomies).

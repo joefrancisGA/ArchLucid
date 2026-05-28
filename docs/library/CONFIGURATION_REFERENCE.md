@@ -43,6 +43,25 @@ Use **`archlucid config check`** and the full table below to validate your host.
 
 All other keys are optional unless **When required** in the detailed table says otherwise.
 
+## Pilot configuration profiles
+
+These profiles are operator shortcuts, not new configuration modes. Use them to decide which existing keys and checks must be present before a handoff.
+
+| Profile | Boundary | Required first checks | Optional but common | Common failure mode |
+| --- | --- | --- | --- | --- |
+| **First-pilot minimum** | Hosted or local pilot using SQL and simulator/real agents as agreed | `ConnectionStrings:ArchLucid`, `ArchLucidAuth:Mode`, `Hosting:Role`, `AgentExecution:Mode`, `archlucid config lint` | `ArchLucid:AgentOutput:QualityGate:Mode=PilotStrict` for sponsor-facing pilots, Blob Storage for artifacts | SQL reachable but auth mode/bypass posture is unclear |
+| **Staging with real LLM** | Production-like hosted staging that calls Azure OpenAI | First-pilot minimum plus `AzureOpenAI:Endpoint`, `AzureOpenAI:DeploymentName`, secret-backed credential, `ArchLucid:AgentOutput:QualityGate:PilotStrictMinAgentResultFaithfulnessSupportRatio` | Content Safety, Application Insights/OTLP, LLM budgets, prompt redaction | Real mode configured but quality gate or budget posture is still warn-only |
+| **Production-like enterprise pilot** | Buyer/security-reviewable hosted pilot | Staging with real LLM plus OIDC/SAML keys as used, Key Vault references, telemetry export, billing safety posture, data-consistency readiness | Private endpoints, Front Door/WAF, read replica routing, procurement `--deal-ready` output | Secrets or auth bypass values accidentally survive into production-like config |
+
+Validation commands:
+
+```powershell
+archlucid config check
+archlucid config lint --simulate-production --hosting-advisor
+```
+
+For hosted Azure pilots, pair this with [`MINIMAL_AZURE_PILOT_DEPLOYMENT.md`](../runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md). Never paste raw connection strings, API keys, SAML secrets, or Key Vault secret values into evidence bundles.
+
 | Section | Key | Source(s) | Default | When required | Host roles | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | Hosting | `Hosting:LogStartupConfigurationSummary` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Log effective configuration on startup (host). |

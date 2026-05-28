@@ -17,14 +17,20 @@
 | **Brief / scenario id** | Internal id or short description (no customer PII) |
 | **Run id** | Authority run GUID |
 | **Outcome** | Commit succeeded / blocked / aborted — note |
+| **Quality gate outcome** | pass / accepted / rejected / unresolved |
+| **PilotStrict sponsor-evidence disposition** | `pilot-strict-sponsor-evidence-pass` / `pilot-strict-violates-sponsor-evidence` / `pilot-strict-signals-unresolved` |
 | **Human verdict** | **acceptable for pilot** / **not yet** — 1–3 sentences |
 | **Structural / semantic scores** | If surfaced (UI, diagnostics, export) |
+| **Retrieval faithfulness / IR evidence** | Attach `faithfulness-report.md` and `retrieval-ir-report.md` when used for this release or pilot |
 | **Follow-ups** | Prompt, brief quality, agent-specific defects |
 
 ## Checklist (align with [MANUAL_QA_CHECKLIST.md](MANUAL_QA_CHECKLIST.md) §B.7)
 
 - [ ] Skimmed agent-backed findings for plausible claims vs manifest.
 - [ ] Opened at least one execution trace; model addressed the request shape.
+- [ ] Confirmed the quality gate outcome is passing before treating the run as sponsor evidence.
+- [ ] Confirmed PilotStrict sponsor-evidence disposition is passing when the host is configured for PilotStrict.
+- [ ] Confirmed retrieval faithfulness / IR reports meet configured floors when retrieval-backed claims are part of the sponsor story.
 - [ ] Compared to simulator on a similar brief if feasible (optional).
 
 ## Green cohort bar (release planning)
@@ -37,3 +43,4 @@
 - Release check-in stub: [REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md](REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md)
 - Pilot ROI / sponsor narrative: [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)
 - Fixture summarizer (no cloud): `archlucid real-llm-evidence summarize --from-json <path>` — see `scripts/fixtures/real-llm-evidence/example-complete.json`
+- Retrieval quality reports: `python scripts/ci/eval_agent_faithfulness.py --enforce` and `python scripts/ci/eval_retrieval_ir.py --enforce`

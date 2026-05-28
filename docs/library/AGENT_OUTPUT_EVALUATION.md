@@ -200,6 +200,16 @@ When the release posture includes real Azure OpenAI, attach the live run evidenc
 
 **Block vs warn:** a rejected quality-gate row under the configured release floors should block a tagged release candidate unless the release notes explicitly narrow the supported surface to simulator-only evidence. Warning rows can ship only with an owner note that explains why the semantic or structural score is acceptable for the scenario.
 
+### Pilot evidence gate close-out
+
+For first-pilot sponsor handoff, do not rely on a loose statement that "agent quality was checked." Attach a concrete evidence chain:
+
+1. `pilot-observability-summary.md` from `scripts/collect-first-pilot-evidence.ps1`, showing `qualityGateDisposition=pilot-strict-sponsor-evidence-pass` when PilotStrict is enabled.
+2. `archlucid real-llm-evidence summarize --from-json <fixture-or-export>` for any real-mode session record. The summarizer exits non-zero when required fields are missing or the quality gate outcome is not passing.
+3. `python scripts/ci/eval_agent_faithfulness.py --enforce` and `python scripts/ci/eval_retrieval_ir.py --enforce` reports when retrieval-backed claims are part of the sponsor packet.
+
+If any item fails, classify the sponsor packet as not ready and follow [`QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md) or [`RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md`](../runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md) before handoff.
+
 ## 9. Trending, reports, and email alerts
 
 **What the product emits today**
