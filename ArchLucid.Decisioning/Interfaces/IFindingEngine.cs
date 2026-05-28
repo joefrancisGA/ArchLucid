@@ -1,5 +1,5 @@
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Interfaces;
 

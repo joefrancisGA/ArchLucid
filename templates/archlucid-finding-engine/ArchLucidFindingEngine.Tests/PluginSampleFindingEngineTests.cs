@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
 
 using ArchLucidFindingEngine;
 

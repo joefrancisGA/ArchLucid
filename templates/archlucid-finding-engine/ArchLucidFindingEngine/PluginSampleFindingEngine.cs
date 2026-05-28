@@ -1,8 +1,8 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucidFindingEngine;
 
