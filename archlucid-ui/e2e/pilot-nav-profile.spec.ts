@@ -13,7 +13,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await page.addInitScript((presetStorageKey: string) => {
       // Full navigator preset: tier/disclosure toggles are under test; preset pruning would hide operate links.
       localStorage.setItem(presetStorageKey, "full");
-      localStorage.removeItem("archlucid-nav-expanded");
+      localStorage.setItem("archlucid-nav-expanded", "false");
       localStorage.setItem("archlucid_nav_show_extended", "false");
       localStorage.setItem("archlucid_nav_show_advanced", "false");
     }, OPERATOR_SHELL_PRESET_STORAGE_KEY);
@@ -34,11 +34,8 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("navigation", { name: "Analysis" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance" })).toHaveCount(0);
 
-    await expect(page.getByTestId("sidebar-collapsed-toggle-wrap")).toBeVisible();
+    const showAllFeatures = page.getByTestId("sidebar-show-all-features-toggle");
 
-    const showAllFeatures = page
-      .getByTestId("sidebar-collapsed-toggle-wrap")
-      .getByRole("button", { name: /Show all features/i });
     await expect(showAllFeatures).toBeVisible();
     await showAllFeatures.click();
 
