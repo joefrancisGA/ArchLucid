@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference checklist for intentional OpenAPI contract and generated-client changes.
+
 # OpenAPI and client drift — operator note
 
 **Canonical contract:** `GET /openapi/v1.json` on the API host.

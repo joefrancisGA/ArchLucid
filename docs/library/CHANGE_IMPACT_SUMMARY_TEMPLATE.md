@@ -1,3 +1,5 @@
+> **Scope:** Contributor-facing release note and PR summary template for buyer-facing behavior changes.
+
 # Change-impact summary (PR / release note template)
 
 Copy into PR descriptions or release notes when buyer-facing behavior changes.
