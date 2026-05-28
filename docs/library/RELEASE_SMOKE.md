@@ -21,6 +21,7 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 8. **Optional: Playwright (mock)** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (mock/fixture loopback) **after** the steps above.
 9. **Optional: Playwright (live API parity)** — **`-LivePlaywright`** or **named `-Profile LiveUiSql`** runs **`npm exec playwright test`** against **`playwright.config.ts`** with **`LIVE_API_URL`** (defaults to **`-ApiBaseUrl`**). Mirrors **`ci.yml`** **`ui-e2e-live`** for **`live-api-*.spec.ts`** while reusing the smoke-started API when **`-SkipE2E`** is omitted. Equivalent convenience entry points: **`scripts/release-smoke-live-ui-sql.ps1`** / **`scripts/release-smoke-live-ui-sql.cmd`**. **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** remain optional — auth subset specs skip when unset (same as CI). Not run by default.
 10. **Evidence summary footer** — on success, the script prints a short **`Release smoke evidence summary`** stating which gates validated and what was **not** asserted (default smoke still skips live parity unless **`LiveUiSql` profile** / **`-LivePlaywright`** / **`-RunPlaywright`** as applicable).
+11. **Optional machine-readable result** — pass **`-ResultOut artifacts/release-smoke/result.json`** to emit JSON + companion Markdown via **`scripts/Write-ReleaseSmokeResultReport.ps1`** (attach to release notes; do not commit by default).
 
 ### Does passing `release-smoke` prove UI ↔ SQL parity?
 
@@ -120,6 +121,12 @@ The script sets **`ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask
 ```powershell
 .\scripts\release-smoke.ps1 -Profile LiveUiSql
 .\scripts\release-smoke-live-ui-sql.ps1
+```
+
+For pilot handoff, prefer emitting a result artifact so the parity claim is attachable:
+
+```powershell
+.\scripts\release-smoke-live-ui-sql.ps1 -ResultOut artifacts/first-pilot-proof/live-ui-sql-result.json
 ```
 
 **Include Playwright mock suite after UI (+ API smoke when not skipped):**

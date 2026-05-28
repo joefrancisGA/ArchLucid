@@ -34,7 +34,7 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 |------|-----|
 | **Single first-pilot path** (storage → evidence → commit → export → next action) | [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
 | **Accelerator pack index** (Azure SaaS, AI governance, healthcare) | [`library/walkthroughs/README.md`](library/walkthroughs/README.md) |
-| Step-by-step UI + “what good looks like” | [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) (**Part 2 — Core Pilot**) |
+| Step-by-step UI + “what good looks like” | [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) (**Part 2 — Core Pilot**, depth doc) |
 | Azure SaaS readiness — buyer outcome | [`go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md`](go-to-market/buyer-jobs/AZURE_SAAS_READINESS.md) · walkthrough [`library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md`](library/walkthroughs/AZURE_SAAS_READINESS_REVIEW.md) |
 | AI governance — buyer outcome | [`go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md`](go-to-market/buyer-jobs/AI_GOVERNANCE_REVIEW.md) · walkthrough [`library/walkthroughs/AI_GOVERNANCE_REVIEW.md`](library/walkthroughs/AI_GOVERNANCE_REVIEW.md) |
 | Healthcare claims policy — buyer outcome | [`go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md`](go-to-market/buyer-jobs/HEALTHCARE_CLAIMS_POLICY_REVIEW.md) · walkthrough [`library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md) |
@@ -60,6 +60,6 @@ Four steps — canonical sequence for sponsor-facing copy:
 3. **Finalize / commit** the manifest. Next: confirm the manifest id and artifacts table appear.
 4. **Open** the review package. Next: export the sponsor packet and collect the first-pilot proof bundle.
 
-**Sponsor-visible artifact:** after commit, use the operator **review detail** (**“Email this review to your sponsor”** banner when manifest exists; exact UI copy may still say *run* until label-only updates land) plus **[`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** for narrative context.
+**Sponsor-visible artifact:** after commit, use the operator **review detail** (**“Email this review to your sponsor”** banner when manifest exists) plus **[`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** for narrative context.
 
 `runId` is still the API/CLI tracking id. Use it in support tickets and commands, but keep buyer copy centered on the architecture review package.

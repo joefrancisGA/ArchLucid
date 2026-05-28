@@ -224,6 +224,36 @@ elseif ($pilotStrictSignalsResolved -eq $false) {
     $qualityGateDisposition = 'pilot-strict-signals-unresolved'
 }
 
+$estimatedUsdSavings = Get-JsonPropertyValue $deltas 'estimatedUsdSavings'
+$isDemoTenant = Get-JsonPropertyValue $deltas 'isDemoTenant'
+$roiEvidenceConfidence = Get-JsonPropertyValue $proofPackageCompleteness 'roiEvidenceConfidence'
+$roiConfidenceLabel = Get-JsonPropertyValue $proofPackageCompleteness 'roiConfidenceLabel'
+$sponsorProofReadiness = Get-JsonPropertyValue $proofPackageCompleteness 'sponsorProofReadiness'
+
+$llmCostBasisLabel = 'unavailable'
+$llmCostEvidenceResolved = $false
+
+if ($llmCallCountResolved -eq $true) {
+    $llmCostEvidenceResolved = $true
+
+    if ($isDemoTenant -eq $true) {
+        $llmCostBasisLabel = 'demo-derived'
+    }
+    elseif ($null -ne $llmCallCount -and [int]$llmCallCount -gt 0) {
+        $llmCostBasisLabel = 'estimated'
+    }
+    else {
+        $llmCostBasisLabel = 'simulator'
+    }
+}
+
+$estimatedUsdSavingsBasisLabel = if ([string]::IsNullOrWhiteSpace([string]$roiConfidenceLabel)) {
+    'not-collected'
+}
+else {
+    [string]$roiConfidenceLabel
+}
+
 $observability = [ordered]@{
     formatVersion                 = '1.0'
     generatedUtc                  = $timestamp
@@ -243,6 +273,12 @@ $observability = [ordered]@{
     agentOutputPilotStrictSignalsResolved = $pilotStrictSignalsResolved
     agentOutputPilotStrictViolatesSponsorEvidence = $pilotStrictViolatesSponsorEvidence
     qualityGateDisposition        = $qualityGateDisposition
+    estimatedUsdSavings           = $estimatedUsdSavings
+    estimatedUsdSavingsBasisLabel = $estimatedUsdSavingsBasisLabel
+    roiEvidenceConfidence         = $roiEvidenceConfidence
+    sponsorProofReadiness         = $sponsorProofReadiness
+    llmCostBasisLabel             = $llmCostBasisLabel
+    llmCostEvidenceResolved       = $llmCostEvidenceResolved
     rawPromptOrCompletionIncluded = $false
     secretsIncluded               = $false
 }
@@ -269,6 +305,12 @@ Generated (UTC): **$timestamp**
 | PilotStrict signals resolved | $($observability.agentOutputPilotStrictSignalsResolved) |
 | PilotStrict violates sponsor evidence | $($observability.agentOutputPilotStrictViolatesSponsorEvidence) |
 | Quality gate disposition | $($observability.qualityGateDisposition) |
+| Estimated USD savings | $($observability.estimatedUsdSavings) |
+| Estimated savings basis | $($observability.estimatedUsdSavingsBasisLabel) |
+| ROI evidence confidence | $($observability.roiEvidenceConfidence) |
+| Sponsor proof readiness | $($observability.sponsorProofReadiness) |
+| LLM cost basis label | $($observability.llmCostBasisLabel) |
+| LLM cost evidence resolved | $($observability.llmCostEvidenceResolved) |
 
 ## Safety
 
@@ -278,6 +320,25 @@ Generated (UTC): **$timestamp**
 "@
 $observabilityMdFile = Join-Path $bundleDir 'pilot-observability-summary.md'
 [System.IO.File]::WriteAllText($observabilityMdFile, $observabilityMd, [System.Text.UTF8Encoding]::new($false))
+
+$costSummaryMd = @"
+# Pilot LLM cost summary (buyer-safe)
+
+Generated (UTC): **$timestamp**
+
+| Field | Value |
+| --- | --- |
+| Run id | ``$RunId`` |
+| LLM call count | $($observability.llmCallCount) |
+| LLM call count resolved | $($observability.llmCostEvidenceResolved) |
+| LLM cost basis label | $($observability.llmCostBasisLabel) |
+| Estimated USD savings | $($observability.estimatedUsdSavings) |
+| Estimated savings basis | $($observability.estimatedUsdSavingsBasisLabel) |
+
+This summary uses heuristic labels only. It is **not** invoice-grade Azure OpenAI billing truth.
+"@
+$costSummaryMdFile = Join-Path $bundleDir 'pilot-cost-summary.md'
+[System.IO.File]::WriteAllText($costSummaryMdFile, $costSummaryMd, [System.Text.UTF8Encoding]::new($false))
 
 $metadata = [ordered]@{
     generatedUtc = $timestamp
@@ -295,6 +356,7 @@ $metadata = [ordered]@{
         'run-detail-summary.json',
         'pilot-observability-summary.json',
         'pilot-observability-summary.md',
+        'pilot-cost-summary.md',
         'README.md',
         'artifact-manifest.json'
     )
@@ -330,6 +392,7 @@ Generated (UTC): **$timestamp**
 | ``audit-slice-metadata.json`` | Recent audit event metadata (types/ids — not raw payloads). |
 | ``run-detail-summary.json`` | Run status, manifest linkage, and findings surface for the review. |
 | ``pilot-observability-summary.json`` / ``pilot-observability-summary.md`` | Buyer-safe operational stamp: health, version, OpenAPI, audit sample count, LLM usage fields when available. |
+| ``pilot-cost-summary.md`` | Buyer-safe LLM usage and savings basis labels (estimated/simulator/demo-derived/unavailable). |
 
 ## Buyer-safe vs internal-only
 

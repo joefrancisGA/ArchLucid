@@ -740,9 +740,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Agent eval corpus (offline recall + simulator quality evidence + baseline soak)
+      - name: Agent eval corpus (offline recall + simulator quality evidence + blocking baseline)
         id: eval_corpus
-        continue-on-error: true
         run: |
           set -euo pipefail
           REP="${{ runner.temp }}/eval-corpus-report.md"

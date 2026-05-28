@@ -400,8 +400,79 @@ def run_check(root: Path) -> list[str]:
     return errors
 
 
+def render_markdown_report(root: Path, errors: list[str]) -> str:
+    """Buyer-safe summary for commercial handoff evidence (no secrets)."""
+    registry = load_registry(root)
+    entries = registry.get("entries", [])
+    if not isinstance(entries, list):
+        entries = []
+
+    exempt_count = sum(
+        1 for entry in entries if isinstance(entry, dict) and entry.get("exemption")
+    )
+    nav_linked_count = sum(
+        1
+        for entry in entries
+        if isinstance(entry, dict) and entry.get("nav_operator_href")
+    )
+    sync_status = "PASS" if not errors else "FAIL"
+
+    lines: list[str] = [
+        "# Route / tier / policy / nav parity",
+        "",
+        "| Field | Value |",
+        "| --- | --- |",
+        f"| Sync status | **{sync_status}** |",
+        f"| Registry entries | {len(entries)} |",
+        f"| Exempt route families | {exempt_count} |",
+        f"| Nav-linked route families | {nav_linked_count} |",
+        f"| Parity failures | {len(errors)} |",
+        "",
+        "_UI nav is not authorization; this artifact checks operator-shell parity with API route families._",
+        "",
+    ]
+
+    if errors:
+        lines.extend(
+            [
+                "## Failures",
+                "",
+                "| # | Detail |",
+                "| --- | --- |",
+            ]
+        )
+
+        for index, error in enumerate(errors, start=1):
+            safe = error.replace("|", "\\|")
+            lines.append(f"| {index} | {safe} |")
+
+        lines.append("")
+    else:
+        lines.extend(
+            [
+                "## Result",
+                "",
+                "Registry, controller surfaces, matrix appendix, and nav href parity are in sync.",
+                "",
+            ]
+        )
+
+    lines.append(
+        "Regenerate registry only via `python scripts/ci/assert_route_tier_policy_nav.py --sync`."
+    )
+    lines.append("")
+
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--markdown-report",
+        type=Path,
+        default=None,
+        help="Write buyer-safe Markdown summary to this path (does not change exit code semantics).",
+    )
     parser.add_argument("--dump-registry", action="store_true", help="print scaffold JSON to stdout")
     parser.add_argument(
         "--materialize-registry",
@@ -443,6 +514,12 @@ def main() -> int:
         return 1
 
     errors = run_check(root)
+
+    if args.markdown_report is not None:
+        report_path = args.markdown_report.expanduser().resolve()
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(render_markdown_report(root, errors), encoding="utf-8")
+
     if errors:
         print("assert_route_tier_policy_nav failures:", file=sys.stderr)
         for e in errors:

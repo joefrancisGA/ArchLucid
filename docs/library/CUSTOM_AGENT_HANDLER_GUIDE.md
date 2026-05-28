@@ -33,7 +33,7 @@ For out-of-process handlers (separate service, HTTP contract), see [`CUSTOM_AGEN
 
 Interface location: `ArchLucid.Contracts.Abstractions.Agents.IAgentHandler`.
 
-Minimal simulator-safe handler sample:
+Minimal simulator-safe handler sample (canonical fixture: `ArchLucid.AgentRuntime.Tests/Fixtures/SampleRiskReviewHandler.cs`):
 
 ```csharp
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -98,7 +98,7 @@ Configure via `AgentExecution:Mode` and related appsettings. Test both paths bef
 
 | Check | Command / location |
 |-------|-------------------|
-| Handler unit tests | Your handler assembly + `ArchLucid.AgentRuntime.Tests` patterns |
+| Handler unit tests | `ArchLucid.AgentRuntime.Tests/SampleRiskReviewHandlerTests.cs` (fixture: `Fixtures/SampleRiskReviewHandler.cs`) |
 | Host DI resolution | Boot API with handler registered — missing required handlers fail fast at startup |
 | Simulator smoke | Create → execute → commit on a dev tenant ([`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase C) |
 | Architecture boundary | `ArchLucid.Architecture.Tests` — Decisioning must not reference Notifications directly when adding side effects (use domain events) |

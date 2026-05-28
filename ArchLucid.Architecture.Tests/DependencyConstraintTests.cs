@@ -1574,4 +1574,62 @@ public sealed class DependencyConstraintTests
 
         return string.Join(", ", names);
     }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Retrieval_must_not_reference_Api_assembly()
+    {
+        Assembly retrieval = typeof(RetrievalQueryService).Assembly;
+        AssemblyName[] references = retrieval.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Api",
+            because: "Retrieval must stay below the HTTP host; API depends on retrieval ports in Core, not the reverse.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_must_not_reference_host_or_infrastructure_root_assemblies()
+    {
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+        string[] forbidden =
+        [
+            "ArchLucid.Api",
+            "ArchLucid.Host.Composition",
+            "ArchLucid.Host.Core",
+            "ArchLucid.Worker",
+        ];
+
+        AssemblyName[] references = agentRuntime.GetReferencedAssemblies();
+
+        references.Select(static a => a.Name)
+            .Should()
+            .NotContain(forbidden, because: "AgentRuntime executes in-process agents and must not depend on host roots.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Ui_openapi_types_must_trace_to_canonical_snapshot()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string snapshotPath = Path.Combine(
+            root!,
+            "ArchLucid.Api.Tests",
+            "Contracts",
+            "openapi-v1.contract.snapshot.json");
+        string reexportPath = Path.Combine(root!, "archlucid-ui", "src", "lib", "openapi-schemas.ts");
+        string generatedPath = Path.Combine(root!, "archlucid-ui", "src", "lib", "api-types.generated.ts");
+
+        File.Exists(snapshotPath).Should().BeTrue(because: "canonical OpenAPI snapshot must exist at {0}", snapshotPath);
+        File.Exists(reexportPath).Should().BeTrue(because: "UI OpenAPI re-export must exist at {0}", reexportPath);
+        File.Exists(generatedPath).Should().BeTrue(because: "generated UI API types must exist at {0}", generatedPath);
+
+        string reexportText = File.ReadAllText(reexportPath);
+        reexportText.Should().Contain("./api-types.generated", because: "UI types must be sourced from generated OpenAPI output.");
+    }
 }

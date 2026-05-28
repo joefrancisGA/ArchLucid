@@ -71,7 +71,7 @@ describe("buildFirstPilotReadinessRows", () => {
 
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("ready");
     expect(rows.find((r) => r.id === "roi-baselines")?.summary).toContain("customer-entered");
-    expect(rows.find((r) => r.id === "second-review")?.summary).toContain("run a second review");
+    expect(rows.find((r) => r.id === "second-review")?.summary).toContain("start a second review");
   });
 
   it("shows execute users can fix missing ROI baselines", () => {

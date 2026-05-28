@@ -79,7 +79,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
 
         {!failure && rows.length === 0 ? (
           <p className="text-sm text-neutral-500 dark:text-neutral-400">
-            No retrieval grounding recorded for this run. This is expected for simulator-only runs or agents that did not
+            No retrieval grounding recorded for this review. This is expected for simulator-only reviews or agents that did not
             use retrieval.
           </p>
         ) : null}

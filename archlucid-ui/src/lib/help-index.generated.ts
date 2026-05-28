@@ -134,6 +134,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
     "docTitle": "Configuration reference",
+    "sectionSlug": "pilot-configuration-profiles",
+    "sectionHeading": "Pilot configuration profiles",
+    "excerpt": "These profiles are operator shortcuts, not new configuration modes. Use them to decide which existing keys and checks must be present before a handoff."
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
     "sectionSlug": "staged-critic-archlucidagentsstagedcriticenabled",
     "sectionHeading": "Staged Critic (`ArchLucid:Agents:StagedCriticEnabled`)",
     "excerpt": "Scope: `RealAgentExecutor` when `AgentExecution:Mode=Real` (deterministic simulator is unchanged)."

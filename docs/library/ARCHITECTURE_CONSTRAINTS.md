@@ -115,6 +115,14 @@ If the solution gains new **leaf** or **foundation** assemblies, update **`Forbi
 
 **DDL smoke (tenant scope on `dbo.Runs`):** **`TenantScopedTableDdlTests`** in **`ArchLucid.Architecture.Tests`** reads **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** and asserts the **`dbo.Runs`** `CREATE TABLE` block includes **`TenantId`**, **`WorkspaceId`**, and **`ProjectId`** — a cheap guard when extending the master DDL (not a substitute for full RLS reviews; see **`docs/security/MULTI_TENANT_RLS.md`**).
 
+**Batch 5 boundary guards (2026-05-28):**
+
+| Test | Rule |
+|------|------|
+| `Retrieval_must_not_reference_Api_assembly` | Retrieval stays below the HTTP host |
+| `AgentRuntime_must_not_reference_host_or_infrastructure_root_assemblies` | AgentRuntime must not reference `ArchLucid.Api`, `ArchLucid.Host.*`, or `ArchLucid.Worker` |
+| `Ui_openapi_types_must_trace_to_canonical_snapshot` | `archlucid-ui/src/lib/openapi-schemas.ts` re-exports generated types from `api-types.generated.ts`, sourced from `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` |
+
 ---
 
 ## 10. Compatibility stub governance (Batch G / Improvement #21)

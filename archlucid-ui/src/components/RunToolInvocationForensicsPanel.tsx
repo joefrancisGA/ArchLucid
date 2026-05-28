@@ -13,7 +13,7 @@ export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensic
     <div id="tool-invocation-forensics" className="scroll-mt-24">
       <CollapsibleSection title="Tool and external invocation forensics (diagnostics)" defaultOpen={false}>
         <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
-          Structured tool-call and external-invocation rows are not recorded for this run. Do not infer tool
+          Structured tool-call and external-invocation rows are not recorded for this review. Do not infer tool
           arguments, response bodies, retry behavior, or duration from raw prompts.
         </p>
 

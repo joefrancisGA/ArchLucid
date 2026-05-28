@@ -17,7 +17,9 @@ param(
 
     [string] $BearerToken = '',
 
-    [string] $ApiKey = ''
+    [string] $ApiKey = '',
+
+    [string] $ResultOut = ''
 )
 
 Set-StrictMode -Version Latest
@@ -180,6 +182,66 @@ function Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled {
     finally {
         Pop-Location
     }
+}
+
+function Write-ReleaseSmokeResultArtifact {
+    param(
+        [Parameter(Mandatory = $true)][ValidateSet('Pass', 'Partial')][string] $Verdict,
+        [Parameter(Mandatory = $true)][string] $ResultOutPath,
+        [bool] $SkipE2E,
+        [bool] $FullCore,
+        [bool] $RanUiVitestAndProductionBuild,
+        [bool] $SkippedUiExplicitly,
+        [bool] $RanApiCliArtifacts,
+        [bool] $RanMockPlaywright,
+        [bool] $RanLivePlaywright,
+        [string] $ApiBaseUrlEvidence,
+        [string] $ProfileName
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ResultOutPath)) {
+        return
+    }
+
+    $checks = @(
+        @{ Name = 'Release build'; Result = 'Passed'; Detail = 'ArchLucid.sln Release gate' },
+        @{ Name = 'Fast core tests'; Result = 'Passed'; Detail = 'Suite=Core excluding Slow and Integration' }
+    )
+
+    if ($FullCore) {
+        $checks += @{ Name = 'Full core tests'; Result = 'Passed'; Detail = '-FullCore lane' }
+    }
+
+    if ($RanUiVitestAndProductionBuild) {
+        $checks += @{ Name = 'UI Vitest + production build'; Result = 'Passed'; Detail = 'archlucid-ui npm test + next build' }
+    }
+    elseif ($SkippedUiExplicitly) {
+        $checks += @{ Name = 'UI Vitest + production build'; Result = 'Skipped'; Detail = '-SkipUi' }
+    }
+
+    if ($SkipE2E) {
+        $checks += @{ Name = 'SQL-backed API + CLI artifact gate'; Result = 'Skipped'; Detail = '-SkipE2E' }
+    }
+    elseif ($RanApiCliArtifacts) {
+        $checks += @{ Name = 'SQL-backed API + CLI artifact gate'; Result = 'Passed'; Detail = "Temporary API @ $ApiBaseUrlEvidence" }
+    }
+
+    if ($RanMockPlaywright) {
+        $checks += @{ Name = 'Mock Playwright lane'; Result = 'Passed'; Detail = 'npm run test:e2e mock config' }
+    }
+
+    if ($RanLivePlaywright) {
+        $checks += @{ Name = 'Live Playwright parity'; Result = 'Passed'; Detail = 'live-api / demo workspace smoke' }
+    }
+
+    $mdOut = [System.IO.Path]::ChangeExtension($ResultOutPath, '.md')
+    & (Join-Path $PSScriptRoot 'Write-ReleaseSmokeResultReport.ps1') `
+        -ResultJsonOut $ResultOutPath `
+        -ResultMarkdownOut $mdOut `
+        -Verdict $Verdict `
+        -BaseUrl $ApiBaseUrlEvidence `
+        -Profile $ProfileName `
+        -Checks $checks
 }
 
 function Write-ReleaseSmokeEvidenceSummary {
@@ -596,6 +658,17 @@ try
             -RanLivePlaywright:$false `
             -ApiBaseUrlEvidence $ApiBaseUrl
 
+        Write-ReleaseSmokeResultArtifact -Verdict Partial -ResultOutPath $ResultOut `
+            -SkipE2E:$true `
+            -FullCore:([bool]$FullCore.IsPresent) `
+            -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
+            -SkippedUiExplicitly:$uiExplicitSkip `
+            -RanApiCliArtifacts:$false `
+            -RanMockPlaywright:$false `
+            -RanLivePlaywright:$false `
+            -ApiBaseUrlEvidence $ApiBaseUrl `
+            -ProfileName $Profile
+
         exit 0
     }
 
@@ -821,6 +894,17 @@ try
         -RanLivePlaywrightRequestedButSkipped:$false `
         -RanLivePlaywright:$runLivePlaywrightEffective `
         -ApiBaseUrlEvidence $ApiBaseUrl
+
+    Write-ReleaseSmokeResultArtifact -Verdict Pass -ResultOutPath $ResultOut `
+        -SkipE2E:$false `
+        -FullCore:([bool]$FullCore.IsPresent) `
+        -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
+        -SkippedUiExplicitly:$uiExplicitSkip `
+        -RanApiCliArtifacts:$true `
+        -RanMockPlaywright:([bool]$RunPlaywright.IsPresent) `
+        -RanLivePlaywright:$runLivePlaywrightEffective `
+        -ApiBaseUrlEvidence $ApiBaseUrl `
+        -ProfileName $Profile
 
     Write-Host ''
     Write-Host 'Release smoke finished successfully.'

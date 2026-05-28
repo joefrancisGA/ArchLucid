@@ -65,9 +65,12 @@ public static class Program
 
                         if (normalized[1] == "success-criteria-template")
                             return await PilotSuccessCriteriaTemplateCommand.RunAsync();
+
+                        if (normalized[1] == "preflight")
+                            return await PilotPreflightCommand.RunAsync(normalized.Skip(2).ToArray());
                     }
 
-                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot success-criteria-template");
+                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot success-criteria-template | archlucid pilot preflight [--api-base-url <url>] [--simulate-production] [--json]");
 
                     return CliExitCode.UsageError;
 

@@ -6,6 +6,10 @@ import { useEffect, useMemo, useState } from "react";
 import { getPilotScorecard } from "@/lib/api";
 import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
 import {
+  resolveFirstPilotCommandCenterPhase,
+  type FirstPilotCommandCenterPhaseSummary,
+} from "@/lib/first-pilot-command-center-phase";
+import {
   buildFirstPilotReadinessRows,
   type FirstPilotReadinessRow,
   type FirstPilotReadinessStatus,
@@ -18,6 +22,7 @@ import {
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 type Phase = "loading" | "ready";
@@ -62,7 +67,39 @@ function firstBlockingRow(rows: readonly FirstPilotReadinessRow[]): FirstPilotRe
   return rows.find((row) => row.status === "blocked" || row.status === "attention" || row.status === "unknown") ?? null;
 }
 
-/** Single first-pilot cockpit: readiness, authority, evidence, ROI baselines, and next action in one place. */
+function sponsorDispositionClass(disposition: FirstPilotCommandCenterPhaseSummary["sponsorDisposition"]): string {
+  switch (disposition) {
+    case "send":
+      return "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100";
+    case "hold":
+      return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+    case "readiness-only":
+      return "border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-200";
+    default: {
+      const exhaustive: never = disposition;
+
+      return exhaustive;
+    }
+  }
+}
+
+function sponsorDispositionLabel(disposition: FirstPilotCommandCenterPhaseSummary["sponsorDisposition"]): string {
+  switch (disposition) {
+    case "send":
+      return "Sponsor send";
+    case "hold":
+      return "Sponsor hold";
+    case "readiness-only":
+      return "Readiness only";
+    default: {
+      const exhaustive: never = disposition;
+
+      return exhaustive;
+    }
+  }
+}
+
+/** Single first-pilot command center: phase, readiness rows, sponsor disposition, and next action in one place. */
 export function FirstPilotReadinessCockpit() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [principal, setPrincipal] = useState<CurrentPrincipal>(shellBootstrapReadPrincipal);
@@ -144,6 +181,24 @@ export function FirstPilotReadinessCockpit() {
     [healthStatus, healthLoadFailed, runsLoadFailed, principal, signals, scorecard, scorecardLoadFailed],
   );
   const blocker = firstBlockingRow(rows);
+  const canExecute = principal.authorityRank >= AUTHORITY_RANK.ExecuteAuthority;
+  const baselinesEntered =
+    scorecard?.baselines?.baselineHoursPerReview !== null
+    && scorecard?.baselines?.baselineHoursPerReview !== undefined
+    && scorecard?.baselines?.baselineReviewsPerQuarter !== null
+    && scorecard?.baselines?.baselineReviewsPerQuarter !== undefined
+    && scorecard?.baselines?.baselineArchitectHourlyCost !== null
+    && scorecard?.baselines?.baselineArchitectHourlyCost !== undefined;
+  const commandCenter = useMemo(
+    () =>
+      resolveFirstPilotCommandCenterPhase({
+        signals,
+        baselinesEntered,
+        canExecute,
+        hasBlockingRow: blocker !== null,
+      }),
+    [signals, baselinesEntered, canExecute, blocker],
+  );
 
   if (phase === "loading") {
     return (
@@ -164,19 +219,33 @@ export function FirstPilotReadinessCockpit() {
       <div className="mb-3 flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <h2 id="first-pilot-readiness-cockpit-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            First-pilot readiness cockpit
+            First-pilot operator command center
           </h2>
           <p className="m-0 mt-1 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
             One place to see the next blocking step: platform, authority, evidence, review pipeline, ROI baselines,
-            and sponsor packet readiness.
+            proof collection, and sponsor send/hold posture.
           </p>
         </div>
-        {blocker ? (
-          <Link href={blocker.href} className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
-            Next: {blocker.cta}
-          </Link>
-        ) : null}
+        <Link href={commandCenter.href} className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
+          Next: {commandCenter.cta}
+        </Link>
       </div>
+
+      <article
+        className={`mb-4 rounded-lg border p-3 ${sponsorDispositionClass(commandCenter.sponsorDisposition)}`}
+        data-testid="first-pilot-command-center-phase"
+        data-phase={commandCenter.phase}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+            {commandCenter.headline}
+          </span>
+          <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+            {sponsorDispositionLabel(commandCenter.sponsorDisposition)}
+          </span>
+        </div>
+        <p className="m-0 mt-2 text-sm leading-relaxed">{commandCenter.summary}</p>
+      </article>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {rows.map((row) => (

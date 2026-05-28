@@ -99,7 +99,7 @@ Until you have one **committed** architecture review package, you do **not** nee
 
 ## Related
 
-- [`START_HERE.md`](../START_HERE.md) — role routing
-- [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) — evaluator depth
-- [`library/operator-shell.md`](../library/operator-shell.md) — UI layer map
-- [`library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) — scripted HTTP parity
+- [`START_HERE.md`](../START_HERE.md) — role routing (**hub**) and [`CORE_PILOT.md`](../CORE_PILOT.md) — four-step narrative (**read second**)
+- [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) — **depth** evaluator guide (same steps; not a second checklist)
+- [`library/operator-shell.md`](../library/operator-shell.md) — **depth** UI layer map
+- [`library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) — **depth** scripted HTTP parity

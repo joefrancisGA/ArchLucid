@@ -76,7 +76,7 @@ export function buildFirstPilotReadinessRows(input: {
           : "attention"
         : "unknown",
       summary: canExecute
-        ? `${input.principal.maxAuthority} can create and run the first architecture review.`
+        ? `${input.principal.maxAuthority} can create and execute the first architecture review.`
         : "Read-only principals can inspect the cockpit and should ask an operator/admin to execute reviews.",
       href: canAdmin ? "/settings/roles" : "/help",
       cta: canAdmin ? "Open roles" : "Review role guidance",
@@ -156,10 +156,10 @@ export function buildFirstPilotReadinessRows(input: {
       label: "Second-review adoption nudge",
       status: input.signals.hasCommittedManifest ? "attention" : "unknown",
       summary: input.signals.hasCommittedManifest
-        ? "Next: run a second review with real inputs, compare reviews, try a policy-pack dry run, or generate the sponsor packet."
+        ? "Next: start a second review with real inputs, compare reviews, try a policy-pack dry run, or generate the sponsor packet."
         : "Appears after the first finalized review so the first pilot stays focused.",
       href: "/reviews/new",
-      cta: "Run second review",
+      cta: "Start second review",
     },
   ];
 }

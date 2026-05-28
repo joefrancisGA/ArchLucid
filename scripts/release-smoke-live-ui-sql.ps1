@@ -12,7 +12,9 @@ param(
 
     [string] $BearerToken = '',
 
-    [string] $ApiKey = ''
+    [string] $ApiKey = '',
+
+    [string] $ResultOut = ''
 )
 
 Set-StrictMode -Version Latest
@@ -29,6 +31,7 @@ $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
     -RunPlaywright:$RunPlaywright `
     -LivePlaywright:$false `
     -BearerToken $BearerToken `
-    -ApiKey $ApiKey
+    -ApiKey $ApiKey `
+    -ResultOut $ResultOut
 
 exit $LASTEXITCODE

@@ -14,16 +14,18 @@ After Phase C step **Commit** in [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OP
 
 ## One-command proof pipeline
 
-Use this before and after the first committed review. Without `-RunId`, the pipeline produces a readiness-only go/no-go report and records the missing run id as a **WARN**, not a blocking failure. After commit, pass `-RunId` to include the buyer-safe evidence bundle.
+Use this before and after the first committed review. Without `-RunId`, the pipeline produces a readiness-only go/no-go report and records the missing run id as a **WARN**, not a blocking failure. For external sponsor handoff, pass `-SponsorHandoff`; in that mode a missing `-RunId` is a **BLOCK** and the summary emits a `sponsorPacketDisposition` of `SEND` or `HOLD`.
 
 ```powershell
 ./scripts/collect-first-pilot-proof.ps1 `
   -BaseUrl https://your-staging-api.example `
   -RunId <committed-run-guid> `
+  -SponsorHandoff `
+  -ProductionLikeHostedPilot `
   -OutputDirectory artifacts/first-pilot-proof
 ```
 
-The pipeline emits `go-no-go-summary.md`, `go-no-go-summary.json`, `preflight.json`, data-consistency readiness output, and the committed-run evidence bundle when `-RunId` is supplied. Triage IDs in the summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
+The pipeline emits `go-no-go-summary.md`, `go-no-go-summary.json`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `procurement-deal-ready-check.txt`, data-consistency readiness output, and the committed-run evidence bundle when `-RunId` is supplied. Triage IDs in the summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
 
 ## Committed-run evidence command
 

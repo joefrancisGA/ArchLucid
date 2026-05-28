@@ -10,11 +10,12 @@ START_HERE.md (you are here)
 │
 ├─ Buyer / evaluator — no Docker / SQL / .NET install
 │   ├─ https://archlucid.net
+│   ├─ CORE_PILOT.md                               (**four-step narrative — read second**)
 │   ├─ runbooks/FIRST_PILOT_OPERATOR_PATH.md     (single V1 pilot path — **start here for operators**)
 │   ├─ runbooks/FIRST_PILOT_TROUBLESHOOTING.md   (symptom decision tree — when stuck)
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story — after first commit)
-│   ├─ library/walkthroughs/README.md            (accelerator pack index — optional, after first commit)
-│   ├─ onboarding/EVALUATION_GUIDE.md     (depth — same steps; do not use as a second checklist)
+│   ├─ library/walkthroughs/README.md            (accelerator pack index — optional depth, after first commit)
+│   ├─ onboarding/EVALUATION_GUIDE.md     (**depth** — same steps; do not use as a second checklist)
 │   ├─ runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md   (post-commit evidence folder)
 │   ├─ runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md  (printable evidence checklist)
 │   ├─ runbooks/PILOT_RESCUE_PLAYBOOK.md  (stuck mid-pilot — quick matrix)
