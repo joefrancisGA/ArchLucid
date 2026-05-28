@@ -101,7 +101,7 @@ export function FindingInspectEvidenceSection({
                 className="rounded-md border border-neutral-200 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/60"
               >
                 <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{title}</p>
-                {excerpt.length > 0 ? (
+                {excerpt.length > 0 && excerpt !== title ? (
                   <EvidenceExcerptBody text={excerpt} />
                 ) : null}
                 {buyerPolishedShell && (row.lineRange || row.artifactId) ? (
