@@ -2,9 +2,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const listRunsByProjectPaged = vi.fn();
+const getPilotScorecard = vi.fn();
 
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
+  getPilotScorecard: (...args: unknown[]) => getPilotScorecard(...args),
 }));
 
 vi.mock("next/link", () => ({
@@ -81,6 +83,7 @@ beforeEach(() => {
     pageSize: 5,
     hasMore: false,
   });
+  getPilotScorecard.mockResolvedValue(null);
 });
 
 describe("HomePage — buyer-polished shell", () => {
