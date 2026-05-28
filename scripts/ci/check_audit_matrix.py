@@ -403,6 +403,101 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def evaluate_mutating_route_audit_matrix(
+    root: Path,
+    *,
+    matrix_path: Path | None = None,
+    api_version: str = "1",
+) -> tuple[int, list[str], Path, Path]:
+    """Return (discovered_count, undocumented_lines, matrix_path, allowlist_path)."""
+    root = root.resolve()
+    resolved_matrix = (
+        matrix_path if matrix_path is not None else root / "docs" / "library" / "AUDIT_COVERAGE_MATRIX.md"
+    ).resolve()
+    allow_path = root / "scripts" / "ci" / "openapi_audit_matrix_allowlist.txt"
+    controllers_dir = root / "ArchLucid.Api" / "Controllers"
+
+    if not resolved_matrix.is_file():
+        raise FileNotFoundError(f"missing {resolved_matrix}")
+
+    if not controllers_dir.is_dir():
+        raise FileNotFoundError(f"missing {controllers_dir}")
+
+    matrix_text = resolved_matrix.read_text(encoding="utf-8", errors="strict")
+    exact, suffix = parse_matrix(matrix_text)
+    allow = load_allowlist(allow_path)
+    api_token = api_version.strip()
+
+    discovered: list[tuple[str, str, Path, int, str]] = []
+    for cs in sorted(controllers_dir.rglob("*.cs")):
+        for verb, pth, line_no, fq in _iter_mutating_actions(cs, api_version_token=api_token):
+            discovered.append((verb, pth, cs, line_no, fq))
+
+    undocumented: list[str] = []
+    for verb, pth, cs, line_no, fq in discovered:
+        if (verb, pth) in allow:
+            continue
+
+        if is_documented(verb, pth, exact, suffix):
+            continue
+
+        rel = cs.relative_to(root)
+        undocumented.append(f"{verb} {pth}  ({rel}:{line_no} {fq})")
+
+    return len(discovered), undocumented, resolved_matrix, allow_path
+
+
+def render_audit_matrix_proof_markdown(
+    *,
+    discovered_count: int,
+    undocumented: list[str],
+    matrix_path: Path,
+    allowlist_path: Path,
+    repo_root_path: Path,
+) -> str:
+    disposition = "PASS" if not undocumented else "BLOCK"
+    lines = [
+        "# Mutating route audit coverage (proof)",
+        "",
+        "> Controller POST/PUT/DELETE routes must appear in the audit coverage matrix, allowlist, or explicit exemption.",
+        "",
+        "| Field | Value |",
+        "| --- | --- |",
+        f"| Disposition | **{disposition}** |",
+        f"| Discovered mutating routes | {discovered_count} |",
+        f"| Undocumented routes | {len(undocumented)} |",
+        f"| Matrix | `{matrix_path.relative_to(repo_root_path).as_posix()}` |",
+        f"| Allowlist | `{allowlist_path.relative_to(repo_root_path).as_posix()}` |",
+        "",
+    ]
+
+    if undocumented:
+        lines.extend(
+            [
+                "## Remediation",
+                "",
+                "Add each route to the matrix (with audit event mapping) or to the allowlist with rationale:",
+                "",
+            ]
+        )
+        lines.extend(f"- `{line}`" for line in sorted(undocumented))
+        lines.append("")
+    else:
+        lines.append("All discovered mutating controller routes are documented or explicitly allowlisted.")
+        lines.append("")
+
+    lines.extend(
+        [
+            "## References",
+            "",
+            "- [`docs/library/AUDIT_COVERAGE_MATRIX.md`](../../docs/library/AUDIT_COVERAGE_MATRIX.md)",
+            "- CI guard: `scripts/ci/check_audit_matrix.py`",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=repo_root())
@@ -422,42 +517,51 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print undocumented METHOD + path lines (exit 0). For bootstrapping.",
     )
+    parser.add_argument("--markdown-out", type=Path, default=None, help="Optional proof Markdown output path.")
+    parser.add_argument("--json-summary-out", type=Path, default=None, help="Optional proof JSON summary path.")
     args = parser.parse_args(argv)
     root = args.repo_root.resolve()
-    matrix_path = (
-        args.matrix if args.matrix is not None else root / "docs" / "library" / "AUDIT_COVERAGE_MATRIX.md"
-    ).resolve()
-    allow_path = root / "scripts" / "ci" / "openapi_audit_matrix_allowlist.txt"
-    controllers_dir = root / "ArchLucid.Api" / "Controllers"
 
-    if not matrix_path.is_file():
-        print(f"check_audit_matrix: missing {matrix_path}", file=sys.stderr)
+    try:
+        discovered_count, undocumented, matrix_path, allow_path = evaluate_mutating_route_audit_matrix(
+            root,
+            matrix_path=args.matrix,
+            api_version=args.api_version,
+        )
+    except FileNotFoundError as exc:
+        print(f"check_audit_matrix: {exc}", file=sys.stderr)
         return 2
 
-    if not controllers_dir.is_dir():
-        print(f"check_audit_matrix: missing {controllers_dir}", file=sys.stderr)
-        return 2
+    if args.markdown_out is not None or args.json_summary_out is not None:
+        import json
+        from datetime import datetime, timezone
 
-    matrix_text = matrix_path.read_text(encoding="utf-8", errors="strict")
-    exact, suffix = parse_matrix(matrix_text)
-    allow = load_allowlist(allow_path)
-    api_token = args.api_version.strip()
+        markdown = render_audit_matrix_proof_markdown(
+            discovered_count=discovered_count,
+            undocumented=undocumented,
+            matrix_path=matrix_path,
+            allowlist_path=allow_path,
+            repo_root_path=root,
+        )
 
-    discovered: list[tuple[str, str, Path, int, str]] = []
-    for cs in sorted(controllers_dir.rglob("*.cs")):
-        for verb, pth, line_no, fq in _iter_mutating_actions(cs, api_version_token=api_token):
-            discovered.append((verb, pth, cs, line_no, fq))
+        if args.markdown_out is not None:
+            markdown_path = args.markdown_out.expanduser().resolve()
+            markdown_path.parent.mkdir(parents=True, exist_ok=True)
+            markdown_path.write_text(markdown, encoding="utf-8")
 
-    undocumented: list[str] = []
-    for verb, pth, cs, line_no, fq in discovered:
-        if (verb, pth) in allow:
-            continue
-
-        if is_documented(verb, pth, exact, suffix):
-            continue
-
-        rel = cs.relative_to(root)
-        undocumented.append(f"{verb} {pth}  ({rel}:{line_no} {fq})")
+        if args.json_summary_out is not None:
+            summary = {
+                "generatedUtc": datetime.now(timezone.utc).isoformat(),
+                "disposition": "PASS" if not undocumented else "BLOCK",
+                "discoveredMutatingRouteCount": discovered_count,
+                "undocumentedRouteCount": len(undocumented),
+                "undocumentedRoutes": sorted(undocumented),
+                "matrixPath": matrix_path.relative_to(root).as_posix(),
+                "allowlistPath": allow_path.relative_to(root).as_posix(),
+            }
+            json_path = args.json_summary_out.expanduser().resolve()
+            json_path.parent.mkdir(parents=True, exist_ok=True)
+            json_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 
     if args.print_violations:
         for line in sorted(undocumented):
@@ -475,7 +579,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     print(
-        f"check_audit_matrix: OK ({len(discovered)} controller POST/PUT/DELETE route binding(s); "
+        f"check_audit_matrix: OK ({discovered_count} controller POST/PUT/DELETE route binding(s); "
         f"{matrix_path.relative_to(root)})."
     )
     return 0

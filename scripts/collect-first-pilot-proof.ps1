@@ -24,7 +24,9 @@ param(
     [switch] $SponsorHandoff,
     [string[]] $DeferredBuyerRequirement = @(),
     [string] $K6SummaryPath = '',
-    [string] $LiveUiSqlResultPath = ''
+    [string] $LiveUiSqlResultPath = '',
+    [string] $StagingSmokeResultsPath = '',
+    [string] $HostedProbeArtifactsPath = ''
 )
 
 Set-StrictMode -Version Latest
@@ -923,13 +925,276 @@ function Add-ApiHotPathPerformanceFinding {
     Add-ProofFinding -Disposition 'WARN' -Name 'api-hot-path-performance' -Detail 'k6 summary was attached but global HTTP p95 was incomplete; see api-hot-path-performance.md.' -Remediation 'Re-export k6 summary JSON with http_req_duration p(95) populated.'
 }
 
+function Resolve-StagingSmokeResultsPath {
+    param([string] $ExplicitPath)
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath) -and (Test-Path -LiteralPath $ExplicitPath)) {
+        return (Resolve-Path -LiteralPath $ExplicitPath).Path
+    }
+
+    $candidates = @(
+        (Join-Path $root 'artifacts/staging-smoke-results.json'),
+        (Join-Path $root 'staging-smoke-results.json')
+    )
+
+    foreach ($candidate in $candidates) {
+        if (Test-Path -LiteralPath $candidate) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    return $null
+}
+
+function Resolve-HostedProbeArtifactsPath {
+    param([string] $ExplicitPath)
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPath) -and (Test-Path -LiteralPath $ExplicitPath)) {
+        return (Resolve-Path -LiteralPath $ExplicitPath).Path
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:HOSTED_PROBE_ARTIFACTS_PATH) -and (Test-Path -LiteralPath $env:HOSTED_PROBE_ARTIFACTS_PATH)) {
+        return (Resolve-Path -LiteralPath $env:HOSTED_PROBE_ARTIFACTS_PATH).Path
+    }
+
+    $candidate = Join-Path $root 'artifacts/hosted-probes'
+
+    if (Test-Path -LiteralPath $candidate) {
+        return (Resolve-Path -LiteralPath $candidate).Path
+    }
+
+    return $null
+}
+
+function Add-FirstPilotPerformanceBaselineFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $TimingsJsonPath
+    )
+
+    $markdownPath = Join-Path $ProofDirectory 'first-pilot-performance-baseline.md'
+    $jsonPath = Join-Path $ProofDirectory 'first-pilot-performance-baseline.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_first_pilot_performance_baseline.py'
+    $args = @(
+        $scriptPath,
+        '--markdown-out', $markdownPath,
+        '--json-summary-out', $jsonPath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($TimingsJsonPath)) {
+        $args += @('--timings-json', $TimingsJsonPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+    Add-ProofArtifact -Name 'first-pilot-performance-baseline.md' -Path 'first-pilot-performance-baseline.md' -Purpose 'Observed first-pilot step latencies — not a load test or SLA proof.'
+    Add-ProofArtifact -Name 'first-pilot-performance-baseline.json' -Path 'first-pilot-performance-baseline.json' -Purpose 'Machine-readable first-pilot performance baseline summary.'
+
+    if ([string]::IsNullOrWhiteSpace($TimingsJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-pilot-performance-baseline' -Detail 'No staging-smoke timings JSON attached; baseline records NOT_COLLECTED.' -Remediation 'Run ./scripts/staging-smoke.ps1 and rerun proof with -StagingSmokeResultsPath.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'first-pilot-performance-baseline' -Detail 'First-pilot step latency baseline attached with explicit not-a-load-test labeling.' -Remediation ''
+}
+
+function Add-LlmBudgetStatusFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $EvidenceRoot = '',
+        [string] $LlmExecutionMode = 'unknown'
+    )
+
+    $statusJsonPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($EvidenceRoot)) {
+        $latestBundle = Get-LatestEvidenceBundleDirectory -EvidenceRoot $EvidenceRoot
+
+        if ($null -ne $latestBundle) {
+            $candidate = Join-Path $latestBundle.FullName 'llm-budget-status.json'
+
+            if (Test-Path -LiteralPath $candidate) {
+                $statusJsonPath = $candidate
+            }
+            else {
+                $observabilityPath = Join-Path $latestBundle.FullName 'pilot-observability-summary.json'
+
+                if (Test-Path -LiteralPath $observabilityPath) {
+                    $statusJsonPath = $observabilityPath
+                }
+            }
+        }
+    }
+
+    $markdownPath = Join-Path $ProofDirectory 'llm-budget-proof-status.md'
+    $jsonPath = Join-Path $ProofDirectory 'llm-budget-proof-status.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_llm_budget_proof_status.py'
+    $args = @(
+        $scriptPath,
+        '--markdown-out', $markdownPath,
+        '--json-summary-out', $jsonPath,
+        '--llm-mode', $LlmExecutionMode
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($statusJsonPath)) {
+        $args += @('--status-json', $statusJsonPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+    Add-ProofArtifact -Name 'llm-budget-proof-status.md' -Path 'llm-budget-proof-status.md' -Purpose 'Buyer-safe UTC-month LLM budget posture for hosted pilot economics.'
+    Add-ProofArtifact -Name 'llm-budget-proof-status.json' -Path 'llm-budget-proof-status.json' -Purpose 'Machine-readable LLM budget proof summary.'
+
+    if ([string]::IsNullOrWhiteSpace($statusJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'llm-budget-proof-status' -Detail 'LLM budget status was not collected (ExecuteAuthority or budget tables may be unavailable).' -Remediation 'Re-run evidence collection with ExecuteAuthority or review LlmMonthlyTenantDollarBudget configuration.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'llm-budget-proof-status' -Detail "LLM budget posture collected for execution mode '$LlmExecutionMode'." -Remediation ''
+}
+
+function Add-HostedAvailabilityRollupFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $ProbeArtifactsPath
+    )
+
+    $markdownPath = Join-Path $ProofDirectory 'hosted-availability-rollup.md'
+    $jsonPath = Join-Path $ProofDirectory 'hosted-availability-rollup.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_hosted_availability_proof.py'
+    $args = @(
+        $scriptPath,
+        '--markdown-out', $markdownPath,
+        '--json-summary-out', $jsonPath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ProbeArtifactsPath)) {
+        if ((Get-Item -LiteralPath $ProbeArtifactsPath).PSIsContainer) {
+            $jsonFiles = Get-ChildItem -LiteralPath $ProbeArtifactsPath -Filter '*.json' -Recurse -File -ErrorAction SilentlyContinue
+
+            foreach ($file in $jsonFiles) {
+                $args += $file.FullName
+            }
+        }
+        else {
+            $args += $ProbeArtifactsPath
+        }
+    }
+
+    & python @args 2>&1 | Out-Null
+    Add-ProofArtifact -Name 'hosted-availability-rollup.md' -Path 'hosted-availability-rollup.md' -Purpose 'Hosted HTTP probe rollup when artifacts exist — not contractual SLA evidence.'
+    Add-ProofArtifact -Name 'hosted-availability-rollup.json' -Path 'hosted-availability-rollup.json' -Purpose 'Machine-readable hosted availability rollup disposition.'
+
+    if ([string]::IsNullOrWhiteSpace($ProbeArtifactsPath)) {
+        $detail = 'Hosted probe artifacts were not supplied; availability rollup is NOT_COLLECTED.'
+
+        if ($ProductionLikeHostedPilot -and $SponsorHandoff) {
+            $detail = "$detail Production-like sponsor handoff lacks hosted probe history — do not imply production SLA evidence."
+        }
+
+        Add-ProofFinding -Disposition 'WARN' -Name 'hosted-availability-rollup' -Detail $detail -Remediation 'Collect probe artifacts per docs/runbooks/HOSTED_AVAILABILITY_ROLLUP.md or set -HostedProbeArtifactsPath.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'hosted-availability-rollup' -Detail 'Hosted availability rollup attached with staging/probe caveats.' -Remediation ''
+}
+
+function Add-AzureExtractorUploadUxFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'azure-extractor-upload-failure-ux.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\check_azure_extractor_upload_failure_ux.py'
+    & python $scriptPath --markdown-out $markdownPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'azure-extractor-upload-failure-ux.md' -Path 'azure-extractor-upload-failure-ux.md' -Purpose 'Stable Azure extractor upload failure codes mapped to docs and tests.'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'azure-extractor-upload-failure-ux' -Detail 'Azure extractor upload failure UX acceptance checks passed.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'azure-extractor-upload-failure-ux' -Detail "Azure extractor upload UX acceptance returned exit code $exitCode." -Remediation 'Repair resolver codes, docs, or extractor failure tests.'
+}
+
+function Add-IdentityPreflightScenarioFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'identity-preflight-scenarios.md'
+    $jsonPath = Join-Path $ProofDirectory 'identity-preflight-scenarios.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_identity_preflight_scenarios.py'
+    & python $scriptPath --markdown-out $markdownPath --json-summary-out $jsonPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'identity-preflight-scenarios.md' -Path 'identity-preflight-scenarios.md' -Purpose 'Redacted OIDC/SAML preflight scenario examples for enterprise identity setup.'
+    Add-ProofArtifact -Name 'identity-preflight-scenarios.json' -Path 'identity-preflight-scenarios.json' -Purpose 'Machine-readable identity preflight scenario fixture index.'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'identity-preflight-scenarios' -Detail 'Identity preflight scenario fixtures rendered for operator interpretation.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'identity-preflight-scenarios' -Detail "Identity preflight scenario report failed with exit code $exitCode." -Remediation 'Repair scripts/ci/fixtures/identity-preflight-scenarios.json.'
+}
+
+function Add-MutatingRouteAuditMatrixFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'mutating-route-audit-matrix.md'
+    $jsonPath = Join-Path $ProofDirectory 'mutating-route-audit-matrix.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\check_audit_matrix.py'
+    & python $scriptPath --markdown-out $markdownPath --json-summary-out $jsonPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'mutating-route-audit-matrix.md' -Path 'mutating-route-audit-matrix.md' -Purpose 'Controller mutating route coverage against AUDIT_COVERAGE_MATRIX.md.'
+    Add-ProofArtifact -Name 'mutating-route-audit-matrix.json' -Path 'mutating-route-audit-matrix.json' -Purpose 'Machine-readable mutating route audit matrix disposition.'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'mutating-route-audit-matrix' -Detail 'All mutating controller routes are documented in the audit coverage matrix or allowlist.' -Remediation ''
+        return
+    }
+
+    if ($SponsorHandoff -or $ProductionLikeHostedPilot) {
+        Add-ProofFinding -Disposition 'BLOCK' -Name 'mutating-route-audit-matrix' -Detail "Mutating route audit matrix check failed with exit code $exitCode." -Remediation 'Add missing routes to docs/library/AUDIT_COVERAGE_MATRIX.md or scripts/ci/openapi_audit_matrix_allowlist.txt.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'mutating-route-audit-matrix' -Detail "Mutating route audit matrix check failed with exit code $exitCode." -Remediation 'Add missing routes to docs/library/AUDIT_COVERAGE_MATRIX.md or scripts/ci/openapi_audit_matrix_allowlist.txt.'
+}
+
+function Add-GovernancePolicyPackProofFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'governance-policy-pack-dry-run-proof.md'
+    $jsonPath = Join-Path $ProofDirectory 'governance-policy-pack-dry-run-proof.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_governance_policy_pack_proof.py'
+    & python $scriptPath --markdown-out $markdownPath --json-summary-out $jsonPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'governance-policy-pack-dry-run-proof.md' -Path 'governance-policy-pack-dry-run-proof.md' -Purpose 'Sample policy-pack governance dry-run proof — architecture-review evidence, not certification.'
+    Add-ProofArtifact -Name 'governance-policy-pack-dry-run-proof.json' -Path 'governance-policy-pack-dry-run-proof.json' -Purpose 'Machine-readable governance policy-pack proof disposition.'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'governance-policy-pack-dry-run-proof' -Detail 'Governance policy-pack dry-run proof fixture and walkthrough boundaries validated.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'governance-policy-pack-dry-run-proof' -Detail "Governance policy-pack proof fixture check failed with exit code $exitCode." -Remediation 'Repair scripts/ci/fixtures/governance-policy-pack-dry-run-proof.json and accelerator walkthrough non-certification language.'
+}
+
 Write-Host "Collecting first-pilot proof @ $normalizedBase"
 Write-Host "Output: $proofDir"
 
 $resolvedK6SummaryPath = Resolve-K6SummaryPath -ExplicitPath $K6SummaryPath
+$resolvedStagingSmokePath = Resolve-StagingSmokeResultsPath -ExplicitPath $StagingSmokeResultsPath
+$resolvedHostedProbePath = Resolve-HostedProbeArtifactsPath -ExplicitPath $HostedProbeArtifactsPath
 $performanceEnvironmentLabel = if ($ProductionLikeHostedPilot) { 'production-like-hosted' } else { 'local-or-readiness' }
 $performanceEvidenceClass = if ($ProductionLikeHostedPilot) { 'production-like-k6-not-sla' } else { 'ci-smoke-or-attached-not-sla' }
 Add-ApiHotPathPerformanceFinding -SummaryPath $resolvedK6SummaryPath -EnvironmentLabel $performanceEnvironmentLabel -EvidenceClass $performanceEvidenceClass
+Add-FirstPilotPerformanceBaselineFinding -ProofDirectory $proofDir -TimingsJsonPath $resolvedStagingSmokePath
+Add-HostedAvailabilityRollupFinding -ProofDirectory $proofDir -ProbeArtifactsPath $resolvedHostedProbePath
+Add-AzureExtractorUploadUxFinding -ProofDirectory $proofDir
+Add-IdentityPreflightScenarioFinding -ProofDirectory $proofDir
+Add-MutatingRouteAuditMatrixFinding -ProofDirectory $proofDir
+Add-GovernancePolicyPackProofFinding -ProofDirectory $proofDir
 
 if ($SkipPreflight) {
     Add-ProofFinding -Disposition 'WARN' -Name 'pilot-preflight' -Detail 'Skipped by -SkipPreflight.' -Remediation 'Run without -SkipPreflight before customer handoff.'
@@ -1054,6 +1319,26 @@ else {
         Add-ProofArtifact -Name 'first-pilot-evidence' -Path 'first-pilot-evidence/' -Purpose 'Buyer-safe committed-review evidence bundle.'
         Add-AgentQualitySponsorGateFinding -EvidenceRoot $evidenceOut
         Add-AiQualityProofFinding -EvidenceRoot $evidenceOut
+
+        $llmMode = 'unknown'
+
+        try {
+            $latestBundle = Get-LatestEvidenceBundleDirectory -EvidenceRoot $evidenceOut
+
+            if ($null -ne $latestBundle) {
+                $observabilityPath = Join-Path $latestBundle.FullName 'pilot-observability-summary.json'
+
+                if (Test-Path -LiteralPath $observabilityPath) {
+                    $obsPayload = Get-Content -LiteralPath $observabilityPath -Raw | ConvertFrom-Json -ErrorAction Stop
+                    $llmMode = [string]$obsPayload.llmExecutionMode
+                }
+            }
+        }
+        catch {
+            $llmMode = 'unknown'
+        }
+
+        Add-LlmBudgetStatusFinding -ProofDirectory $proofDir -EvidenceRoot $evidenceOut -LlmExecutionMode $llmMode
 
         if (-not $SkipCommercialHandoff) {
             Add-RoiBasisLabelFinding -EvidenceRoot $evidenceOut

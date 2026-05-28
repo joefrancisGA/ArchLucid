@@ -59,6 +59,22 @@ When `-RunId` is supplied, `go-no-go-summary.md` includes an **AI Quality Proof*
 
 Missing signals are labeled **WARN** or **BLOCK** (sponsor handoff) — the pipeline does not invent pass values.
 
+## LLM budget status
+
+When ExecuteAuthority is available, committed-run evidence collection writes `llm-budget-status.json` and includes `llmExecutionMode`, `llmBudgetStatusCollected`, and nested `llmBudgetStatus` in `pilot-observability-summary.json`. First-pilot proof renders `llm-budget-proof-status.md` — buyer-safe UTC-month hard-cap posture without secrets or prompt text.
+
+## First-pilot performance baseline
+
+Optional `-StagingSmokeResultsPath` (or repo-root `artifacts/staging-smoke-results.json`) feeds `first-pilot-performance-baseline.md`. This reports observed step latencies from `./scripts/staging-smoke.ps1` with explicit **not a load test** wording; missing steps are `NOT_RUN`, not zero.
+
+## Hosted availability rollup
+
+When hosted-saas-probe JSON artifacts are supplied via `-HostedProbeArtifactsPath` or `artifacts/hosted-probes/`, proof includes `hosted-availability-rollup.md`. Staging probe uptime is **not** production SLA evidence — see [`HOSTED_AVAILABILITY_ROLLUP.md`](HOSTED_AVAILABILITY_ROLLUP.md).
+
+## Azure extractor and identity preflight
+
+Proof includes `azure-extractor-upload-failure-ux.md` (stable semantic failure codes vs docs/tests) and `identity-preflight-scenarios.md` (redacted OIDC/SAML examples). Operators still run live diagnostics via `archlucid auth diagnostics` and `GET /v1/admin/auth/oidc-diagnostics`.
+
 ## Retrieval IR evidence (offline)
 
 When `docs/quality/retrieval-ir-report.md` exists (from `scripts/ci/eval_retrieval_ir.py`), the proof pipeline copies it into the proof folder as `retrieval-ir-report.md` plus optional `retrieval-ir-summary.json`. This measures golden-fixture recall@5/MRR — distinct from live run citation faithfulness.
@@ -136,6 +152,15 @@ Treat `pilot-observability-summary.*` as the fast buyer-safe signal, not the ful
 - `rawPromptOrCompletionIncluded=false` and `secretsIncluded=false`.
 
 If `qualityGateDisposition` is `pilot-strict-violates-sponsor-evidence` or `pilot-strict-signals-unresolved`, pause handoff and use [`AGENT_QUALITY_STRICT_MODE_PILOT.md`](AGENT_QUALITY_STRICT_MODE_PILOT.md) plus [`QUALITY_GATE_REJECTION.md`](QUALITY_GATE_REJECTION.md) before sending the sponsor packet.
+
+## Governance and audit proof artifacts
+
+The proof pipeline also emits buyer-safe governance and audit drift artifacts:
+
+| Artifact | Purpose |
+| --- | --- |
+| `mutating-route-audit-matrix.md` / `.json` | Confirms POST/PUT/DELETE controller routes appear in [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) or explicit allowlist |
+| `governance-policy-pack-dry-run-proof.md` / `.json` | Sample policy-pack dry-run finding reference for architecture-review evidence — **not certification** |
 
 ## Related
 

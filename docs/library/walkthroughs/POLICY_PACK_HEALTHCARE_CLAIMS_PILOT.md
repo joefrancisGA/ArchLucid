@@ -121,7 +121,9 @@ Authorization: Bearer {token}
 }
 ```
 
-See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md) for severity threshold semantics.
+See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md) for severity threshold semantics.
+
+> Dry-run output is **architecture-review governance evidence** for sponsor packets — not HIPAA or regulatory certification.
 
 ---
 

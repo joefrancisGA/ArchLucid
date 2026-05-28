@@ -142,6 +142,34 @@ def test_proof_includes_api_hot_path_performance_artifact() -> None:
     assert "api-hot-path-performance.md" in text
 
 
+def test_proof_includes_enterprise_operations_artifacts() -> None:
+    text = _script_text()
+
+    assert "[string] $StagingSmokeResultsPath" in text
+    assert "[string] $HostedProbeArtifactsPath" in text
+    assert "Add-FirstPilotPerformanceBaselineFinding" in text
+    assert "Add-LlmBudgetStatusFinding" in text
+    assert "Add-HostedAvailabilityRollupFinding" in text
+    assert "Add-AzureExtractorUploadUxFinding" in text
+    assert "Add-IdentityPreflightScenarioFinding" in text
+    assert "Add-MutatingRouteAuditMatrixFinding" in text
+    assert "Add-GovernancePolicyPackProofFinding" in text
+    assert "first-pilot-performance-baseline.md" in text
+    assert "llm-budget-proof-status.md" in text
+    assert "hosted-availability-rollup.md" in text
+    assert "identity-preflight-scenarios.md" in text
+    assert "mutating-route-audit-matrix.md" in text
+    assert "governance-policy-pack-dry-run-proof.md" in text
+
+
+def test_evidence_collector_tracks_llm_budget_fields() -> None:
+    text = _evidence_script_text()
+
+    assert "llmBudgetStatus" in text
+    assert "llmExecutionMode" in text
+    assert "llm-budget-status.json" in text
+
+
 def test_sponsor_handoff_preflight_uses_simulate_production() -> None:
     text = _script_text()
 

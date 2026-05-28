@@ -316,6 +316,33 @@ else {
 $qualityGateDiagnosticsResolved = ($null -ne $qualityGateDiagnostics)
 $unresolvedQualitySignalsPresent = ($pilotStrictSignalsResolved -eq $false) -or ($qualityGateDisposition -eq 'pilot-strict-signals-unresolved')
 
+$llmBudgetStatus = $null
+$llmBudgetCollected = $false
+
+try {
+    $llmBudgetJson = Invoke-ArchLucidGetText -RelativePath '/v1/admin/llm-monthly-dollar-budget-status'
+    $llmBudgetStatus = Convert-JsonTextToObject $llmBudgetJson
+    $llmBudgetFile = Join-Path $bundleDir 'llm-budget-status.json'
+    [System.IO.File]::WriteAllText($llmBudgetFile, $llmBudgetJson, [System.Text.UTF8Encoding]::new($false))
+    $llmBudgetCollected = $true
+}
+catch {
+    Write-Host "LLM budget status not collected (non-fatal): $($_.Exception.Message)"
+}
+
+$llmExecutionMode = if ($isDemoTenant -eq $true) {
+    'demo-derived'
+}
+elseif ($llmCallCountResolved -eq $true -and $null -ne $llmCallCount -and [int]$llmCallCount -gt 0) {
+    'real'
+}
+elseif ($llmCallCountResolved -eq $true) {
+    'simulator'
+}
+else {
+    'unknown'
+}
+
 $observability = [ordered]@{
     formatVersion                 = '1.0'
     generatedUtc                  = $timestamp
@@ -347,6 +374,9 @@ $observability = [ordered]@{
     sponsorProofReadiness         = $sponsorProofReadiness
     llmCostBasisLabel             = $llmCostBasisLabel
     llmCostEvidenceResolved       = $llmCostEvidenceResolved
+    llmExecutionMode              = $llmExecutionMode
+    llmBudgetStatusCollected      = $llmBudgetCollected
+    llmBudgetStatus               = $llmBudgetStatus
     retrievalGroundingTracePresent = $retrievalGroundingTracePresent
     retrievalGroundingTraceCount  = $retrievalGroundingTraceCount
     citationCoverageMean          = $meanCitationCoverage
@@ -388,6 +418,8 @@ Generated (UTC): **$timestamp**
 | Sponsor proof readiness | $($observability.sponsorProofReadiness) |
 | LLM cost basis label | $($observability.llmCostBasisLabel) |
 | LLM cost evidence resolved | $($observability.llmCostEvidenceResolved) |
+| LLM execution mode | $($observability.llmExecutionMode) |
+| LLM budget status collected | $($observability.llmBudgetStatusCollected) |
 | Retrieval grounding trace present | $($observability.retrievalGroundingTracePresent) |
 | Retrieval grounding trace count | $($observability.retrievalGroundingTraceCount) |
 | Citation coverage (mean) | $($observability.citationCoverageMean) |

@@ -125,6 +125,8 @@ POST /v1/architecture/run/{runId}/commit
 Authorization: Bearer {token}
 ```
 
+> Pre-commit governance dry-run output is **architecture-review evidence** for sponsor packets — not regulatory certification.
+
 ---
 
 ## Step 5 — Inspect findings and ROI proof

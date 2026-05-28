@@ -1,4 +1,5 @@
 import type { CurrentPrincipal } from "@/lib/current-principal";
+import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
@@ -164,7 +165,7 @@ export function buildFirstPilotReadinessRows(input: {
         healthLoadFailed: input.healthLoadFailed,
       }),
       summary:
-        "Run the first-pilot proof pipeline for authoritative PASS/WARN/HOLD/NOT_RUN status. This row uses platform health as a coarse signal only.",
+        `${FIRST_PILOT_BUYER_COPY.proofPipelineAction} for authoritative PASS/WARN/HOLD/NOT_RUN status. This row uses platform health as a coarse signal only.`,
       href: "/health",
       cta: "Review health and runbook",
     },
@@ -183,7 +184,7 @@ export function buildFirstPilotReadinessRows(input: {
       label: "Second-review adoption nudge",
       status: input.signals.hasCommittedManifest ? "attention" : "unknown",
       summary: input.signals.hasCommittedManifest
-        ? "Next: start a second review with real inputs, compare reviews, try a policy-pack dry run, or generate the sponsor packet."
+        ? `Next: start a second architecture review with real inputs, compare reviews, try a ${FIRST_PILOT_BUYER_COPY.governanceDryRun}, or generate the sponsor packet.`
         : "Appears after the first finalized review so the first pilot stays focused.",
       href: "/reviews/new",
       cta: "Start second review",

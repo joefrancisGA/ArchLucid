@@ -119,6 +119,8 @@ Authorization: Bearer {token}
 
 See [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md).
 
+> Dry-run output is **architecture-review governance evidence** for sponsor packets — not regulatory or AI Act certification.
+
 ---
 
 ## Step 5 — Commit manifest and governance decision

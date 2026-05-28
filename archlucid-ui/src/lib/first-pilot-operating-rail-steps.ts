@@ -1,3 +1,5 @@
+import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
+
 export const FIRST_PILOT_OPERATING_RAIL_STEP_COUNT = 6;
 
 export type FirstPilotOperatingRailStepId =
@@ -17,7 +19,6 @@ export type FirstPilotOperatingRailStepDefinition = {
   troubleshootDocPath: string;
 };
 
-/** Six visible steps — maps to docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md phases A–D. */
 export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefinition[] = [
   {
     id: "verify-setup",
@@ -30,7 +31,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
   {
     id: "ingest-evidence",
     title: "Ingest architecture evidence",
-    shortBody: "Upload an Azure extractor ZIP or open the sample package to skip upload for a dry run.",
+    shortBody: FIRST_PILOT_BUYER_COPY.ingestEvidenceWithoutUpload,
     primaryHref: "/settings/extract-upload",
     primaryLabel: "Extract and upload",
     troubleshootDocPath: "/docs/library/AZURE_EXTRACTOR.md",
