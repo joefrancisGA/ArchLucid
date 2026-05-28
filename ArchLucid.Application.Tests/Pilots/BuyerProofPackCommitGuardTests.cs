@@ -8,6 +8,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Pilots;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class BuyerProofPackCommitGuardTests
 {
     [Fact]

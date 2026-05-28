@@ -308,8 +308,7 @@ public sealed class LlmTenantWalletService(
     {
         string dataJson = JsonSerializer.Serialize(new { paymentIntentId, amountUsd });
 
-        await _auditService
-            .LogAsync(
+        await LogRefillAuditAsync(
                 new AuditEvent
                 {
                     TenantId = tenantId,
@@ -334,8 +333,7 @@ public sealed class LlmTenantWalletService(
 
         string dataJson = JsonSerializer.Serialize(new { declineCode, errorMessage });
 
-        await _auditService
-            .LogAsync(
+        await LogRefillAuditAsync(
                 new AuditEvent
                 {
                     TenantId = tenantId,
@@ -349,6 +347,10 @@ public sealed class LlmTenantWalletService(
                 cancellationToken)
             .ConfigureAwait(false);
     }
+
+    [InformationalAudit]
+    private Task LogRefillAuditAsync(AuditEvent auditEvent, CancellationToken cancellationToken) =>
+        _auditService.LogAsync(auditEvent, cancellationToken);
 
     private static void RecordBalanceGauge(Guid tenantId, decimal balanceUsd)
     {

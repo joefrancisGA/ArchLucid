@@ -59,6 +59,11 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 **Cost evidence freshness:** Fresh (stale after 90 days)
 **Estimated savings (USD):** 8,400.00
 
+## Sponsor artifact evidence badges
+
+- **Evidence source:** **Azure Retail catalog** (`azure-retail`)
+- **Evidence freshness:** **Fresh** (`fresh`)
+
 ## ROI basis by disposition
 
 **Cost basis:** estimated (not invoiced Azure cost)

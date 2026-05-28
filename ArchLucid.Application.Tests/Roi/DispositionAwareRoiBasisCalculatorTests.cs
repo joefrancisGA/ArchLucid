@@ -9,6 +9,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Roi;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class DispositionAwareRoiBasisCalculatorTests
 {
     private static readonly ValueReportComputationOptions Defaults = new()

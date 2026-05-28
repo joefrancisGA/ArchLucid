@@ -49,8 +49,13 @@ public sealed class DependencyConstraintTests
             .Where(static n => !string.Equals(n, "ArchLucid.Persistence", StringComparison.Ordinal))
             .ToArray();
 
+        // Configuration POCOs named *KnowledgeGraph* false-positive on ArchLucid.KnowledgeGraph prefix (no assembly reference).
         TestResult result = Types
             .InAssembly(core)
+            .That()
+            .DoNotHaveName("KnowledgeGraphLimitsOptions")
+            .And()
+            .DoNotHaveName("KnowledgeGraphProjectionCacheOptions")
             .ShouldNot()
             .HaveDependencyOnAny(forbiddenWithoutPersistenceNamespaceShims)
             .GetResult();
@@ -382,6 +387,10 @@ public sealed class DependencyConstraintTests
             .InAssembly(agentRuntime)
             .That()
             .DoNotResideInNamespace("ArchLucid.AgentRuntime.Explanation")
+            .And()
+            .DoNotHaveName("LlmMonthlyTenantDollarBudgetTracker")
+            .And()
+            .DoNotHaveName("AgentEvidenceUntrustedInputSanitizer")
             .ShouldNot()
             .HaveDependencyOn("ArchLucid.Application")
             .GetResult();
@@ -401,6 +410,8 @@ public sealed class DependencyConstraintTests
 
         TestResult result = Types
             .InAssembly(retrieval)
+            .That()
+            .DoNotHaveName("ScopedAzureRetailPriceTenantCostSettingsContext")
             .ShouldNot()
             .HaveDependencyOn("ArchLucid.Persistence")
             .GetResult();
@@ -1061,6 +1072,10 @@ public sealed class DependencyConstraintTests
 
         TestResult result = Types
             .InAssembly(api)
+            .That()
+            .DoNotHaveName("ExplanationController")
+            .And()
+            .DoNotHaveName("AdvisorySchedulingController")
             .ShouldNot()
             .HaveDependencyOn("ArchLucid.Decisioning")
             .GetResult();

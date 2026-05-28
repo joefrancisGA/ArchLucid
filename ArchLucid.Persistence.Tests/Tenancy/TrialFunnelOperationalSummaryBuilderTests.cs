@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class TrialFunnelOperationalSummaryBuilderTests
 {
     [Fact]

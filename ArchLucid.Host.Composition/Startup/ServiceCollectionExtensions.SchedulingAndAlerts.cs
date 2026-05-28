@@ -329,6 +329,7 @@ public static partial class ServiceCollectionExtensions
             new RuleSimulationServiceDecisioningPortAdapter(sp.GetRequiredService<ArchLucid.Core.Alerts.Simulation.IRuleSimulationService>()));
 
         services.AddScoped<IAlertNoiseScorer, AlertNoiseScorer>();
+        services.AddScoped<ArchLucid.Core.Alerts.Tuning.IThresholdRecommendationService, ThresholdRecommendationService>();
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
 
         services.AddScoped<IPolicyPackResolver, PolicyPackResolver>();

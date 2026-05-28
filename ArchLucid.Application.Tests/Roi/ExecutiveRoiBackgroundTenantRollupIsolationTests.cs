@@ -125,7 +125,15 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
         Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
         findingsSnapshots
             .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((FindingsSnapshot?)null);
+            .ReturnsAsync((ScopeContext _, Guid snapshotId, CancellationToken _) =>
+            {
+                Guid? tenantId = AmbientScopeContext.CurrentOverride?.TenantId;
+
+                if (tenantId is null || !savingsByTenant.TryGetValue(tenantId.Value, out decimal savings))
+                    return null;
+
+                return ExecutiveRoiSummaryServiceTestSupport.CreateOpenFindingSnapshot(savings);
+            });
 
         Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
         tenantCostSettings

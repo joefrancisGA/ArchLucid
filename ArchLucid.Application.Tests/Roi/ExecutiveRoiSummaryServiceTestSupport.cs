@@ -1,5 +1,6 @@
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scim;
@@ -19,6 +20,21 @@ namespace ArchLucid.Application.Tests.Roi;
 
 internal static class ExecutiveRoiSummaryServiceTestSupport
 {
+    internal static FindingsSnapshot CreateOpenFindingSnapshot(decimal projectedImpactUsd) =>
+        new()
+        {
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "executive-roi-open-finding",
+                    Category = "Security",
+                    ProjectedImpactUsd = projectedImpactUsd,
+                    HumanReviewStatus = FindingHumanReviewStatus.NotRequired,
+                },
+            ],
+        };
+
     internal static (ExecutiveRoiSummaryService Service, Mock<IAzureExtractorPackageRepository> PackageRepository) CreateService(
         IRunDetailQueryService runDetailQueryService,
         ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
@@ -27,7 +43,8 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
         ExecutiveRoiTenantPricingContextResolver? pricingContextResolver = null,
         IFindingReviewTrailRepository? findingReviewTrailRepository = null,
         ScopeContext? scope = null,
-        TimeProvider? clock = null)
+        TimeProvider? clock = null,
+        Action<Mock<IFindingsSnapshotRepository>>? configureFindingsSnapshots = null)
     {
         ScopeContext resolvedScope = scope ?? new ScopeContext
         {
@@ -75,6 +92,8 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
         findingsSnapshots
             .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((FindingsSnapshot?)null);
+
+        configureFindingsSnapshots?.Invoke(findingsSnapshots);
 
         Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
         tenantCostSettings

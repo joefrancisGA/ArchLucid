@@ -33,6 +33,8 @@ public sealed class FindingPriorityRerankerTests
             {
                 RunId = runGuid,
                 TenantId = tenantId,
+                WorkspaceId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ScopeProjectId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                 FindingsSnapshotId = snapshotId
             });
 
@@ -62,27 +64,26 @@ public sealed class FindingPriorityRerankerTests
             "Missing failover");
 
         Mock<IFindingsSnapshotRepository> findingsRepository = new();
-        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         findingsRepository
             .Setup(f => f.ListFindingRecordsKeysetAsync(
-                scope,
+                It.IsAny<ScopeContext>(),
                 snapshotId,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                200,
-                false,
+                It.IsAny<int?>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FindingRecordMetadataPage([highA, highB], HasMore: false));
 
         IReadOnlyList<(string FindingId, int PriorityRank)>? capturedRanks = null;
         findingsRepository
             .Setup(f => f.UpdatePriorityRanksAsync(
-                scope,
+                It.IsAny<ScopeContext>(),
                 snapshotId,
                 It.IsAny<IReadOnlyList<(string FindingId, int PriorityRank)>>(),
                 It.IsAny<CancellationToken>()))

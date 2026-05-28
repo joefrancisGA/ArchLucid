@@ -102,7 +102,15 @@ public sealed class ExecutiveRoiSummaryServiceTests
             .Setup(resolver => resolver.ResolveFromFindingsSnapshotIdAsync(findingsSnapshotId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(12500m);
 
-        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, savingsResolver.Object);
+        ExecutiveRoiSummaryService sut = CreateSut(
+            runQuery.Object,
+            savingsResolver.Object,
+            configureFindingsSnapshots: mock =>
+            {
+                mock
+                    .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), findingsSnapshotId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(ExecutiveRoiSummaryServiceTestSupport.CreateOpenFindingSnapshot(12500m));
+            });
 
         ExecutiveRoiSummaryResponse response = await sut.BuildAsync(CancellationToken.None);
 
@@ -243,13 +251,15 @@ public sealed class ExecutiveRoiSummaryServiceTests
         IRunDetailQueryService runDetailQueryService,
         ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
         ExecutiveRoiTenantPricingContextResolver? pricingContextResolver = null,
-        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
+        Action<Mock<IFindingsSnapshotRepository>>? configureFindingsSnapshots = null)
     {
         return ExecutiveRoiSummaryServiceTestSupport.CreateService(
             runDetailQueryService,
             tenantEstimatedUsdSavingsResolver,
             pricingContextResolver: pricingContextResolver,
-            findingReviewTrailRepository: findingReviewTrailRepository).Service;
+            findingReviewTrailRepository: findingReviewTrailRepository,
+            configureFindingsSnapshots: configureFindingsSnapshots).Service;
     }
 
     private static ExecutiveRoiTenantPricingContextResolver CreateDefaultPricingContextResolver()
