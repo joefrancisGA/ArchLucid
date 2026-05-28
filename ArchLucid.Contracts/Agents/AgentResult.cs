@@ -164,9 +164,9 @@ public sealed class AgentResult
     }
 
     /// <summary>
-    ///     Set when <see cref="AgentHandlerDegradedResultFactory" /> returns a placeholder row (not part of LLM JSON schema).
+    ///     Set when <see cref="AgentHandlerDegradedResultFactory" /> returns a placeholder row. Persisted in
+    ///     <c>ResultJson</c> so idempotent execute retries can re-invoke degraded tasks; not part of LLM output schema.
     /// </summary>
-    [JsonIgnore]
     public string? DegradationReasonCode
     {
         get;
