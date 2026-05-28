@@ -16,6 +16,12 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
       localStorage.setItem("archlucid-nav-expanded", "false");
       localStorage.setItem("archlucid_nav_show_extended", "false");
       localStorage.setItem("archlucid_nav_show_advanced", "false");
+      // Collapsed Analysis/Governance groups must not hide extended links from role queries.
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith("archlucid_sidebar_group_")) {
+          localStorage.removeItem(key);
+        }
+      }
     }, OPERATOR_SHELL_PRESET_STORAGE_KEY);
   });
 
@@ -46,11 +52,20 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
     await expect(layoutDialog()).toBeVisible();
-    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }).setChecked(true);
-    await expect(page.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
-    // Enable advanced in the same dialog session — the sidebar footer toggle re-mounts when extended
+    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }).click();
+    // Modal dialog marks the sidebar inert for role queries until it closes.
+    await page.keyboard.press("Escape");
+    await expect(layoutDialog()).toBeHidden();
+
+    const analysisNav = page.getByRole("navigation", { name: "Analysis" });
+
+    await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+
+    await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
+    await expect(layoutDialog()).toBeVisible();
+    // Enable advanced in a fresh dialog session — the sidebar footer toggle re-mounts when extended
     // tier unlocks (admin / governance clusters), which flakes Playwright click retries in CI.
-    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }).setChecked(true);
+    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }).click();
     await page.keyboard.press("Escape");
     await expect(layoutDialog()).toBeHidden();
 
