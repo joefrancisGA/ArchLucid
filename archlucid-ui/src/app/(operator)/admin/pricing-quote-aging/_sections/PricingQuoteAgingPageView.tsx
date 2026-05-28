@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { pricingQuoteAgingRowTone } from "@/lib/pricing-quote-aging";
+import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
 
 import type { PricingQuoteAgingPageViewModel } from "./use-pricing-quote-aging-page";
 
@@ -144,6 +145,7 @@ export function PricingQuoteAgingPageView(props: Props) {
                     <th className="px-2 py-2 font-medium">Company</th>
                     <th className="px-2 py-2 font-medium">Work email</th>
                     <th className="px-2 py-2 font-medium">Tier</th>
+                    <th className="px-2 py-2 font-medium">Follow-up</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -163,6 +165,26 @@ export function PricingQuoteAgingPageView(props: Props) {
                         <td className="px-2 py-2">{row.companyName}</td>
                         <td className="px-2 py-2">{row.workEmail}</td>
                         <td className="px-2 py-2">{row.tierInterest}</td>
+                        <td className="px-2 py-2">
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => void acknowledgePricingQuoteRequest(row.id).then(() => m.refresh())}
+                            >
+                              Acknowledge
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => void closePricingQuoteRequest(row.id).then(() => m.refresh())}
+                            >
+                              Close
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}

@@ -53,6 +53,7 @@ public sealed class PilotsController(
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     IRecentPilotRunDeltasService recentPilotRunDeltasService,
     IPilotCloseoutRepository pilotCloseoutRepository,
+    IBuyerProofPackBuilder buyerProofPackBuilder,
     IAuditService auditService,
     ValueReportBuilder valueReportBuilder,
     IActorContext actorContext,
@@ -194,6 +195,46 @@ public sealed class PilotsController(
         return markdown is null
             ? this.NotFoundProblem($"Executive review packet is not available for run '{runId}'.", ProblemTypes.RunNotFound)
             : Content(markdown, "text/markdown; charset=utf-8");
+    }
+
+    /// <summary>
+    ///     One-click sponsor proof ZIP: executive review packet, first-value report (MD+PDF), deltas, limitations, and manifest.
+    /// </summary>
+    [HttpGet("runs/{runId}/sponsor-proof-pack.zip")]
+    [Produces("application/zip")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSponsorProofPackZip(string runId, CancellationToken cancellationToken)
+    {
+        string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
+        BuyerProofPackBuildResult? result =
+            await buyerProofPackBuilder.TryBuildZipAsync(runId, baseForLinks, cancellationToken);
+
+        if (result is null)
+        {
+            return this.NotFoundProblem(
+                $"Sponsor proof pack is not available for run '{runId}'. Commit the run and retry.",
+                ProblemTypes.RunNotFound);
+        }
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.SponsorProofPackGenerated,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(new { runId, demoDataWarning = result.DemoDataWarning }),
+            },
+            cancellationToken);
+
+        return File(result.ZipBytes, "application/zip", result.FileName);
     }
 
     /// <summary>

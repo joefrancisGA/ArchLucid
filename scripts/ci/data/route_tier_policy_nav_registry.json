@@ -32,6 +32,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminFleetLlmCogsController.cs",
+      "class_name": "AdminFleetLlmCogsController",
+      "route_template": "v{version:apiVersion}/admin/operational",
+      "normalized_prefix": "/v1/admin/operational",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminIdentityProviderDiagnosticsController.cs",
       "class_name": "AdminIdentityProviderDiagnosticsController",
       "route_template": "v{version:apiVersion}/admin/diagnostics",
@@ -1458,6 +1468,16 @@
       "normalized_prefix": "/v1/tenant/integrations/operations",
       "commercial_tier": "standard",
       "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Tenancy/TenantLlmCostReportingController.cs",
+      "class_name": "TenantLlmCostReportingController",
+      "route_template": "v{version:apiVersion}/tenant",
+      "normalized_prefix": "/v1/tenant",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     },

@@ -60,6 +60,27 @@ internal static class RealizedValueMetricsCalculator
         };
     }
 
+    internal static async Task<RealizedValueAttestationResponse> LoadAttestationResponseAsync(
+        ITenantSettingsRepository tenantSettingsRepository,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        RealizedValueAttestation attestation =
+            await LoadAttestationAsync(tenantSettingsRepository, tenantId, cancellationToken).ConfigureAwait(false);
+
+        bool hasAttestation = attestation.AttestedIncidentsAvoided is not null
+                              || !string.IsNullOrWhiteSpace(attestation.AttestedRevenueOrRetentionImpact)
+                              || !string.IsNullOrWhiteSpace(attestation.AttestedReviewerTimeSavedNote);
+
+        return new RealizedValueAttestationResponse
+        {
+            AttestedIncidentsAvoided = attestation.AttestedIncidentsAvoided,
+            AttestedRevenueOrRetentionImpact = attestation.AttestedRevenueOrRetentionImpact,
+            AttestedReviewerTimeSavedNote = attestation.AttestedReviewerTimeSavedNote,
+            HasAttestation = hasAttestation,
+        };
+    }
+
     internal static async Task SaveAttestationAsync(
         ITenantSettingsRepository tenantSettingsRepository,
         Guid tenantId,

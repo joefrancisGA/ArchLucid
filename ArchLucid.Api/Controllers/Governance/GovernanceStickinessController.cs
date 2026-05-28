@@ -196,6 +196,19 @@ public sealed class GovernanceStickinessController(
         return NoContent();
     }
 
+    [HttpGet("realized-value/attestation")]
+    [ProducesResponseType(typeof(RealizedValueAttestationResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRealizedValueAttestation(
+        [FromServices] IRealizedValueAttestationService attestationService,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RealizedValueAttestationResponse response =
+            await attestationService.GetAttestationAsync(scope.TenantId, cancellationToken);
+
+        return Ok(response);
+    }
+
     [HttpPut("realized-value/attestation")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

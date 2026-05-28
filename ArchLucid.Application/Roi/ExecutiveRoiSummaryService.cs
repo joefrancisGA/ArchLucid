@@ -201,7 +201,7 @@ public sealed class ExecutiveRoiSummaryService(
                 snapshots.Add(snapshot);
         }
 
-        DateTimeOffset since = TimeProvider.System.UtcNowDateTime().Subtract(RealizedValueMetricsCalculator.TrailingWindow);
+        DateTimeOffset since = TimeProvider.System.UtcNowDateTime().Subtract(FindingDispositionTrailWindow.BasisBreakdownLookback);
         IReadOnlyList<FindingReviewEventRecord> trailEvents =
             await _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken).ConfigureAwait(false);
         IReadOnlyList<RiskExceptionRecord> activeWaivers =

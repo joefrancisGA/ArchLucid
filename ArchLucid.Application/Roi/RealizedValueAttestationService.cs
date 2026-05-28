@@ -5,6 +5,10 @@ namespace ArchLucid.Application.Roi;
 
 public interface IRealizedValueAttestationService
 {
+    Task<RealizedValueAttestationResponse> GetAttestationAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
+
     Task SaveAttestationAsync(
         Guid tenantId,
         UpsertRealizedValueAttestationRequest request,
@@ -16,6 +20,11 @@ public sealed class RealizedValueAttestationService(ITenantSettingsRepository te
 {
     private readonly ITenantSettingsRepository _tenantSettingsRepository =
         tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
+
+    public Task<RealizedValueAttestationResponse> GetAttestationAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default) =>
+        RealizedValueMetricsCalculator.LoadAttestationResponseAsync(_tenantSettingsRepository, tenantId, cancellationToken);
 
     public Task SaveAttestationAsync(
         Guid tenantId,

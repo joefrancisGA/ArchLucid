@@ -101,6 +101,7 @@ export function EmailRunToSponsorBanner({
 
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
   const executiveReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/executive-review-packet`;
+  const sponsorProofPackHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-proof-pack.zip`;
   const executiveBriefHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/EXECUTIVE_SPONSOR_BRIEF.md`;
   const pilotRoiModelHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PILOT_ROI_MODEL.md`;
 
@@ -441,9 +442,14 @@ export function EmailRunToSponsorBanner({
       </h3>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
+        <Button variant="primary" asChild data-testid="email-run-to-sponsor-proof-pack-zip">
+          <FunnelTelemetryExportAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
+            Download sponsor proof pack (ZIP)
+          </FunnelTelemetryExportAnchor>
+        </Button>
         <Button
           type="button"
-          variant="primary"
+          variant="secondary"
           disabled={busy || blockSponsorPdfForRoi}
           onClick={() => void onDownloadPdf()}
           data-testid="email-run-to-sponsor-primary-action"

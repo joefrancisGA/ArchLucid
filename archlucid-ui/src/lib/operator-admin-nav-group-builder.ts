@@ -47,6 +47,22 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
+          href: "/admin/trial-funnel",
+          label: "Trial funnel",
+          title: "Trial funnel — signup, first commit, conversion, and estimated first-review COGS",
+          icon: LineChart,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: "/admin/fleet-llm-cogs",
+          label: "Fleet LLM COGS",
+          title: "Fleet LLM COGS — per-tenant estimated LLM budget pressure and margin risk",
+          icon: Wallet,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
           href: "/admin/configuration",
           label: "Configuration",
           title: "Configuration — catalog summary (masked secrets) plus environment health config-lint dashboard",

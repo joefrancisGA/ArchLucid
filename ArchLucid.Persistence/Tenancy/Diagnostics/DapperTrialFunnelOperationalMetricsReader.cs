@@ -102,6 +102,8 @@ public sealed class DapperTrialFunnelOperationalMetricsReader(ISqlConnectionFact
                         + counts.GetValueOrDefault(AuditEventTypes.BillingCheckoutCompleted);
         int budgetCutoffs = counts.GetValueOrDefault(AuditEventTypes.LlmTenantMonthlyDollarBudgetApproaching);
 
+        IReadOnlyList<decimal> firstReviewCogsUsd = await LoadFirstReviewCogsSamplesAsync(connection, since, cancellationToken);
+
         return TrialFunnelOperationalSummaryBuilder.Build(
             activeTrials,
             signupAttempts,
@@ -111,7 +113,40 @@ public sealed class DapperTrialFunnelOperationalMetricsReader(ISqlConnectionFact
             checkouts,
             budgetCutoffs,
             signupToCommitSeconds,
-            firstReviewCogsUsd: []);
+            firstReviewCogsUsd);
+    }
+
+    private static async Task<IReadOnlyList<decimal>> LoadFirstReviewCogsSamplesAsync(
+        SqlConnection connection,
+        DateTimeOffset sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        DateTime utcNow = TimeProvider.System.UtcNowDateTime();
+
+        const string sql = """
+                           SELECT (s.SpentUsd + s.ReservedAssumedUsd) AS TotalPressureUsd
+                           FROM dbo.Tenants t
+                           INNER JOIN dbo.LlmMonthlyTenantBudgetState s
+                             ON s.TenantId = t.Id
+                            AND s.UtcYear = @UtcYear
+                            AND s.UtcMonth = @UtcMonth
+                           WHERE t.TrialFirstManifestCommittedUtc IS NOT NULL
+                             AND t.TrialFirstManifestCommittedUtc >= @SinceUtc
+                             AND (s.SpentUsd + s.ReservedAssumedUsd) > 0;
+                           """;
+
+        IEnumerable<decimal> samples = await connection.QueryAsync<decimal>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    SinceUtc = sinceUtc.UtcDateTime,
+                    UtcYear = utcNow.Year,
+                    UtcMonth = utcNow.Month,
+                },
+                cancellationToken: cancellationToken));
+
+        return samples.ToList();
     }
 
     private sealed class EventTypeCountRow

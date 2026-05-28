@@ -46,6 +46,16 @@ export type ExecutiveRoiSummary = {
     attestedRevenueOrRetentionImpact?: string | null;
     attestedReviewerTimeSavedNote?: string | null;
   };
+  basisBreakdown?: {
+    openEstimatedUsd: number;
+    acceptedRiskUsd: number;
+    needsEvidenceUsd: number;
+    deferredUsd: number;
+    waivedUsd: number;
+    realizedUsd: number;
+    rejectedNotApplicableUsd: number;
+    totalPotentialUsd: number;
+  };
 };
 
 function formatUsd(value: number | null): string {
@@ -73,6 +83,12 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
   lines.push("# Executive summary — portfolio ROI");
   lines.push("");
   lines.push(`- **Estimated USD savings:** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
+
+  if (summary.basisBreakdown) {
+    lines.push(`- **Realized USD (remediated dispositions):** ${formatUsd(summary.basisBreakdown.realizedUsd)}`);
+    lines.push(`- **Deferred / waived / accepted-risk USD:** ${formatUsd(summary.basisBreakdown.deferredUsd + summary.basisBreakdown.waivedUsd + summary.basisBreakdown.acceptedRiskUsd)}`);
+  }
+
   lines.push(`- **Savings pricing basis:** ${summary.savingsPricingBasis} (EA multiplier ${summary.eaDiscountMultiplier})`);
 
   if (summary.savingsPricingBasisDescription) {

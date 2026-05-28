@@ -1,4 +1,4 @@
-> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
+﻿> **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
 # Tech backlog
 
@@ -28,6 +28,11 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-079 – TB-084** were added 2026-05-27 from a secrets, identity, and tool-sandboxing audit (`Integrations.AzureDevOps`, `Integrations.AzureExtractor`, agent tool surfaces, prompt-injection paths). No WIQL/LLM→ADO API injection path exists; the integration is event-driven with config-fixed targets. Identified gaps: unescaped markdown from compare data echoed into ADO PR bodies (**TB-079**, Low–Med); Azure OpenAI still using symmetric `ApiKey` instead of Entra/MI (**TB-080**, Info); Service Bus raw connection string permitted in production with no safety rule (**TB-081**, Info); `AgentTask.AllowedTools` advisory-only with no runtime enforcer at handler dispatch (**TB-082**, Med); `ArchLucidApiKey` header secret has no production Key Vault reference requirement (**TB-083**, Info); `SubscriptionId` not validated as GUID before ARM URL construction (**TB-084**, Low). Cross-ref **TB-005** (pen-test), **TB-072** (scope-to-identity binding).
 
+**TB-091 --- TB-102** were added 2026-05-27 from an IaC parity audit across all `infra/terraform-*` roots (read against live appsettings, NuGet packages, and CD workflow references). They close two distinct gap categories: (A) runtime Azure services that are **entirely absent from Terraform** --- Azure OpenAI, Redis, Cosmos DB, AI Search, ACR, and Azure Monitor Workspace; and (B) **configuration gaps inside existing roots** --- Key Vault private endpoint, Key Vault workload RBAC grants, per-service diagnostic settings, Logic Apps storage-key access, and sampling/replication hygiene. **TB-091** and **TB-092** are security-critical (Key Vault reachability and workload RBAC); **TB-093**---**TB-099** are IaC coverage gaps that create ops/compliance risk; **TB-100**---**TB-102** are hygiene. Canvas audit: `canvases/iac-parity-audit.canvas.tsx` (IDE-only).
+**TB-103 – TB-105** were added 2026-05-27 from a cross-layer domain-term audit (executive dashboard, orphan candidates, governance). They close gaps where business logic defined once in the backend has been reconstituted independently in the UI layer, causing KPI values to diverge silently from server-computed truth. **TB-103** is the highest-priority item: orphan-candidate count and savings are computed by two separate pipelines (different inputs, different algorithms) with no shared API contract. **TB-104** closes the 14-day expiring-waiver window living only in the client. **TB-105** pushes business-impact category bucketing to the server so `BusinessImpactSummaryWidget` becomes a pure display component. Cross-ref **TB-062** (executive dashboard live KPI replacement — these items are scoped sub-tasks of that broader effort).
+
+**TB-106 – TB-113** were added 2026-05-27 from a `RunDetailPageView` operator fidelity audit (does the run detail page surface everything needed to approve, reject, or remediate a run?). Root cause is a split API contract: the operator loader calls `GET /v1/authority/runs/{runId}` but the UI reads `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` that exist only on the architecture endpoint — those fields are null on every live run. Additional gaps: retrieval hits and tool calls have no dedicated UI surface anywhere; `findingCoverageSummary.hasCommitBlockingFailures` and `dispositionCoverage` are computed in `GetRunDetailAsync` but dropped before render; `hasGovernanceWarnings` and `lastFailureReason` from `RunRecord` are never shown. **TB-106**–**TB-108** are correctness/operator-visibility P0s; **TB-109**–**TB-111** are P1 operator-visibility additions; **TB-112** is P2 workflow; **TB-113** is P2 schema hygiene. Canvas audit: `canvases/run-detail-operator-fidelity.canvas.tsx` (IDE-only).
+
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 | ID | Title | Priority driver | Size |
@@ -47,75 +52,32 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-081 | `ArchLucidApiKey` — production safety rule: require Key Vault reference | Security hardening — long-lived API key in config with no enforcement rule analogous to ADO PAT guard | XS |
 | TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | Security hardening — symmetric key in config; Entra/MI reduces credential-rotation burden; aligns with blob/KV/ACS posture | S |
 | TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | Defense-in-depth — whitespace rejected but malformed IDs pass through to ARM without format guard | XS |
-| TB-048 | Tenancy isolation hardening — retrieval index + query | Done (Batch G, 2026-05-26) — null policy-pack assignment safe default, Azure filter builder, tests; **TB-071** closes remaining Azure client gap | S |
-| TB-045 | Embedding model identity and drift guard | Done (Batch G, 2026-05-26) — chunk metadata, mismatch metric, startup drift validator | S–M |
-| TB-049 | Retrieval IR eval harness — recall@k, MRR, golden dataset | Done (Batch E, 2026-05-26) — `eval_retrieval_ir.py` + `tests/eval-datasets/retrieval-golden/cases.json`; see **RAG-V1-011** | M |
-| TB-046 | Index freshness + ContentHash skip + indexer observability | Reliability — stale index undetected; `ContentHash` unused; startup indexer fail-open; see **RAG-V1-008** | S–M |
-| TB-047 | Chunking strategy fingerprint and invalidation | Correctness — mixed-generation chunks when chunker defaults change; see **RAG-V1-009** | S |
-| TB-087 | Findings backfill slice — DB-level idempotency (remove double COUNT race) | Correctness — service + repo both gate on `COUNT(1)` without UNIQUE/MERGE; concurrent reruns can duplicate `FindingRecords` | XS–S |
-| TB-034 | Degraded-handler minimal `AgentExecutionTrace` rows | Support / honesty — resilience fallbacks (`AgentHandlerDegradedResultFactory`) write no trace; prompts and model calls are unrecoverable | S |
-| TB-050 | Manifest `ResolvedArchitectureDecision` — confidence + `ConfidenceSource` | Operator correctness — decision rows carry zero uncertainty; upstream nullable scores coerced without provenance | S |
-| TB-051 | Decisioning V2 merge — consume `CalibratedConfidence` | Uncertainty honesty — calibration written on `AgentResult` but merge strategies use raw `Confidence` + hardcoded priors | S |
-| TB-052 | `RuleAuditTracePayload` — snapshot IDs + prompt refs | Forensic replay — authority trace cannot join to input state or LLM prompt version | S |
-| TB-053 | `FindingConfidenceCalculator` — typed unknown/failed (no bare catch) | Uncertainty honesty — null completeness → `0.0`; exceptions return null with no distinguishable reason | XS–S |
-| TB-054 | Unified run decision explainability API (authority audit + V2 nodes) | Operator UX — two non-unified decision records per authority run | M |
-| TB-055 | Propagate `AgentResult.ReasoningTrace` into `Finding` explainability | Forensic replay — LLM reasoning dropped at `FindingFactory` boundary | S |
-| TB-056 | Decisioning partial-failure surfacing + sentinel trace inflation guard | Operator honesty — per-engine failures continue silently; completeness sentinel counts as populated | S–M |
-| TB-057 | Architecture risk register framing over governance findings | Stickiness — make `/governance/findings` behave like an owned risk register without creating a duplicate risk subsystem | S–M |
-| TB-058 | Finding disposition workflow API + UI | Stickiness / trust — wire existing `FindingReviewEvents` into accept, defer, needs-evidence, remediated decisions | M |
-| TB-059 | First-class waiver / exception records | Governance stickiness — waiver rationale, owner, expiry, evidence, and audit make risk acceptance operationally durable | M |
-| TB-060 | Review-package decision register consolidation | Executive value — surface manifest decisions + approval lineage as the authoritative decision history | S |
-| TB-061 | Decision-needed governance digest | Recurrence — turn existing digests into weekly/monthly management packets with stale risks, expiring waivers, and decisions needed | S–M |
-| TB-089 | Digest delivery scanners — record delivery before send (ACA retry idempotency) | Operator correctness — weekly/exec digest jobs may resend on Container Apps retry if delivery is logged after send | S |
-| TB-062 | Executive dashboard live KPI replacement | Trust / ROI — remove illustrative KPI cards where live ROI/drift data exists; fewer real numbers beat broader mock-looking metrics | S |
-| TB-063 | ITSM one-click issue creation from findings — **V1.1** | Workflow embeddedness — expose existing outbound ITSM create/correlation in UI; first-party Jira/ServiceNow productization belongs to V1.1 | M |
-| TB-035 | Persist intermediate LLM attempts on schema-remediation retries | Forensic replay — `LlmAgentSchemaCompletion` records only the final attempt; earlier prompts/responses are metric-only | M |
-| TB-036 | Correlate `DecisionProvenanceGraph` with `AgentExecutionTrace` | Done (Batch F, 2026-05-26) — `ProvenanceCorrelationId`, finding node trace id, API field | M |
-| TB-037 | Production write path for `DecisionProvenanceSnapshot` | Performance + durability — `IProvenanceSnapshotRepository.SaveAsync` has no callers; graph rebuilt on every API read | S |
-| TB-038 | `RetrievalGroundingTrace` forensic enrichment (+ non-Compliance agents) | Forensic replay — only chunk IDs persisted for Compliance; query, top-K, scores, document IDs missing; see **RAG-V1-006** | S–M |
-| TB-039 | Agent execute retry — per-`(RunId, TaskId)` skip before handler dispatch | Done (Batch E, 2026-05-26) — `RealAgentExecutor` skips persisted non-degraded results; metric `archlucid_agent_execute_task_skipped_idempotent_total` | M |
-| TB-043 | Schema remediation — non-retried completion client (decouple from Polly stack) | Done (Batch E, 2026-05-26) — `ISchemaRemediationAgentCompletionClient` without Polly retry wrapper | XS–S |
-| TB-041 | Authority pipeline — per-stage completion checkpoint on retry | Done (Batch F, 2026-05-26) — FK checkpoint skip, hydrator, metric, tests | M |
-| TB-042 | Graph snapshot supersession — skip rebuild when `RunRecord.GraphSnapshotId` set | Done (Batch F, 2026-05-26) — header/orphan reuse resolver, aligned with TB-041 | S |
-| TB-040 | `LlmCompletionAccountingClient` — await metering with `CancellationToken.None` | FinOps honesty — fire-and-forget metering skipped under linked cancellation; budget trackers vs `IUsageMeteringService` diverge | XS |
-| TB-044 | `AgentExecutionTraces` — unique index on `(RunId, TaskId, AgentType)` + upsert semantics | Done (Batch E, 2026-05-26) — DbUp 223 + delete-then-insert upsert | XS |
-| TB-012 | Architecture invariant enforcement — Wave C (INV-007–INV-011, INV-014–INV-015) | Contributor hygiene — time/cancellation/idempotency/HTTP/analyzer pack + webhook ordering + INV-003 path markers | L |
-| TB-027 | Introduce `IAgentExecutor` port — eliminate AgentSimulator coupling from production assemblies | Done (Batch H, 2026-05-26) — Core `FakeScenarioFactory`, port-only AgentRuntime/Cost/Host.Core, positive-list Architecture.Tests | M |
-| TB-028 | Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition | Composition-root discipline — Api entry point directly names an infrastructure adapter; violates single-composition-root rule | XS |
-| TB-029 | Replace `Decisioning → Notifications` with domain events | Domain/infrastructure decoupling — domain analysis service hard-coupled to notification infrastructure; correct pattern is domain events + host-layer subscriber | M–L | **Shipped 2026-05-27** — `ArchLucid.Decisioning` no longer references `ArchLucid.Notifications`; delivery channels register in `Host.Composition`; `DecisioningNotificationsBoundaryArchitectureTests` |
-| TB-030 | Architecture.Tests gap closure — add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s | Done (Batch H, 2026-05-26) — csproj refs + Mcp/Integrations/Jobs.Cli/AgentSimulator allowlist facts; Api→AzureExtractor `_by_design` until TB-028 | S |
-| TB-031 | Disambiguate ArtifactSynthesis / Decisioning layer position | Done (Batch G, 2026-05-27) — Option A layer ordering + Architecture.Tests + SYSTEM_MAP | XS–S |
-| TB-032 | Replace `Mcp → Retrieval` direct coupling with a query port | Infrastructure/application boundary — MCP adapter bypasses port abstraction and directly couples to Retrieval's concrete implementation and its transitive application-layer deps | M |
-| TB-022 | `LlmCostEstimator` — `int` overflow in aggregator token-count fields | Done (Improvement **#19**, 2026-05-25) | XS |
-| TB-026 | `LlmCostEstimator` — negative-rate guard on `LlmDeploymentUsdRates` | Done (Improvement **#19**, 2026-05-25) | XS |
-| TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | **Done (Improvement #22, 2026-05-25)** — `prometheus_agent_output_rules.tf` + `archlucid-alerts.yml` faithfulness p50 | ~1–2 h |
-| TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance — structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
-| TB-007 | LLM correctness boundary — cohort gate promotion + eval real-mode scenarios | Correctness posture — gated real-model CI blocked on prereqs (Gap A+C open) | A: ~1 h ops; C: ~4 h eng |
-| TB-021 | RAG quality program — V1 foundation (corpus seam, policy pack, prior manifest, Retail lookup, platform docs, faithfulness eval) | Agent faithfulness + citation density — extends existing `ArchLucid.Retrieval` + `AskService`; schedule from assessments | M–L (phased) |
-| TB-008 | Context ingestion connectors — Phases 3–4 (meaningful delta + enrichers, policy/topology coupling) | Architecture maintainability — Phases 1–2 shipped | L |
-| TB-013 | Documentation library audience split — Phases 2–3 (customer-facing vs contributor-reference) | Developer experience — lower onboarding cognitive load without breaking bookmarks or procurement/UI doc paths | M |
-| TB-014 | LLM token wallet — non-expiring auto-replenish | Done (Batch F, 2026-05-26) — wallet tables, Stripe gateway, webhook idempotency, API, UI panel, metrics | M |
-| TB-015 | Per-agent/per-invoke-kind LLM token dimensions + CI export of real-mode averages | FinOps honesty — truthful Topology/Cost/Compliance/Critic token envelopes for `cost-preview` + cohort budgeting (no guesses) | M |
-| TB-024 | `LlmCostEstimator` — reasoning-token test coverage | Done (Improvement **#20**, 2026-05-25) | XS |
-| TB-023 | `LlmCostEstimator` — document replay-rate semantics (live rate vs stored-per-trace divergence) | Done (Improvement **#18**, Batch J, 2026-05-26) — `ILlmCostEstimator`, aggregator, `PER_TENANT_COST_MODEL.md` | XS |
-| TB-025 | `LlmCostEstimator` — annotate OTel `double` cast and pretax nature | Informational / monitoring honesty — `(double)estimatedCostUsd` in `RecordLlmCostUsd` introduces IEEE 754 error; `archlucid_llm_cost_usd_total` is pretax and monitoring-grade only; neither is documented | XS |
-| TB-016 | ITSM + chat vendor sandbox accounts — provision, secrets, inbound webhooks — for recurring live smoke | Trust / interoperability — mocks are not proofs; gated CI + CONNECTOR_READINESS_MATRIX need operator-owned URLs + tokens | S–M |
-| TB-017 | Trial orphaned-catalog teardown SOP + only then tighten unattended `Trial:Lifecycle` purge | Hosted COGS — idle dormant trials burn negligible AOAI; manual Azure SQL/catalog drop suffices at low cardinality (`TRIAL_AND_SIGNUP` §4, `TRIAL_LIFECYCLE`) | S |
-| TB-018 | Warm tenant catalogs in elastic pool — replenish + fast claim (`RunTenant`-skip path) | Signup SLA — elastic pool amortizes DDL; standby empties shorten hot path (`TENANT_DATABASE_TOPOLOGY` Operational notes warm catalogs) | M |
-| TB-065 | MigrateVerify — deployed schema vs DDL drift detection | Deploy safety — journal-only check misses column/type/index drift and manual DDL edits on live catalogs | M |
-| TB-076 | Run-child SQL scope predicates + in-memory repository tenant keys | Security (P2) — `AgentTask`, `AgentExecutionTrace`, `EvidenceBundle` query by `RunId` only; in-memory snapshot repos globally keyed | S–M |
-| TB-077 | Operator UI resource ownership checks + governance mutation path hardening | Security (P2) — dynamic routes use ID only; `recordFindingDisposition` keys on `findingId` without required `runId` | S |
-| TB-078 | Cross-tenant isolation integration test matrix | Security (P2) — no tests for snapshot IDOR, indexing tenant mismatch rejection, or Azure filter wiring | S |
-| TB-068 | DbUp migration rolling-deploy guardrails (CI lint + runbook) | Reliability — non-additive migrations (215 NOT NULL, 223 UNIQUE+DELETE) break old pods during rolling deploy | S–M |
-| TB-088 | Container App jobs — per-entity error isolation in multi-tenant loops | Reliability — `trial-lifecycle` / `advisory-scan` abort whole job on first entity failure; ACA retries healthy work repeatedly | S |
-| TB-064 | System catalog consolidated DDL (`ArchLucid.System.sql`) | Repo SQL discipline — one DDL file per DB; system plane fragmented across three migration scripts only | S |
-| TB-066 | CI gate — `ArchLucid_Unified_Schema.sql` matches generator output | IaC drift — generated tenant schema can silently diverge from `ArchLucid.sql` | XS |
-| TB-067 | `SQL_SCRIPTS.md` migration catalog — backfill 051–227 + automation | Ops/docs honesty — §4.2 documents fewer than 30% of forward migrations | S |
-| TB-085 | SqlRelationalBackfill — paged entity scans + durable checkpoint table | Ops at scale — all header IDs loaded into memory; no resume cursor after interrupt | M |
-| TB-086 | SqlRelationalBackfill — poison-row quarantine (`BackfillFailures` + `--max-retries`) | Ops safety — corrupt JSON rows retried forever; no skip-after-N-failures | S |
+| TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | Security --- KV has `public_network_access_enabled=false` but no private endpoint or DNS zone in `terraform-private`; portal-only configuration, unmanageable by TF | XS-S |
+| TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | Security --- container apps read KV secrets at runtime via managed identity; role assignment absent from all TF roots; portal-created, subject to drift | XS |
+| TB-093 | Create `terraform-openai` root --- provision Azure OpenAI account + model deployments | IaC coverage (HIGH) --- code comment says "out-of-band"; model deployments, content filters, CMK, and private endpoint are all unmanaged; aligns with TB-080 | M |
+| TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | IaC coverage --- `HotPathCache.RedisConnectionString` present in `appsettings.Production.json`; no `azurerm_redis_cache`; SKU, eviction, private endpoint unmanaged | S |
+| TB-095 | Assess + codify Cosmos DB --- create `terraform-cosmos` if active in production | IaC coverage --- `CosmosDb.ConnectionString` in `appsettings.json`; `Microsoft.Azure.Cosmos` NuGet in `ArchLucid.Persistence`; consistency/throughput/backup unmanaged if live | S-M |
+| TB-096 | Create `terraform-search` root --- Azure AI Search service | IaC coverage --- private endpoint variable wired in `terraform-private` but service never created; cross-ref TB-071 (production search client gap) | S |
+| TB-097 | Create `terraform-acr` root --- Azure Container Registry | IaC coverage --- read via `data` source in `terraform-container-apps`; geo-replication, retention, and network rules are portal-only | S |
+| TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage --- `var.azure_monitor_workspace_id` referenced by P0+SLO Prometheus rule groups but resource never created; apply fails if workspace drifts | XS |
+| TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability --- consistent with pattern already in `terraform-logicapps/diagnostics.tf`; three resources, one Log Analytics workspace target | S |
+| TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene --- all 7 Logic Apps pass `primary_access_key` verbatim; key rotation in portal breaks apps until TF re-apply | M |
+| TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene --- `azurerm_app_service_virtual_network_swift_connection` references `var.linux_web_app_id`; system runs on Container Apps; verify state, decommission or document | XS |
+| TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene --- hardcoded to 100 (no sampling); expose as variable so operators can tune without editing .tf source | XS |
 | TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | Ops observability — console-only output; no machine-readable report for CI/pipelines | XS |
 | TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
+| TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | Operator visibility (P0) — `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` are null on every live run; operator reviews cost as "unavailable" | M |
+| TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | Operator visibility (P0) — operator approves runs with suppressed governance warnings and hidden failure reasons; both fields fetched but never rendered | S |
+| TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | Operator visibility (P0) — commit-blocking failures silently hidden before `CommitRunButton`; `dispositionCoverage` computed in `GetRunDetailAsync` but dropped at render | S |
+| TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — `OrphanedResourceClassifier` and `run-potential-savings-parser.ts` use different inputs; KPI can silently diverge | M |
+| TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — `countExpiringWaivers` filter in `ExecutiveRoiDashboardLiveKpiCards.tsx` uses a frontend-defined 14-day cutoff; not returned by any backend metric | S |
+| TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — `BusinessImpactSummaryWidget.sumIssueCounts` uses `category` substring matching; brittle and not validated against backend classification | S |
+| TB-109 | RunDetailPageView — add retrieval-hit / RAG grounding panel | Operator visibility (P1) — no UI surface anywhere shows which chunks were retrieved, their scores, or whether any retrieval step was degraded; critical when `faithfulnessWarning` is true | M |
+| TB-110 | RunDetailPageView — add tool-call / function-invocation log panel | Operator visibility (P1) — no dedicated tool-call panel; agent forensics shows trace rows but not function-call lists; full prompt/response in blob storage is not rendered | M |
+| TB-111 | RunDetailPageView — inline provenance summary card (collapse from sibling route) | Operator visibility (P1) — provenance requires full-page navigation to a sibling route using a different API; operator loses run context while reviewing | S |
+| TB-112 | RunDetailPageView — add run-level approve / reject / request-remediation actions | Operator workflow (P2) — `CommitRunButton` (finalize manifest) is the only run-level action; all finding disposition lives on per-finding sub-routes with no run-level governance action | M |
+| TB-113 | Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types | Schema hygiene (P2) — C# `RunDetailDto` has both fields; generated `api-types.generated.ts` may omit them; silent type-level omission makes it impossible to add UI without bypassing type safety | XS |
 | TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | Paid + organic honesty — **`SEO_AND_PAID_ACQUISITION.md`** data flow requires measurable **`TenantProvisioningService`** outcomes; avoids raw-UTM metric cardinality explosions | M |
 | TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | SERP + honest analytics posture | S–M |
 
@@ -3222,5 +3184,872 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 **Cross-ref:** **TB-085**, **TB-086** (quarantine/skipped rows in JSON output).
 
 **Size estimate:** **XS** — ~2–4 h.
+
+---
+## TB-091 --- Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`)
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`terraform-keyvault` sets `public_network_access_enabled = false` on the Key Vault, making it reachable only via private endpoint. However, `terraform-private/network.tf` only creates private DNS zones and endpoints for SQL (`privatelink.database.windows.net`), Blob (`privatelink.blob.core.windows.net`), and optionally AI Search (`privatelink.search.windows.net`). There is no `azurerm_private_dns_zone` for `privatelink.vaultcore.azure.net` and no `azurerm_private_endpoint` targeting the vault. If a private endpoint and DNS zone were created in the portal to make the vault reachable, Terraform has no knowledge of them and cannot manage lifecycle, rotation, or deletion.
+
+**What to do:**
+
+1. Add `azurerm_private_dns_zone` for `privatelink.vaultcore.azure.net` in `terraform-private/network.tf` (conditional on `local.pe_enabled`).
+2. Add `azurerm_private_dns_zone_virtual_network_link` linking the vault DNS zone to the VNet.
+3. Add `azurerm_private_endpoint` for the Key Vault, accepting `var.key_vault_id` as an input variable (same pattern as `var.storage_account_id` for Blob endpoint).
+4. Wire the DNS zone group into the private endpoint block.
+5. Export the private endpoint ID as an output for downstream diagnostic visibility.
+
+**Acceptance criteria:**
+
+- `terraform plan` on `terraform-private` creates the vault private DNS zone, VNet link, and private endpoint when `enable_private_data_plane = true` and `key_vault_id` is provided.
+- `terraform validate` passes; no new breaking variable is required (key_vault_id should default to `""`).
+
+**Affected files / projects:**
+
+- `infra/terraform-private/network.tf`
+- `infra/terraform-private/variables.tf`
+- `infra/terraform-private/outputs.tf`
+
+**Cross-ref:** **TB-092** (workload RBAC to read from same vault), **TB-080** (Azure OpenAI credential migration to managed identity).
+
+**Size estimate:** **XS--S** --- ~2--4 h.
+
+---
+
+## TB-092 --- Key Vault Secrets User RBAC for API + Worker managed identities
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`terraform-keyvault` grants `Key Vault Secrets Officer` only to `var.admin_object_ids` (human administrators). The Container Apps API and Worker both carry `SystemAssigned` managed identities and read secrets at runtime via `@Microsoft.KeyVault(...)` references (`appsettings.KeyVault.sample.json`). The `Key Vault Secrets User` role assignments for these identities are absent from every Terraform root. They must be created in the portal after deployment and are subject to drift whenever Container Apps are recreated.
+
+**What to do:**
+
+1. Add `var.api_managed_identity_principal_id` and `var.worker_managed_identity_principal_id` to `terraform-keyvault/variables.tf` (default `""`).
+2. Add two `azurerm_role_assignment` resources (`Key Vault Secrets User` on vault scope) conditional on non-empty principal IDs.
+3. Document in `terraform-keyvault/variables.tf` that these IDs come from the `principal_id` output of `azurerm_container_app.api[0].identity[0]` and `.worker[0]`.
+4. Update `apply-saas.ps1` (or greenfield apply docs) to pass these outputs across roots.
+
+**Acceptance criteria:**
+
+- After `terraform apply` on `terraform-keyvault` and `terraform-container-apps`, the API and Worker managed identities have `Key Vault Secrets User` on the vault without any manual portal step.
+- No `Key Vault Secrets Officer` is granted to workload identities (least privilege).
+
+**Affected files / projects:**
+
+- `infra/terraform-keyvault/main.tf`
+- `infra/terraform-keyvault/variables.tf`
+
+**Cross-ref:** **TB-091** (vault private endpoint so the vault is reachable), **TB-080** (migrate OpenAI from ApiKey to managed identity).
+
+**Size estimate:** **XS** --- ~1--2 h.
+
+---
+
+## TB-093 --- Create `terraform-openai` root --- provision Azure OpenAI account + model deployments
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`terraform-openai/main.tf` explicitly states the Azure OpenAI resource "may be out-of-band" and only manages a consumption budget. The Cognitive Services account itself (`Microsoft.CognitiveServices/accounts`), model deployments (completion, embedding), content filter policies, CMK configuration, private endpoint, and diagnostic settings are all managed outside Terraform. `ArchLucid.AgentRuntime` and `ArchLucid.Retrieval` both depend on this service at runtime (`Azure.AI.OpenAI` NuGet, `AzureOpenAI` config section). Any quota change, model version bump, or capacity reconfiguration done in the portal cannot be reviewed as code or reproduced automatically. Cross-ref **TB-080** (migrate from API key to `DefaultAzureCredential` --- the Terraform root must emit the endpoint so the app can be switched to managed identity auth).
+
+**What to do:**
+
+1. Rename or extend `terraform-openai` to own the `azurerm_cognitive_account` resource (kind `OpenAI`, sku `S0`).
+2. Add `azurerm_cognitive_deployment` blocks for the completion and embedding model deployments, accepting model name and capacity as variables.
+3. Add optional `azurerm_private_endpoint` and `azurerm_private_dns_zone` for `privatelink.openai.azure.com`.
+4. Add `azurerm_monitor_diagnostic_setting` forwarding to Log Analytics.
+5. Expose `cognitive_account_endpoint` and `cognitive_account_id` as outputs so downstream roots can use managed identity instead of API key.
+6. Update `infra/terraform-pilot/main.tf` `nested_infrastructure_roots` to mark `openai` as `pilot_essential = true`.
+
+**Acceptance criteria:**
+
+- `terraform apply` on `terraform-openai` creates the Cognitive Services account and at least one model deployment.
+- Endpoint output can be consumed by `terraform-container-apps` as an env var, replacing hard-coded API key config.
+- Existing consumption budget resource is preserved.
+
+**Affected files / projects:**
+
+- `infra/terraform-openai/main.tf`, `variables.tf`, `outputs.tf`
+- `infra/terraform-pilot/main.tf` (pilot_essential flag)
+
+**Cross-ref:** **TB-080** (Entra auth migration), **TB-091** (private endpoint pattern), **TB-092** (managed identity chain).
+
+**Size estimate:** **M** --- ~8--16 h (model deployment API is still evolving; validate azurerm provider version support).
+
+---
+
+## TB-094 --- Create `terraform-redis` root --- Azure Cache for Redis hot-path cache
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`appsettings.Production.json` has `HotPathCache.Provider = "Auto"` and `HotPathCache.RedisConnectionString = ""` (filled at runtime from Key Vault). `Azure.Cache for Redis` is not referenced by any Terraform root --- SKU, capacity, geo-replication, eviction policy, TLS version, and private endpoint are entirely portal-managed. No `azurerm_redis_cache` resource exists anywhere.
+
+**What to do:**
+
+1. Create `infra/terraform-redis/` with `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`, `versions.tf`, `backend.tf`, `checks.tf`.
+2. Provision `azurerm_redis_cache` (minimum C1 Standard for staging, C3/P1 for production; accept SKU as variable).
+3. Set `minimum_tls_version = "TLS1_2"`, `enable_non_ssl_port = false`.
+4. Add optional `azurerm_private_endpoint` + `azurerm_private_dns_zone` for `privatelink.redis.cache.windows.net`.
+5. Add `azurerm_monitor_diagnostic_setting` forwarding to Log Analytics.
+6. Export connection string as a Key Vault secret or output for consumption by `terraform-container-apps`.
+7. Add root to `infra/terraform-pilot/main.tf` `nested_infrastructure_roots`.
+
+**Acceptance criteria:**
+
+- `terraform apply` creates an accessible Redis Cache instance.
+- `HotPathCache.RedisConnectionString` is sourced from Terraform output (not a manual portal step).
+- `terraform validate` passes with no speculative variables.
+
+**Affected files / projects:**
+
+- `infra/terraform-redis/` (new root)
+- `infra/terraform-pilot/main.tf`
+
+**Cross-ref:** **TB-091** (private endpoint pattern), `appsettings.Production.json`.
+
+**Size estimate:** **S** --- ~4--8 h.
+
+---
+
+## TB-095 --- Assess + codify Cosmos DB --- create `terraform-cosmos` root if active in production
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`appsettings.json` has a `CosmosDb.ConnectionString` key and `Microsoft.Azure.Cosmos` (v3.46.0) is a NuGet reference in `ArchLucid.Persistence`. No `azurerm_cosmosdb_account`, database, or container exists in any Terraform root. It is unclear whether Cosmos DB is active in the current hosted production environment or is a dormant/future dependency. If active, consistency level, throughput, geo-redundancy, backup policy, private endpoint, and RBAC are entirely portal-managed.
+
+**What to do:**
+
+1. **Assessment first:** Determine whether a Cosmos DB account is provisioned in the production subscription by querying Terraform state or Azure. Document the result as a comment in this item.
+2. If active: Create `infra/terraform-cosmos/` owning `azurerm_cosmosdb_account`, `azurerm_cosmosdb_sql_database`, and `azurerm_cosmosdb_sql_container` with appropriate partition key, throughput, and indexing policy.
+3. Configure `consistency_policy` (minimum `Session`), `backup` (continuous or periodic), geo-redundancy as variables.
+4. Add optional private endpoint for `privatelink.documents.azure.com`.
+5. Add `azurerm_monitor_diagnostic_setting`.
+6. If not active: Add a `// CosmosDb is dormant --- not provisioned` comment to `appsettings.json` and remove the `Microsoft.Azure.Cosmos` NuGet from projects that do not use it.
+
+**Acceptance criteria:**
+
+- Either: `terraform apply` on `terraform-cosmos` creates the account; connection string is Key Vault-sourced.
+- Or: `CosmosDb.ConnectionString` is documented as dormant and the NuGet reference is scoped only to the consuming project.
+
+**Affected files / projects:**
+
+- `infra/terraform-cosmos/` (new root, if active)
+- `ArchLucid.Persistence/` (NuGet ref scoping if dormant)
+- `ArchLucid.Api/appsettings.json` (comment if dormant)
+
+**Cross-ref:** **TB-091** (private endpoint pattern).
+
+**Size estimate:** **S--M** --- ~4--12 h depending on assessment outcome.
+
+---
+
+## TB-096 --- Create `terraform-search` root --- Azure AI Search service
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`ArchLucid.Retrieval` references `Azure.Search.Documents` (v11.6.0) and `appsettings.Advanced.json` sets `Retrieval.Reranking.Provider = "AzureAiSearchSemantic"`. `terraform-private/network.tf` already accepts `var.search_service_id` and will create a private endpoint and DNS zone for `privatelink.search.windows.net` if provided --- but the Azure AI Search service itself is never created by any Terraform root. SKU, replica count, semantic ranking configuration, and network rules are entirely portal-managed. Cross-ref **TB-071** (production search client registration gap).
+
+**What to do:**
+
+1. Create `infra/terraform-search/` with `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`, `versions.tf`, `backend.tf`, `checks.tf`.
+2. Provision `azurerm_search_service` with SKU as variable (minimum `basic` for staging, `standard` for production), replica and partition count, semantic search tier.
+3. Set `public_network_access_enabled = false` if VNet integration is enabled.
+4. Export `search_service_id` and `primary_key` (or use managed identity) for consumption by `terraform-private` and `terraform-container-apps`.
+5. Add `azurerm_monitor_diagnostic_setting`.
+6. Add root to `terraform-pilot/main.tf` as non-pilot-essential.
+
+**Acceptance criteria:**
+
+- `terraform apply` creates an AI Search service.
+- `var.search_service_id` output can be fed directly into `terraform-private` to create the private endpoint.
+- Semantic ranking is enabled for production SKU.
+
+**Affected files / projects:**
+
+- `infra/terraform-search/` (new root)
+- `infra/terraform-private/network.tf`, `variables.tf`
+- `infra/terraform-pilot/main.tf`
+
+**Cross-ref:** **TB-071** (production search client registration), **TB-091** (private endpoint pattern).
+
+**Size estimate:** **S** --- ~4--8 h.
+
+---
+
+## TB-097 --- Create `terraform-acr` root --- Azure Container Registry
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`terraform-container-apps` reads the ACR via `data "azurerm_container_registry"` but no `azurerm_container_registry` resource exists in any Terraform root. Geo-replication, retention policies (image tag retention, untagged manifest purge), network rules, diagnostic settings, and the admin account toggle are all portal-managed. The CD workflow pushes images to ACR via OIDC but the registry itself has no IaC lifecycle.
+
+**What to do:**
+
+1. Create `infra/terraform-acr/` with `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`, `versions.tf`, `backend.tf`.
+2. Provision `azurerm_container_registry` with SKU `Premium` (required for geo-replication and private endpoint), `admin_enabled = false`, `public_network_access_enabled` as variable.
+3. Add optional `azurerm_container_registry_geo_replication` for the secondary region.
+4. Add `azurerm_private_endpoint` + DNS zone for `privatelink.azurecr.io` when private networking is enabled.
+5. Add `azurerm_monitor_diagnostic_setting`.
+6. Export `login_server`, `id`, and `resource_group_name` so `terraform-container-apps` can replace its `data` block with a direct reference (or continue using `data` if cross-state references are not desirable).
+7. Add to `terraform-pilot/main.tf` as pilot-essential.
+
+**Acceptance criteria:**
+
+- `terraform apply` creates the registry with the correct SKU and admin account disabled.
+- Existing `terraform-container-apps` continues to function (either consuming output or data block unchanged).
+- CD workflow `AZURE_*` secrets align with new registry.
+
+**Affected files / projects:**
+
+- `infra/terraform-acr/` (new root)
+- `infra/terraform-pilot/main.tf`
+- `.github/workflows/cd.yml` (verify ACR references)
+
+**Cross-ref:** **TB-091** (private endpoint pattern), `infra/terraform-container-apps/main.tf`.
+
+**Size estimate:** **S** --- ~4--8 h.
+
+---
+
+## TB-098 --- Add `azurerm_monitor_workspace` to `terraform-monitoring`
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+Both Prometheus rule group resources in `terraform-monitoring` (`azurerm_monitor_alert_prometheus_rule_group.archlucid_p0` and `azurerm_monitor_alert_prometheus_rule_group.archlucid_slo`) accept `var.azure_monitor_workspace_id` as their `scopes` value. The Azure Monitor Workspace (`Microsoft.Monitor/accounts`) that backs managed Prometheus is never created by any Terraform root. If the workspace is recreated, renamed, or drifts in the portal, `terraform apply` will fail with a scope resolution error.
+
+**What to do:**
+
+1. Add `resource "azurerm_monitor_workspace" "prometheus"` to `terraform-monitoring/main.tf` (conditional on `var.enable_monitoring_stack && var.enable_prometheus_slo_rule_group`).
+2. Expose the workspace ID as an output so operators can also register it with Azure Monitor for Prometheus scrape config.
+3. Remove `var.azure_monitor_workspace_id` as a raw input variable; derive it from the resource (or keep as override for bring-your-own workspace scenarios).
+
+**Acceptance criteria:**
+
+- `terraform apply` on `terraform-monitoring` creates the Azure Monitor Workspace when Prometheus rules are enabled.
+- P0 and SLO rule group `scopes` point to a Terraform-managed resource ID.
+
+**Affected files / projects:**
+
+- `infra/terraform-monitoring/main.tf`
+- `infra/terraform-monitoring/variables.tf`
+- `infra/terraform-monitoring/outputs.tf`
+
+**Cross-ref:** `infra/terraform-monitoring/prometheus_p0_rules.tf`, `prometheus_slo_rules.tf`.
+
+**Size estimate:** **XS** --- ~1--2 h.
+
+---
+
+## TB-099 --- Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`terraform-logicapps/diagnostics.tf` already establishes the pattern: for each Logic App Standard site, an `azurerm_monitor_diagnostic_setting` forwards `allLogs + AllMetrics` to a Log Analytics workspace. Three resource classes have no equivalent:
+
+1. **Container Apps** (API, Worker, UI, OTEL) --- console logs and system logs categories not codified.
+2. **Service Bus namespace** --- `OperationalLogs` and `DiagnosticErrorLogs` not codified.
+3. **Artifact storage account** --- `StorageRead`, `StorageWrite`, `StorageDelete`, `Transaction` metrics not codified.
+
+If these were configured in the portal post-deploy, Terraform cannot manage or reproduce them.
+
+**What to do:**
+
+1. **Container Apps:** Add `for_each` `azurerm_monitor_diagnostic_setting` in `terraform-container-apps/main.tf` (or a new `diagnostics.tf`) over a map of `{ api = ..., worker = ..., ui = ..., otel = ... }` resource IDs, forwarding `ContainerAppConsoleLogs` and `ContainerAppSystemLogs` to `azurerm_log_analytics_workspace.container_apps[0].id`. Make conditional on `var.enable_container_app_diagnostics` (default `false` to avoid breaking existing deployments).
+2. **Service Bus:** Add `azurerm_monitor_diagnostic_setting` in `terraform-servicebus/` (new `diagnostics.tf`) accepting `var.log_analytics_workspace_id` as optional input.
+3. **Storage:** Add `azurerm_monitor_diagnostic_setting` in `terraform-storage/` (new `diagnostics.tf`) for blob service logs (`StorageRead`, `StorageWrite`, `StorageDelete`) conditional on a `var.log_analytics_workspace_id` input.
+
+**Acceptance criteria:**
+
+- `terraform plan` with diagnostics enabled shows the three diagnostic setting resources without errors.
+- Pattern is consistent with `terraform-logicapps/diagnostics.tf` (conditional, Log Analytics target, `allLogs` or category-scoped).
+
+**Affected files / projects:**
+
+- `infra/terraform-container-apps/diagnostics.tf` (new)
+- `infra/terraform-servicebus/diagnostics.tf` (new)
+- `infra/terraform-storage/diagnostics.tf` (new)
+
+**Cross-ref:** `infra/terraform-logicapps/diagnostics.tf` (reference pattern).
+
+**Size estimate:** **S** --- ~3--6 h.
+
+---
+
+## TB-100 --- Migrate Logic App Standard storage from access-key to managed identity
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+All 7 Logic App Standard resources in `terraform-logicapps/main.tf` pass `storage_account_access_key = azurerm_storage_account.logic[0].primary_access_key` (and equivalents for governance, marketplace, trial, etc.). The access key is stored in Terraform state and in the Logic App configuration. Key rotation done in the Azure portal or via `az storage account keys renew` will break the Logic App until Terraform is re-applied. No RBAC assignment to the Logic App managed identity exists for the storage accounts.
+
+**What to do:**
+
+1. Remove `storage_account_access_key` from all `azurerm_logic_app_standard` blocks (supported in Logic Apps runtime 4.x with `WEBSITE_CONTENTAZUREFILECONNECTIONSTRING` replaced by managed identity).
+2. Add `azurerm_role_assignment` resources granting the Logic App `SystemAssigned` identity `Storage Blob Data Owner` and `Storage File Data Privileged Contributor` on each Logic App's storage account.
+3. Set `app_settings` `WEBSITE_RUN_FROM_PACKAGE = "1"` and remove connection string app settings that reference the access key.
+4. Verify Logic App runtime version is `~4` (already set) and test in staging before production rollout.
+
+**Acceptance criteria:**
+
+- `terraform apply` creates all Logic App RBAC assignments without passing `storage_account_access_key`.
+- Portal-side key rotation does not break Logic Apps.
+- `terraform state show` on Logic App resources contains no `storage_account_access_key` attribute.
+
+**Affected files / projects:**
+
+- `infra/terraform-logicapps/main.tf`
+
+**Cross-ref:** **TB-092** (managed identity RBAC pattern for Key Vault).
+
+**Size estimate:** **M** --- ~6--12 h (includes staging validation).
+
+---
+
+## TB-101 --- Resolve legacy App Service VNet integration in `terraform-private/app_service.tf`
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`terraform-private/app_service.tf` declares `azurerm_app_service_virtual_network_swift_connection` referencing `var.linux_web_app_id` and `var.web_app_vnet_integration_subnet_id`. The system's application layer runs on Azure Container Apps, not App Service. This file implies either (a) a legacy Linux Web App still exists in Azure and the resource may be in Terraform state, or (b) the file is forward-compatibility scaffolding with no live resource. In case (a) the web app is unmanaged by any active Terraform root.
+
+**What to do:**
+
+1. Inspect Terraform state for `terraform-private`: `terraform state list | grep swift` to determine if the resource has ever been applied.
+2. If resource exists in state with a live Azure resource ID: determine whether the App Service is still in use. If not, run `terraform destroy -target=azurerm_app_service_virtual_network_swift_connection.web_app` and decommission the App Service.
+3. If resource has never been applied (variable was always empty): add a comment to `app_service.tf` stating it is reserved for a potential future App Service integration and no live resource exists.
+4. Update `variables.tf` to document the optional nature of `var.linux_web_app_id`.
+
+**Acceptance criteria:**
+
+- After this item: the status of the web app VNet integration resource is documented with certainty.
+- No orphaned Azure resource exists outside Terraform management.
+
+**Affected files / projects:**
+
+- `infra/terraform-private/app_service.tf`
+- `infra/terraform-private/variables.tf`
+
+**Cross-ref:** `infra/terraform-container-apps/` (Container Apps is the active compute layer).
+
+**Size estimate:** **XS** --- ~1--2 h.
+
+---
+
+## TB-102 --- Parameterize `application_insights_sampling_percentage` in `terraform-monitoring`
+
+**Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
+
+**Problem:**
+
+`terraform-monitoring/application_insights.tf` sets `sampling_percentage = 100` as a hardcoded literal. At production scale this means every trace is ingested, which can produce very high Log Analytics ingestion costs. Pilot profile documentation (`docs/library/PILOT_PROFILE.md`) already mentions aligning `app_insights_sampling_percent` but there is no corresponding variable. Operators cannot adjust sampling without editing the `.tf` source file and committing a change.
+
+**What to do:**
+
+1. Add `variable "application_insights_sampling_percentage"` to `terraform-monitoring/variables.tf` with `type = number`, `default = 100`, validation `>= 0 && <= 100`, and a description noting that lowering to 10--20 is appropriate for high-volume production environments.
+2. Replace the hardcoded `sampling_percentage = 100` literal in `application_insights.tf` with `var.application_insights_sampling_percentage`.
+3. Document the variable in the pilot profile (`PILOT_PROFILE.md`) and monitoring runbook.
+
+**Acceptance criteria:**
+
+- Operators can set `application_insights_sampling_percentage = 20` in `production.tfvars` without editing `.tf` files.
+- Existing deployments using default value are unaffected (value remains 100 unless overridden).
+
+**Affected files / projects:**
+
+- `infra/terraform-monitoring/application_insights.tf`
+- `infra/terraform-monitoring/variables.tf`
+
+**Cross-ref:** `docs/library/PILOT_PROFILE.md`.
+
+**Size estimate:** **XS** --- ~30 min.
+
+---
+
+## TB-103 — Orphan candidate count + savings — expose via backend API; remove UI heuristic parser
+
+**Source:** Cross-layer domain-term audit (2026-05-27).
+
+**Problem:**
+
+"Orphan candidate" count and annualised savings are computed by two independent pipelines that share neither inputs nor algorithm:
+
+| Layer | File | Input | Algorithm |
+|-------|------|-------|-----------|
+| Backend | `ArchLucid.ArtifactSynthesis/Classifiers/OrphanedResourceClassifier.cs` | `resources.json` (ARM dump) | Deterministic ARM rules (unattached disks, NICs without VM, public IPs without `ipConfiguration`) |
+| Backend | `ArchLucid.Application/Findings/OrphanedAzureResourceFindingEngine.cs` | Above classifier | Emits typed `OrphanedAzureResource` findings |
+| **Frontend** | `archlucid-ui/src/lib/run-potential-savings-parser.ts` | `orphan-candidates.json` (extractor artifact) | Regex heuristic: coerces `candidates`/`resources`/`items`/`orphans` arrays; sums cost fields by keyword match |
+| **Frontend** | `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveOrphanCandidatesCard.tsx` | Above parser | `count = array.length`, `savings = heuristic USD sum` |
+
+The UI card never reads backend orphan findings. Count and dollar figures can diverge from server-side classification without either side producing an error. The heuristic string matching in `run-potential-savings-parser.ts` (`\borgan\b`, cost-field keyword scan) is a maintenance liability as extractor output shapes evolve.
+
+**What to do:**
+
+1. Add a new read model / query in `ArchLucid.Application` (or extend `ExecutiveRoiSummaryService`) that exposes `OrphanCandidateSummary { Count: int, AnnualSavingsUsd: decimal, EvidenceRunId: Guid }` derived from committed `OrphanedAzureResource` findings for the tenant's latest analysed run.
+2. Expose the new field on `GET /v1/roi/executive-summary` response (`ExecutiveRoiSummaryResponse`) — or as a dedicated `GET /v1/roi/orphan-candidate-summary` endpoint if the data source is a separate analysis pipeline.
+3. Replace `ExecutiveOrphanCandidatesCard.tsx` to call the API field instead of fetching and parsing `orphan-candidates.json`.
+4. Delete `heuristicAnnualUsdOpportunityFromOrphanCandidatesJson`, `coerceOrphanList`, and `sumOrphanCandidateRowUsdAnnual` from `run-potential-savings-parser.ts` once no remaining callers exist. Retain `run-savings-summary-model.ts` only if it is still needed for a different artifact type.
+5. Update `RunSavingsSummary.tsx` JSDoc comment which references `orphan-candidates.json` directly.
+6. Add a unit test asserting the new API field matches the count produced by `OrphanedResourceClassifier` given a known `resources.json` fixture.
+
+**Acceptance criteria:**
+
+- `ExecutiveOrphanCandidatesCard` displays count and savings sourced from the backend without fetching any raw artifact JSON.
+- `run-potential-savings-parser.ts` contains no heuristic orphan logic (or the file is deleted if no other caller remains).
+- Count and savings figures are consistent with `OrphanedAzureResource` findings visible in the findings panel for the same run.
+- No regression to the finding-level orphan detail pages.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Findings/OrphanedAzureResourceFindingEngine.cs` (or `ExecutiveRoiSummaryService.cs`)
+- `ArchLucid.Api/Controllers/Roi/RoiController.cs`
+- `ArchLucid.Contracts/Roi/ExecutiveRoiSummaryResponse.cs` (or new contract)
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveOrphanCandidatesCard.tsx`
+- `archlucid-ui/src/lib/run-potential-savings-parser.ts`
+- `archlucid-ui/src/lib/run-savings-summary-model.ts`
+- `archlucid-ui/src/components/RunSavingsSummary.tsx`
+
+**Cross-ref:** **TB-062** (executive dashboard live KPI replacement — this item is a scoped sub-task).
+
+**Size estimate:** **M** — ~1–2 days (backend query + contract + API surface + UI replacement + tests).
+
+---
+
+## TB-104 — 14-day expiring waiver KPI — server-compute the window; remove client-side date rule
+
+**Source:** Cross-layer domain-term audit (2026-05-27). Cross-ref: code comment references TB-062 gap.
+
+**Problem:**
+
+`ExecutiveRoiDashboardLiveKpiCards.tsx` computes the "expiring waivers" dashboard tile client-side:
+
+```typescript
+// archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx
+const countExpiringWaivers = (entries: RiskExceptionRecord[]) =>
+  entries.filter(e => {
+    const expiresMs = new Date(e.expiresAtUtc).getTime();
+    return expiresMs > Date.now() && expiresMs <= Date.now() + 14 * 24 * 60 * 60 * 1000;
+  }).length;
+```
+
+The 14-day window is a business rule that exists only in the browser. `ExecutiveReviewPacketBuilder.cs` has an `ExpiringWaiversCount14Days` field in the review packet model but populates it from `ActiveWaiversCount` (a known placeholder). Consequences:
+
+- The rule can change on the server (e.g., moved to 30 days) without the dashboard tile updating.
+- The dashboard tile is evaluated in the user's local time zone (`Date.now()`), not UTC.
+- Server-generated PDF/export packets and the live dashboard tile can show different numbers for the same data.
+
+**What to do:**
+
+1. In `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs` (or `RiskExceptionService`), compute `ExpiringWaiversCount14Days` correctly: count active waivers where `ExpiresAtUtc` is within the next 14 calendar days from UTC now.
+2. Add `ExpiringWaiversCount14Days: int` to `ExecutiveRoiSummaryResponse` (it may already exist as a stub — verify and populate it).
+3. Fix `ExecutiveReviewPacketBuilder.cs` to read the same field rather than `ActiveWaiversCount`.
+4. Replace the `countExpiringWaivers` client-side filter in `ExecutiveRoiDashboardLiveKpiCards.tsx` with the API-provided field.
+5. Add a unit test for the 14-day boundary calculation (including day-boundary edge case at UTC midnight).
+
+**Acceptance criteria:**
+
+- Dashboard tile and PDF export packet show the same count for the same data.
+- The 14-day boundary is evaluated in UTC on the server in both paths.
+- `countExpiringWaivers` function is deleted from the UI (or reduced to a trivial field accessor).
+- Unit test covers: 0 expiring, 1 expiring on day 14, 1 expired yesterday (excluded), 1 expiring on day 15 (excluded).
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+- `ArchLucid.Application/Exports/ExecutiveReviewPacketBuilder.cs`
+- `ArchLucid.Contracts/Roi/ExecutiveRoiSummaryResponse.cs`
+- `ArchLucid.Api/Controllers/Roi/RoiController.cs`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx`
+
+**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-057** (governance stickiness review packet).
+
+**Size estimate:** **S** — ~4–6 h (backend field population + UI simplification + tests).
+
+---
+
+## TB-105 — Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher
+
+**Source:** Cross-layer domain-term audit (2026-05-27).
+
+**Problem:**
+
+`BusinessImpactSummaryWidget.tsx` derives its "security / reliability / compliance / cost / governance" issue counts by substring-matching the `category` field of `topSystemicIssues[]` items returned by `GET /v1/roi/executive-summary`:
+
+```typescript
+// archlucid-ui/src/components/BusinessImpactSummaryWidget.tsx
+function sumIssueCounts(issues: SystemicIssue[], ...buckets: string[]) {
+  return issues
+    .filter(i => buckets.some(b => i.category.toLowerCase().includes(b)))
+    .reduce((acc, i) => acc + i.count, 0);
+}
+// e.g. sumIssueCounts(issues, "security", "threat")
+//      sumIssueCounts(issues, "reliability", "availability", "resilience")
+```
+
+Problems with this approach:
+
+- The bucket definitions (which `category` substrings map to which pillar) live only in the UI. They cannot be unit-tested against real category values from the backend.
+- A backend category rename (e.g., `"resiliency"` → `"resilience"`) silently zeroes the reliability bucket without a compilation error.
+- The backend `ExecutiveRoiSummaryService` already has full category information when building the response; it can produce authoritative counts with zero ambiguity.
+
+**What to do:**
+
+1. In `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`, aggregate `topSystemicIssues` into named pillar buckets (`Security`, `Reliability`, `Compliance`, `Cost`, `Governance`, `Other`) using the same category taxonomy the backend uses for findings classification. Add a `BusinessImpactBuckets` property to `ExecutiveRoiSummaryResponse`.
+2. Define the bucket-to-category mapping as a named constant or enum in `ArchLucid.Core` or `ArchLucid.Contracts` so it is reusable and testable.
+3. Replace the `sumIssueCounts` calls in `BusinessImpactSummaryWidget.tsx` with the pre-bucketed counts from the API response.
+4. Delete `sumIssueCounts` (or mark it internal-test-only) once no production callers remain.
+5. Add unit tests for the bucket aggregation in `ArchLucid.Application.Tests` covering at least: a category that maps to exactly one bucket, a category that maps to `Other`, an empty issue list.
+
+**Acceptance criteria:**
+
+- `BusinessImpactSummaryWidget` reads bucket counts from `ExecutiveRoiSummaryResponse.BusinessImpactBuckets`; no substring matching occurs in production UI code.
+- A backend category rename causes a compilation error or failing unit test, not a silent KPI zero.
+- Bucket counts in the widget match what `ExecutiveRoiSummaryService` computed for the same response payload.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+- `ArchLucid.Contracts/Roi/ExecutiveRoiSummaryResponse.cs` (new `BusinessImpactBuckets` shape)
+- `ArchLucid.Core` or `ArchLucid.Contracts` (category → pillar mapping constant)
+- `archlucid-ui/src/components/BusinessImpactSummaryWidget.tsx`
+- `ArchLucid.Application.Tests/Roi/` (new unit tests)
+
+**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-103** (orphan savings — same root cause pattern).
+
+**Size estimate:** **S** — ~4–8 h (backend aggregation + contract change + UI simplification + tests).
+
+---
+
+## TB-106 — RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]`
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+The operator run detail loader calls `GET /v1/authority/runs/{runId}` (`AuthorityQueryController.GetRunDetail`), which returns `RunDetailDto`. The UI components `RunEstimatedLlmCostCard`, `RunTrustEvidenceCardSection`, and `QuickDecisionSummary` (via `quick-decision-summary-derive.ts`) read `resolvedDetail.agentExecutionLlmCostEstimate`, `resolvedDetail.trustEvidenceCard`, and `resolvedDetail.results[]` respectively. Those three fields exist only on `RunDetailsResponse` returned by `GET /v1/architecture/run/{runId}` (`RunQueryController.GetRun`). On every live run using the authority path, all three are `null` or `undefined`. The TypeScript `RunDetail` type declares them as optional, masking the API gap. The only path where they appear is the static demo data injection in `operator-static-demo.ts`.
+
+Consequence: on every live operator run review, the operator sees "Cost estimate unavailable", an empty trust evidence section, and no quick-decision confidence summary — three of the six critical operator signals identified in the fidelity audit.
+
+**What to do (preferred — enrich authority endpoint):**
+
+1. In `AuthorityQueryController.GetRunDetail`, after loading `RunDetailDto`, call `RunQueryController`'s underlying service (or a shared `IRunCostService` / `IRunTrustService`) to attach `agentExecutionLlmCostEstimate` and `trustEvidenceCard` to the authority response.
+2. Add `AgentExecutionLlmCostEstimate? AgentExecutionLlmCostEstimate` and `TrustEvidenceCard? TrustEvidenceCard` to `RunDetailDto` (or its API response projection).
+3. For `results[]`: assess whether the authority endpoint should include per-finding results (currently architecture-only). If yes, project from `FindingsSnapshot`; if no, document the explicit gap and update `quick-decision-summary-derive.ts` to fall back gracefully to `findingTraceConfidences` with a visible "using fallback" label instead of silently showing empty.
+4. Update `api-types.generated.ts` (or the OpenAPI spec) to reflect the enriched authority response shape.
+5. Remove the static demo data injection paths in `load-run-detail-page-model.ts` that paper over the gap.
+
+**Alternative (parallel fetch):**
+
+If enriching the authority endpoint is blocked by service ownership, add a parallel `GET /v1/architecture/run/{runId}` call in `loadRunDetailPageModel` and merge the `agentExecutionLlmCostEstimate` / `trustEvidenceCard` fields into the resolved model. This is lower risk to authority endpoint stability but adds a second HTTP call on every page load.
+
+**Acceptance criteria:**
+
+- On a live non-demo run, `RunEstimatedLlmCostCard` shows a USD value, model name, and token counts (not "unavailable").
+- `RunTrustEvidenceCardSection` renders trust evidence when the run completed.
+- `QuickDecisionSummary` shows per-finding confidence (or labels the fallback path explicitly).
+- Static demo injection is no longer needed to see these sections.
+- No existing authority-path tests regress.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs`
+- `ArchLucid.Core/Persistence/ApplicationPorts/Queries/RunDetailDto.cs`
+- `ArchLucid.Application/` (cost / trust service interfaces — determine shared extraction point)
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/load-run-detail-page-model.ts`
+- `archlucid-ui/src/lib/api-types.generated.ts`
+- `archlucid-ui/src/lib/api/architecture-runs.ts`
+- `archlucid-ui/src/lib/quick-decision-summary-derive.ts`
+
+**Cross-ref:** **TB-107**, **TB-108** (same root-cause audit cluster); **TB-011** (INV-002 trust card + operator UI badge — partially done).
+
+**Size estimate:** **M** — ~1–2 days (authority endpoint enrichment + TS type update + loader simplification; parallel-fetch alternative is ~S).
+
+---
+
+## TB-107 — RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord`
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+`RunRecord` carries two fields that are loaded by `GetRunDetailAsync` and included in `RunDetailDto.Run` but are never accessed in any render path:
+
+- `LastFailureReason (string?)` — free-text reason written when a run fails or falls back.
+- `HasGovernanceWarnings (bool)` — flag set when at least one governance warning is present on the run.
+
+An operator reviewing and committing a run sees neither. `HasGovernanceWarnings = true` means the operator is approving a run with known governance issues without any indication on the page. `LastFailureReason` being hidden means a run that retried (see also `RetryCount` in **TB-108** notes) gives no explanation for why earlier attempts failed.
+
+**What to do:**
+
+1. In `RunDetailRunMetadataSection.tsx`, add a row for `run.lastFailureReason` when non-null, labelled "Last failure reason".
+2. Add a `HasGovernanceWarnings` indicator in `RunDetailManifestSummaryAlerts.tsx` or `RunDetailPageHeader` — either a warning pill on the header or a `Callout` that fires when `run.hasGovernanceWarnings === true`. The wording should be "This run has governance warnings — review all findings before committing."
+3. Optionally surface `run.retryCount` (> 0) as a secondary metadata row indicating the run was unstable.
+4. Verify these fields are present on the TypeScript `RunRecord` type in `authority.ts`; add them if missing.
+
+**Acceptance criteria:**
+
+- A run with `HasGovernanceWarnings = true` shows a visible warning on `RunDetailPageView` before the operator can commit.
+- A run with a non-null `LastFailureReason` shows the reason in the metadata section.
+- `RunDetailRunMetadataSection` unit test (if exists) covers the new rows.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunMetadataSection.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailManifestSummaryAlerts.tsx`
+- `archlucid-ui/src/types/authority.ts` (verify `RunRecord` type has `lastFailureReason`, `hasGovernanceWarnings`, `retryCount`)
+- `ArchLucid.Core/Persistence/ApplicationPorts/Models/RunRecord.cs` (read-only — verify field names)
+
+**Cross-ref:** **TB-106** (same audit cluster — split API contract); **TB-108** (`hasCommitBlockingFailures` — complementary operator signal).
+
+**Size estimate:** **S** — ~3–5 h (UI changes + type verification).
+
+---
+
+## TB-108 — RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures`
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+`DapperAuthorityQueryService.GetRunDetailAsync` computes `RunFindingCoverageSummary` and attaches it to `RunDetailDto`. The structure includes:
+
+- `HasCommitBlockingFailures (bool)` — true when at least one finding engine failure prevents a reliable commit.
+- `DispositionCoverage (RunFindingDispositionCoverage)` — breakdown of how many findings have been dispositioned (accepted, remediated, deferred, rejected, needs-evidence, open).
+- `FailedEngineLabels (string[])` — the only field currently rendered (as a degraded banner).
+
+`HasCommitBlockingFailures` is particularly dangerous to hide: the operator can press `CommitRunButton` without knowing the run has commit-blocking failures. `DispositionCoverage` is the operator's primary tool for understanding whether all findings have been reviewed before committing.
+
+**What to do:**
+
+1. In `RunDetailManifestSummaryAlerts.tsx` (or `RunDetailRunActionsSection.tsx`), add a `Callout` with `tone="danger"` when `findingCoverageSummary.hasCommitBlockingFailures === true`. The message should read "One or more finding engines failed in a way that blocks commit. Resolve the coverage gaps before finalizing."
+2. Disable or visually warn `CommitRunButton` when `hasCommitBlockingFailures === true` (coordinate with `RunDetailPageHeader.tsx`).
+3. In `RunDetailManifestSummarySection.tsx` or a new `RunDetailFindingDispositionSection`, render a disposition coverage summary: counts for open, accepted, remediated, deferred, needs-evidence findings from `dispositionCoverage`. This gives the operator a one-glance view of review completeness.
+4. Verify the TypeScript `RunDetail` type in `authority.ts` exposes the full `findingCoverageSummary` shape beyond `failedEngineLabels`.
+
+**Acceptance criteria:**
+
+- A run with `HasCommitBlockingFailures = true` shows a blocking callout and a disabled or warned `CommitRunButton`.
+- Disposition coverage counts are visible on the run detail page before commit.
+- The existing degraded-engine banner for `failedEngineLabels` continues to render (no regression).
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailManifestSummaryAlerts.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
+- `archlucid-ui/src/components/RunDetailPageHeader.tsx` (`CommitRunButton` guard)
+- `archlucid-ui/src/types/authority.ts` (full `findingCoverageSummary` shape)
+- `ArchLucid.Contracts/Findings/RunFindingCoverageSummary.cs` (read-only — verify field names)
+
+**Cross-ref:** **TB-106**, **TB-107** (same audit cluster); **TB-113** (OpenAPI drift may hide these fields in generated types).
+
+**Size estimate:** **S** — ~4–6 h (callout + commit guard + disposition summary panel + type verification).
+
+---
+
+## TB-109 — RunDetailPageView — add retrieval-hit / RAG grounding panel
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+There is no UI surface anywhere on the run detail page (or any sub-route) that shows what documents were retrieved during RAG execution, their similarity scores, or whether any retrieval step was skipped or degraded. The retrieval infrastructure exists (`ArchLucid.Retrieval`, `IRetrievalQueryService`) and finding trust labels reference weak retrieval, but the operator has no way to judge whether the model had good grounding without examining raw trace blobs. This gap is most consequential when `RunExplanationSummary.faithfulnessWarning = true` — the operator sees a faithfulness warning but cannot inspect the underlying retrieval to understand it.
+
+**What to do:**
+
+1. Define an API endpoint `GET /v1/authority/runs/{runId}/retrieval-hits` (or extend the existing `GET /v1/architecture/runs/{runId}/traces`) that returns, per agent task: retrieved document IDs / titles, similarity scores, whether the hit was used or filtered below threshold, and the retrieval model/index version used.
+2. Create `RunDetailRetrievalGroundingSection.tsx` under `_sections/` that renders:
+   - A per-task collapsed list of retrieval hits (document title, score, used/filtered status).
+   - A summary line: "N documents retrieved, M used" per task.
+   - A warning pill when any task had zero usable hits.
+3. Register the section in `RunDetailPageView.tsx` between `RunDetailRunExplanationCollapsible` and `RunDetailRunMetadataSection`, collapsed by default.
+4. Link the section from the `faithfulnessWarning` banner in `RunExplanationSection` ("View retrieval hits →").
+
+**Acceptance criteria:**
+
+- When `faithfulnessWarning = true`, the operator can click through to see which chunks were (and were not) retrieved.
+- The section renders collapsed by default; operators who do not need it are not distracted.
+- Empty state (retrieval not applicable, e.g., non-RAG run) is not rendered (section omitted entirely).
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (new endpoint or extended traces endpoint)
+- `ArchLucid.Application/` (retrieval hit query — interface in `IRetrievalQueryService` or new port)
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRetrievalGroundingSection.tsx` (new)
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- `archlucid-ui/src/components/RunExplanationSection.tsx` (link from faithfulness warning)
+- `archlucid-ui/src/lib/api/architecture-runs.ts` (new API client function)
+
+**Cross-ref:** **TB-045**–**TB-049** (retrieval correctness/drift audit); **RAG-V1-007**–**RAG-V1-011** (`RAG_QUALITY_TECHNICAL_BACKLOG.md`); **TB-033** (persist LLM sampling params — complementary forensic completeness).
+
+**Size estimate:** **M** — ~1.5–2 days (API endpoint + retrieval query projection + UI section).
+
+---
+
+## TB-110 — RunDetailPageView — add tool-call / function-invocation log panel
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+`RunDetailPageView` has no section showing which external tools or functions were invoked during a run, with what arguments, or what they returned. `RunAgentForensicsSection` shows agent trace rows (agent type, parse result, blob upload status, heuristic/LLM rubric scores) but this is not a tool-call list. Full prompt/response content may be in blob storage, but `blobUploadFailed` is only surfaced as a warning — the content is never rendered. An operator cannot verify whether an external API call produced correct input or whether a tool invocation was retried.
+
+The OTEL trace ID (`run.otelTraceId`) is already stored on `RunRecord` and shown in the metadata section as a link, but operators are expected to navigate to an external trace viewer rather than see structured tool calls inline.
+
+**What to do:**
+
+1. Extend `GET /v1/architecture/run/{runId}/traces` (or create `GET /v1/authority/runs/{runId}/tool-calls`) to return a structured tool-call log per agent task: tool name, invocation arguments (redacted / truncated as needed), response summary, duration, success/failure.
+2. In `RunAgentForensicsSection.tsx` (or a new `RunDetailToolCallsSection.tsx`), add a collapsed sub-section per agent task listing its tool invocations as a table: tool, args preview, outcome, duration.
+3. Surface the `blobUploadFailed` warning as a named issue in the same section ("Full trace unavailable — blob upload failed") so the operator understands completeness limits.
+4. If full prompt/response blob is available, add a "View raw" expansion per invocation (guarded behind operator role check if applicable).
+
+**Acceptance criteria:**
+
+- An operator reviewing a run can see which tools were invoked, in what order, with what argument summary, and whether each succeeded.
+- `blobUploadFailed` is surfaced as a named completeness warning, not a silent badge.
+- The section is collapsed by default and omitted entirely if the run has no tool invocations.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/` (traces endpoint extension or new tool-calls endpoint)
+- `ArchLucid.Application/Agents/` (agent execution trace projection — add tool-call sub-records)
+- `archlucid-ui/src/components/RunAgentForensicsSection.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- `archlucid-ui/src/lib/api/architecture-runs.ts`
+
+**Cross-ref:** **TB-033** (persist LLM sampling params + reasoning token count — forensic completeness); **TB-082** (`AllowedTools` runtime enforcement — security); **TB-035** (remediation attempt forensics).
+
+**Size estimate:** **M** — ~1.5–2 days (trace endpoint extension + UI section + blob-failure surfacing).
+
+---
+
+## TB-111 — RunDetailPageView — inline provenance summary card (collapse from sibling route)
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+Provenance (which context snapshot was used, what inputs were fed to the architecture request, and what the coordinator graph source was) is accessible only by navigating to `reviews/[runId]/provenance` — a full-page sibling route that uses `GET /v1/architecture/runs/{runId}/provenance`. This route is linked from `RunDetailOutcomeCards` but only as an external link. An operator reviewing the run must navigate away, losing their scroll position and the run-detail context they were building.
+
+Additionally, the sibling provenance page uses the **architecture** provenance endpoint, while the authority API also has a `GET /v1/authority/runs/{runId}/provenance` endpoint that is never called by any UI page.
+
+**What to do:**
+
+1. Add a collapsed `RunDetailProvenanceSummaryCard` section to `RunDetailPageView.tsx`, placed after `RunDetailAuthorityChainSection` (which already shows snapshot IDs).
+2. The card should show a compact summary sourced from the authority provenance endpoint: context snapshot ID + description, architecture request ID, graph snapshot ID, and "View full provenance →" link to the sibling route.
+3. Call `GET /v1/authority/runs/{runId}/provenance` (if it returns useful summary data) or derive the same information from fields already on `RunDetailDto` (`run.contextSnapshotId`, `run.graphSnapshotId`, `run.architectureRequestId`) without a second fetch.
+4. If the authority provenance endpoint returns a richer payload than the DTO fields, use it; otherwise use the DTO fields and skip the second call.
+5. Remove the "View provenance" link from `RunDetailOutcomeCards` (or keep it as a supplement) once the inline card provides the summary.
+
+**Acceptance criteria:**
+
+- Operator can see provenance context (snapshot IDs, source description, architecture request) on the run detail page without navigating away.
+- "View full provenance" link remains available for deeper inspection.
+- No additional HTTP calls are made if the DTO already has sufficient fields.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailAuthorityChainSection.tsx` (may absorb the summary)
+- `archlucid-ui/src/components/RunDetailOutcomeCards.tsx`
+- `archlucid-ui/src/lib/api/architecture-runs.ts` (authority provenance call, if needed)
+
+**Cross-ref:** **TB-033**–**TB-038** (provenance completeness audit — backend side); **TB-036** (provenance ↔ agent trace correlation).
+
+**Size estimate:** **S** — ~3–5 h (inline card + authority provenance call if needed + link update).
+
+---
+
+## TB-112 — RunDetailPageView — add run-level approve / reject / request-remediation actions
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize the golden manifest). Governance actions — accept, reject, waive, defer, request remediation — all live on individual `reviews/[runId]/findings/[findingId]` sub-routes and are backed by `GovernanceStickinessController`. There is no run-level approve or reject.
+
+`findingCoverageSummary.dispositionCoverage` (see **TB-108**) provides a run-level view of how many findings are open vs dispositioned, but there is no corresponding action. An operator who has reviewed all findings and wants to formally approve or reject the run as a whole has no mechanism to do so from the run detail page.
+
+**What to do:**
+
+1. Define a run-level governance disposition API: `POST /v1/authority/runs/{runId}/disposition` accepting `{ decision: "Approved" | "Rejected" | "RequestRemediation", rationale?: string }`. The backend should record the decision against the run record (or `DecisionTrace`) and update `RunRecord.LegacyRunStatus` or a new `GovernanceDecision` field accordingly.
+2. In `RunDetailRunActionsSection.tsx`, add three action buttons (or a decision panel): Approve, Reject, Request Remediation. Guard all three on `findingCoverageSummary.hasCommitBlockingFailures === false` for Approve; Reject and Request Remediation are always available.
+3. Show a confirmation dialog with rationale input before each action.
+4. Reflect the decision on the run detail page header (governance pill / badge update).
+5. Scope the actions to the `operator` role — buyer users should not see them.
+
+**Note:** This is explicitly V1 scope — check [`V1_SCOPE.md`](V1_SCOPE.md) §2 before implementation to confirm run-level governance disposition is within the current release window. If it is release-windowed to V1.1, downgrade to V1.1 and note it here.
+
+**Acceptance criteria:**
+
+- Operator can approve, reject, or request remediation of a run from the run detail page.
+- Approved/rejected status is visible on subsequent page loads.
+- Approve action is blocked when `hasCommitBlockingFailures = true`.
+- Buyer users do not see the action buttons.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (new disposition endpoint)
+- `ArchLucid.Application/` (run disposition command + handler)
+- `ArchLucid.Core/Persistence/ApplicationPorts/` (run disposition port)
+- `ArchLucid.Persistence/` (run disposition persistence)
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailRunActionsSection.tsx`
+- `archlucid-ui/src/components/RunDetailPageHeader.tsx` (governance status reflection)
+
+**Cross-ref:** **TB-057**–**TB-063** (commercial stickiness / governance review workflow); **TB-108** (`hasCommitBlockingFailures` gate for Approve action).
+
+**Size estimate:** **M** — ~1.5–2 days (API + command/handler + UI action panel + dialog).
+
+---
+
+## TB-113 — Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types
+
+**Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
+
+**Problem:**
+
+`ArchLucid.Core/Persistence/ApplicationPorts/Queries/RunDetailDto.cs` defines `DegradedFindingCoverage` and `FindingCoverageSummary` (type `RunFindingCoverageSummary`). The generated TypeScript `api-types.generated.ts` may omit or under-type these fields if the OpenAPI spec was generated before they were added or if the Swashbuckle configuration excludes them. As a result, UI code accessing `resolvedDetail.findingCoverageSummary.hasCommitBlockingFailures` requires a type assertion or `any` cast, which bypasses compile-time correctness and makes it impossible to confidently add the operator-visible panels from **TB-108**.
+
+**What to do:**
+
+1. Regenerate `api-types.generated.ts` from the current OpenAPI spec (or run the existing generation script in `scripts/`).
+2. Verify the generated output includes `RunFindingCoverageSummary` with all fields from `RunFindingCoverageSummary.cs`: `EnginesAttempted`, `EnginesSucceeded`, `EnginesFailed`, `FailedEngineLabels`, `HasCommitBlockingFailures`, `DispositionCoverage` (with its sub-fields).
+3. If any field is missing from the OpenAPI spec, check `AuthorityQueryController` for `[JsonIgnore]` or missing `[ProducesResponseType]` annotations and fix.
+4. Update any UI code that currently uses `any` casts or optional chaining workarounds on `findingCoverageSummary` to use the typed fields directly.
+5. Add the regeneration step to the CI pipeline (or verify it is already there) so spec drift is caught automatically.
+
+**Acceptance criteria:**
+
+- `api-types.generated.ts` has a typed `RunFindingCoverageSummary` interface with `hasCommitBlockingFailures: boolean` and `dispositionCoverage`.
+- No `any` cast is needed to access coverage fields in `RunDetailPageView` and related sections.
+- CI fails if the generated types fall behind the API contract.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/lib/api-types.generated.ts`
+- `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (OpenAPI annotations if needed)
+- `ArchLucid.Contracts/Findings/RunFindingCoverageSummary.cs` (read — verify public surface)
+- `scripts/` (OpenAPI generation script — verify CI integration)
+
+**Cross-ref:** **TB-108** (rendered coverage fields depend on correct types); **TB-106** (same schema drift risk for `agentExecutionLlmCostEstimate` / `trustEvidenceCard`).
+
+**Size estimate:** **XS** — ~1–2 h (regeneration + annotation fix + cast cleanup).
 
 ---

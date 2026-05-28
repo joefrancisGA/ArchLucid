@@ -18,6 +18,7 @@ using ArchLucid.Application.ExecutiveSummary;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Integrations.Confluence;
 using ArchLucid.Host.Core.Http;
+using ArchLucid.Application.Billing;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Findings;
@@ -267,6 +268,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingDispositionService, FindingDispositionService>();
         services.AddScoped<IRiskExceptionService, RiskExceptionService>();
         services.AddScoped<IRealizedValueAttestationService, RealizedValueAttestationService>();
+        services.AddScoped<IBuyerProofPackBuilder, BuyerProofPackBuilder>();
+        services.AddScoped<ITenantLlmCostReportingService, TenantLlmCostReportingService>();
+        services.AddScoped<IAdminFleetLlmCogsService, AdminFleetLlmCogsService>();
         services.AddScoped<IArchitectureRiskRegisterService, ArchitectureRiskRegisterService>();
         services.AddScoped<IArchitectureDecisionRegisterService, ArchitectureDecisionRegisterService>();
         services.AddScoped<IGovernanceDigestDecisionNeededComposer, GovernanceDigestDecisionNeededComposer>();

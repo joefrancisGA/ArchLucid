@@ -325,6 +325,9 @@ public static class AuditEventTypes
     /// <summary>Optional structured pilot closeout (<c>POST /v1/pilots/closeout</c>).</summary>
     public const string PilotCloseoutRecorded = "PilotCloseoutRecorded";
 
+    /// <summary>Operator generated the one-click sponsor proof ZIP for a committed run (Batch B item 5).</summary>
+    public const string SponsorProofPackGenerated = "SponsorProofPackGenerated";
+
     /// <summary>Core Pilot team checklist step upsert (<c>PUT …/tenant/core-pilot-checklist</c>).</summary>
     public const string CorePilotTeamChecklistUpdated = "CorePilotTeamChecklistUpdated";
 
