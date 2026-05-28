@@ -144,6 +144,7 @@ public sealed class RetrievalIrEvalTests
             Text = src.Text ?? string.Empty,
             Embedding = src.Embedding,
             EmbeddingDimension = src.Embedding.Length,
+            EmbeddingModelId = "eval-golden",
             PolicyPackRulePackId = TestPolicyPackRulePackId
         };
 

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Models.Admin;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
@@ -52,7 +53,9 @@ public sealed class MarketingPricingQuoteFollowUpAdminController(
             .ConfigureAwait(false);
 
         if (!updated)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Pricing quote request '{id}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();
@@ -85,7 +88,9 @@ public sealed class MarketingPricingQuoteFollowUpAdminController(
         bool updated = await _followUpRepository.CloseAsync(id, cancellationToken).ConfigureAwait(false);
 
         if (!updated)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Pricing quote request '{id}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         string actorId = _actorContext.GetActorId();

@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Mcp.Tools;
 
@@ -12,7 +13,7 @@ namespace ArchLucid.Api.Controllers.Mcp;
 
 /// <summary>HTTP bridge for read-only retrieval MCP tools until Streamable HTTP membrane ships (RAG-V1.1-002).</summary>
 [ApiController]
-[Authorize]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/mcp/retrieval")]
 public sealed class McpRetrievalToolsController(

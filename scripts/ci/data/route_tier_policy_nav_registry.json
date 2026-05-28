@@ -1157,7 +1157,7 @@
       "route_template": "v{version:apiVersion}/mcp/retrieval",
       "normalized_prefix": "/v1/mcp/retrieval",
       "commercial_tier": "none",
-      "class_policy": "Authorize",
+      "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     },

@@ -49,6 +49,7 @@ public sealed class AgentResult
     ///     Natural-language claims produced by the agent supporting its proposed architecture changes.
     /// </summary>
     [Required]
+    [JsonConverter(typeof(AgentResultClaimListJsonConverter))]
     public List<string> Claims
     {
         get;
