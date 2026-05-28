@@ -1,0 +1,70 @@
+{
+  "resultId": "sim-saas-001",
+  "taskId": "task-saas-topology",
+  "runId": "run-saas-eval-001",
+  "agentType": "Topology",
+  "claims": [
+    {
+      "detail": "Azure App Service must use Managed Identity to authenticate against Key Vault for secrets retrieval rather than connection strings or API keys embedded in configuration.",
+      "evidenceRefs": ["cat-app-service", "cat-key-vault"]
+    },
+    {
+      "detail": "Azure Front Door should terminate TLS at the edge and enforce HTTPS redirection before traffic reaches the App Service origin.",
+      "evidenceRefs": ["cat-front-door"]
+    },
+    {
+      "detail": "App Service Plan should be deployed across at least two availability zones to meet the SLA requirements stated in the platform documentation.",
+      "evidenceRefs": ["platform-doc-sla-zones"]
+    }
+  ],
+  "evidenceRefs": ["cat-app-service", "cat-key-vault", "cat-front-door", "platform-doc-sla-zones"],
+  "findings": [
+    {
+      "findingId": "find-saas-managed-identity",
+      "sourceAgent": "Topology",
+      "severity": "Medium",
+      "category": "Topology",
+      "message": "App Service is not configured to use Managed Identity for Key Vault access. Embedding credentials in configuration creates a rotation burden and increases secret exposure risk.",
+      "reasoningTrace": "Pattern: Managed Identity eliminates long-lived credentials. Evidence: cat-app-service documents the Managed Identity binding; cat-key-vault documents the access policy model.",
+      "evidenceRefs": ["cat-app-service", "cat-key-vault"],
+      "confidenceScore": 0.87,
+      "evaluationConfidenceScore": 87,
+      "confidenceLevel": "High"
+    },
+    {
+      "findingId": "find-saas-tls-frontdoor",
+      "sourceAgent": "Topology",
+      "severity": "Low",
+      "category": "Topology",
+      "message": "Azure Front Door is present but TLS termination settings have not been explicitly verified. Ensure HTTPS-only and minimum TLS 1.2 are enforced at the Front Door profile.",
+      "reasoningTrace": "Pattern: Edge TLS enforcement. Evidence: cat-front-door documents the WAF + TLS policy options.",
+      "evidenceRefs": ["cat-front-door"],
+      "confidenceScore": 0.82,
+      "evaluationConfidenceScore": 82,
+      "confidenceLevel": "High"
+    },
+    {
+      "findingId": "find-saas-availability-zones",
+      "sourceAgent": "Topology",
+      "severity": "Low",
+      "category": "Cost",
+      "message": "App Service Plan is deployed in a single availability zone. Deploying across two or more availability zones improves SLA from 99.95% to 99.99% at a moderate cost increase.",
+      "reasoningTrace": "Pattern: Zone-redundant App Service Plan. Evidence: platform-doc-sla-zones documents the SLA impact of zone redundancy.",
+      "evidenceRefs": ["platform-doc-sla-zones"],
+      "confidenceScore": 0.78,
+      "evaluationConfidenceScore": 78,
+      "confidenceLevel": "High"
+    }
+  ],
+  "proposedChanges": [],
+  "reasoningTrace": "Reviewed Azure SaaS deployment for identity, edge security, and availability posture. Three actionable findings identified with evidence references.",
+  "confidence": 0.82,
+  "calibratedConfidence": 0.80,
+  "citations": [
+    { "sourceId": "cat-app-service", "description": "Azure App Service platform documentation" },
+    { "sourceId": "cat-key-vault", "description": "Azure Key Vault access policy reference" },
+    { "sourceId": "cat-front-door", "description": "Azure Front Door WAF and TLS reference" },
+    { "sourceId": "platform-doc-sla-zones", "description": "Availability zone SLA documentation" }
+  ],
+  "createdUtc": "2026-01-15T10:00:00Z"
+}

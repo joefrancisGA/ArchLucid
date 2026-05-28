@@ -137,4 +137,17 @@ public sealed class AgentOutputSemanticScore
         get;
         set;
     }
+
+    /// <summary>
+    ///     Fraction of findings that have at least one evidence reference or an explicit heuristic label.
+    ///     Populated by <c>FindingClaimCoverageEvaluator</c> when evidence is available.
+    ///     Null when the evaluator was not run (e.g. evidence package unavailable).
+    ///     Used by <see cref="ArchLucid.Core.Configuration.AgentOutputQualityGateOptions" /> in
+    ///     <c>PilotStrict</c> mode to reject traces with insufficient citation coverage.
+    /// </summary>
+    public double? FindingCitationCoverageRatio
+    {
+        get;
+        set;
+    }
 }

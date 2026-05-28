@@ -37,6 +37,11 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
         if (structural < sWarn || semantic < semWarn)
             return AgentOutputQualityGateOutcome.Warned;
 
+        if (_options.Mode == AgentOutputQualityGateMode.PilotStrict
+            && _options.PilotStrictMinCitationCoverageRatio.HasValue
+            && semanticScore.FindingCitationCoverageRatio < _options.PilotStrictMinCitationCoverageRatio)
+            return AgentOutputQualityGateOutcome.Rejected;
+
         return AgentOutputQualityGateOutcome.Accepted;
     }
 

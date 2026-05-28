@@ -73,6 +73,18 @@ public sealed class AgentOutputQualityGateOptions
     }
 
     /// <summary>
+    ///     When <see cref="Mode"/> is <see cref="AgentOutputQualityGateMode.PilotStrict"/> and this is set,
+    ///     traces where <c>AgentOutputSemanticScore.FindingCitationCoverageRatio</c> is strictly below this
+    ///     value are rejected. Null disables the check.
+    ///     Recommended starting value: 0.5 (at least half of findings must carry evidence references).
+    /// </summary>
+    public double? PilotStrictMinCitationCoverageRatio
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     When true, the heuristic semantic evaluator applies stricter length / overlap / proposed-change checks (production-like posture).
     /// </summary>
     public bool HeuristicEvaluatorTightenedThresholds

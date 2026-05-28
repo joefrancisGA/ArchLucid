@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "saas-f-001",
+      "category": "Topology",
+      "severity": "Medium",
+      "message": "App Service is not configured to use Managed Identity for Key Vault access.",
+      "evidenceRefs": ["cat-app-service", "cat-key-vault"]
+    },
+    {
+      "findingId": "saas-f-002",
+      "category": "Topology",
+      "severity": "Low",
+      "message": "Azure Front Door TLS termination settings have not been explicitly verified.",
+      "evidenceRefs": ["cat-front-door"]
+    },
+    {
+      "findingId": "saas-f-003",
+      "category": "Cost",
+      "severity": "Low",
+      "message": "App Service Plan is deployed in a single availability zone.",
+      "evidenceRefs": ["platform-doc-sla-zones"]
+    }
+  ]
+}

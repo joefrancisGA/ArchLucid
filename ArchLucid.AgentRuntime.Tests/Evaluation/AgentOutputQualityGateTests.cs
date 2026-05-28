@@ -311,4 +311,106 @@ public sealed class AgentOutputQualityGateTests
 
         category.Should().Be(AgentOutputQualityGateTelemetry.RejectReasonStructural);
     }
+
+    [SkippableFact]
+    public void PilotStrict_CitationCoverageBelow_Floor_Rejects()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0.0,
+            SemanticRejectBelow = 0.0,
+            StructuralWarnBelow = 0.0,
+            SemanticWarnBelow = 0.0,
+            PilotStrictMinCitationCoverageRatio = 0.5
+        };
+
+        AgentOutputQualityGate sut = new(Options.Create(options));
+
+        AgentOutputSemanticScore semantic = Semantic(AgentType.Topology, 1.0);
+        semantic.FindingCitationCoverageRatio = 0.3;
+
+        AgentOutputQualityGateOutcome outcome = sut.Evaluate(Structural(AgentType.Topology, 1.0), semantic);
+
+        outcome.Should().Be(
+            AgentOutputQualityGateOutcome.Rejected,
+            because: "PilotStrict mode must reject when citation coverage is below the configured floor");
+    }
+
+    [SkippableFact]
+    public void PilotStrict_CitationCoverageAbove_Floor_Accepts()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0.0,
+            SemanticRejectBelow = 0.0,
+            StructuralWarnBelow = 0.0,
+            SemanticWarnBelow = 0.0,
+            PilotStrictMinCitationCoverageRatio = 0.5
+        };
+
+        AgentOutputQualityGate sut = new(Options.Create(options));
+
+        AgentOutputSemanticScore semantic = Semantic(AgentType.Topology, 1.0);
+        semantic.FindingCitationCoverageRatio = 0.8;
+
+        AgentOutputQualityGateOutcome outcome = sut.Evaluate(Structural(AgentType.Topology, 1.0), semantic);
+
+        outcome.Should().Be(AgentOutputQualityGateOutcome.Accepted);
+    }
+
+    [SkippableFact]
+    public void WarnOnly_CitationCoverageBelow_Floor_DoesNotReject()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0.0,
+            SemanticRejectBelow = 0.0,
+            StructuralWarnBelow = 0.0,
+            SemanticWarnBelow = 0.0,
+            PilotStrictMinCitationCoverageRatio = 0.5
+        };
+
+        AgentOutputQualityGate sut = new(Options.Create(options));
+
+        AgentOutputSemanticScore semantic = Semantic(AgentType.Topology, 1.0);
+        semantic.FindingCitationCoverageRatio = 0.1;
+
+        AgentOutputQualityGateOutcome outcome = sut.Evaluate(Structural(AgentType.Topology, 1.0), semantic);
+
+        outcome.Should().NotBe(
+            AgentOutputQualityGateOutcome.Rejected,
+            because: "WarnOnly mode must not reject based on citation coverage alone");
+    }
+
+    [SkippableFact]
+    public void PilotStrict_NullCoverageRatio_DoesNotReject()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0.0,
+            SemanticRejectBelow = 0.0,
+            StructuralWarnBelow = 0.0,
+            SemanticWarnBelow = 0.0,
+            PilotStrictMinCitationCoverageRatio = 0.5
+        };
+
+        AgentOutputQualityGate sut = new(Options.Create(options));
+
+        AgentOutputSemanticScore semantic = Semantic(AgentType.Topology, 1.0);
+        semantic.FindingCitationCoverageRatio = null;
+
+        AgentOutputQualityGateOutcome outcome = sut.Evaluate(Structural(AgentType.Topology, 1.0), semantic);
+
+        outcome.Should().NotBe(
+            AgentOutputQualityGateOutcome.Rejected,
+            because: "coverage check is skipped when the ratio was not evaluated");
+    }
 }

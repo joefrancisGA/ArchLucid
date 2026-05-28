@@ -111,6 +111,18 @@ export function FindingInspectView({
         </Link>
       </div>
 
+      {buyerPolishedShell ? (
+        <div className="flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
+          <span className="rounded-sm bg-neutral-200 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300">
+            Appendix
+          </span>
+          <span>
+            Technical traceability appendix — source evidence, trace path, and audit metadata for this finding. Not
+            part of the governed decision summary.
+          </span>
+        </div>
+      ) : null}
+
       <header
         className={
           buyerPolishedShell
