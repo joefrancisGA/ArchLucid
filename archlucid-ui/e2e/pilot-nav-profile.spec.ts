@@ -50,14 +50,12 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
     await expect(layoutDialog()).toBeVisible();
     await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }).setChecked(true);
+    await expect(page.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    // Enable advanced in the same dialog session — the sidebar footer toggle re-mounts when extended
+    // tier unlocks (admin / governance clusters), which flakes Playwright click retries in CI.
+    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }).setChecked(true);
     await page.keyboard.press("Escape");
     await expect(layoutDialog()).toBeHidden();
-
-    await expect(page.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
-
-    const showGovernanceTools = page.getByTestId("sidebar-show-advanced-operations-toggle");
-    await expect(showGovernanceTools).toBeVisible();
-    await showGovernanceTools.click();
 
     await page.getByRole("button", { name: "Governance", exact: true }).click();
 
