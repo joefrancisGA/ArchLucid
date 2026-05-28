@@ -58,10 +58,16 @@ describe("RunsListClient inspector", () => {
     expect(screen.getAllByTestId(`runs-row-${SHOWCASE_STATIC_DEMO_RUN_ID}`)).toHaveLength(1);
   });
 
-  it("pre-selects the first run so the inspector shows a preview on load", () => {
+  it("keeps the inspector empty until a row is selected", () => {
     render(
       <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
     );
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+
+    fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
+
     expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
   });
 

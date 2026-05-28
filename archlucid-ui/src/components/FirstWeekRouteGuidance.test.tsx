@@ -21,7 +21,7 @@ describe("FirstWeekRouteGuidance", () => {
     render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
 
     expect(screen.getByRole("link", { name: "Go to finalize actions" })).toHaveAttribute("href", "#run-actions");
-    expect(screen.getByText(/Skip graph, replay, and governance dashboards/i)).toBeInTheDocument();
+    expect(screen.getByText(/Skip graph and governance dashboards/i)).toBeInTheDocument();
   });
 
   it("renders committed review detail guidance with exports anchor", () => {

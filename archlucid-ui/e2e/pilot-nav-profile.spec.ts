@@ -46,14 +46,14 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
 
     await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
-    await page.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }).check();
-    await page.getByRole("button", { name: "Close dialog" }).click();
+    await page.locator("#nav-extended").check();
+    await page.keyboard.press("Escape");
 
     await expect(page.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
 
     await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
-    await page.getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }).check();
-    await page.getByRole("button", { name: "Close dialog" }).click();
+    await page.locator("#nav-advanced").check();
+    await page.keyboard.press("Escape");
 
     await page.getByRole("button", { name: "Governance", exact: true }).click();
 

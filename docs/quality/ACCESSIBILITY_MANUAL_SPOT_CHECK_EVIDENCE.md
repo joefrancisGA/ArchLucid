@@ -1,6 +1,6 @@
-# Manual Accessibility Spot-Check Evidence
+> **Scope:** Lightweight author evidence for critical operator routes; complements automated axe checks and is not formal WCAG certification or AT lab sign-off.
 
-**Scope:** Lightweight author evidence for critical operator routes. This complements automated axe evidence; it is not formal WCAG certification and does not imply participant assistive-technology lab testing.
+# Manual Accessibility Spot-Check Evidence
 
 **Last reviewed:** 2026-05-28
 

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -31,10 +32,14 @@ describe("SearchPage (operator shell)", () => {
 
 describe("AskPage (operator shell)", () => {
   it("renders heading, question field, and ask control", () => {
-    render(<AskPage />);
+    render(
+      <Suspense fallback={null}>
+        <AskPage />
+      </Suspense>,
+    );
 
     expect(screen.getByRole("heading", { name: /ask about a review/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^question$/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^ask$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /ask this review/i })).toBeInTheDocument();
   });
 });
