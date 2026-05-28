@@ -1,12 +1,14 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>
-///     Minimal <see cref="IHostEnvironment" /> for composition DI tests (no generic host builder).
+///     Minimal <see cref="IHostEnvironment" /> / <see cref="IWebHostEnvironment" /> for composition DI tests
+///     (no generic host builder).
 /// </summary>
-public sealed class CompositionTestHostEnvironment(string environmentName) : IHostEnvironment
+public sealed class CompositionTestHostEnvironment(string environmentName) : IWebHostEnvironment
 {
     public string EnvironmentName
     {
@@ -27,6 +29,18 @@ public sealed class CompositionTestHostEnvironment(string environmentName) : IHo
     } = "/";
 
     public IFileProvider ContentRootFileProvider
+    {
+        get;
+        set;
+    } = new NullFileProvider();
+
+    public string WebRootPath
+    {
+        get;
+        set;
+    } = "/wwwroot";
+
+    public IFileProvider WebRootFileProvider
     {
         get;
         set;

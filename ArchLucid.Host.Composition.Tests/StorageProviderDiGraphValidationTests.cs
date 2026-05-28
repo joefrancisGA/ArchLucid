@@ -7,6 +7,7 @@ using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -108,7 +109,10 @@ public sealed class StorageProviderDiGraphValidationTests
 
         ServiceCollection services = [];
         services.AddSingleton(typeof(IConfiguration), configuration);
-        services.AddSingleton<IHostEnvironment>(new CompositionTestHostEnvironment(Environments.Development));
+        CompositionTestHostEnvironment hostEnvironment = new(Environments.Development);
+        services.AddSingleton<IHostEnvironment>(hostEnvironment);
+        services.AddSingleton<IWebHostEnvironment>(hostEnvironment);
+        services.AddSingleton<IHostApplicationLifetime, CompositionTestHostApplicationLifetime>();
         services.AddLogging();
         services.AddSingleton<IScopeContextProvider, FixedCompositionScopeContextProvider>();
 
