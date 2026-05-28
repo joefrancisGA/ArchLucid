@@ -49,15 +49,17 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
     await expect(layoutDialog()).toBeVisible();
-    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }).check();
-    await layoutDialog().getByRole("button", { name: "Close dialog" }).click();
+    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }).setChecked(true);
+    await page.keyboard.press("Escape");
+    await expect(layoutDialog()).toBeHidden();
 
     await expect(page.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
 
     await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
     await expect(layoutDialog()).toBeVisible();
-    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }).check();
-    await layoutDialog().getByRole("button", { name: "Close dialog" }).click();
+    await layoutDialog().getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }).setChecked(true);
+    await page.keyboard.press("Escape");
+    await expect(layoutDialog()).toBeHidden();
 
     await page.getByRole("button", { name: "Governance", exact: true }).click();
 
