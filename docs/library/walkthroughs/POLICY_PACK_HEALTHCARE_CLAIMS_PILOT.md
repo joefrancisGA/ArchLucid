@@ -58,7 +58,7 @@ Expect pack metadata with `ruleSetId: healthcare-claims-v3` in content JSON (dem
 
 1. On the policy pack detail page, use **Assign to scope** (project or tenant per your governance model).
 2. Pin version **3.4.1** (or latest published version in your tenant).
-3. Enable **Block commit on critical** or set **Minimum blocking severity** if your pilot exercises the pre-commit gate ([`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md)).
+3. Enable **Block commit on critical** or set **Minimum blocking severity** if your pilot exercises the pre-commit gate ([`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md)).
 
 **API**
 
@@ -149,8 +149,8 @@ On block: `409` with `#governance-pre-commit-blocked` and `blockingFindingIds` e
 ## Step 6 — Sponsor packet (exports)
 
 1. Download **Run summary one-pager** or architecture review board export from review detail **Exports**.
-2. Cross-check ROI basis labels on **Executive summary** (`/dashboard`) — pricing basis must read **Retail**, **EA-adjusted**, or **Uploaded actual/amortized** per tenant evidence ([`ROI_MODEL.md`](../go-to-market/ROI_MODEL.md)).
-3. CI golden fixture for packet composition: `ArchLucid.Application.Tests/Exports/ExecutiveReviewPacketGoldenFixtureTests.cs` (see [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md)).
+2. Cross-check ROI basis labels on **Executive summary** (`/dashboard`) — pricing basis must read **Retail**, **EA-adjusted**, or **Uploaded actual/amortized** per tenant evidence ([`ROI_MODEL.md`](../../go-to-market/ROI_MODEL.md)).
+3. CI golden fixture for packet composition: `ArchLucid.Application.Tests/Exports/ExecutiveReviewPacketGoldenFixtureTests.cs` (see [`PILOT_SUCCESS_SCORECARD.md`](../../go-to-market/PILOT_SUCCESS_SCORECARD.md)).
 
 ---
 
@@ -160,5 +160,5 @@ On block: `409` with `#governance-pre-commit-blocked` and `blockingFindingIds` e
 - [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) — single V1 first-pilot path
 - [`CORE_PILOT.md`](../../CORE_PILOT.md) — four-step Core Pilot spine
 - [`AZURE_SAAS_READINESS_REVIEW.md`](AZURE_SAAS_READINESS_REVIEW.md) · [`AI_GOVERNANCE_REVIEW.md`](AI_GOVERNANCE_REVIEW.md) — sibling accelerators
-- [`docs/samples/policy-packs/README.md`](../samples/policy-packs/README.md) — sample pack JSON shapes
-- [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) — full evaluator depth
+- [`docs/samples/policy-packs/README.md`](../../samples/policy-packs/README.md) — sample pack JSON shapes
+- [`onboarding/EVALUATION_GUIDE.md`](../../onboarding/EVALUATION_GUIDE.md) — full evaluator depth

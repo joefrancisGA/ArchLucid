@@ -27,7 +27,7 @@ Each Specialty template follows the same shipped sequence — **capture → evid
 | Need | Read |
 |------|------|
 | **Core** path from zero to first committed package | [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · [`CORE_PILOT.md`](../../CORE_PILOT.md) |
-| Choose a **Specialty** buyer-job narrative (after first value or when job is clear) | Buyer-job pages under [`go-to-market/buyer-jobs/`](../../go-to-market/buyer-jobs/) |
+| Choose a **Specialty** buyer-job narrative (after first value or when job is clear) | Buyer-job pages under [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) |
 | Printable evidence checklist before a sponsor demo | [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](../../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) |
 | Capability inventory and layer model | [`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) |
 | Sponsor-facing “why pilot” story | [`EXECUTIVE_SPONSOR_BRIEF.md`](../../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
@@ -38,5 +38,5 @@ Each Specialty template follows the same shipped sequence — **capture → evid
 
 - [`PRODUCT_PACKAGING.md`](../PRODUCT_PACKAGING.md) § Accelerator walkthroughs
 - [`CORE_PILOT.md`](../../CORE_PILOT.md) — Core vs Specialty routing
-- [`go-to-market/buyer-jobs/`](../../go-to-market/buyer-jobs/) — outcome-led Specialty pages
+- [`go-to-market/buyer-jobs/README.md`](../../go-to-market/buyer-jobs/README.md) — outcome-led Specialty pages
 - [`go-to-market/QUOTE_TO_PROOF_PACKET.md`](../../go-to-market/QUOTE_TO_PROOF_PACKET.md) — proof → quote handoff
