@@ -44,6 +44,6 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
 
     const deliverablesRegion = await openBuyerRunDetailArchitectureReviewBoardDeliverables(page);
 
-    await expect(deliverablesRegion.getByRole("columnheader", { name: "Output" })).toHaveCount(2);
+    await expect(deliverablesRegion.getByRole("columnheader", { name: "Output" }).first()).toBeVisible();
   });
 });

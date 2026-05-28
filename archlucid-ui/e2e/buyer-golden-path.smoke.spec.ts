@@ -52,7 +52,11 @@ test.describe("buyer golden path — Claims Intake spine", () => {
       }),
     ).toBeVisible();
     await expect(
-      page.getByTestId("graph-canvas-ready").or(page.getByRole("button", { name: /^Load graph$/i })),
+      page
+        .getByRole("main")
+        .getByTestId("graph-canvas-ready")
+        .first()
+        .or(page.getByRole("main").getByRole("button", { name: /^Load graph$/i }).first()),
     ).toBeVisible({ timeout: 25_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);

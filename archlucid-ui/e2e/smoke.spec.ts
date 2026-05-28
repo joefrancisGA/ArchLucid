@@ -13,9 +13,8 @@ test.describe("operator shell smoke", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: /Architecture reviews|Review packages|Claims Intake Modernization Review Package/i }),
-    ).toBeVisible();
+    await expect(page.locator("#sample-first-review-heading")).toBeVisible();
+    await expect(page.locator("#runs-dashboard-heading")).toBeVisible();
   });
 
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {
@@ -111,7 +110,11 @@ test.describe("operator shell smoke — advanced surface path", () => {
       }),
     ).toBeVisible();
     await expect(
-      page.getByTestId("graph-canvas-ready").or(page.getByRole("button", { name: /^Load graph$/i })),
+      page
+        .getByRole("main")
+        .getByTestId("graph-canvas-ready")
+        .first()
+        .or(page.getByRole("main").getByRole("button", { name: /^Load graph$/i }).first()),
     ).toBeVisible({ timeout: 25_000 });
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
