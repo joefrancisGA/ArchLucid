@@ -1,4 +1,4 @@
-> **Scope:** Unified onboarding and evaluation guide for buyers and operators. Replaces the former `BUYER_FIRST_30_MINUTES.md` and `CORE_PILOT.md`.
+> **Scope:** Unified onboarding and evaluation guide for buyers and operators (depth and “what good looks like”). Does **not** replace the canonical first-pilot spine — use [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) and the in-product **First-pilot operating path** on operator **Home**.
 > **Hub:** [`START_HERE.md`](../START_HERE.md).
 
 # ArchLucid Evaluation Guide

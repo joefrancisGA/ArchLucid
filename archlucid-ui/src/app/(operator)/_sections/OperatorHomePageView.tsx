@@ -4,6 +4,7 @@ import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklis
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
+import { FirstPilotOperatingRail } from "@/components/FirstPilotOperatingRail";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
@@ -44,6 +45,8 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
         <WelcomeBanner />
 
+        <FirstPilotOperatingRail />
+
         {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
 
         {buyerPolishedShell ? null : (
@@ -58,11 +61,11 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
           </div>
         )}
 
-        {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
-
         {buyerPolishedShell ? <LlmUsageBandHint /> : null}
 
         <SampleFirstReviewPackageCard />
+
+        {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
 
         {buyerPolishedShell ? null : (
           <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">

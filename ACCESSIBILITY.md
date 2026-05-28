@@ -53,6 +53,7 @@ Fast component-level checks run in **`ui-axe-components`** via Vitest + **jest-a
 ## Existing accessibility controls
 
 - **Skip-to-content link**: first focusable element in `layout.tsx`, jumps to `#main-content` (visible on focus)
+- **First-pilot operating rail**: ordered list with `aria-current="step"`, visible status labels, and troubleshooting links only on the active or attention step (`FirstPilotOperatingRail` on operator Home)
 - **Language attribute**: `<html lang="en">`
 - **Landmark navigation**: `<main>` on page components, `<nav>` with `aria-label` in `SidebarNav`, `<header>` in layout
 - **Form labels**: `<label>` wrapping on audit, policy packs, and alerts controls

@@ -36,6 +36,6 @@ START_HERE.md (you are here)
 
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).
 
-**Core Pilot — first session (four steps):** [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist) · **Operators installing locally:** [FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md) (two clicks from this page).
+**Core Pilot — first session (four steps):** [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist) · **In-product six-step rail:** operator **Home** (`First-pilot operating path`) · **Operators installing locally:** [FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md) (two clicks from this page).
 
 **Writing and terminology:** [`library/CONCEPT_VOCABULARY.md`](library/CONCEPT_VOCABULARY.md) (canonical vs rejected phrasing) · [`library/GLOSSARY.md`](library/GLOSSARY.md) (definitions and record taxonomies).

@@ -43,7 +43,9 @@ Do not mistake the Core Pilot checklist for full product scope — advanced Oper
 
 ## First session checklist
 
-Four steps — same sequence as [**onboarding/EVALUATION_GUIDE.md**](onboarding/EVALUATION_GUIDE.md) Part 2:
+**In-product:** operator **Home** shows the **First-pilot operating path** (six steps: setup → evidence → create → execute → finalize → sponsor packet). **Docs depth:** four-step narrative below matches [**onboarding/EVALUATION_GUIDE.md**](onboarding/EVALUATION_GUIDE.md) Part 2.
+
+Four steps — canonical sequence for sponsor-facing copy:
 
 ### Step-by-step walkthrough
 

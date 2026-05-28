@@ -35,7 +35,7 @@ export function recordCorePilotRailChecklistStep(stepIndex: number): void {
   const n = Number.isFinite(stepIndex) ? Math.trunc(stepIndex) : NaN;
 
 
-  if (n < 0 || n > 3) {
+  if (n < 0 || n > 5) {
 
 
     return;

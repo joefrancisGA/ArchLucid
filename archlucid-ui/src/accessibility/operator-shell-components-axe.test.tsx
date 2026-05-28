@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";
+import { FirstPilotOperatingRail } from "@/components/FirstPilotOperatingRail";
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { SectionCard } from "@/components/SectionCard";
 import { ShortcutHint } from "@/components/ShortcutHint";
@@ -80,5 +81,37 @@ describe("operator shell components — axe (Vitest)", () => {
     );
 
     expect(await axe(baseElement)).toHaveNoViolations();
+  });
+
+  it("FirstPilotOperatingRail loading shell has no accessibility violations", async () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+      if (url.includes("/api/proxy/health/ready")) {
+        return new Response(JSON.stringify({ status: "Healthy", entries: [] }), { status: 200 });
+      }
+
+      if (url.includes("/api/proxy/v1/tenant/trial-status")) {
+        return new Response(JSON.stringify({ firstCommitUtc: null }), { status: 200 });
+      }
+
+      if (url.includes("/api/proxy/v1/authority/projects/") && url.includes("/runs")) {
+        return new Response(JSON.stringify({ items: [], totalCount: 0, page: 1, pageSize: 40 }), {
+          status: 200,
+        });
+      }
+
+      return originalFetch(input);
+    }) as typeof fetch;
+
+    try {
+      const { container } = render(<FirstPilotOperatingRail />);
+
+      expect(await axe(container)).toHaveNoViolations();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 });

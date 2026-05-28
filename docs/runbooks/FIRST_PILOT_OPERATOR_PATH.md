@@ -6,7 +6,7 @@
 
 **Last reviewed:** 2026-05-27
 
-**Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md).
+**Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **In-product six-step rail:** operator **Home** → **First-pilot operating path** (setup verification through sponsor packet). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md).
 
 ---
 
