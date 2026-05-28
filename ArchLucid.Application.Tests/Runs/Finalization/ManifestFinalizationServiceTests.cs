@@ -522,7 +522,7 @@ public sealed class ManifestFinalizationServiceTests
     {
         Mock<IFindingsSnapshotRepository> mock = new();
         mock.Setup(f => f.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid id, CancellationToken _) =>
+            .ReturnsAsync((ScopeContext _, Guid id, CancellationToken __) =>
                 new FindingsSnapshot { FindingsSnapshotId = id, GenerationStatus = FindingsSnapshotGenerationStatus.Complete, Findings = [] });
 
         return mock.Object;
