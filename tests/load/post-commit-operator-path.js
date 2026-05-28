@@ -10,6 +10,7 @@
  */
 import http from "k6/http";
 import { check } from "k6";
+import { buildProductionLikeSummaryEnvelope, slowestK6Tag } from "./production-like-summary.js";
 
 const BASE = __ENV.ARCHLUCID_BASE_URL || __ENV.BASE_URL || "http://127.0.0.1:5128";
 const PROJECT_SLUG = __ENV.ARCHLUCID_AUTHORITY_PROJECT || "default";
@@ -191,45 +192,20 @@ export function postCommitOperatorPath() {
 }
 
 function slowestTag(data) {
-  const metrics = data && data.metrics;
-
-  if (!metrics) {
-    return "*none*";
-  }
-
-  let bestTag = "";
-  let bestP95 = -1;
-
-  for (const key of Object.keys(metrics)) {
-    if (!key.startsWith("http_req_duration{k6pc:")) {
-      continue;
-    }
-
-    const p95 = metrics[key].values && metrics[key].values["p(95)"];
-
-    if (typeof p95 === "number" && p95 > bestP95) {
-      bestP95 = p95;
-      bestTag = key;
-    }
-  }
-
-  if (bestTag.length === 0) {
-    return "*none*";
-  }
-
-  return `${bestTag} p95=${Math.round(bestP95)}ms`;
+  return slowestK6Tag(data, "http_req_duration{k6pc:");
 }
 
 export function handleSummary(data) {
-  const envelope = {
-    schema: "archlucid.k6-post-commit-operator-path.v1",
+  const slowest = slowestTag(data);
+  const envelope = buildProductionLikeSummaryEnvelope(data, {
+    profile: "post-commit-operator-path",
+    mode: "simulator",
     baseUrl: BASE,
-    slowestRouteTag: slowestTag(data),
-    k6: data,
-  };
+    slowestRouteTag: slowest,
+  });
 
   return {
     [SUMMARY_PATH]: JSON.stringify(envelope, null, 2),
-    stdout: `\npost-commit-operator-path slowest tagged route: ${slowestTag(data)}\n`,
+    stdout: `\npost-commit-operator-path slowest tagged route: ${slowest}\n`,
   };
 }

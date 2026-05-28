@@ -15,6 +15,11 @@ public static class SupportBundleTriageCatalog
     [
         new()
         {
+            File = SupportBundleArchiveWriter.TriageIndexJsonFileName,
+            Why = "Redacted correlation index — scope, run, health, audit/trace/artifact ids (read first when present)."
+        },
+        new()
+        {
             File = SupportBundleLayout.DiagnosticsSummaryFileName,
             Why = "Automated scan of log excerpt for timeouts, 401/429, and 5xx signatures — read before deep log review."
         },

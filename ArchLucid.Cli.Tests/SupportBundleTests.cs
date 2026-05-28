@@ -122,9 +122,10 @@ public sealed class SupportBundleTests
             payload.Health.Ready.HttpStatus.Should().Be(200);
             payload.References.ApiEndpoints.Should().NotBeEmpty();
             SupportBundleCollector.SerializeIndented(payload).Should().NotContain("Bearer ");
-            payload.Manifest.TriageReadOrder[0].File.Should().Be(SupportBundleLayout.DiagnosticsSummaryFileName);
-            payload.Manifest.TriageReadOrder[1].File.Should().Be(SupportBundleLayout.NextStepsFileName);
-            payload.Manifest.TriageReadOrder[2].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
+            payload.Manifest.TriageReadOrder[0].File.Should().Be(SupportBundleArchiveWriter.TriageIndexJsonFileName);
+            payload.Manifest.TriageReadOrder[1].File.Should().Be(SupportBundleLayout.DiagnosticsSummaryFileName);
+            payload.Manifest.TriageReadOrder[2].File.Should().Be(SupportBundleLayout.NextStepsFileName);
+            payload.Manifest.TriageReadOrder[3].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
             payload.ConfigSummary.HasArchlucidJson.Should().BeTrue();
             payload.Workspace.FileCount.Should().Be(1);
             payload.References.Documentation.Should()
@@ -183,6 +184,45 @@ public sealed class SupportBundleTests
                 .Contain("redactionPassAppliedToSerializedSections");
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should()
                 .Contain("next-steps.json");
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+
+                Directory.Delete(dir, true);
+        }
+    }
+
+    [Fact]
+    public void WriteDirectoryWithRedaction_writes_triage_index_files_when_provided()
+    {
+        SupportBundlePayload payload = new(
+            new SupportBundleManifest { CreatedUtc = "2026-01-01T00:00:00Z", CliWorkingDirectory = "/tmp" },
+            new SupportBundleBuildSection(),
+            new SupportBundleHealthSection(),
+            new SupportBundleApiContractSection(),
+            new SupportBundleConfigSummary { HostAuthModeSummary = "DevelopmentBypass" },
+            new SupportBundleEnvironmentSection(),
+            new SupportBundleWorkspaceSection(),
+            new SupportBundleReferencesSection(),
+            new SupportBundleLogsSection());
+
+        SupportBundleTriageIndexDocument triageIndex = new()
+        {
+            GeneratedUtc = "2026-01-01T00:00:00Z",
+            ConfigModeSummary = "DevelopmentBypass",
+            RecentAuditEventIds = ["audit-1"]
+        };
+
+        string dir = Path.Combine(Path.GetTempPath(), "bundleTriage." + Guid.NewGuid().ToString("N")[..8]);
+
+        try
+        {
+            SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, dir, triageIndex);
+
+            File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexJsonFileName)).Should().BeTrue();
+            File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexMarkdownFileName)).Should().BeTrue();
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexJsonFileName)).Should().Contain("audit-1");
         }
         finally
         {

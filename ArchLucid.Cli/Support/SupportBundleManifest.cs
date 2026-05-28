@@ -9,7 +9,7 @@ public sealed class SupportBundleManifest
     {
         get;
         init;
-    } = "1.3";
+    } = "1.4";
 
     [JsonPropertyName("createdUtc")]
     public string CreatedUtc

@@ -406,6 +406,82 @@ public sealed class ArchLucidApiClient
         }
     }
 
+    /// <summary>Normalized API base URL used by this client (no trailing slash).</summary>
+    public string ResolvedBaseUrl =>
+        (_http.BaseAddress?.ToString() ?? string.Empty).Trim().TrimEnd('/');
+
+    /// <summary>
+    ///     Bounded audit event id listing for support triage (ids only; non-fatal on auth/scope failure).
+    /// </summary>
+    public async Task<IReadOnlyList<string>> TryFetchRecentAuditEventIdsAsync(
+        string? runId,
+        int take,
+        CancellationToken ct = default)
+    {
+        if (take <= 0)
+            return [];
+
+        try
+        {
+            string path = string.IsNullOrWhiteSpace(runId)
+                ? $"v1/audit?take={take}"
+                : $"v1/audit/search?take={take}&runId={Uri.EscapeDataString(runId)}";
+
+            using HttpResponseMessage response = await _http.GetAsync(path, ct);
+
+            if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
+                return [];
+
+            if (!response.IsSuccessStatusCode)
+                return [];
+
+            string json = await response.Content.ReadAsStringAsync(ct);
+            AuditEventIdPage? page = JsonSerializer.Deserialize<AuditEventIdPage>(json, ContractEnumAwareJson);
+
+            if (page?.Items is null || page.Items.Count == 0)
+                return [];
+
+            return page.Items
+                .Select(i => i.EventId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Select(id => id!)
+                .Take(take)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure("Audit triage index", ex);
+
+            return [];
+        }
+    }
+
+    /// <summary>
+    ///     Artifact ids for a run when ReadAuthority allows artifact listing (non-fatal on failure).
+    /// </summary>
+    public async Task<IReadOnlyList<string>> TryListArtifactIdsForRunAsync(string runId, CancellationToken ct = default)
+    {
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return [];
+
+        try
+        {
+            System.Collections.Generic.ICollection<Gen.ArtifactDescriptorResponse> artifacts =
+                await _api.ArtifactsAllAsync(runGuid, ct);
+
+            return artifacts
+                .Where(a => a.ArtifactId is not null)
+                .Select(a => a.ArtifactId!.Value.ToString("D", System.Globalization.CultureInfo.InvariantCulture))
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"ArtifactsAll({runId})", ex);
+
+            return [];
+        }
+    }
+
     /// <summary>
     ///     Get run status, tasks, and results.
     /// </summary>
@@ -1296,6 +1372,16 @@ public sealed class ArchLucidApiClient
             get;
             set;
         }
+    }
+
+    private sealed class AuditEventIdPage
+    {
+        public List<AuditEventIdItem>? Items { get; init; }
+    }
+
+    private sealed class AuditEventIdItem
+    {
+        public string? EventId { get; init; }
     }
 
     public sealed class GetRunResult

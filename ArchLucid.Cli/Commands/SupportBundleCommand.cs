@@ -23,6 +23,7 @@ internal static class SupportBundleCommand
 
         bool zip = false;
         string? outputOverride = null;
+        string? runId = null;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -31,6 +32,20 @@ internal static class SupportBundleCommand
             if (string.Equals(a, "--zip", StringComparison.OrdinalIgnoreCase))
             {
                 zip = true;
+
+                continue;
+            }
+
+            if (string.Equals(a, "--run-id", StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 >= args.Length)
+                {
+                    await Console.Error.WriteLineAsync("[ArchLucid CLI] support-bundle: missing value after --run-id.");
+
+                    return CliExitCode.UsageError;
+                }
+
+                runId = args[++i];
 
                 continue;
             }
@@ -86,7 +101,10 @@ internal static class SupportBundleCommand
         SupportBundlePayload payload =
             await SupportBundleCollector.CollectAsync(client, cwd, config, cancellationToken);
 
-        string written = SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, bundleDir);
+        SupportBundleTriageIndexDocument triageIndex =
+            await SupportBundleTriageIndexBuilder.BuildAsync(client, payload, runId, cancellationToken);
+
+        string written = SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, bundleDir, triageIndex);
 
         Console.WriteLine("ArchLucid support bundle written to:");
         Console.WriteLine(written);
@@ -107,9 +125,9 @@ internal static class SupportBundleCommand
 
     private static void PrintUsage()
     {
-        Console.WriteLine("Usage: archlucid support-bundle [--output <dir>] [--zip]");
+        Console.WriteLine("Usage: archlucid support-bundle [--output <dir>] [--run-id <guid>] [--zip]");
         Console.WriteLine(
-            "  Writes README.txt (read first), manifest.json (triageReadOrder), build.json, health.json,");
+            "  Writes triage-index.json/md (correlation index), README.txt, manifest.json (triageReadOrder), build.json, health.json,");
         Console.WriteLine("  api-contract.json (bounded GET /openapi/v1.json), config-summary.json, environment.json,");
         Console.WriteLine("  workspace.json, references.json, logs.json, diagnostics-summary.txt under a new UTC-stamped folder (or --output).");
         Console.WriteLine("  --zip  Also creates <folder>.zip next to the folder.");

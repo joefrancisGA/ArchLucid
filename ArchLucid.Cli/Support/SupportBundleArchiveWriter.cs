@@ -23,10 +23,35 @@ public static class SupportBundleArchiveWriter
 
     public const string DiagnosticsSummaryFileName = SupportBundleLayout.DiagnosticsSummaryFileName;
 
+    public const string TriageIndexJsonFileName = SupportBundleTriageIndexBuilder.JsonFileName;
+
+    public const string TriageIndexMarkdownFileName = SupportBundleTriageIndexBuilder.MarkdownFileName;
+
     /// <summary>
     ///     Writes JSON files into <paramref name="outputDirectory" /> (created if missing). Returns the directory path.
     /// </summary>
     public static string WriteDirectory(SupportBundlePayload payload, string outputDirectory)
+    {
+        return WriteDirectory(payload, outputDirectory, triageIndex: null, applyRedaction: false);
+    }
+
+    /// <summary>
+    ///     Applies <see cref="SupportBundleRedactor.RedactSensitivePatterns" /> to every JSON section after
+    ///     serialization.
+    /// </summary>
+    public static string WriteDirectoryWithRedaction(
+        SupportBundlePayload payload,
+        string outputDirectory,
+        SupportBundleTriageIndexDocument? triageIndex = null)
+    {
+        return WriteDirectory(payload, outputDirectory, triageIndex, applyRedaction: true);
+    }
+
+    private static string WriteDirectory(
+        SupportBundlePayload payload,
+        string outputDirectory,
+        SupportBundleTriageIndexDocument? triageIndex,
+        bool applyRedaction)
     {
         ArgumentNullException.ThrowIfNull(payload);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
@@ -42,6 +67,40 @@ public static class SupportBundleArchiveWriter
                 : payload.ConfigSummary.ApiBaseUrlRedacted,
             payload.Manifest.CliWorkingDirectory,
             nextSteps);
+
+        if (applyRedaction)
+        {
+            WriteRedactedFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
+            WriteRedactedFile(Path.Combine(outputDirectory, SupportBundleLayout.NextStepsFileName),
+                SupportBundleCollector.SerializeIndented(nextSteps));
+            WriteRedactedFile(Path.Combine(outputDirectory, BuildFileName),
+                SupportBundleCollector.SerializeIndented(payload.Build));
+            WriteRedactedFile(Path.Combine(outputDirectory, HealthFileName),
+                SupportBundleCollector.SerializeIndented(payload.Health));
+            WriteRedactedFile(Path.Combine(outputDirectory, ApiContractFileName),
+                SupportBundleCollector.SerializeIndented(payload.ApiContract));
+            WriteRedactedFile(Path.Combine(outputDirectory, ConfigFileName),
+                SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
+            WriteRedactedFile(Path.Combine(outputDirectory, EnvironmentFileName),
+                SupportBundleCollector.SerializeIndented(payload.Environment));
+            WriteRedactedFile(Path.Combine(outputDirectory, WorkspaceFileName),
+                SupportBundleCollector.SerializeIndented(payload.Workspace));
+            WriteRedactedFile(Path.Combine(outputDirectory, ReferencesFileName),
+                SupportBundleCollector.SerializeIndented(payload.References));
+            WriteRedactedFile(Path.Combine(outputDirectory, LogsFileName),
+                SupportBundleCollector.SerializeIndented(payload.Logs));
+            WriteDiagnosticsSummary(outputDirectory, payload, applyRedaction: true);
+            WriteTriageIndex(outputDirectory, triageIndex, applyRedaction: true);
+
+            SupportBundleManifest finalizedRedacted =
+                SupportBundleFinalManifestBuilder.WithInventory(payload.Manifest, redactionPassAppliedToSerializedSections: true);
+
+            WriteRedactedFile(
+                Path.Combine(outputDirectory, ManifestFileName),
+                SupportBundleCollector.SerializeIndented(finalizedRedacted));
+
+            return outputDirectory;
+        }
 
         WriteFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
         WriteFile(Path.Combine(outputDirectory, SupportBundleLayout.NextStepsFileName),
@@ -61,64 +120,13 @@ public static class SupportBundleArchiveWriter
         WriteFile(Path.Combine(outputDirectory, ReferencesFileName),
             SupportBundleCollector.SerializeIndented(payload.References));
         WriteFile(Path.Combine(outputDirectory, LogsFileName), SupportBundleCollector.SerializeIndented(payload.Logs));
-        WriteDiagnosticsSummary(outputDirectory, payload);
+        WriteDiagnosticsSummary(outputDirectory, payload, applyRedaction: false);
+        WriteTriageIndex(outputDirectory, triageIndex, applyRedaction: false);
 
         SupportBundleManifest finalized =
             SupportBundleFinalManifestBuilder.WithInventory(payload.Manifest, redactionPassAppliedToSerializedSections: false);
 
         WriteFile(
-            Path.Combine(outputDirectory, ManifestFileName),
-            SupportBundleCollector.SerializeIndented(finalized));
-
-        return outputDirectory;
-    }
-
-    /// <summary>
-    ///     Applies <see cref="SupportBundleRedactor.RedactSensitivePatterns" /> to every JSON section after
-    ///     serialization.
-    /// </summary>
-    public static string WriteDirectoryWithRedaction(SupportBundlePayload payload, string outputDirectory)
-    {
-        ArgumentNullException.ThrowIfNull(payload);
-        ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
-
-        Directory.CreateDirectory(outputDirectory);
-
-        SupportBundleNextStepsDocument nextSteps = BuildNextSteps(payload);
-
-        string readme = SupportBundleReadme.Build(
-            payload.Manifest.CreatedUtc,
-            string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
-                ? "(unknown)"
-                : payload.ConfigSummary.ApiBaseUrlRedacted,
-            payload.Manifest.CliWorkingDirectory,
-            nextSteps);
-
-        WriteRedactedFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
-        WriteRedactedFile(Path.Combine(outputDirectory, SupportBundleLayout.NextStepsFileName),
-            SupportBundleCollector.SerializeIndented(nextSteps));
-        WriteRedactedFile(Path.Combine(outputDirectory, BuildFileName),
-            SupportBundleCollector.SerializeIndented(payload.Build));
-        WriteRedactedFile(Path.Combine(outputDirectory, HealthFileName),
-            SupportBundleCollector.SerializeIndented(payload.Health));
-        WriteRedactedFile(Path.Combine(outputDirectory, ApiContractFileName),
-            SupportBundleCollector.SerializeIndented(payload.ApiContract));
-        WriteRedactedFile(Path.Combine(outputDirectory, ConfigFileName),
-            SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
-        WriteRedactedFile(Path.Combine(outputDirectory, EnvironmentFileName),
-            SupportBundleCollector.SerializeIndented(payload.Environment));
-        WriteRedactedFile(Path.Combine(outputDirectory, WorkspaceFileName),
-            SupportBundleCollector.SerializeIndented(payload.Workspace));
-        WriteRedactedFile(Path.Combine(outputDirectory, ReferencesFileName),
-            SupportBundleCollector.SerializeIndented(payload.References));
-        WriteRedactedFile(Path.Combine(outputDirectory, LogsFileName),
-            SupportBundleCollector.SerializeIndented(payload.Logs));
-        WriteDiagnosticsSummary(outputDirectory, payload);
-
-        SupportBundleManifest finalized =
-            SupportBundleFinalManifestBuilder.WithInventory(payload.Manifest, redactionPassAppliedToSerializedSections: true);
-
-        WriteRedactedFile(
             Path.Combine(outputDirectory, ManifestFileName),
             SupportBundleCollector.SerializeIndented(finalized));
 
@@ -188,14 +196,46 @@ public static class SupportBundleArchiveWriter
         WriteFile(path, SupportBundleRedactor.RedactSensitivePatterns(content));
     }
 
-    private static void WriteDiagnosticsSummary(string outputDirectory, SupportBundlePayload payload)
+    private static void WriteDiagnosticsSummary(string outputDirectory, SupportBundlePayload payload, bool applyRedaction)
     {
         ArgumentNullException.ThrowIfNull(payload);
 
         DateTimeOffset analyzedUtc = DateTimeOffset.UtcNow;
         string summary = SupportBundleLogDiagnosticsAnalyzer.BuildSummary(payload.Logs.LocalLogExcerpt, analyzedUtc);
-        string redacted = SupportBundleRedactor.RedactSensitivePatterns(summary);
+        string summaryPath = Path.Combine(outputDirectory, DiagnosticsSummaryFileName);
 
-        WriteFile(Path.Combine(outputDirectory, DiagnosticsSummaryFileName), redacted);
+        if (applyRedaction)
+        {
+            WriteRedactedFile(summaryPath, summary);
+
+            return;
+        }
+
+        WriteFile(summaryPath, summary);
+    }
+
+    private static void WriteTriageIndex(
+        string outputDirectory,
+        SupportBundleTriageIndexDocument? triageIndex,
+        bool applyRedaction)
+    {
+        if (triageIndex is null)
+            return;
+
+        string jsonPath = Path.Combine(outputDirectory, TriageIndexJsonFileName);
+        string mdPath = Path.Combine(outputDirectory, TriageIndexMarkdownFileName);
+        string json = SupportBundleCollector.SerializeIndented(triageIndex);
+        string md = SupportBundleTriageIndexBuilder.ToMarkdown(triageIndex);
+
+        if (applyRedaction)
+        {
+            WriteRedactedFile(jsonPath, json);
+            WriteRedactedFile(mdPath, md);
+
+            return;
+        }
+
+        WriteFile(jsonPath, json);
+        WriteFile(mdPath, md);
     }
 }

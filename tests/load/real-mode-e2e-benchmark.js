@@ -25,6 +25,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { Trend, Counter } from "k6/metrics";
+import { buildProductionLikeSummaryEnvelope } from "./production-like-summary.js";
 
 const BASE = __ENV.ARCHLUCID_BASE_URL || __ENV.BASE_URL || "http://127.0.0.1:5001";
 const POLL_INTERVAL_MS = Number(__ENV.K6_POLL_INTERVAL_MS || 2000);
@@ -39,6 +40,10 @@ const commitDuration = new Trend("step_commit_ms", true);
 const manifestDuration = new Trend("step_manifest_retrieve_ms", true);
 const successCount = new Counter("e2e_success_count");
 const failCount = new Counter("e2e_fail_count");
+
+let lastEvidencePayloadBytes = 0;
+let lastLlmCallCount = 0;
+let lastEstimatedTokenCostUsd = 0;
 
 export const options = {
   scenarios: {
@@ -85,6 +90,8 @@ export default function realModeBenchmark() {
     assumptions: ["Single region", "< 1000 concurrent users"],
     priorManifestVersion: null,
   });
+
+  lastEvidencePayloadBytes = requestBody.length;
 
   const createStart = Date.now();
   const createRes = http.post(`${BASE}/v1/architecture/request`, requestBody, {
@@ -206,6 +213,29 @@ export default function realModeBenchmark() {
     });
   }
 
+  const deltasRes = http.get(
+    `${BASE}/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`,
+    { headers: headers(), tags: { endpoint: "realmode_deltas" } }
+  );
+
+  if (deltasRes.status >= 200 && deltasRes.status < 300) {
+    try {
+      const deltas = JSON.parse(deltasRes.body);
+      const llmCalls = deltas.llmCallCount ?? deltas.LlmCallCount ?? deltas.totalLlmCalls ?? deltas.TotalLlmCalls;
+      const estCost = deltas.estimatedLlmCostUsd ?? deltas.EstimatedLlmCostUsd;
+
+      if (typeof llmCalls === "number") {
+        lastLlmCallCount = llmCalls;
+      }
+
+      if (typeof estCost === "number") {
+        lastEstimatedTokenCostUsd = estCost;
+      }
+    } catch {
+      /* optional COGS fields */
+    }
+  }
+
   const e2eTotal = Date.now() - e2eStart;
   e2eWallClock.add(e2eTotal);
   successCount.add(1);
@@ -214,10 +244,19 @@ export default function realModeBenchmark() {
 export function handleSummary(data) {
   const defaultPath = "tests/load/results/real-mode-e2e-benchmark.json";
   const out = __ENV.K6_SUMMARY_PATH || defaultPath;
+  const envelope = buildProductionLikeSummaryEnvelope(data, {
+    profile: "real-mode-e2e-benchmark",
+    mode: "real",
+    baseUrl: BASE,
+    evidencePayloadBytes: lastEvidencePayloadBytes,
+    llmCallCount: lastLlmCallCount,
+    estimatedTokenCostUsd: lastEstimatedTokenCostUsd,
+    slowestRouteTag: "*see e2e_wall_clock_ms*",
+  });
 
   return {
     stdout: textSummary(data),
-    [out]: JSON.stringify(data, null, 2),
+    [out]: JSON.stringify(envelope, null, 2),
   };
 }
 

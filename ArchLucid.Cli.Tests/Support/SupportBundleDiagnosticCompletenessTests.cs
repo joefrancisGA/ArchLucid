@@ -15,9 +15,10 @@ public sealed class SupportBundleDiagnosticCompletenessTests
         IReadOnlyList<SupportBundleTriageEntry> entries = SupportBundleTriageCatalog.Entries;
 
         entries.Count.Should().BeGreaterThan(4);
-        entries[0].File.Should().Be(SupportBundleLayout.DiagnosticsSummaryFileName);
-        entries[1].File.Should().Be(SupportBundleLayout.NextStepsFileName);
-        entries[2].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
+        entries[0].File.Should().Be(SupportBundleArchiveWriter.TriageIndexJsonFileName);
+        entries[1].File.Should().Be(SupportBundleLayout.DiagnosticsSummaryFileName);
+        entries[2].File.Should().Be(SupportBundleLayout.NextStepsFileName);
+        entries[3].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
         foreach (SupportBundleTriageEntry entry in entries)
         {
             entry.File.Should().NotBeNullOrWhiteSpace();

@@ -1,0 +1,86 @@
+# Scheduled production-like k6 profiles (non merge-blocking).
+name: "Performance: k6 production-like (scheduled)"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 6 * * 2"
+
+concurrency:
+  group: k6-production-like-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  k6-production-like:
+    name: k6 production-like summaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install k6
+        shell: bash
+        run: bash scripts/ci/install_k6_apt.sh
+
+      - name: Create catalog + start API (Simulator)
+        run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6ProductionLike "${RUNNER_TEMP}/k6-pl-api.log" "${RUNNER_TEMP}/k6-pl-api.pid"
+
+      - name: Run post-commit operator path
+        env:
+          ARCHLUCID_BASE_URL: http://127.0.0.1:5128
+          K6_COMPRESS: "1"
+          K6_SUMMARY_PATH: tests/load/results/post-commit-operator-path-scheduled.json
+        run: k6 run tests/load/post-commit-operator-path.js
+
+      - name: Run large evidence package profile
+        env:
+          ARCHLUCID_BASE_URL: http://127.0.0.1:5128
+          K6_SUMMARY_PATH: tests/load/results/large-evidence-package-scheduled.json
+        run: k6 run tests/load/large-evidence-package.js
+
+      - name: Normalize production-like summaries
+        run: |
+          python scripts/ci/normalize_k6_production_like_summary.py \
+            tests/load/results/post-commit-operator-path-scheduled.json \
+            tests/load/results/large-evidence-package-scheduled.json \
+            --out tests/load/results/production-like-normalized-scheduled.json
+
+      - name: Upload production-like artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-production-like-summaries
+          path: |
+            tests/load/results/post-commit-operator-path-scheduled.json
+            tests/load/results/large-evidence-package-scheduled.json
+            tests/load/results/production-like-normalized-scheduled.json
+          if-no-files-found: warn
