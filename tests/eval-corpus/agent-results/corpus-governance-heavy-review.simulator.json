@@ -2,29 +2,73 @@
   "resultId": "corp-gv-sim-01",
   "taskId": "corp-gv-task-01",
   "runId": "corp-gv-run-01",
-  "agentType": 4,
+  "agentType": "Critic",
   "claims": [
     {
-      "evidenceRefs": ["peer-review-rubric-v3"],
-      "detail": "Simulator critic claim: privileged paths require documented mitigations and secondary sign-off."
+      "detail": "Privileged paths require documented mitigations and secondary sign-off before production promotion.",
+      "evidenceRefs": ["peer-review-rubric-v3"]
     }
   ],
-  "evidenceRefs": ["peer-review-rubric-v3"],
-  "confidence": 0.7,
+  "evidenceRefs": ["peer-review-rubric-v3", "policy-cab-approval", "policy-audit-evidence", "policy-segregation-pim"],
   "findings": [
     {
+      "findingId": "corp-gv-1",
+      "sourceAgent": "Compliance",
       "severity": "Medium",
-      "category": "Critic",
-      "description": "Long-lived service principals for CI remain in two pipelines; workload identity federation is only partially adopted.",
-      "recommendation": "Migrate remaining connections and enforce expiration alerts on any legacy secrets."
+      "category": "Compliance",
+      "message": "Production releases require dual approval in Azure DevOps environments mapped to the enterprise change-advisory board records.",
+      "reasoningTrace": "Pattern: CAB alignment. Evidence: policy-cab-approval documents Azure DevOps environment gates tied to change control.",
+      "evidenceRefs": ["policy-cab-approval"],
+      "confidenceScore": 0.84,
+      "evaluationConfidenceScore": 84,
+      "confidenceLevel": "High"
     },
     {
+      "findingId": "corp-gv-2",
+      "sourceAgent": "Compliance",
+      "severity": "Low",
+      "category": "Compliance",
+      "message": "Architecture decisions bundle threat models, data-flow diagrams, and control mappings for internal audit sampling.",
+      "reasoningTrace": "Pattern: Evidence packs. Evidence: policy-audit-evidence documents immutable audit retention requirements.",
+      "evidenceRefs": ["policy-audit-evidence"],
+      "confidenceScore": 0.8,
+      "evaluationConfidenceScore": 80,
+      "confidenceLevel": "High"
+    },
+    {
+      "findingId": "corp-gv-3",
+      "sourceAgent": "Topology",
+      "severity": "Low",
+      "category": "Topology",
+      "message": "Operator roles and developer roles use separate Entra ID groups with PIM for emergency break-glass.",
+      "reasoningTrace": "Pattern: Segregation of duties. Evidence: policy-segregation-pim documents Entra PIM activation for privileged roles.",
+      "evidenceRefs": ["policy-segregation-pim"],
+      "confidenceScore": 0.79,
+      "evaluationConfidenceScore": 79,
+      "confidenceLevel": "High"
+    },
+    {
+      "findingId": "corp-gv-4",
+      "sourceAgent": "Critic",
       "severity": "Low",
       "category": "Critic",
-      "description": "Evidence packs are thorough but omit explicit recovery-time validation for the integration hub failover drill.",
-      "recommendation": "Attach last DR exercise results or schedule a tabletop before CAB closure."
+      "message": "Some service connections still use long-lived tokens despite policy requiring workload identity federation.",
+      "reasoningTrace": "Pattern: Manual approvals. Evidence: peer-review-rubric-v3 flags residual legacy service principals in CI pipelines.",
+      "evidenceRefs": ["peer-review-rubric-v3"],
+      "confidenceScore": 0.72,
+      "evaluationConfidenceScore": 72,
+      "confidenceLevel": "Medium"
     }
   ],
   "proposedChanges": null,
+  "reasoningTrace": "Reviewed governance-heavy integration hub for CAB traceability, audit evidence, segregation, and peer critique of privileged access paths.",
+  "confidence": 0.7,
+  "calibratedConfidence": 0.68,
+  "citations": [
+    { "sourceId": "policy-cab-approval", "description": "Azure DevOps CAB approval mapping" },
+    { "sourceId": "policy-audit-evidence", "description": "Internal audit evidence pack requirements" },
+    { "sourceId": "policy-segregation-pim", "description": "Entra PIM segregation-of-duties baseline" },
+    { "sourceId": "peer-review-rubric-v3", "description": "Peer review rubric for privileged paths" }
+  ],
   "createdUtc": "2026-05-01T12:00:00Z"
 }

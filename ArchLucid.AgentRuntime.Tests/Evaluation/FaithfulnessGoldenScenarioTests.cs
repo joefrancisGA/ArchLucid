@@ -30,10 +30,9 @@ public sealed class FaithfulnessGoldenScenarioTests
         "corpus-regulated-data-workflow",
     ];
 
-    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions WebJson = new(ContractJson.Default)
     {
         PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
     };
 
     private readonly IAgentOutputEvaluationHarness _harness = new AgentOutputEvaluationHarness(

@@ -100,6 +100,7 @@ public sealed class AgentResult
     ///     Proposed additions and removals to the golden manifest.
     ///     <see langword="null" /> when the agent has no structural proposals (e.g. evaluation-only agents).
     /// </summary>
+    [JsonConverter(typeof(AgentTopologyProposalJsonConverter))]
     public AgentTopologyProposal? ProposedChanges
     {
         get;

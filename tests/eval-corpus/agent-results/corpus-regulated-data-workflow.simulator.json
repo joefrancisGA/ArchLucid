@@ -2,29 +2,78 @@
   "resultId": "corp-rd-sim-01",
   "taskId": "corp-rd-task-01",
   "runId": "corp-rd-run-01",
-  "agentType": 3,
+  "agentType": "Compliance",
   "claims": [
     {
-      "evidenceRefs": ["policy-regulatory-isolation"],
-      "detail": "Simulator compliance claim: data paths avoid public endpoints and honor regional boundaries."
+      "detail": "Data paths avoid public endpoints and honor regional boundaries for regulated cohort processing.",
+      "evidenceRefs": ["policy-regulatory-isolation"]
     }
   ],
-  "evidenceRefs": ["policy-regulatory-isolation"],
-  "confidence": 0.78,
+  "evidenceRefs": [
+    "policy-regulatory-isolation",
+    "policy-data-residency",
+    "policy-private-endpoints",
+    "policy-diagnostic-logging"
+  ],
   "findings": [
     {
-      "severity": "High",
+      "findingId": "corp-rd-1",
+      "sourceAgent": "Compliance",
+      "severity": "Error",
       "category": "Compliance",
-      "description": "Encryption uses customer-managed keys in Key Vault; no cross-region replication for regulated indexes.",
-      "recommendation": "Document key rotation duties and test restore with CMK-disabled failure modes."
+      "message": "PHI-like cohort processing stays in a single Azure region with geo-redundant storage disabled for primary patient indexes.",
+      "reasoningTrace": "Pattern: Data residency. Evidence: policy-data-residency documents in-region storage requirements.",
+      "evidenceRefs": ["policy-data-residency"],
+      "confidenceScore": 0.88,
+      "evaluationConfidenceScore": 88,
+      "confidenceLevel": "High"
     },
     {
-      "severity": "Medium",
+      "findingId": "corp-rd-2",
+      "sourceAgent": "Topology",
+      "severity": "Warning",
+      "category": "Topology",
+      "message": "Ingestion APIs reach workflow workers only through private endpoints; no public ingress on data-plane NICs.",
+      "reasoningTrace": "Pattern: Private connectivity. Evidence: policy-private-endpoints documents private link ingress controls.",
+      "evidenceRefs": ["policy-private-endpoints"],
+      "confidenceScore": 0.83,
+      "evaluationConfidenceScore": 83,
+      "confidenceLevel": "High"
+    },
+    {
+      "findingId": "corp-rd-3",
+      "sourceAgent": "Compliance",
+      "severity": "Warning",
       "category": "Compliance",
-      "description": "Diagnostic settings capture administrative actions on data stores into immutable retention storage.",
-      "recommendation": "Align retention with your records policy and validate analyst access through PIM."
+      "message": "Azure Monitor diagnostic settings stream security logging to a locked-down Log Analytics workspace with retention aligned to policy.",
+      "reasoningTrace": "Pattern: Audit trail. Evidence: policy-diagnostic-logging documents diagnostic settings and Log Analytics retention.",
+      "evidenceRefs": ["policy-diagnostic-logging"],
+      "confidenceScore": 0.81,
+      "evaluationConfidenceScore": 81,
+      "confidenceLevel": "High"
+    },
+    {
+      "findingId": "corp-rd-4",
+      "sourceAgent": "Critic",
+      "severity": "Info",
+      "category": "Critic",
+      "message": "One vendor integration still uses username-password vault entries; roadmap cites OAuth but not timeline.",
+      "reasoningTrace": "Pattern: Third-party SaaS. Evidence: policy-regulatory-isolation notes residual legacy credential patterns.",
+      "evidenceRefs": ["policy-regulatory-isolation"],
+      "confidenceScore": 0.7,
+      "evaluationConfidenceScore": 70,
+      "confidenceLevel": "Medium"
     }
   ],
   "proposedChanges": null,
+  "reasoningTrace": "Reviewed regulated data workflow for residency, private ingress, diagnostic logging, and residual third-party credential risk.",
+  "confidence": 0.78,
+  "calibratedConfidence": 0.76,
+  "citations": [
+    { "sourceId": "policy-regulatory-isolation", "description": "Regulatory isolation baseline" },
+    { "sourceId": "policy-data-residency", "description": "In-region storage policy" },
+    { "sourceId": "policy-private-endpoints", "description": "Private endpoint ingress standard" },
+    { "sourceId": "policy-diagnostic-logging", "description": "Diagnostic logging and retention policy" }
+  ],
   "createdUtc": "2026-05-01T12:00:00Z"
 }

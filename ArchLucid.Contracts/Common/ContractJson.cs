@@ -92,9 +92,10 @@ public static class ContractJson
     {
         Converters =
         {
-            // Severity is part of canonical LLM / API corpus shape (strings). Default enum JSON is ordinal numbers,
-            // which fails RealLlmOutputStructuralValidator; still accept integer payloads on read for older stored rows.
-            new JsonStringEnumConverter<FindingSeverity>(allowIntegerValues: true),
+            // Accept canonical enum names, legacy eval-corpus labels (Low/Medium/High), and integer ordinals.
+            new EvalCorpusFindingSeverityJsonConverter(),
+            new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true),
+            new JsonStringEnumConverter<AgentType>(allowIntegerValues: true),
         },
     };
 }
