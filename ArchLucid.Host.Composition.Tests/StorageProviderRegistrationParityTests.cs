@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
@@ -9,6 +10,7 @@ using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Tenancy;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -42,12 +44,16 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IDbConnectionFactory),
         typeof(IOptionsChangeTokenSource<SqlServerOptions>),
         typeof(IConfigureOptions<SqlServerOptions>),
+        typeof(IOptionsChangeTokenSource<WarmTenantCatalogOptions>),
+        typeof(IConfigureOptions<WarmTenantCatalogOptions>),
         typeof(ITenantOnboardingStateRepository),
         typeof(SqlAuthorityPipelineTenantExecutionLeaseRepository),
         typeof(SqlConnectionFactory),
         typeof(ResilientSqlConnectionFactory),
         typeof(IBackgroundWorkerSqlConnectionFactory),
-        typeof(SqlResilientOperationExecutor)
+        typeof(SqlResilientOperationExecutor),
+        typeof(IWarmTenantCatalogReplenishService),
+        typeof(IAuditSqlRetryPolicyProvider),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
