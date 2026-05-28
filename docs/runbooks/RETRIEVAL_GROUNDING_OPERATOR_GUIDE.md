@@ -1,3 +1,5 @@
+> **Scope:** Operator-facing guide to finding trust chips and retrieval grounding evidence in the review UI and sponsor exports.
+
 # Finding trust chips — operator UI
 
 Per-finding trust chips render in **Quick decision summary** on review detail. Labels are derived from existing wire fields only:

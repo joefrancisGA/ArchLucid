@@ -1,3 +1,5 @@
+> **Scope:** First-pilot symptom triage cards linked from go/no-go proof collection and sponsor evidence quality gates.
+
 # First-pilot symptom → evidence triage cards
 
 **Last reviewed:** 2026-05-28 · Full spine: [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md)

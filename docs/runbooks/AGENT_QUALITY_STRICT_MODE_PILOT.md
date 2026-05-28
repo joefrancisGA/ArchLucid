@@ -1,3 +1,5 @@
+> **Scope:** Pilot operators and platform admins configuring agent output quality strict-mode on staging or customer pilot hosts.
+
 # Agent output quality — pilot strict-mode recipe
 
 **Audience:** Pilot operators and platform admins configuring a staging or customer pilot host.
