@@ -178,6 +178,31 @@ export async function gotoManifestEmptyArtifactsOperatorCase(page: Page): Promis
 
 // --- Assertions (only where duplicated across specs) ---
 
+/** Opens buyer-polished run deliverables and switches to the ARB/audit artifact tab. */
+export async function openBuyerRunDetailArchitectureReviewBoardDeliverables(page: Page): Promise<Locator> {
+  const deliverablesDetails = page.locator("#artifacts-exports details").first();
+  const deliverablesSummary = deliverablesDetails.locator("summary", { hasText: /^Deliverables$/ });
+
+  await expect(deliverablesSummary).toBeVisible();
+
+  const detailsOpen: boolean = await deliverablesDetails.evaluate((element) => (element as HTMLDetailsElement).open);
+
+  if (!detailsOpen) {
+    await deliverablesSummary.click();
+  }
+
+  const architectureReviewBoardTab = page.getByRole("tab", { name: "Architecture review board artifacts" });
+
+  await expect(architectureReviewBoardTab).toBeVisible();
+  await architectureReviewBoardTab.click();
+
+  const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
+
+  await expect(deliverablesRegion).toBeVisible();
+
+  return deliverablesRegion;
+}
+
 /** `<details aria-label="Comparison request outcome">` after a successful compare (not always role=region in browsers). */
 export function comparisonRequestOutcomePanel(page: Page) {
   return page.locator('details[aria-label="Comparison request outcome"]');

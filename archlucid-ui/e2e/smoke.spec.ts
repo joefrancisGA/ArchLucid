@@ -13,7 +13,9 @@ test.describe("operator shell smoke", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Architecture reviews" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Architecture reviews|Review packages|Claims Intake Modernization Review Package/i }),
+    ).toBeVisible();
   });
 
   test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {

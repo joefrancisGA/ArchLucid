@@ -6,7 +6,7 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID } from "./fixtures";
+import { FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID, MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import { gotoManifestEmptyArtifactsOperatorCase } from "./helpers/operator-journey";
 
 test.describe("operator journey — manifest empty artifact list", () => {
@@ -21,7 +21,7 @@ test.describe("operator journey — manifest empty artifact list", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: /^(Architecture review package|Finalized Architecture Manifest)$/,
+        name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
       }),
     ).toBeVisible();
 

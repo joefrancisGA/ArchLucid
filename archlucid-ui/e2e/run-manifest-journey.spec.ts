@@ -7,8 +7,11 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID } from "./fixtures";
-import { gotoRunDetailForMockFixtureRun } from "./helpers/operator-journey";
+import { FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID, MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
+import {
+  gotoRunDetailForMockFixtureRun,
+  openBuyerRunDetailArchitectureReviewBoardDeliverables,
+} from "./helpers/operator-journey";
 
 test.describe("operator journey — run detail to manifest and back", () => {
   test("reviews fixture run, opens manifest, returns to run (mock API only)", async ({ page }) => {
@@ -36,7 +39,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: /^(Architecture review package|Finalized Architecture Manifest)$/,
+        name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
       }),
     ).toBeVisible();
 
@@ -66,11 +69,8 @@ test.describe("operator journey — run detail to manifest and back", () => {
       }),
     ).toBeVisible();
 
-    // Buyer-polished run detail uses {@link BuyerDeliverablesArtifactTabs}; `FIXTURE_MANIFEST_ID` artifacts
-    // (`MarkdownNarrative` → other, `MermaidDiagram` → architects) both appear under the ARB tab only.
-    await page.getByRole("tab", { name: "Architecture review board artifacts" }).click();
-
-    const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
+    // Buyer-polished run detail collapses deliverables by default; fixture artifacts both live under the ARB/audit tab.
+    const deliverablesRegion = await openBuyerRunDetailArchitectureReviewBoardDeliverables(page);
 
     await expect(deliverablesRegion.getByRole("columnheader", { name: "Output" })).toHaveCount(2);
     await expect(deliverablesRegion.getByText("Markdown Narrative", { exact: true }).first()).toBeVisible();

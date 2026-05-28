@@ -17,7 +17,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     <p
       class="text-sm text-neutral-600 dark:text-neutral-400"
     >
-      A live look behind the curtain. Every section on this page is rendered from the API of the running ArchLucid host against the seeded Contoso Retail Modernization demo tenant — no slides, no static screenshots. Counters accumulate from the moment the API process starts and reset on restart.
+      See how ArchLucid turns architecture review into a governed decision package — executive summary, signed manifest, evidence trail, governance approval, and audit record — using the Claims Intake sample workspace as a walkthrough.
     </p>
   </header>
   <section
@@ -218,7 +218,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
         id="why-archlucid-sponsor-pack-heading"
       >
-        Sponsor evidence pack (live bundle)
+        Sponsor KPI evidence pack
       </h2>
       <p
         class="text-sm text-neutral-600 dark:text-neutral-400"

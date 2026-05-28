@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "../e2e/fixtures/runs-list-heading";
 import { SHOWCASE_DEMO_RUN_ID } from "../e2e/fixtures/ids";
+import { openBuyerRunDetailArchitectureReviewBoardDeliverables } from "../e2e/helpers/operator-journey";
 
 /**
  * Core Pilot path (product definition in `src/lib/core-pilot-steps.ts`):
@@ -41,8 +42,8 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
     await expect(outcomeStrip.getByRole("link", { name: /Finalized/i })).toBeVisible();
 
-    const deliverablesRegion = page.getByRole("region", { name: "Deliverables grouped by audience" });
-    await expect(deliverablesRegion).toBeVisible();
+    const deliverablesRegion = await openBuyerRunDetailArchitectureReviewBoardDeliverables(page);
+
     await expect(deliverablesRegion.getByRole("columnheader", { name: "Output" })).toHaveCount(2);
   });
 });
