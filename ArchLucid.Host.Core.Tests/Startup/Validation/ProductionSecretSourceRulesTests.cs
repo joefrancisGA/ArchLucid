@@ -1,6 +1,7 @@
 using ArchLucid.Host.Core.Startup.Validation.Rules;
 
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Host.Core.Tests.Startup.Validation;
 

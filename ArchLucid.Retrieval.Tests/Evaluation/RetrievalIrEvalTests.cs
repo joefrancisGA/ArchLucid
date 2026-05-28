@@ -230,8 +230,7 @@ public sealed class RetrievalIrEvalTests
                     "retrieval-golden",
                     "cases.json");
 
-                path.Should().Satisfy<string>(
-                    p => File.Exists(p),
+                File.Exists(path).Should().BeTrue(
                     because: $"retrieval golden dataset must exist at {path}");
 
                 return path;
