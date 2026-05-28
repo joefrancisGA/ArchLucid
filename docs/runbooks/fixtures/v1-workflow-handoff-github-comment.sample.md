@@ -1,3 +1,5 @@
+> **Scope:** Filled sample comment for pasting into a GitHub PR or issue during V1 workflow handoff; not a standalone runbook or connector spec.
+
 ## ArchLucid architecture review handoff
 
 - Review/run id: `61c60d76-2b80-93f9-46bb-2f66fd608b9b`

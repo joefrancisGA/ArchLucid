@@ -64,7 +64,8 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     // Footer toggle survives cluster re-mount when extended tier unlocks; re-opening Sidebar layout flakes in CI.
     const showAdvancedToggle = page.getByTestId("sidebar-show-advanced-operations-toggle");
 
-    await showAdvancedToggle.scrollIntoViewIfNeeded();
+    await expect(showAdvancedToggle).toBeVisible();
+    // click() scrolls and retries on detach; scrollIntoViewIfNeeded flakes when nav clusters re-mount.
     await showAdvancedToggle.click();
 
     await page.getByRole("button", { name: "Governance" }).click();
