@@ -86,15 +86,19 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         IAgentExecutionTraceRepository repo = CreateRepository();
         string requestId = "aet2-req-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask task = NewTask(runId, "task-aet2");
+        AgentTask task0 = NewTask(runId, "task-p0");
+        AgentTask task1 = NewTask(runId, "task-p1");
+        AgentTask task2 = NewTask(runId, "task-p2");
 
-        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runId, task0, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runId, task1, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runId, task2, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p0", TimeProvider.System.UtcNowDateTime().AddMinutes(-3)),
+        await repo.CreateAsync(NewTrace(runId, task0.TaskId, "p0", TimeProvider.System.UtcNowDateTime().AddMinutes(-3)),
             CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p1", TimeProvider.System.UtcNowDateTime().AddMinutes(-2)),
+        await repo.CreateAsync(NewTrace(runId, task1.TaskId, "p1", TimeProvider.System.UtcNowDateTime().AddMinutes(-2)),
             CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p2", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
+        await repo.CreateAsync(NewTrace(runId, task2.TaskId, "p2", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
             CancellationToken.None);
 
         (IReadOnlyList<AgentExecutionTrace> page, int total) = await repo.GetPagedByRunIdAsync(

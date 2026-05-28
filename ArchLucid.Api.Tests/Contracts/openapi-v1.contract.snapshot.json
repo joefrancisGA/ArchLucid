@@ -1479,6 +1479,12 @@
             "format": "date-time",
             "type": "string"
           },
+          "degradationReasonCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "evidenceRefs": {
             "items": {
               "type": "string"

@@ -7,6 +7,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.TestSupport;
 
@@ -51,7 +52,8 @@ public sealed class StorageProviderRegistrationParityTests
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
     [
-        typeof(InMemoryAuditRepository)
+        typeof(InMemoryAuditRepository),
+        typeof(InMemoryRetrievalGroundingTraceWriter),
     ];
 
     [Fact]
