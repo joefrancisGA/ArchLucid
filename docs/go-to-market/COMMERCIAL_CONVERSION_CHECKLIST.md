@@ -42,7 +42,7 @@ Do not ask for annual conversion from a vague demo. Ask after the buyer can poin
 
 ## 4. Annual conversion handoff
 
-Use [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) only after the sponsor has accepted the evidence packet and the commercial tier is clear. The $15,000 guided pilot credit remains governed by [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md); this checklist does not change pricing.
+Use [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) only after the sponsor has accepted the evidence packet and the commercial tier is clear. The guided pilot credit remains governed by [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4; this checklist does not change pricing.
 
 ## 5. Enterprise operations preflight
 

@@ -4,7 +4,7 @@
 
 **Default first offer:** **Readiness Review** (lowest commitment, fastest evidence).
 
-**Pilot commercial shape:** **$15,000 flat, fully credited on conversion** to Professional or Enterprise — see [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4.
+**Pilot commercial shape:** flat guided pilot fee, fully credited on conversion to Professional or Enterprise — see [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4.
 
 ## One-page buyer summary
 
