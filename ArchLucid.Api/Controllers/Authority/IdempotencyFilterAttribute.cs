@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ArchLucid.Api.Serialization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ public sealed class IdempotencyFilterAttribute : ActionFilterAttribute
         {
             if (executedContext.Result is ObjectResult objectResult)
             {
-                string json = JsonSerializer.Serialize(objectResult.Value);
+                string json = JsonSerializer.Serialize(objectResult.Value, ArchLucidApiJsonSerializerOptions.Web);
                 await repository.TryInsertAsync(scope.TenantId, idempotencyKey, objectResult.StatusCode ?? 200, json, context.HttpContext.RequestAborted);
             }
             else if (executedContext.Result is ContentResult contentResult && contentResult.Content != null)

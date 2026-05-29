@@ -2271,7 +2271,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
-            ["Billing:AzureMarketplace:LandingPageUrl"] = "http://127.0.0.1:3000/marketplace/landing",
+            ["Billing:AzureMarketplace:LandingPageUrl"] = "https://127.0.0.1:3000/marketplace/landing",
             ["Billing:AzureMarketplace:GaEnabled"] = "false",
             ["Billing:AzureMarketplace:MarketplaceOfferId"] = "ignored-when-ga-off"
         };

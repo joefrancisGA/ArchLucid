@@ -17,8 +17,10 @@
   },
   "minimumFindingsBySeverityTotal": 1,
   "requiredTraceabilityZipEntryPrefixes": [
-    "manifest",
-    "findings"
+    "run-summary",
+    "audit-events",
+    "decision-traces",
+    "README"
   ],
   "requiredAuditEventTypesAfterCommit": []
 }

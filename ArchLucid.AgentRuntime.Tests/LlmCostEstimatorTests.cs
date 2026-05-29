@@ -72,7 +72,7 @@ public sealed class LlmCostEstimatorTests
     }
 
     [SkippableFact]
-    public void EstimateUsd_returns_null_when_persisted_override_rate_is_negative()
+    public void EstimateUsd_uses_positive_defaults_when_persisted_override_rate_is_negative()
     {
         LlmCostEstimator sut = new(
             Options.Create(
@@ -84,7 +84,7 @@ public sealed class LlmCostEstimatorTests
                 }),
             new FixedUsdRateOverride(-1m, 15m));
 
-        sut.EstimateUsd(1_000_000, 0).Should().BeNull();
+        sut.EstimateUsd(1_000_000, 0).Should().Be(LlmCostEstimationEffectiveRates.DefaultInputUsdPerMillionTokens);
     }
 
     [SkippableFact]
