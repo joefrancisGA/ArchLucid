@@ -84,7 +84,7 @@ public sealed class LlmCostEstimatorTests
                 }),
             new FixedUsdRateOverride(-1m, 15m));
 
-        sut.EstimateUsd(1_000_000, 0).Should().Be(LlmCostEstimationEffectiveRates.DefaultInputUsdPerMillionTokens);
+        sut.EstimateUsd(1_000_000, 0).Should().Be(3m);
     }
 
     [SkippableFact]
