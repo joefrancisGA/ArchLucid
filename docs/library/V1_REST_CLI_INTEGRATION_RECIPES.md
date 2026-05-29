@@ -1,4 +1,4 @@
-> **Scope:** Copyable V1 REST/CLI handoff recipes — no V1.1 first-party connectors.
+> **Scope:** Contributor-reference — copyable V1 REST/CLI handoff recipes — no V1.1 first-party connectors.
 
 # V1 REST/CLI integration recipes
 

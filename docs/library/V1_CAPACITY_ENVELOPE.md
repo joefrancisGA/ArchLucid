@@ -1,4 +1,4 @@
-> **Scope:** Practical V1 capacity envelope for first-pilot and early production — documented targets and estimates, not contractual SLAs.
+> **Scope:** Buyer/evaluator — practical V1 capacity envelope for first-pilot and early production — documented targets and estimates, not contractual SLAs.
 
 # V1 capacity envelope (first pilot and early production)
 
