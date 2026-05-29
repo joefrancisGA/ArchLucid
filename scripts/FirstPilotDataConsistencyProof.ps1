@@ -70,7 +70,7 @@ function Resolve-DataConsistencyProofFinding {
         return [ordered]@{
             disposition = $disposition
             detail      = 'Data-consistency readiness was not collected; sponsor handoff cannot be green without an explicit PASS/WARN/HOLD rollup.'
-            remediation = 'Run ./scripts/collect-data-consistency-readiness.ps1 before customer handoff.'
+            remediation = 'Dry-run: ./scripts/collect-data-consistency-readiness.ps1 -BaseUrl $env:ARCHLUCID_API_URL; see docs/runbooks/DATA_CONSISTENCY_READINESS.md. Collectors do not delete or quarantine data.'
             rollup      = $rollup
         }
     }
@@ -94,7 +94,7 @@ function Resolve-DataConsistencyProofFinding {
         return [ordered]@{
             disposition = 'BLOCK'
             detail      = "Data-consistency HOLD blocks sponsor handoff (probes: $probeList).$runSuffix Collector exit $CollectorExitCode."
-            remediation = 'Inspect data-consistency-readiness/data-consistency-summary.json; follow dry-run remediation in DATA_CONSISTENCY_MATRIX.md.'
+            remediation = 'Inspect data-consistency-readiness/data-consistency-summary.json; dry-run: archlucid doctor --json (orphan probes); GET /health/diagnostics; remediation matrix: docs/library/DATA_CONSISTENCY_MATRIX.md — no auto-quarantine.'
             rollup      = $rollup
         }
     }

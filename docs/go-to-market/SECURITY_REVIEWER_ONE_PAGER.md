@@ -28,6 +28,10 @@
 - Unredacted LLM prompts in buyer-safe attachments
 - Customer-operated webhook secrets in V1 required path
 
+## Control-to-evidence map
+
+- [`SECURITY_CONTROL_EVIDENCE_MAP.md`](SECURITY_CONTROL_EVIDENCE_MAP.md) — control, evidence path, status, deferred boundary per row
+
 ## Source documents
 
 - `docs/go-to-market/TRUST_CENTER.md` (Trust center narrative) — present

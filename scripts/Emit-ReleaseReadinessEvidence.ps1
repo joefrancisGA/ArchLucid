@@ -257,6 +257,34 @@ Expected operator evidence:
 
 Add-CheckRow $checks "k6 smoke status" "SKIPPED" "attach k6 production-like smoke output when available" "k6-smoke-status-note.md" "operator"
 
+[string] $hostedRollupSource = Join-Path $root "docs/operations/HOSTED_AVAILABILITY_ROLLUP.md"
+[string] $hostedRollupDest = Join-Path $OutDir "hosted-availability-rollup.md"
+
+if (Test-Path -LiteralPath $hostedRollupSource) {
+    Copy-Item -LiteralPath $hostedRollupSource -Destination $hostedRollupDest -Force
+    Add-CheckRow $checks "Hosted availability rollup (doc)" "PASS" "copied from docs/operations/HOSTED_AVAILABILITY_ROLLUP.md" "hosted-availability-rollup.md" "operator"
+}
+else {
+    Add-CheckRow $checks "Hosted availability rollup (doc)" "SKIPPED" "HOSTED_AVAILABILITY_ROLLUP.md not present in repo" "(none)" "operator"
+}
+
+[string] $realLlmReqPath = Join-Path $OutDir "real-llm-release-requirement.md"
+& pwsh -NoProfile -File (Join-Path $root "scripts/Invoke-ReleaseRealLlmEvidenceRequirement.ps1") -MarkdownOut $realLlmReqPath
+[int] $realLlmReqExit = $LASTEXITCODE
+[string] $realLlmReqVerdict = if ($realLlmReqExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "Real-mode release requirement (opt-in env)" $realLlmReqVerdict "exit $realLlmReqExit when ARCHLUCID_REQUIRE_REAL_LLM_RELEASE_EVIDENCE=1" "real-llm-release-requirement.md"
+
+[string] $retrievalIrSource = Join-Path $root "docs/quality/retrieval-ir-report.md"
+[string] $retrievalIrDest = Join-Path $OutDir "retrieval-ir-report.md"
+
+if (Test-Path -LiteralPath $retrievalIrSource) {
+    Copy-Item -LiteralPath $retrievalIrSource -Destination $retrievalIrDest -Force
+    Add-CheckRow $checks "Retrieval IR evidence (offline)" "PASS" "golden-fixture recall@5/MRR report attached" "retrieval-ir-report.md"
+}
+else {
+    Add-CheckRow $checks "Retrieval IR evidence (offline)" "WARN" "run: python scripts/ci/eval_retrieval_ir.py --enforce" "(none)"
+}
+
 [int] $deploymentEvidenceExit = 999
 
 if (-not [string]::IsNullOrWhiteSpace($ApiBaseUrl)) {

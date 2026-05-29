@@ -1,0 +1,13 @@
+{
+  "findings": [
+    {
+      "id": "f-baseline-missing",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "ROI baseline inputs not collected",
+      "summary": "Review-cycle hours and evidence assembly effort were not buyer-provided. Do not present sponsor-safe projected USD savings.",
+      "evidenceRefs": ["ev-baseline-not-collected"],
+      "citations": []
+    }
+  ]
+}

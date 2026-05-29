@@ -336,13 +336,18 @@ function Add-CommittedRealLlmFixtureFinding {
 }
 
 function Add-RetrievalIrEvidenceFinding {
-    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [switch] $SponsorHandoff
+    )
 
     $reportSource = Join-Path $root 'docs/quality/retrieval-ir-report.md'
     $jsonSource = Join-Path $root 'docs/quality/retrieval-ir-summary.json'
 
     if (-not (Test-Path -LiteralPath $reportSource)) {
-        Add-ProofFinding -Disposition 'WARN' -Name 'retrieval-ir-evidence' -Detail 'retrieval-ir-report.md is missing; run scripts/ci/eval_retrieval_ir.py after retrieval or corpus changes.' -Remediation 'Generate offline retrieval IR evidence before sponsor handoff when RAG quality is part of the claim.' -TriageCard 'FP-T004'
+        $missingDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+        Add-ProofFinding -Disposition $missingDisposition -Name 'retrieval-ir-evidence' -Detail 'retrieval-ir-report.md is missing; run scripts/ci/eval_retrieval_ir.py after retrieval or corpus changes.' -Remediation 'python scripts/ci/eval_retrieval_ir.py --enforce; attach retrieval-ir-report.md before sponsor handoff when RAG quality is part of the claim.' -TriageCard 'FP-T004'
         return
     }
 
@@ -2132,7 +2137,7 @@ if ($SkipCommercialHandoff) {
     Add-ProofFinding -Disposition 'WARN' -Name 'commercial-handoff-checks' -Detail 'Skipped by -SkipCommercialHandoff.' -Remediation 'Run commercial handoff checks before sponsor send.'
 }
 else {
-    Add-RetrievalIrEvidenceFinding -ProofDirectory $proofDir
+    Add-RetrievalIrEvidenceFinding -ProofDirectory $proofDir -SponsorHandoff:$SponsorHandoff
     Add-RetrievalQualityRollupFinding -ProofDirectory $proofDir
     Add-ConsolidatedAiReadinessGateFinding -ProofDirectory $proofDir
     Add-CommittedRealLlmFixtureFinding -ProofDirectory $proofDir -SponsorHandoff:$SponsorHandoff

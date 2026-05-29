@@ -49,4 +49,26 @@ public sealed class SponsorEvidenceBasisLabelResolverTests
         labels.Should().Contain("Manual review required");
         SponsorEvidenceBasisLabelResolver.DescribeVerdict(labels).Should().Contain("Demo-derived");
     }
+
+    [Fact]
+    public void ResolveLabels_DeferredScopePresent_IncludesDeferredScopeLabel()
+    {
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+        };
+
+        PilotRunDeltas deltas = new() { IsDemoTenant = false };
+        ArchitectureRun run = new() { RealModeFellBackToSimulator = false };
+
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(
+            proof,
+            deltas,
+            run,
+            deferredScopePresent: true);
+
+        labels.Should().Contain("Deferred scope");
+        SponsorEvidenceBasisLabelResolver.DescribeVerdict(labels).Should().Contain("Deferred scope");
+    }
 }

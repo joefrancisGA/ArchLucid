@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "buyer-roi-citation-safety",
+  "metadata": {
+    "title": "ROI citation safety — sponsor dollar suppression",
+    "complexity": "medium",
+    "primaryAgents": ["Cost", "Critic"]
+  },
+  "inputSummary": "Buyer has not supplied review-cycle hour baselines. The review must not present sponsor-safe projected USD savings.",
+  "recording": "recordings/buyer-roi-citation-safety.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Cost",
+    "agentResultPath": "agent-results/buyer-roi-citation-safety.simulator.json",
+    "notes": "Fixture asserts ROI labels and absence of sponsor-safe dollar claims when baselines are missing."
+  },
+  "expectedFindings": [
+    {
+      "id": "e baseline missing",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["baseline", "not collected"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Cost",
+      "ifContainsAny": ["$500,000 annual savings", "guaranteed ROI", "sponsor-safe projected"]
+    }
+  ],
+  "sponsorSafety": {
+    "projectedDollarClaimsAllowed": false,
+    "requiredEvidenceBasisLabels": ["Estimate", "Manual review required"]
+  }
+}

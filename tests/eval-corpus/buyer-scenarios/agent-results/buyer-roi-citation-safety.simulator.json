@@ -1,0 +1,19 @@
+{
+  "runId": "buyer-roi-citation-safety-run",
+  "taskId": "buyer-roi-citation-safety-task",
+  "agentType": "Cost",
+  "claims": ["ROI baseline inputs are not collected; projected dollar savings are not sponsor-safe."],
+  "evidenceRefs": ["ev-baseline-not-collected"],
+  "confidence": 0.72,
+  "findings": [
+    {
+      "id": "f-baseline-missing",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "ROI baseline inputs not collected",
+      "summary": "Review-cycle hours and evidence assembly effort were not buyer-provided. Label as Estimate; do not quote sponsor-safe projected USD savings.",
+      "evidenceRefs": ["ev-baseline-not-collected"]
+    }
+  ],
+  "reasoningTrace": "Simulator fixture for buyer ROI citation safety; no live LLM."
+}

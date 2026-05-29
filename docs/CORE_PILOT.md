@@ -5,7 +5,7 @@
 
 Use this page when you need the **Core** first-pilot workflow — the canonical four-step path from “new review” to committed manifest + review package. It is **not** one template among many: **Specialty** accelerator templates (Azure SaaS, AI governance, healthcare) are optional buyer-job narratives you choose **after** Core first value or when the buyer’s job clearly matches that template.
 
-The operational checklist remains [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md); this page only explains the shape of first value. For a **one-sitting** time-boxed path with timing guidance, see [`runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md`](runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md).
+The operational checklist remains [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md); evaluators may start from [`onboarding/EVALUATOR_WORKBOOK.md`](onboarding/EVALUATOR_WORKBOOK.md) (compact path, not a second checklist). This page only explains the shape of first value. For a **one-sitting** time-boxed path with timing guidance, see [`runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md`](runbooks/FIRST_CREDIBLE_REVIEW_ONE_SITTING.md).
 
 **Input:** buyer architecture evidence or an explicitly accepted demo workspace.  
 **Output:** one defensible architecture review package with committed findings, evidence labels, artifacts, and sponsor handoff material.

@@ -40,6 +40,18 @@ Do not ask for annual conversion from a vague demo. Ask after the buyer can poin
 | Hold | Missing `runId`, unresolved PilotStrict signals, absent proof ZIP, unlabeled or unsafe ROI basis, data-consistency HOLD, stale procurement pack, or failed route/tier/policy/nav guard | Re-run the relevant proof, procurement, or drift guard before sponsor send |
 | Defer | Buyer requires SOC 2 CPA attestation, public reference customer, marketplace checkout, MCP, or V1.1 connectors before purchase | Mark as deferred scope (`DEFERRED_SCOPE` when V1 proof otherwise passes); do not imply those items are V1 prerequisites |
 
+### Proof disposition → next commercial action
+
+| `sponsorPacketDisposition` / proof state | Next action | Owner |
+| --- | --- | --- |
+| **SEND** + `roiSponsorSafe` + procurement PASS | **ARB Report** or **Annual Enterprise order** (tier-dependent) | Sales + sponsor |
+| **SEND** + procurement HOLD | **Evidence Pack** — refresh procurement pack | Procurement owner |
+| **HOLD** (any BLOCK row) | **Evidence Pack** — fix remediation column in `first-pilot-command-center.md` | Pilot operator |
+| **DEFERRED_SCOPE** | **Deferred buyer requirement** — record V1.1/V2/(B) ask; do not treat as V1 failure | Executive owner |
+| ROI not sponsor-safe | **Evidence Pack** — collect baselines per scorecard | Buyer + ArchLucid |
+
+Generated mapping: `commercial-next-step.json` in the proof folder (from `FirstPilotCommercialNextStep.ps1`).
+
 ## 4. Annual conversion handoff
 
 Use [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md) only after the sponsor has accepted the evidence packet and the commercial tier is clear. Map proof outputs to the sales packet with [`QUOTE_TO_PROOF_PACKET.md`](QUOTE_TO_PROOF_PACKET.md). The guided pilot credit remains governed by [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) §4; this checklist does not change pricing.

@@ -527,7 +527,42 @@ def format_deal_ready_disposition(
     blocking = list(summary["blocking_violations"])
     deferred_notes = list(summary["deferred_realism_notes"])
     counts = dict(summary.get("scope_classification_counts") or {})
-    lines = [f"Deal-ready disposition: {disposition}"]
+    classification_rows = list(summary.get("scope_classification_rows") or [])
+    lines = [
+        "# Procurement deal-ready executive summary",
+        "",
+        f"**Disposition:** **{disposition}**",
+        "",
+        "| Classification | Count |",
+        "| --- | ---: |",
+    ]
+
+    for key in scope_class.SCOPE_CLASSIFICATIONS:
+        lines.append(f"| {key} | {counts.get(key, 0)} |")
+
+    lines.append("")
+    lines.append(
+        "Rows labeled **DEFERRED_SCOPE** or **INFORMATIONAL_B_ONLY** are not V1 product failures. "
+        "Rows labeled **HOLD** block buyer send until resolved."
+    )
+    lines.append("")
+
+    if classification_rows:
+        lines.append("| Topic | Classification | Source |")
+        lines.append("| --- | --- | --- |")
+
+        for row in classification_rows[:24]:
+            topic = str(row.get("topic") or row.get("pack_path") or "—")
+            classification = str(row.get("classification") or "—")
+            source = str(row.get("source_repo_path") or row.get("source") or "—")
+            lines.append(f"| {topic} | {classification} | `{source}` |")
+
+        if len(classification_rows) > 24:
+            lines.append(f"| … | … | ({len(classification_rows) - 24} more rows in procurement-deal-ready-classification.md) |")
+
+        lines.append("")
+
+    lines.append(f"Deal-ready disposition: {disposition}")
 
     if counts:
         lines.append("Scope classification counts:")

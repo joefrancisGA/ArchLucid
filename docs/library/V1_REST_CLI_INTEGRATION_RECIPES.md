@@ -56,6 +56,18 @@ python scripts/build_procurement_pack.py --strict
 
 Read `procurement-pack-quality.md` before send. Request guide: [`../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`](../go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md).
 
+## 7. Error handling examples
+
+```bash
+# 401 — missing or wrong bearer
+curl -sS -o /dev/null -w "%{http_code}" "$BASE/v1/architecture/run/$RUN_ID"
+# Expect 401: refresh token; verify ArchLucidAuth:Mode and tenant scope.
+
+# Execute blocked (409/422) — quality gate
+curl -sS -X POST "$BASE/v1/architecture/run/$RUN_ID/execute" -H "Authorization: Bearer $TOKEN"
+# Follow ../runbooks/QUALITY_GATE_REJECTION.md; rerun after PilotStrict evidence is satisfied.
+```
+
 ## Failure behavior
 
 | Failure | Next action |
@@ -63,6 +75,7 @@ Read `procurement-pack-quality.md` before send. Request guide: [`../go-to-market
 | 401/403 | Fix auth mode and roles — [`../runbooks/FIRST_PILOT_TROUBLESHOOTING.md`](../runbooks/FIRST_PILOT_TROUBLESHOOTING.md) |
 | Execute blocked by quality gate | [`../runbooks/QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md) |
 | Proof HOLD | Open `first-pilot-command-center.md` **NEXT ACTION** row |
+| Sponsor handoff BLOCK on missing retrieval IR | `python scripts/ci/eval_retrieval_ir.py --enforce` then re-run proof with `-SponsorHandoff` |
 
 ## Related
 
