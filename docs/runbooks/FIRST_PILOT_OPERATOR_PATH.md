@@ -10,6 +10,32 @@
 
 ---
 
+## Inputs, outputs, and stop conditions
+
+| | What you need | What success produces | When to stop |
+| --- | --- | --- | --- |
+| **Inputs** | SQL + auth configured, evidence uploaded or demo accepted, one architecture run executed and **committed** | — | Do not sponsor-send while `sponsorPacketDisposition` is **HOLD** or data-consistency is **NOT_RUN** in sponsor-handoff mode |
+| **Outputs** | — | `first-pilot-command-center.md`, `go-no-go-summary.md`, committed-run `first-value-report.md` + PDF, `quote-to-proof-packet.md`, proof folder under `artifacts/first-pilot-proof/` | Stop external circulation when ROI basis is demo-derived or PilotStrict failed without caveat |
+
+**Do not start here for the checklist:** [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) (depth only), [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) (recovery only), [`architecture/README.md`](../architecture/README.md) (contributor map).
+
+## Successful first-pilot output artifacts
+
+When Phase D completes with `-RunId` and sponsor handoff flags as needed, expect at minimum:
+
+| Artifact | Path (under proof working dir) |
+| --- | --- |
+| Command center (primary) | `first-pilot-command-center.md` |
+| Go/no-go findings | `go-no-go-summary.md` · `go-no-go-summary.json` |
+| Committed-run bundle | `first-pilot-evidence/` (first-value report, observability summary, deltas) |
+| Commercial index | `quote-to-proof-packet.md` · `commercial-next-step.json` |
+| Data consistency | `data-consistency-readiness/data-consistency-summary.json` |
+| Config / drift (hosted) | `config-lint-production-like-hosted-pilot.md` · `route-tier-policy-nav-parity.md` |
+
+Do not hand-edit missing proof into the packet — re-run collectors per [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).
+
+---
+
 ## Operator status vocabulary
 
 Use this small vocabulary across cockpit rows, proof summaries, and sponsor handoff — do not invent parallel checklists.

@@ -13,6 +13,8 @@
 
 **Philosophy:** ArchLucid connects to your tools — you do not run our agents in your infrastructure. Integrations operate via the hosted **REST**/**CLI**/**UI** surfaces for **V1** GA; **webhooks**, **Teams**, **Service Bus** fan-out, and managed/first-party connectors are **V1.1 buyer-contract** paths per [`../library/V1_SCOPE.md`](../library/V1_SCOPE.md).
 
+**V1 copyable recipes:** [`../library/V1_REST_CLI_INTEGRATION_RECIPES.md`](../library/V1_REST_CLI_INTEGRATION_RECIPES.md)
+
 **Connector readiness matrix (implementers):** [../library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md) — shipped vs recipe vs planned; **product** vs **customer-operated**; code paths and tests.
 
 **Smoke recipes (first-party connectors):** [../integrations/CONNECTOR_SMOKE_INDEX.md](../integrations/CONNECTOR_SMOKE_INDEX.md)

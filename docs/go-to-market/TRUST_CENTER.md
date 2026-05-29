@@ -12,6 +12,8 @@
 
 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 
+**Buyer orientation (one screen):** [BUYER_ORIENTATION_ONE_SCREEN.md](BUYER_ORIENTATION_ONE_SCREEN.md) · **AI output limits:** [AI_OUTPUT_DECISION_SUPPORT.md](AI_OUTPUT_DECISION_SUPPORT.md) · **Audit walkthrough:** [SECURITY_AUDIT_WALKTHROUGH.md](SECURITY_AUDIT_WALKTHROUGH.md)
+
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
 ---

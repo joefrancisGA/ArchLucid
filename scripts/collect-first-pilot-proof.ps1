@@ -312,6 +312,29 @@ function Add-ConsolidatedAiReadinessGateFinding {
         -TriageCard 'FP-T005'
 }
 
+function Add-CommittedRealLlmFixtureFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [switch] $SponsorHandoff
+    )
+
+    $markdownPath = Join-Path $ProofDirectory 'committed-real-llm-fixture-validation.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\validate_committed_real_llm_fixtures.py'
+    & python $scriptPath --markdown-out $markdownPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'committed-real-llm-fixture-validation.md' -Path 'committed-real-llm-fixture-validation.md' -Purpose 'Sanitized committed real-mode AgentResult fixture validation (no live Azure OpenAI in PR CI).'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'committed-real-llm-fixtures' -Detail 'Committed *.real.json fixtures passed structural and secret-safety validation.' -Remediation ''
+        return
+    }
+
+    $disposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $disposition -Name 'committed-real-llm-fixtures' -Detail 'One or more committed real-mode fixtures failed validation; see committed-real-llm-fixture-validation.md and docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md.' -Remediation 'Fix or replace invalid tests/eval-corpus/agent-results/*.real.json before RC or sponsor handoff.' -TriageCard 'FP-T005'
+}
+
 function Add-RetrievalIrEvidenceFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -892,7 +915,7 @@ function Write-QuoteToProofPacketMarkdown {
     $lines = [System.Collections.Generic.List[string]]::new()
     $lines.Add('# Quote-to-proof packet index (generated)')
     $lines.Add('')
-    $lines.Add('> Canonical checklist: [`docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md). Pricing and order terms live only in [`PRICING_PHILOSOPHY.md`](../../docs/go-to-market/PRICING_PHILOSOPHY.md) and [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md).')
+    $lines.Add('> Canonical checklists: [`QUOTE_TO_PROOF_PACKET.md`](../../docs/go-to-market/QUOTE_TO_PROOF_PACKET.md) · [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md). Pricing and order terms live only in [`PRICING_PHILOSOPHY.md`](../../docs/go-to-market/PRICING_PHILOSOPHY.md) and [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md).')
     $lines.Add('')
     $lines.Add("| Field | Value |")
     $lines.Add("| --- | --- |")
@@ -913,6 +936,15 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("- **Owner:** $($commercialStep.owner)")
     $lines.Add("- **Reason:** $($commercialStep.reason)")
     $lines.Add('')
+
+    if ($commercialDisposition -eq 'PASS') {
+        $lines.Add('## After PASS proof (commercial conversion)')
+        $lines.Add('')
+        $lines.Add('- Follow [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md): request quote, guided pilot conversion, Professional/Enterprise evaluation, or procurement pack — **not** live Stripe checkout or marketplace publication (deferred).')
+        $lines.Add('- Map artifacts with [`QUOTE_TO_PILOT_PACK.md`](../../docs/go-to-market/QUOTE_TO_PILOT_PACK.md) when moving to a paid pilot pack.')
+        $lines.Add('')
+    }
+
     $lines.Add('## Recommended next ask')
     $lines.Add('')
     $lines.Add("- $($commercialStep.reason)")
@@ -936,6 +968,7 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| AI quality proof | $aiQualityStatus | ``go-no-go-summary.json`` · ``aiQualityProof`` |")
     $lines.Add("| Consolidated AI readiness gate | $(Resolve-FindingDisposition -Name 'ai-readiness-gate') | ``ai-readiness-gate.json`` · ``go-no-go-summary.json`` · ``aiReadinessGate`` |")
     $lines.Add("| Live UI-SQL parity | $(Resolve-FindingDisposition -Name 'live-ui-sql-parity') | ``live-ui-sql-parity-result.json`` (when supplied) |")
+    $lines.Add("| Commercial conversion checklist | MANUAL | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md) after PASS disposition |")
     $lines.Add("| Selected tier + order form | MANUAL | [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md) after tier is agreed |")
     $lines.Add("| Demo workspace validation | $(Resolve-FindingDisposition -Name 'demo-workspace-validation') | ``demo-workspace-validation.txt`` |")
     $lines.Add("| Trial-to-paid test-mode evidence | $(Resolve-FindingDisposition -Name 'trial-to-paid-test-mode-evidence') | ``trial-to-paid-test-mode-evidence.md`` |")
@@ -1156,6 +1189,7 @@ function Add-RoiBasisLabelFinding {
     $reportText = Get-Content -LiteralPath $reportPath -Raw
     $requiredPhrases = @(
         '## Sponsor send readiness (buyer-safe gate)',
+        '## Evidence basis',
         '## ROI evidence completeness',
         '## Sponsor artifact evidence badges',
         'ROI evidence confidence'
@@ -1205,6 +1239,11 @@ function Add-RoiBasisLabelFinding {
 
     if ($SponsorHandoff -and -not $script:roiSponsorSafe) {
         Add-ProofFinding -Disposition 'BLOCK' -Name 'roi-basis-labels' -Detail "ROI basis status '$($script:roiBasisStatus)' is not sponsor-safe for projected dollar claims without an explicit caveat." -Remediation 'Capture buyer-provided baselines or label the packet with conservative ROI caveats before sponsor send.' -TriageCard 'FP-T018'
+        return
+    }
+
+    if (-not $SponsorHandoff -and -not $script:roiSponsorSafe) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'roi-basis-labels' -Detail "ROI basis status '$($script:roiBasisStatus)' lowers evidence confidence; acceptable for self-serve exploration but not for guided paid pilot sponsor handoff." -Remediation 'Capture buyer-provided baselines per docs/library/PILOT_ROI_MODEL.md before sponsor send.' -TriageCard 'FP-T018'
         return
     }
 
@@ -1805,6 +1844,18 @@ function Add-LlmCostEnvelopeFinding {
         $args += @('--budget-status-json', $budgetPath)
     }
 
+    if (-not [string]::IsNullOrWhiteSpace($EvidenceRoot)) {
+        $latestBundle = Get-LatestEvidenceBundleDirectory -EvidenceRoot $EvidenceRoot
+
+        if ($null -ne $latestBundle) {
+            $deltasCandidate = Join-Path $latestBundle.FullName 'pilot-run-deltas.json'
+
+            if (Test-Path -LiteralPath $deltasCandidate) {
+                $args += @('--pilot-run-deltas-json', $deltasCandidate)
+            }
+        }
+    }
+
     & python @args 2>&1 | Out-Null
 
     Add-ProofArtifact -Name 'llm-cost-envelope.md' -Path 'llm-cost-envelope.md' -Purpose 'LLM cost envelope: budget posture and run-level usage labels.'
@@ -2084,6 +2135,7 @@ else {
     Add-RetrievalIrEvidenceFinding -ProofDirectory $proofDir
     Add-RetrievalQualityRollupFinding -ProofDirectory $proofDir
     Add-ConsolidatedAiReadinessGateFinding -ProofDirectory $proofDir
+    Add-CommittedRealLlmFixtureFinding -ProofDirectory $proofDir -SponsorHandoff:$SponsorHandoff
     Add-CommercialPackagingReadinessFinding -ProofDirectory $proofDir
     Add-LiveUiSqlParityFinding -ProofDirectory $proofDir
     Add-DemoWorkspaceValidationFinding -ProofDirectory $proofDir
@@ -2115,6 +2167,7 @@ else {
         Add-AgentQualitySponsorGateFinding -EvidenceRoot $evidenceOut
         Add-AiQualityProofFinding -EvidenceRoot $evidenceOut
         Add-ConsolidatedAiReadinessGateFinding -ProofDirectory $proofDir -EvidenceRoot $evidenceOut
+        Add-CommittedRealLlmFixtureFinding -ProofDirectory $proofDir -SponsorHandoff:$SponsorHandoff
 
         $llmMode = 'unknown'
 

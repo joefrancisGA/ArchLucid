@@ -37,7 +37,7 @@ import {
 } from "@/lib/operator-nav-preset";
 import {
   countLinksHiddenByProgressiveDisclosure,
-  countSidebarLinksHiddenByCollapsedPilot,
+  countSidebarLinksRevealedByShowAllFeatures,
   filterNavLinksForOperatorShell,
   listNavGroupsVisibleInOperatorShell,
   type NavGroupWithVisibleLinks,
@@ -186,12 +186,13 @@ export function SidebarNav() {
 
   const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !buyerPolishedShell && !navAllFeaturesExpanded;
   const extraLinksBehindCollapsedPilot = applyCollapsedSidebarPilotFilter
-    ? countSidebarLinksHiddenByCollapsedPilot(
+    ? countSidebarLinksRevealedByShowAllFeatures(
         NAV_GROUPS,
         navExtended,
         navAdvanced,
         callerAuthorityRank,
         hasCommittedArchitectureReview,
+        effectiveShellPresetId,
       )
     : 0;
 
@@ -710,6 +711,10 @@ export function SidebarNav() {
               const next = !navAllFeaturesExpanded;
               setNavAllFeaturesExpanded(next);
 
+              if (next && effectiveShellPresetId !== "full") {
+                persistShellPreset("full");
+              }
+
               try {
                 window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, next ? "true" : "false");
               } catch {
@@ -794,12 +799,13 @@ export function SidebarNav() {
         </Button>
         {mounted && shellPresetId !== "full" && !buyerPolishedShell ? (
           <p className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200">
-            Navigation preset ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}) hides some links — open{" "}
+            Navigation preset ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}) hides some links.{" "}
+            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Show all features</strong> switches to
+            Full navigator; or open{" "}
             <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Sidebar layout</strong>
             {" → "}
-            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Preset</strong>
-            {" → "}
-            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Full navigator</strong> to show the full list.
+            <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Preset</strong> to choose a different
+            preset.
           </p>
         ) : null}
 

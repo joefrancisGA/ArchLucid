@@ -1,5 +1,7 @@
 > **Scope:** Symptom-driven decision tree for first-pilot operators — links to deep references without duplicating full runbooks.
 
+> **Do not start here for the checklist.** Use [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) first; return here when a step fails.
+
 # First-pilot troubleshooting decision tree
 
 **Canonical pilot path:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · **Stuck mid-pilot index:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · **Full detail:** [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)

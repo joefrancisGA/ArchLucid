@@ -9,6 +9,8 @@
 
 Give operators a **first-principles** way to scale ArchLucid/ArchLucid and control **Azure spend** without over-provisioning from day one.
 
+**V1 first-pilot envelope (documented targets):** [`V1_CAPACITY_ENVELOPE.md`](V1_CAPACITY_ENVELOPE.md).
+
 ## 2. Assumptions
 
 - **Traffic grows unevenly**; teams may lack perfect forecasts.

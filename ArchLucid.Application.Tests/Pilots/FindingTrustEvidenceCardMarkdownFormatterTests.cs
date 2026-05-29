@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
@@ -56,6 +57,36 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         md.Should().Contain("No PilotStrict failures");
         md.Should().Contain("Sponsor-proof readiness");
         md.Should().Contain("Sendable");
+        md.Should().Contain("Evidence-basis label (top finding)");
+        md.Should().Contain("**Evidence-backed**");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_LowSupport_ShowsLowSupportLabel()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-3",
+            TopFindingSeverity = "Error",
+            AgentOutputPilotStrictSignalsResolved = true,
+            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+        };
+
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = false,
+            ProofSendability = "NotSendable",
+            PublishingTier = "Partial",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Incomplete),
+        };
+
+        ArchitectureRun run = new() { RealModeFellBackToSimulator = true };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof, run);
+
+        sb.ToString().Should().Contain("**Low support**");
     }
 
     [Fact]

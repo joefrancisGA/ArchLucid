@@ -33,7 +33,7 @@ For out-of-process handlers (separate service, HTTP contract), see [`CUSTOM_AGEN
 
 Interface location: `ArchLucid.Contracts.Abstractions.Agents.IAgentHandler`.
 
-Minimal simulator-safe handler sample (canonical fixture: `ArchLucid.AgentRuntime.Tests/Fixtures/SampleRiskReviewHandler.cs`):
+Minimal simulator-safe handler sample (canonical fixture: `ArchLucid.AgentRuntime.Tests/Fixtures/SampleRiskReviewHandler.cs`; unit tests: `ArchLucid.AgentRuntime.Tests/SampleRiskReviewHandlerTests.cs`):
 
 ```csharp
 using ArchLucid.Contracts.Abstractions.Agents;

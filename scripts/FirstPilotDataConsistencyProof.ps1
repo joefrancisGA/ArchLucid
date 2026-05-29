@@ -65,9 +65,11 @@ function Resolve-DataConsistencyProofFinding {
     $runSuffix = if ([string]::IsNullOrWhiteSpace($RunId)) { '' } else { " Committed review runId=$($RunId.Trim())." }
 
     if ($Status -eq 'NOT_RUN') {
+        $disposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
         return [ordered]@{
-            disposition = 'WARN'
-            detail      = 'Data-consistency readiness was not collected.'
+            disposition = $disposition
+            detail      = 'Data-consistency readiness was not collected; sponsor handoff cannot be green without an explicit PASS/WARN/HOLD rollup.'
             remediation = 'Run ./scripts/collect-data-consistency-readiness.ps1 before customer handoff.'
             rollup      = $rollup
         }

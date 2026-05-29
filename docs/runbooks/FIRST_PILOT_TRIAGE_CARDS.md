@@ -6,6 +6,16 @@
 
 `scripts/collect-first-pilot-proof.ps1` writes these IDs into `go-no-go-summary.md` when a preflight, evidence collection, or sponsor-evidence quality gate step can be mapped to a known failure mode. For committed reviews, unresolved or failed PilotStrict sponsor evidence is a `BLOCK`; simulator-only/demo evidence remains allowed only when it is visibly labeled.
 
+Every **BLOCK** or **WARN** finding in `go-no-go-summary.md` includes a **`supportNextStep`** column (concrete command or doc link). Open **`first-pilot-command-center.md`** for the single phased **NEXT ACTION** when proof collection finishes.
+
+| HOLD category | Next action |
+| --- | --- |
+| Data consistency | Run `./scripts/collect-data-consistency-readiness.ps1` — [`DATA_CONSISTENCY_READINESS.md`](DATA_CONSISTENCY_READINESS.md) |
+| ROI / sponsor basis | Capture baselines — [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md#minimum-viable-roi-baseline-before-sponsor-readout) |
+| AI / PilotStrict | Resolve quality gate — [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) |
+| Production-like config | `archlucid config lint --profile production-like-hosted-pilot` |
+| Procurement | `python scripts/build_procurement_pack.py --strict --deal-ready` |
+
 | ID | Symptom | Likely cause | Collect | Command / route |
 | --- | --- | --- | --- | --- |
 | FP-T001 | Auth failure / 401 loop | Wrong `ArchLucidAuth:Mode`, missing API key/JWT | Correlation id from failed request | `archlucid auth diagnostics` · `/auth/signin` |

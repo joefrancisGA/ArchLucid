@@ -606,7 +606,11 @@ def collect_quality_snapshot(
 def procurement_pack_quality_markdown(snapshot: dict[str, object]) -> str:
     """Buyer-safe quality summary (no secrets)."""
     lines = [
-        "# Procurement pack quality",
+        "# Procurement pack sendability summary",
+        "",
+        "> Human-readable sendability for buyer circulation. **SOC 2:** self-assessment and roadmap only — **not** CPA attestation. "
+        "> **Third-party pen test:** deferred per V1 scope — not claimed as completed. "
+        "> **Buyer-specific cover letters** require owner approval before leaving the repository boundary.",
         "",
         f"- **Overall:** `{snapshot.get('overall', 'unknown')}`",
         f"- **Strict mode:** `{snapshot.get('strict_mode', False)}`",

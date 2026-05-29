@@ -131,6 +131,7 @@ public sealed class FirstValueReportBuilder(
             valueWindowSnapshot,
             ResolveSavingsPricingBasisForBadges(proofCompleteness, valueWindowSnapshot, deltas),
             ResolveCostEvidenceFreshnessForBadges(proofCompleteness, deltas));
+        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness, deltas, run);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -159,7 +160,7 @@ public sealed class FirstValueReportBuilder(
         AppendElapsedSection(sb, deltas);
         AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         AppendEvidenceChainSection(sb, deltas);
-        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness);
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness, run);
         AppendBaselinePlaceholderTable(sb);
         sb.AppendLine();
         sb.AppendLine("---");
@@ -421,7 +422,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
         sb.AppendLine(
             $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
-        sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, run)} |");
+        sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, deltas, run)} |");
         sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -429,26 +430,13 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
     }
 
-    private static string FormatEvidenceBasisLabels(ProofPackageCompletenessResponse c, ArchitectureRun run)
+    private static string FormatEvidenceBasisLabels(
+        ProofPackageCompletenessResponse c,
+        PilotRunDeltas deltas,
+        ArchitectureRun run)
     {
-        List<string> labels = [];
-
-        if (c.DemoTenantWarningRequired)
-            labels.Add("**Demo-derived**");
-
-        if (!c.AgentOutputPilotStrictEvidenceSatisfied)
-            labels.Add("**Low support**");
-
-        if (c.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
-            labels.Add("**Estimate**");
-
-        if (run.RealModeFellBackToSimulator)
-            labels.Add("**Manual review required**");
-
-        if (labels.Count == 0)
-            labels.Add("**Evidence-backed**");
-
-        return string.Join(" · ", labels);
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(c, deltas, run);
+        return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
     }
 
     private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)

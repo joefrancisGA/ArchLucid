@@ -5,6 +5,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksHiddenByCollapsedPilot,
+  countSidebarLinksRevealedByShowAllFeatures,
   filterNavLinksForOperatorShell,
   listNavGroupsVisibleInOperatorShell,
   visibleOperatorShellHrefSet,
@@ -403,6 +404,38 @@ describe("collapsed pilot sidebar filter", () => {
     expect(countSidebarLinksHiddenByCollapsedPilot(NAV_GROUPS, false, false, AUTHORITY_RANK.ReadAuthority, true)).toBe(
       f - c,
     );
+  });
+});
+
+describe("countSidebarLinksRevealedByShowAllFeatures", () => {
+  it("counts fewer links for pilot_operator than collapsed-only delta when preset hides routes", () => {
+    const collapsedOnly = countSidebarLinksHiddenByCollapsedPilot(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      true,
+    );
+    const withPreset = countSidebarLinksRevealedByShowAllFeatures(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      true,
+      "pilot_operator",
+    );
+    const withFullPreset = countSidebarLinksRevealedByShowAllFeatures(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      true,
+      "full",
+    );
+
+    expect(withPreset).toBeGreaterThan(0);
+    expect(withPreset).toBeLessThanOrEqual(collapsedOnly);
+    expect(withFullPreset).toBe(collapsedOnly);
   });
 });
 

@@ -5,6 +5,7 @@ import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-commi
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { operatorShellPresetAllowsHref, type OperatorShellPresetId } from "@/lib/operator-nav-preset";
 
 /** Buyer default shell: omit pilot distractions — golden path uses Reviews cluster + journey strip (`SidebarNav`). */
 const BUYER_POLISHED_SHELL_OMIT_NAV_HREFS = new Set<string>(["/", "/onboarding", "/reviews/new", "/compare"]);
@@ -223,6 +224,78 @@ export function visibleOperatorShellHrefSet(
   }
 
   return hrefs;
+}
+
+function countPresetVisibleSidebarLinks(
+  groups: ReadonlyArray<NavGroupConfig>,
+  showExtended: boolean,
+  showAdvanced: boolean,
+  callerAuthorityRank: number,
+  hasCommittedArchitectureReview: boolean,
+  applyCollapsedSidebarPilotFilter: boolean,
+  shellPresetId: OperatorShellPresetId,
+): number {
+  let count = 0;
+
+  for (const group of groups) {
+    if (group.surface === "platform-admin") {
+      continue;
+    }
+
+    const links = filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(
+        group.links,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+        applyCollapsedSidebarPilotFilter,
+        hasCommittedArchitectureReview,
+      ),
+    );
+
+    if (shellPresetId === "full") {
+      count += links.length;
+      continue;
+    }
+
+    count += links.filter((link) => operatorShellPresetAllowsHref(shellPresetId, link.href)).length;
+  }
+
+  return count;
+}
+
+/**
+ * Sidebar “N more” badge when collapsed: links that appear after “Show all features”
+ * (expands collapsed pilot filter and upgrades non-full presets to Full navigator).
+ */
+export function countSidebarLinksRevealedByShowAllFeatures(
+  groups: ReadonlyArray<NavGroupConfig>,
+  showExtended: boolean,
+  showAdvanced: boolean,
+  callerAuthorityRank: number,
+  hasCommittedArchitectureReview: boolean,
+  currentShellPresetId: OperatorShellPresetId,
+): number {
+  const visibleNow = countPresetVisibleSidebarLinks(
+    groups,
+    showExtended,
+    showAdvanced,
+    callerAuthorityRank,
+    hasCommittedArchitectureReview,
+    true,
+    currentShellPresetId,
+  );
+  const visibleAfterExpand = countPresetVisibleSidebarLinks(
+    groups,
+    showExtended,
+    showAdvanced,
+    callerAuthorityRank,
+    hasCommittedArchitectureReview,
+    false,
+    "full",
+  );
+
+  return Math.max(0, visibleAfterExpand - visibleNow);
 }
 
 /**

@@ -17,7 +17,7 @@
 | [scripts/validate-saas-infra.ps1](../../scripts/validate-saas-infra.ps1) | For each discovered root: `terraform init -backend=false` → `terraform validate`. Produces a **root \| init \| validate** summary table. Exits `1` if any step fails. |
 | [scripts/validate-saas-config-consistency.ps1](../../scripts/validate-saas-config-consistency.ps1) | (1) Every `infra/...` path **quoted** in [infra/apply-saas.ps1](../../infra/apply-saas.ps1) exists. (2) **Warns** if a stack directory `infra/terraform*` is **not** listed in `apply-saas` (e.g. new `terraform-otel-collector`). (3) **azurerm** `version` constraints in each stack’s `versions.tf` are compared. (4) **Warns** if the same `variable` name has different `type` lines across `variables.tf` (best-effort). Use `-Strict` to fail on provider version drift. |
 
-**CI** — [scripts/ci/assert_terraform_roots_valid.py](../../scripts/ci/assert_terraform_roots_valid.py) runs the two PowerShell entrypoints in order. Registered in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (job **SaaS: Terraform roots validate**) with `continue-on-error: true` until every root is known clean, then you can remove that flag to make it merge-blocking.
+**CI** — [scripts/ci/assert_terraform_roots_valid.py](../../scripts/ci/assert_terraform_roots_valid.py) runs the two PowerShell entrypoints in order. Registered in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (job **SaaS: Terraform roots validate**) as **merge-blocking** for all declared Terraform roots (`init -backend=false` + `validate`, no Azure credentials).
 
 ## How to run locally (repo root)
 

@@ -152,7 +152,7 @@ describe("SidebarNav pilot_operator default preset", () => {
     localStorage.clear();
   });
 
-  it("keeps analysis and governance destinations off the sidebar until full navigator preset", () => {
+  it("switches to full navigator and reveals analysis essentials when Show all features is clicked", () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -163,15 +163,16 @@ describe("SidebarNav pilot_operator default preset", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
 
-    // pilot_operator allow-list prunes operate-analysis/operate-governance hrefs even after expand-all.
-    expect(screen.queryByRole("navigation", { name: "Analysis" })).toBeNull();
+    expect(localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY)).toBe("full");
+    expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ask this review" })).toHaveAttribute("href", "/ask");
     expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
     fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
     fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
 
-    expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "Risk register" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute("href", "/governance/findings");
   });
 });

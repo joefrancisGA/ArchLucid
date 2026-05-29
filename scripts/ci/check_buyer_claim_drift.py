@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Warn on high-risk buyer-facing claim drift in a narrow allowlisted doc set.
+"""High-risk buyer-facing claim drift in a narrow allowlisted doc set (merge-blocking by default).
 
 Phrase inventory (Improvement #15):
 - SOC 2 Type II issued / report available / published (CPA reports are not issued in V1).
@@ -8,7 +8,7 @@ Phrase inventory (Improvement #15):
 - Jira / Microsoft Teams described as V1 GA capabilities (V1.1 buyer-contract integrations).
 
 Lines containing ``buyer-claim-drift: allow`` are skipped (documented intentional phrasing).
-CI runs warn-only via ``continue-on-error: true`` in ``.github/workflows/ci.yml``.
+CI runs merge-blocking via ``.github/workflows/ci.yml`` (use ``--advisory`` for warn-only local runs).
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ ALLOWLIST_MARKER = "buyer-claim-drift: allow"
 class ClaimPattern:
     pattern: re.Pattern[str]
     message: str
+    source_of_truth: str
 
 
 DOCS_TO_SCAN: tuple[Path, ...] = (
@@ -46,6 +47,7 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ClaimPattern(
         re.compile(r"generic\s+OIDC\s*\([^)]*roadmap[^)]*\)", re.IGNORECASE),
         "generic OIDC must not be described as roadmap-only; V1 supports generic OIDC configuration.",
+        "docs/library/V1_SCOPE.md",
     ),
     ClaimPattern(
         re.compile(
@@ -53,26 +55,32 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
             re.IGNORECASE,
         ),
         "SOC 2 CPA reports must not be described as issued, available, or published.",
+        "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
     ),
     ClaimPattern(
         re.compile(r"SOC\s*2\s+Type\s*(?:II|2)\s+issued", re.IGNORECASE),
         "SOC 2 Type II must not be described as issued.",
+        "docs/go-to-market/SOC2_STATUS_PROCUREMENT.md",
     ),
     ClaimPattern(
         re.compile(r"third-party\s+pen(?:etration)?\s+test\s+(?:completed|executed|passed)\s+(?:for|against)\s+V1", re.IGNORECASE),
         "third-party penetration testing is V2, not completed for V1.",
+        "docs/library/V1_DEFERRED.md",
     ),
     ClaimPattern(
         re.compile(r"Marketplace\s+(?:SaaS\s+)?offer\s+(?:is\s+)?(?:published|live)", re.IGNORECASE),
         "Marketplace publication is owner-gated and must not be claimed as currently published.",
+        "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
     ),
     ClaimPattern(
         re.compile(r"Marketplace\s+Published", re.IGNORECASE),
         "Marketplace Published must not appear without an explicit owner-gated marker.",
+        "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
     ),
     ClaimPattern(
         re.compile(r"(?:public\s+)?(?:Stripe\s+)?checkout\s+(?:is\s+)?live", re.IGNORECASE),
         "public live checkout must not be claimed while live Stripe cutover is owner-gated.",
+        "docs/go-to-market/PRICING_PHILOSOPHY.md",
     ),
     ClaimPattern(
         re.compile(
@@ -80,6 +88,7 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
             re.IGNORECASE,
         ),
         "Jira and Microsoft Teams must not be described as V1 GA capabilities (V1.1 buyer-contract).",
+        "docs/go-to-market/INTEGRATION_CATALOG.md",
     ),
     ClaimPattern(
         re.compile(
@@ -87,6 +96,7 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
             re.IGNORECASE,
         ),
         "Jira and Microsoft Teams must not be promised inside the V1 GA scope.",
+        "docs/library/V1_DEFERRED.md",
     ),
 )
 
@@ -128,21 +138,35 @@ def buyer_claim_drift_violations(root: Path) -> list[str]:
             if _line_is_allowlisted(line):
                 continue
 
-            violations.append(f"{rel.as_posix()}: {claim.message} Matched `{match.group(0)}`.")
+            violations.append(
+                f"{rel.as_posix()}: {claim.message} Matched `{match.group(0)}`. "
+                f"Update source of truth: {claim.source_of_truth}."
+            )
 
     return violations
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--advisory",
+        action="store_true",
+        help="Warn-only exit 0 even when violations are found (local exploration).",
+    )
+    args = parser.parse_args(argv)
+
     violations = buyer_claim_drift_violations(REPO_ROOT)
 
     if violations:
-        print("Buyer-facing doc claim drift warnings:", file=sys.stderr)
+        label = "warnings" if args.advisory else "errors"
+        print(f"Buyer-facing doc claim drift {label}:", file=sys.stderr)
 
         for violation in violations:
             print(f"  - {violation}", file=sys.stderr)
 
-        return 1
+        return 0 if args.advisory else 1
 
     print("Buyer-facing doc claim drift: OK")
 

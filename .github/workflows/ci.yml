@@ -332,8 +332,7 @@ jobs:
         shell: pwsh
         run: ./scripts/Scan-BuyerDocClaims.ps1
 
-      - name: Buyer-facing canonical claim drift (Python, warn-only)
-        continue-on-error: true
+      - name: Buyer-facing canonical claim drift (Python, strict)
         run: python scripts/ci/check_buyer_claim_drift.py
 
       - name: Buyer-facing canonical claim drift guard unit tests
@@ -1171,12 +1170,10 @@ jobs:
         run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
   # All infra/terraform* + infra/modules: init (no backend) + validate; apply-saas.ps1 consistency. No Azure creds.
-  # continue-on-error: remove after every root is known clean in CI (see docs/engineering/SAAS_INFRA_VALIDATION.md).
   saas-terraform-roots-validate:
     name: "SaaS: Terraform roots validate (script suite)"
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
-    continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -16,7 +17,8 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
     public static void AppendMarkdownSection(
         StringBuilder sb,
         PilotRunDeltas deltas,
-        ProofPackageCompletenessResponse proof)
+        ProofPackageCompletenessResponse proof,
+        ArchitectureRun? run = null)
     {
         ArgumentNullException.ThrowIfNull(sb);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -95,8 +97,21 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
             $"| Sponsor-proof readiness | {(Enum.TryParse(proof.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? $"**{readiness}**" : "**Incomplete**")} |");
 
         sb.AppendLine($"| Agent output quality (PilotStrict, when attested) | {DescribePilotStrict(deltas)} |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Evidence-basis label (top finding) | {DescribeTopFindingEvidenceBasis(deltas, proof, run)} |");
         sb.AppendLine("| Human qualitative review | **Required** — automation does not replace sponsor judgment. |");
         sb.AppendLine();
+    }
+
+    private static string DescribeTopFindingEvidenceBasis(
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse proof,
+        ArchitectureRun? run)
+    {
+        ArchitectureRun basisRun = run ?? new ArchitectureRun { RealModeFellBackToSimulator = false };
+        IReadOnlyList<string> labels = SponsorEvidenceBasisLabelResolver.ResolveLabels(proof, deltas, basisRun);
+        return SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable(labels);
     }
 
     private static string DescribePilotStrict(PilotRunDeltas deltas)

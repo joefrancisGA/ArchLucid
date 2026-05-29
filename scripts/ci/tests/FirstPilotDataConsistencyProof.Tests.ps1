@@ -22,10 +22,16 @@ Describe 'Resolve-DataConsistencyProofFinding' {
         $resolved.detail | Should Match 'blocks sponsor handoff'
     }
 
-    It 'maps skipped collection to WARN' {
-        $resolved = Resolve-DataConsistencyProofFinding -Status 'NOT_RUN' -SponsorHandoff
+    It 'maps skipped collection to WARN without sponsor handoff' {
+        $resolved = Resolve-DataConsistencyProofFinding -Status 'NOT_RUN'
 
         $resolved.disposition | Should Be 'WARN'
+    }
+
+    It 'maps skipped collection to BLOCK for sponsor handoff' {
+        $resolved = Resolve-DataConsistencyProofFinding -Status 'NOT_RUN' -SponsorHandoff
+
+        $resolved.disposition | Should Be 'BLOCK'
     }
 
     It 'maps PASS to PASS' {
