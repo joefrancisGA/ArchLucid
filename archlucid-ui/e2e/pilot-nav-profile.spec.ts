@@ -102,31 +102,31 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
 
-    // Footer toggle survives cluster re-mount when extended tier unlocks; re-opening Sidebar layout flakes in CI.
-    const showAdvancedToggle = page.getByTestId("sidebar-show-advanced-operations-toggle");
-
-    await scrollOperatorSidebarFooterIntoView(page);
-    await expect(showAdvancedToggle).toBeVisible();
-    await showAdvancedToggle.click();
-
-    // Wait for the toggle state to commit before locating the Governance trigger.
-    // The advanced-operations toggle sits at the bottom of the sidebar; after it
-    // shows advanced groups, Governance renders above the current scroll position.
-    // Scroll the sidebar back to the top so the trigger is inside the visible area
-    // before Playwright tries to click it — this avoids the scroll-induced detach
-    // race that occurs when Playwright auto-scrolls while React is still committing
-    // the new tree (authority context re-renders from the window focus transition).
-    await expect(showAdvancedToggle).toHaveAttribute("aria-pressed", "true");
-
     const sidebarNavEl = page.getByTestId("sidebar-nav");
 
     await sidebarNavEl.evaluate((el) => {
       el.scrollTop = 0;
     });
 
-    await page.getByRole("button", { name: "Governance", exact: true }).click();
+    // Expand Governance before the advanced footer toggle (matches SidebarNav.test.tsx).
+    // After advanced toggles, focus-driven /me refetch can re-mount clusters; the trigger is
+    // stable once extended tier is on, and workflow links appear in the open group.
+    const governanceTrigger = sidebarNavEl.getByRole("button", { name: "Governance", exact: true });
+
+    await expect(governanceTrigger).toBeVisible();
+    await governanceTrigger.click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance" });
+
+    await expect(governanceNav).toBeVisible();
+    await expect(governanceNav.getByRole("link", { name: "Governance workflow" })).toHaveCount(0);
+
+    const showAdvancedToggle = page.getByTestId("sidebar-show-advanced-operations-toggle");
+
+    await scrollOperatorSidebarFooterIntoView(page);
+    await expect(showAdvancedToggle).toBeVisible();
+    await showAdvancedToggle.click();
+    await expect(showAdvancedToggle).toHaveAttribute("aria-pressed", "true");
 
     await expect(governanceNav.getByRole("link", { name: "Governance workflow" })).toHaveAttribute(
       "href",
