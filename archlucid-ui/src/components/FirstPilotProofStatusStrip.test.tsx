@@ -30,6 +30,14 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+function cliCommand(): HTMLElement {
+  return screen.getByText(FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND);
+}
+
+function openTechnicalCommandDisclosure(): void {
+  fireEvent.click(screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY));
+}
+
 describe("FirstPilotProofStatusStrip", () => {
   describe("load-failed state", () => {
     it("shows operator-safe unavailable copy without CLI text", async () => {
@@ -40,7 +48,7 @@ describe("FirstPilotProofStatusStrip", () => {
       expect(await screen.findByText(FIRST_PILOT_PROOF_STATUS_UNAVAILABLE)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/health");
       expect(screen.queryByText(/Proof status not loaded/i)).not.toBeInTheDocument();
-      expect(screen.queryByText(/dotnet run/i)).not.toBeInTheDocument();
+      expect(cliCommand()).not.toBeVisible();
     });
 
     it("exposes CLI commands only after expanding the technical disclosure", async () => {
@@ -54,22 +62,25 @@ describe("FirstPilotProofStatusStrip", () => {
         screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY).closest("details"),
       ).not.toHaveAttribute("open");
 
-      fireEvent.click(screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY));
+      openTechnicalCommandDisclosure();
 
-      expect(screen.getByText(FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND)).toBeInTheDocument();
+      expect(await screen.findByText(FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND)).toBeVisible();
     });
   });
 
   describe("NOT_RUN disposition", () => {
-    it("shows operator-safe not-collected copy without CLI text", async () => {
+    it("shows operator-safe not-collected copy without CLI text visible", async () => {
       vi.stubGlobal("fetch", vi.fn().mockResolvedValue(makeSnapshot("NOT_RUN")));
 
       render(<FirstPilotProofStatusStrip />);
 
       expect(await screen.findByText(FIRST_PILOT_PROOF_NOT_RUN_COPY)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA })).toHaveAttribute("href", "/health");
-      expect(screen.queryByText(/collect-first-pilot-proof/i)).not.toBeInTheDocument();
-      expect(screen.queryByText(/dotnet run/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Proof status not loaded/i)).not.toBeInTheDocument();
+      expect(
+        screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY).closest("details"),
+      ).not.toHaveAttribute("open");
+      expect(cliCommand()).not.toBeVisible();
     });
 
     it("exposes CLI commands only after expanding the technical disclosure", async () => {
@@ -83,9 +94,9 @@ describe("FirstPilotProofStatusStrip", () => {
         screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY).closest("details"),
       ).not.toHaveAttribute("open");
 
-      fireEvent.click(screen.getByText(FIRST_PILOT_TECHNICAL_COMMAND_DISCLOSURE_SUMMARY));
+      openTechnicalCommandDisclosure();
 
-      expect(screen.getByText(FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND)).toBeInTheDocument();
+      expect(await screen.findByText(FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND)).toBeVisible();
     });
   });
 

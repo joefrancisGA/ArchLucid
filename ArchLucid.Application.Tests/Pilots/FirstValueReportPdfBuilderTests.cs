@@ -212,7 +212,6 @@ public sealed class FirstValueReportPdfBuilderTests
 
         return pilotBaselines.Object;
     }
-    }
 
     private static ArchitectureRunDetail BuildCommittedDetail()
     {

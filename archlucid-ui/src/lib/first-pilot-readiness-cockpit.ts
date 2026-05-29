@@ -4,7 +4,8 @@ import {
   FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
 } from "@/lib/first-pilot-diagnostics-copy";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
-import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
+import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
+import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
@@ -168,8 +169,9 @@ export function buildFirstPilotReadinessRows(input: {
       id: "proof-pipeline",
       label: "Pilot evidence package",
       status: input.signals.hasCommittedManifest ? "attention" : "unknown",
-      summary:
-        "After finalize, collect the pilot evidence package from diagnostics for go/no-go review.",
+      summary: input.signals.hasCommittedManifest
+        ? `${FIRST_PILOT_BUYER_COPY.proofPipelineAction} from diagnostics for go/no-go review.`
+        : "Finalize a review before collecting the pilot evidence package.",
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`,
       cta: "Open operator checklist",    },
     {

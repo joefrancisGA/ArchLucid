@@ -41,10 +41,10 @@ describe("first-pilot-buyer-copy", () => {
       scorecardLoadFailed: false,
     });
 
-    const dataConsistency = rows.find((row) => row.id === "data-consistency");
+    const proofPipeline = rows.find((row) => row.id === "proof-pipeline");
     const secondReview = rows.find((row) => row.id === "second-review");
 
-    expect(dataConsistency?.summary).toContain(FIRST_PILOT_BUYER_COPY.proofPipelineAction);
+    expect(proofPipeline?.summary).toContain(FIRST_PILOT_BUYER_COPY.proofPipelineAction);
     expect(secondReview?.summary).toContain(FIRST_PILOT_BUYER_COPY.governanceDryRun);
   });
 });

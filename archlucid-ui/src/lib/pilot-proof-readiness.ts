@@ -20,6 +20,8 @@ export type ProofPackageCompletenessJson = {
   readonly roiEvidenceConfidence?: string;
   readonly roiBaselineInputs?: RoiBaselineInputsJson | null;
   readonly agentOutputPilotStrictEvidenceSatisfied?: boolean;
+  readonly llmCallCount?: number;
+  readonly llmCallCountResolved?: boolean;
 };
 
 export type PilotRunDeltasProofSummaryJson = {

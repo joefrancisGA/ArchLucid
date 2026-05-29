@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RunTrustEvidenceCard, TrustEvidenceFieldSnapshot } from "@/types/authority";
@@ -58,18 +58,20 @@ describe("RunTrustEvidenceCardSection", () => {
   it("renders compact evidence-to-manifest-to-audit proof chain", () => {
     render(<RunTrustEvidenceCardSection card={card()} />);
 
-    expect(screen.getByTestId("evidence-to-manifest-audit-proof-chain")).toBeInTheDocument();
+    const proofChain = screen.getByTestId("evidence-to-manifest-audit-proof-chain");
+
+    expect(proofChain).toBeInTheDocument();
     expect(screen.getByText(/Evidence → finding → manifest → artifact → audit proof chain/i)).toBeInTheDocument();
     expect(screen.getByText(/stronger than a free-form AI answer/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Evidence package" })).toHaveAttribute(
+    expect(within(proofChain).getByRole("link", { name: "Evidence package" })).toHaveAttribute(
       "href",
       "/api/proxy/v1/architecture/run/run-1/evidence",
     );
-    expect(screen.getByRole("link", { name: "Top finding evidence chain" })).toHaveAttribute(
+    expect(within(proofChain).getByRole("link", { name: "Top finding evidence chain" })).toHaveAttribute(
       "href",
       "/api/proxy/v1/architecture/run/run-1/findings/finding-1/evidence-chain",
     );
-    expect(screen.getByRole("link", { name: "Review-trail ZIP" })).toHaveAttribute(
+    expect(within(proofChain).getByRole("link", { name: "Review-trail ZIP" })).toHaveAttribute(
       "href",
       "/api/proxy/v1/architecture/run/run-1/traceability-bundle.zip",
     );

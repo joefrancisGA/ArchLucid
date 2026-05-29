@@ -1,7 +1,7 @@
 import type { FirstPilotReadinessStatus } from "@/lib/first-pilot-readiness-cockpit";
 
 /** Canonical first-pilot operator labels shared by cockpit rows and runbooks. */
-export type FirstPilotOperatorStatusLabel = "READY" | "WARN" | "HOLD" | "DEFERRED";
+export type FirstPilotOperatorStatusLabel = "READY" | "WARN" | "HOLD" | "DEFERRED" | "PENDING";
 
 export function mapReadinessStatusToOperatorLabel(
   status: FirstPilotReadinessStatus,
