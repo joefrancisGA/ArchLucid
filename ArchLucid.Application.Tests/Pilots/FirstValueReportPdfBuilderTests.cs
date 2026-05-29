@@ -2,6 +2,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
@@ -49,15 +50,7 @@ public sealed class FirstValueReportPdfBuilderTests
 
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PilotRunDeltas
-            {
-                RunCreatedUtc = detail.Run.CreatedUtc,
-                ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
-                TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
-                FindingsBySeverity = [],
-                AuditRowCount = 0,
-                LlmCallCount = 0,
-            });
+            .ReturnsAsync(CreateSendablePilotRunDeltas(detail));
 
         FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
         FirstValueReportPdfBuilder sut = new(markdown);
@@ -149,7 +142,7 @@ public sealed class FirstValueReportPdfBuilderTests
                     TimeProvider.System.GetUtcNow(),
                     6m,
                     3,
-                    null,
+                    6m,
                     null,
                     null));
 
@@ -211,6 +204,33 @@ public sealed class FirstValueReportPdfBuilderTests
                 });
 
         return pilotBaselines.Object;
+    }
+
+    private static PilotRunDeltas CreateSendablePilotRunDeltas(ArchitectureRunDetail detail)
+    {
+        return new PilotRunDeltas
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 7,
+            LlmCallCount = 4,
+            TopFindingId = "top-finding-id",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = detail.Run.RunId,
+                FindingId = "top-finding-id",
+                ManifestVersion = detail.Manifest.Metadata.ManifestVersion,
+                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
+            IsDemoTenant = false,
+        };
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()
