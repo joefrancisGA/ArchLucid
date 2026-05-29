@@ -11,17 +11,31 @@
 */
 
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
-   AND EXISTS (
-        SELECT 1
-        FROM sys.indexes AS i
-        INNER JOIN sys.partitions AS p
-            ON p.object_id = i.object_id AND p.index_id = i.index_id
-        WHERE i.object_id = OBJECT_ID(N'dbo.GoldenManifests')
-          AND i.is_disabled = 0
-          AND i.type IN (0, 1, 2)
-          AND p.data_compression_desc <> N'PAGE')
 BEGIN
-    ALTER INDEX ALL ON dbo.GoldenManifests REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
+    DECLARE @GoldenManifestsPendingRowstoreIndexes TABLE (IndexName SYSNAME NOT NULL PRIMARY KEY);
+    DECLARE @GoldenManifestsIndexName SYSNAME;
+    DECLARE @GoldenManifestsSql NVARCHAR(MAX);
+
+    INSERT INTO @GoldenManifestsPendingRowstoreIndexes (IndexName)
+    SELECT DISTINCT i.name
+    FROM sys.indexes AS i
+    INNER JOIN sys.partitions AS p
+        ON p.object_id = i.object_id AND p.index_id = i.index_id
+    WHERE i.object_id = OBJECT_ID(N'dbo.GoldenManifests')
+      AND i.is_disabled = 0
+      AND i.type IN (0, 1, 2)
+      AND p.data_compression_desc <> N'PAGE';
+
+    WHILE EXISTS (SELECT 1 FROM @GoldenManifestsPendingRowstoreIndexes)
+    BEGIN
+        SELECT TOP (1) @GoldenManifestsIndexName = IndexName FROM @GoldenManifestsPendingRowstoreIndexes;
+
+        SET @GoldenManifestsSql = N'ALTER INDEX ' + QUOTENAME(@GoldenManifestsIndexName)
+            + N' ON dbo.GoldenManifests REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);';
+        EXEC sp_executesql @GoldenManifestsSql;
+
+        DELETE FROM @GoldenManifestsPendingRowstoreIndexes WHERE IndexName = @GoldenManifestsIndexName;
+    END;
 END;
 GO
 
