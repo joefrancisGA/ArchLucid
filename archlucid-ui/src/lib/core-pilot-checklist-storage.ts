@@ -108,14 +108,17 @@ export function readCorePilotChecklistAllDone(): boolean {
   }
 }
 
+/** Defer so listeners (e.g. diagnostics checklist) never run during another component's render/setState updater. */
 export function emitCorePilotChecklistChanged(): void {
   if (typeof window === "undefined") {
     return;
   }
 
-  try {
-    window.dispatchEvent(new CustomEvent(CORE_PILOT_CHECKLIST_CHANGED_EVENT));
-  } catch {
-    /* ignore */
-  }
+  queueMicrotask(() => {
+    try {
+      window.dispatchEvent(new CustomEvent(CORE_PILOT_CHECKLIST_CHANGED_EVENT));
+    } catch {
+      /* ignore */
+    }
+  });
 }

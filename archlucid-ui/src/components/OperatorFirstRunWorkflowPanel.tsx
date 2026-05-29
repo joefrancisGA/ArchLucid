@@ -149,8 +149,15 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
     }
 
     setHydrated(true);
-    emitCorePilotChecklistChanged();
   }, []);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    emitCorePilotChecklistChanged();
+  }, [hydrated, doneByIndex]);
 
   useEffect(() => {
     if (!hydrated || exploreCompletedOutput) {
@@ -195,8 +202,6 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               void putCorePilotTeamChecklistStep(i, true).catch(() => {});
             }
           }
-
-          emitCorePilotChecklistChanged();
 
           return merged;
         });
@@ -339,8 +344,6 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         if (next[index]) {
           recordCorePilotRailChecklistStep(index);
         }
-
-        emitCorePilotChecklistChanged();
 
         return next;
       });
