@@ -8083,11 +8083,11 @@ BEGIN
         TokensIn INT NULL,
         TokensOut INT NULL,
         CitationCoverage DECIMAL(5, 4) NOT NULL,
-        QueryText NVARCHAR(4096) NULL,
+        QueryText NVARCHAR(MAX) NULL,
         TopK INT NULL,
         CorpusKind NVARCHAR(64) NULL,
-        ScoresJson NVARCHAR(8192) NULL,
-        DocumentIdsJson NVARCHAR(4096) NULL,
+        ScoresJson NVARCHAR(MAX) NULL,
+        DocumentIdsJson NVARCHAR(MAX) NULL,
         AgentExecutionTraceId NVARCHAR(64) NULL,
         CreatedUtc DATETIME2 NOT NULL CONSTRAINT DF_RetrievalGroundingTrace_CreatedUtc DEFAULT (SYSUTCDATETIME())
     );
