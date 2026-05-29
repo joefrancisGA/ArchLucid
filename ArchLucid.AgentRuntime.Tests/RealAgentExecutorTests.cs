@@ -23,6 +23,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
+[Collection("ArchLucidInstrumentation")]
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class RealAgentExecutorTests
@@ -226,7 +227,9 @@ public sealed class RealAgentExecutorTests
 
         await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
 
-        Activity[] completedSnapshot = completed.ToArray();
+        Activity[] completedSnapshot = completed
+            .Where(a => string.Equals(a.GetTagItem("archlucid.run_id") as string, runId, StringComparison.Ordinal))
+            .ToArray();
 
         completedSnapshot.Should().HaveCount(2);
         completedSnapshot.Should().OnlyContain(a => a.OperationName == "archlucid.agent.handle");
