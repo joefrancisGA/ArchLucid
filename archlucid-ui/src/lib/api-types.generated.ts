@@ -730,6 +730,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/auth/configuration-diagnostics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
+                        "text/json": components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
+                        "text/plain": components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/auth/oidc-diagnostics": {
         parameters: {
             query?: never;
@@ -2295,6 +2332,104 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/marketing/pricing-quote-requests/{id}/acknowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["MarketingPricingQuoteAcknowledgeRequest"];
+                    "application/json": null | components["schemas"]["MarketingPricingQuoteAcknowledgeRequest"];
+                    "text/json": null | components["schemas"]["MarketingPricingQuoteAcknowledgeRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/marketing/pricing-quote-requests/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/metering/tenants/{tenantId}/summary": {
         parameters: {
             query?: never;
@@ -2336,6 +2471,96 @@ export interface paths {
                         "application/json": components["schemas"]["ProblemDetails"];
                         "text/json": components["schemas"]["ProblemDetails"];
                         "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/operational/fleet-llm-cogs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminFleetLlmCogsDashboardResponse"];
+                        "text/json": components["schemas"]["AdminFleetLlmCogsDashboardResponse"];
+                        "text/plain": components["schemas"]["AdminFleetLlmCogsDashboardResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/operational/trial-funnel-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrialFunnelOperationalSummaryResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
                     };
                 };
             };
@@ -13506,6 +13731,89 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/authority/runs/{runId}/retrieval-grounding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RunRetrievalGroundingResponse"];
+                        "text/json": components["schemas"]["RunRetrievalGroundingResponse"];
+                        "text/plain": components["schemas"]["RunRetrievalGroundingResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/authority/runs/{runId}/summary": {
         parameters: {
             query?: never;
@@ -17689,6 +17997,131 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/decision-register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    projectId?: string;
+                    maxRows?: number | string;
+                    category?: string;
+                    recordedAfterUtc?: string;
+                    recordedBeforeUtc?: string;
+                    minConfidence?: number | string;
+                    maxConfidence?: number | string;
+                    buyerConfidenceSource?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureDecisionRegisterResponse"];
+                        "text/json": components["schemas"]["ArchitectureDecisionRegisterResponse"];
+                        "text/plain": components["schemas"]["ArchitectureDecisionRegisterResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/governance/findings/{findingId}/dispositions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    findingId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FindingDispositionEventDto"][];
+                        "text/json": components["schemas"]["FindingDispositionEventDto"][];
+                        "text/plain": components["schemas"]["FindingDispositionEventDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    findingId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["RecordFindingDispositionRequest"];
+                    "application/json": null | components["schemas"]["RecordFindingDispositionRequest"];
+                    "text/json": null | components["schemas"]["RecordFindingDispositionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FindingDispositionEventDto"];
+                        "text/json": components["schemas"]["FindingDispositionEventDto"];
+                        "text/plain": components["schemas"]["FindingDispositionEventDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/policy-pack-content-schema": {
         parameters: {
             query?: never;
@@ -18215,6 +18648,229 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/governance/realized-value/attestation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RealizedValueAttestationResponse"];
+                        "text/json": components["schemas"]["RealizedValueAttestationResponse"];
+                        "text/plain": components["schemas"]["RealizedValueAttestationResponse"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["UpsertRealizedValueAttestationRequest"];
+                    "application/json": null | components["schemas"]["UpsertRealizedValueAttestationRequest"];
+                    "text/json": null | components["schemas"]["UpsertRealizedValueAttestationRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/governance/risk-exceptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    projectId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RiskExceptionRecord"][];
+                        "text/json": components["schemas"]["RiskExceptionRecord"][];
+                        "text/plain": components["schemas"]["RiskExceptionRecord"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["CreateRiskExceptionRequest"];
+                    "application/json": null | components["schemas"]["CreateRiskExceptionRequest"];
+                    "text/json": null | components["schemas"]["CreateRiskExceptionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RiskExceptionRecord"];
+                        "text/json": components["schemas"]["RiskExceptionRecord"];
+                        "text/plain": components["schemas"]["RiskExceptionRecord"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/governance/risk-exceptions/{riskExceptionId}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    riskExceptionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/governance/risk-register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    projectId?: string;
+                    maxRows?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureRiskRegisterResponse"];
+                        "text/json": components["schemas"]["ArchitectureRiskRegisterResponse"];
+                        "text/plain": components["schemas"]["ArchitectureRiskRegisterResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -21889,6 +22545,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/pilots/runs/{runId}/executive-review-packet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/markdown": string;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/markdown": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/markdown": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/markdown": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/pilots/runs/{runId}/first-value-report": {
         parameters: {
             query?: never;
@@ -22002,6 +22722,15 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -22139,6 +22868,70 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pilots/runs/{runId}/sponsor-proof-pack.zip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["FileResult"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -26634,6 +27427,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tenant/llm-cost-reporting": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    days?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LlmCostReportingDashboardResponse"];
+                        "text/json": components["schemas"]["LlmCostReportingDashboardResponse"];
+                        "text/plain": components["schemas"]["LlmCostReportingDashboardResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tenant/measured-roi": {
         parameters: {
             query?: never;
@@ -27523,6 +28355,22 @@ export interface components {
         AdminArchiveRunsByIdsRequest: {
             runIds?: string[];
         };
+        AdminAuthConfigurationDiagnosticsResponse: {
+            audienceConfigured?: boolean;
+            authMode?: string;
+            issuerOrAuthorityConfigured?: boolean;
+            jwksConfigured?: null | boolean;
+            misconfigurationHints?: string[];
+            openIdDiscoverySucceeded?: null | boolean;
+            roleClaimNameConfigured?: null | boolean;
+            saml2Enabled?: boolean;
+            samlRoleClaimSourcesConfigured?: null | boolean;
+            scimBearerTokenActive?: null | boolean;
+            scimProvisioningConfigured?: null | boolean;
+            spEntityIdConfigured?: null | boolean;
+            tenantClaimMappingConfigured?: null | boolean;
+            tenantIdentityProviderProtocol?: null | string;
+        };
         AdminCacheDiagnosticsResponse: {
             /** Format: int64 */
             explanationCacheHits?: number | string;
@@ -27554,6 +28402,42 @@ export interface components {
         };
         AdminConfigSummaryResponse: {
             keys?: null | components["schemas"]["ConfigSummaryKeyRow"][];
+        };
+        AdminFleetLlmCogsDashboardResponse: {
+            /** Format: int32 */
+            budgetWarningTenantCount?: number;
+            costBasisLabel?: string;
+            costRatesConfigured?: boolean;
+            /** Format: int32 */
+            hardStopTenantCount?: number;
+            /** Format: int32 */
+            missingRateTenantCount?: number;
+            monthlyBudgetMonitoringActive?: boolean;
+            rows?: components["schemas"]["AdminFleetLlmCogsRowResponse"][];
+            utcMonth?: string;
+        };
+        AdminFleetLlmCogsRowResponse: {
+            blocksAdditionalLlmExecution?: boolean;
+            budgetCompletionLabel?: string;
+            /** Format: double */
+            budgetWarningUsdUtcMonth?: null | number | string;
+            costBasisLabel?: string;
+            costRatesConfigured?: boolean;
+            /** Format: double */
+            estimatedUsdPressureUtcMonth?: number | string;
+            grossMarginRiskLabel?: string;
+            /** Format: double */
+            hardCapUsdUtcMonth?: null | number | string;
+            /** Format: double */
+            hardCapUtilizationFraction?: null | number | string;
+            /** Format: double */
+            includedUsdUtcMonth?: null | number | string;
+            monthlyBudgetMonitoringActive?: boolean;
+            /** Format: uuid */
+            tenantId?: string;
+            tenantName?: string;
+            /** Format: date-time */
+            trialFirstManifestCommittedUtc?: null | string;
         };
         AdminIdentityProviderDiagnosticsResponse: {
             oidc?: components["schemas"]["AdminIdentityProviderHealthProbe"];
@@ -27747,6 +28631,7 @@ export interface components {
             promptReleaseLabel?: null | string;
             promptTemplateId?: null | string;
             promptTemplateVersion?: null | string;
+            provenanceCorrelationId?: null | string;
             qualityRejected?: boolean;
             qualityWarning?: boolean;
             rawResponse?: string;
@@ -27802,6 +28687,8 @@ export interface components {
             /** Format: int32 */
             emptyClaimCount?: number;
             /** Format: double */
+            findingCitationCoverageRatio?: null | number | string;
+            /** Format: double */
             findingsQualityRatio?: number | string;
             /** Format: double */
             heuristicOverallScore?: number | string;
@@ -27833,6 +28720,7 @@ export interface components {
             confidence?: number | string;
             /** Format: date-time */
             createdUtc?: string;
+            degradationReasonCode?: null | string;
             evidenceRefs: string[];
             findings?: components["schemas"]["ArchitectureFinding"][];
             proposedChanges?: null | components["schemas"]["AgentTopologyProposal"];
@@ -28107,6 +28995,27 @@ export interface components {
             preloadedRunDetail?: null | components["schemas"]["ArchitectureRunDetail"];
             runId?: string;
         };
+        ArchitectureDecisionRegisterEntry: {
+            buyerConfidenceSource?: null | string;
+            category?: string;
+            /** Format: double */
+            confidence?: null | number | string;
+            confidenceSource?: null | string;
+            decisionId?: string;
+            /** Format: uuid */
+            manifestId?: string;
+            rationale?: string;
+            /** Format: date-time */
+            recordedAtUtc?: string;
+            /** Format: uuid */
+            runId?: string;
+            selectedOption?: string;
+            supportingFindingIds?: string[];
+            title?: string;
+        };
+        ArchitectureDecisionRegisterResponse: {
+            decisions?: components["schemas"]["ArchitectureDecisionRegisterEntry"][];
+        };
         ArchitectureDigest: {
             /** Format: date-time */
             archivedUtc?: null | string;
@@ -28225,6 +29134,32 @@ export interface components {
             description: string;
             id: string;
             name: string;
+        };
+        ArchitectureRiskRegisterEntry: {
+            /** Format: int32 */
+            agingDays?: number;
+            category?: string;
+            evidenceHref?: string;
+            findingId?: string;
+            isStale?: boolean;
+            /** Format: date-time */
+            lastReviewedUtc?: null | string;
+            latestDisposition?: null | components["schemas"]["FindingDisposition"];
+            /** Format: uuid */
+            manifestId?: null | string;
+            ownerUserId?: null | string;
+            /** Format: date-time */
+            revisitDueUtc?: null | string;
+            /** Format: uuid */
+            runId?: null | string;
+            severity?: string;
+            statusLabel?: string;
+            title?: string;
+            /** Format: date-time */
+            waiverExpiresAtUtc?: null | string;
+        };
+        ArchitectureRiskRegisterResponse: {
+            entries?: components["schemas"]["ArchitectureRiskRegisterEntry"][];
         };
         ArchitectureRun: {
             /** Format: uuid */
@@ -28917,6 +29852,18 @@ export interface components {
             name?: string;
             packType?: string;
         };
+        CreateRiskExceptionRequest: {
+            evidenceRef?: null | string;
+            /** Format: date-time */
+            expiresAtUtc: string;
+            findingId: string;
+            /** Format: uuid */
+            manifestId?: null | string;
+            ownerUserId: string;
+            rationale: string;
+            /** Format: uuid */
+            runId?: null | string;
+        };
         CrossTenantPortfolioSummaryResponse: {
             isKAnonymitySatisfied?: boolean;
             topSystemicIssues?: components["schemas"]["SystemicIssueSummary"][];
@@ -29023,6 +29970,7 @@ export interface components {
             graphSnapshotsRunIdOrphans: number | string;
         };
         DatastoreType: number;
+        DecisionConfidenceSource: number;
         DecisionDelta: {
             baseValue?: null | string;
             changeType?: string;
@@ -29077,6 +30025,7 @@ export interface components {
             projectId?: string;
             /** Format: uuid */
             runId?: string;
+            sourceRevisionHash?: null | string;
             /** Format: uuid */
             tenantId?: string;
             /** Format: uuid */
@@ -29474,6 +30423,24 @@ export interface components {
             /** Format: double */
             timeSavedHours?: number | string;
         };
+        ExecutiveRoiBasisBreakdown: {
+            /** Format: double */
+            acceptedRiskUsd?: number | string;
+            /** Format: double */
+            deferredUsd?: number | string;
+            /** Format: double */
+            needsEvidenceUsd?: number | string;
+            /** Format: double */
+            openEstimatedUsd?: number | string;
+            /** Format: double */
+            realizedUsd?: number | string;
+            /** Format: double */
+            rejectedNotApplicableUsd?: number | string;
+            /** Format: double */
+            totalPotentialUsd?: number | string;
+            /** Format: double */
+            waivedUsd?: number | string;
+        };
         ExecutiveRoiEnvironmentSavingsSlice: {
             environment?: string;
             /** Format: double */
@@ -29516,6 +30483,7 @@ export interface components {
             points?: components["schemas"]["ExecutiveRoiHistoryPoint"][];
         };
         ExecutiveRoiSummaryResponse: {
+            basisBreakdown?: null | components["schemas"]["ExecutiveRoiBasisBreakdown"];
             costEvidenceFreshnessStatus?: string;
             /** Format: int32 */
             costEvidenceStaleAfterDays?: number;
@@ -29528,6 +30496,7 @@ export interface components {
             latestRunCount?: number;
             /** Format: int32 */
             newlyDiscoveredFindingsCount30Days?: number;
+            realizedValue?: null | components["schemas"]["RealizedValueSummary"];
             /** Format: int32 */
             resolvedFindingsCount30Days?: number;
             savingsPricingBasis?: string;
@@ -29584,6 +30553,8 @@ export interface components {
             decisionsTaken?: string[];
             graphNodeIdsExamined?: string[];
             notes?: string[];
+            reasoningTrace?: null | string;
+            reasoningTraceDigestSha256?: null | string;
             rulesApplied?: string[];
             sourceAgentExecutionTraceId?: null | string;
         };
@@ -29735,6 +30706,22 @@ export interface components {
             threadId?: null | string;
         };
         FindingConfidenceLevel: number;
+        FindingDisposition: number;
+        FindingDispositionEventDto: {
+            disposition?: components["schemas"]["FindingDisposition"];
+            /** Format: uuid */
+            eventId?: string;
+            evidenceRequestText?: null | string;
+            findingId?: string;
+            /** Format: date-time */
+            occurredAtUtc?: string;
+            rationale?: null | string;
+            reviewerUserId?: string;
+            /** Format: date-time */
+            revisitDueUtc?: null | string;
+            /** Format: uuid */
+            runId?: null | string;
+        };
         FindingEngineFailure: {
             category: string;
             /** Format: int64 */
@@ -29747,6 +30734,8 @@ export interface components {
         };
         FindingEvidenceChainResponse: {
             agentExecutionTraceIds?: string[];
+            agentTracePointers?: components["schemas"]["FindingForensicAgentTracePointer"][];
+            auditCorrelationIds?: string[];
             /** Format: uuid */
             contextSnapshotId?: null | string;
             /** Format: uuid */
@@ -29760,7 +30749,10 @@ export interface components {
             graphSnapshotId?: null | string;
             manifestVersion?: null | string;
             relatedGraphNodeIds?: string[];
+            retrievalGroundingPointers?: components["schemas"]["FindingForensicRetrievalGroundingPointer"][];
+            retrievalGroundingTraceIds?: string[];
             runId?: string;
+            supportHint?: null | string;
         };
         FindingExplainabilityEvidence: {
             alternativePathsConsidered: string[];
@@ -29791,6 +30783,23 @@ export interface components {
             /** Format: int16 */
             score?: number | string;
         };
+        FindingForensicAgentTracePointer: {
+            agentType?: null | string;
+            fullPromptBlobAvailable?: boolean;
+            fullResponseBlobAvailable?: boolean;
+            inlineFallbackFailed?: boolean;
+            modelDeploymentName?: null | string;
+            provenanceCorrelationId?: null | string;
+            traceId?: string;
+        };
+        FindingForensicRetrievalGroundingPointer: {
+            agentExecutionTraceId?: null | string;
+            agentName?: null | string;
+            /** Format: double */
+            citationCoverage?: number | string;
+            corpusKind?: null | string;
+            traceId?: string;
+        };
         FindingHumanReviewStatus: number;
         FindingInspectEvidenceItem: {
             artifactId?: null | string;
@@ -29809,13 +30818,19 @@ export interface components {
             evaluationConfidenceScore?: null | number;
             evidence?: components["schemas"]["FindingInspectEvidenceItem"][];
             findingId?: string;
+            hasActiveWaiver?: boolean;
             humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
             isMuted?: boolean;
+            latestDisposition?: null | components["schemas"]["FindingDisposition"];
+            /** Format: date-time */
+            latestDispositionOccurredAtUtc?: null | string;
             manifestVersion?: null | string;
             modelDeploymentName?: null | string;
             muteReason?: null | string;
             promptTemplateVersion?: null | string;
             reasoningSummary?: null | string;
+            reasoningTrace?: null | string;
+            reasoningTraceDigestSha256?: null | string;
             recommendedActions?: string[];
             /** Format: uuid */
             runId?: string;
@@ -29887,6 +30902,7 @@ export interface components {
             /** Format: date-time */
             createdUtc?: string;
             engineFailures?: components["schemas"]["FindingEngineFailure"][];
+            evaluationConfidenceEnrichmentSkipped?: boolean;
             findings?: components["schemas"]["Finding"][];
             /** Format: uuid */
             findingsSnapshotId?: string;
@@ -30158,6 +31174,7 @@ export interface components {
             sourceType?: null | string;
         };
         GraphNodeVm: {
+            agentExecutionTraceId?: null | string;
             id?: string;
             label?: string;
             metadata?: null | {
@@ -30593,11 +31610,41 @@ export interface components {
             generatedUtc?: string;
             themes?: components["schemas"]["LearningThemeResponse"][];
         };
+        LlmCostDailyBucketResponse: {
+            /** Format: date-time */
+            bucketUtc?: string;
+            /** Format: int64 */
+            completionTokens?: number | string;
+            /** Format: double */
+            estimatedCostUsd?: number | string;
+            /** Format: int64 */
+            promptTokens?: number | string;
+        };
+        LlmCostReportingDashboardResponse: {
+            byWorkspaceProject?: components["schemas"]["LlmCostWorkspaceProjectRowResponse"][];
+            costBasisLabel?: string;
+            currency?: string;
+            daily?: components["schemas"]["LlmCostDailyBucketResponse"][];
+        };
         LlmCostTuningRequest: {
             /** Format: double */
             inputUsdPerMillionTokens?: number | string;
             /** Format: double */
             outputUsdPerMillionTokens?: number | string;
+        };
+        LlmCostWorkspaceProjectRowResponse: {
+            /** Format: int64 */
+            completionTokens?: number | string;
+            /** Format: double */
+            estimatedCostUsd?: number | string;
+            /** Format: uuid */
+            projectId?: string;
+            projectName?: string;
+            /** Format: int64 */
+            promptTokens?: number | string;
+            /** Format: uuid */
+            workspaceId?: string;
+            workspaceName?: string;
         };
         LlmModelTier: number;
         LlmMonthlyTenantDollarBudgetStatusResult: {
@@ -30847,15 +31894,22 @@ export interface components {
             utmSource?: null | string;
             websiteUrl?: null | string;
         };
+        MarketingPricingQuoteAcknowledgeRequest: {
+            assignedOwner?: null | string;
+        };
         MarketingPricingQuoteAgingItemResponse: {
             /** Format: double */
             ageHours?: number | string;
+            assignedOwner?: null | string;
             breachStatus?: string;
             companyName?: string;
             /** Format: date-time */
             createdUtc?: string;
+            /** Format: date-time */
+            firstResponseUtc?: null | string;
             /** Format: uuid */
             id?: string;
+            status?: string;
             tierInterest?: string;
             workEmail?: string;
         };
@@ -31135,6 +32189,15 @@ export interface components {
             /** Format: int32 */
             count?: number;
             severity: string;
+        };
+        PilotRoiBaselineInputBasis: number;
+        PilotRoiBaselineInputsStatusResponse: {
+            architectHourlyCostBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            architectPrepHoursPerReviewBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            evidenceAssemblyEffortBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            projectedDollarClaimsSponsorSafe?: boolean;
+            reviewCycleHoursBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            sponsorSafeFallbackCopy?: string;
         };
         PilotRoiEvidenceConfidence: number;
         PilotRunDeltaSeverityCountResponse: {
@@ -31739,6 +32802,7 @@ export interface components {
             llmCallCountResolved?: boolean;
             proofSendability?: string;
             publishingTier?: string;
+            roiBaselineInputs?: null | components["schemas"]["PilotRoiBaselineInputsStatusResponse"];
             roiConfidenceLabel?: string;
             roiEvidenceConfidence?: components["schemas"]["PilotRoiEvidenceConfidence"];
             runInCommittedStatus?: boolean;
@@ -31758,6 +32822,7 @@ export interface components {
         };
         ProvenanceEdgeType: number;
         ProvenanceNode: {
+            agentExecutionTraceId?: null | string;
             /** Format: uuid */
             id?: string;
             metadata?: {
@@ -31771,6 +32836,29 @@ export interface components {
         PublishPolicyPackVersionRequest: {
             contentJson?: string;
             version?: string;
+        };
+        RealizedValueAttestationResponse: {
+            /** Format: int32 */
+            attestedIncidentsAvoided?: null | number;
+            attestedRevenueOrRetentionImpact?: null | string;
+            attestedReviewerTimeSavedNote?: null | string;
+            hasAttestation?: boolean;
+        };
+        RealizedValueSummary: {
+            /** Format: int32 */
+            activeWaiversCount?: number;
+            /** Format: int32 */
+            attestedIncidentsAvoided?: null | number;
+            attestedRevenueOrRetentionImpact?: null | string;
+            attestedReviewerTimeSavedNote?: null | string;
+            /** Format: int32 */
+            findingsRemediatedCount30Days?: number;
+            /** Format: double */
+            medianTimeToRemediationDays?: null | number | string;
+            /** Format: int32 */
+            waiverExpiryReversionCount30Days?: number;
+            /** Format: int32 */
+            waiversRetiredCount30Days?: number;
         };
         RecentPilotRunDeltaSummaryResponse: {
             isDemoTenant?: boolean;
@@ -31881,6 +32969,16 @@ export interface components {
             urgency?: string;
             /** Format: uuid */
             workspaceId?: string;
+        };
+        RecordFindingDispositionRequest: {
+            disposition: components["schemas"]["FindingDisposition"];
+            evidenceRequestText?: null | string;
+            findingId: string;
+            rationale?: null | string;
+            /** Format: date-time */
+            revisitDueUtc?: null | string;
+            /** Format: uuid */
+            runId?: null | string;
         };
         RegisterItsmCorrelationRequest: {
             externalKey?: string;
@@ -32033,9 +33131,11 @@ export interface components {
             uncovered?: components["schemas"]["RequirementCoverageItem"][];
         };
         ResolvedArchitectureDecision: {
+            buyerConfidenceSource?: null | string;
             category?: string;
-            confidence?: null | number;
-            confidenceSource?: null | string;
+            /** Format: double */
+            confidence?: null | number | string;
+            confidenceSource?: components["schemas"]["DecisionConfidenceSource"];
             decisionId?: string;
             rationale?: string;
             rawDecisionJson?: null | string;
@@ -32083,6 +33183,34 @@ export interface components {
             sourceType?: string;
             title?: string;
         };
+        RiskExceptionRecord: {
+            /** Format: date-time */
+            createdAtUtc?: string;
+            createdByUserId?: string;
+            evidenceRef?: null | string;
+            /** Format: date-time */
+            expiresAtUtc?: string;
+            findingId?: string;
+            /** Format: uuid */
+            manifestId?: null | string;
+            ownerUserId?: string;
+            /** Format: uuid */
+            projectId?: string;
+            rationale?: string;
+            /** Format: date-time */
+            revokedAtUtc?: null | string;
+            revokedByUserId?: null | string;
+            /** Format: uuid */
+            riskExceptionId?: string;
+            /** Format: uuid */
+            runId?: null | string;
+            status?: components["schemas"]["RiskExceptionStatus"];
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        RiskExceptionStatus: number;
         RoiBulletinPreviewResponse: {
             /** Format: double */
             meanBaselineHours?: null | number | string;
@@ -32194,7 +33322,9 @@ export interface components {
             contextSnapshot?: null | components["schemas"]["ContextSnapshot"];
             decisionTrace?: null | components["schemas"]["DecisionTraceDto"];
             degradedExecutionAgents?: string[];
+            degradedFindingCoverage?: boolean;
             executionFlavorBuyerSummary?: null | string;
+            findingCoverageSummary?: null | components["schemas"]["RunFindingCoverageSummary"];
             findingsSnapshot?: null | components["schemas"]["FindingsSnapshot"];
             goldenManifest?: null | components["schemas"]["ManifestDocument"];
             graphSnapshot?: null | components["schemas"]["GraphSnapshot"];
@@ -32267,6 +33397,35 @@ export interface components {
         };
         RunExportRecordResponse: {
             record?: components["schemas"]["RunExportRecord"];
+        };
+        RunFindingCoverageSummary: {
+            dispositionCoverage?: null | components["schemas"]["RunFindingDispositionCoverage"];
+            /** Format: int32 */
+            enginesAttempted?: number;
+            /** Format: int32 */
+            enginesFailed?: number;
+            /** Format: int32 */
+            enginesSucceeded?: number;
+            failedEngineLabels?: string[];
+            generationStatus?: components["schemas"]["FindingsSnapshotGenerationStatus"];
+            hasCommitBlockingFailures?: boolean;
+            isDegraded?: boolean;
+        };
+        RunFindingDispositionCoverage: {
+            /** Format: int32 */
+            acceptedCount?: number;
+            /** Format: int32 */
+            deferredCount?: number;
+            /** Format: int32 */
+            needsEvidenceCount?: number;
+            /** Format: int32 */
+            openCount?: number;
+            /** Format: int32 */
+            rejectedNotApplicableCount?: number;
+            /** Format: int32 */
+            remediatedCount?: number;
+            /** Format: int32 */
+            waivedCount?: number;
         };
         RunFindingListItem: {
             category?: string;
@@ -32383,6 +33542,41 @@ export interface components {
             tenantId?: string;
             /** Format: uuid */
             workspaceId?: string;
+        };
+        RunRetrievalGroundingResponse: {
+            hasDegradedMetadata?: boolean;
+            rows?: components["schemas"]["RunRetrievalGroundingRow"][];
+            runId?: string;
+            /** Format: int32 */
+            traceCount?: number;
+        };
+        RunRetrievalGroundingRow: {
+            agentExecutionTraceId?: null | string;
+            agentName?: null | string;
+            /** Format: double */
+            citationCoverage?: number | string;
+            corpusKind?: null | string;
+            /** Format: date-time */
+            createdUtc?: string;
+            documentIds?: string[];
+            documentMetadataMalformed?: boolean;
+            /** Format: int32 */
+            retrievedChunkCount?: number;
+            retrievedChunkIds?: string[];
+            scoreMetadataMalformed?: boolean;
+            scoreSummaries?: components["schemas"]["RunRetrievalGroundingScoreSummary"][];
+            /** Format: int32 */
+            tokensIn?: null | number;
+            /** Format: int32 */
+            tokensOut?: null | number;
+            /** Format: int32 */
+            topK?: null | number;
+            traceId?: string;
+        };
+        RunRetrievalGroundingScoreSummary: {
+            chunkId?: string;
+            /** Format: double */
+            score?: null | number | string;
         };
         RunRoiScorecardDto: {
             /** Format: int32 */
@@ -33039,6 +34233,31 @@ export interface components {
             title?: string;
             triageStatus?: string;
         };
+        TrialFunnelOperationalSummaryResponse: {
+            /** Format: int64 */
+            activeSelfServiceTrials?: number | string;
+            /** Format: int32 */
+            billingCheckouts30Days?: number;
+            cogsBasisLabel?: string;
+            /** Format: double */
+            estimatedFirstReviewCogsUsdHigh?: null | number | string;
+            /** Format: double */
+            estimatedFirstReviewCogsUsdLow?: null | number | string;
+            /** Format: double */
+            estimatedFirstReviewCogsUsdMid?: null | number | string;
+            /** Format: int32 */
+            firstCommittedReviews30Days?: number;
+            /** Format: int32 */
+            llmBudgetCutoffEvents30Days?: number;
+            /** Format: double */
+            medianSignupToFirstCommitSeconds?: null | number | string;
+            /** Format: int32 */
+            signupAttempts30Days?: number;
+            /** Format: int32 */
+            signupFailures30Days?: number;
+            /** Format: int32 */
+            trialConversions30Days?: number;
+        };
         TrialLocalRegisterRequest: {
             email?: null | string;
             password?: null | string;
@@ -33082,6 +34301,12 @@ export interface components {
         UpdateComparisonRecordRequest: {
             label?: null | string;
             tags?: null | string[];
+        };
+        UpsertRealizedValueAttestationRequest: {
+            /** Format: int32 */
+            attestedIncidentsAvoided?: null | number;
+            attestedRevenueOrRetentionImpact?: null | string;
+            attestedReviewerTimeSavedNote?: null | string;
         };
         UsageMeterKind: number;
         WeeklyDigestHealthResponse: {

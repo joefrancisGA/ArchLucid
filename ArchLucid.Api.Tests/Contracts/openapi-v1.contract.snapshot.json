@@ -13382,6 +13382,32 @@
         ],
         "type": "object"
       },
+      "PilotRoiBaselineInputBasis": {
+        "type": "integer"
+      },
+      "PilotRoiBaselineInputsStatusResponse": {
+        "properties": {
+          "architectHourlyCostBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "architectPrepHoursPerReviewBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "evidenceAssemblyEffortBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "projectedDollarClaimsSponsorSafe": {
+            "type": "boolean"
+          },
+          "reviewCycleHoursBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "sponsorSafeFallbackCopy": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PilotRoiEvidenceConfidence": {
         "type": "integer"
       },
@@ -15270,6 +15296,16 @@
           },
           "publishingTier": {
             "type": "string"
+          },
+          "roiBaselineInputs": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotRoiBaselineInputsStatusResponse"
+              }
+            ]
           },
           "roiConfidenceLabel": {
             "type": "string"
@@ -52237,6 +52273,16 @@
               }
             },
             "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
           }
         },
         "tags": [
