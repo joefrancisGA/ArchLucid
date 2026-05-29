@@ -56,7 +56,10 @@ public sealed class SupportBundleTests
     [Fact]
     public void RedactSensitivePatterns_strips_saml_private_key_markers()
     {
-        const string raw = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\n-----END PRIVATE KEY-----";
+        string raw =
+            "-----BEGIN PRIVATE KEY-----" + Environment.NewLine
+            + "SYNTHETIC_SUPPORT_BUNDLE_REDACTION_TEST_NOT_A_REAL_PRIVATE_KEY"
+            + Environment.NewLine + "-----END PRIVATE KEY-----";
 
         string redacted = SupportBundleRedactor.RedactSensitivePatterns(raw);
 

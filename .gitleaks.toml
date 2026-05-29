@@ -13,7 +13,12 @@ useDefault = true
 # with deliberate JWT / connection-string shapes never cleared. Separate tables so whole-file
 # skip applies (see detect.checkCommitOrPathAllowed when regexes are empty).
 [[allowlists]]
-description = "Prompt-injection eval fixtures: deliberate credential-shaped strings, not production secrets"
+description = "Support bundle redaction tests: synthetic PEM markers for RedactSensitivePatterns coverage, not real keys"
+paths = [
+  '''(?:^|/)ArchLucid\.Cli\.Tests/SupportBundleTests\.cs$''',
+]
+
+[[allowlists]]
 paths = [
   '''(?:^|/)tests/eval-datasets/prompt-injection/.*\.json$''',
 ]
