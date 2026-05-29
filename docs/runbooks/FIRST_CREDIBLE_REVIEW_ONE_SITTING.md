@@ -1,3 +1,5 @@
+> **Scope:** Operator cookbook — time-boxed narrative for completing a first credible review in one sitting; not the canonical checklist.
+
 # First credible review in one sitting
 
 > **Canonical checklist:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md). This page is a **time-boxed narrative** for operators who want one sitting from preflight to sponsor-ready proof.

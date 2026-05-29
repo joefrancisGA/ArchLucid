@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — optional specialty accelerator acceptance criteria after Core Pilot.
+
 # Specialty accelerator acceptance criteria (V1)
 
 **Optional after Core Pilot.** These walkthroughs do not replace [`FIRST_PILOT_OPERATOR_PATH.md`](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md).

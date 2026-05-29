@@ -1,3 +1,5 @@
+> **Scope:** Buyer-facing — security reviewer summary of documented posture; not certification or formal attestation.
+
 # Security reviewer one-pager (generated)
 
 > **Not a certification.** This page summarizes current documented posture vs deferred formal assurance.
