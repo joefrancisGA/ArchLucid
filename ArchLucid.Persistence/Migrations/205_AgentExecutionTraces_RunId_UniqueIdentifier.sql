@@ -66,6 +66,12 @@ BEGIN
     IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_RunId')
         DROP INDEX IX_AgentExecutionTraces_RunId ON dbo.AgentExecutionTraces;
 
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_BlobUploadFailed')
+        DROP INDEX IX_AgentExecutionTraces_BlobUploadFailed ON dbo.AgentExecutionTraces;
+
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_InlineFallbackFailed')
+        DROP INDEX IX_AgentExecutionTraces_InlineFallbackFailed ON dbo.AgentExecutionTraces;
+
     ALTER TABLE dbo.AgentExecutionTraces DROP COLUMN RunId;
 
     EXEC sp_rename N'dbo.AgentExecutionTraces.RunIdGuid', N'RunId', N'COLUMN';
@@ -84,6 +90,20 @@ IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_RunId')
         CREATE NONCLUSTERED INDEX IX_AgentExecutionTraces_RunId ON dbo.AgentExecutionTraces (RunId);
+
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_BlobUploadFailed')
+        CREATE NONCLUSTERED INDEX IX_AgentExecutionTraces_BlobUploadFailed
+            ON dbo.AgentExecutionTraces (RunId, CreatedUtc DESC)
+            WHERE BlobUploadFailed = 1;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'InlineFallbackFailed') IS NOT NULL
+       AND NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces')
+             AND name = N'IX_AgentExecutionTraces_InlineFallbackFailed')
+        CREATE NONCLUSTERED INDEX IX_AgentExecutionTraces_InlineFallbackFailed
+            ON dbo.AgentExecutionTraces (RunId, CreatedUtc DESC)
+            WHERE InlineFallbackFailed = 1;
 
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Runs_RunId')
         ALTER TABLE dbo.AgentExecutionTraces WITH NOCHECK
