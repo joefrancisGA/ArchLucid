@@ -1,5 +1,7 @@
 "use client";
 
+import { CheckCircle2, FileText, LayoutDashboard, Package, Route, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,7 +12,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -26,6 +27,7 @@ export type WelcomeModalProps = {
 type StepDef = {
   readonly title: string;
   readonly description: string;
+  readonly Icon: LucideIcon;
 };
 
 const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
@@ -33,16 +35,19 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
     title: "Welcome to ArchLucid",
     description:
       "You are in the operator workspace — where teams run governed architecture reviews, track pipeline progress, and export review packages.",
+    Icon: LayoutDashboard,
   },
   {
     title: "Define your architecture",
     description:
       "Start with a short brief: system identity, goals, and constraints. Each architecture review is tracked as one run — the new review wizard submits the pipeline job and keeps you on the path to a finalized package.",
+    Icon: FileText,
   },
   {
     title: "Review AI findings",
     description:
       "When the pipeline completes, open the architecture review to read findings, evidence, and narrative. Finalize when you are ready to lock the reviewed manifest and sponsor exports.",
+    Icon: CheckCircle2,
   },
 ];
 
@@ -51,16 +56,19 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
     title: "Welcome to ArchLucid",
     description:
       "Walk through a completed executive review package—risk posture, evidence-linked findings, governance status, and audit-ready exports—without operator tooling upfront.",
+    Icon: Package,
   },
   {
     title: "Start from executive summary",
     description:
       "Open the executive workspace first for sponsor-ready posture and citations; drill into manifest, evidence traceability, and deliverables when you need deeper proof.",
+    Icon: Users,
   },
   {
     title: "Optional pilot motion",
     description:
       "When your team is ready to evaluate authoring workflows, use Reviews from Help or the pilot checklist—creation flows stay separate from this polished viewing path.",
+    Icon: Route,
   },
 ];
 
@@ -85,6 +93,8 @@ export function WelcomeModal(props: WelcomeModalProps) {
   if (step === undefined) {
     return null;
   }
+
+  const { Icon } = step;
 
   const goNext = () => {
     setStepIndex((i) => Math.min(steps.length - 1, i + 1));
@@ -116,15 +126,44 @@ export function WelcomeModal(props: WelcomeModalProps) {
       }}
     >
       <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md" data-testid="welcome-modal">
-        <div className="space-y-4 p-6 pb-2">
-          <p className="text-center text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-            Step {stepIndex + 1} of {steps.length}
-          </p>
-          <DialogHeader className="space-y-3 text-center sm:text-center">
-            <DialogTitle className="text-xl">{step.title}</DialogTitle>
-            <DialogDescription className="text-base leading-relaxed">{step.description}</DialogDescription>
-          </DialogHeader>
+        {/* Branded hero band — navy gradient with brand-cyan icon accent */}
+        <div
+          className="relative flex flex-col items-center overflow-hidden px-6 pb-7 pt-8"
+          style={{ background: "linear-gradient(135deg, #1E3A5F 0%, #142d4c 100%)" }}
+        >
+          {/* Decorative glow behind icon */}
+          <div className="pointer-events-none absolute -top-6 left-1/2 h-28 w-28 -translate-x-1/2 rounded-full bg-[#00AEEF]/15 blur-2xl" />
+
+          <div className="relative mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/10 backdrop-blur-sm">
+            <Icon className="h-8 w-8 text-[#00AEEF]" aria-hidden="true" />
+          </div>
+
+          <DialogTitle className="text-center text-xl font-bold text-white">{step.title}</DialogTitle>
+
+          {/* Step progress dots — active step is a wider cyan pill */}
+          <div
+            className="mt-4 flex items-center gap-1.5"
+            aria-label={`Step ${stepIndex + 1} of ${steps.length}`}
+          >
+            {steps.map((_, i) => (
+              <span
+                key={i}
+                className={
+                  i === stepIndex
+                    ? "h-1.5 w-5 rounded-full bg-[#00AEEF] transition-all duration-300"
+                    : "h-1.5 w-1.5 rounded-full bg-white/30 transition-all duration-300"
+                }
+              />
+            ))}
+          </div>
         </div>
+
+        <div className="px-6 py-5">
+          <DialogDescription className="text-center text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            {step.description}
+          </DialogDescription>
+        </div>
+
         <DialogFooter className="flex-col gap-3 border-t border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40 sm:flex-col sm:space-x-0">
           {!isLastStep ? (
             <>
@@ -136,6 +175,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
                   Next
                 </Button>
               </div>
+
               {stepIndex > 0 ? (
                 <Button type="button" variant="ghost" className="self-center text-sm" onClick={goBack}>
                   Back
@@ -159,6 +199,7 @@ export function WelcomeModal(props: WelcomeModalProps) {
                   </Link>
                 </Button>
               </div>
+
               <div className="flex w-full flex-wrap justify-center gap-2">
                 <Button type="button" variant="ghost" className="text-sm" onClick={goBack}>
                   Back
