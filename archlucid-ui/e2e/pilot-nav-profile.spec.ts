@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
 import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
@@ -29,6 +29,22 @@ async function dismissBlockingHomeModals(page: Page): Promise<void> {
     await onboardingBackdrop.click();
     await expect(onboardingBackdrop).toBeHidden();
   }
+}
+
+/** Collapsible triggers detach when /me refetch re-mounts sidebar clusters; DOM click + toPass avoids Playwright scroll flake. */
+async function clickSidebarDisclosureTrigger(sidebarNav: Locator, ariaControlsId: string): Promise<void> {
+  await expect(async () => {
+    await sidebarNav.evaluate((element) => {
+      element.scrollTop = 0;
+    });
+
+    const trigger = sidebarNav.locator(`[aria-controls="${ariaControlsId}"]`);
+
+    await expect(trigger).toHaveCount(1);
+    await trigger.evaluate((button: HTMLButtonElement) => {
+      button.click();
+    });
+  }).toPass({ timeout: 15_000 });
 }
 
 /**
@@ -79,15 +95,6 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("navigation", { name: "Analysis" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance" })).toHaveCount(0);
 
-    const showAllFeatures = page.getByTestId("sidebar-show-all-features-toggle");
-
-    await scrollOperatorSidebarFooterIntoView(page);
-    await expect(showAllFeatures).toBeVisible();
-    await showAllFeatures.click();
-
-    await expect(page.getByRole("navigation", { name: "Analysis" })).toBeVisible();
-    await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
-
     const layoutDialog = () => page.getByRole("dialog", { name: "Sidebar layout" });
 
     await scrollOperatorSidebarFooterIntoView(page);
@@ -98,23 +105,21 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await page.keyboard.press("Escape");
     await expect(layoutDialog()).toBeHidden();
 
+    const showAllFeatures = page.getByTestId("sidebar-show-all-features-toggle");
+
+    await scrollOperatorSidebarFooterIntoView(page);
+    await expect(showAllFeatures).toBeVisible();
+    await showAllFeatures.click();
+
     const analysisNav = page.getByRole("navigation", { name: "Analysis" });
 
+    await expect(analysisNav).toBeVisible();
+    await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(analysisNav.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
 
     const sidebarNavEl = page.getByTestId("sidebar-nav");
 
-    await sidebarNavEl.evaluate((el) => {
-      el.scrollTop = 0;
-    });
-
-    // Expand Governance before the advanced footer toggle (matches SidebarNav.test.tsx).
-    // After advanced toggles, focus-driven /me refetch can re-mount clusters; the trigger is
-    // stable once extended tier is on, and workflow links appear in the open group.
-    const governanceTrigger = sidebarNavEl.getByRole("button", { name: "Governance", exact: true });
-
-    await expect(governanceTrigger).toBeVisible();
-    await governanceTrigger.click();
+    await clickSidebarDisclosureTrigger(sidebarNavEl, "sidebar-group-operate-governance-content");
 
     const governanceNav = page.getByRole("navigation", { name: "Governance" });
 
