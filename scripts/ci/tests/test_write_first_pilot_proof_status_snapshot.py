@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_write_first_pilot_proof_status_snapshot_writes_payload() -> None:
-    import scripts.ci.write_first_pilot_proof_status_snapshot as module  # noqa: PLC0415
+    import write_first_pilot_proof_status_snapshot as module  # noqa: PLC0415
 
     exit_code = module.main()
     assert exit_code == 0

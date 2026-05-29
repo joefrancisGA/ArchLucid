@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_write_operator_ai_quality_snapshot_passes_with_current_report() -> None:
-    import scripts.ci.write_operator_ai_quality_snapshot as module  # noqa: PLC0415
+    import write_operator_ai_quality_snapshot as module  # noqa: PLC0415
 
     exit_code = module.main()
     assert exit_code == 0

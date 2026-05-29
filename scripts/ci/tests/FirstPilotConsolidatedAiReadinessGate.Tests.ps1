@@ -1,11 +1,13 @@
 #requires -Version 5.1
 # Run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotConsolidatedAiReadinessGate.Tests.ps1'
 
-$repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-. (Join-Path $repoRoot 'scripts/FirstPilotAiQualityProof.ps1')
-. (Join-Path $repoRoot 'scripts/FirstPilotConsolidatedAiReadinessGate.ps1')
-
 Describe 'Consolidated AI readiness gate disposition' {
+    BeforeAll {
+        $script:repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
+        . (Join-Path $script:repoRoot 'scripts/FirstPilotAiQualityProof.ps1')
+        . (Join-Path $script:repoRoot 'scripts/FirstPilotConsolidatedAiReadinessGate.ps1')
+    }
+
     It 'Returns PASS when sponsor-safe AI posture is attested' {
         $observability = [pscustomobject]@{
             llmExecutionMode                                      = 'real'
@@ -23,7 +25,7 @@ Describe 'Consolidated AI readiness gate disposition' {
         $gate = Build-ConsolidatedAiReadinessGate -Observability $observability -RetrievalGroundingSummary $grounding -RetrievalIrStatus ([ordered]@{ status = 'present' }) -AiQualityProof $null
         $result = Resolve-ConsolidatedAiReadinessDisposition -Gate $gate -SponsorHandoff
 
-        $result.disposition | Should Be 'PASS'
+        $result.disposition | Should -Be 'PASS'
     }
 
     It 'Returns HOLD on sponsor handoff when real-mode disposition fails' {
@@ -43,7 +45,7 @@ Describe 'Consolidated AI readiness gate disposition' {
         $gate = Build-ConsolidatedAiReadinessGate -Observability $observability -RetrievalGroundingSummary $grounding -RetrievalIrStatus ([ordered]@{ status = 'not-collected' }) -AiQualityProof $null
         $result = Resolve-ConsolidatedAiReadinessDisposition -Gate $gate -SponsorHandoff
 
-        $result.disposition | Should Be 'HOLD'
+        $result.disposition | Should -Be 'HOLD'
     }
 
     It 'Returns WARN for simulator-only posture without claiming real LLM proof' {
@@ -62,15 +64,15 @@ Describe 'Consolidated AI readiness gate disposition' {
         $gate = Build-ConsolidatedAiReadinessGate -Observability $observability -RetrievalGroundingSummary $null -RetrievalIrStatus ([ordered]@{ status = 'not-collected' }) -AiQualityProof $null
         $result = Resolve-ConsolidatedAiReadinessDisposition -Gate $gate
 
-        $result.disposition | Should Be 'WARN'
-        $gate.simulatorOnlyPosture | Should Be $true
+        $result.disposition | Should -Be 'WARN'
+        $gate.simulatorOnlyPosture | Should -Be $true
     }
 
     It 'Maps HOLD to BLOCK when sponsor handoff is enabled' {
-        Map-ConsolidatedAiReadinessToProofFindingDisposition -GateDisposition 'HOLD' -SponsorHandoff | Should Be 'BLOCK'
+        Map-ConsolidatedAiReadinessToProofFindingDisposition -GateDisposition 'HOLD' -SponsorHandoff | Should -Be 'BLOCK'
     }
 
     It 'Maps HOLD to WARN for readiness-only runs' {
-        Map-ConsolidatedAiReadinessToProofFindingDisposition -GateDisposition 'HOLD' | Should Be 'WARN'
+        Map-ConsolidatedAiReadinessToProofFindingDisposition -GateDisposition 'HOLD' | Should -Be 'WARN'
     }
 }

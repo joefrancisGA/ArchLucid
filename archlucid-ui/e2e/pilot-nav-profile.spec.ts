@@ -93,7 +93,8 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(reviewNav.getByRole("link", { name: "Compare two reviews" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Governance workflow" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Analysis" })).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Governance" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Governance — pinned links" })).toHaveCount(0);
 
     const layoutDialog = () => page.getByRole("dialog", { name: "Sidebar layout" });
 
@@ -121,7 +122,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     await clickSidebarDisclosureTrigger(sidebarNavEl, "sidebar-group-operate-governance-content");
 
-    const governanceNav = page.getByRole("navigation", { name: "Governance" });
+    const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
 
     await expect(governanceNav).toBeVisible();
     await expect(governanceNav.getByRole("link", { name: "Governance workflow" })).toHaveCount(0);
