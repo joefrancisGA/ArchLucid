@@ -109,6 +109,21 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(showAdvancedToggle).toBeVisible();
     await showAdvancedToggle.click();
 
+    // Wait for the toggle state to commit before locating the Governance trigger.
+    // The advanced-operations toggle sits at the bottom of the sidebar; after it
+    // shows advanced groups, Governance renders above the current scroll position.
+    // Scroll the sidebar back to the top so the trigger is inside the visible area
+    // before Playwright tries to click it — this avoids the scroll-induced detach
+    // race that occurs when Playwright auto-scrolls while React is still committing
+    // the new tree (authority context re-renders from the window focus transition).
+    await expect(showAdvancedToggle).toHaveAttribute("aria-pressed", "true");
+
+    const sidebarNavEl = page.getByTestId("sidebar-nav");
+
+    await sidebarNavEl.evaluate((el) => {
+      el.scrollTop = 0;
+    });
+
     await page.getByRole("button", { name: "Governance", exact: true }).click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance" });
