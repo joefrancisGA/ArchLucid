@@ -1,7 +1,10 @@
 import type { CurrentPrincipal } from "@/lib/current-principal";
+import {
+  FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,
+  FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
+} from "@/lib/first-pilot-diagnostics-copy";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
-import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
-import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
+import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
@@ -79,11 +82,10 @@ export function buildFirstPilotReadinessRows(input: {
       label: "API and platform readiness",
       status: statusFromHealth(input.healthStatus, input.healthLoadFailed),
       summary: input.healthLoadFailed
-        ? "Readiness could not be loaded; use health to inspect the environment."
+        ? "Readiness could not be loaded; open system status to inspect the environment."
         : `Health reports ${input.healthStatus ?? "unknown"}.`,
       href: "/health",
-      cta: "Open health",
-    },
+      cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,    },
     {
       id: "principal-authority",
       label: "Review authority",
@@ -96,8 +98,7 @@ export function buildFirstPilotReadinessRows(input: {
         ? `${input.principal.maxAuthority} can create and execute the first architecture review.`
         : "Read-only principals can inspect the cockpit and should ask an operator/admin to execute reviews.",
       href: canAdmin ? "/settings/roles" : "/help",
-      cta: canAdmin ? "Open roles" : "Review role guidance",
-    },
+      cta: canAdmin ? "Open roles" : FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,    },
     {
       id: "storage-and-sql",
       label: "SQL/storage configured",
@@ -135,47 +136,42 @@ export function buildFirstPilotReadinessRows(input: {
           ? "attention"
           : canExecute
             ? "attention"
-            : "blocked",
+            : "attention",
       summary: input.signals.hasCommittedManifest
         ? "At least one review package is finalized."
         : input.signals.readyToFinalize
           ? "A review appears ready to finalize on review detail."
           : canExecute
             ? "Create or continue the first architecture review."
-            : "Read-only role cannot execute or finalize; ask an operator/admin.",
-      href: input.signals.latestRunId ? `/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/reviews/new",
+            : "Read-only role cannot execute or finalize. Ask an operator or admin.",      href: input.signals.latestRunId ? `/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/reviews/new",
       cta: input.signals.latestRunId ? "Open latest review" : "New review",
     },
     {
       id: "roi-baselines",
       label: "ROI baseline readiness",
-      status: input.scorecardLoadFailed ? "unknown" : baselinesEntered ? "ready" : canExecute ? "attention" : "blocked",
+      status: input.scorecardLoadFailed ? "unknown" : baselinesEntered ? "ready" : canExecute ? "attention" : "attention",
       summary: baselinesEntered
         ? "Sponsor/value outputs can label ROI lines as customer-entered baselines."
         : canExecute
           ? "Capture review hours, reviews per quarter, and loaded architect cost before sponsor export."
-          : "Read-only role can view ROI but cannot update baseline assumptions.",
-      href: "/scorecard#roi-baselines",
+          : "ROI baselines are available for review. Editing requires elevated access.",      href: "/scorecard#roi-baselines",
       cta: "Enter ROI baselines",
     },
     {
       id: "procurement-classification",
       label: "Procurement evidence readiness",
       status: "attention",
-      summary:
-        "Run build_procurement_pack.py --deal-ready; classification table separates V1_READY from DEFERRED_SCOPE.",
+      summary: "Procurement evidence package has not been generated yet.",
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/PROCUREMENT_DEAL_READY.md`,
-      cta: "Open procurement runbook",
-    },
+      cta: "Generate procurement package",    },
     {
       id: "proof-pipeline",
       label: "Pilot evidence package",
       status: input.signals.hasCommittedManifest ? "attention" : "unknown",
       summary:
-        "After finalize, run collect-first-pilot-proof.ps1 for first-pilot-command-center.md and authoritative PASS/WARN/HOLD.",
+        "After finalize, collect the pilot evidence package from diagnostics for go/no-go review.",
       href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`,
-      cta: "Open operator checklist",
-    },
+      cta: "Open operator checklist",    },
     {
       id: "data-consistency",
       label: "Data consistency readiness",
@@ -184,10 +180,9 @@ export function buildFirstPilotReadinessRows(input: {
         healthLoadFailed: input.healthLoadFailed,
       }),
       summary:
-        `${FIRST_PILOT_BUYER_COPY.proofPipelineAction} for authoritative PASS/WARN/HOLD/NOT_RUN status. This row uses platform health as a coarse signal only.`,
+        "Pilot proof status has not been collected yet. Use diagnostics after finalize to refresh readiness — platform health is a coarse signal only.",
       href: "/health",
-      cta: "Review health and runbook",
-    },
+      cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,    },
     {
       id: "sponsor-packet",
       label: "Executive evidence package",

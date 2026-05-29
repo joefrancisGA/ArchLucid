@@ -1,0 +1,2 @@
+# Grandfathered POST routes without Idempotency-Key (narrow exceptions only).
+# Format: METHOD /v1/path/template

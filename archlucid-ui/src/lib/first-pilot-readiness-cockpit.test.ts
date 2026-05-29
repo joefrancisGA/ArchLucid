@@ -102,9 +102,9 @@ describe("buildFirstPilotReadinessRows", () => {
     });
 
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("attention");
-    expect(rows.find((r) => r.id === "review-pipeline")?.status).toBe("blocked");
-    expect(rows.find((r) => r.id === "roi-baselines")?.status).toBe("blocked");
-  });
+    expect(rows.find((r) => r.id === "review-pipeline")?.status).toBe("attention");
+    expect(rows.find((r) => r.id === "roi-baselines")?.status).toBe("attention");
+    expect(rows.find((r) => r.id === "review-pipeline")?.summary).toContain("Read-only role cannot execute or finalize");  });
 
   it("surfaces a data consistency row that stays non-ready until proof collection", () => {
     const rows = buildFirstPilotReadinessRows({
@@ -118,8 +118,7 @@ describe("buildFirstPilotReadinessRows", () => {
     });
 
     expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("attention");
-    expect(rows.find((r) => r.id === "data-consistency")?.summary).toContain("proof pipeline");
-  });
+    expect(rows.find((r) => r.id === "data-consistency")?.summary).toContain("Pilot proof status");  });
 
   it("marks data consistency blocked when health is unhealthy", () => {
     const rows = buildFirstPilotReadinessRows({

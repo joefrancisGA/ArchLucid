@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
+import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
 import { OperatorAiQualityProofCard } from "@/components/OperatorAiQualityProofCard";
 import { getPilotScorecard } from "@/lib/api";
 import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
@@ -12,6 +13,10 @@ import {
   resolveFirstPilotCommandCenterPhase,
   type FirstPilotCommandCenterPhaseSummary,
 } from "@/lib/first-pilot-command-center-phase";
+import {
+  FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND,
+  FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE,
+} from "@/lib/first-pilot-diagnostics-copy";
 import {
   buildFirstPilotReadinessRows,
   type FirstPilotReadinessRow,
@@ -254,11 +259,10 @@ export function FirstPilotReadinessCockpit() {
           {commandCenter.cta}
         </Link>
         {commandCenter.phase === "sponsor-packet-send" || commandCenter.phase === "sponsor-packet-hold" ? (
-          <p className="m-0 mt-2 text-xs leading-relaxed opacity-90">
-            After finalize, run{" "}
-            <code className="font-mono text-[11px]">dotnet run --project ArchLucid.Cli -- pilot proof -RunId &lt;id&gt;</code>{" "}
-            for authoritative PASS/WARN/HOLD — no need to open Markdown artifacts first.
-          </p>
+          <div className="m-0 mt-2 text-xs leading-relaxed opacity-90">
+            <p className="m-0">{FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE}</p>
+            <FirstPilotTechnicalCommandDisclosure commands={[FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND]} />
+          </div>
         ) : null}
       </article>
 

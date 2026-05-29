@@ -20,7 +20,8 @@ public static class SupportBundleRedactor
         "mask-openai-sk-shaped-keys",
         "mask-inline-apikey-assignments",
         "mask-json-quoted-apikey-clientsecret",
-        "truncate-long-llm-json-string-values"
+        "truncate-long-llm-json-string-values",
+        "mask-pem-private-key-blocks"
     ];
 
     private static readonly Regex BearerHeader = new(
@@ -71,6 +72,10 @@ public static class SupportBundleRedactor
     /// </summary>
     private static readonly Regex LongLlmJsonString = new(
         @"(?i)(""(?:content|systemPrompt|userPrompt|rawResponse)""\s*:\s*"")([^""\\]{400,})("")",
+        RegexOptions.Compiled);
+
+    private static readonly Regex PemPrivateKeyBlock = new(
+        @"-----BEGIN (?:RSA |EC )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC )?PRIVATE KEY-----",
         RegexOptions.Compiled);
 
     private static readonly HashSet<string> SensitiveEnvironmentNameSubstrings =
@@ -178,6 +183,7 @@ public static class SupportBundleRedactor
         s = InlineApiKeyAssignment.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
         s = JsonQuotedApiKeyOrClientSecret.Replace(s, m => m.Groups[1].Value + "[REDACTED]" + m.Groups[3].Value);
         s = LongLlmJsonString.Replace(s, m => m.Groups[1].Value + "[REDACTED_LONG_STRING]" + m.Groups[3].Value);
+        s = PemPrivateKeyBlock.Replace(s, "[REDACTED_PRIVATE_KEY]");
 
         return s;
     }

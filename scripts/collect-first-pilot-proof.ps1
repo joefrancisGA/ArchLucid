@@ -1574,6 +1574,251 @@ function Add-MutatingRouteAuditMatrixFinding {
     Add-ProofFinding -Disposition 'WARN' -Name 'mutating-route-audit-matrix' -Detail $detail -Remediation 'Add missing routes to docs/library/AUDIT_COVERAGE_MATRIX.md or scripts/ci/openapi_audit_matrix_allowlist.txt.'
 }
 
+function Add-RetrievalQualityRollupFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'retrieval-quality-rollup.md'
+    $jsonPath = Join-Path $ProofDirectory 'retrieval-quality-rollup.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_retrieval_quality_rollup.py'
+    & python $scriptPath --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'retrieval-quality-rollup.md' -Path 'retrieval-quality-rollup.md' -Purpose 'Combined offline retrieval IR and faithfulness rollup.'
+    Add-ProofArtifact -Name 'retrieval-quality-rollup.json' -Path 'retrieval-quality-rollup.json' -Purpose 'Machine-readable retrieval quality rollup.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'retrieval-quality-rollup' -Detail 'Retrieval quality rollup was not generated.' -Remediation 'Run scripts/ci/eval_retrieval_ir.py and scripts/ci/eval_agent_faithfulness.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$payload.disposition
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'retrieval-quality-rollup' -Detail 'Retrieval IR and faithfulness evidence are attached for offline golden fixtures.' -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'FAIL') {
+        $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+        Add-ProofFinding -Disposition $proofDisposition -Name 'retrieval-quality-rollup' -Detail 'Retrieval quality floors were not met on golden fixtures.' -Remediation 'Review docs/quality/retrieval-ir-report.md and faithfulness-report.md.' -TriageCard 'FP-T004'
+        return
+    }
+
+    $proofDisposition = if ($SponsorHandoff -and $disposition -eq 'NOT_COLLECTED') { 'BLOCK' } else { 'WARN' }
+    Add-ProofFinding -Disposition $proofDisposition -Name 'retrieval-quality-rollup' -Detail "Retrieval quality rollup disposition is $disposition." -Remediation 'Generate retrieval IR and faithfulness reports before sponsor handoff when RAG claims are in the packet.' -TriageCard 'FP-T004'
+}
+
+function Add-TerraformPilotValidationMatrixFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'terraform-pilot-validation-matrix.md'
+    $jsonPath = Join-Path $ProofDirectory 'terraform-pilot-validation-matrix.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\build_terraform_pilot_validation_matrix.py'
+    & python $scriptPath --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'terraform-pilot-validation-matrix.md' -Path 'terraform-pilot-validation-matrix.md' -Purpose 'Validate-only Terraform pilot root matrix (no apply).'
+    Add-ProofArtifact -Name 'terraform-pilot-validation-matrix.json' -Path 'terraform-pilot-validation-matrix.json' -Purpose 'Machine-readable Terraform pilot validation matrix.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'terraform-pilot-validation-matrix' -Detail 'Terraform pilot validation matrix was not generated.' -Remediation 'Rerun collect-first-pilot-proof.ps1.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+
+    if ([string]$payload.disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'terraform-pilot-validation-matrix' -Detail 'Essential Terraform pilot roots are present for validate-only CI.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'terraform-pilot-validation-matrix' -Detail 'One or more essential Terraform pilot roots are missing main.tf.' -Remediation 'See docs/runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md and infra/terraform-pilot.'
+}
+
+function Add-MutatingRouteIdempotencyPostureFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'mutating-route-idempotency-posture.md'
+    $jsonPath = Join-Path $ProofDirectory 'mutating-route-idempotency-posture.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\check_mutating_route_idempotency_posture.py'
+    & python $scriptPath --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'mutating-route-idempotency-posture.md' -Path 'mutating-route-idempotency-posture.md' -Purpose 'Mutating HTTP route idempotency posture rollup (INV-009).'
+    Add-ProofArtifact -Name 'mutating-route-idempotency-posture.json' -Path 'mutating-route-idempotency-posture.json' -Purpose 'Machine-readable idempotency posture disposition.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'mutating-route-idempotency-posture' -Detail 'Idempotency posture report was not generated.' -Remediation 'Run python scripts/ci/check_mutating_route_idempotency_posture.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $unclassified = [int]$payload.unclassifiedRouteCount
+
+    if ($unclassified -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'mutating-route-idempotency-posture' -Detail 'All mutating routes have a documented idempotency posture.' -Remediation ''
+        return
+    }
+
+    $driftScript = Join-Path $PSScriptRoot 'ci\detect_mutating_route_idempotency_drift.py'
+    & python $driftScript 2>&1 | Out-Null
+    $driftExit = $LASTEXITCODE
+
+    if ($driftExit -eq 0) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'mutating-route-idempotency-posture' -Detail "Grandfathered backlog: $unclassified unclassified POST route(s); drift guard passed (no new unclassified routes). See docs/library/MUTATING_ROUTE_IDEMPOTENCY_POSTURE.md." -Remediation 'Classify new mutating routes before merge; refresh baseline only when intentionally grandfathering.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'BLOCK' -Name 'mutating-route-idempotency-posture' -Detail "New unclassified mutating route(s) detected ($unclassified grandfathered). Drift guard failed." -Remediation 'Run python scripts/ci/check_mutating_route_idempotency_posture.py and classify new routes.' -TriageCard 'FP-T020'
+}
+
+function Add-AuditPathSemanticsFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'audit-path-semantics.md'
+    $jsonPath = Join-Path $ProofDirectory 'audit-path-semantics.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_audit_path_semantics.py'
+    & python $scriptPath --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'audit-path-semantics.md' -Path 'audit-path-semantics.md' -Purpose 'Transactional vs informational audit semantics for high-value flows.'
+    Add-ProofArtifact -Name 'audit-path-semantics.json' -Path 'audit-path-semantics.json' -Purpose 'Machine-readable audit path semantics rollup.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'audit-path-semantics' -Detail 'Audit path semantics report was not generated.' -Remediation 'Run python scripts/ci/report_audit_path_semantics.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+
+    if ([string]$payload.disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'audit-path-semantics' -Detail 'High-value flows are classified and referenced in the audit coverage matrix.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'audit-path-semantics' -Detail 'Some high-value audit flows lack matrix documentation hints.' -Remediation 'Update docs/library/AUDIT_COVERAGE_MATRIX.md for transactional vs informational paths.'
+}
+
+function Add-CommercialPackagingReadinessFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'commercial-packaging-readiness.md'
+    $jsonPath = Join-Path $ProofDirectory 'commercial-packaging-readiness.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_commercial_packaging_readiness.py'
+    & python $scriptPath --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'commercial-packaging-readiness.md' -Path 'commercial-packaging-readiness.md' -Purpose 'Machine-checked pricing/tier/checkout copy alignment.'
+    Add-ProofArtifact -Name 'commercial-packaging-readiness.json' -Path 'commercial-packaging-readiness.json' -Purpose 'Machine-readable commercial packaging readiness.'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'commercial-packaging-readiness' -Detail 'Pricing single-source and commercial tier drift checks passed.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'commercial-packaging-readiness' -Detail "Commercial packaging checks exited $exitCode." -Remediation 'Run python scripts/ci/check_pricing_single_source.py and assert_commercial_tier_packaging_drift.py.'
+}
+
+function Add-AiModelProvenanceFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $EvidenceRoot = ''
+    )
+
+    $observabilityPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($EvidenceRoot)) {
+        $latestBundle = Get-LatestEvidenceBundleDirectory -EvidenceRoot $EvidenceRoot
+
+        if ($null -ne $latestBundle) {
+            $candidate = Join-Path $latestBundle.FullName 'pilot-observability-summary.json'
+
+            if (Test-Path -LiteralPath $candidate) {
+                $observabilityPath = $candidate
+            }
+        }
+    }
+
+    $markdownPath = Join-Path $ProofDirectory 'ai-model-provenance.md'
+    $jsonPath = Join-Path $ProofDirectory 'ai-model-provenance.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_ai_model_provenance.py'
+    $args = @($scriptPath, '--markdown-out', $markdownPath, '--json-out', $jsonPath)
+
+    if (-not [string]::IsNullOrWhiteSpace($observabilityPath)) {
+        $args += @('--observability-json', $observabilityPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'ai-model-provenance.md' -Path 'ai-model-provenance.md' -Purpose 'Buyer-safe model/prompt-pack provenance without raw prompts.'
+    Add-ProofArtifact -Name 'ai-model-provenance.json' -Path 'ai-model-provenance.json' -Purpose 'Machine-readable AI model provenance summary.'
+
+    if ($exitCode -ne 0) {
+        Add-ProofFinding -Disposition 'BLOCK' -Name 'ai-model-provenance' -Detail 'Model provenance report indicates raw prompt or completion leakage.' -Remediation 'Regenerate evidence with buyer-safe redaction.' -TriageCard 'FP-T005'
+        return
+    }
+
+    if ([string]::IsNullOrWhiteSpace($observabilityPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'ai-model-provenance' -Detail 'Committed-run observability was not available for model provenance.' -Remediation 'Re-run with -RunId after execute/commit.' -TriageCard 'FP-T005'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'ai-model-provenance' -Detail 'Model and prompt-pack provenance summary collected without raw prompt text.' -Remediation ''
+}
+
+function Add-LlmCostEnvelopeFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $EvidenceRoot = ''
+    )
+
+    $observabilityPath = $null
+    $budgetPath = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($EvidenceRoot)) {
+        $latestBundle = Get-LatestEvidenceBundleDirectory -EvidenceRoot $EvidenceRoot
+
+        if ($null -ne $latestBundle) {
+            $obsCandidate = Join-Path $latestBundle.FullName 'pilot-observability-summary.json'
+
+            if (Test-Path -LiteralPath $obsCandidate) {
+                $observabilityPath = $obsCandidate
+            }
+
+            $budgetCandidate = Join-Path $latestBundle.FullName 'llm-budget-status.json'
+
+            if (Test-Path -LiteralPath $budgetCandidate) {
+                $budgetPath = $budgetCandidate
+            }
+        }
+    }
+
+    $markdownPath = Join-Path $ProofDirectory 'llm-cost-envelope.md'
+    $jsonPath = Join-Path $ProofDirectory 'llm-cost-envelope.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_llm_cost_envelope.py'
+    $args = @($scriptPath, '--markdown-out', $markdownPath, '--json-out', $jsonPath)
+
+    if (-not [string]::IsNullOrWhiteSpace($observabilityPath)) {
+        $args += @('--observability-json', $observabilityPath)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($budgetPath)) {
+        $args += @('--budget-status-json', $budgetPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'llm-cost-envelope.md' -Path 'llm-cost-envelope.md' -Purpose 'LLM cost envelope: budget posture and run-level usage labels.'
+    Add-ProofArtifact -Name 'llm-cost-envelope.json' -Path 'llm-cost-envelope.json' -Purpose 'Machine-readable LLM cost envelope summary.'
+
+    if ([string]::IsNullOrWhiteSpace($observabilityPath)) {
+        $proofDisposition = if ($SponsorHandoff) { 'WARN' } else { 'WARN' }
+        Add-ProofFinding -Disposition $proofDisposition -Name 'llm-cost-envelope' -Detail 'LLM cost envelope was not collected (no observability summary).' -Remediation 'Re-run evidence collection after execute/commit.' -TriageCard 'FP-T004'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'llm-cost-envelope' -Detail 'LLM cost envelope summary attached (estimated USD, not invoiced Azure spend).' -Remediation ''
+}
+
 function Add-ProductionLikeAzurePilotProofFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -1721,6 +1966,9 @@ Add-HostedAvailabilityRollupFinding -ProofDirectory $proofDir -ProbeArtifactsPat
 Add-AzureExtractorUploadUxFinding -ProofDirectory $proofDir
 Add-IdentityPreflightScenarioFinding -ProofDirectory $proofDir
 Add-MutatingRouteAuditMatrixFinding -ProofDirectory $proofDir
+Add-MutatingRouteIdempotencyPostureFinding -ProofDirectory $proofDir
+Add-TerraformPilotValidationMatrixFinding -ProofDirectory $proofDir
+Add-AuditPathSemanticsFinding -ProofDirectory $proofDir
 Add-GovernancePolicyPackProofFinding -ProofDirectory $proofDir
 Add-ProductionLikeAzurePilotProofFinding -ProofDirectory $proofDir
 Add-SecurityReviewerOnePagerFinding -ProofDirectory $proofDir
@@ -1834,7 +2082,9 @@ if ($SkipCommercialHandoff) {
 }
 else {
     Add-RetrievalIrEvidenceFinding -ProofDirectory $proofDir
+    Add-RetrievalQualityRollupFinding -ProofDirectory $proofDir
     Add-ConsolidatedAiReadinessGateFinding -ProofDirectory $proofDir
+    Add-CommercialPackagingReadinessFinding -ProofDirectory $proofDir
     Add-LiveUiSqlParityFinding -ProofDirectory $proofDir
     Add-DemoWorkspaceValidationFinding -ProofDirectory $proofDir
     Add-ProductionLikeConfigLintFinding -ProofDirectory $proofDir
@@ -1890,6 +2140,8 @@ else {
             Add-RoiBasisLabelFinding -EvidenceRoot $evidenceOut
             Add-DemoDerivedRoiCommercialGate
             Add-LlmCostSummaryFinding -EvidenceRoot $evidenceOut
+            Add-AiModelProvenanceFinding -ProofDirectory $proofDir -EvidenceRoot $evidenceOut
+            Add-LlmCostEnvelopeFinding -ProofDirectory $proofDir -EvidenceRoot $evidenceOut
         }
     }
     else {

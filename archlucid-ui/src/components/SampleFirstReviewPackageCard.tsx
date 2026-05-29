@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
+import { OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY } from "@/lib/operator-co-architect-copy";
 import { BUYER_HOME_PRIMARY_CTA, BUYER_HOME_SAMPLE_PACKAGE_LEAD, BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE, BUYER_HOME_SECONDARY_CTA } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -86,7 +87,7 @@ export function SampleFirstReviewPackageCard() {
                   Approved with monitoring
                 </span>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored residual risk · audit package ready
+                  {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored residual risk · audit evidence ready
                 </span>
               </div>
               <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -145,7 +146,7 @@ export function SampleFirstReviewPackageCard() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="h-9">
-                    <Link href="/reviews/new">Create from my evidence</Link>
+                    <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
                   </Button>
                 </>
               )}

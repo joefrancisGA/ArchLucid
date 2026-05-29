@@ -221,6 +221,18 @@ def test_proof_includes_enterprise_operations_artifacts() -> None:
     assert "Add-AzureExtractorUploadUxFinding" in text
     assert "Add-IdentityPreflightScenarioFinding" in text
     assert "Add-MutatingRouteAuditMatrixFinding" in text
+    assert "Add-RetrievalQualityRollupFinding" in text
+    assert "retrieval-quality-rollup.md" in text
+    assert "Add-TerraformPilotValidationMatrixFinding" in text
+    assert "terraform-pilot-validation-matrix.md" in text
+    assert "Add-MutatingRouteIdempotencyPostureFinding" in text
+    assert "mutating-route-idempotency-posture.md" in text
+    assert "Add-AuditPathSemanticsFinding" in text
+    assert "Add-CommercialPackagingReadinessFinding" in text
+    assert "Add-AiModelProvenanceFinding" in text
+    assert "Add-LlmCostEnvelopeFinding" in text
+    assert "llm-cost-envelope.md" in text
+    assert "detect_mutating_route_idempotency_drift.py" in text
     assert "Add-GovernancePolicyPackProofFinding" in text
     assert "first-pilot-performance-baseline.md" in text
     assert "llm-budget-proof-status.md" in text

@@ -10,6 +10,8 @@ This checklist focuses on scenarios that are **impossible, brittle, or infeasibl
 |------|------------------|---------------|
 | **[Part A — Local development machine](#part-a--local-development-machine)** | Your laptop: `archlucid-ui` dev server (optionally local API + SQL) | No Azure subscription required for most items; static demo payloads cover API-off walks |
 | **[Part B — Azure and integrated environments](#part-b--azure-and-integrated-environments)** | Staging / pilot tenant / customer Azure | Entra ID, Marketplace, webhooks, Azure OpenAI, hosted extractor, PR platforms, Teams/Slack |
+| **[UI release clearance tracker](#ui-release-clearance-tracker)** | Same as Part A (or staging for integrated pages) | Check off each page when signed off; all start **unchecked** |
+| **[Navigation from home](#navigation-from-home-click-through-guide)** | Operator home `/` with sidebar or Ctrl+K | Click-path reference for every UI route |
 
 **Legacy section map** (bookmarks in older docs):
 
@@ -436,7 +438,384 @@ When `HostedAzureExtractor:Enabled` and customer WIF templates are in play:
 
 ## Document maintenance
 
-When adding buyer copy or showcase spine tokens, update **A.1–A.2** and canonical URL table in **A.0**. When release gates change, update **B.7–B.8** and cross-links in [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md). When a gap in the **Appendix** is fixed, remove or reword that row and add a one-line note under **Appendix changelog**.
+When adding buyer copy or showcase spine tokens, update **A.1–A.2** and canonical URL table in **A.0**. When release gates change, update **B.7–B.8** and cross-links in [`V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md). When a gap in the **Appendix** is fixed, remove or reword that row and add a one-line note under **Appendix changelog**. When routes or sidebar nav change, update **[UI release clearance tracker](#ui-release-clearance-tracker)** and **[Navigation from home](#navigation-from-home-click-through-guide)** (source: `archlucid-ui/src/lib/*-nav-group-builder.ts`, `archlucid-ui/e2e/live-api-accessibility.spec.ts`).
+
+---
+
+# UI release clearance tracker
+
+Use this table during manual QA walks to record which surfaces you have signed off for release. Check **`Cleared`** only after you have walked the page on your target environment (local demo spine and/or staging) and any open defects are acceptable or tracked.
+
+**Current status:** none cleared (all rows start unchecked).
+
+**Showcase drill-down ids** (Claims Intake demo spine — same as [A.0](#a0-local-prerequisites)):
+
+| Token | Example value |
+|-------|----------------|
+| Review package (`runId`) | `claims-intake-modernization` |
+| Finding | `phi-minimization-risk` |
+| Manifest | `a1c2e3f4-a5b6-7890-abcd-ef1234567890` |
+| Policy pack | `demo-healthcare-claims-pack` |
+| Approval (lineage) | use any approval row linked from **Governance workflow** |
+
+Legacy bookmarks **`/runs/*`** permanently redirect to **`/reviews/*`** — clear the **`/reviews/*`** row, not a separate `/runs` page.
+
+| Page | Route | Cleared for release |
+|------|-------|:-------------------:|
+| **Operator home** | `/` | [ ] |
+| **Executive summary (dashboard)** | `/dashboard` | [ ] |
+| **Review packages list** | `/reviews?projectId=default` | [ ] |
+| **New review (evidence intake)** | `/reviews/new` | [ ] |
+| **Review package detail** | `/reviews/{runId}` | [ ] |
+| **Review provenance (technical appendix)** | `/reviews/{runId}/provenance` | [ ] |
+| **Finding detail** | `/reviews/{runId}/findings/{findingId}` | [ ] |
+| **Finding inspect (evidence trace)** | `/reviews/{runId}/findings/{findingId}/inspect` | [ ] |
+| **Signed manifest** | `/manifests/{manifestId}` | [ ] |
+| **Evidence trail (graph)** | `/graph` | [ ] |
+| **Onboarding** | `/onboarding` | [ ] |
+| **Risk register (governance findings)** | `/governance/findings` | [ ] |
+| **Help** | `/help` | [ ] |
+| **Pilot scorecard** | `/scorecard` | [ ] |
+| **Compare two reviews** | `/compare` | [ ] |
+| **Replay a review** | `/replay` | [ ] |
+| **Ask this review** | `/ask` | [ ] |
+| **Search review evidence** | `/search` | [ ] |
+| **Architecture advisory — scans** | `/advisory` | [ ] |
+| **Architecture advisory — schedules** | `/advisory?tab=schedules` | [ ] |
+| **Recommendation tuning** | `/recommendation-learning` | [ ] |
+| **Pilot feedback** | `/product-learning` | [ ] |
+| **Planning** | `/planning` | [ ] |
+| **Planning plan detail** | `/planning/plans/{planId}` | [ ] |
+| **Evolution candidates** | `/evolution-review` | [ ] |
+| **Portfolio dashboard** | `/portfolio` | [ ] |
+| **Pilot value report** | `/value-report/pilot` | [ ] |
+| **ROI summary** | `/value-report/roi` | [ ] |
+| **Connector operations** | `/integrations/operations` | [ ] |
+| **System health (operator)** | `/health` | [ ] |
+| **Digests — browse** | `/digests` | [ ] |
+| **Digests — subscriptions** | `/digests?tab=subscriptions` | [ ] |
+| **Digests — schedule** | `/digests?tab=schedule` | [ ] |
+| **Alerts — inbox** | `/alerts` | [ ] |
+| **Alerts — rules** | `/alerts?tab=rules` | [ ] |
+| **Alerts — routing** | `/alerts?tab=routing` | [ ] |
+| **Alerts — composite** | `/alerts?tab=composite` | [ ] |
+| **Alerts — simulation & tuning** | `/alerts?tab=simulation` | [ ] |
+| **Alert routing (standalone)** | `/alert-routing` | [ ] |
+| **Policy packs hub** | `/policy-packs` | [ ] |
+| **Policy pack detail** | `/governance/policy-packs/{id}` | [ ] |
+| **Governance resolution** | `/governance-resolution` | [ ] |
+| **Governance workflow** | `/governance` | [ ] |
+| **Executive workspace health** | `/governance/dashboard` | [ ] |
+| **Decision register** | `/governance/decision-register` | [ ] |
+| **Approval lineage** | `/governance/approval-requests/{id}/lineage` | [ ] |
+| **First 30 days (governance)** | `/governance/first-30-days` | [ ] |
+| **Audit trail** | `/audit` | [ ] |
+| **Security & trust (operator workspace)** | `/workspace/security-trust` | [ ] |
+| **Teams notifications** | `/integrations/teams` | [ ] |
+| **Value report (DOCX)** | `/value-report` | [ ] |
+| **Executive reviews list** | `/executive/reviews` | [ ] |
+| **Executive review summary** | `/executive/reviews/{runId}` | [ ] |
+| **Executive finding detail** | `/executive/reviews/{runId}/findings/{findingId}` | [ ] |
+| **Executive scorecard** | `/executive/scorecard` | [ ] |
+| **Settings hub** | `/settings` | [ ] |
+| **Tenant settings** | `/settings/tenant` | [ ] |
+| **Projects recycle bin** | `/settings/tenant/recycle-bin` | [ ] |
+| **Billing & plans** | `/settings/billing` | [ ] |
+| **Baseline settings** | `/settings/baseline` | [ ] |
+| **Webhooks** | `/settings/webhooks` | [ ] |
+| **Cloud connections** | `/settings/cloud-connections` | [ ] |
+| **Extract upload** | `/settings/extract-upload` | [ ] |
+| **Tenant cost** | `/settings/tenant-cost` | [ ] |
+| **Cost reporting** | `/settings/cost-reporting` | [ ] |
+| **Identity providers** | `/settings/identity-providers` | [ ] |
+| **SSO wizard** | `/settings/identity/sso-wizard` | [ ] |
+| **API keys** | `/settings/api-keys` | [ ] |
+| **SCIM provisioning** | `/settings/scim-provisioning` | [ ] |
+| **Role management** | `/settings/roles` | [ ] |
+| **Admin — system health** | `/admin/health` | [ ] |
+| **Admin — configuration** | `/admin/configuration` | [ ] |
+| **Admin — users & roles** | `/admin/users` | [ ] |
+| **Admin — support bundle** | `/admin/support` | [ ] |
+| **Admin — trial funnel** | `/admin/trial-funnel` | [ ] |
+| **Admin — fleet LLM COGS** | `/admin/fleet-llm-cogs` | [ ] |
+| **Admin — pricing quote aging** | `/admin/pricing-quote-aging` | [ ] |
+| **Admin — evidence proposals** | `/admin/evidence-proposals` | [ ] |
+| **Integration DLQ** | `/operate/integration-events/dlq` | [ ] |
+| **Resource coverage report** | `/reports/resource-coverage` | [ ] |
+| **Architecture patterns** | `/patterns` | [ ] |
+| **Demo explain** | `/demo/explain` | [ ] |
+| **Why ArchLucid (internal proof)** | `/why-archlucid` | [ ] |
+| **Forbidden (403)** | `/403` | [ ] |
+| **Sign in** | `/auth/signin` | [ ] |
+| **Marketing welcome** | `/welcome` | [ ] |
+| **Marketing see-it** | `/see-it` | [ ] |
+| **Marketing get started** | `/get-started` | [ ] |
+| **Marketing pricing** | `/pricing` | [ ] |
+| **Marketing trust** | `/trust` | [ ] |
+| **Marketing security & trust** | `/security-trust` | [ ] |
+| **Marketing why** | `/why` | [ ] |
+| **Marketing FAQ** | `/faq` | [ ] |
+| **Marketing compliance journey** | `/compliance-journey` | [ ] |
+| **Marketing demo preview** | `/demo/preview` | [ ] |
+| **Marketing live demo** | `/live-demo` | [ ] |
+| **Marketing quick scan** | `/quick-scan` | [ ] |
+| **Marketing quick start** | `/quick-start` | [ ] |
+| **Marketing showcase** | `/showcase/{runId}` | [ ] |
+| **Marketing example ROI bulletin** | `/example-roi-bulletin` | [ ] |
+| **Marketing accessibility** | `/accessibility` | [ ] |
+| **Marketing privacy** | `/privacy` | [ ] |
+| **Signup** | `/signup` | [ ] |
+| **Signup verify** | `/signup/verify` | [ ] |
+
+**Redirect-only bookmarks** (no separate clearance — verify the destination row instead):
+
+| Legacy route | Redirects to |
+|--------------|--------------|
+| `/runs`, `/runs/*` | `/reviews`, `/reviews/*` |
+| `/getting-started`, `/onboarding/start`, `/onboard` | `/onboarding` (query preserved) |
+| `/advisory-scheduling` | `/advisory?tab=schedules` |
+| `/digest-subscriptions` | `/digests?tab=subscriptions` |
+| `/settings/exec-digest` | `/digests?tab=schedule` |
+| `/settings/alerts` | `/alerts?tab=rules` |
+| `/governance/policy-packs` (list) | `/policy-packs` |
+| `/operate/architecture-graph` | `/graph` |
+
+---
+
+# Navigation from home (click-through guide)
+
+Start every path at **operator home** (`/`) after sign-in (development bypass is fine locally). Unless noted, use the **left sidebar**; on narrow viewports open the **mobile menu** (hamburger) first. You can also press **Ctrl+K** and type the page name (**Command palette**).
+
+**Authority note:** links marked *extended*, *advanced*, or *admin* in nav config may be hidden until you expand **Show more** in the sidebar or hold **Read**, **Execute**, or **Admin** authority. Admin rows need **Admin** authority.
+
+**Buyer-polished shell note:** with buyer-default chrome (no `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`), some engineer-only pages redirect — e.g. **`/why-archlucid`** → executive summary, **`/governance-resolution`** → **`/governance`**, and **`/product-learning`** may redirect to **`/`** when demo static mode is on.
+
+---
+
+## Pilot / review work (sidebar → **Review work**)
+
+### Operator home (`/`)
+
+You are already here after sign-in. No clicks required.
+
+### Executive summary (`/dashboard`)
+
+**Sidebar → Review work → Executive summary** (or **Ctrl+K** → “Executive summary”).
+
+**From home content:** **Sample package** card → **Open executive summary** (buyer-polished) opens `/executive/reviews/claims-intake-modernization`; the sidebar **Executive summary** link is `/dashboard` (ROI dashboard — distinct from per-package executive view).
+
+### Review packages list (`/reviews?projectId=default`)
+
+**Sidebar → Review work → Review packages**.
+
+**From home:** scroll **Your reviews** / **Review package status** panel → **View all review packages** (if shown), or **Sample package** → **View full review package** lands on detail — use browser back or breadcrumb **Review packages**.
+
+### New review / evidence intake (`/reviews/new`)
+
+**Sidebar → Review work → Evidence intake** (or **Alt+N**).
+
+**From home:** **Start new review** / **Evidence intake** in first-week guidance, checklist rail, or (engineer shell) **Open sample** card secondary **Start new review**.
+
+### Evidence trail (`/graph`)
+
+**Sidebar → Review work → Evidence trail** (or **Alt+Y**).
+
+**From home:** **Review journey** strip → **3. Evidence trail**, or **Sample package** → open review → **Evidence trail** link on review detail.
+
+### Onboarding (`/onboarding`)
+
+**Sidebar → Review work → Onboarding**.
+
+**From home:** Core Pilot checklist links, or **Help** cards that mention first-run setup.
+
+### Risk register (`/governance/findings`)
+
+**Sidebar → Review work → Risk register** (or **Alt+F**; requires Read authority).
+
+**From home:** **Review journey** is governance-adjacent; or open **Governance workflow** first → tab/link to findings.
+
+### Help (`/help`)
+
+**Sidebar → Review work → Help**.
+
+**From home:** header **Help** icon (question mark), **HelpLink** chips on home sections, or Core Pilot checklist **Help** step.
+
+### Pilot scorecard (`/scorecard`)
+
+**Sidebar → Review work → Scorecard** (expand **Show more** if collapsed; requires Read authority).
+
+---
+
+## Review package drill-down (from home via Claims Intake sample)
+
+Use **`claims-intake-modernization`** as `{runId}`, **`phi-minimization-risk`** as `{findingId}`, and manifest id from [A.0](#a0-local-prerequisites).
+
+### Review package detail (`/reviews/{runId}`)
+
+**From home:** **Sample package** → **View full review package** / **Open sample review package**, or **Review packages** list → **Claims Intake Modernization** row.
+
+### Executive review summary (`/executive/reviews/{runId}`)
+
+**From home:** **Sample package** primary CTA **Open executive summary**, or **Review journey** step **1. Executive summary**.
+
+### Signed manifest (`/manifests/{manifestId}`)
+
+**From home:** **Review journey** → **2. Signed manifest**, or review detail → **Signed manifest** / manifest summary link, or exports section manifest link.
+
+### Finding detail (`/reviews/{runId}/findings/{findingId}`)
+
+**From home:** open review detail (above) → **Findings** section → **PHI minimization** (or monitored risk) row.
+
+### Finding inspect (`/reviews/{runId}/findings/{findingId}/inspect`)
+
+**From review detail or finding detail:** **View evidence trace** / **Inspect** on the finding.
+
+### Provenance (`/reviews/{runId}/provenance`)
+
+**From review detail:** footer or advanced/technical links → **Provenance** (buyer shell may de-emphasize — use review detail deep link or type URL). Not in primary buyer sidebar.
+
+### Governance approval lineage (`/governance/approval-requests/{id}/lineage`)
+
+**From home:** **Review journey** → **4. Governance approval** → open an approval row → **Lineage** / **View lineage**.
+
+### Marketing showcase (`/showcase/{runId}`)
+
+Not in operator sidebar. **From home:** sign out or open a new tab → `/showcase/claims-intake-modernization`, or marketing **See it** / **Demo preview** cross-links.
+
+---
+
+## Analysis (sidebar → **Analysis**)
+
+Expand **Analysis** in the sidebar (many links are *extended* or *advanced*).
+
+| Page | Route | Click-through from `/` |
+|------|-------|------------------------|
+| Compare two reviews | `/compare` | **Analysis → Compare two reviews** (Alt+C). Hidden in strict buyer demo unless `NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE=true`. |
+| Replay a review | `/replay` | **Analysis → Replay a review** (Alt+P; Execute authority). |
+| Ask this review | `/ask` | **Analysis → Ask this review** (Alt+A), or review detail → **Ask about this review**. |
+| Search review evidence | `/search` | **Analysis → Search review evidence**. |
+| Architecture advisory (scans) | `/advisory` | **Analysis → Architecture advisory**. |
+| Architecture advisory (schedules) | `/advisory?tab=schedules` | **Advisory** page → **Schedules** tab (legacy `/advisory-scheduling` redirects here). |
+| Recommendation tuning | `/recommendation-learning` | **Analysis → Recommendation tuning**. |
+| Pilot feedback | `/product-learning` | **Analysis → Pilot feedback**. |
+| Planning | `/planning` | **Analysis → Planning** (Execute authority). |
+| Planning plan detail | `/planning/plans/{planId}` | **Planning** → open a plan row. |
+| Evolution candidates | `/evolution-review` | **Analysis → Evolution candidates** (Execute authority). |
+| Portfolio dashboard | `/portfolio` | **Analysis → Portfolio Dashboard**. |
+| Pilot value report | `/value-report/pilot` | **Analysis → Pilot value report**. |
+| ROI summary | `/value-report/roi` | **Analysis → ROI report**. |
+| Connector operations | `/integrations/operations` | **Analysis → Connector operations**. |
+| System health | `/health` | **Analysis → System health**. |
+| Digests browse | `/digests` | **Analysis → Digests**. |
+| Digests subscriptions | `/digests?tab=subscriptions` | **Digests** → **Subscriptions** tab. |
+| Digests schedule | `/digests?tab=schedule` | **Digests** → **Schedule** tab. |
+
+---
+
+## Governance (sidebar → **Governance**)
+
+| Page | Route | Click-through from `/` |
+|------|-------|------------------------|
+| Alerts inbox | `/alerts` | **Governance → Alerts** (Alt+L) → default **Inbox** tab. |
+| Alerts rules | `/alerts?tab=rules` | **Alerts** → **Rules** tab (legacy **Settings → Alerts** redirects here). |
+| Alerts routing | `/alerts?tab=routing` | **Alerts** → **Routing** tab, or sidebar-adjacent **Alert routing** bookmark at `/alert-routing`. |
+| Alerts composite | `/alerts?tab=composite` | **Alerts** → **Composite** tab. |
+| Alerts simulation | `/alerts?tab=simulation` | **Alerts** → **Simulation & tuning** tab. |
+| Policy packs | `/policy-packs` | **Governance → Policy packs**. |
+| Policy pack detail | `/governance/policy-packs/{id}` | **Policy packs** → open a pack row (demo: `demo-healthcare-claims-pack`). |
+| Governance resolution | `/governance-resolution` | **Governance → Governance resolution** (buyer shell redirects to **Governance workflow**). |
+| Governance workflow | `/governance` | **Governance → Governance workflow**, or **Review journey** step **4. Governance approval**. |
+| Executive workspace health | `/governance/dashboard` | Type URL or **Ctrl+K** → “Executive Workspace Health” (not primary sidebar; buyer shell may redirect to workflow). |
+| Decision register | `/governance/decision-register` | **Ctrl+K** → “Decision register”, or governance area cross-links. |
+| First 30 days | `/governance/first-30-days` | **Governance → First 30 days (governance)**. |
+| Audit trail | `/audit` | **Governance → Audit trail**, or **Review journey** step **5. Audit trail**. |
+| Security & trust (operator) | `/workspace/security-trust` | **Governance → Security & trust**. |
+| Teams notifications | `/integrations/teams` | **Governance → Teams notifications**. |
+| Value report (DOCX) | `/value-report` | **Governance → Value report** (Execute authority). |
+
+---
+
+## Executive shell
+
+| Page | Route | Click-through from `/` |
+|------|-------|------------------------|
+| Executive reviews list | `/executive/reviews` | **Ctrl+K** → “Executive reviews”, or executive mode switcher if enabled in your build. |
+| Executive review summary | `/executive/reviews/{runId}` | **Home → Sample package → Open executive summary** (fastest for Claims Intake). |
+| Executive finding | `/executive/reviews/{runId}/findings/{findingId}` | Executive review → finding row. |
+| Executive scorecard | `/executive/scorecard` | **Ctrl+K** → “Executive scorecard”. |
+
+---
+
+## Admin (sidebar → **Admin**)
+
+Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
+
+| Page | Route | Click-through from `/` |
+|------|-------|------------------------|
+| Admin system health | `/admin/health` | **Admin → System health**. |
+| Configuration | `/admin/configuration` | **Admin → Configuration**. |
+| Trial funnel | `/admin/trial-funnel` | **Admin → Trial funnel**. |
+| Fleet LLM COGS | `/admin/fleet-llm-cogs` | **Admin → Fleet LLM COGS**. |
+| Pricing quote aging | `/admin/pricing-quote-aging` | **Admin → Pricing quote aging**. |
+| Evidence proposals | `/admin/evidence-proposals` | **Admin → Evidence proposals**. |
+| Users & roles | `/admin/users` | **Admin → Users & roles**. |
+| Support bundle | `/admin/support` | **Admin → Support**, or **Settings hub** (`/settings`) support card. |
+| Integration DLQ | `/operate/integration-events/dlq` | **Admin → Integration DLQ**. |
+| Identity providers | `/settings/identity-providers` | **Admin → Identity providers**. |
+| SSO wizard | `/settings/identity/sso-wizard` | **Admin → SSO wizard**. |
+| API keys | `/settings/api-keys` | **Admin → API keys**. |
+| SCIM provisioning | `/settings/scim-provisioning` | **Admin → SCIM provisioning**. |
+| Role management | `/settings/roles` | **Admin → Role management**. |
+| Tenant cost | `/settings/tenant-cost` | **Admin → Tenant cost**. |
+| Billing & plans | `/settings/billing` | **Admin → Billing & plans**. |
+| Baseline settings | `/settings/baseline` | **Admin → Baseline settings** (Execute). |
+| Webhooks | `/settings/webhooks` | **Admin → Webhooks** (Execute). |
+| Cloud connections | `/settings/cloud-connections` | **Admin → Cloud connections** (Execute). |
+| Tenant settings | `/settings/tenant` | **Admin → Tenant settings** (Execute). |
+| Projects recycle bin | `/settings/tenant/recycle-bin` | **Tenant settings** → **Recycle bin** link. |
+| Cost reporting | `/settings/cost-reporting` | **Admin → Cost reporting**. |
+| Settings hub | `/settings` | **Ctrl+K** → “Settings” (general hub; most items are under **Admin** in sidebar). |
+| Extract upload | `/settings/extract-upload` | **Ctrl+K** or tenant settings cross-links (not primary sidebar). |
+
+---
+
+## Secondary operator routes (not in primary sidebar)
+
+| Page | Route | Click-through from `/` |
+|------|-------|------------------------|
+| Resource coverage | `/reports/resource-coverage` | **Ctrl+K** → “Resource coverage”, or direct URL. |
+| Architecture patterns | `/patterns` | **Ctrl+K** → “Patterns”, or direct URL. |
+| Demo explain | `/demo/explain` | **Ctrl+K** → “Demo explain”. |
+| Why ArchLucid | `/why-archlucid` | Engineer shell only — **Ctrl+K** or direct URL; buyer shell redirects to executive summary. |
+| Forbidden | `/403` | Trigger by opening a route your principal cannot access (manual negative test). |
+| Sign in | `/auth/signin` | Sign out from header → **Sign in**, or direct URL when JWT mode is enabled. |
+
+---
+
+## Marketing & signup (outside operator shell)
+
+These pages are **not** linked from operator home `/`. Reach them by signing out, opening an incognito window, or navigating directly.
+
+| Page | Route | Typical entry |
+|------|-------|---------------|
+| Welcome / landing | `/welcome` | Default public marketing home (operator home `/` is separate). |
+| See it | `/see-it` | Marketing nav from `/welcome`. |
+| Get started | `/get-started` | Marketing CTAs. |
+| Pricing | `/pricing` | Marketing nav / footer. |
+| Trust | `/trust` | Marketing nav. |
+| Security & trust (public) | `/security-trust` | Marketing footer (operator mirror: `/workspace/security-trust`). |
+| Why | `/why` | Marketing nav. |
+| FAQ | `/faq` | Marketing footer. |
+| Compliance journey | `/compliance-journey` | Marketing content links. |
+| Demo preview | `/demo/preview` | Marketing **See it** / trial funnel. |
+| Live demo | `/live-demo` | Marketing campaigns. |
+| Quick scan / quick start | `/quick-scan`, `/quick-start` | Marketing CTAs. |
+| Showcase | `/showcase/{runId}` | Shared demo links (`/showcase/claims-intake-modernization`). |
+| Example ROI bulletin | `/example-roi-bulletin` | Marketing sample download page. |
+| Accessibility | `/accessibility` | Marketing footer. |
+| Privacy | `/privacy` | Marketing footer. |
+| Signup | `/signup` | Marketing **Start free trial**. |
+| Signup verify | `/signup/verify` | Post-registration email link. |
 
 ---
 
@@ -473,4 +852,5 @@ Use after **[A.2](#a2-claims-intake-showcase-spine-end-to-end-25-minutes)** or w
 
 | Date | Change |
 |------|--------|
+| 2026-05-29 | Added **UI release clearance tracker** (all pages unchecked) and **Navigation from home** click-through guide before Appendix. |
 | 2026-05-27 | Initial appendix from pilot QA notes (executive inconsistency, list states, lineage jargon, provenance nav, count SSOT, identifiers, sample workspace). |

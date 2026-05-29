@@ -248,6 +248,12 @@ jobs:
       - name: Audit coverage matrix vs controller HttpPost/Put/Delete routes
         run: python scripts/ci/check_audit_matrix.py
 
+      - name: Mutating route idempotency posture drift (INV-009)
+        run: python scripts/ci/detect_mutating_route_idempotency_drift.py
+
+      - name: Mutating route idempotency drift unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_mutating_route_idempotency_drift.py"
+
       - name: OpenAPI audit matrix guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_openapi_mutations_in_audit_matrix.py"
 
@@ -894,6 +900,9 @@ jobs:
 
       - name: Guard — audit matrix vs controller HttpPost/Put/Delete routes
         run: python scripts/ci/check_audit_matrix.py
+
+      - name: Guard — mutating route idempotency posture drift (INV-009)
+        run: python scripts/ci/detect_mutating_route_idempotency_drift.py
 
       - name: Guard — route tier policy nav registry vs controllers + matrix
         run: python scripts/ci/assert_route_tier_policy_nav.py

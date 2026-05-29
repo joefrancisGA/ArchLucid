@@ -29,6 +29,7 @@
 | FP-T017 | Pricing quote aging breach | Open quote requests exceeded SLA warn/breach thresholds | `GET /v1/admin/marketing/pricing-quote-aging` | `/admin/pricing-quote-aging` |
 | FP-T018 | ROI basis hold | Projected dollar claims rely on defaulted, demo-derived, missing, stale, or not-collected ROI basis without caveat | `first-value-report.md`, `pilot-run-deltas.json`, `go-no-go-summary.json` | Capture buyer baselines or add explicit ROI caveat before sponsor send |
 | FP-T019 | Data consistency hold/warn | Readiness or orphan probes failed or were skipped | `data-consistency-summary.json`, `/health/diagnostics` | [`DATA_CONSISTENCY_READINESS.md`](DATA_CONSISTENCY_READINESS.md) |
+| FP-T020 | Mutating route idempotency drift | New POST route lacks idempotency posture classification | `mutating-route-idempotency-posture.md` | [`MUTATING_ROUTE_IDEMPOTENCY_POSTURE.md`](../library/MUTATING_ROUTE_IDEMPOTENCY_POSTURE.md) · `python scripts/ci/detect_mutating_route_idempotency_drift.py` |
 | FP-T021 | Pilot preflight exit failure | CLI preflight exited non-zero with blocking config/health/OpenAPI rows | `preflight.json`, `preflight-output.txt` | `archlucid --json pilot preflight --api-base-url <url>` |
 
 **Never paste secrets** into tickets. Attach buyer-safe bundles via [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md).

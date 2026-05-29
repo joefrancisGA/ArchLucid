@@ -54,6 +54,17 @@ public sealed class SupportBundleTests
     }
 
     [Fact]
+    public void RedactSensitivePatterns_strips_saml_private_key_markers()
+    {
+        const string raw = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\n-----END PRIVATE KEY-----";
+
+        string redacted = SupportBundleRedactor.RedactSensitivePatterns(raw);
+
+        redacted.Should().NotContain("BEGIN PRIVATE KEY");
+        redacted.Should().Contain("[REDACTED_PRIVATE_KEY]");
+    }
+
+    [Fact]
     public void RedactSensitivePatterns_strips_jwt_openai_sk_json_keys_and_long_content_fields()
     {
         const string markerJwt = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIiJ9.BADMARKERPAYLOADSIGNATUREZZZZ.BADMARKERSIGTOKENZZZZZ";

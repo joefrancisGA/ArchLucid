@@ -50,12 +50,12 @@ describe("SampleFirstReviewPackageCard", () => {
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("Approved with monitoring")).toBeInTheDocument();
-    expect(screen.getByText(/audit package ready/i)).toBeInTheDocument();
+    expect(screen.getByText(/audit evidence ready/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open sample review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Create from my evidence" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("records review-output telemetry when the sample is opened", () => {

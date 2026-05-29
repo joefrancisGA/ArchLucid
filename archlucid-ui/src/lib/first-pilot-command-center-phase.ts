@@ -159,7 +159,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
       href: canExecute ? "/reviews/new" : "/help",
 
-      cta: canExecute ? "New review" : "Review role guidance",
+      cta: canExecute ? "New review" : "Review permissions",
 
       sponsorDisposition: "readiness-only",
 

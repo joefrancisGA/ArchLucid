@@ -3,11 +3,27 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import {
+  FIRST_PILOT_PROOF_NOT_RUN_COPY,
+  FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND,
+  FIRST_PILOT_PROOF_REFRESH_SNAPSHOT_COMMAND,
+  FIRST_PILOT_PROOF_STATUS_UNAVAILABLE,
+  FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
+} from "@/lib/first-pilot-diagnostics-copy";
 import {
   proofStatusDispositionClass,
   type FirstPilotProofStatusSnapshot,
 } from "@/lib/first-pilot-proof-status-snapshot";
+
+function loadedSummaryLine(snapshot: FirstPilotProofStatusSnapshot): string {
+  if (snapshot.blockCount === 0 && snapshot.warnCount === 0) {
+    return "No blocks or warnings.";
+  }
+
+  return `${snapshot.blockCount} block · ${snapshot.warnCount} warn`;
+}
 
 /** Home strip: last local collect-first-pilot-proof verdict (static snapshot from CI/proof). */
 export function FirstPilotProofStatusStrip() {
@@ -56,11 +72,34 @@ export function FirstPilotProofStatusStrip() {
         className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400"
         data-testid="first-pilot-proof-status-strip"
       >
-        <p className="m-0">
-          Proof status not loaded. Run{" "}
-          <code className="font-mono text-xs">dotnet run --project ArchLucid.Cli -- pilot proof</code> then{" "}
-          <code className="font-mono text-xs">python scripts/ci/write_first_pilot_proof_status_snapshot.py</code>.
+        <p className="m-0">{FIRST_PILOT_PROOF_STATUS_UNAVAILABLE}</p>
+        <p className="m-0 mt-2">
+          <Link href="/health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
+            {FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA}
+          </Link>
         </p>
+        <FirstPilotTechnicalCommandDisclosure
+          commands={[FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND, FIRST_PILOT_PROOF_REFRESH_SNAPSHOT_COMMAND]}
+        />
+      </div>
+    );
+  }
+
+  if (snapshot.disposition === "NOT_RUN") {
+    return (
+      <div
+        className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400"
+        data-testid="first-pilot-proof-status-strip"
+      >
+        <p className="m-0">{FIRST_PILOT_PROOF_NOT_RUN_COPY}</p>
+        <p className="m-0 mt-2">
+          <Link href="/health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
+            {FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA}
+          </Link>
+        </p>
+        <FirstPilotTechnicalCommandDisclosure
+          commands={[FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND, FIRST_PILOT_PROOF_REFRESH_SNAPSHOT_COMMAND]}
+        />
       </div>
     );
   }
@@ -79,9 +118,7 @@ export function FirstPilotProofStatusStrip() {
           <span className="font-mono text-[10px] opacity-80">{snapshot.proofFolder}</span>
         ) : null}
       </div>
-      <p className="m-0 mt-2 text-sm leading-relaxed">
-        {snapshot.blockCount} block · {snapshot.warnCount} warn — {snapshot.nextAction}
-      </p>
+      <p className="m-0 mt-2 text-sm leading-relaxed">{loadedSummaryLine(snapshot)}</p>
       <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">
         {snapshot.remediationLinks.map((link) => (
           <li key={link.path}>
