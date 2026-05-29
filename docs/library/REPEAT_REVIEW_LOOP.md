@@ -1,4 +1,4 @@
-> **Scope:** Operator guide for second and subsequent committed reviews — V1 surfaces only.
+> **Scope:** Operator cookbook — guide for second and subsequent committed reviews — V1 surfaces only.
 
 # Repeat-review stickiness loop
 
