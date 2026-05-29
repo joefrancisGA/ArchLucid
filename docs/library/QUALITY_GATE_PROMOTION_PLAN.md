@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — warning-only CI and proof gates that may promote to merge-blocking.
+
 # Quality gate promotion plan (V1 engineering)
 
 **Last reviewed:** 2026-05-28

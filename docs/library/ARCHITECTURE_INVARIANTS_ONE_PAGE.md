@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — one-page architecture invariants for V1 feature and proof work.
+
 # ArchLucid V1 — architecture invariants (one page)
 
 **Audience:** engineers adding features, agents, or proof artifacts.

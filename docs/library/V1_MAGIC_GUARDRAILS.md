@@ -1,4 +1,4 @@
-> **Scope:** Product and engineering guidance for bounded V1 AI affordances. This is not a roadmap expansion and does not promote V1.1/V2 items into V1.
+> **Scope:** Contributor-reference — product and engineering guidance for bounded V1 AI affordances. This is not a roadmap expansion and does not promote V1.1/V2 items into V1.
 
 # V1 Magic Guardrails
 

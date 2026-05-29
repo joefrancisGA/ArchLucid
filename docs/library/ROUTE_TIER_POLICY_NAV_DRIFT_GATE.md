@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — route, tier, policy, and nav drift gate for release engineers.
+
 # Route / tier / policy / nav drift gate (V1)
 
 **Audience:** Release engineers and sponsor-handoff operators.
