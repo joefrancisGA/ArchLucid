@@ -1,3 +1,5 @@
+> **Scope:** Buyer-facing demo proof packet — AI governance walkthrough with **Demo-derived** labels only; not a verified customer outcome or production attestation.
+
 # Demo proof packet — AI governance review
 
 **Evidence basis:** **Demo-derived** · **Estimate** for ROI rows without buyer baselines

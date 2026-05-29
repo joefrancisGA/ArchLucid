@@ -1,3 +1,5 @@
+> **Scope:** Buyer-facing demo proof packet — healthcare claims policy walkthrough with **Demo-derived** labels only; not production PHI evidence or a verified customer outcome.
+
 # Demo proof packet — Healthcare claims (policy-backed demo)
 
 **Evidence basis:** **Demo-derived** · **Deferred scope** for production PHI environments

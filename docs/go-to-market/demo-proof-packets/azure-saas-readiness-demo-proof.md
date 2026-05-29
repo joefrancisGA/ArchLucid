@@ -1,3 +1,5 @@
+> **Scope:** Buyer-facing demo proof packet — Azure SaaS readiness walkthrough with **Demo-derived** labels only; not a verified customer deployment or production attestation.
+
 # Demo proof packet — Azure SaaS readiness
 
 **Evidence basis:** **Demo-derived** · **Manual review required** for AI narrative
