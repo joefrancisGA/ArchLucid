@@ -28,7 +28,7 @@ When Phase D completes with `-RunId` and sponsor handoff flags as needed, expect
 | Command center (primary) | `first-pilot-command-center.md` |
 | Go/no-go findings | `go-no-go-summary.md` · `go-no-go-summary.json` |
 | Committed-run bundle | `first-pilot-evidence/` (first-value report, observability summary, deltas) |
-| Commercial index | `quote-to-proof-packet.md` · `commercial-next-step.json` |
+| Commercial index | `quote-to-proof-packet.md` · `commercial-next-step.json` · `commercial-closeout.md` |
 | Data consistency | `data-consistency-readiness/data-consistency-summary.json` |
 | Config / drift (hosted) | `config-lint-production-like-hosted-pilot.md` · `route-tier-policy-nav-parity.md` |
 
@@ -107,6 +107,7 @@ Until you have one **committed** architecture review package, you do **not** nee
 |------|--------|----------------|---------|
 | D1 | Inspect **findings**, explanation aggregate, and **artifacts** on review detail. | Sponsor-readable summary; severity badges; evidence refs present. | UI review detail · `GET /v1/architecture/run/{runId}` |
 | D1b | Follow the **Next after commit** card: one **primary** action (sponsor packet) plus optional compare, evidence chain, governance dry-run, or quote-to-proof index. | Primary CTA scrolls to sponsor deliverables; optional links stay secondary. | Review detail post-commit habit loop |
+| D2a | Capture **ROI baseline** labels before sponsor send (review-cycle hours, architect prep, documentation effort, evidence assembly; source: buyer-provided / defaulted / demo-derived / not collected). | Scorecard rows populated or explicitly **not collected**; proof marks demo-derived as walkthrough-only. | [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md) §2 · `go-no-go-summary.json` · `roiBasisStatus` |
 | D2 | Export **sponsor packet** (markdown/DOCX/PDF per tenant config) or **Email this review to your sponsor** when manifest exists. | Download succeeds; ROI basis labels show evidence source (not placeholder-only unless static demo). | UI exports · [`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | D3 | Record **run id**, manifest id, and any **`X-Correlation-ID`** for support before escalating. | Ticket-ready notes. | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
 | D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | **`first-pilot-command-center.md`** (primary status) plus `go-no-go-summary.md` and committed-run evidence folder with checksum manifest and buyer-safe artifacts. Production-like or sponsor handoff also collects `config-lint-production-like-hosted-pilot.md`, `route-tier-policy-nav-parity.md`, and `procurement-deal-ready-check.txt` (deal-ready **PASS/HOLD**). | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
@@ -118,7 +119,7 @@ Until you have one **committed** architecture review package, you do **not** nee
 
 | Outcome | Next step | Doc |
 |---------|-----------|-----|
-| Pilot proved value; sponsor wants depth | Stay on **Pilot** for a second real review, or open **Operate (analysis)** for compare/replay/graph only if a concrete question appears. | [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) |
+| Pilot proved value; sponsor wants depth | Stay on **Pilot** for a second real review (see [`REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md)), or open **Operate (analysis)** for compare/replay/graph only if a concrete question appears. | [`OPERATOR_DECISION_GUIDE.md`](../library/OPERATOR_DECISION_GUIDE.md) |
 | Governance / audit questions emerged | Enable **Operate (governance)** — policy packs, approvals, audit log. | [`PRODUCT_PACKAGING.md`](../library/PRODUCT_PACKAGING.md) Layer B.2 |
 | Need a **Specialty** buyer-job narrative (optional — after first Core value) | Choose a Specialty template from [`library/walkthroughs/README.md`](../library/walkthroughs/README.md) (Azure SaaS, AI governance, healthcare). | Buyer-job pages under [`go-to-market/buyer-jobs/`](../go-to-market/buyer-jobs/) |
 | Stuck or regressed | Symptom index + rescue playbook. | [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) |

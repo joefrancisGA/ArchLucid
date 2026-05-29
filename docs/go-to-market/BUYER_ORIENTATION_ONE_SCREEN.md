@@ -14,8 +14,9 @@
 ## What to do first (buyer / evaluator)
 
 1. Read [`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md) for the outcome story.
-2. Run or observe one **Core Pilot** review (your Azure extractor ZIP or explicit demo acceptance).
-3. Inspect the **first-value report** and proof disposition before external circulation.
+2. Skim [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) for evidence-linked comparison vs generic AI.
+3. Run or observe one **Core Pilot** review (your Azure extractor ZIP or explicit demo acceptance).
+4. Inspect the **first-value report** and proof disposition before external circulation.
 
 ## What proof you get after a committed review
 
@@ -25,6 +26,8 @@
 | `first-pilot-command-center.md` | Phased READY / WARN / HOLD / DEFERRED + one **NEXT ACTION** |
 | `go-no-go-summary.md` | Full proof findings table |
 | `quote-to-proof-packet.md` | Commercial next step after PASS proof |
+| `commercial-closeout.md` | Deterministic Evidence Pack / ARB / order-form next action |
+| [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) | Why ArchLucid vs generic AI (evidence-linked) |
 | Procurement pack (on request) | Trust, DPA, CAIQ/SIG, self-assessment — not CPA attestation |
 
 Collect with [`../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`](../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md); working directory default: `artifacts/first-pilot-proof/`.

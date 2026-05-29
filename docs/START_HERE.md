@@ -17,6 +17,7 @@ START_HERE.md (you are here)
 │   ├─ runbooks/FIRST_PILOT_TROUBLESHOOTING.md   (symptom decision tree — when stuck)
 │   ├─ go-to-market/demo-proof-packets/README.md  (static demo proof shape — before setup)
 │   ├─ go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md  (Pilot vs Operate — one screen)
+│   ├─ go-to-market/DIFFERENTIATION_PROOF_PACKET.md  (why not generic AI — evidence-linked)
 │   ├─ go-to-market/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor story — after first commit)
 │   ├─ library/walkthroughs/README.md            (accelerator pack index — optional depth, after first commit)
 │   ├─ onboarding/EVALUATOR_WORKBOOK.md        (**compact evaluator path** — references operator checklist)
@@ -45,6 +46,10 @@ START_HERE.md (you are here)
 ```
 
 **Deep lookup (tasks, not personas):** [`architecture/README.md`](architecture/README.md).
+
+**Do not read yet (depth / recovery only until first commit):** [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) · [`architecture/README.md`](architecture/README.md) · [`library/LIVE_E2E_HAPPY_PATH.md`](library/LIVE_E2E_HAPPY_PATH.md) · [`library/operator-shell.md`](library/operator-shell.md) · V1.1 connector catalog · Operate governance depth.
+
+**After first commit:** [`library/REPEAT_REVIEW_LOOP.md`](library/REPEAT_REVIEW_LOOP.md) · [`go-to-market/DIFFERENTIATION_PROOF_PACKET.md`](go-to-market/DIFFERENTIATION_PROOF_PACKET.md).
 
 **Core Pilot — first session:** create architecture review → execute → finalize/commit → open review package. Use [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist) for the short narrative and [FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md) for the operational checklist. Treat `runId` as tracking metadata; the buyer-facing object is the **architecture review**.
 

@@ -66,6 +66,19 @@ Rollback: revert tenant override (`DELETE …/agent-output-quality-gate-mode`) o
 
 In `-SponsorHandoff` mode, `scripts/collect-first-pilot-proof.ps1` emits **HOLD** when PilotStrict signals are unresolved or violate sponsor evidence. The Markdown summary names the gate that caused HOLD.
 
+## Golden-cohort quality dashboard
+
+Regenerate the repo-native rollup from offline faithfulness and retrieval IR reports:
+
+```powershell
+python scripts/ci/generate_agent_quality_dashboard.py
+python scripts/ci/generate_real_llm_run_evidence.py
+```
+
+Output: [`docs/quality/agent-quality-dashboard.md`](../quality/agent-quality-dashboard.md) · [`docs/quality/real-llm-run-evidence.md`](../quality/real-llm-run-evidence.md)
+
+The dashboard distinguishes **simulator/deterministic** evidence from **live Azure OpenAI** rows and never claims live quality when real-mode collection was skipped.
+
 ## Related
 
 - [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) — quality gate rejection path

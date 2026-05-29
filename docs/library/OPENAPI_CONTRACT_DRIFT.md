@@ -9,6 +9,14 @@
 
 Prevent accidental HTTP surface changes: the generated OpenAPI document for **v1** (`GET /openapi/v1.json`) must match the CI-controlled baseline, so clients, APIM imports, and generated stubs do not silently diverge.
 
+### One sequence for intentional HTTP contract changes
+
+1. Change the v1 route/DTO in `ArchLucid.Api` / contracts layer.
+2. Regenerate snapshot: `.\scripts\ci\update_openapi_contract_snapshot.ps1` (or let CI **Refresh OpenAPI v1 snapshot** commit it).
+3. Regenerate .NET client: `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj`.
+4. Regenerate UI types: `cd archlucid-ui; npm run generate:api-types`.
+5. Commit baseline + generated clients + doc updates together; verify `assert_api_types_in_sync` if wired in CI.
+
 ## 2. Assumptions
 
 - The canonical contract check uses **Microsoft.AspNetCore.OpenApi** output at **`GET /openapi/v1.json`** (not Swashbuckle’s `/swagger/v1/swagger.json`, which is explorer-only and covered by separate smoke tests).

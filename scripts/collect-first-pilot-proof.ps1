@@ -41,6 +41,7 @@ $root = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'FirstPilotSupportNextStep.ps1')
 . (Join-Path $PSScriptRoot 'FirstPilotDataConsistencyProof.ps1')
 . (Join-Path $PSScriptRoot 'FirstPilotCommercialNextStep.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotCommercialCloseout.ps1')
 . (Join-Path $PSScriptRoot 'FirstPilotWorkflowHandoff.ps1')
 
 if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
@@ -2259,6 +2260,43 @@ $commercialStepResult = Write-QuoteToProofPacketMarkdown `
     -RunId $RunId `
     -DataConsistencyStatus $script:dataConsistencyStatus `
     -AiQualityProof $script:aiQualityProof
+
+$procurementDispositionForCloseout = 'NOT_RUN'
+$procMatch = @($findings | Where-Object { [string]$_.name -eq 'procurement-deal-ready' })
+
+if ($procMatch.Count -gt 0) {
+    $procurementDispositionForCloseout = [string]$procMatch[0].disposition
+}
+
+$commercialStepPayload = [ordered]@{
+    action = [string]$commercialStepResult.action
+    owner  = 'Sales / pilot operator'
+    reason = [string]$commercialStepResult.reason
+}
+
+if (Test-Path -LiteralPath (Join-Path $proofDir 'commercial-next-step.json')) {
+    try {
+        $commercialStepPayload = Get-Content -LiteralPath (Join-Path $proofDir 'commercial-next-step.json') -Raw | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        # Keep fallback payload from Write-QuoteToProofPacketMarkdown.
+    }
+}
+
+$closeoutPaths = Write-FirstPilotCommercialCloseoutArtifacts `
+    -ProofDirectory $proofDir `
+    -SponsorPacketDisposition $sponsorPacketDisposition `
+    -RoiBasisStatus $script:roiBasisStatus `
+    -RoiSponsorSafe $script:roiSponsorSafe `
+    -BlockCount $blockCount `
+    -DeferredScopeReasons @($deferredScopeReasons) `
+    -CommercialStep $commercialStepPayload `
+    -DataConsistencyStatus $script:dataConsistencyStatus `
+    -ProcurementDisposition $procurementDispositionForCloseout `
+    -RunId $RunId
+
+Add-ProofArtifact -Name 'commercial-closeout.md' -Path 'commercial-closeout.md' -Purpose 'Single commercial closeout with deterministic next action from proof states.'
+Add-ProofArtifact -Name 'commercial-closeout.json' -Path 'commercial-closeout.json' -Purpose 'Machine-readable commercial closeout payload.'
 
 $workflowHandoffPaths = Write-V1WorkflowHandoffArtifacts `
     -ProofDirectory $proofDir `

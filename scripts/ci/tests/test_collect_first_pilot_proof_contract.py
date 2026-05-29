@@ -170,6 +170,8 @@ def test_batch_cde_artifacts_wired() -> None:
     assert "compliance-posture-evidence-table.md" in text
     assert "quality-gate-promotion-status.json" in text
     assert "commercial-next-step.json" in text
+    assert "FirstPilotCommercialCloseout.ps1" in text
+    assert "commercial-closeout.md" in text
     assert "v1-workflow-handoff-comment.json" in text
 
 
