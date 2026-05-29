@@ -323,7 +323,7 @@ class TestProcurementPackValidation(unittest.TestCase):
             self.assertEqual(snapshot["redaction_omission_count"], 1)
 
             markdown = pp_val.procurement_pack_quality_markdown(snapshot)
-            self.assertIn("procurement pack quality", markdown.lower())
+            self.assertIn("procurement pack sendability summary", markdown.lower())
             self.assertIn("PASS", markdown)
 
     def test_collect_quality_snapshot_fails_when_stale_last_reviewed(self) -> None:
