@@ -440,6 +440,7 @@ public sealed partial class RunsController(
     ///     Merges agent results through the decision engine and persists the golden manifest and decision traces for
     ///     <paramref name="runId" />.
     /// </summary>
+    // idempotency-posture: explicit-idempotency-key
     [HttpPost("run/{runId}/commit")]
     [HttpPost("/v{version:apiVersion}/runs/{runId}/manifest/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -736,6 +737,7 @@ public sealed partial class RunsController(
     ///     Accepts one <see cref="ArchLucid.Contracts.Agents.AgentResult" /> for an in-progress run (custom agent
     ///     integrations).
     /// </summary>
+    [IdempotencyFilter]
     [HttpPost("run/{runId}/result")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(SubmitAgentResultResponse), StatusCodes.Status200OK)]
@@ -782,6 +784,7 @@ public sealed partial class RunsController(
     /// <summary>
     ///     Clones an existing architecture request, stripping its ID so it can be used as a template for a new run.
     /// </summary>
+    [IdempotencyFilter]
     [HttpPost("request/{requestId}/clone")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
@@ -897,6 +900,7 @@ public sealed partial class RunsController(
     /// <summary>
     ///     Restores an archived architecture request so it appears in default list views again.
     /// </summary>
+    [IdempotencyFilter]
     [HttpPost("request/{requestId}/restore")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status200OK)]

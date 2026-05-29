@@ -63,8 +63,8 @@ def classify_route(
     if m := _POSTURE_COMMENT.search(window):
         return m.group(1).lower()
 
-    # Class-level filter applies to all actions on the controller (e.g. RunsController).
-    if "[IdempotencyFilter]" in text:
+    # Action-scoped filter only (class-level filter mis-classifies sibling routes on the same controller).
+    if "[IdempotencyFilter]" in window:
         return "explicit-idempotency-key"
 
     if "Idempotency-Key" in window:
