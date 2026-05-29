@@ -45,7 +45,7 @@ public sealed class WorkspaceBaselineArtifactsEndpointTests(GreenfieldSqlApiFact
     [SkippableFact]
     public async Task Get_withReadAuthority_returns200()
     {
-        await using ReaderRoleArchLucidApiFactory readerFactory = new();
+        await using GreenfieldSqlReaderRoleApiFactory readerFactory = new();
 
         using HttpClient client = readerFactory.CreateClient();
 
@@ -88,6 +88,12 @@ public sealed class WorkspaceBaselineArtifactsEndpointTests(GreenfieldSqlApiFact
                 "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
 
                 """);
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using StreamWriter rw = new(resources.Open());
+
+            rw.Write("[]");
         }
 
         return ms.ToArray();

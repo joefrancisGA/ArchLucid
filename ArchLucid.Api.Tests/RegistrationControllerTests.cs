@@ -50,9 +50,13 @@ public sealed class RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
         created.StatusCode.Should().Be(HttpStatusCode.Created);
         using JsonDocument doc = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
         Guid tenantId = doc.RootElement.GetProperty("tenantId").GetGuid();
+        Guid workspaceId = doc.RootElement.GetProperty("defaultWorkspaceId").GetGuid();
+        Guid projectId = doc.RootElement.GetProperty("defaultProjectId").GetGuid();
 
         using HttpRequestMessage statusReq = new(HttpMethod.Get, "/v1/tenant/trial-status");
         statusReq.Headers.Add("x-tenant-id", tenantId.ToString());
+        statusReq.Headers.Add("x-workspace-id", workspaceId.ToString());
+        statusReq.Headers.Add("x-project-id", projectId.ToString());
         using HttpResponseMessage status = await client.SendAsync(statusReq);
 
         status.StatusCode.Should().Be(HttpStatusCode.OK);

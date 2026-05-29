@@ -62,7 +62,9 @@ describe("HeroEarlyAccessCta", () => {
       clarity.mock.calls.some((c) => c[0] === "set" && c[1] === "cta_email_domain" && c[2] === "example.org"),
     ).toBe(true);
 
-    expect(screen.getByTestId("welcome-early-access-thanks")).toHaveTextContent(/follow up within 2 business days/i);
+    await waitFor(() => {
+      expect(screen.getByTestId("welcome-early-access-thanks")).toHaveTextContent(/follow up within 2 business days/i);
+    });
   });
 
   it("does not emit cta_early_access_submit when opening the form (only after successful submit)", () => {

@@ -78,6 +78,18 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         reportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         string markdown = await reportResponse.Content.ReadAsStringAsync();
 
+        HttpResponseMessage tenantBaselinePut = await client.PutAsJsonAsync(
+            "/v1/tenant/baseline",
+            new
+            {
+                baselineReviewCycleHours = 40m,
+                baselineReviewCycleSourceNote = "PR-A2 cohort integration",
+                manualPrepHoursPerReview = 6m,
+                peoplePerReview = 2,
+            },
+            JsonOptions);
+        await tenantBaselinePut.EnsureSuccessForTestAsync();
+
         HttpResponseMessage baselinePut = await client.PutAsJsonAsync(
             "/v1/pilots/scorecard/baselines",
             new

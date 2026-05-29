@@ -162,6 +162,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         settings["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300";
         settings["AuthorityPipeline:PipelineTimeout"] = "00:05:00";
         settings["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "600000";
+        settings["Demo:SeedDepth"] = "quickstart";
     }
 
     /// <inheritdoc />

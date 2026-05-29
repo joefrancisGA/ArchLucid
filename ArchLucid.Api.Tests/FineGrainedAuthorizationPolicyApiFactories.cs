@@ -26,6 +26,20 @@ public sealed class ReaderRoleArchLucidApiFactory : ArchLucidApiFactory
 }
 
 /// <summary>
+///     Greenfield SQL host with <see cref="ArchLucidRoles.Reader" /> — avoids InMemory/Sql env races on
+///     <c>GET /v1/tenant/workspace-baseline-artifacts</c>.
+/// </summary>
+public sealed class GreenfieldSqlReaderRoleApiFactory : GreenfieldSqlApiFactory
+{
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = ArchLucidRoles.Reader }));
+    }
+}
+
+/// <summary>
 ///     Like <see cref="ArchLucidRoleClaimsTransformation" /> but drops one <c>permission</c> for the Operator role (tests
 ///     fine-grained policies).
 /// </summary>

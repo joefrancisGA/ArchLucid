@@ -84,8 +84,28 @@ public sealed class TrialTenantBootstrapService(
 
             try
             {
-                await _demoSeedService.SeedAsync(cancellationToken);
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken);
+
+                bool fullDemoSeedSucceeded = false;
+
+                try
+                {
+                    await _demoSeedService.SeedAsync(cancellationToken);
+                    fullDemoSeedSucceeded = true;
+                }
+                catch (Exception ex)
+                {
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning(
+                            ex,
+                            "Full demo seed failed for tenant {TenantId}; activating trial with welcome sample run only.",
+                            result.TenantId);
+                }
+
+                Guid sampleRunId = fullDemoSeedSucceeded
+                    ? demoIds.AuthorityRunBaselineId
+                    : ContosoRetailDemoIds.TrialWelcomeAuthorityRunId(result.TenantId);
+
                 DateTimeOffset start = TimeProvider.System.GetUtcNow();
                 DateTimeOffset expires = start.AddDays(14);
                 await _tenantRepository.CommitSelfServiceTrialAsync(
@@ -94,7 +114,7 @@ public sealed class TrialTenantBootstrapService(
                     expires,
                     10,
                     3,
-                    demoIds.AuthorityRunBaselineId,
+                    sampleRunId,
                     baselineReviewCycle?.Hours,
                     baselineReviewCycle?.SourceNote,
                     baselineReviewCycle?.CapturedUtc,
@@ -114,7 +134,7 @@ public sealed class TrialTenantBootstrapService(
                         WorkspaceId = result.DefaultWorkspaceId,
                         ProjectId = result.DefaultProjectId,
                         DataJson = JsonSerializer.Serialize(
-                            new { trialExpiresUtc = expires, sampleRunId = demoIds.AuthorityRunBaselineId })
+                            new { trialExpiresUtc = expires, sampleRunId })
                     },
                     cancellationToken);
                 await _tenantRepository.EnqueueTrialArchitecturePreseedAsync(result.TenantId, cancellationToken);

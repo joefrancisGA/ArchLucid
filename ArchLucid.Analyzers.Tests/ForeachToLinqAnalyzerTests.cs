@@ -52,11 +52,12 @@ internal static class Accumulator
                 .WithSpan(11, 9, 11, 16)
                 .WithArguments(ForeachToLinqAnalyzer.SelectSummary);
 
+        string newline = Environment.NewLine;
+
         CSharpCodeFixTest<ForeachToLinqAnalyzer, ForeachToLinqCodeFixProvider, DefaultVerifier> verifier = new()
         {
-            TestCode = beforeSource.ReplaceLineEndings("\r\n"),
-            // Match Roslyn workspace line endings on Windows so code-fix diffs compare cleanly.
-            FixedCode = fixedSourceWithLinq.ReplaceLineEndings("\r\n"),
+            TestCode = beforeSource.ReplaceLineEndings(newline),
+            FixedCode = fixedSourceWithLinq.ReplaceLineEndings(newline),
             ExpectedDiagnostics = { diagnostic },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net80,
             SolutionTransforms = { RenameTestProjectToAnalyzableAssembly }
@@ -111,11 +112,12 @@ internal static class Accumulator
                 .WithSpan(11, 9, 11, 16)
                 .WithArguments(ForeachToLinqAnalyzer.WhereSummary);
 
+        string newline = Environment.NewLine;
+
         CSharpCodeFixTest<ForeachToLinqAnalyzer, ForeachToLinqCodeFixProvider, DefaultVerifier> verifier = new()
         {
-            TestCode = beforeSource.ReplaceLineEndings("\r\n"),
-            // Match Roslyn workspace line endings on Windows so code-fix diffs compare cleanly.
-            FixedCode = fixedSourceWithLinq.ReplaceLineEndings("\r\n"),
+            TestCode = beforeSource.ReplaceLineEndings(newline),
+            FixedCode = fixedSourceWithLinq.ReplaceLineEndings(newline),
             ExpectedDiagnostics = { diagnostic },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net80,
             SolutionTransforms = { RenameTestProjectToAnalyzableAssembly }
