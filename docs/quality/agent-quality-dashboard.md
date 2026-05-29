@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — generated agent quality dashboard rollup; regenerate from CI scripts — not a buyer-facing attestation or live monitoring source of truth.
+
 # Agent quality evidence dashboard
 
 **Generated UTC:** 2026-05-29T16:52:18Z

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — generated real-mode LLM run evidence rollup; regenerate from CI scripts — not a buyer-facing production attestation.
+
 # Real-mode LLM run evidence (generated rollup)
 
 **Generated UTC:** 2026-05-29T16:52:18Z
