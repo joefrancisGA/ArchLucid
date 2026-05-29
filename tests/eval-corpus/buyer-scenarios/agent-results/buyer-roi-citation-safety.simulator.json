@@ -11,7 +11,7 @@
       "category": "Cost",
       "severity": "Medium",
       "title": "ROI baseline inputs not collected",
-      "summary": "Review-cycle hours and evidence assembly effort were not buyer-provided. Label as Estimate; do not quote sponsor-safe projected USD savings.",
+      "summary": "Review-cycle hours and evidence assembly effort were not buyer-provided. Label as Estimate; do not quote projected USD savings as sponsor-grade claims.",
       "evidenceRefs": ["ev-baseline-not-collected"]
     }
   ],
