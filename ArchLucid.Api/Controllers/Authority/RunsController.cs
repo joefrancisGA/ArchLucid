@@ -53,7 +53,6 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-[IdempotencyFilter]
 public sealed partial class RunsController(
     IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,

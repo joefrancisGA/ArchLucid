@@ -78,6 +78,17 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         reportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         string markdown = await reportResponse.Content.ReadAsStringAsync();
 
+        HttpResponseMessage baselinePut = await client.PutAsJsonAsync(
+            "/v1/pilots/scorecard/baselines",
+            new
+            {
+                baselineHoursPerReview = 40m,
+                baselineReviewsPerQuarter = 12,
+                baselineArchitectHourlyCost = 175m,
+            },
+            JsonOptions);
+        await baselinePut.EnsureSuccessForTestAsync();
+
         HttpResponseMessage firstValuePdfResponse =
             await client.PostAsync($"/v1/pilots/runs/{runId}/first-value-report.pdf", null);
         firstValuePdfResponse.StatusCode.Should().Be(HttpStatusCode.OK);

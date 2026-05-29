@@ -65,6 +65,6 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
 
         HttpResponseMessage metricsAfterWarmCatalog = await client.GetAsync(new Uri("/metrics", UriKind.Relative));
         string warmCatalogBody = await metricsAfterWarmCatalog.Content.ReadAsStringAsync();
-        warmCatalogBody.Should().Contain("archlucid.tenancy.warm_catalogs_available");
+        warmCatalogBody.Should().Contain("archlucid_tenancy_warm_catalogs_available");
     }
 }
