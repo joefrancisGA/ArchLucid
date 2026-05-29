@@ -109,7 +109,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(showAdvancedToggle).toBeVisible();
     await showAdvancedToggle.click();
 
-    await page.getByRole("button", { name: "Governance" }).click();
+    await page.getByRole("button", { name: "Governance", exact: true }).click();
 
     const governanceNav = page.getByRole("navigation", { name: "Governance" });
 

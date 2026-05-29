@@ -3640,6 +3640,32 @@ BEGIN
 END;
 GO
 
+/* ---- Tenant ROI cost assumptions (DbUp 184 + 199 parity; greenfield) ---- */
+
+IF OBJECT_ID(N'dbo.TenantCostSettings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantCostSettings
+    (
+        TenantId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_TenantCostSettings PRIMARY KEY
+            CONSTRAINT FK_TenantCostSettings_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        ArchitectHourlyRateUsd DECIMAL(18, 2) NOT NULL,
+        AverageIncidentCostUsd DECIMAL(18, 2) NOT NULL,
+        EaDiscountMultiplier DECIMAL(6, 4) NOT NULL
+            CONSTRAINT DF_TenantCostSettings_EaDiscountMultiplier DEFAULT (1.0000),
+        UpdatedUtc DATETIME2(7) NOT NULL
+            CONSTRAINT DF_TenantCostSettings_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedByActorId NVARCHAR(256) NULL,
+        CONSTRAINT CK_TenantCostSettings_ArchitectHourlyRateUsd
+            CHECK (ArchitectHourlyRateUsd > 0 AND ArchitectHourlyRateUsd <= 10000),
+        CONSTRAINT CK_TenantCostSettings_AverageIncidentCostUsd
+            CHECK (AverageIncidentCostUsd > 0 AND AverageIncidentCostUsd <= 10000000),
+        CONSTRAINT CK_TenantCostSettings_EaDiscountMultiplier
+            CHECK (EaDiscountMultiplier > 0 AND EaDiscountMultiplier <= 1)
+    );
+END;
+GO
+
 IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'EntraTenantId') IS NULL
 BEGIN
     ALTER TABLE dbo.Tenants ADD EntraTenantId UNIQUEIDENTIFIER NULL;

@@ -26,13 +26,19 @@ resource "azurerm_mssql_database" "app" {
   sku_name                    = var.sql_sku
   auto_pause_delay_in_minutes = var.auto_pause_delay_in_minutes
   min_capacity                = var.min_capacity
-  storage_account_type        = var.storage_account_type
+  storage_account_type        = var.backup_storage_redundancy == "Geo" ? "Geo" : var.storage_account_type
   max_size_gb                 = var.max_size_gb
-  backup_storage_redundancy   = var.backup_storage_redundancy
 
   short_term_retention_policy {
     retention_days           = var.sql_pitr_retention_days
     backup_interval_in_hours = 12
+  }
+
+  long_term_retention_policy {
+    weekly_retention  = var.sql_ltr_weekly_retention
+    monthly_retention = var.sql_ltr_monthly_retention
+    yearly_retention  = var.sql_ltr_yearly_retention
+    week_of_year      = var.sql_ltr_week_of_year
   }
 }
 
@@ -41,7 +47,7 @@ resource "azurerm_mssql_database" "read_replica" {
   name                        = "${var.sql_database_name}-replica"
   server_id                   = azurerm_mssql_server.primary.id
   create_mode                 = "Secondary"
-  source_database_id          = azurerm_mssql_database.app.id
+  creation_source_database_id          = azurerm_mssql_database.app.id
   sku_name                    = var.read_replica_sku
   auto_pause_delay_in_minutes = var.auto_pause_delay_in_minutes
   min_capacity                = var.min_capacity

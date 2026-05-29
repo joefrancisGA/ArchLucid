@@ -11,10 +11,22 @@ locals {
 resource "azurerm_mssql_server_extended_auditing_policy" "primary" {
   count = local.sql_auditing_enabled ? 1 : 0
 
-  server_id                  = azurerm_mssql_server.primary.id
-  log_monitoring_enabled     = true
+  server_id              = azurerm_mssql_server.primary.id
+  enabled                = true
+  log_monitoring_enabled = true
+  retention_in_days      = var.sql_audit_retention_days
+}
+
+resource "azurerm_monitor_diagnostic_setting" "sql_server_audit" {
+  count = local.sql_auditing_enabled ? 1 : 0
+
+  name                       = "sql-server-audit"
+  target_resource_id         = azurerm_mssql_server.primary.id
   log_analytics_workspace_id = var.log_analytics_workspace_id
-  retention_in_days          = var.sql_audit_retention_days
+
+  enabled_log {
+    category = "SQLSecurityAuditEvents"
+  }
 }
 
 resource "azurerm_mssql_server_security_alert_policy" "primary" {
