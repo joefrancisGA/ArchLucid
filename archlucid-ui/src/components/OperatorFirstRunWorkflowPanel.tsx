@@ -152,14 +152,6 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   }, []);
 
   useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-
-    emitCorePilotChecklistChanged();
-  }, [hydrated, doneByIndex]);
-
-  useEffect(() => {
     if (!hydrated || exploreCompletedOutput) {
       return;
     }
@@ -205,6 +197,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
 
           return merged;
         });
+        emitCorePilotChecklistChanged();
       } catch {
         /* unauthenticated / offline — keep local-only checklist */
       }
@@ -347,6 +340,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
 
         return next;
       });
+      emitCorePilotChecklistChanged();
     },
     [exploreCompletedOutput],
   );

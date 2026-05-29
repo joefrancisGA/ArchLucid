@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore, useState } from "react";
 
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import {
-  CORE_PILOT_CHECKLIST_CHANGED_EVENT,
-  corePilotStepDoneStorageKey,
+  getCorePilotChecklistStorageServerSnapshot,
+  getCorePilotChecklistStorageSnapshot,
+  subscribeCorePilotChecklist,
 } from "@/lib/core-pilot-checklist-storage";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
@@ -25,18 +26,11 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
   const [ratesError, setRatesError] = useState<string | null>(null);
 
-  /** Avoid reading localStorage until after mount so SSR and the first client paint match (hydration-safe). */
-  const [checklistStorageHydrated, setChecklistStorageHydrated] = useState(false);
-
-  const [, rerenderAfterChecklist] = useState(0);
-
-  const bumpChecklist = useCallback(() => {
-    rerenderAfterChecklist((n) => n + 1);
-  }, []);
-
-  useEffect(() => {
-    setChecklistStorageHydrated(true);
-  }, []);
+  const checklistStorageSignature = useSyncExternalStore(
+    subscribeCorePilotChecklist,
+    getCorePilotChecklistStorageSnapshot,
+    getCorePilotChecklistStorageServerSnapshot,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -62,28 +56,12 @@ export function OperatorCorePilotDiagnosticsChecklist() {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.addEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, bumpChecklist);
-
-    return () => {
-      window.removeEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, bumpChecklist);
-    };
-  }, [bumpChecklist]);
-
   function isStorageDone(index: number): boolean {
-    if (!checklistStorageHydrated) {
+    if (checklistStorageSignature.length !== CORE_PILOT_STEPS.length) {
       return false;
     }
 
-    try {
-      return window.localStorage.getItem(corePilotStepDoneStorageKey(index)) === "1";
-    } catch {
-      return false;
-    }
+    return checklistStorageSignature.charAt(index) === "1";
   }
 
   const finalizedRecorded = rates !== null ? rates.firstRunCommittedTotal >= 1 : false;

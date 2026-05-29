@@ -9,6 +9,41 @@ export { CORE_PILOT_STEP_COUNT };
 
 export const CORE_PILOT_CHECKLIST_CHANGED_EVENT = "archlucid-core-pilot-checklist-changed";
 
+const corePilotChecklistStoreListeners = new Set<() => void>();
+
+/** `useSyncExternalStore` subscription — avoids setState in custom-event handlers during sibling renders. */
+export function subscribeCorePilotChecklist(onStoreChange: () => void): () => void {
+  corePilotChecklistStoreListeners.add(onStoreChange);
+
+  return () => {
+    corePilotChecklistStoreListeners.delete(onStoreChange);
+  };
+}
+
+/** Serialized step-done flags for external-store snapshots (client). */
+export function getCorePilotChecklistStorageSnapshot(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  try {
+    const parts: string[] = [];
+
+    for (let i = 0; i < CORE_PILOT_STEP_COUNT; i++) {
+      parts.push(window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1" ? "1" : "0");
+    }
+
+    return parts.join("");
+  } catch {
+    return "";
+  }
+}
+
+/** SSR / hydration fallback for {@link getCorePilotChecklistStorageSnapshot}. */
+export function getCorePilotChecklistStorageServerSnapshot(): string {
+  return "";
+}
+
 /** When set to `"1"`, `AfterCorePilotChecklistHint` stays hidden (operator dismissed the "what's next" panel). */
 export const AFTER_CORE_PILOT_WHATS_NEXT_DISMISSED_KEY = "archlucid_after_core_pilot_whats_next_dismissed_v1";
 
@@ -108,17 +143,21 @@ export function readCorePilotChecklistAllDone(): boolean {
   }
 }
 
-/** Defer so listeners (e.g. diagnostics checklist) never run during another component's render/setState updater. */
+/** Defer so listeners never run during another component's render or passive-effect flush. */
 export function emitCorePilotChecklistChanged(): void {
   if (typeof window === "undefined") {
     return;
   }
 
-  queueMicrotask(() => {
+  setTimeout(() => {
     try {
+      for (const listener of corePilotChecklistStoreListeners) {
+        listener();
+      }
+
       window.dispatchEvent(new CustomEvent(CORE_PILOT_CHECKLIST_CHANGED_EVENT));
     } catch {
       /* ignore */
     }
-  });
+  }, 0);
 }
