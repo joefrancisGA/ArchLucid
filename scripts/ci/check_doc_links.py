@@ -142,6 +142,10 @@ def main() -> int:
         if rel_md.startswith("docs/archive/"):
             continue
 
+        # Changelog preserves historical paths after refactors; do not fail CI on stale entry links.
+        if rel_md == "docs/CHANGELOG.md":
+            continue
+
         text = md.read_text(encoding="utf-8", errors="replace")
 
         for m in LINK_RE.finditer(text):
