@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator-welcome-onboarding-storage";
 
@@ -96,12 +97,18 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(page.getByRole("navigation", { name: "Governance", exact: true })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Governance — pinned links" })).toHaveCount(0);
 
-    const layoutDialog = () => page.getByRole("dialog", { name: "Sidebar layout" });
+    const layoutDialog = () => page.getByTestId("sidebar-layout-settings-dialog");
 
     await scrollOperatorSidebarFooterIntoView(page);
     await page.getByRole("button", { name: "Sidebar layout", exact: true }).click();
     await expect(layoutDialog()).toBeVisible();
-    await layoutDialog().locator("#nav-extended").check();
+    const extendedNavToggle = layoutDialog().getByRole("checkbox", {
+      name: NAV_DISCLOSURE.extended.show,
+      exact: true,
+    });
+
+    await expect(extendedNavToggle).toBeVisible();
+    await extendedNavToggle.check();
     // Modal dialog marks the sidebar inert for role queries until it closes.
     await page.keyboard.press("Escape");
     await expect(layoutDialog()).toBeHidden();

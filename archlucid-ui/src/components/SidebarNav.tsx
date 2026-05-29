@@ -834,7 +834,7 @@ export function SidebarNav() {
 
       {showProgressiveDisclosureChrome ? (
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" data-testid="sidebar-layout-settings-dialog">
           <DialogHeader>
             <DialogTitle>Sidebar layout</DialogTitle>
             <DialogDescription>
@@ -883,8 +883,10 @@ export function SidebarNav() {
               </div>
               <input
                 id="nav-extended"
+                data-testid="sidebar-layout-nav-extended"
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                aria-label={NAV_DISCLOSURE.extended.show}
                 title={NAV_DISCLOSURE.extended.title}
                 checked={showExtended}
                 onChange={(e) => {
