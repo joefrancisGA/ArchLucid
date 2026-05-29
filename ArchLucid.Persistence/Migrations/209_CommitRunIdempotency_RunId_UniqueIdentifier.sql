@@ -3,28 +3,49 @@
 */
 
 SET NOCOUNT ON;
+GO
 
 IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NULL
 BEGIN
     PRINT N'#27 CommitRunIdempotency: table missing; skipping.';
 END;
-ELSE IF COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunId') IS NULL
-    AND COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunIdGuid') IS NOT NULL
+GO
+
+IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunId') IS NULL
+   AND COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunIdGuid') IS NOT NULL
+BEGIN
     EXEC sp_rename N'dbo.CommitRunIdempotency.RunIdGuid', N'RunId', N'COLUMN';
-ELSE IF EXISTS (
-    SELECT 1
-    FROM sys.columns c
-    INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
-    WHERE c.object_id = OBJECT_ID(N'dbo.CommitRunIdempotency')
-      AND c.name = N'RunId'
-      AND ty.name IN (N'nvarchar', N'varchar'))
+END;
+GO
+
+IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.CommitRunIdempotency')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
     IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_CommitRunIdempotency_Runs_RunId')
         ALTER TABLE dbo.CommitRunIdempotency DROP CONSTRAINT FK_CommitRunIdempotency_Runs_RunId;
 
     IF COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunIdGuid') IS NULL
         ALTER TABLE dbo.CommitRunIdempotency ADD RunIdGuid UNIQUEIDENTIFIER NULL;
+END;
+GO
 
+IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunIdGuid') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.CommitRunIdempotency')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
+BEGIN
     UPDATE dbo.CommitRunIdempotency
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;

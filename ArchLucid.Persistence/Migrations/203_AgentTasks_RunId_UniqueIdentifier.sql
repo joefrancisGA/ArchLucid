@@ -4,21 +4,30 @@
 */
 
 SET NOCOUNT ON;
+GO
 
 IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NULL
 BEGIN
     PRINT N'#27 AgentTasks: table missing; skipping.';
 END;
-ELSE IF COL_LENGTH(N'dbo.AgentTasks', N'RunId') IS NULL
-    AND COL_LENGTH(N'dbo.AgentTasks', N'RunIdGuid') IS NOT NULL
+GO
+
+IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentTasks', N'RunId') IS NULL
+   AND COL_LENGTH(N'dbo.AgentTasks', N'RunIdGuid') IS NOT NULL
+BEGIN
     EXEC sp_rename N'dbo.AgentTasks.RunIdGuid', N'RunId', N'COLUMN';
-ELSE IF EXISTS (
-    SELECT 1
-    FROM sys.columns c
-    INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
-    WHERE c.object_id = OBJECT_ID(N'dbo.AgentTasks')
-      AND c.name = N'RunId'
-      AND ty.name IN (N'nvarchar', N'varchar'))
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.AgentTasks')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
     IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentTasks_Run')
         ALTER TABLE dbo.AgentTasks DROP CONSTRAINT FK_AgentTasks_Run;
@@ -28,7 +37,19 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentTasks', N'RunIdGuid') IS NULL
         ALTER TABLE dbo.AgentTasks ADD RunIdGuid UNIQUEIDENTIFIER NULL;
+END;
+GO
 
+IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentTasks', N'RunIdGuid') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.AgentTasks')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
+BEGIN
     UPDATE dbo.AgentTasks
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;

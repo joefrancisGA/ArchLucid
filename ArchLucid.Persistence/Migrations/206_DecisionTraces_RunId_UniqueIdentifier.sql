@@ -3,21 +3,30 @@
 */
 
 SET NOCOUNT ON;
+GO
 
 IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NULL
 BEGIN
     PRINT N'#27 DecisionTraces: table missing; skipping.';
 END;
-ELSE IF COL_LENGTH(N'dbo.DecisionTraces', N'RunId') IS NULL
-    AND COL_LENGTH(N'dbo.DecisionTraces', N'RunIdGuid') IS NOT NULL
+GO
+
+IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DecisionTraces', N'RunId') IS NULL
+   AND COL_LENGTH(N'dbo.DecisionTraces', N'RunIdGuid') IS NOT NULL
+BEGIN
     EXEC sp_rename N'dbo.DecisionTraces.RunIdGuid', N'RunId', N'COLUMN';
-ELSE IF EXISTS (
-    SELECT 1
-    FROM sys.columns c
-    INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
-    WHERE c.object_id = OBJECT_ID(N'dbo.DecisionTraces')
-      AND c.name = N'RunId'
-      AND ty.name IN (N'nvarchar', N'varchar'))
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.DecisionTraces')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
     IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DecisionTraces_Run')
         ALTER TABLE dbo.DecisionTraces DROP CONSTRAINT FK_DecisionTraces_Run;
@@ -27,7 +36,19 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.DecisionTraces', N'RunIdGuid') IS NULL
         ALTER TABLE dbo.DecisionTraces ADD RunIdGuid UNIQUEIDENTIFIER NULL;
+END;
+GO
 
+IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DecisionTraces', N'RunIdGuid') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.DecisionTraces')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
+BEGIN
     UPDATE dbo.DecisionTraces
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;

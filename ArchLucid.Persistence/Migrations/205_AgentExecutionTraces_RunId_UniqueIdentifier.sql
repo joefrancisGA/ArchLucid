@@ -3,21 +3,30 @@
 */
 
 SET NOCOUNT ON;
+GO
 
 IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NULL
 BEGIN
     PRINT N'#27 AgentExecutionTraces: table missing; skipping.';
 END;
-ELSE IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunId') IS NULL
-    AND COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunIdGuid') IS NOT NULL
+GO
+
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunId') IS NULL
+   AND COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunIdGuid') IS NOT NULL
+BEGIN
     EXEC sp_rename N'dbo.AgentExecutionTraces.RunIdGuid', N'RunId', N'COLUMN';
-ELSE IF EXISTS (
-    SELECT 1
-    FROM sys.columns c
-    INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
-    WHERE c.object_id = OBJECT_ID(N'dbo.AgentExecutionTraces')
-      AND c.name = N'RunId'
-      AND ty.name IN (N'nvarchar', N'varchar'))
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.AgentExecutionTraces')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
     IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Run')
         ALTER TABLE dbo.AgentExecutionTraces DROP CONSTRAINT FK_AgentExecutionTraces_Run;
@@ -27,7 +36,19 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunIdGuid') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD RunIdGuid UNIQUEIDENTIFIER NULL;
+END;
+GO
 
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunIdGuid') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.AgentExecutionTraces')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
+BEGIN
     UPDATE dbo.AgentExecutionTraces
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;

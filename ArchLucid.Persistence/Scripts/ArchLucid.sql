@@ -51,7 +51,7 @@ BEGIN
 END
 GO
 
-/* ---- Agents ---- */
+/* ---- Agents (RunId UNIQUEIDENTIFIER: greenfield CREATE; legacy NVARCHAR catalogs migrate via DbUp 203–210) ---- */
 
 IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NULL
 BEGIN

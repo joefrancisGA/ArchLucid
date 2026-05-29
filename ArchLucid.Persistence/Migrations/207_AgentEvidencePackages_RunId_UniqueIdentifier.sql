@@ -3,21 +3,30 @@
 */
 
 SET NOCOUNT ON;
+GO
 
 IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NULL
 BEGIN
     PRINT N'#27 AgentEvidencePackages: table missing; skipping.';
 END;
-ELSE IF COL_LENGTH(N'dbo.AgentEvidencePackages', N'RunId') IS NULL
-    AND COL_LENGTH(N'dbo.AgentEvidencePackages', N'RunIdGuid') IS NOT NULL
+GO
+
+IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentEvidencePackages', N'RunId') IS NULL
+   AND COL_LENGTH(N'dbo.AgentEvidencePackages', N'RunIdGuid') IS NOT NULL
+BEGIN
     EXEC sp_rename N'dbo.AgentEvidencePackages.RunIdGuid', N'RunId', N'COLUMN';
-ELSE IF EXISTS (
-    SELECT 1
-    FROM sys.columns c
-    INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
-    WHERE c.object_id = OBJECT_ID(N'dbo.AgentEvidencePackages')
-      AND c.name = N'RunId'
-      AND ty.name IN (N'nvarchar', N'varchar'))
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.AgentEvidencePackages')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
     IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Run')
         ALTER TABLE dbo.AgentEvidencePackages DROP CONSTRAINT FK_AgentEvidencePackages_Run;
@@ -27,7 +36,19 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentEvidencePackages', N'RunIdGuid') IS NULL
         ALTER TABLE dbo.AgentEvidencePackages ADD RunIdGuid UNIQUEIDENTIFIER NULL;
+END;
+GO
 
+IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentEvidencePackages', N'RunIdGuid') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.AgentEvidencePackages')
+         AND c.name = N'RunId'
+         AND ty.name IN (N'nvarchar', N'varchar'))
+BEGIN
     UPDATE dbo.AgentEvidencePackages
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;
