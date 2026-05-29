@@ -14,6 +14,12 @@ describe("CorePilotChecklist", () => {
     render(<CorePilotChecklist />);
 
     await waitFor(() => {
+      expect(screen.getByTestId("core-pilot-checklist-collapsed")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /show review workflow checklist/i }));
+
+    await waitFor(() => {
       expect(screen.getByTestId("core-pilot-checklist")).toBeInTheDocument();
     });
 
@@ -25,6 +31,11 @@ describe("CorePilotChecklist", () => {
   });
 
   it("persists checkbox state in localStorage under archlucid-pilot-checklist", async () => {
+    localStorage.setItem(
+      PILOT_CHECKLIST_PANEL_STORAGE_KEY,
+      JSON.stringify({ steps: [false, false, false, false, false], hidden: false }),
+    );
+
     render(<CorePilotChecklist />);
 
     await waitFor(() => {
@@ -74,7 +85,7 @@ describe("CorePilotChecklist", () => {
 
     expect(JSON.parse(localStorage.getItem(PILOT_CHECKLIST_PANEL_STORAGE_KEY)!).hidden).toBe(true);
 
-    fireEvent.click(screen.getByRole("button", { name: /show core pilot checklist/i }));
+    fireEvent.click(screen.getByRole("button", { name: /show review workflow checklist/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("core-pilot-checklist")).toBeInTheDocument();

@@ -108,9 +108,9 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 export const OPERATOR_NAV_LINK_LABELS = {
   home: "Home",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Review package",
+  reviewPackage: "Review packages",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
-  capture: "Capture",
+  capture: "Evidence intake",
   onboarding: "Onboarding",
   findings: "Risk register",
   help: "Help",

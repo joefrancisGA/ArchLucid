@@ -92,15 +92,16 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 
         return (
           el?.tagName === "P" &&
-          text.toLowerCase().includes("finalize") &&
+          text.toLowerCase().includes("guided assessment") &&
           text.toLowerCase().includes("review package") &&
-          text.toLowerCase().includes("pipeline") &&
-          !text.toLowerCase().includes("manifest")
+          text.toLowerCase().includes("attach evidence") &&
+          !text.toLowerCase().includes("co-architect") &&
+          !text.toLowerCase().includes("pipeline")
         );
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start architecture review" })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: "Describe what you want" })).toHaveAttribute("href", "/reviews/new?intent=describe");
+    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Describe architecture scope" })).toHaveAttribute("href", "/reviews/new?intent=describe");
     expect(screen.getByText("Governed manifest")).toBeInTheDocument();
     expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
@@ -135,7 +136,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     });
 
     expect(within(screen.getByRole("banner", { name: "Welcome" })).getByText(/Open in-progress architecture reviews/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start architecture review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",

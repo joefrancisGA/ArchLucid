@@ -30,6 +30,8 @@ The proof folder name is `first-pilot-proof-<timestamp>/`. Attach or link from *
 | Artifact | Path (under proof folder) | Why it belongs in the workflow item |
 | --- | --- | --- |
 | Go/no-go summary | `go-no-go-summary.md` | Send/hold disposition, triage card IDs, blocking reasons |
+| Command center | `first-pilot-command-center.md` | Single **NEXT ACTION** and phased READY/WARN/HOLD (prefer over scrolling the full findings table) |
+| Trace chain summary | `committed-review-trace-chain-summary.md` | Evidence → manifest → audit compact chain when `-RunId` was supplied |
 | First-value report | `first-pilot-evidence/first-value-report.md` | Sponsor narrative and ROI basis labels (**Demo-derived** must stay labeled) |
 | Observability stamp | `pilot-observability-summary.md` | Health/version/OpenAPI/LLM/PilotStrict posture |
 | Evidence integrity | `first-pilot-evidence/artifact-manifest.json` | SHA-256 checksum list |
@@ -40,6 +42,8 @@ The proof folder name is `first-pilot-proof-<timestamp>/`. Attach or link from *
 | Artifact | Path | Purpose |
 | --- | --- | --- |
 | Machine-readable disposition | `go-no-go-summary.json` | `sponsorPacketDisposition`, `roiBasisStatus`, `deferredScopeReasons` |
+| Workflow handoff comment | `v1-workflow-handoff-comment.md` | Paste-ready PR/issue comment with sponsor disposition and commercial next step |
+| Environment rollup | `environment-reliability-rollup.md` | Coarse reliability HOLD aggregation for hosted pilots |
 | Quote-to-proof index | `quote-to-proof-packet.md` | Sales-led handoff rows mapped from this proof run |
 | Route/tier/nav parity | `route-tier-policy-nav-parity.md` | API-authoritative commercial boundary summary |
 | Procurement deal-ready | `procurement-deal-ready-check.txt` | **Deal-ready disposition: PASS/HOLD** |

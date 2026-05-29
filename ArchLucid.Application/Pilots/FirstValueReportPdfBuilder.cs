@@ -29,6 +29,9 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
         FirstValueReportBuildResult? built = await _markdownBuilder.BuildReportAsync(runId, apiBaseForLinks, cancellationToken);
         if (built is null)
             return null;
+
+        SponsorFirstValuePdfGate.EnsureCanGenerate(built);
+
         SponsorProofReadinessClassification readiness = built.SponsorProofReadiness;
         bool showSponsorCirculationWatermark = readiness is not SponsorProofReadinessClassification.Sendable;
         string watermarkBannerText = readiness switch

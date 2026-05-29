@@ -3,12 +3,23 @@
  * Business rules are enforced server-side — the UI reflects JSON, with legacy fallbacks when older APIs omit fields.
  */
 
+export type RoiBaselineInputsJson = {
+  readonly reviewCycleHoursBasis?: string;
+  readonly architectPrepHoursPerReviewBasis?: string;
+  readonly evidenceAssemblyEffortBasis?: string;
+  readonly architectHourlyCostBasis?: string;
+  readonly projectedDollarClaimsSponsorSafe?: boolean;
+  readonly sponsorSafeFallbackCopy?: string;
+};
+
 export type ProofPackageCompletenessJson = {
   readonly sponsorProofReadiness?: string;
   readonly demoTenantWarningRequired?: boolean;
   readonly proofSendability?: string;
   readonly publishingTier?: string;
   readonly roiEvidenceConfidence?: string;
+  readonly roiBaselineInputs?: RoiBaselineInputsJson | null;
+  readonly agentOutputPilotStrictEvidenceSatisfied?: boolean;
 };
 
 export type PilotRunDeltasProofSummaryJson = {
@@ -27,6 +38,26 @@ export type SponsorProofReadinessCopy = {
 /**
  * @param payload Parsed pilot-run-deltas JSON, or null when the request failed or body was empty.
  */
+/** When false or absent, sponsor UI must not lead with projected USD savings from findings rollups. */
+export function isProjectedDollarClaimsSponsorSafe(
+  payload: PilotRunDeltasProofSummaryJson | null,
+): boolean {
+  return payload?.proofPackageCompleteness?.roiBaselineInputs?.projectedDollarClaimsSponsorSafe === true;
+}
+
+/** When false, PilotStrict quality signals failed — withhold sponsor PDF on real-mode hosts. */
+export function isAgentOutputPilotStrictSponsorSafe(
+  payload: PilotRunDeltasProofSummaryJson | null,
+): boolean {
+  const satisfied = payload?.proofPackageCompleteness?.agentOutputPilotStrictEvidenceSatisfied;
+
+  if (satisfied === undefined) {
+    return true;
+  }
+
+  return satisfied === true;
+}
+
 export function describeSponsorProofReadiness(
   payload: PilotRunDeltasProofSummaryJson | null,
 ): SponsorProofReadinessCopy | null {

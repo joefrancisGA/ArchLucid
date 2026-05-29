@@ -25,6 +25,8 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import {
   describeSponsorProofReadiness,
+  isAgentOutputPilotStrictSponsorSafe,
+  isProjectedDollarClaimsSponsorSafe,
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
@@ -190,7 +192,11 @@ export function EmailRunToSponsorBanner({
           try {
             const deltasJson = (await deltasRes.json()) as PilotRunDeltasProofSummaryJson;
 
-            if (typeof deltasJson.estimatedUsdSavings === "number" && Number.isFinite(deltasJson.estimatedUsdSavings)) {
+            if (
+              isProjectedDollarClaimsSponsorSafe(deltasJson)
+              && typeof deltasJson.estimatedUsdSavings === "number"
+              && Number.isFinite(deltasJson.estimatedUsdSavings)
+            ) {
               setEstimatedUsdSavings(deltasJson.estimatedUsdSavings);
             } else {
               setEstimatedUsdSavings(null);
@@ -264,6 +270,11 @@ export function EmailRunToSponsorBanner({
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const blockSponsorPdfForRoi = roiBaselineGate === false && !curatedSampleRun;
+  const blockSponsorPdfForProjectedDollar =
+    proofGate.status === "ok" && !isProjectedDollarClaimsSponsorSafe(proofGate.payload) && !curatedSampleRun;
+  const blockSponsorPdfForAiGate =
+    proofGate.status === "ok" && !isAgentOutputPilotStrictSponsorSafe(proofGate.payload) && !curatedSampleRun;
+  const blockSponsorPdf = blockSponsorPdfForRoi || blockSponsorPdfForProjectedDollar || blockSponsorPdfForAiGate;
 
   return (
     <aside
@@ -335,6 +346,37 @@ export function EmailRunToSponsorBanner({
             isDemoTenant={proofGate.payload.isDemoTenant}
             proofPackageCompleteness={proofGate.payload.proofPackageCompleteness}
           />
+        </div>
+      ) : null}
+
+      {blockSponsorPdfForAiGate ? (
+        <div
+          role="alert"
+          data-testid="email-run-to-sponsor-ai-readiness-gap"
+          className="mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-50"
+        >
+          <p className="m-0 font-semibold">AI readiness gate not satisfied</p>
+          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+            PilotStrict agent-output quality signals failed for this run. Resolve faithfulness and citation gaps in the
+            first-value report and observability summary before external sponsor PDF send on real-mode hosts.
+          </p>
+        </div>
+      ) : null}
+
+      {blockSponsorPdfForProjectedDollar ? (
+        <div
+          role="alert"
+          data-testid="email-run-to-sponsor-projected-dollar-gap"
+          className="mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-50"
+        >
+          <p className="m-0 font-semibold">Projected dollar claims not sponsor-safe</p>
+          <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
+            ROI baseline fields are defaulted or incomplete. Capture buyer-provided baselines on{" "}
+            <Link className="font-medium text-teal-900 underline underline-offset-2 dark:text-teal-200" href="/scorecard#roi-baselines">
+              the scorecard
+            </Link>{" "}
+            before downloading a sponsor PDF with dollar-led readouts.
+          </p>
         </div>
       ) : null}
 
@@ -460,20 +502,30 @@ export function EmailRunToSponsorBanner({
         <Button
           type="button"
           variant="secondary"
-          disabled={busy || blockSponsorPdfForRoi}
+          disabled={busy || blockSponsorPdf}
           onClick={() => void onDownloadPdf()}
           data-testid="email-run-to-sponsor-primary-action"
           title={
-            blockSponsorPdfForRoi
-              ? "Capture tenant ROI baselines before generating the sponsor PDF."
-              : undefined
+            blockSponsorPdfForAiGate
+              ? "Resolve PilotStrict AI readiness signals before generating the sponsor PDF."
+              : blockSponsorPdfForProjectedDollar
+                ? "Capture buyer-provided ROI baselines before dollar-led sponsor PDF export."
+                : blockSponsorPdfForRoi
+                  ? "Capture tenant ROI baselines before generating the sponsor PDF."
+                  : undefined
           }
         >
           {busy
             ? "Preparing PDF…"
-            : buyerPolishedShell
-              ? "Create sponsor scorecard (PDF)"
-              : "Generate pilot scorecard package"}
+            : blockSponsorPdfForAiGate
+              ? "AI readiness gate blocks PDF"
+              : blockSponsorPdfForProjectedDollar
+                ? "ROI basis blocks PDF"
+                : blockSponsorPdfForRoi
+                  ? "ROI baselines required for PDF"
+                  : buyerPolishedShell
+                    ? "Create sponsor scorecard (PDF)"
+                    : "Generate pilot scorecard package"}
         </Button>
         {sponsorDocxAvailable ? (
           <Button variant="secondary" asChild>
@@ -486,11 +538,15 @@ export function EmailRunToSponsorBanner({
           </Button>
         ) : null}
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
-          {blockSponsorPdfForRoi
-            ? "PDF export stays disabled until tenant ROI baselines are captured."
-            : buyerPolishedShell
-              ? "Primary export is the sponsor one‑pager PDF — same storyline as the Markdown summary."
-              : "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."}
+          {blockSponsorPdfForAiGate
+            ? "PDF export stays disabled until PilotStrict AI readiness signals pass for this run."
+            : blockSponsorPdfForProjectedDollar
+              ? "PDF export stays disabled until ROI baselines are buyer-provided and projected-dollar claims are sponsor-safe."
+              : blockSponsorPdfForRoi
+                ? "PDF export stays disabled until tenant ROI baselines are captured."
+                : buyerPolishedShell
+                  ? "Primary export is the sponsor one‑pager PDF — same storyline as the Markdown summary."
+                  : "Step 1: generate the sponsor one‑pager PDF — same storyline as the Markdown narrative."}
         </span>
       </div>
 

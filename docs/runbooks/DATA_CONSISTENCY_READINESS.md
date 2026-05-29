@@ -14,6 +14,8 @@ For first-pilot handoff, prefer the combined proof pipeline so data consistency 
 
 ```powershell
 ./scripts/collect-first-pilot-proof.ps1 -BaseUrl https://your-api.example -RunId <committed-run-guid>
+
+First-pilot proof maps collector **HOLD** to **BLOCK** for sponsor handoff when integrity probes (for example `/health/ready` or orphan counts) require stop. See `dataConsistencyProof` in `go-no-go-summary.json` and the **Data consistency proof** section in `go-no-go-summary.md`.
 ```
 
 ## What “healthy” means

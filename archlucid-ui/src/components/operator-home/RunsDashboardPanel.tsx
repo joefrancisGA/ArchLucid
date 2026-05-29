@@ -18,6 +18,8 @@ import {
   ARCHITECTURE_REVIEW_LABELS,
   RUNS_DASHBOARD_LABELS,
 } from "@/lib/i18n";
+import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
@@ -44,7 +46,7 @@ import {
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -54,13 +56,17 @@ const PREVIEW_MAX = 5;
 type TabId = "recent" | "attention" | "outcomes";
 
 function runListPrimaryTitle(run: RunSummary): string {
+  if (isShowcaseStaticDemoRunId(run.runId ?? "")) {
+    return SHOWCASE_BUYER_REVIEW_TITLE;
+  }
+
   const d = run.description?.trim() ?? "";
 
   if (d.length > 0) {
     return d;
   }
 
-  return ARCHITECTURE_REVIEW_LABELS.untitled;
+  return buyerFacingReviewTitleFromSummary(run);
 }
 
 function isRunNeedingAttention(run: RunSummary): boolean {
@@ -449,7 +455,10 @@ export function RunsDashboardPanel() {
                   data-testid="operator-home-showcase-demo-banner"
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Claims Intake — completed example review
+                    {SHOWCASE_BUYER_REVIEW_TITLE}
+                  </p>
+                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    Completed example review · Approved with monitoring
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerSafeHighlight ? (
@@ -569,14 +578,21 @@ export function RunsDashboardPanel() {
                       key={run.runId}
                       className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
                     >
-                      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                        <Link
-                          href={`/reviews/${encodeURIComponent(run.runId)}`}
-                          className="min-w-0 text-xs font-medium text-teal-800 underline decoration-teal-300/80 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
-                        >
-                          {runListPrimaryTitle(run)}
-                        </Link>
-                        <RunListRowBadges run={run} className="text-[0.6rem]" />
+                      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                          <Link
+                            href={`/reviews/${encodeURIComponent(run.runId)}`}
+                            className="min-w-0 text-sm font-semibold text-teal-900 underline decoration-teal-300/80 hover:text-teal-950 dark:text-teal-100 dark:hover:text-teal-50"
+                          >
+                            {runListPrimaryTitle(run)}
+                          </Link>
+                          <RunListRowBadges run={run} className="text-[0.6rem]" />
+                        </div>
+                        {isShowcaseStaticDemoRunId(run.runId ?? "") ? (
+                          <p className="m-0 text-[11px] text-neutral-600 dark:text-neutral-400">
+                            Completed example review · Approved with monitoring
+                          </p>
+                        ) : null}
                       </div>
                       {showArchived && requestId !== null ? (
                         <Button

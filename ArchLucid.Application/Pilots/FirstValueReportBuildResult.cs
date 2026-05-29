@@ -7,4 +7,5 @@ public sealed record FirstValueReportBuildResult(
     string Markdown,
     FirstValueEvidenceCompletenessLevel EvidenceCompleteness,
     SponsorProofReadinessClassification SponsorProofReadiness,
-    TenantFirstValueReportBrandingForExport? TenantFirstValueReportBranding = null);
+    TenantFirstValueReportBrandingForExport? TenantFirstValueReportBranding = null,
+    ProofPackageCompletenessResponse? ProofPackageCompleteness = null);

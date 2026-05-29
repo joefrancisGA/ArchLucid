@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
+import { OperatorAiQualityProofCard } from "@/components/OperatorAiQualityProofCard";
 import { getPilotScorecard } from "@/lib/api";
 import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
 import {
+  FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE,
   resolveFirstPilotCommandCenterPhase,
   type FirstPilotCommandCenterPhaseSummary,
 } from "@/lib/first-pilot-command-center-phase";
@@ -32,7 +35,7 @@ type Phase = "loading" | "ready";
 function statusClass(status: FirstPilotReadinessStatus): string {
   switch (status) {
     case "ready":
-      return "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100";
+      return "border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200";
     case "attention":
       return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
     case "blocked":
@@ -212,16 +215,17 @@ export function FirstPilotReadinessCockpit() {
       <div className="mb-3 flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <h2 id="first-pilot-readiness-cockpit-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            First-pilot operator command center
+            Workspace readiness
           </h2>
           <p className="m-0 mt-1 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-            One place to see the next blocking step: platform, authority, evidence, architecture review pipeline, ROI
-            baselines, proof collection, and sponsor SEND/HOLD/DEFERRED posture.
+            Current readiness summary: platform connectivity, authority assignment, evidence ingestion, review posture,
+            and executive evidence package status.
           </p>
         </div>
-        <Link href={commandCenter.href} className="text-sm font-medium text-teal-800 underline dark:text-teal-300">
-          Next action: {commandCenter.cta}
-        </Link>
+      </div>
+
+      <div className="mb-4">
+        <FirstPilotProofStatusStrip />
       </div>
 
       <article
@@ -229,7 +233,11 @@ export function FirstPilotReadinessCockpit() {
         data-testid="first-pilot-command-center-phase"
         data-phase={commandCenter.phase}
       >
-        <div className="flex flex-wrap items-center gap-2">
+        <p className="m-0 text-[10px] font-semibold uppercase tracking-wide opacity-80">NEXT ACTION</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+            {FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE[commandCenter.phase]}
+          </span>
           <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
             {commandCenter.headline}
           </span>
@@ -238,6 +246,20 @@ export function FirstPilotReadinessCockpit() {
           </span>
         </div>
         <p className="m-0 mt-2 text-sm leading-relaxed">{commandCenter.summary}</p>
+        <Link
+          href={commandCenter.href}
+          className="mt-3 inline-flex rounded-md bg-teal-700 px-3 py-1.5 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          data-testid="first-pilot-command-center-next-action"
+        >
+          {commandCenter.cta}
+        </Link>
+        {commandCenter.phase === "sponsor-packet-send" || commandCenter.phase === "sponsor-packet-hold" ? (
+          <p className="m-0 mt-2 text-xs leading-relaxed opacity-90">
+            After finalize, run{" "}
+            <code className="font-mono text-[11px]">dotnet run --project ArchLucid.Cli -- pilot proof -RunId &lt;id&gt;</code>{" "}
+            for authoritative PASS/WARN/HOLD — no need to open Markdown artifacts first.
+          </p>
+        ) : null}
       </article>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -256,6 +278,15 @@ export function FirstPilotReadinessCockpit() {
           </article>
         ))}
       </div>
+
+      <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/40">
+        <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+          Assistant readiness diagnostics
+        </summary>
+        <div className="mt-3">
+          <OperatorAiQualityProofCard embedded />
+        </div>
+      </details>
     </section>
   );
 }

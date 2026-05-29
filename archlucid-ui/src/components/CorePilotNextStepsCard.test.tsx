@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/core-pilot-commit-context", () => ({
@@ -10,9 +10,31 @@ import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
 const mockedFetchCorePilotCommitContext = vi.mocked(fetchCorePilotCommitContext);
 
+async function expandNextStepsCardIfMinimized(): Promise<void> {
+  await waitFor(() => {
+    const ready =
+      screen.queryByTestId("core-pilot-next-steps-minimized") !== null
+      || screen.queryByTestId("core-pilot-next-steps") !== null
+      || screen.queryByTestId("core-pilot-next-steps-complete") !== null;
+
+    expect(ready).toBe(true);
+  });
+
+  if (screen.queryByTestId("core-pilot-next-steps-minimized") === null) {
+    return;
+  }
+
+  fireEvent.click(screen.getByRole("button", { name: /show architecture review workflow/i }));
+
+  await waitFor(() => {
+    expect(screen.queryByTestId("core-pilot-next-steps-minimized")).not.toBeInTheDocument();
+  });
+}
+
 describe("CorePilotNextStepsCard", () => {
   afterEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   beforeEach(() => {
@@ -28,25 +50,29 @@ describe("CorePilotNextStepsCard", () => {
       render(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
+        expect(screen.getByTestId("core-pilot-next-steps-minimized")).toBeInTheDocument();
       });
 
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 1 of 4");
     });
 
-    it("marks Capture as the active step CTA", async () => {
+    it("marks Evidence intake as the active step CTA when expanded", async () => {
       render(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("pilot-active-step-link")).toBeInTheDocument();
+        expect(screen.getByTestId("core-pilot-next-steps-minimized")).toBeInTheDocument();
       });
 
+      await expandNextStepsCardIfMinimized();
+
       expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(/capture/i);
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(/evidence intake/i);
     });
 
     it("shows skip-for-now note naming advanced features", async () => {
       render(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
 
       await waitFor(() => {
         expect(screen.getByTestId("pilot-skip-for-now")).toBeInTheDocument();
@@ -66,6 +92,8 @@ describe("CorePilotNextStepsCard", () => {
     it("shows rescue link to Help when blocked", async () => {
       render(<CorePilotNextStepsCard />);
 
+      await expandNextStepsCardIfMinimized();
+
       await waitFor(() => {
         expect(screen.getByTestId("pilot-rescue-link")).toBeInTheDocument();
       });
@@ -77,6 +105,8 @@ describe("CorePilotNextStepsCard", () => {
     it("does not show operate links in first-time state", async () => {
       render(<CorePilotNextStepsCard />);
 
+      await expandNextStepsCardIfMinimized();
+
       await waitFor(() => {
         expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
       });
@@ -87,6 +117,8 @@ describe("CorePilotNextStepsCard", () => {
 
     it("does not show a run ID when no run exists yet", async () => {
       render(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
 
       await waitFor(() => {
         expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
@@ -109,14 +141,14 @@ describe("CorePilotNextStepsCard", () => {
       render(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("pilot-step-badge")).toBeInTheDocument();
+        expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 2–3 of 4");
       });
-
-      expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 2–3 of 4");
     });
 
     it("shows the run ID for support correlation", async () => {
       render(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
 
       await waitFor(() => {
         expect(screen.getByTestId("pilot-run-id")).toBeInTheDocument();
@@ -127,6 +159,8 @@ describe("CorePilotNextStepsCard", () => {
 
     it("Review step CTA links to the existing run detail; Evidence links to the graph", async () => {
       render(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
 
       await waitFor(() => {
         expect(screen.getByTestId("pilot-active-step-link")).toBeInTheDocument();
@@ -142,6 +176,8 @@ describe("CorePilotNextStepsCard", () => {
     it("shows skip-for-now note", async () => {
       render(<CorePilotNextStepsCard />);
 
+      await expandNextStepsCardIfMinimized();
+
       await waitFor(() => {
         expect(screen.getByTestId("pilot-skip-for-now")).toBeInTheDocument();
       });
@@ -150,6 +186,8 @@ describe("CorePilotNextStepsCard", () => {
     it("shows rescue link", async () => {
       render(<CorePilotNextStepsCard />);
 
+      await expandNextStepsCardIfMinimized();
+
       await waitFor(() => {
         expect(screen.getByTestId("pilot-rescue-link")).toBeInTheDocument();
       });
@@ -157,6 +195,8 @@ describe("CorePilotNextStepsCard", () => {
 
     it("does not show operate links before commit", async () => {
       render(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
 
       await waitFor(() => {
         expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();

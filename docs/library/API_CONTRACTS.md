@@ -261,6 +261,8 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 **Decision tree (mermaid and checklist):** [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) — Flow A1.
 
+**Integration correctness drill:** run [`scripts/v1-integration-correctness-drill.ps1`](../../scripts/v1-integration-correctness-drill.ps1) against a staged API to emit PASS/WARN/HOLD rows with correlation IDs and Problem Details checks — see [`V1_INTEGRATION_CORRECTNESS_DRILL.md`](V1_INTEGRATION_CORRECTNESS_DRILL.md).
+
 > **Anti-pattern — mixing models without understanding commit semantics**  
 > Calling **`execute`** or **`result`** “to finish” a run that **already** has authority-committed output causes **409/400** confusion or **no-op idempotent `commit`**. Authority **finalize** and coordinator **commit** have **different preconditions**. **GET `/v1/architecture/run/{runId}`** before choosing endpoints.
 

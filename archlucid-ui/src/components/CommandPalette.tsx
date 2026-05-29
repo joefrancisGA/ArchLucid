@@ -4,6 +4,7 @@ import { useCommandState } from "cmdk";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
@@ -15,6 +16,11 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
+  commandPaletteOpenAriaLabel,
+  commandPaletteTooltipLine,
+} from "@/lib/keyboard-shortcut-display";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
@@ -376,23 +382,33 @@ export function CommandPalette() {
                 ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
                 : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
             }
-            aria-label={buyerPolishedShell ? polishedPaletteLabel : "Open command palette (Ctrl+K)"}
+            aria-label={
+              buyerPolishedShell
+                ? commandPaletteOpenAriaLabel(polishedPaletteLabel)
+                : commandPaletteOpenAriaLabel("Open command palette")
+            }
+            aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
             onClick={() => {
               setOpen(true);
             }}
           >
-            {buyerPolishedShell ? null : (
-              <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
-                Ctrl+K
-              </span>
+            {buyerPolishedShell ? (
+              <>
+                <span className="truncate">{polishedPaletteLabel}</span>
+                <KeyboardShortcutBadge className="shrink-0" />
+              </>
+            ) : (
+              <>
+                <KeyboardShortcutBadge />
+                <span>Search</span>
+              </>
             )}
-            <span>{buyerPolishedShell ? polishedPaletteLabel : "Search"}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent sideOffset={6}>
           {buyerPolishedShell
-            ? `${polishedPaletteLabel} — Ctrl+K to jump destinations and documentation.`
-            : "Search pages — Ctrl+K."}
+            ? commandPaletteTooltipLine(`${polishedPaletteLabel} to jump destinations and documentation`)
+            : commandPaletteTooltipLine("Search pages")}
         </TooltipContent>
       </Tooltip>
       <CommandDialog open={open} onOpenChange={setOpen}>

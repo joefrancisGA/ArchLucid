@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
+import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
@@ -67,17 +69,26 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         {`ArchLucid is an ${BRAND_CATEGORY}: governed architecture reviews whose findings, signed decisions, approvals, and exports share one traceable evidence trail — durable evidence before emphasizing agent-assisted acceleration. Comparisons below summarize typical fit versus adjacent tooling. The downloadable evidence package carries the citation-backed drill-down for diligence teams who need paperwork parity.`}
       </p>
 
+      <div className="mt-8">
+        <MarketingProofChainStrip />
+      </div>
+
       <section className="mt-10 rounded-xl border border-sky-200 bg-white px-6 py-6 shadow-sm dark:border-sky-900/70 dark:bg-neutral-950">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300">
           First-principles outcome
         </p>
         <h2 id="why-hero-outcome-heading" className="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-          Governed architecture reviews with durable evidence before automation
+          One buyer problem, one proof package
         </h2>
+        <p
+          className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+          data-testid="why-outcome-led-value-proposition"
+        >
+          {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
+        </p>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          An Architecture Proof Engine turns architecture review inputs into governed findings, signed decisions, audit-ready deliverables,
-          and explainable lineage. Multi-agent execution sits behind those outcomes so teams move faster without losing the record
-          CFOs and regulators expect.
+          Multi-agent execution sits behind those outcomes so teams move faster without losing the governed record CFOs and
+          regulators expect.
         </p>
       </section>
 

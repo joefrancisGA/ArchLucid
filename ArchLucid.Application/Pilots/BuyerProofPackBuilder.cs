@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -31,7 +32,8 @@ public sealed class BuyerProofPackBuilder(
     IRunDetailQueryService runDetailQueryService,
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     ValueReportBuilder valueReportBuilder,
-    IScopeContextProvider scopeContextProvider) : IBuyerProofPackBuilder
+    IScopeContextProvider scopeContextProvider,
+    IPilotBaselineRepository pilotBaselineRepository) : IBuyerProofPackBuilder
 {
     private const string PackFormatVersion = "1.0";
 
@@ -57,6 +59,9 @@ public sealed class BuyerProofPackBuilder(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IPilotBaselineRepository _pilotBaselineRepository =
+        pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
 
     public async Task<BuyerProofPackBuildResult?> TryBuildZipAsync(
         string runId,
@@ -85,13 +90,16 @@ public sealed class BuyerProofPackBuilder(
             start,
             end,
             cancellationToken);
+        PilotBaselineRecord? scorecardBaselines =
+            await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
         PilotRunDeltasResponse deltasResponse = PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
             detail.Run,
             detail.Manifest,
             deltas,
             snapshot,
-            extractorCollectionTimestampUtc: null);
+            extractorCollectionTimestampUtc: null,
+            scorecardBaselines);
 
         string deltasJson = JsonSerializer.Serialize(deltasResponse);
 

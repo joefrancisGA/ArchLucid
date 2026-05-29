@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 
@@ -81,11 +82,23 @@ public sealed class FirstValueReportBuilderTests
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
+        md.Should().Contain("## Sponsor first-page status");
         md.Should().Contain("## Sponsor-safe proof status");
         int introEnd = md.IndexOf("metric catalog.", StringComparison.Ordinal);
+        int firstPageStatusHeading = md.IndexOf("## Sponsor first-page status", StringComparison.Ordinal);
         int proofStatusHeading = md.IndexOf("## Sponsor-safe proof status", StringComparison.Ordinal);
         introEnd.Should().BeGreaterThan(0);
-        proofStatusHeading.Should().BeGreaterThan(introEnd);
+        firstPageStatusHeading.Should().BeGreaterThan(introEnd);
+        proofStatusHeading.Should().BeGreaterThan(firstPageStatusHeading);
+        md.Should().Contain("| Evidence source |");
+        md.Should().Contain("| Quality disposition | PilotStrict posture satisfied");
+        md.Should().Contain("| ROI basis status | **Strong**");
+        md.Should().Contain("| LLM call basis | **4** trace row(s)");
+        md.Should().Contain("## ROI baseline inputs (per field)");
+        md.Should().Contain("| Projected dollar claims sponsor-safe | **No**");
+        md.Should().Contain("| Top findings | Error: m3<br />Warning: m1<br />Warning: m2 |");
+        md.Should().Contain("SOC 2 CPA report, external third-party pen-test summary");
+        md.Should().Contain("| Recommended next action | Send sponsor packet after human redaction review");
         md.Should().Contain("**Verdict:** **Sendable**");
         md.Should().Contain("First-value evidence completeness");
         md.Should().Contain("**Classification:** **Strong**");
@@ -100,6 +113,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("| Committed manifest timestamp (UTC) | Present — `2026-04-01T00:10:00.0000000Z`");
         md.Should().Contain("| Top finding evidence-chain pointer | Present |");
         md.Should().Contain("| ROI evidence confidence | **Strong**");
+        md.Should().Contain("| Evidence-basis labels | **Evidence-backed** |");
         md.Should().Contain("Sponsor-proof readiness:");
         md.Should().Contain("| Sponsor-proof readiness (classification) |");
         md.Should().Contain("**Sendable** — structural proof fields");
@@ -146,8 +160,11 @@ public sealed class FirstValueReportBuilderTests
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
+        md.Should().Contain("## Sponsor first-page status");
         md.Should().Contain("## Sponsor-safe proof status");
         md.Should().Contain("**Verdict:** **Not sponsor-safe yet**");
+        md.Should().Contain("| Evidence source | **Demo-derived** — illustrative sample output; do not present as buyer outcome. |");
+        md.Should().Contain("| Recommended next action | Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send. |");
         md.Should().Contain("Demo or sample tenant scope");
         md.Should().Contain("must **not** be presented");
         // Banner must appear in the document preface AND immediately under the computed-deltas heading,
@@ -374,6 +391,11 @@ public sealed class FirstValueReportBuilderTests
             .Setup(b => b.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
 
+        Mock<IPilotBaselineRepository> pilotBaselines = new();
+        pilotBaselines
+            .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PilotBaselineRecord?)null);
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -383,6 +405,7 @@ public sealed class FirstValueReportBuilderTests
             configuration,
             siteOpts.Object,
             branding.Object,
+            pilotBaselines.Object,
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

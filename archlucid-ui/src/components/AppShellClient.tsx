@@ -36,7 +36,6 @@ import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunConte
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
-import { SimulatorExecutionModeBanner } from "@/components/SimulatorExecutionModeBanner";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
 import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
@@ -126,10 +125,10 @@ function AppShellInner({ children }: AppShellClientProps) {
               data-testid="app-shell-minimal-root"
               className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950"
             >
-              <div className="sticky top-0 z-30 print:hidden">
+              <div className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
                 <header
                   data-testid="app-shell-minimal-topbar"
-                  className="border-b border-neutral-200 bg-neutral-50/95 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"
+                  className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 lg:px-6">
                     <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
@@ -177,7 +176,6 @@ function AppShellInner({ children }: AppShellClientProps) {
                 <LayerContextFromRoute />
               </div>
               <div data-testid="app-shell-main" className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col px-4 py-4 lg:px-6 lg:py-6">
-                <SimulatorExecutionModeBanner />
                 <ServiceBusHealthBanner />
                 <LlmBudgetApproachingLimitBanner />
                 <TrialUsageUpgradeNudge />
@@ -226,10 +224,10 @@ function AppShellInner({ children }: AppShellClientProps) {
           Skip to main content
         </a>
         <div ref={shellRootRef} className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
-          <div className="sticky top-0 z-30 print:hidden">
+          <div className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
             <header
               data-testid="app-shell-topbar"
-              className="border-b border-neutral-200 bg-neutral-50/95 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"
+              className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
             >
               <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-2.5 lg:px-6">
                 <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -242,7 +240,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <div className="hidden min-w-0 flex-1 items-center gap-1.5 pl-2 lg:flex">
                     <Breadcrumbs />
                   </div>
-                  <div className="hidden min-w-0 flex-1 lg:block">
+                  <div className="hidden w-72 shrink-0 xl:w-80 lg:block">
                     <GlobalSearchBar />
                   </div>
                 </div>
@@ -285,7 +283,6 @@ function AppShellInner({ children }: AppShellClientProps) {
               <SidebarNav />
             </nav>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
-              <SimulatorExecutionModeBanner />
               <ServiceBusHealthBanner />
               <LlmBudgetApproachingLimitBanner />
               <TrialUsageUpgradeNudge />

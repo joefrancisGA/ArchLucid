@@ -1,5 +1,3 @@
-
-
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
@@ -27,12 +25,140 @@ import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPack
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
+import { BUYER_HOME_SETUP_SECTION_HEADING } from "@/lib/buyer-polish-copy";
 
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
 type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;
 };
+
+function BuyerHomeSectionHeading(props: { readonly id: string; readonly children: string }) {
+  return (
+    <h2
+      id={props.id}
+      className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
+    >
+      {props.children}
+    </h2>
+  );
+}
+
+function OperatorHomeReviewsGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
+      <div className="min-w-0 space-y-6">
+        <RunsDashboardPanel />
+        <OperatorCorePilotDiagnosticsChecklist />
+        <AfterCorePilotChecklistHint />
+
+        <OperationalMetricsGate>
+          <div className="space-y-6" data-testid="operator-home-post-commit-surfaces">
+            <ValueRealizationDashboard />
+            <OperatorNextActionsCard />
+            <OperatorStickinessSnapshotCard />
+          </div>
+
+          <section aria-labelledby="operational-metrics-heading">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <h3
+                id="operational-metrics-heading"
+                className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
+              >
+                Operational metrics
+              </h3>
+
+              <HelpLink docPath="/docs/CORE_PILOT.md" label="Open the core pilot guide on GitHub (new tab)" />
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <PilotOutcomeCard />
+              <OperatorTaskSuccessTile />
+            </div>
+          </section>
+
+          <HomeMaturityLayerCards />
+        </OperationalMetricsGate>
+
+        <BeforeAfterDeltaPanel />
+      </div>
+
+      <aside
+        className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
+        aria-label="Sample package shortcuts and first-review checklist"
+      >
+        <HomeFirstRunWorkflowGate />
+      </aside>
+    </div>
+  );
+}
+
+function BuyerPolishedHomePageBody() {
+  return (
+    <>
+      <section
+        aria-label="Review package status and proof"
+        className="space-y-6"
+        data-testid="operator-home-proof-section"
+      >
+        <SampleFirstReviewPackageCard />
+        <RunsDashboardPanel />
+        <BeforeAfterDeltaPanel />
+      </section>
+
+      <section aria-label="Recommended review journey" data-testid="operator-home-journey-section">
+        <BuyerGoldenJourneyStrip />
+      </section>
+
+      <section
+        aria-labelledby="buyer-home-setup-heading"
+        className="space-y-6"
+        data-testid="operator-home-setup-section"
+      >
+        <BuyerHomeSectionHeading id="buyer-home-setup-heading">{BUYER_HOME_SETUP_SECTION_HEADING}</BuyerHomeSectionHeading>
+        <CorePilotBuyerStepHint />
+        <WelcomeBanner />
+        <FirstPilotOperatingRail />
+        <LlmUsageBandHint />
+      </section>
+    </>
+  );
+}
+
+function OperatorHomePageBody() {
+  return (
+    <>
+      <OperatorCoArchitectHomeStrip />
+      <WelcomeBanner />
+      <SampleFirstReviewPackageCard />
+      <FirstPilotReadinessCockpit />
+
+      <div className="max-w-prose space-y-3">
+        <FirstWeekRouteGuidance variant="home" />
+        <div className="flex flex-wrap items-center gap-2">
+          <HelpLink
+            docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
+            label="First-pilot operator path — full walkthrough on GitHub (new tab)"
+          />
+        </div>
+      </div>
+
+      <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+        Your reviews
+      </h2>
+
+      <OperatorHomeReviewsGrid />
+
+      <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+        Get started
+      </h2>
+
+      <CorePilotNextStepsCard />
+      <CorePilotChecklist />
+
+      <FirstPilotOperatingRail />
+    </>
+  );
+}
 
 /** Landing page: hero CTA, action cards, workflow checklist, and operational metrics. */
 export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
@@ -43,107 +169,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
       <TrialWelcomeRunDeepLink />
       <OperatorWelcomeOnboarding />
       <div className="space-y-6">
-        {buyerPolishedShell ? null : <OperatorCoArchitectHomeStrip />}
-        <WelcomeBanner />
-
-        <FirstPilotOperatingRail />
-
-        {buyerPolishedShell ? null : <FirstPilotReadinessCockpit />}
-
-        {buyerPolishedShell ? <CorePilotBuyerStepHint /> : null}
-
-        {buyerPolishedShell ? null : (
-          <div className="max-w-prose space-y-3">
-            <FirstWeekRouteGuidance variant="home" />
-            <div className="flex flex-wrap items-center gap-2">
-              <HelpLink
-                docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
-                label="First-pilot operator path — full walkthrough on GitHub (new tab)"
-              />
-            </div>
-          </div>
-        )}
-
-        {buyerPolishedShell ? <LlmUsageBandHint /> : null}
-
-        <SampleFirstReviewPackageCard />
-
-        {buyerPolishedShell ? <BuyerGoldenJourneyStrip /> : null}
-
-        {buyerPolishedShell ? null : (
-          <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
-            Get started
-          </h2>
-        )}
-
-        {buyerPolishedShell ? null : <CorePilotNextStepsCard />}
-
-        {buyerPolishedShell ? null : <CorePilotChecklist />}
-
-        {buyerPolishedShell ? null : (
-          <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
-            Your reviews
-          </h2>
-        )}
-
-        <div
-          className={
-            buyerPolishedShell
-              ? "min-w-0 space-y-6"
-              : "grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start"
-          }
-        >
-          <div className="min-w-0 space-y-6">
-            <RunsDashboardPanel />
-            {buyerPolishedShell ? null : <OperatorCorePilotDiagnosticsChecklist />}
-            {buyerPolishedShell ? null : <AfterCorePilotChecklistHint />}
-
-            <OperationalMetricsGate>
-              {buyerPolishedShell ? null : (
-                <div className="space-y-6" data-testid="operator-home-post-commit-surfaces">
-                  <ValueRealizationDashboard />
-                  <OperatorNextActionsCard />
-                  <OperatorStickinessSnapshotCard />
-                </div>
-              )}
-
-              {buyerPolishedShell ? null : (
-                <section aria-labelledby="operational-metrics-heading">
-                  <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <h3
-                      id="operational-metrics-heading"
-                      className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
-                    >
-                      Operational metrics
-                    </h3>
-
-                    <HelpLink
-                      docPath="/docs/CORE_PILOT.md"
-                      label="Open the core pilot guide on GitHub (new tab)"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    <PilotOutcomeCard />
-                    <OperatorTaskSuccessTile />
-                  </div>
-                </section>
-              )}
-
-              {buyerPolishedShell ? null : <HomeMaturityLayerCards />}
-            </OperationalMetricsGate>
-
-            <BeforeAfterDeltaPanel />
-          </div>
-
-          {buyerPolishedShell ? null : (
-            <aside
-              className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
-              aria-label="Explore completed output and first-review checklist"
-            >
-              <HomeFirstRunWorkflowGate />
-            </aside>
-          )}
-        </div>
+        {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
       </div>
     </OperatorHomeGate>
   );

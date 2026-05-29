@@ -21,6 +21,7 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 - **[V1_DEFERRED.md](V1_DEFERRED.md) §3** — remaining rename / Terraform brownfield cleanup (canonical pointer after checklist retirement)
 - **[ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md)** — architecture poster
 - **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** — operator atlas
+- **[V1_MAGIC_GUARDRAILS.md](V1_MAGIC_GUARDRAILS.md)** — bounded V1 AI experience affordances vs future-scope autonomy
 
 ---
 

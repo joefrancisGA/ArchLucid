@@ -19,6 +19,12 @@
       "artifact_status": "Evidence"
     },
     {
+      "pack_path": "SECURITY_REVIEWER_ONE_PAGER.md",
+      "source_repo_path": "docs/go-to-market/SECURITY_REVIEWER_ONE_PAGER.md",
+      "description": "Compact security reviewer current-vs-deferred summary (regenerate via scripts/ci/report_security_reviewer_one_pager.py)",
+      "artifact_status": "Self-assessment"
+    },
+    {
       "pack_path": "ASSURANCE_STATUS_CANONICAL.md",
       "source_repo_path": "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
       "description": "Canonical assurance status wording for procurement responses",

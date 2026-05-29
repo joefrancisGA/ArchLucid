@@ -28,7 +28,11 @@ export function SampleFirstReviewPackageCard() {
   return (
     <section
       aria-labelledby="sample-first-review-heading"
-      className="rounded-xl border border-teal-200 bg-white p-4 shadow-sm dark:border-teal-900 dark:bg-neutral-950"
+      className={
+        buyerPolished === true
+          ? "rounded-xl border border-teal-200 bg-white p-4 shadow-sm dark:border-teal-900 dark:bg-neutral-950"
+          : "rounded-xl border-2 border-teal-300 bg-white p-4 shadow-md ring-1 ring-teal-100 dark:border-teal-800 dark:bg-neutral-950 dark:ring-teal-950/40"
+      }
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
@@ -76,10 +80,20 @@ export function SampleFirstReviewPackageCard() {
               </p>
             </>
           ) : (
-            <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-              Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before
-              filling out the real-input wizard.
-            </p>
+            <>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300">
+                  Approved with monitoring
+                </span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                  {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored residual risk · audit package ready
+                </span>
+              </div>
+              <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before
+                filling out the real-input wizard.
+              </p>
+            </>
           )}
 
           {buyerPolished === true ? null : (
@@ -127,11 +141,11 @@ export function SampleFirstReviewPackageCard() {
                 <>
                   <Button asChild variant="primary" className="h-9">
                     <Link href={sampleReviewHref} onClick={recordSampleOpened}>
-                      Start with sample review
+                      Open sample review package
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="h-9">
-                    <Link href="/reviews/new">Use my own input</Link>
+                    <Link href="/reviews/new">Create from my evidence</Link>
                   </Button>
                 </>
               )}

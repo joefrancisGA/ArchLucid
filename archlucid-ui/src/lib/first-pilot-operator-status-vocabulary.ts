@@ -14,7 +14,7 @@ export function mapReadinessStatusToOperatorLabel(
     case "blocked":
       return "HOLD";
     case "unknown":
-      return "HOLD";
+      return "PENDING";
     default: {
       const exhaustive: never = status;
 

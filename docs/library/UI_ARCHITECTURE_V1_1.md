@@ -51,6 +51,19 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 **V1.1 intent:** Wrap independent sections on run detail and governance hubs for faster first paint on slow networks.
 
+## 8. Next.js major upgrade (`15.5.x` → `16.x`)
+
+**Why deferred:** V1 pins **`next@^15.5.18`** with **React 19** and **Turbopack** in dev (`next dev --turbopack`). A major bump touches `next`, `eslint-config-next`, `next.config.ts` (standalone output, CSP, font-manifest workaround), the `/api/proxy` BFF route, and every merge-blocking UI gate. It does not unblock the V1 operator happy path or buyer-contract integrations.
+
+**V1.1 intent:** Land as a **standalone PR** (no feature coupling), after V1 GA is stable:
+
+- Bump **`next`** and **`eslint-config-next`** to the current **16.2.x** line (Dependabot branches already exist under `dependabot/npm_and_yarn/archlucid-ui/next-16.2.*`).
+- Run **`npx @next/codemod@latest upgrade`** (or equivalent) and fix deprecations in `archlucid-ui/next.config.ts` and App Router surfaces.
+- Re-verify: **`npm run lint`**, **`npm run typecheck`**, **`npm run test`**, Playwright **mock + operator-shell + visual + a11y** projects, and the **standalone** production build path used by live E2E (`ARCHLUCID_SKIP_STANDALONE_OUTPUT` / CI `npm run build`).
+- Let **React 19** float to latest patch on the same PR or immediately after (patch-only, lower risk than the Next major).
+
+**Acceptance:** Dev overlay no longer labels the stack “outdated” relative to npm latest; no regressions in operator shell smoke or screenshot baselines.
+
 ---
 
 **Related:** `archlucid-ui/AGENTS.md`, `docs/library/V1_SCOPE.md` §3 (UI E2E scope), `docs/library/API_CONTRACTS.md`.

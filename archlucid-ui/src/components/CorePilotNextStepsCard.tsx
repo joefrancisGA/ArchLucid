@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { HelpLink } from "@/components/HelpLink";
 import {
   corePilotStepBadgeLabel,
@@ -10,6 +11,9 @@ import {
   type CorePilotCommitProgressState,
 } from "@/lib/core-pilot-commit-progress";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
+const NEXT_STEPS_MINIMIZED_STORAGE_KEY = "archlucid_core_pilot_next_steps_minimized_v1";
 
 type Phase = "loading" | "ready";
 
@@ -83,9 +87,28 @@ function RescueLink() {
  */
 export function CorePilotNextStepsCard() {
   const [phase, setPhase] = useState<Phase>("loading");
+  const [minimized, setMinimized] = useState(true);
   const [hasCommit, setHasCommit] = useState(false);
   const [latestRunId, setLatestRunId] = useState<string | null>(null);
   const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      const raw = window.localStorage.getItem(NEXT_STEPS_MINIMIZED_STORAGE_KEY);
+
+      if (raw === "0") {
+        setMinimized(false);
+      } else if (raw === "1") {
+        setMinimized(true);
+      }
+    } catch {
+      /* private mode */
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -129,6 +152,42 @@ export function CorePilotNextStepsCard() {
 
   const pilotState: CorePilotCommitProgressState = deriveCorePilotCommitProgressState(hasCommit, latestRunId);
 
+  function persistMinimized(next: boolean): void {
+    setMinimized(next);
+
+    try {
+      window.localStorage.setItem(NEXT_STEPS_MINIMIZED_STORAGE_KEY, next ? "1" : "0");
+    } catch {
+      /* private mode */
+    }
+  }
+
+  if (minimized && pilotState !== "committed") {
+    return (
+      <div
+        className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/60"
+        data-testid="core-pilot-next-steps-minimized"
+      >
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            Architecture review workflow
+          </h2>
+          <StepBadge label={corePilotStepBadgeLabel(pilotState === "has-run" ? "has-run" : "no-run")} />
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            persistMinimized(false);
+          }}
+        >
+          Show architecture review workflow
+        </Button>
+      </div>
+    );
+  }
+
   if (pilotState === "committed") {
     const reviewHref =
       firstCommittedRunId !== null ? `/reviews/${firstCommittedRunId}` : "/reviews?projectId=default";
@@ -144,12 +203,12 @@ export function CorePilotNextStepsCard() {
             id="core-pilot-next-steps-complete"
             className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
           >
-            Core Pilot complete
+            Review workflow complete
           </h2>
           <StepBadge label={corePilotStepBadgeLabel("committed")} />
         </div>
         <p className="mb-3 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          First committed manifest is in place. Review the architecture package and findings — export sponsor-ready
+          First review package is finalized. Open the architecture package and findings — export sponsor-ready
           Markdown/PDF from review detail when needed; CLI shortcuts below speed support tickets.
         </p>
 
@@ -205,7 +264,7 @@ export function CorePilotNextStepsCard() {
       >
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <h2 id="core-pilot-next-steps" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Core Pilot — your first architecture review
+          Architecture review workflow
           </h2>
           <StepBadge label={corePilotStepBadgeLabel("has-run")} />
           <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
@@ -216,7 +275,7 @@ export function CorePilotNextStepsCard() {
         <ol className="m-0 mt-3 list-none space-y-2 p-0 text-sm text-neutral-800 dark:text-neutral-200">
           <li className="flex items-start gap-2 text-neutral-400 dark:text-neutral-500" aria-label="Step 1 complete">
             <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-600 dark:text-teal-400">✓</span>
-            <span className="line-through">Capture — architecture request</span>
+            <span className="line-through">{OPERATOR_NAV_LINK_LABELS.capture} — architecture request</span>
           </li>
           <li className="flex items-start gap-2" aria-label="Step 2 active">
             <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-700 dark:text-teal-300">▶</span>
@@ -235,7 +294,7 @@ export function CorePilotNextStepsCard() {
               className="font-medium text-blue-700 underline dark:text-blue-400"
               data-testid="pilot-active-step-link"
             >
-              Review — run the pipeline and commit the manifest
+              Review — complete the assessment and finalize the package
             </Link>
           </li>
           <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
@@ -264,7 +323,7 @@ export function CorePilotNextStepsCard() {
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <h2 id="core-pilot-next-steps" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          Core Pilot — your first architecture review
+          Architecture review workflow
         </h2>
         <StepBadge label={corePilotStepBadgeLabel("no-run")} />
         <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
@@ -278,7 +337,7 @@ export function CorePilotNextStepsCard() {
             className="font-medium text-blue-700 underline dark:text-blue-400"
             data-testid="pilot-active-step-link"
           >
-            Capture — create architecture request
+            {OPERATOR_NAV_LINK_LABELS.capture} — create architecture request
           </Link>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 2 pending">
@@ -287,7 +346,7 @@ export function CorePilotNextStepsCard() {
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 3 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">3.</span>
-          <span>Review — run the pipeline and commit the manifest from review detail.</span>
+          <span>Review — complete the assessment and finalize the package from review detail.</span>
         </li>
         <li className="flex items-start gap-2 text-neutral-500 dark:text-neutral-400" aria-label="Step 4 pending">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] text-neutral-400">4.</span>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { BUYER_GET_STARTED_VERTICAL_SLUGS, VERTICAL_DISPLAY_NAMES } from "./get-started-verticals";
+import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 
@@ -69,6 +70,12 @@ export default function GetStartedPage(): ReactNode {
       >
         ArchLucid is an {BRAND_CATEGORY} product — this page walks through signup, vertical selection, and your first
         sample run.
+      </p>
+      <p
+        className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        data-testid="get-started-outcome-led-lead"
+      >
+        {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
       </p>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         ArchLucid is a SaaS product. Nothing on this page asks you to install Docker, SQL Server, .NET, Node, Terraform,

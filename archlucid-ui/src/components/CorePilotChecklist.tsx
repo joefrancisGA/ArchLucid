@@ -90,7 +90,7 @@ export function CorePilotChecklist() {
             persist(stepsDone, false);
           }}
         >
-          Show Core Pilot checklist
+          Show review workflow checklist
         </Button>
       </div>
     );
@@ -109,7 +109,7 @@ export function CorePilotChecklist() {
           id="core-pilot-checklist-heading"
           className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
         >
-          Core Pilot checklist
+          Review workflow checklist
         </h2>
         <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
       </div>
@@ -167,7 +167,7 @@ export function CorePilotChecklist() {
 
       {allDone ? (
         <div
-          className="mt-4 rounded-md border border-teal-200 bg-teal-50 p-3 dark:border-teal-900 dark:bg-teal-950/40"
+          className="mt-4 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50"
           data-testid="core-pilot-checklist-complete"
         >
           <p className="m-0 text-sm font-medium text-teal-950 dark:text-teal-100">

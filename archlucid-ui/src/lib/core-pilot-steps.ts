@@ -29,23 +29,23 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     title: "Create an architecture review request",
     shortBody: "Capture system identity, requirements, and constraints for your first review package.",
     detail:
-      "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the review pipeline and tracks progress in real time.",
+      "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the assessment and tracks progress in real time.",
     primaryHref: "/reviews/new",
     primaryLabel: "Start new request",
   },
   {
     title: "Track review progress",
-    shortBody: "Watch pipeline progress in the wizard or open the review from the list when it is ready.",
+    shortBody: "Watch assessment progress in the wizard or open the review from the list when it is ready.",
     detail:
-      "The coordinator fills snapshots and pipeline steps. You can use the wizard’s last step or open review detail anytime.",
+      "The coordinator fills snapshots and assessment steps. You can use the wizard's last step or open review detail anytime.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open reviews list",
   },
   {
     title: "Finalize the review package",
-    shortBody: "On review detail, finalize when the pipeline is ready — this locks your review package and unlocks exports.",
+    shortBody: "On review detail, finalize when the assessment is ready — this locks your review package and unlocks exports.",
     detail:
-      "Commit/finalize produces the committed architecture manifest and artifacts. Until then, the manifest summary and artifact table are not available. See docs/OPERATOR_QUICKSTART.md for CLI/API.",
+      "Finalization produces the signed architecture manifest and artifacts. Until then, the manifest summary and artifact table are not available. See docs/OPERATOR_QUICKSTART.md for CLI/API.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Choose review → open detail",
   },

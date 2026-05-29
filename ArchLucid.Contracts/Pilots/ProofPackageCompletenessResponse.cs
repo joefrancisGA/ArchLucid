@@ -171,4 +171,11 @@ public sealed class ProofPackageCompletenessResponse
         get;
         init;
     } = string.Empty;
+
+    /// <summary>Per-field ROI baseline basis for review-cycle, prep, assembly cadence, and hourly cost.</summary>
+    public PilotRoiBaselineInputsStatusResponse? RoiBaselineInputs
+    {
+        get;
+        init;
+    }
 }

@@ -14,7 +14,11 @@ import {
   writeFirstPilotEvidenceAcknowledged,
   type FirstPilotOperatingRailStepStatus,
 } from "@/lib/first-pilot-operating-rail-status";
-import { FIRST_PILOT_OPERATING_RAIL_STEPS } from "@/lib/first-pilot-operating-rail-steps";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  resolveFirstPilotOperatingRailShellCopy,
+  resolveFirstPilotOperatingRailStepsForDisplay,
+} from "@/lib/first-pilot-operating-rail-copy";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -65,8 +69,9 @@ function statusBadgeClass(status: FirstPilotOperatingRailStepStatus): string {
  * Operate surfaces stay out of the required path until after finalize (see layer-guidance deferral notes).
  */
 export function FirstPilotOperatingRail() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [phase, setPhase] = useState<LoadPhase>("loading");
-  const [minimized, setMinimized] = useState(false);
+  const [minimized, setMinimized] = useState(!buyerPolishedShell);
   const [healthStatus, setHealthStatus] = useState<string | null>(null);
   const [runs, setRuns] = useState<Awaited<ReturnType<typeof loadProjectRunsMergedWithDemoFallback>>["items"]>([]);
   const [commitCtx, setCommitCtx] = useState({
@@ -77,7 +82,15 @@ export function FirstPilotOperatingRail() {
 
   useEffect(() => {
     try {
-      if (typeof window !== "undefined" && window.localStorage.getItem(RAIL_MINIMIZED_STORAGE_KEY) === "1") {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      const raw = window.localStorage.getItem(RAIL_MINIMIZED_STORAGE_KEY);
+
+      if (raw === "0") {
+        setMinimized(false);
+      } else if (raw === "1") {
         setMinimized(true);
       }
     } catch {
@@ -133,6 +146,15 @@ export function FirstPilotOperatingRail() {
 
   const resolved = useMemo(() => resolveFirstPilotOperatingRailSteps(signals), [signals]);
 
+  const shellCopy = useMemo(
+    () => resolveFirstPilotOperatingRailShellCopy(buyerPolishedShell),
+    [buyerPolishedShell],
+  );
+  const displaySteps = useMemo(
+    () => resolveFirstPilotOperatingRailStepsForDisplay(buyerPolishedShell),
+    [buyerPolishedShell],
+  );
+
   const allComplete = resolved.every((r) => r.status === "complete");
 
   useEffect(() => {
@@ -171,13 +193,13 @@ export function FirstPilotOperatingRail() {
             setMinimized(false);
 
             try {
-              window.localStorage.removeItem(RAIL_MINIMIZED_STORAGE_KEY);
+              window.localStorage.setItem(RAIL_MINIMIZED_STORAGE_KEY, "0");
             } catch {
               /* ignore */
             }
           }}
         >
-          Show first-pilot path
+          {shellCopy.minimizedExpandLabel}
         </Button>
       </div>
     );
@@ -188,6 +210,7 @@ export function FirstPilotOperatingRail() {
       aria-labelledby="first-pilot-operating-rail-heading"
       className="rounded-lg border border-teal-200/90 bg-white p-4 shadow-sm dark:border-teal-900/70 dark:bg-neutral-950"
       data-testid="first-pilot-operating-rail"
+      data-rail-variant={buyerPolishedShell ? "buyer" : "operator"}
     >
       <div className="mb-3 flex flex-wrap items-start gap-2">
         <div className="min-w-0 flex-1">
@@ -195,21 +218,17 @@ export function FirstPilotOperatingRail() {
             id="first-pilot-operating-rail-heading"
             className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
           >
-            First-pilot operating path
+            {shellCopy.heading}
           </h2>
-          <p className="m-0 mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-            Six steps from setup verification to sponsor packet. Operate compare, governance dashboards, and V1.1
-            connectors stay secondary until you have a finalized review package.
-          </p>
+          <p className="m-0 mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">{shellCopy.intro}</p>
         </div>
-        <HelpLink
-          docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
-          label="Full first-pilot operator path on GitHub (new tab)"
-        />
+        {shellCopy.showHeaderHelpLink ? (
+          <HelpLink docPath={shellCopy.headerHelpDocPath} label={shellCopy.headerHelpLabel} />
+        ) : null}
       </div>
 
       <ol className="m-0 list-none space-y-3 p-0">
-        {FIRST_PILOT_OPERATING_RAIL_STEPS.map((step, index) => {
+        {displaySteps.map((step, index) => {
           const { status, primaryHref } = resolved[index];
 
           return (
@@ -254,7 +273,7 @@ export function FirstPilotOperatingRail() {
                     Use sample package instead
                   </Button>
                 ) : null}
-                {status === "attention" || status === "current" ? (
+                {shellCopy.showStepTroubleshootLinks && (status === "attention" || status === "current") ? (
                   <HelpLink docPath={step.troubleshootDocPath} label={`Troubleshoot — ${step.title} (new tab)`} />
                 ) : null}
               </div>
@@ -265,10 +284,7 @@ export function FirstPilotOperatingRail() {
 
       {allComplete ? (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <p className="m-0 text-sm font-medium text-teal-900 dark:text-teal-100">
-            First-pilot path complete — share the sponsor packet, then open Operate surfaces only when you have a
-            concrete follow-up question.
-          </p>
+          <p className="m-0 text-sm font-medium text-teal-900 dark:text-teal-100">{shellCopy.completeMessage}</p>
           <Button
             type="button"
             variant="secondary"
@@ -284,7 +300,7 @@ export function FirstPilotOperatingRail() {
               }
             }}
           >
-            Hide path
+            {shellCopy.hidePathLabel}
           </Button>
         </div>
       ) : null}

@@ -29,8 +29,10 @@
 - [ ] **Readiness script** green for the agreed filter: `scripts/run-readiness-check.ps1` (Phase 2 now runs **`dotnet run … -- config lint`**; use `-SkipUi` only if UI is out of scope for this handoff).
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `scripts/release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
 - [ ] **RC drill** (staged/prod-like API URL): run **`scripts/v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two reviews / `runId`s, compare, authority replay, export ZIP, support bundle).
+- [ ] **Integration correctness drill** (same API URL): run **`scripts/v1-integration-correctness-drill.ps1`**; store `v1-integration-correctness-drill.md` when validating authority vs coordinator semantics and commit idempotency ([V1_INTEGRATION_CORRECTNESS_DRILL.md](V1_INTEGRATION_CORRECTNESS_DRILL.md)).
 - [ ] **Staging evidence artifact** captured: `.\scripts\capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -AuthMode <mode>`; add `-RunDoctor` / `-RunRcDrill` when the target allows those checks. Store the generated `artifacts/staging-readiness/*.md` with release artifacts, not in git.
 - **Optional evidence bundle sweep:** `docs/library/RELEASE_EVIDENCE_SUMMARY.md` and `scripts/Invoke-ReleaseEvidenceSummary.ps1 -MarkdownOut <path>` (non-blocking collector; use `-FailOnError` only when you want local script failures to block the shell).
+- [ ] **First-pilot proof rollup** (when cutting a pilot release): `.\scripts\collect-first-pilot-proof.ps1` (or `dotnet run --project ArchLucid.Cli -- pilot proof`) produced `first-pilot-command-center.md`, `environment-reliability-rollup.md`, and `first-pilot-timing-budget.md` for the candidate environment.
 - [ ] *(Optional SaaS fleets)* **Reliability drill** automation understood if you consume the scheduled workflow output — [RELIABILITY_DRILL_PACKAGE.md](../runbooks/RELIABILITY_DRILL_PACKAGE.md).
 - [ ] **Package handoff** (if distributing bits): `scripts/package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 - [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../REPOSITORY_README.md), [BUILD.md](BUILD.md)).
@@ -84,6 +86,13 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 - [ ] **Legacy config keys** (`ArchLucid*`, `ARCHIFORGE_*`) documented in runbook; **bridge** behavior verified if both old and new keys appear ([README.md](../REPOSITORY_README.md), [GLOSSARY.md](GLOSSARY.md)).
 - [ ] **Integration event type strings** — canonical vs legacy aliases understood if consumers exist ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 - [ ] **Image / container names** in deploy docs match what was actually pushed ([CONTAINERIZATION.md](CONTAINERIZATION.md), [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
+
+---
+
+## 6b. Scale envelope evidence (V1)
+
+- [ ] **`scale-envelope-evidence.md`** present in first-pilot proof folder — separates measured timings, configured targets, and untested assumptions ([`PERFORMANCE.md`](PERFORMANCE.md); no invented SLA numbers).
+- [ ] Buyer-facing copy does **not** claim multi-region active/active or production SLA unless fresh measurements are attached.
 
 ---
 

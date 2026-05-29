@@ -1,0 +1,24 @@
+[
+  {
+    "generatedUtc": "2026-05-29T05:19:38.308221+00:00",
+    "disposition": "PASS",
+    "retrievalIr": {
+      "casesEvaluated": 31,
+      "meanRecallAt5": 5.0,
+      "meanMrr": 0.922,
+      "floorRecallAt5": 5.0,
+      "floorMrr": 0.75
+    }
+  },
+  {
+    "generatedUtc": "2026-05-29T05:19:41.392248+00:00",
+    "disposition": "PASS",
+    "retrievalIr": {
+      "casesEvaluated": 31,
+      "meanRecallAt5": 5.0,
+      "meanMrr": 0.922,
+      "floorRecallAt5": 5.0,
+      "floorMrr": 0.75
+    }
+  }
+]

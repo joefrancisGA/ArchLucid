@@ -22,6 +22,7 @@ import {
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
+  OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING,
 } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator-co-architect-copy";
@@ -415,7 +416,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           What&apos;s next
         </h2>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">
-          Optional: compare reviews, replay pipeline steps, or explore the architecture graph.
+          Optional: compare reviews, replay review process steps, or explore the architecture graph.
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           <Link
@@ -458,17 +459,14 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
       {hasAnyRun ? (
         <div className="mb-3 rounded-md border border-teal-200 bg-teal-50/70 px-3 py-2.5 dark:border-teal-800 dark:bg-teal-950/40">
           <h2 id="first-run-workflow-heading" className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">
-            Explore completed output
+            {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
           </h2>
-          <p className="m-0 mt-0.5 text-xs text-teal-800 dark:text-teal-300">
-            A review has completed. Jump into the outputs below.
-          </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
               href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
-              Claims Intake review
+              Open sample review
             </Link>
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
@@ -488,6 +486,14 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             >
               Compare
             </Link>
+            {commitCtx.firstCommittedRunId !== null ? (
+              <Link
+                className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+                href={`/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`}
+              >
+                Open finalized review
+              </Link>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -497,7 +503,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           {exploreCompletedOutput ? (
             <>
               <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                Explore completed output
+                {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
               </h2>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
                 Claims Intake is the sample package — start with the manifest summary, then review detail or the read-only
@@ -543,10 +549,12 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
                 {CORE_PILOT_WORKFLOW_SUMMARY_LINE}
               </p>
-              <p className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400">{OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER}</p>
-              <div className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55">
-                <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                  First session focus
+              <details className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55">
+                <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                  First session coaching
+                </summary>
+                <p className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                  {OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER}
                 </p>
                 <ul className="m-0 mt-1.5 list-disc space-y-1.5 pl-4 text-xs leading-snug text-neutral-800 dark:text-neutral-200">
                   {CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.map((line) => (
@@ -555,7 +563,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                     </li>
                   ))}
                 </ul>
-              </div>
+              </details>
             </>
           ) : null}
         </div>
@@ -569,21 +577,25 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           Hide
         </button>
       </div>
-      {!exploreCompletedOutput ? (
-        <CorePilotMilestoneRail milestoneComplete={milestonesComplete} activeIndex={activeMilestoneIndex} />
-      ) : null}
-      <p className="m-0 mb-2 text-xs font-medium text-neutral-800 dark:text-neutral-200" aria-live="polite">
-        {doneCount} of {corePilotSteps.length} steps complete
-      </p>
-      {allDone ? (
-        <p className="m-0 mb-2 rounded border border-teal-200/80 bg-teal-50/80 px-2 py-1.5 text-xs text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
-          First review complete. You can hide this panel or revisit any step.
+      <details className="mt-2 rounded-md border border-neutral-200/80 px-2 py-2 dark:border-neutral-800/80">
+        <summary className="cursor-pointer text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+          Show workflow checklist
+        </summary>
+        {!exploreCompletedOutput ? (
+          <CorePilotMilestoneRail milestoneComplete={milestonesComplete} activeIndex={activeMilestoneIndex} />
+        ) : null}
+        <p className="m-0 mb-2 mt-2 text-xs font-medium text-neutral-800 dark:text-neutral-200" aria-live="polite">
+          {doneCount} of {corePilotSteps.length} steps complete
         </p>
-      ) : null}
-      <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
-        {corePilotSteps.length} steps to your first reviewed, exportable architecture review package.
-      </p>
-      <ol className="m-0 list-none space-y-2 p-0">
+        {allDone ? (
+          <p className="m-0 mb-2 rounded border border-teal-200/80 bg-teal-50/80 px-2 py-1.5 text-xs text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
+            First review complete. You can hide this panel or revisit any step.
+          </p>
+        ) : null}
+        <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
+          {corePilotSteps.length} steps to your first reviewed, exportable architecture review package.
+        </p>
+        <ol className="m-0 list-none space-y-2 p-0">
         {corePilotSteps.map((step, index) => {
           const done = doneByIndex[index] === true;
           const expanded = expandedIndex === index;
@@ -665,46 +677,32 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         })}
       </ol>
 
-      <div className="mt-3 border-t border-neutral-200/80 pt-2.5 dark:border-neutral-800/80">
-        <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+      <details className="mt-3 border-t border-neutral-200/80 pt-2.5 dark:border-neutral-800/80">
+        <summary className="cursor-pointer text-xs font-semibold text-neutral-700 dark:text-neutral-300">
           After finalizing your first manifest
-        </p>
-        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
-          <div className="min-w-[9.5rem] flex-1 space-y-1">
-            <Link
-              className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-              href="/compare"
-            >
-              Compare
-            </Link>
-            <p className="m-0 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
-              Contrast two finalized reviews to explain what changed and why it matters.
-            </p>
-          </div>
-          <div className="min-w-[9.5rem] flex-1 space-y-1">
-            <Link
-              className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-              href="/replay"
-            >
-              Replay
-            </Link>
-            <p className="m-0 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
-              Step through how the review produced its outputs for a single request.
-            </p>
-          </div>
-          <div className="min-w-[9.5rem] flex-1 space-y-1">
-            <Link
-              className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
-              href="/graph"
-            >
-              Graph
-            </Link>
-            <p className="m-0 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
-              Open linkage and provenance paths when you need architectural context, not a table view.
-            </p>
-          </div>
+        </summary>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/compare"
+          >
+            Compare
+          </Link>
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/replay"
+          >
+            Replay
+          </Link>
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/graph"
+          >
+            Graph
+          </Link>
         </div>
-      </div>
+      </details>
+      </details>
     </section>
   );
 }

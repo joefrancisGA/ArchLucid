@@ -670,7 +670,26 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {buyerPolishedShell ? null : reviewNavRows.map((row) => renderNavCluster(row))}
+      {buyerPolishedShell ? (
+        <nav
+          className="px-2 pb-1 pt-2"
+          aria-label="Support"
+          data-testid="sidebar-buyer-help-link"
+        >
+          <Link
+            href="/help"
+            className={cn(
+              "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+              isNavLinkActive(pathname, "/help")
+                ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                : "text-neutral-900 dark:text-neutral-100",
+            )}
+            aria-current={isNavLinkActive(pathname, "/help") ? "page" : undefined}
+          >
+            Help
+          </Link>
+        </nav>
+      ) : reviewNavRows.map((row) => renderNavCluster(row))}
 
       {showProgressiveDisclosureChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">

@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Persistence.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -23,7 +24,8 @@ public static class PilotRunDeltasResponseMapper
         GoldenManifest? manifest,
         PilotRunDeltas deltas,
         ValueReportSnapshot valueWindowSnapshot,
-        DateTime? extractorCollectionTimestampUtc = null)
+        DateTime? extractorCollectionTimestampUtc = null,
+        PilotBaselineRecord? scorecardBaselines = null)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -31,7 +33,7 @@ public static class PilotRunDeltasResponseMapper
         PilotBuyerSafeEvidenceGateResult gate =
             PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
         ProofPackageCompletenessResponse completeness =
-            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot);
+            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot, scorecardBaselines);
 
         return MapCore(deltas, extractorCollectionTimestampUtc, completeness);
     }

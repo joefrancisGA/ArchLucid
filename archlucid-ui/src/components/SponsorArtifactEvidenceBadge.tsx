@@ -4,6 +4,7 @@ import {
   resolveSponsorArtifactEvidenceBadges,
   type ResolveSponsorArtifactEvidenceBadgeInput,
 } from "@/lib/sponsor-artifact-evidence-badge";
+import { resolveSponsorArtifactTrustPostures } from "@/lib/sponsor-artifact-trust-posture";
 
 export type SponsorArtifactEvidenceBadgeProps = ResolveSponsorArtifactEvidenceBadgeInput;
 
@@ -15,12 +16,35 @@ function badgeClass(warn: boolean): string {
 }
 
 /** Compact sponsor-facing source and freshness badges for review exports and ROI surfaces. */
+function trustPostureClass(posture: string): string {
+  if (posture === "evidence-backed") {
+    return "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100";
+  }
+
+  if (posture === "deferred") {
+    return "border-violet-200 bg-violet-50 text-violet-950 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-100";
+  }
+
+  return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+}
+
 export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadgeProps): ReactElement {
   const badges = resolveSponsorArtifactEvidenceBadges(props);
+  const trustPostures = resolveSponsorArtifactTrustPostures(props);
   const sharedClass = `inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${badgeClass(badges.warnBeforeSponsorSend)}`;
 
   return (
     <span className="inline-flex flex-wrap items-center gap-2" data-testid="sponsor-artifact-evidence-badges">
+      {trustPostures.map((trust) => (
+        <span
+          key={trust.posture}
+          data-testid={`sponsor-trust-posture-${trust.posture}`}
+          title={trust.detail}
+          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${trustPostureClass(trust.posture)}`}
+        >
+          {trust.display}
+        </span>
+      ))}
       <span data-testid="sponsor-evidence-source-badge" className={sharedClass}>
         Source: {badges.sourceLabel}
       </span>

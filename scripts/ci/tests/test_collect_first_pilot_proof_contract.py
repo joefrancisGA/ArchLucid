@@ -85,6 +85,8 @@ def test_commercial_handoff_checks_are_wired() -> None:
     assert "route-tier-policy-nav-parity.json" in text
     assert "procurement-deal-ready-check.txt" in text
     assert "procurement-deal-ready-summary.json" in text
+    assert "procurement-deal-ready-classification.md" in text
+    assert "--classification-md-out" in text
     assert "trial-to-paid-test-mode-evidence.md" in text
     assert "accelerator-handoff-acceptance.md" in text
 
@@ -118,8 +120,74 @@ def test_verify_demo_workspace_reports_pass_hold_disposition() -> None:
 def test_production_like_hosted_pilot_blocks_route_tier_drift() -> None:
     text = _script_text()
 
-    assert "if ($SponsorHandoff -or $ProductionLikeHostedPilot)" in text
+    assert "if ($SponsorHandoff -or $ProductionLikeHostedPilot -or $surfacesChanged)" in text
     assert "Add-ProofFinding -Disposition 'BLOCK' -Name 'route-tier-policy-nav-parity'" in text
+    assert "detect_route_tier_policy_nav_changes.py" in text
+    assert "route-tier-policy-nav-drift.json" in text
+    assert "$surfacesChanged" in text
+
+
+def test_proof_includes_scale_envelope_and_admin_posture() -> None:
+    text = _script_text()
+
+    assert "Add-ScaleEnvelopeEvidenceFinding" in text
+    assert "scale-envelope-evidence.md" in text
+    assert "Add-AdminOperationalPostureFinding" in text
+    assert "admin-operational-posture.md" in text
+    assert "FirstPilotSupportNextStep.ps1" in text
+    assert "supportNextStep" in text
+    assert "remediationInAppLink" in text
+    assert "remediationDocLink" in text
+
+
+def test_integration_drill_and_pilot_proof_cli_wired() -> None:
+    text = _script_text()
+
+    assert "Add-OptionalIntegrationCorrectnessDrillFinding" in text
+    assert "ARCHLUCID_INTEGRATION_DRILL_API_URL" in text
+    assert "v1-integration-correctness-drill.json" in text
+
+
+def test_environment_and_trace_chain_wired() -> None:
+    text = _script_text()
+
+    assert "report_environment_reliability_rollup.ps1" in text
+    assert "report_committed_review_trace_chain_summary.ps1" in text
+    assert "environment-reliability-rollup.md" in text
+    assert "committed-review-trace-chain-summary.json" in text
+
+
+def test_batch_cde_artifacts_wired() -> None:
+    text = _script_text()
+
+    assert "report_production_like_azure_pilot_proof.py" in text
+    assert "report_security_reviewer_one_pager.py" in text
+    assert "check_compliance_posture_clarity.py" in text
+    assert "report_quality_gate_promotion_status.py" in text
+    assert "detect_mutating_route_audit_surface_changes.py" in text
+    assert "production-like-azure-pilot-proof.md" in text
+    assert "security-reviewer-one-pager.md" in text
+    assert "compliance-posture-evidence-table.md" in text
+    assert "quality-gate-promotion-status.json" in text
+    assert "commercial-next-step.json" in text
+    assert "v1-workflow-handoff-comment.json" in text
+
+
+def test_data_consistency_and_timing_budget_wired() -> None:
+    text = _script_text()
+
+    assert "FirstPilotDataConsistencyProof.ps1" in text
+    assert "Resolve-DataConsistencyProofFinding" in text
+    assert "dataConsistencyProof" in text
+    assert "Add-FirstPilotTimingBudgetFinding" in text
+    assert "first-pilot-timing-budget.md" in text
+    assert "report_first_pilot_timing_budget.py" in text
+
+
+def test_drift_gate_doc_exists() -> None:
+    doc = REPO_ROOT / "docs" / "library" / "ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md"
+    assert doc.is_file()
+    assert "origin/main" in doc.read_text(encoding="utf-8")
 
 
 def test_route_tier_markdown_documents_api_authority_boundaries() -> None:
@@ -185,6 +253,39 @@ def test_disposition_module_is_sourced() -> None:
     assert "Resolve-RoiBasisStatus" in text
 
 
+def test_v1_integration_correctness_drill_is_wired() -> None:
+    entry = REPO_ROOT / "scripts" / "v1-integration-correctness-drill.ps1"
+    module = REPO_ROOT / "scripts" / "V1IntegrationCorrectnessDrill.ps1"
+    doc = REPO_ROOT / "docs" / "library" / "V1_INTEGRATION_CORRECTNESS_DRILL.md"
+
+    assert entry.is_file()
+    assert module.is_file()
+    assert doc.is_file()
+    entry_text = entry.read_text(encoding="utf-8-sig")
+    assert "V1IntegrationCorrectnessDrill.ps1" in entry_text
+    assert "commit-run-idempotent-retry" in entry_text
+    assert "problem-run-not-found" in entry_text
+    assert "explain-aggregate" in entry_text
+    assert "first-value-report" in entry_text
+    contracts = (REPO_ROOT / "docs" / "library" / "API_CONTRACTS.md").read_text(encoding="utf-8")
+    assert "v1-integration-correctness-drill.ps1" in contracts
+
+
+def test_proof_emits_first_pilot_command_center() -> None:
+    text = _script_text()
+    command_center = REPO_ROOT / "scripts" / "FirstPilotCommandCenter.ps1"
+
+    assert "FirstPilotCommandCenter.ps1" in text
+    assert "Build-FirstPilotCommandCenter" in text
+    assert "Write-FirstPilotCommandCenterArtifacts" in text
+    assert "first-pilot-command-center.json" in text
+    assert "first-pilot-command-center.md" in text
+    assert "commandCenter" in text
+    assert "Primary status surface" in text
+    assert command_center.is_file()
+    assert "Get-FirstPilotCommandCenterPhaseCatalog" in command_center.read_text(encoding="utf-8-sig")
+
+
 def test_pilotstrict_observability_fields_are_collected() -> None:
     text = _evidence_script_text()
 
@@ -238,6 +339,15 @@ def test_ai_quality_proof_is_wired() -> None:
     assert "## AI Quality Proof" in ai_module
     assert "function Build-AiQualityProofSnapshot" in ai_module
     assert "retrieval-ir-summary.json" in text
+
+
+def test_consolidated_ai_readiness_gate_is_wired() -> None:
+    text = _script_text()
+
+    assert "FirstPilotConsolidatedAiReadinessGate.ps1" in text
+    assert "Add-ConsolidatedAiReadinessGateFinding" in text
+    assert "aiReadinessGate" in text
+    assert "ai-readiness-gate.json" in text
 
 
 def test_evidence_collector_collects_retrieval_grounding() -> None:

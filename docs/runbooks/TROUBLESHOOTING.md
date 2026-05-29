@@ -106,6 +106,8 @@ dotnet run --project ArchLucid.Cli -- support-bundle --zip
 
 **When to run it:** first-line pilot triage before deep log archaeology — attach the zip to tickets after a quick review (health/version/contract failures are obvious from the ordered files).
 
+**First-pilot HOLD rows:** `go-no-go-summary.md` / `.json` include a **`supportNextStep`** per **BLOCK/WARN** finding (collector command or `support-bundle --zip`). Use that column before improvising ad-hoc log collection — it never asks you to paste connection strings or API keys.
+
 Default output: folder **`support-bundle-<yyyyMMdd-HHmmss>Z`** in the current directory, plus a **`.zip`** of the same files when **`--zip`** is set.
 
 ```bash

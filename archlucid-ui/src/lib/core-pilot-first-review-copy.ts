@@ -8,6 +8,9 @@ export const CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT =
 
 export const CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON = "Show first-review checklist";
 
+/** Right-rail heading when a run exists — shortcuts into the curated sample package. */
+export const OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING = "Sample package shortcuts";
+
 /** High-level flow; technical terms (manifest, run ID) stay in step bodies and tooltips. */
 export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
   "Create architecture review → Pipeline runs → Finalize → Review package";

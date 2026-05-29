@@ -26,7 +26,8 @@ param(
     [string] $K6SummaryPath = '',
     [string] $LiveUiSqlResultPath = '',
     [string] $StagingSmokeResultsPath = '',
-    [string] $HostedProbeArtifactsPath = ''
+    [string] $HostedProbeArtifactsPath = '',
+    [string] $RouteTierBaseRef = 'origin/main'
 )
 
 Set-StrictMode -Version Latest
@@ -35,6 +36,12 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'FirstPilotProofDisposition.ps1')
 . (Join-Path $PSScriptRoot 'FirstPilotAiQualityProof.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotConsolidatedAiReadinessGate.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotCommandCenter.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotSupportNextStep.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotDataConsistencyProof.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotCommercialNextStep.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotWorkflowHandoff.ps1')
 
 if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
     $BaseUrl = $env:ARCHLUCID_API_URL
@@ -51,6 +58,7 @@ $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
 $outRoot = Join-Path (Get-Location) $OutputDirectory
 $proofDir = Join-Path $outRoot "first-pilot-proof-$timestamp"
 New-Item -ItemType Directory -Force -Path $proofDir | Out-Null
+$proofCollectionStartedUtc = (Get-Date).ToUniversalTime()
 
 $findings = [System.Collections.Generic.List[object]]::new()
 $artifacts = [System.Collections.Generic.List[object]]::new()
@@ -59,6 +67,7 @@ $script:roiSponsorSafe = $false
 $script:dataConsistencyStatus = 'NOT_RUN'
 $script:procurementReportText = ''
 $script:aiQualityProof = $null
+$script:aiReadinessGate = $null
 $script:demoWorkspaceValidationDisposition = 'NOT_RUN'
 
 function Add-ProofFinding {
@@ -70,13 +79,19 @@ function Add-ProofFinding {
         [string] $TriageCard = ''
     )
 
-    $findings.Add([ordered]@{
+    $row = [ordered]@{
         disposition = $Disposition
         name        = $Name
         detail      = $Detail
         remediation = $Remediation
         triageCard  = $TriageCard
-    })
+    }
+
+    if ($Disposition -eq 'BLOCK' -or $Disposition -eq 'WARN') {
+        $row = Add-SupportNextStepToFindingRow -Finding $row -RunId $RunId
+    }
+
+    $findings.Add($row)
 }
 
 function Add-ProofArtifact {
@@ -235,6 +250,68 @@ function Add-AiQualityProofFinding {
     Add-ProofFinding -Disposition ([string]$finding.disposition) -Name 'ai-quality-proof' -Detail ([string]$finding.detail) -Remediation 'Resolve PilotStrict quality signals and attach retrieval grounding before sponsor send.' -TriageCard 'FP-T005'
 }
 
+function Add-ConsolidatedAiReadinessGateFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $EvidenceRoot = ''
+    )
+
+    $observability = $null
+    $groundingSummary = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($EvidenceRoot)) {
+        $latestBundle = Get-LatestEvidenceBundleDirectory -EvidenceRoot $EvidenceRoot
+
+        if ($null -ne $latestBundle) {
+            $observabilityPath = Join-Path $latestBundle.FullName 'pilot-observability-summary.json'
+            $groundingPath = Join-Path $latestBundle.FullName 'retrieval-grounding.json'
+
+            if (Test-Path -LiteralPath $observabilityPath) {
+                try {
+                    $observability = Get-Content -LiteralPath $observabilityPath -Raw | ConvertFrom-Json -ErrorAction Stop
+                }
+                catch {
+                    $observability = $null
+                }
+            }
+
+            $groundingSummary = Get-RetrievalGroundingSummaryFromFile -Path $groundingPath
+        }
+    }
+
+    $irStatus = Get-RetrievalIrStatusFromProofDirectory -ProofDirectory $ProofDirectory
+    $gate = Build-ConsolidatedAiReadinessGate `
+        -Observability $observability `
+        -RetrievalGroundingSummary $groundingSummary `
+        -RetrievalIrStatus $irStatus `
+        -AiQualityProof $script:aiQualityProof
+    $dispositionResult = Resolve-ConsolidatedAiReadinessDisposition -Gate $gate -SponsorHandoff:$SponsorHandoff
+    $artifactPaths = Write-ConsolidatedAiReadinessGateArtifacts `
+        -ProofDirectory $ProofDirectory `
+        -Gate $gate `
+        -DispositionResult $dispositionResult
+
+    $script:aiReadinessGate = [ordered]@{
+        disposition = [string]$dispositionResult.disposition
+        summary     = [string]$dispositionResult.summary
+        gate        = $gate
+    }
+
+    Add-ProofArtifact -Name 'ai-readiness-gate.json' -Path $artifactPaths.jsonPath -Purpose 'Machine-readable consolidated AI readiness gate (PASS/WARN/HOLD).'
+    Add-ProofArtifact -Name 'ai-readiness-gate.md' -Path $artifactPaths.mdPath -Purpose 'Human-readable consolidated AI readiness gate for sponsor and release evidence.'
+
+    $proofDisposition = Map-ConsolidatedAiReadinessToProofFindingDisposition `
+        -GateDisposition ([string]$dispositionResult.disposition) `
+        -SponsorHandoff:$SponsorHandoff
+
+    Add-ProofFinding `
+        -Disposition $proofDisposition `
+        -Name 'ai-readiness-gate' `
+        -Detail ([string]$dispositionResult.summary) `
+        -Remediation 'See ai-readiness-gate.md and docs/library/AGENT_OUTPUT_EVALUATION.md; resolve HOLD rows before sponsor handoff on real-mode hosts.' `
+        -TriageCard 'FP-T005'
+}
+
 function Add-RetrievalIrEvidenceFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -336,26 +413,308 @@ function Add-RouteTierPolicyNavFinding {
 
     $reportPath = Join-Path $ProofDirectory 'route-tier-policy-nav-parity.md'
     $jsonPath = Join-Path $ProofDirectory 'route-tier-policy-nav-parity.json'
+    $driftJsonPath = Join-Path $ProofDirectory 'route-tier-policy-nav-drift.json'
     $scriptPath = Join-Path $PSScriptRoot 'ci\assert_route_tier_policy_nav.py'
+    $driftScriptPath = Join-Path $PSScriptRoot 'ci\detect_route_tier_policy_nav_changes.py'
+    $baseRef = if ([string]::IsNullOrWhiteSpace($RouteTierBaseRef)) { 'origin/main' } else { $RouteTierBaseRef.Trim() }
+
+    & python $driftScriptPath --base-ref $baseRef --json-out $driftJsonPath 2>&1 | Out-Null
+
+    $surfacesChanged = $false
+    $changedPathCount = 0
+
+    if (Test-Path -LiteralPath $driftJsonPath) {
+        try {
+            $driftPayload = Get-Content -LiteralPath $driftJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+            $surfacesChanged = $driftPayload.surfaces_changed -eq $true
+            $changedPathCount = @($driftPayload.changed_paths).Count
+        }
+        catch {
+            $surfacesChanged = $false
+        }
+    }
+
     & python $scriptPath --markdown-report $reportPath --json-summary-out $jsonPath 2>&1 | Out-Null
     $exitCode = $LASTEXITCODE
 
     Add-ProofArtifact -Name 'route-tier-policy-nav-parity.md' -Path 'route-tier-policy-nav-parity.md' -Purpose 'Buyer-safe route/tier/policy/nav parity summary for commercial handoff.'
     Add-ProofArtifact -Name 'route-tier-policy-nav-parity.json' -Path 'route-tier-policy-nav-parity.json' -Purpose 'Machine-readable route/tier/policy/nav parity summary.'
+    Add-ProofArtifact -Name 'route-tier-policy-nav-drift.json' -Path 'route-tier-policy-nav-drift.json' -Purpose 'Git diff signal for route/tier/policy/nav surface files vs base ref.'
 
     if ($exitCode -eq 0) {
-        Add-ProofFinding -Disposition 'PASS' -Name 'route-tier-policy-nav-parity' -Detail 'Route/tier/policy/nav registry parity passed.' -Remediation ''
+        if ($surfacesChanged) {
+            Add-ProofFinding -Disposition 'WARN' -Name 'route-tier-policy-nav-parity' -Detail "Parity passed but $changedPathCount route/tier/policy/nav surface file(s) changed vs $baseRef; confirm registry updates are reviewed." -Remediation 'See docs/library/ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md before sponsor send.' -TriageCard 'FP-T014'
+        }
+        else {
+            Add-ProofFinding -Disposition 'PASS' -Name 'route-tier-policy-nav-parity' -Detail 'Route/tier/policy/nav registry parity passed.' -Remediation ''
+        }
+
         return
     }
 
     $detail = "Route/tier/policy/nav parity check failed with exit code $exitCode."
 
-    if ($SponsorHandoff -or $ProductionLikeHostedPilot) {
+    if ($surfacesChanged) {
+        $detail = "$detail $changedPathCount surface file(s) changed vs $baseRef."
+    }
+
+    if ($SponsorHandoff -or $ProductionLikeHostedPilot -or $surfacesChanged) {
         Add-ProofFinding -Disposition 'BLOCK' -Name 'route-tier-policy-nav-parity' -Detail $detail -Remediation 'Run python scripts/ci/assert_route_tier_policy_nav.py --sync and resolve parity failures before sponsor send.' -TriageCard 'FP-T014'
         return
     }
 
     Add-ProofFinding -Disposition 'WARN' -Name 'route-tier-policy-nav-parity' -Detail $detail -Remediation 'Resolve route/tier/policy/nav drift before enterprise commercial handoff.' -TriageCard 'FP-T014'
+}
+
+function Add-ScaleEnvelopeEvidenceFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $PerformanceBaselineJsonPath = '',
+        [string] $K6SummaryJsonPath = ''
+    )
+
+    $markdownPath = Join-Path $ProofDirectory 'scale-envelope-evidence.md'
+    $jsonPath = Join-Path $ProofDirectory 'scale-envelope-evidence.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_scale_envelope_evidence.py'
+    $args = @(
+        $scriptPath,
+        '--markdown-out', $markdownPath,
+        '--json-out', $jsonPath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($PerformanceBaselineJsonPath)) {
+        $args += @('--performance-baseline-json', $PerformanceBaselineJsonPath)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($K6SummaryJsonPath)) {
+        $args += @('--k6-summary-json', $K6SummaryJsonPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'scale-envelope-evidence.md' -Path 'scale-envelope-evidence.md' -Purpose 'V1 scale envelope: measured evidence vs configured targets vs untested assumptions.'
+    Add-ProofArtifact -Name 'scale-envelope-evidence.json' -Path 'scale-envelope-evidence.json' -Purpose 'Machine-readable V1 scale envelope evidence pack.'
+
+    if ([string]::IsNullOrWhiteSpace($PerformanceBaselineJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'scale-envelope-evidence' -Detail 'Scale envelope pack emitted; staging-smoke timings were not attached for measured step latencies.' -Remediation 'Run ./scripts/staging-smoke.ps1 and rerun proof with -StagingSmokeResultsPath.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'scale-envelope-evidence' -Detail 'Scale envelope evidence pack includes measured staging-smoke timings with explicit not-a-load-test bounds.' -Remediation ''
+}
+
+function Add-FirstPilotTimingBudgetFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $PerformanceBaselineJsonPath = '',
+        [int] $ProofCollectionElapsedMs = 0
+    )
+
+    $markdownPath = Join-Path $ProofDirectory 'first-pilot-timing-budget.md'
+    $jsonPath = Join-Path $ProofDirectory 'first-pilot-timing-budget.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_first_pilot_timing_budget.py'
+    $args = @(
+        $scriptPath,
+        '--markdown-out', $markdownPath,
+        '--json-out', $jsonPath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($PerformanceBaselineJsonPath)) {
+        $args += @('--performance-baseline-json', $PerformanceBaselineJsonPath)
+    }
+
+    if ($ProofCollectionElapsedMs -gt 0) {
+        $args += @('--proof-collection-elapsed-ms', $ProofCollectionElapsedMs)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'first-pilot-timing-budget.md' -Path 'first-pilot-timing-budget.md' -Purpose 'Measured vs guidance-only timing budget for first-pilot proof (not SLA).'
+    Add-ProofArtifact -Name 'first-pilot-timing-budget.json' -Path 'first-pilot-timing-budget.json' -Purpose 'Machine-readable first-pilot timing budget evidence.'
+
+    if ([string]::IsNullOrWhiteSpace($PerformanceBaselineJsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-pilot-timing-budget' -Detail 'Timing budget emitted; staging-smoke measured steps were not attached.' -Remediation 'Run ./scripts/staging-smoke.ps1 and rerun proof with -StagingSmokeResultsPath.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'first-pilot-timing-budget' -Detail 'Timing budget includes measured staging-smoke steps with guidance-only doc targets labeled separately.' -Remediation ''
+}
+
+function Add-AdminOperationalPostureFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $postureScript = Join-Path $PSScriptRoot 'report_admin_operational_posture.ps1'
+    & $postureScript -ProofDirectory $ProofDirectory -BaseUrl $normalizedBase -BearerToken $BearerToken -ApiKey $ApiKey 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'admin-operational-posture.md' -Path 'admin-operational-posture.md' -Purpose 'Admin operational posture rollup (config, telemetry, data consistency, AI readiness) without secrets.'
+    Add-ProofArtifact -Name 'admin-operational-posture.json' -Path 'admin-operational-posture.json' -Purpose 'Machine-readable admin operational posture rollup.'
+
+    $jsonPath = Join-Path $ProofDirectory 'admin-operational-posture.json'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'admin-operational-posture' -Detail 'Admin operational posture summary was not generated.' -Remediation 'Rerun collect-first-pilot-proof.ps1 and inspect report_admin_operational_posture.ps1 output.'
+        return
+    }
+
+    try {
+        $posture = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+        $rollup = [string]$posture.disposition
+
+        if ($rollup -eq 'HOLD') {
+            Add-ProofFinding -Disposition 'BLOCK' -Name 'admin-operational-posture' -Detail 'Admin operational posture rollup contains HOLD rows.' -Remediation 'Open admin-operational-posture.md and resolve each HOLD remediation pointer.' -TriageCard 'FP-T013'
+            return
+        }
+
+        if ($rollup -eq 'WARN') {
+            Add-ProofFinding -Disposition 'WARN' -Name 'admin-operational-posture' -Detail 'Admin operational posture rollup contains WARN rows.' -Remediation 'Review admin-operational-posture.md before sponsor send.'
+            return
+        }
+
+        Add-ProofFinding -Disposition 'PASS' -Name 'admin-operational-posture' -Detail 'Admin operational posture rollup passed.' -Remediation ''
+    }
+    catch {
+        Add-ProofFinding -Disposition 'WARN' -Name 'admin-operational-posture' -Detail "Could not parse admin-operational-posture.json: $($_.Exception.Message)" -Remediation 'Regenerate admin operational posture artifacts.'
+    }
+}
+
+function Add-OptionalIntegrationCorrectnessDrillFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $apiUrl = [Environment]::GetEnvironmentVariable('ARCHLUCID_INTEGRATION_DRILL_API_URL')
+
+    if ([string]::IsNullOrWhiteSpace($apiUrl)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'v1-integration-correctness-drill' -Detail 'Skipped; set ARCHLUCID_INTEGRATION_DRILL_API_URL to run staging integration drill.' -Remediation 'Run scripts/v1-integration-correctness-drill.ps1 and attach artifacts to release evidence.'
+        return
+    }
+
+    $outDir = Join-Path $ProofDirectory 'v1-integration-correctness-drill'
+    $scriptPath = Join-Path $PSScriptRoot 'v1-integration-correctness-drill.ps1'
+    $drillArgs = @(
+        '-ApiBaseUrl', $apiUrl.Trim(),
+        '-OutputDirectory', $outDir
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($BearerToken)) {
+        $drillArgs += @('-BearerToken', $BearerToken)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($ApiKey)) {
+        $drillArgs += @('-ApiKey', $ApiKey)
+    }
+
+    & $scriptPath @drillArgs 2>&1 | Out-Null
+    $drillExit = $LASTEXITCODE
+    $jsonPath = Join-Path $outDir 'v1-integration-correctness-drill.json'
+
+    if ($drillExit -ne 0 -or -not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'v1-integration-correctness-drill' -Detail "Integration drill exited $drillExit or missing JSON output." -Remediation 'Fix API URL/auth and rerun v1-integration-correctness-drill.ps1.'
+        return
+    }
+
+    Add-ProofArtifact -Name 'v1-integration-correctness-drill.md' -Path 'v1-integration-correctness-drill/v1-integration-correctness-drill.md' -Purpose 'PASS/WARN/HOLD integration correctness drill for authority vs coordinator semantics.'
+    Add-ProofArtifact -Name 'v1-integration-correctness-drill.json' -Path 'v1-integration-correctness-drill/v1-integration-correctness-drill.json' -Purpose 'Machine-readable integration correctness drill rows.'
+
+    try {
+        $drill = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+        $rollup = [string]$drill.overallDisposition
+
+        if ($rollup -eq 'HOLD') {
+            Add-ProofFinding -Disposition 'WARN' -Name 'v1-integration-correctness-drill' -Detail 'Integration correctness drill reported HOLD.' -Remediation 'Open v1-integration-correctness-drill.md and resolve HOLD rows before release.'
+            return
+        }
+
+        if ($rollup -eq 'WARN') {
+            Add-ProofFinding -Disposition 'WARN' -Name 'v1-integration-correctness-drill' -Detail 'Integration correctness drill reported WARN.' -Remediation 'Review WARN rows in v1-integration-correctness-drill.md.'
+            return
+        }
+
+        Add-ProofFinding -Disposition 'PASS' -Name 'v1-integration-correctness-drill' -Detail 'Integration correctness drill passed.' -Remediation ''
+    }
+    catch {
+        Add-ProofFinding -Disposition 'WARN' -Name 'v1-integration-correctness-drill' -Detail "Could not parse drill JSON: $($_.Exception.Message)" -Remediation 'Rerun v1-integration-correctness-drill.ps1.'
+    }
+}
+
+function Add-EnvironmentReliabilityRollupFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $rollupScript = Join-Path $PSScriptRoot 'report_environment_reliability_rollup.ps1'
+    & $rollupScript -ProofDirectory $ProofDirectory 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'environment-reliability-rollup.md' -Path 'environment-reliability-rollup.md' -Purpose 'Environment reliability rollup (data, telemetry, AI gate, LLM budget, timing) — not an SLA.'
+    Add-ProofArtifact -Name 'environment-reliability-rollup.json' -Path 'environment-reliability-rollup.json' -Purpose 'Machine-readable environment reliability rollup.'
+
+    $jsonPath = Join-Path $ProofDirectory 'environment-reliability-rollup.json'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'environment-reliability-rollup' -Detail 'Environment reliability rollup was not generated.' -Remediation 'Rerun collect-first-pilot-proof.ps1 and inspect report_environment_reliability_rollup.ps1 output.'
+        return
+    }
+
+    try {
+        $rollup = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+        $disposition = [string]$rollup.disposition
+
+        if ($disposition -eq 'HOLD') {
+            $proofDisposition = if ($SponsorHandoff -or $ProductionLikeHostedPilot) { 'BLOCK' } else { 'WARN' }
+
+            Add-ProofFinding -Disposition $proofDisposition -Name 'environment-reliability-rollup' -Detail 'Environment reliability rollup contains HOLD rows.' -Remediation 'Open environment-reliability-rollup.md and resolve HOLD signals before sponsor handoff.' -TriageCard 'FP-T013'
+            return
+        }
+
+        if ($disposition -eq 'WARN') {
+            Add-ProofFinding -Disposition 'WARN' -Name 'environment-reliability-rollup' -Detail 'Environment reliability rollup contains WARN rows.' -Remediation 'Review environment-reliability-rollup.md before sponsor send.'
+            return
+        }
+
+        Add-ProofFinding -Disposition 'PASS' -Name 'environment-reliability-rollup' -Detail 'Environment reliability rollup passed.' -Remediation ''
+    }
+    catch {
+        Add-ProofFinding -Disposition 'WARN' -Name 'environment-reliability-rollup' -Detail "Could not parse environment-reliability-rollup.json: $($_.Exception.Message)" -Remediation 'Regenerate environment reliability rollup artifacts.'
+    }
+}
+
+function Add-CommittedReviewTraceChainSummaryFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [Parameter(Mandatory = $true)][string] $EvidenceRoot,
+        [string] $RunId = ''
+    )
+
+    $traceScript = Join-Path $PSScriptRoot 'report_committed_review_trace_chain_summary.ps1'
+    & $traceScript -ProofDirectory $ProofDirectory -EvidenceRoot $EvidenceRoot -RunId $RunId 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'committed-review-trace-chain-summary.md' -Path 'committed-review-trace-chain-summary.md' -Purpose 'Compact evidence-to-manifest-to-audit trace chain for sponsor and support bundles.'
+    Add-ProofArtifact -Name 'committed-review-trace-chain-summary.json' -Path 'committed-review-trace-chain-summary.json' -Purpose 'Machine-readable committed review trace chain summary.'
+
+    $jsonPath = Join-Path $ProofDirectory 'committed-review-trace-chain-summary.json'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'committed-review-trace-chain-summary' -Detail 'Trace chain summary was not generated.' -Remediation 'Rerun with -RunId after committed-run evidence collection succeeds.'
+        return
+    }
+
+    try {
+        $trace = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+        $disposition = [string]$trace.disposition
+
+        if ($disposition -eq 'HOLD') {
+            $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+            Add-ProofFinding -Disposition $proofDisposition -Name 'committed-review-trace-chain-summary' -Detail ([string]$trace.summary) -Remediation 'Collect committed-run evidence and verify manifest and audit rows in first-value report.' -TriageCard 'FP-T006'
+            return
+        }
+
+        if ($disposition -eq 'WARN') {
+            Add-ProofFinding -Disposition 'WARN' -Name 'committed-review-trace-chain-summary' -Detail ([string]$trace.summary) -Remediation 'Review committed-review-trace-chain-summary.md before sponsor send.'
+            return
+        }
+
+        Add-ProofFinding -Disposition 'PASS' -Name 'committed-review-trace-chain-summary' -Detail ([string]$trace.summary) -Remediation ''
+    }
+    catch {
+        Add-ProofFinding -Disposition 'WARN' -Name 'committed-review-trace-chain-summary' -Detail "Could not parse committed-review-trace-chain-summary.json: $($_.Exception.Message)" -Remediation 'Regenerate trace chain summary.'
+    }
 }
 
 function Add-ProductionLikeConfigLintFinding {
@@ -518,12 +877,14 @@ function Write-QuoteToProofPacketMarkdown {
     $annualReady = ($SponsorPacketDisposition -eq 'SEND' -and $RoiSponsorSafe -and $BlockCount -eq 0)
     $commercialDisposition = if ($BlockCount -gt 0) { 'HOLD' } elseif ($SponsorPacketDisposition -eq 'DEFERRED_SCOPE') { 'DEFERRED_SCOPE' } elseif ($SponsorPacketDisposition -eq 'SEND') { 'PASS' } else { 'HOLD' }
 
-    $recommendedNextAsk = switch ($SponsorPacketDisposition) {
-        'SEND' { 'Send sponsor packet internally for ARB/executive review; attach quote-to-proof index and first-value report.' }
-        'DEFERRED_SCOPE' { 'Document deferred buyer requirements separately; do not present V1.1/V2 items as product blockers.' }
-        'HOLD' { 'Resolve blocking proof rows, rerun collect-first-pilot-proof.ps1 -SponsorHandoff, then re-evaluate annual order readiness.' }
-        default { 'Complete first committed review and rerun proof with -RunId before commercial follow-up.' }
-    }
+    $commercialStep = Resolve-CommercialNextStepRecommendation `
+        -SponsorPacketDisposition $SponsorPacketDisposition `
+        -BlockCount $BlockCount `
+        -RoiSponsorSafe $RoiSponsorSafe `
+        -RoiBasisStatus $RoiBasisStatus `
+        -ProcurementDisposition $procurementStatus `
+        -CommittedEvidenceDisposition $evidenceStatus `
+        -DeferredScopeReasons @($DeferredScopeReasons)
 
     $aiQualityStatus = if ($null -eq $AiQualityProof -or $AiQualityProof.collected -ne $true) { 'NOT_COLLECTED' } elseif ($AiQualityProof.sponsorSafe -eq $true) { 'PASS' } else { 'WARN' }
     $runIdLabel = if ([string]::IsNullOrWhiteSpace($RunId)) { 'not supplied' } else { $RunId.Trim() }
@@ -543,10 +904,18 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| Data consistency status | **$DataConsistencyStatus** |")
     $lines.Add("| AI quality proof | **$aiQualityStatus** |")
     $lines.Add("| Annual order readiness | **$(if ($annualReady) { 'READY' } else { 'HOLD' })** |")
+    $lines.Add("| Commercial next action | **$($commercialStep.action)** |")
+    $lines.Add("| Commercial next owner | $($commercialStep.owner) |")
+    $lines.Add('')
+    $lines.Add('## Commercial next step (single recommendation)')
+    $lines.Add('')
+    $lines.Add("- **Action:** $($commercialStep.action)")
+    $lines.Add("- **Owner:** $($commercialStep.owner)")
+    $lines.Add("- **Reason:** $($commercialStep.reason)")
     $lines.Add('')
     $lines.Add('## Recommended next ask')
     $lines.Add('')
-    $lines.Add("- $recommendedNextAsk")
+    $lines.Add("- $($commercialStep.reason)")
     $lines.Add('')
     $lines.Add('## Packet rows')
     $lines.Add('')
@@ -557,10 +926,15 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| Pilot success scorecard | MANUAL | [`PILOT_SUCCESS_SCORECARD.md`](../../docs/go-to-market/PILOT_SUCCESS_SCORECARD.md) |")
     $lines.Add("| ROI basis labels | $RoiBasisStatus | ``go-no-go-summary.json`` · ``roiBasisStatus`` |")
     $lines.Add("| Procurement deal-ready | $procurementStatus | ``procurement-deal-ready-check.txt`` |")
+    $lines.Add("| Procurement scope classification | $procurementStatus | ``procurement-deal-ready-classification.md`` |")
+    $lines.Add("| LLM budget proof | $(Resolve-FindingDisposition -Name 'llm-budget-proof-status') | ``llm-budget-proof-status.md`` |")
+    $lines.Add("| Environment reliability rollup | $(Resolve-FindingDisposition -Name 'environment-reliability-rollup') | ``environment-reliability-rollup.md`` |")
+    $lines.Add("| Trace chain summary | $(Resolve-FindingDisposition -Name 'committed-review-trace-chain-summary') | ``committed-review-trace-chain-summary.md`` |")
     $lines.Add("| Route/tier/policy/nav parity | $routeTierStatus | ``route-tier-policy-nav-parity.md`` |")
     $lines.Add("| Production-like config lint | $(Resolve-FindingDisposition -Name 'production-like-config-lint') | ``config-lint-production-like-hosted-pilot.md`` |")
     $lines.Add("| Data consistency readiness | $DataConsistencyStatus | ``data-consistency-readiness/`` |")
     $lines.Add("| AI quality proof | $aiQualityStatus | ``go-no-go-summary.json`` · ``aiQualityProof`` |")
+    $lines.Add("| Consolidated AI readiness gate | $(Resolve-FindingDisposition -Name 'ai-readiness-gate') | ``ai-readiness-gate.json`` · ``go-no-go-summary.json`` · ``aiReadinessGate`` |")
     $lines.Add("| Live UI-SQL parity | $(Resolve-FindingDisposition -Name 'live-ui-sql-parity') | ``live-ui-sql-parity-result.json`` (when supplied) |")
     $lines.Add("| Selected tier + order form | MANUAL | [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md) after tier is agreed |")
     $lines.Add("| Demo workspace validation | $(Resolve-FindingDisposition -Name 'demo-workspace-validation') | ``demo-workspace-validation.txt`` |")
@@ -581,6 +955,20 @@ function Write-QuoteToProofPacketMarkdown {
     $target = Join-Path $ProofDirectory 'quote-to-proof-packet.md'
     $lines | Set-Content -LiteralPath $target -Encoding UTF8
     Add-ProofArtifact -Name 'quote-to-proof-packet.md' -Path 'quote-to-proof-packet.md' -Purpose 'Sales-led quote-to-proof packet index mapped from this proof run.'
+
+    $commercialJsonPath = Join-Path $ProofDirectory 'commercial-next-step.json'
+    $commercialPayload = [ordered]@{
+        action = [string]$commercialStep.action
+        owner  = [string]$commercialStep.owner
+        reason = [string]$commercialStep.reason
+    }
+    $commercialPayload | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $commercialJsonPath -Encoding UTF8
+    Add-ProofArtifact -Name 'commercial-next-step.json' -Path 'commercial-next-step.json' -Purpose 'Single commercial next-step recommendation for quote-to-proof handoff.'
+
+    return [ordered]@{
+        action = [string]$commercialStep.action
+        reason = [string]$commercialStep.reason
+    }
 }
 
 function Add-ProcurementDealReadyFinding {
@@ -588,13 +976,15 @@ function Add-ProcurementDealReadyFinding {
 
     $reportPath = Join-Path $ProofDirectory 'procurement-deal-ready-check.txt'
     $jsonPath = Join-Path $ProofDirectory 'procurement-deal-ready-summary.json'
+    $classificationPath = Join-Path $ProofDirectory 'procurement-deal-ready-classification.md'
     $scriptPath = Join-Path $PSScriptRoot 'build_procurement_pack.py'
-    $output = & python $scriptPath --dry-run --deal-ready --json-summary-out $jsonPath 2>&1
+    $output = & python $scriptPath --dry-run --deal-ready --json-summary-out $jsonPath --classification-md-out $classificationPath 2>&1
     $exitCode = $LASTEXITCODE
     $script:procurementReportText = ($output | Out-String)
     [System.IO.File]::WriteAllText($reportPath, $script:procurementReportText, [System.Text.UTF8Encoding]::new($false))
     Add-ProofArtifact -Name 'procurement-deal-ready-check.txt' -Path 'procurement-deal-ready-check.txt' -Purpose 'Deal-ready procurement pack dry-run output with deferred-scope labels.'
     Add-ProofArtifact -Name 'procurement-deal-ready-summary.json' -Path 'procurement-deal-ready-summary.json' -Purpose 'Machine-readable procurement deal-ready disposition with deferred realism notes.'
+    Add-ProofArtifact -Name 'procurement-deal-ready-classification.md' -Path 'procurement-deal-ready-classification.md' -Purpose 'Deal-ready scope classification table (V1_READY, BLOCKING, DEFERRED_SCOPE, OWNER_REQUIRED, INFORMATIONAL_B_ONLY).'
 
     $disposition = 'HOLD'
     $blockingCount = 0
@@ -1140,24 +1530,147 @@ function Add-MutatingRouteAuditMatrixFinding {
 
     $markdownPath = Join-Path $ProofDirectory 'mutating-route-audit-matrix.md'
     $jsonPath = Join-Path $ProofDirectory 'mutating-route-audit-matrix.json'
+    $driftJsonPath = Join-Path $ProofDirectory 'mutating-route-audit-surface-drift.json'
+    $baseRef = if ([string]::IsNullOrWhiteSpace($RouteTierBaseRef)) { 'origin/main' } else { $RouteTierBaseRef.Trim() }
+    $driftScript = Join-Path $PSScriptRoot 'ci\detect_mutating_route_audit_surface_changes.py'
+    $controllersChanged = $false
+
+    & python $driftScript --base-ref $baseRef --json-out $driftJsonPath 2>&1 | Out-Null
+
+    if (Test-Path -LiteralPath $driftJsonPath) {
+        try {
+            $driftPayload = Get-Content -LiteralPath $driftJsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+            $controllersChanged = $driftPayload.controllers_changed -eq $true
+        }
+        catch {
+            $controllersChanged = $false
+        }
+    }
+
     $scriptPath = Join-Path $PSScriptRoot 'ci\check_audit_matrix.py'
     & python $scriptPath --markdown-out $markdownPath --json-summary-out $jsonPath 2>&1 | Out-Null
     $exitCode = $LASTEXITCODE
 
     Add-ProofArtifact -Name 'mutating-route-audit-matrix.md' -Path 'mutating-route-audit-matrix.md' -Purpose 'Controller mutating route coverage against AUDIT_COVERAGE_MATRIX.md.'
     Add-ProofArtifact -Name 'mutating-route-audit-matrix.json' -Path 'mutating-route-audit-matrix.json' -Purpose 'Machine-readable mutating route audit matrix disposition.'
+    Add-ProofArtifact -Name 'mutating-route-audit-surface-drift.json' -Path 'mutating-route-audit-surface-drift.json' -Purpose 'Git diff signal for ArchLucid.Api controller changes vs base ref.'
 
     if ($exitCode -eq 0) {
         Add-ProofFinding -Disposition 'PASS' -Name 'mutating-route-audit-matrix' -Detail 'All mutating controller routes are documented in the audit coverage matrix or allowlist.' -Remediation ''
         return
     }
 
-    if ($SponsorHandoff -or $ProductionLikeHostedPilot) {
-        Add-ProofFinding -Disposition 'BLOCK' -Name 'mutating-route-audit-matrix' -Detail "Mutating route audit matrix check failed with exit code $exitCode." -Remediation 'Add missing routes to docs/library/AUDIT_COVERAGE_MATRIX.md or scripts/ci/openapi_audit_matrix_allowlist.txt.'
+    $detail = "Mutating route audit matrix check failed with exit code $exitCode."
+
+    if ($controllersChanged) {
+        $detail = "$detail Controller surfaces changed vs $baseRef."
+    }
+
+    if ($SponsorHandoff -or $ProductionLikeHostedPilot -or $controllersChanged) {
+        Add-ProofFinding -Disposition 'BLOCK' -Name 'mutating-route-audit-matrix' -Detail $detail -Remediation 'Add missing routes to docs/library/AUDIT_COVERAGE_MATRIX.md or scripts/ci/openapi_audit_matrix_allowlist.txt.'
         return
     }
 
-    Add-ProofFinding -Disposition 'WARN' -Name 'mutating-route-audit-matrix' -Detail "Mutating route audit matrix check failed with exit code $exitCode." -Remediation 'Add missing routes to docs/library/AUDIT_COVERAGE_MATRIX.md or scripts/ci/openapi_audit_matrix_allowlist.txt.'
+    Add-ProofFinding -Disposition 'WARN' -Name 'mutating-route-audit-matrix' -Detail $detail -Remediation 'Add missing routes to docs/library/AUDIT_COVERAGE_MATRIX.md or scripts/ci/openapi_audit_matrix_allowlist.txt.'
+}
+
+function Add-ProductionLikeAzurePilotProofFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'production-like-azure-pilot-proof.md'
+    $jsonPath = Join-Path $ProofDirectory 'production-like-azure-pilot-proof.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_production_like_azure_pilot_proof.py'
+    & python $scriptPath --proof-directory $ProofDirectory --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'production-like-azure-pilot-proof.md' -Path 'production-like-azure-pilot-proof.md' -Purpose 'Azure pilot proof: configured IaC vs measured proof signals vs not-enabled assumptions.'
+    Add-ProofArtifact -Name 'production-like-azure-pilot-proof.json' -Path 'production-like-azure-pilot-proof.json' -Purpose 'Machine-readable production-like Azure pilot proof rollup.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'production-like-azure-pilot-proof' -Detail 'Azure pilot proof artifact was not generated.' -Remediation 'Rerun collect-first-pilot-proof.ps1.'
+        return
+    }
+
+    try {
+        $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+        $measuredCount = @($payload.measuredEvidence).Count
+
+        if ($measuredCount -gt 0) {
+            Add-ProofFinding -Disposition 'PASS' -Name 'production-like-azure-pilot-proof' -Detail "Azure pilot proof includes $measuredCount measured signal(s) from this proof folder." -Remediation ''
+            return
+        }
+
+        Add-ProofFinding -Disposition 'WARN' -Name 'production-like-azure-pilot-proof' -Detail 'Azure pilot proof emitted with no measured signals; rerun with -ProductionLikeHostedPilot.' -Remediation 'See docs/runbooks/MINIMAL_AZURE_PILOT_DEPLOYMENT.md.'
+    }
+    catch {
+        Add-ProofFinding -Disposition 'WARN' -Name 'production-like-azure-pilot-proof' -Detail "Could not parse production-like-azure-pilot-proof.json: $($_.Exception.Message)" -Remediation 'Regenerate Azure pilot proof artifact.'
+    }
+}
+
+function Add-SecurityReviewerOnePagerFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'security-reviewer-one-pager.md'
+    $jsonPath = Join-Path $ProofDirectory 'security-reviewer-one-pager.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_security_reviewer_one_pager.py'
+    & python $scriptPath --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'security-reviewer-one-pager.md' -Path 'security-reviewer-one-pager.md' -Purpose 'Buyer-safe security reviewer one-pager (self-assessment vs deferred assurance).'
+    Add-ProofArtifact -Name 'security-reviewer-one-pager.json' -Path 'security-reviewer-one-pager.json' -Purpose 'Machine-readable security reviewer one-pager sources and deferred list.'
+
+    if (Test-Path -LiteralPath $markdownPath) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'security-reviewer-one-pager' -Detail 'Security reviewer one-pager generated from trust center and SOC2 self-assessment sources.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'security-reviewer-one-pager' -Detail 'Security reviewer one-pager was not generated.' -Remediation 'Run scripts/ci/report_security_reviewer_one_pager.py.'
+}
+
+function Add-CompliancePostureClarityFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $scriptPath = Join-Path $PSScriptRoot 'ci\check_compliance_posture_clarity.py'
+    & python $scriptPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    $tablePath = Join-Path $ProofDirectory 'compliance-posture-evidence-table.md'
+    $tableLines = [System.Collections.Generic.List[string]]::new()
+    $tableLines.Add('# Compliance posture evidence table (current vs deferred)')
+    $tableLines.Add('')
+    $tableLines.Add('| Posture | V1 today | Deferred / informational |')
+    $tableLines.Add('| --- | --- | --- |')
+    $tableLines.Add('| SOC 2 | Self-assessment narrative | CPA SOC 2 report (deferred) |')
+    $tableLines.Add('| Pen test | Internal/security docs | Third-party publication (deferred) |')
+    $tableLines.Add('| Policy packs | Architecture review support | Not statutory certification automation |')
+    $tableLines.Add('| DPA/SIG/CAIQ | Templates / pre-fills | Not legal guarantees until executed |')
+    $tableLines.Add('')
+    $tableLines | Set-Content -LiteralPath $tablePath -Encoding UTF8
+    Add-ProofArtifact -Name 'compliance-posture-evidence-table.md' -Path 'compliance-posture-evidence-table.md' -Purpose 'Current vs deferred compliance evidence table for procurement handoff.'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'compliance-posture-clarity' -Detail 'Buyer-facing compliance docs passed prohibited-phrase clarity scan.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'compliance-posture-clarity' -Detail 'Compliance posture clarity scan reported ambiguous certification wording in docs.' -Remediation 'Run python scripts/ci/check_compliance_posture_clarity.py and fix lines; use self-assessment/deferred caveats.'
+}
+
+function Add-QualityGatePromotionStatusFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'quality-gate-promotion-status.md'
+    $jsonPath = Join-Path $ProofDirectory 'quality-gate-promotion-status.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_quality_gate_promotion_status.py'
+    & python $scriptPath --markdown-out $markdownPath --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'quality-gate-promotion-status.md' -Path 'quality-gate-promotion-status.md' -Purpose 'Quality gate promotion plan status — engineering gates only.'
+    Add-ProofArtifact -Name 'quality-gate-promotion-status.json' -Path 'quality-gate-promotion-status.json' -Purpose 'Machine-readable quality gate promotion status.'
+
+    if (Test-Path -LiteralPath $jsonPath) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'quality-gate-promotion-status' -Detail 'Quality gate promotion status artifact emitted; deferred commercial gates remain non-blocking.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'quality-gate-promotion-status' -Detail 'Quality gate promotion status was not generated.' -Remediation 'See docs/library/QUALITY_GATE_PROMOTION_PLAN.md.'
 }
 
 function Add-GovernancePolicyPackProofFinding {
@@ -1190,11 +1703,29 @@ $performanceEnvironmentLabel = if ($ProductionLikeHostedPilot) { 'production-lik
 $performanceEvidenceClass = if ($ProductionLikeHostedPilot) { 'production-like-k6-not-sla' } else { 'ci-smoke-or-attached-not-sla' }
 Add-ApiHotPathPerformanceFinding -SummaryPath $resolvedK6SummaryPath -EnvironmentLabel $performanceEnvironmentLabel -EvidenceClass $performanceEvidenceClass
 Add-FirstPilotPerformanceBaselineFinding -ProofDirectory $proofDir -TimingsJsonPath $resolvedStagingSmokePath
+
+$performanceBaselineJsonForEnvelope = Join-Path $proofDir 'first-pilot-performance-baseline.json'
+
+if (-not (Test-Path -LiteralPath $performanceBaselineJsonForEnvelope)) {
+    $performanceBaselineJsonForEnvelope = ''
+}
+
+$k6SummaryJsonForEnvelope = if ([string]::IsNullOrWhiteSpace($resolvedK6SummaryPath)) { '' } else { $resolvedK6SummaryPath }
+
+Add-ScaleEnvelopeEvidenceFinding `
+    -ProofDirectory $proofDir `
+    -PerformanceBaselineJsonPath $performanceBaselineJsonForEnvelope `
+    -K6SummaryJsonPath $k6SummaryJsonForEnvelope
+
 Add-HostedAvailabilityRollupFinding -ProofDirectory $proofDir -ProbeArtifactsPath $resolvedHostedProbePath
 Add-AzureExtractorUploadUxFinding -ProofDirectory $proofDir
 Add-IdentityPreflightScenarioFinding -ProofDirectory $proofDir
 Add-MutatingRouteAuditMatrixFinding -ProofDirectory $proofDir
 Add-GovernancePolicyPackProofFinding -ProofDirectory $proofDir
+Add-ProductionLikeAzurePilotProofFinding -ProofDirectory $proofDir
+Add-SecurityReviewerOnePagerFinding -ProofDirectory $proofDir
+Add-CompliancePostureClarityFinding -ProofDirectory $proofDir
+Add-QualityGatePromotionStatusFinding -ProofDirectory $proofDir
 
 if ($SkipPreflight) {
     Add-ProofFinding -Disposition 'WARN' -Name 'pilot-preflight' -Detail 'Skipped by -SkipPreflight.' -Remediation 'Run without -SkipPreflight before customer handoff.'
@@ -1261,9 +1792,13 @@ else {
     Add-TelemetryExportReadinessFinding -ProofDirectory $proofDir
 }
 
+$script:dataConsistencyProofRollup = $null
+
 if ($SkipDataConsistency) {
     $script:dataConsistencyStatus = 'NOT_RUN'
-    Add-ProofFinding -Disposition 'WARN' -Name 'data-consistency-readiness' -Detail 'Skipped by -SkipDataConsistency.' -Remediation 'Run data consistency readiness before customer handoff.' -TriageCard 'FP-T019'
+    $resolved = Resolve-DataConsistencyProofFinding -Status 'NOT_RUN' -SponsorHandoff:$SponsorHandoff -RunId $RunId
+    $script:dataConsistencyProofRollup = $resolved.rollup
+    Add-ProofFinding -Disposition ([string]$resolved.disposition) -Name 'data-consistency-readiness' -Detail ([string]$resolved.detail) -Remediation ([string]$resolved.remediation) -TriageCard 'FP-T019'
 }
 else {
     $dataOut = Join-Path $proofDir 'data-consistency-readiness'
@@ -1274,15 +1809,24 @@ else {
 
     Add-ProofArtifact -Name 'data-consistency-readiness' -Path 'data-consistency-readiness/' -Purpose 'Read-only data consistency readiness summary.'
 
-    if ($script:dataConsistencyStatus -eq 'PASS') {
-        Add-ProofFinding -Disposition 'PASS' -Name 'data-consistency-readiness' -Detail 'Data-consistency readiness collector passed.' -Remediation ''
+    $dataSummary = $null
+
+    try {
+        $dataSummary = Get-DataConsistencySummaryFromProofDirectory -ProofDirectory $proofDir
     }
-    elseif ($script:dataConsistencyStatus -eq 'WARN') {
-        Add-ProofFinding -Disposition 'WARN' -Name 'data-consistency-readiness' -Detail 'Data-consistency readiness completed with warnings; review orphan/diagnostics probes.' -Remediation 'Inspect data-consistency-summary.json and /health/diagnostics before sponsor send.' -TriageCard 'FP-T019'
+    catch {
+        $dataSummary = $null
     }
-    else {
-        Add-ProofFinding -Disposition 'BLOCK' -Name 'data-consistency-readiness' -Detail "Data-consistency readiness status is $($script:dataConsistencyStatus); collector exited $dataExit." -Remediation 'Inspect data-consistency-readiness output and /health/diagnostics.' -TriageCard 'FP-T019'
-    }
+
+    $resolved = Resolve-DataConsistencyProofFinding `
+        -Status $script:dataConsistencyStatus `
+        -Summary $dataSummary `
+        -SponsorHandoff:$SponsorHandoff `
+        -RunId $RunId `
+        -CollectorExitCode $dataExit
+
+    $script:dataConsistencyProofRollup = $resolved.rollup
+    Add-ProofFinding -Disposition ([string]$resolved.disposition) -Name 'data-consistency-readiness' -Detail ([string]$resolved.detail) -Remediation ([string]$resolved.remediation) -TriageCard 'FP-T019'
 }
 
 if ($SkipCommercialHandoff) {
@@ -1290,6 +1834,7 @@ if ($SkipCommercialHandoff) {
 }
 else {
     Add-RetrievalIrEvidenceFinding -ProofDirectory $proofDir
+    Add-ConsolidatedAiReadinessGateFinding -ProofDirectory $proofDir
     Add-LiveUiSqlParityFinding -ProofDirectory $proofDir
     Add-DemoWorkspaceValidationFinding -ProofDirectory $proofDir
     Add-ProductionLikeConfigLintFinding -ProofDirectory $proofDir
@@ -1319,6 +1864,7 @@ else {
         Add-ProofArtifact -Name 'first-pilot-evidence' -Path 'first-pilot-evidence/' -Purpose 'Buyer-safe committed-review evidence bundle.'
         Add-AgentQualitySponsorGateFinding -EvidenceRoot $evidenceOut
         Add-AiQualityProofFinding -EvidenceRoot $evidenceOut
+        Add-ConsolidatedAiReadinessGateFinding -ProofDirectory $proofDir -EvidenceRoot $evidenceOut
 
         $llmMode = 'unknown'
 
@@ -1351,6 +1897,26 @@ else {
     }
 }
 
+$proofCollectionElapsedMs = [int](((Get-Date).ToUniversalTime() - $proofCollectionStartedUtc).TotalMilliseconds)
+
+Add-FirstPilotTimingBudgetFinding `
+    -ProofDirectory $proofDir `
+    -PerformanceBaselineJsonPath $performanceBaselineJsonForEnvelope `
+    -ProofCollectionElapsedMs $proofCollectionElapsedMs
+
+Add-AdminOperationalPostureFinding -ProofDirectory $proofDir
+Add-EnvironmentReliabilityRollupFinding -ProofDirectory $proofDir
+Add-OptionalIntegrationCorrectnessDrillFinding -ProofDirectory $proofDir
+
+$evidenceRootForTrace = Join-Path $proofDir 'first-pilot-evidence'
+
+if (-not [string]::IsNullOrWhiteSpace($RunId) -and (Test-Path -LiteralPath $evidenceRootForTrace)) {
+    Add-CommittedReviewTraceChainSummaryFinding `
+        -ProofDirectory $proofDir `
+        -EvidenceRoot $evidenceRootForTrace `
+        -RunId $RunId
+}
+
 $blockCount = @($findings | Where-Object { $_.disposition -eq 'BLOCK' }).Count
 $warnCount = @($findings | Where-Object { $_.disposition -eq 'WARN' }).Count
 $verdict = if ($blockCount -gt 0) { 'BLOCK' } elseif ($warnCount -gt 0) { 'PASS_WITH_WARNINGS' } else { 'PASS' }
@@ -1372,7 +1938,7 @@ if (-not $triageValidation.valid) {
     throw "Proof pipeline emitted unresolved triage card ids: $($triageValidation.missing -join ', ')"
 }
 
-Write-QuoteToProofPacketMarkdown `
+$commercialStepResult = Write-QuoteToProofPacketMarkdown `
     -ProofDirectory $proofDir `
     -SponsorPacketDisposition $sponsorPacketDisposition `
     -RoiBasisStatus $script:roiBasisStatus `
@@ -1383,6 +1949,32 @@ Write-QuoteToProofPacketMarkdown `
     -RunId $RunId `
     -DataConsistencyStatus $script:dataConsistencyStatus `
     -AiQualityProof $script:aiQualityProof
+
+$workflowHandoffPaths = Write-V1WorkflowHandoffArtifacts `
+    -ProofDirectory $proofDir `
+    -SponsorPacketDisposition $sponsorPacketDisposition `
+    -BlockCount $blockCount `
+    -DeferredScopeReasons @($deferredScopeReasons) `
+    -Findings @($findings) `
+    -RunId $RunId `
+    -CommercialNextAction ([string]$commercialStepResult.action) `
+    -CommercialNextReason ([string]$commercialStepResult.reason)
+
+Add-ProofArtifact -Name 'v1-workflow-handoff-comment.md' -Path $workflowHandoffPaths.mdPath -Purpose 'Paste-ready GitHub/Azure DevOps comment block for V1 workflow handoff.'
+Add-ProofArtifact -Name 'v1-workflow-handoff-comment.json' -Path $workflowHandoffPaths.jsonPath -Purpose 'Structured V1 workflow handoff comment payload.'
+
+$commandCenter = Build-FirstPilotCommandCenter `
+    -Findings @($findings) `
+    -RunId $RunId `
+    -SponsorPacketDisposition $sponsorPacketDisposition `
+    -BlockCount $blockCount `
+    -DeferredScopeReasons @($deferredScopeReasons) `
+    -DataConsistencyStatus $script:dataConsistencyStatus `
+    -AiReadinessGate $script:aiReadinessGate
+
+$commandCenterPaths = Write-FirstPilotCommandCenterArtifacts -ProofDirectory $proofDir -CommandCenter $commandCenter
+Add-ProofArtifact -Name 'first-pilot-command-center.json' -Path $commandCenterPaths.jsonPath -Purpose 'Single phased go/no-go command center (JSON) — primary first-pilot status surface.'
+Add-ProofArtifact -Name 'first-pilot-command-center.md' -Path $commandCenterPaths.mdPath -Purpose 'Single phased go/no-go command center (Markdown) aligned to FIRST_PILOT_OPERATOR_PATH labels.'
 
 $summary = [ordered]@{
     formatVersion             = '1.2'
@@ -1396,9 +1988,29 @@ $summary = [ordered]@{
     blockingReasons           = $blockingReasons
     deferredScopeReasons      = $deferredScopeReasons
     dataConsistencyStatus     = $script:dataConsistencyStatus
+    dataConsistencyProof      = $script:dataConsistencyProofRollup
+    timingBudget              = if (Test-Path -LiteralPath (Join-Path $proofDir 'first-pilot-timing-budget.json')) {
+        Get-Content -LiteralPath (Join-Path $proofDir 'first-pilot-timing-budget.json') -Raw | ConvertFrom-Json
+    }
+    else {
+        $null
+    }
+    commercialNextStep        = if (Test-Path -LiteralPath (Join-Path $proofDir 'commercial-next-step.json')) {
+        Get-Content -LiteralPath (Join-Path $proofDir 'commercial-next-step.json') -Raw | ConvertFrom-Json
+    }
+    else {
+        $null
+    }
     roiBasisStatus            = $script:roiBasisStatus
     roiSponsorSafe            = $script:roiSponsorSafe
     aiQualityProof            = $script:aiQualityProof
+    aiReadinessGate           = $script:aiReadinessGate
+    commandCenter             = [ordered]@{
+        jsonPath            = $commandCenterPaths.jsonPath
+        mdPath              = $commandCenterPaths.mdPath
+        readinessOnly       = $commandCenter.readinessOnly
+        nextActionSummary   = [string]$commandCenter.nextAction.summary
+    }
     blockCount                = $blockCount
     warnCount                 = $warnCount
     findings                  = $findings
@@ -1413,6 +2025,8 @@ $runIdLabel = if ([string]::IsNullOrWhiteSpace($RunId)) { 'Not supplied - readin
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.Add('# First-pilot go/no-go summary')
 $lines.Add('')
+$lines.Add('> **Primary status surface:** [`first-pilot-command-center.md`](first-pilot-command-center.md) — phased READY / WARN / HOLD / DEFERRED and one **NEXT ACTION**. This file retains the full findings table.')
+$lines.Add('')
 $lines.Add('| Field | Value |')
 $lines.Add('| --- | --- |')
 $lines.Add("| Generated UTC | $timestamp |")
@@ -1423,6 +2037,8 @@ $lines.Add("| Production-like hosted pilot | $([bool]$ProductionLikeHostedPilot)
 $lines.Add("| Verdict | **$verdict** |")
 $lines.Add("| Sponsor packet disposition | **$sponsorPacketDisposition** |")
 $lines.Add("| Data consistency status | **$($script:dataConsistencyStatus)** |")
+$lines.Add("| Data consistency summary | ``data-consistency-readiness/data-consistency-summary.json`` |")
+$lines.Add("| Timing budget | ``first-pilot-timing-budget.md`` |")
 $lines.Add("| ROI basis status | **$($script:roiBasisStatus)** |")
 $lines.Add("| ROI sponsor-safe | **$($script:roiSponsorSafe)** |")
 $lines.Add("| Blocking findings | $blockCount |")
@@ -1431,6 +2047,22 @@ $lines.Add('')
 
 foreach ($aiLine in (Format-AiQualityProofMarkdownSection -AiQualityProof $script:aiQualityProof)) {
     $lines.Add($aiLine)
+}
+
+if ($null -ne $script:aiReadinessGate) {
+    $gateForMarkdown = $script:aiReadinessGate.gate
+    $dispForMarkdown = [ordered]@{
+        disposition = [string]$script:aiReadinessGate.disposition
+        summary     = [string]$script:aiReadinessGate.summary
+    }
+
+    foreach ($gateLine in (Format-ConsolidatedAiReadinessGateMarkdown -Gate $gateForMarkdown -DispositionResult $dispForMarkdown)) {
+        $lines.Add($gateLine)
+    }
+}
+
+foreach ($dcLine in (Format-DataConsistencyProofMarkdownSection -Rollup $script:dataConsistencyProofRollup)) {
+    $lines.Add($dcLine)
 }
 
 $dataConsistencySummaryPath = Join-Path $proofDir 'data-consistency-readiness/data-consistency-summary.json'
@@ -1477,6 +2109,21 @@ if ($blockingReasons.Count -gt 0) {
     foreach ($reason in $blockingReasons) {
         $triageSuffix = if ([string]::IsNullOrWhiteSpace([string]$reason.triageCard)) { '' } else { " ($($reason.triageCard))" }
         $lines.Add("- **$($reason.name)**$triageSuffix — $($reason.detail)")
+        $supportStep = Get-FirstPilotSupportNextStepForFinding -Name ([string]$reason.name) -RunId $RunId
+        $docLink = Get-FirstPilotRemediationDocLink -FindingName ([string]$reason.name)
+        $inAppLink = Get-FirstPilotRemediationInAppLink -FindingName ([string]$reason.name) -RunId $RunId
+
+        if (-not [string]::IsNullOrWhiteSpace($supportStep)) {
+            $lines.Add("  - Support: ``$supportStep``")
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($docLink)) {
+            $lines.Add("  - Doc: [$docLink]($docLink)")
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($inAppLink)) {
+            $lines.Add("  - In-app: ``$inAppLink``")
+        }
     }
 }
 
@@ -1493,20 +2140,23 @@ if ($deferredScopeReasons.Count -gt 0) {
 $lines.Add('')
 $lines.Add('## Findings')
 $lines.Add('')
-$lines.Add('| Disposition | Check | Triage | Detail | Next action |')
-$lines.Add('| --- | --- | --- | --- | --- |')
+$lines.Add('| Disposition | Check | Triage | Detail | Remediation | Support next step | Doc | In-app |')
+$lines.Add('| --- | --- | --- | --- | --- | --- | --- | --- |')
 
 foreach ($finding in $findings) {
     $detail = ([string]$finding.detail).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
     $next = ([string]$finding.remediation).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+    $support = ([string]$finding.supportNextStep).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+    $docLink = ([string]$finding.remediationDocLink).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
+    $inAppLink = ([string]$finding.remediationInAppLink).Replace('|', '\|').Replace("`r", ' ').Replace("`n", ' ')
     $triage = if ([string]::IsNullOrWhiteSpace([string]$finding.triageCard)) { '' } else { [string]$finding.triageCard }
-    $lines.Add("| $($finding.disposition) | $($finding.name) | $triage | $detail | $next |")
+    $lines.Add("| $($finding.disposition) | $($finding.name) | $triage | $detail | $next | $support | $docLink | $inAppLink |")
 }
 
 $lines.Add('')
 $lines.Add('## Workflow handoff (optional)')
 $lines.Add('')
-$lines.Add('Attach proof artifacts to GitHub or Azure DevOps using [`docs/runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](../../docs/runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md). Minimum attach: `go-no-go-summary.md`, `first-pilot-evidence/first-value-report.md`, `pilot-observability-summary.md`, `first-pilot-evidence/artifact-manifest.json`.')
+$lines.Add('Attach proof artifacts to GitHub or Azure DevOps using [`docs/runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](../../docs/runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md). Minimum attach: `first-pilot-command-center.md`, `go-no-go-summary.md`, `first-pilot-evidence/first-value-report.md`, `pilot-observability-summary.md`, `first-pilot-evidence/artifact-manifest.json`.')
 $lines.Add('')
 $lines.Add('## Artifacts')
 $lines.Add('')
@@ -1530,6 +2180,15 @@ $lines | Set-Content -LiteralPath $summaryMdPath -Encoding UTF8
 
 Write-Host "Wrote $summaryMdPath"
 Write-Host "Verdict: $verdict ($blockCount block, $warnCount warn)"
+Write-Host ""
+Write-Host "Primary status surface: $proofDir\first-pilot-command-center.md"
+Write-Host "NEXT ACTION: $([string]$commandCenter.nextAction.summary)"
+
+$snapshotScript = Join-Path $PSScriptRoot 'ci\write_first_pilot_proof_status_snapshot.py'
+
+if (Test-Path -LiteralPath $snapshotScript) {
+    & python $snapshotScript 2>&1 | ForEach-Object { Write-Host $_ }
+}
 
 if ($blockCount -gt 0) {
     exit 1

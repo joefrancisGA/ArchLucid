@@ -1,0 +1,108 @@
+{
+  "generatedUtc": "2026-05-29T05:19:37.677399+00:00",
+  "source": "docs/library/V1_DEFERRED.md",
+  "entryCount": 25,
+  "entries": [
+    {
+      "title": "1. Product and learning (signals, planning drafts, follow-ups)",
+      "summary": "| Item | Doc source | Note | |------|------------|------| | **First-tenant funnel SQL \u2014 retention / purge for `dbo.FirstTenantFunnelEvents`** | [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **40** (ii) | **V1:** **no** automatic row deletion and **no** scheduled prune jo"
+    },
+    {
+      "title": "2. Compliance narrative: durable audit vs other stores",
+      "summary": "The [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) **Known gaps** section currently tracks **zero** open durable-audit omissions for the previously listed mutating areas (analysis reports, export/comparison paths, conversations read-only note, governance via **`GovernanceWo"
+    },
+    {
+      "title": "3. Rename, keys, and platform cleanup (Phase 7)",
+      "summary": "Operational cleanup is **scheduled and gated**, not \u201cunfinished V1 product.\u201d | Item | Doc source | |------|------------| | Remove legacy **ArchLucid** config / OIDC / env bridges; **ArchLucid.sql \u2192 ArchLucid.sql**; Terraform **state mv**; repo / workspace rename | [TERRAFORM_STAT"
+    },
+    {
+      "title": "4. Operator experience and CI honesty",
+      "summary": "| Item | Doc source | |------|------------| | **Periodic manual accessibility review** \u2014 scheduled screen-reader / assistive-technology validation beyond merge-blocking **`@axe-core/playwright`** baselines | Assessment boundary: participant AT studies are not a V1 **`(A)`** gate "
+    },
+    {
+      "title": "5. Infrastructure and organizational polish",
+      "summary": "Docs describe **templates and gaps** that depend on **customer subscription and process**, not missing product code. | Item | Doc source | |------|------------| | **ACR** / production image store, extending CI to **push** images | [CONTAINERIZATION.md](CONTAINERIZATION.md) | | Su"
+    },
+    {
+      "title": "6. First-party ITSM, Confluence, Slack, Teams, webhooks, and recipes \u2014 **V1.1** window (*Resolved 2026-05-18*)",
+      "summary": "**Jira**, **ServiceNow**, **Confluence**, and **Slack** first-party surfaces are **in scope for V1.1** per [V1_SCOPE.md](V1_SCOPE.md) **\u00a72.13\u2013\u00a72.15** \u2014 **owner scope update 2026-05-18**, superseding *Resolved 2026-05-05 / 2026-05-06* **V1 GA** pinning for those connectors. **Micr"
+    },
+    {
+      "title": "6a. Chat-ops \u2014 Microsoft Teams and Slack (*Resolved 2026-05-18*)",
+      "summary": "**Microsoft Teams** incoming-webhook delivery and **Slack** first-party **outbound** chat-ops (**`EnabledTriggersJson`** / trigger catalog parity, **Key Vault** secret-name references, Authority-shaped payloads) are **in scope for V1.1** per [`V1_SCOPE.md`](V1_SCOPE.md) **\u00a72.14**"
+    },
+    {
+      "title": "6b. Commercial \u2014 V1.1 candidates (Resolved 2026-04-23)",
+      "summary": "These commercial milestones are **explicitly release-window-pinned to V1.1** so V1 readiness is no longer measured against them. They were previously open obligations that quality assessments were treating as live V1 gaps; the 2026-04-23 owner decision in [PENDING_QUESTIONS.md](."
+    },
+    {
+      "title": "6c. Security and assurance \u2014 SOC 2 CPA attestation (post\u2013V1.1 gate), V1.1 (PGP), V2 (third-party pen test) (owner 2026-05-01; SOC scoring clarification 2026-05-03)",
+      "summary": "**SOC 2 CPA attestation:** A **CPA-issued SOC 2 Type I or Type II examination report** is **not** a **V1** or **V1.1** headline readiness milestone for weighted product assessments. **What is in V1:** honest trust-center rows, CAIQ/SIG/DPA/process templates, internally maintained"
+    },
+    {
+      "title": "6d. Agent ecosystem / MCP \u2014 V1.1 candidates (scope documentation 2026-04-24)",
+      "summary": "This section **promotes MCP from backlog-only text to the named V1.1 release window**, aligned with [V1_SCOPE.md \u00a73](V1_SCOPE.md) and the engineering intent in [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md). **Tool count, transport, and allowlist are p"
+    },
+    {
+      "title": "6e. Platform scale-out \u2014 distributed cache reinforcement (V2 enhancement) (engineering note 2026-05-06)",
+      "summary": "**V1 stance:** The host already supports optional **Redis** (`IDistributedCache` via StackExchange.Redis) for **hot-path read-through** (`IHotPathReadCache` \u2192 `DistributedHotPathReadCache`) when **`HotPathCache:Enabled=true`** and the effective provider resolves to **Redis** (`Ar"
+    },
+    {
+      "title": "6f. Azure Container Apps Jobs + Durable Task Framework (V2 backlog, situational) (engineering note 2026-05-07)",
+      "summary": "**V1 stance:** The **`ArchLucid.Worker`** host and **`AuthorityRunOrchestrator`** authority pipeline handle long-running analysis with retry, queuing, and state transitions. V1 does **not** adopt **Azure Container Apps Jobs** or embed the **Durable Task Framework (DTF)** as an or"
+    },
+    {
+      "title": "6g. Identity \u2014 generic OIDC **and native SAML SP** in **V1 GA** (OIDC owner **2026-05-09**; SAML owner **2026-05-15**)",
+      "summary": "**Generic OIDC** workforce sign-in \u2014 **`ArchLucidAuth:Mode=JwtBearer`** with **`ArchLucidAuth:Authority`** pointed at a **non-Microsoft OIDC issuer** (standard discovery + JWKS validation; claim mapping to **`ArchLucidRoles`** per **[SECURITY.md](contributor-reference/SECURITY.md"
+    },
+    {
+      "title": "6h. Customer extensibility docs \u2014 custom agent handlers (**V1 GA** \u2014 promoted 2026-05-12)",
+      "summary": "**Supersedes:** product note 2026-05-10 that placed pattern-level custom handler documentation in **V2** only. **Current stance:** **V1 GA** includes committed **documentation** (not necessarily a third-party plugin SDK or marketplace) for how an advanced integrator **authors and"
+    },
+    {
+      "title": "6i. Hosted trials \u2014 documented `V1` \u2192 `V1.1` migration path (V1.1 documentation) (product note 2026-05-10)",
+      "summary": "**Context:** Hosted **trial** tenants use the same **catalog-per-tenant** isolation story as paid tenants ([`TENANT_DATABASE_TOPOLOGY.md`](TENANT_DATABASE_TOPOLOGY.md)). **`V1`** ships ongoing schema evolution via migrations and publishes breaking guidance in-repo (`CHANGELOG`, *"
+    },
+    {
+      "title": "6j. Governance \u2014 default bundled policy packs (owner note 2026-05-16; updated 2026-05-18)",
+      "summary": "**Twenty-three** first-party starter bundles ship as seeded **`PlatformDefault`** policy packs provisioned alongside net-new tenants (manifest: **`ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled/bundled-policy-packs-v1.manifest.json`**). Buyer-facing summaries appear "
+    },
+    {
+      "title": "6k. Evidence Bulk Upload \u2014 Limits and Batching (V1.1 candidates)",
+      "summary": "**V1 GA stance:** Bulk upload of evidence files is supported up to a configured cap (30 files by default). The V1 endpoint natively handles multiple file parts and emits granular or aggregate audit events. The following bulk processing features are explicitly deferred to **V1.1**"
+    },
+    {
+      "title": "6l. Multi-region active/active guarantees (**V1.1**)",
+      "summary": "**V1 GA stance:** Single-region deployment is the intentional V1 baseline ([`V1_SCOPE.md`](V1_SCOPE.md) \u00a73). Multi-region active/active product topology is **committed for V1.1**, not V1 GA. **Rules:** - **`(A)` V1 assessments** **must not** treat the absence of multi-region acti"
+    },
+    {
+      "title": "6m. Privacy \u2014 automated tenant erasure quarantine pipeline (**V2**) (product decision 2026-05-17)",
+      "summary": "**Scope:** A **fully automated** tenant erasure product path: verified request \u2192 **quarantine** (`TenantErasureRequestedUtc` or equivalent) \u2192 **30-day** (or policy-configured) delay \u2192 **legal hold** gate \u2192 orchestrated **hard purge** (per-tenant SQL catalog, tenant-scoped blobs, "
+    },
+    {
+      "title": "6n. Multi-cloud architecture **analysis** \u2014 AWS and GCP targets (**V1.1**) (owner scope 2026-05-19)",
+      "summary": "**Scope:** Analyze **customer** architectures on **AWS** or **GCP** while ArchLucid **stays hosted on Azure** ([ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md)). Distinct from **\u00a76l** (multi-region **product** HA) and from re-hosting the control plane on "
+    },
+    {
+      "title": "6o. Executive ROI summary endpoint \u2014 cross-run dedup (**promoted to V1**, owner 2026-05-22)",
+      "summary": "**Supersedes** the **V1.1** deferral recorded **2026-05-19**. Cross-run executive ROI aggregation is **in contract for V1 GA** \u2014 see [V1_SCOPE.md](V1_SCOPE.md) **\u00a72.8**. | Milestone | V1 posture | |-----------|------------| | **`GET /v1/roi/executive-summary`** + operator dashboa"
+    },
+    {
+      "title": "6p. Azure extractor \u2014 ArchLucid-hosted automated Tier-2 continuous polling (**V1.x / post-V1 GA**) (architecture decision 2026-05-23)",
+      "summary": "**V1 GA posture:** Tier 1 (customer-run PowerShell ZIP upload) is the V1 GA contract per [V1_SCOPE.md](V1_SCOPE.md) **\u00a72.16**. **On-demand** Tier 2 hosted collection (`POST /v1/admin/azure-extractor/hosted/run`) may ship before automated polling. **Automated** background polling "
+    },
+    {
+      "title": "6q. RAG quality \u2014 V1.1 and V2 expansion (engineering backlog 2026-05-23)",
+      "summary": "**V1 GA posture:** Retrieval infrastructure **ships** (`ArchLucid.Retrieval`, `AskService` retrieval, ADR 0004 outbox). **V1 quality improvements** (corpus seam, policy-pack indexing, tenant prior-manifest chunks, Retail structured lookup, platform docs, faithfulness eval) are **"
+    },
+    {
+      "title": "7. Engineering backlog (not a product roadmap)",
+      "summary": "| Item | Doc source | |------|------------| | Numbered refactors, test hygiene, doc tighten-ups | [NEXT_REFACTORINGS.md](NEXT_REFACTORINGS.md) | | RAG quality \u2014 V1 foundation (TB-021) | [RAG_QUALITY_TECHNICAL_BACKLOG.md](RAG_QUALITY_TECHNICAL_BACKLOG.md) \u00b7 [RAG_CORPUS_KIND_POLICY"
+    },
+    {
+      "title": "8. When to update this file",
+      "summary": "- After a changelog entry marks something **\u201cintentionally deferred\u201d** or **\u201cgap.\u201d** - When **AUDIT_COVERAGE_MATRIX** gains or loses a **Known gaps** row. - When **Phase 7** rename items move (only with program approval). - When **V2 platform** items (\u00a76e\u2013\u00a76f) or **`V1.1` buyer-v"
+    }
+  ],
+  "note": "Deferred items are (B)/V1.1+ \u2014 not V1 headline blockers per assessment scope."
+}

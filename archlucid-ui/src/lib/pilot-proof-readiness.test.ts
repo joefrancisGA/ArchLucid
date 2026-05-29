@@ -1,5 +1,51 @@
-import { describeSponsorProofReadiness } from "@/lib/pilot-proof-readiness";
+import {
+  describeSponsorProofReadiness,
+  isAgentOutputPilotStrictSponsorSafe,
+  isProjectedDollarClaimsSponsorSafe,
+} from "@/lib/pilot-proof-readiness";
 import { describe, expect, it } from "vitest";
+
+describe("isProjectedDollarClaimsSponsorSafe", () => {
+  it("returns true only when proof JSON marks projected dollars sponsor-safe", () => {
+    expect(
+      isProjectedDollarClaimsSponsorSafe({
+        proofPackageCompleteness: {
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+        },
+      }),
+    ).toBe(true);
+
+    expect(
+      isProjectedDollarClaimsSponsorSafe({
+        proofPackageCompleteness: {
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: false },
+        },
+      }),
+    ).toBe(false);
+
+    expect(isProjectedDollarClaimsSponsorSafe(null)).toBe(false);
+  });
+});
+
+describe("isAgentOutputPilotStrictSponsorSafe", () => {
+  it("returns false when PilotStrict evidence is not satisfied", () => {
+    expect(
+      isAgentOutputPilotStrictSponsorSafe({
+        proofPackageCompleteness: { agentOutputPilotStrictEvidenceSatisfied: false },
+      }),
+    ).toBe(false);
+  });
+
+  it("returns true when satisfied or field is absent", () => {
+    expect(
+      isAgentOutputPilotStrictSponsorSafe({
+        proofPackageCompleteness: { agentOutputPilotStrictEvidenceSatisfied: true },
+      }),
+    ).toBe(true);
+
+    expect(isAgentOutputPilotStrictSponsorSafe({ proofPackageCompleteness: {} })).toBe(true);
+  });
+});
 
 describe("describeSponsorProofReadiness", () => {
   it("returns null when proofPackageCompleteness is absent", () => {

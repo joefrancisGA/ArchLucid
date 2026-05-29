@@ -23,6 +23,8 @@ export const BUYER_HOME_PRIMARY_CTA = "Open executive summary";
 
 export const BUYER_HOME_SECONDARY_CTA = "View full review package";
 
+export const BUYER_HOME_SETUP_SECTION_HEADING = "Start a new review";
+
 export const BUYER_RUNS_DASHBOARD_RECENT_LABEL = "Featured finalized review package";
 
 export const BUYER_RUNS_DASHBOARD_RECENT_SUMMARY =
@@ -94,6 +96,14 @@ export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison
 
 export const BUYER_MARKETING_PRICING_PAGE_INTRO =
   "Compare Team, Professional, and Enterprise packaging. Professional is the typical procurement path; detailed terms and diligence artifacts are finalized through your vendor review process.";
+
+/** Sales-led V1: no self-serve checkout; quote and order form finalize commercial terms. */
+export const BUYER_SALES_LED_V1_PRICING_NOTE =
+  "V1 is sold through guided evaluation and procurement — request a quote for packaging, fair-use limits, and diligence artifacts. List tiers illustrate scope; they are not a live marketplace checkout.";
+
+/** Outcome-led value proposition for marketing/demo surfaces (one problem, one proof package). */
+export const BUYER_OUTCOME_LED_VALUE_PROPOSITION =
+  "Cut architecture review cycle time with an evidence-backed proof package — signed manifest, findings, audit trail, and sponsor-ready readout — not a chat transcript.";
 
 export const BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD =
   "The answer below is scoped to this review package's indexed evidence.";

@@ -134,6 +134,21 @@ When an **`AgentEvidencePackage`** exists for the run, **`AgentResultEvidenceFai
 
 Schema reference: **`ArchLucid.Contracts.Agents.AgentOutputSemanticScore`**, **`IAgentResultEvidenceFaithfulnessChecker`**.
 
+### Explanation evidence-basis labels
+
+Sponsor and demo explanation surfaces use a shared label vocabulary so buyers can see the basis before reading the narrative:
+
+| Label | Meaning |
+| --- | --- |
+| **Evidence-backed** | Persisted citations or complete proof fields support the explanation. |
+| **Estimate** | The output uses fallback ROI, defaulted baselines, or deterministic fallback context. |
+| **Low support** | Faithfulness or PilotStrict evidence is below the sponsor-safe threshold. |
+| **Demo-derived** | The output comes from sample/demo workspace evidence and is illustrative only. |
+| **Manual review required** | Evidence basis is incomplete, missing, or simulator substitution must be disclosed. |
+| **Deferred scope** | The buyer ask is outside V1 readiness and belongs to explicitly deferred V1.1/V2/(B) scope. |
+
+These labels are product evidence posture, not legal, compliance, or audit attestations.
+
 ## Quality gate (enabled by default)
 
 **`IAgentOutputQualityGate`** classifies structural + semantic scores into **accepted / warned / rejected** using **`ArchLucid:AgentOutput:QualityGate`** (`AgentOutputQualityGateOptions`).
@@ -204,9 +219,10 @@ When the release posture includes real Azure OpenAI, attach the live run evidenc
 
 For first-pilot sponsor handoff, do not rely on a loose statement that "agent quality was checked." Attach a concrete evidence chain:
 
-1. `pilot-observability-summary.md` from `scripts/collect-first-pilot-evidence.ps1`, showing `qualityGateDisposition=pilot-strict-sponsor-evidence-pass` when PilotStrict is enabled.
-2. `archlucid real-llm-evidence summarize --from-json <fixture-or-export>` for any real-mode session record. The summarizer exits non-zero when required fields are missing or the quality gate outcome is not passing.
-3. `python scripts/ci/eval_agent_faithfulness.py --enforce` and `python scripts/ci/eval_retrieval_ir.py --enforce` reports when retrieval-backed claims are part of the sponsor packet.
+1. **`ai-readiness-gate.json`** from `scripts/collect-first-pilot-proof.ps1` — consolidated **PASS / WARN / HOLD** over execution mode, quality-gate mode/disposition, faithfulness floor + citation proxy, offline retrieval IR, LLM budget posture, and simulator-only labeling. Sponsor handoff must not proceed on **HOLD** when the host is configured for real-mode/PilotStrict evidence.
+2. `pilot-observability-summary.md` from `scripts/collect-first-pilot-evidence.ps1`, showing `qualityGateDisposition=pilot-strict-sponsor-evidence-pass` when PilotStrict is enabled.
+3. `archlucid real-llm-evidence summarize --from-json <fixture-or-export>` for any real-mode session record. The summarizer exits non-zero when required fields are missing or the quality gate outcome is not passing.
+4. `python scripts/ci/eval_agent_faithfulness.py --enforce` and `python scripts/ci/eval_retrieval_ir.py --enforce` reports when retrieval-backed claims are part of the sponsor packet.
 
 If any item fails, classify the sponsor packet as not ready and follow [`QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md) or [`RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md`](../runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md) before handoff.
 

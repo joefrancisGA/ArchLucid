@@ -1,4 +1,5 @@
 import type { CitationReference, RunExplanationSummary } from "@/types/explanation";
+import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 
 type Props = {
   readonly summary: RunExplanationSummary;
@@ -26,6 +27,12 @@ export function DemoExplainExplanationPanel(props: Props) {
           {summary.findingCount} findings · {summary.decisionCount} decisions ·{" "}
           {citations.length} citations
         </p>
+        <ExplanationEvidenceBasisBadges
+          citationCount={citations.length}
+          faithfulnessSupportRatio={summary.faithfulnessSupportRatio}
+          deterministicFallbackUsed={summary.deterministicFallbackUsed ?? summary.usedDeterministicFallback}
+          demoDerived
+        />
       </header>
 
       <div className="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">

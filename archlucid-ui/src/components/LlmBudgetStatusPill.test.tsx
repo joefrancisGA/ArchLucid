@@ -58,12 +58,12 @@ describe("LlmBudgetStatusPill", () => {
     });
   });
 
-  it("renders warn-toned pill label when utilization is high", async () => {
+  it("renders warn-toned pill label when budget headroom is low", async () => {
     render(<LlmBudgetStatusPill />);
 
     const pill = await screen.findByTestId("llm-budget-status-pill");
 
-    expect(pill).toHaveTextContent("Budget: 76%");
+    expect(pill).toHaveTextContent("AI budget: 24% left");
     expect(pill.className).toMatch(/amber/);
   });
 
@@ -141,6 +141,6 @@ describe("LlmBudgetStatusPill", () => {
 
     render(<LlmBudgetStatusPill />);
 
-    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("Budget: 100% — paused");
+    expect(await screen.findByTestId("llm-budget-status-pill")).toHaveTextContent("AI budget: 0% left — paused");
   });
 });

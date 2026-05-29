@@ -1,0 +1,45 @@
+{
+  "generatedUtc": "2026-05-29T03:58:17.734514+00:00",
+  "attestationPosture": "Self-assessed controls and documented engineering evidence \u2014 not CPA SOC 2, ISO certification, or third-party pen-test attestation today.",
+  "currentControlsSummary": [
+    "Tenant-scoped auth (OIDC/SAML/API key) with least-privilege operator ranks",
+    "Append-only audit events and correlation IDs on API failures",
+    "Config summary and config lint without returning secrets",
+    "Policy packs and governance workflows (optional after first commit)",
+    "DPA/SIG/CAIQ-style templates in procurement pack \u2014 templates, not legal guarantees"
+  ],
+  "deferredAssurances": [
+    "CPA SOC 2 Type I/II report",
+    "Third-party penetration test publication",
+    "ISO or statutory certification automation",
+    "Live marketplace checkout as procurement gate"
+  ],
+  "neverAskCustomersToGrant": [
+    "Production database connection strings in tickets",
+    "API keys, SAML secrets, or Key Vault values in email",
+    "Unredacted LLM prompts in buyer-safe attachments",
+    "Customer-operated webhook secrets in V1 required path"
+  ],
+  "sources": [
+    {
+      "path": "docs/go-to-market/TRUST_CENTER.md",
+      "role": "Trust center narrative",
+      "present": true
+    },
+    {
+      "path": "docs/security/SOC2_SELF_ASSESSMENT_2026.md",
+      "role": "SOC 2 self-assessment (not CPA attestation)",
+      "present": true
+    },
+    {
+      "path": "docs/go-to-market/SOC2_ROADMAP.md",
+      "role": "SOC 2 roadmap (deferred CPA program)",
+      "present": true
+    },
+    {
+      "path": "docs/library/V1_DEFERRED.md",
+      "role": "Explicit V1 deferrals",
+      "present": true
+    }
+  ]
+}

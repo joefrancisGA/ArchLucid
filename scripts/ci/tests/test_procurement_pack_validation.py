@@ -237,6 +237,56 @@ class TestProcurementPackValidation(unittest.TestCase):
         self.assertEqual(summary["disposition"], "PASS")
         self.assertEqual(summary["blocking_violation_count"], 0)
 
+    def test_build_deal_ready_summary_includes_scope_classification_rows(self) -> None:
+        import procurement_scope_classification as scope_class
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            gtm = root / "docs" / "go-to-market"
+            gtm.mkdir(parents=True)
+
+            for name in (
+                "ASSURANCE_STATUS_CANONICAL.md",
+                "TRUST_CENTER.md",
+                "SOC2_STATUS_PROCUREMENT.md",
+                "CURRENT_ASSURANCE_POSTURE.md",
+                "INCIDENT_COMMUNICATIONS_POLICY.md",
+            ):
+                (gtm / name).write_text(
+                    "> **Scope:** test\n\n**Last reviewed:** 2099-01-01\nsecurity@archlucid.net\n",
+                    encoding="utf-8",
+                )
+
+            summary = pp_val.build_deal_ready_summary(
+                ok=True,
+                violations=[],
+                strict_mode=True,
+                deal_ready_mode=True,
+                root=root,
+            )
+
+            rows = list(summary["scope_classification_rows"])
+            self.assertGreater(len(rows), 0)
+            classifications = {str(r["classification"]) for r in rows}
+            self.assertIn(scope_class.SCOPE_DEFERRED_SCOPE, classifications)
+            self.assertIn(scope_class.SCOPE_V1_READY, classifications)
+
+    def test_missing_deal_ready_doc_classified_blocking(self) -> None:
+        import procurement_scope_classification as scope_class
+
+        violation = "missing required deal-ready doc: docs/go-to-market/TRUST_CENTER.md"
+        row = scope_class.violation_to_classification_row(violation)
+
+        self.assertEqual(row["classification"], scope_class.SCOPE_BLOCKING)
+
+    def test_soc2_catalog_row_is_deferred_scope(self) -> None:
+        import procurement_scope_classification as scope_class
+
+        soc2 = next(entry for entry in scope_class.PROCUREMENT_SCOPE_CATALOG if entry["id"] == "soc2-cpa-report")
+
+        self.assertEqual(soc2["classification"], scope_class.SCOPE_DEFERRED_SCOPE)
+        self.assertIn("SOC2_STATUS_PROCUREMENT.md", soc2["source_doc"])
+
 
     def test_collect_quality_snapshot_passes_on_minimal_fixture(self) -> None:
 

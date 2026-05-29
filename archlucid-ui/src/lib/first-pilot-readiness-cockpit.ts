@@ -1,4 +1,5 @@
 import type { CurrentPrincipal } from "@/lib/current-principal";
+import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -85,7 +86,7 @@ export function buildFirstPilotReadinessRows(input: {
     },
     {
       id: "principal-authority",
-      label: "Current principal authority",
+      label: "Review authority",
       status: input.principal.provenance === "auth-me"
         ? canExecute
           ? "ready"
@@ -147,15 +148,33 @@ export function buildFirstPilotReadinessRows(input: {
     },
     {
       id: "roi-baselines",
-      label: "Buyer-specific ROI baselines",
+      label: "ROI baseline readiness",
       status: input.scorecardLoadFailed ? "unknown" : baselinesEntered ? "ready" : canExecute ? "attention" : "blocked",
       summary: baselinesEntered
         ? "Sponsor/value outputs can label ROI lines as customer-entered baselines."
         : canExecute
           ? "Capture review hours, reviews per quarter, and loaded architect cost before sponsor export."
           : "Read-only role can view ROI but cannot update baseline assumptions.",
-      href: "/scorecard",
-      cta: "Open scorecard",
+      href: "/scorecard#roi-baselines",
+      cta: "Enter ROI baselines",
+    },
+    {
+      id: "procurement-classification",
+      label: "Procurement evidence readiness",
+      status: "attention",
+      summary:
+        "Run build_procurement_pack.py --deal-ready; classification table separates V1_READY from DEFERRED_SCOPE.",
+      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/PROCUREMENT_DEAL_READY.md`,
+      cta: "Open procurement runbook",
+    },
+    {
+      id: "proof-pipeline",
+      label: "Pilot evidence package",
+      status: input.signals.hasCommittedManifest ? "attention" : "unknown",
+      summary:
+        "After finalize, run collect-first-pilot-proof.ps1 for first-pilot-command-center.md and authoritative PASS/WARN/HOLD.",
+      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`,
+      cta: "Open operator checklist",
     },
     {
       id: "data-consistency",
@@ -171,17 +190,17 @@ export function buildFirstPilotReadinessRows(input: {
     },
     {
       id: "sponsor-packet",
-      label: "Sponsor packet readiness",
+      label: "Executive evidence package",
       status: input.signals.hasCommittedManifest ? "ready" : "attention",
       summary: input.signals.hasCommittedManifest
-        ? "Sponsor packet/export surfaces are available from finalized review detail."
-        : "Finalize a review package before sponsor export.",
+        ? "Executive evidence package and export surfaces are available from finalized review detail."
+        : "Finalize a review package before exporting the executive evidence package.",
       href: committedRunHref,
-      cta: "Open sponsor source",
+      cta: "Open evidence package",
     },
     {
       id: "second-review",
-      label: "Second-review adoption nudge",
+      label: "Next review suggestion",
       status: input.signals.hasCommittedManifest ? "attention" : "unknown",
       summary: input.signals.hasCommittedManifest
         ? `Next: start a second architecture review with real inputs, compare reviews, try a ${FIRST_PILOT_BUYER_COPY.governanceDryRun}, or generate the sponsor packet.`

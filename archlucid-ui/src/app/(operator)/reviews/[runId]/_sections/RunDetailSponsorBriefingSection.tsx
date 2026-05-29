@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
+import { RunDetailAiReadinessGateCard } from "@/components/RunDetailAiReadinessGateCard";
 import { BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer-polish-copy";
 
 type RunDetailSponsorBriefingSectionProps = {
@@ -15,25 +16,27 @@ type RunDetailSponsorBriefingSectionProps = {
 export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingSectionProps): ReactElement {
   const { runId, manifestId, curatedSampleRun, buyerPolishedArtifactTable, sponsorDocxAvailable } = props;
 
+  const deliverables = (
+    <>
+      <RunDetailAiReadinessGateCard runId={runId} manifestId={manifestId} />
+      <EmailRunToSponsorBanner
+        runId={runId}
+        manifestId={manifestId}
+        curatedSampleRun={curatedSampleRun}
+        sponsorDocxAvailable={sponsorDocxAvailable}
+      />
+    </>
+  );
+
   if (buyerPolishedArtifactTable) {
     return (
       <CollapsibleSection title={BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL} defaultOpen={false}>
-        <EmailRunToSponsorBanner
-          runId={runId}
-          manifestId={manifestId}
-          curatedSampleRun={curatedSampleRun}
-          sponsorDocxAvailable={sponsorDocxAvailable}
-        />
+        <div id="sponsor-deliverables" className="scroll-mt-24">
+          {deliverables}
+        </div>
       </CollapsibleSection>
     );
   }
 
-  return (
-    <EmailRunToSponsorBanner
-      runId={runId}
-      manifestId={manifestId}
-      curatedSampleRun={curatedSampleRun}
-      sponsorDocxAvailable={sponsorDocxAvailable}
-    />
-  );
+  return <div id="sponsor-deliverables" className="scroll-mt-24">{deliverables}</div>;
 }

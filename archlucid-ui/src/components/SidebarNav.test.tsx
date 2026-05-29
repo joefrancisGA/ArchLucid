@@ -55,13 +55,13 @@ describe("SidebarNav (primary navigation)", () => {
       const homeLink = within(nav).getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
-      expect(within(nav).getByRole("link", { name: "Capture" })).toHaveAttribute("href", "/reviews/new");
-      expect(within(nav).getByRole("link", { name: "Capture" })).toHaveAttribute(
+      expect(within(nav).getByRole("link", { name: "Evidence intake" })).toHaveAttribute("href", "/reviews/new");
+      expect(within(nav).getByRole("link", { name: "Evidence intake" })).toHaveAttribute(
         "title",
-        "Capture — start a new architecture review (guided wizard through pipeline tracking) (Alt+N)",
+        "Evidence intake — start a new architecture review (guided wizard through review progress tracking) (Alt+N)",
       );
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
-      expect(within(nav).getByRole("link", { name: "Review package" })).toHaveAttribute("href", "/reviews?projectId=default");
+      expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute("href", "/reviews?projectId=default");
       expect(within(nav).getByRole("link", { name: "Executive summary" })).toHaveAttribute("href", "/dashboard");
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();

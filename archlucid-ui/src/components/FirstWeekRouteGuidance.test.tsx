@@ -38,4 +38,12 @@ describe("FirstWeekRouteGuidance", () => {
 
     expect(screen.getByRole("link", { name: "Open new review wizard" })).toHaveAttribute("href", "/reviews/new");
   });
+
+  it("renders home guidance with recommended first-session summary", () => {
+    render(<FirstWeekRouteGuidance variant="home" />);
+
+    expect(screen.getByText("Recommended first-session path")).toBeInTheDocument();
+    expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start new review" })).toHaveAttribute("href", "/reviews/new");
+  });
 });

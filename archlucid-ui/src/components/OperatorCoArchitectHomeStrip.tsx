@@ -67,19 +67,19 @@ export function OperatorCoArchitectHomeStrip() {
     <section
       aria-label={OPERATOR_CO_ARCHITECT_HOME_STRIP_ARIA_LABEL}
       className={cn(
-        "rounded-xl border border-teal-200/90 bg-gradient-to-r from-teal-50/90 to-white px-4 py-3 shadow-sm",
-        "dark:border-teal-900/80 dark:from-teal-950/40 dark:to-neutral-900",
+        "rounded-xl border border-neutral-200/90 bg-neutral-50/80 px-4 py-3 shadow-sm",
+        "dark:border-neutral-700/80 dark:bg-neutral-900/50",
       )}
     >
       <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{OPERATOR_CO_ARCHITECT_BRAND_LINE}</p>
       <p className="m-0 mt-1 text-xs leading-snug text-neutral-600 dark:text-neutral-400">{OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <Button asChild variant="primary" className="h-9 text-sm font-semibold">
+        <Button asChild variant="outline" className="h-9 text-sm font-medium">
           <Link href="/reviews/new" onClick={() => onPick("review")}>
             {OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}
           </Link>
         </Button>
-        <Button asChild variant="outline" className="h-9 border-teal-300 text-sm font-medium text-teal-900 dark:border-teal-700 dark:text-teal-200">
+        <Button asChild variant="ghost" className="h-9 text-sm font-medium text-neutral-700 dark:text-neutral-300">
           <Link href="/reviews/new?intent=describe" onClick={() => onPick("describe")}>
             {OPERATOR_CO_ARCHITECT_CTA_DESCRIBE_SECONDARY}
           </Link>
@@ -87,7 +87,7 @@ export function OperatorCoArchitectHomeStrip() {
       </div>
       {focus !== null ? (
         <p className="m-0 mt-2 text-[11px] text-neutral-500 dark:text-neutral-500" aria-live="polite">
-          Last selected entry: {focus === "review" ? "Architecture review" : "Describe what you want"} (same new-review flow;
+          Last selected entry: {focus === "review" ? "Create from evidence" : "Describe architecture scope"} (same new-review flow;
           preference is saved in this browser).
         </p>
       ) : null}

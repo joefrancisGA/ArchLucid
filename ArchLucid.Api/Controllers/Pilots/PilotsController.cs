@@ -18,6 +18,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Pilots;
 
 using Asp.Versioning;
 
@@ -57,7 +58,8 @@ public sealed class PilotsController(
     IAuditService auditService,
     ValueReportBuilder valueReportBuilder,
     IActorContext actorContext,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IPilotBaselineRepository pilotBaselineRepository) : ControllerBase
 {
     /// <summary>
     ///     Read-only telemetry snapshot for the operator-shell <c>/why-archlucid</c> proof page (cumulative since
@@ -280,12 +282,16 @@ public sealed class PilotsController(
             detail.Run.RunId,
             cancellationToken);
 
+        PilotBaselineRecord? scorecardBaselines =
+            await pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
         return Ok(PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
             detail.Run,
             detail.Manifest,
             deltas,
             snapshot,
-            extractorCollectionTimestampUtc));
+            extractorCollectionTimestampUtc,
+            scorecardBaselines));
     }
 
     /// <summary>
@@ -317,15 +323,24 @@ public sealed class PilotsController(
     [Produces("application/pdf")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostFirstValueReportPdf(string runId, CancellationToken cancellationToken)
     {
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
-        byte[]? pdf = await firstValueReportPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
 
-        return pdf is null
-            ? this.NotFoundProblem($"First-value report PDF is not available for run '{runId}'.",
-                ProblemTypes.RunNotFound)
-            : File(pdf, "application/pdf", $"first-value-report-{runId}.pdf");
+        try
+        {
+            byte[]? pdf = await firstValueReportPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
+
+            return pdf is null
+                ? this.NotFoundProblem($"First-value report PDF is not available for run '{runId}'.",
+                    ProblemTypes.RunNotFound)
+                : File(pdf, "application/pdf", $"first-value-report-{runId}.pdf");
+        }
+        catch (SponsorFirstValuePdfBlockedException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     /// <summary>JSON pilot scorecard for the current tenant scope (UTC window).</summary>

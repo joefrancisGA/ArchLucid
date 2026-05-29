@@ -71,7 +71,7 @@ export type PilotChecklistPanelPersisted = {
 };
 
 function defaultPilotChecklistPanelState(): PilotChecklistPanelPersisted {
-  return { steps: Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false), hidden: false };
+  return { steps: Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false), hidden: true };
 }
 
 /** Hydration-safe read: prefers `PILOT_CHECKLIST_PANEL_STORAGE_KEY`, else migrates from `corePilotStepDoneStorageKey`. */
@@ -103,7 +103,7 @@ export function readPilotChecklistPanelState(): PilotChecklistPanelPersisted {
     steps.push(window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1");
   }
 
-  return { steps, hidden: false };
+  return { steps, hidden: true };
 }
 
 export function writePilotChecklistPanelState(state: PilotChecklistPanelPersisted): void {

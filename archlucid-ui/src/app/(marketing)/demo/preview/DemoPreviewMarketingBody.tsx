@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { DemoPreviewGuidedCallouts } from "@/app/(marketing)/demo/preview/DemoPreviewGuidedCallouts";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
+import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 import { ShowcaseOutcomeStrip } from "@/components/showcase/ShowcaseOutcomeStrip";
 import { ShowcasePipelineReviewTrailCards } from "@/components/showcase/ShowcasePipelineReviewTrailCards";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
@@ -9,6 +10,7 @@ import type { PipelineTimelineItem } from "@/types/authority";
 import { getArtifactBusinessLabel, stripArtifactFilenameExtension } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
+import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
 import {
@@ -190,6 +192,15 @@ export function DemoPreviewMarketingBody({
 
       {suppressStatusBanner ? null : <DemoStatusBanner payload={payload} buyerAudienceChrome={demoMode} />}
 
+      {demoMode ? (
+        <p
+          className="max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+          data-testid="demo-preview-outcome-led-lead"
+        >
+          {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
+        </p>
+      ) : null}
+
       <DemoPreviewGuidedCallouts />
 
       <section data-testid="demo-preview-run">
@@ -326,6 +337,30 @@ export function DemoPreviewMarketingBody({
 
       <section data-testid="demo-preview-aggregate-explanation">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Architecture review explanation</h2>
+        <div
+          className="mt-3 rounded-lg border border-teal-200 bg-teal-50/80 p-4 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-50"
+          data-testid="demo-preview-sponsor-mode-summary"
+        >
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-200">
+            Sponsor-mode summary
+          </p>
+          <p className="mt-2 m-0">
+            {runEx?.overallAssessment ??
+              "This sample review shows how ArchLucid turns architecture evidence into a sponsor-readable risk narrative."}
+          </p>
+          <p className="mt-2 m-0 text-xs text-teal-800 dark:text-teal-200">
+            Evidence basis: committed sample manifest, persisted citations, and demo-labeled review artifacts. Treat the
+            story as illustrative until you run the same path on buyer evidence.
+          </p>
+          <div className="mt-3">
+            <ExplanationEvidenceBasisBadges
+              citationCount={citationCount}
+              faithfulnessSupportRatio={runEx?.faithfulnessSupportRatio}
+              deterministicFallbackUsed={runEx?.deterministicFallbackUsed ?? runEx?.usedDeterministicFallback}
+              demoDerived
+            />
+          </div>
+        </div>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Overall assessment:</strong> {runEx?.overallAssessment ?? "—"}
         </p>

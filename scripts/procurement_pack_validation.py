@@ -13,6 +13,8 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+import procurement_scope_classification as scope_class
+
 
 _TEMPLATE_REQUIRED_SUBSTRINGS: tuple[tuple[Path, tuple[str, ...]], ...] = (
     (
@@ -448,21 +450,7 @@ PROCUREMENT_DEFERRED_REALISM_NOTES: tuple[str, ...] = (
 
 def classify_deal_ready_violation(violation: str) -> str:
     """Split deal-ready findings into blocking product/proc defects vs deferred realism."""
-    lowered = violation.lower()
-
-    if "implies" in lowered or "placeholder" in lowered:
-        return "blocking"
-
-    if "missing required deal-ready doc" in lowered or "missing canonical source" in lowered:
-        return "blocking"
-
-    if "missing **last reviewed:**" in lowered or "missing artifact_status" in lowered:
-        return "blocking"
-
-    if "security@archlucid.net" in lowered:
-        return "blocking"
-
-    if "last reviewed is" in lowered and "days old" in lowered:
+    if scope_class.classify_violation_scope(violation) == scope_class.SCOPE_DEFERRED_SCOPE:
         return "deferred_realism"
 
     return "blocking"
@@ -488,12 +476,18 @@ def build_deal_ready_summary(
     violations: list[str],
     strict_mode: bool,
     deal_ready_mode: bool,
+    root: Path | None = None,
 ) -> dict[str, object]:
     blocking, deferred_from_violations = split_deal_ready_violations(violations)
     deferred_notes = list(PROCUREMENT_DEFERRED_REALISM_NOTES) + deferred_from_violations
     # Deferred realism (stale Last reviewed, SOC2 deferral notes) does not block deal-ready PASS.
     effective_ok = len(blocking) == 0
     disposition = "PASS" if effective_ok else "HOLD"
+
+    classification_rows: list[dict[str, object]] = []
+
+    if deal_ready_mode and root is not None:
+        classification_rows = scope_class.build_scope_classification_rows(root, violations)
 
     return {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -505,6 +499,8 @@ def build_deal_ready_summary(
         "blocking_violations": blocking,
         "deferred_realism_notes": deferred_notes,
         "all_violations": violations,
+        "scope_classification_counts": scope_class.summarize_scope_classifications(classification_rows),
+        "scope_classification_rows": classification_rows,
     }
 
 
@@ -513,18 +509,30 @@ def write_deal_ready_summary_json(path: Path, summary: dict[str, object]) -> Non
     path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 
 
-def format_deal_ready_disposition(*, ok: bool, violations: list[str]) -> str:
+def format_deal_ready_disposition(
+    *,
+    ok: bool,
+    violations: list[str],
+    root: Path | None = None,
+) -> str:
     """Buyer-safe disposition with blocking vs deferred procurement realism sections."""
     summary = build_deal_ready_summary(
         ok=ok,
         violations=violations,
         strict_mode=True,
         deal_ready_mode=True,
+        root=root,
     )
     disposition = str(summary["disposition"])
     blocking = list(summary["blocking_violations"])
     deferred_notes = list(summary["deferred_realism_notes"])
+    counts = dict(summary.get("scope_classification_counts") or {})
     lines = [f"Deal-ready disposition: {disposition}"]
+
+    if counts:
+        lines.append("Scope classification counts:")
+        for key in scope_class.SCOPE_CLASSIFICATIONS:
+            lines.append(f"  - {key}: {counts.get(key, 0)}")
 
     if blocking:
         lines.append("Blocking reasons:")
@@ -533,6 +541,8 @@ def format_deal_ready_disposition(*, ok: bool, violations: list[str]) -> str:
     if deferred_notes:
         lines.append("Deferred procurement realism (not V1 product failure):")
         lines.extend(f"  - {note}" for note in deferred_notes)
+
+    lines.append("See scope classification table in procurement-deal-ready-classification.md (when generated).")
 
     return "\n".join(lines)
 
@@ -567,7 +577,8 @@ def collect_quality_snapshot(
         blocking.extend(placeholder_violations)
 
     if deal_ready_mode and deal_violations:
-        blocking.extend(deal_violations)
+        deal_blocking, _deal_deferred = split_deal_ready_violations(deal_violations)
+        blocking.extend(deal_blocking)
 
     overall = "pass" if not blocking else "fail"
 

@@ -46,6 +46,8 @@ function stubFetchForBannerMocks(init?: {
         proofSendability: "Sendable",
         publishingTier: "Complete",
         roiEvidenceConfidence: "Strong",
+        roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+        agentOutputPilotStrictEvidenceSatisfied: true,
       },
     } as const);
 
@@ -434,6 +436,29 @@ describe("EmailRunToSponsorBanner", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-roi-baseline-gap")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();
+  });
+
+  it("blocks sponsor PDF export when projected dollar claims are not sponsor-safe", async () => {
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: false,
+          sponsorProofReadiness: "NeedsBaseline",
+          proofSendability: "SendableWithCaveats",
+          roiBaselineInputs: { projectedDollarClaimsSponsorSafe: false },
+          agentOutputPilotStrictEvidenceSatisfied: true,
+        },
+      },
+    });
+
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-projected-dollar-gap")).toBeInTheDocument();
     });
 
     expect(screen.getByTestId("email-run-to-sponsor-primary-action")).toBeDisabled();

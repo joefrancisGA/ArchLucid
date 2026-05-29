@@ -74,6 +74,22 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || window.location.hash !== "#roi-baselines") {
+      return;
+    }
+
+    const scrollToBaselines = (): void => {
+      document.getElementById("roi-baselines")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const frame = window.requestAnimationFrame(scrollToBaselines);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [data]);
+
   const onSaveBaselines = useCallback(async () => {
     if (!canExecute) {
       return;

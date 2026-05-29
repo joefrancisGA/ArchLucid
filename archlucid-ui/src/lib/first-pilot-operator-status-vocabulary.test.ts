@@ -10,7 +10,7 @@ describe("first-pilot-operator-status-vocabulary", () => {
     expect(mapReadinessStatusToOperatorLabel("ready")).toBe("READY");
     expect(mapReadinessStatusToOperatorLabel("attention")).toBe("WARN");
     expect(mapReadinessStatusToOperatorLabel("blocked")).toBe("HOLD");
-    expect(mapReadinessStatusToOperatorLabel("unknown")).toBe("HOLD");
+    expect(mapReadinessStatusToOperatorLabel("unknown")).toBe("PENDING");
   });
 
   it("documents the shared vocabulary strings", () => {

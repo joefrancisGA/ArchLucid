@@ -15,6 +15,15 @@ The shell exposes **fast navigation** and **page actions** via the keyboard. Des
 
 Global shortcuts apply from the main content region wrapped by [`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx) in [`layout.tsx`](../src/app/layout.tsx). The header/nav sit outside that wrapper, so **focus the page body** (e.g. Tab to main or click content) before Alt shortcuts if the nav stole focus.
 
+## Command palette (Ctrl+K)
+
+| Surface | Behavior | Visible label |
+|---------|----------|----------------|
+| Header trigger ([`CommandPalette.tsx`](../src/components/CommandPalette.tsx)) | **Ctrl+K** and **⌘K** (macOS `metaKey`) both open/close the palette | Always **`Ctrl+K`** in chips and tooltips — never the ⌘ glyph ([`keyboard-shortcut-display.ts`](../src/lib/keyboard-shortcut-display.ts)) |
+| Sidebar footer | *(removed)* | No duplicate “Search pages” hint in the nav column |
+
+`aria-keyshortcuts` uses `Control+K`; `aria-label` omits the combo so native browser tooltips do not substitute ⌘ on macOS.
+
 ## Global shortcuts (`SHORTCUTS`)
 
 | Combo | Action | Navigates to |

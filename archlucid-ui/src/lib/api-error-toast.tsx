@@ -3,7 +3,9 @@
 import { toast } from "sonner";
 
 import { ApiErrorToastContent } from "@/components/ApiErrorToastContent";
+import { resolveApiRequestErrorToastPlan } from "@/lib/api-error-toast-policy";
 import type { ApiRequestError } from "@/lib/api-request-error";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 /** Browser-only API failure toast with correlation id copy affordance. */
 export function showApiError(
@@ -27,8 +29,15 @@ export function showApiError(
 }
 
 export function showApiRequestErrorToast(err: ApiRequestError, title = "Server error"): void {
-  showApiError(title, {
-    detail: err.message,
+  const plan = resolveApiRequestErrorToastPlan(err, isBuyerPolishedOperatorShellEnv());
+
+  if (plan.action === "suppress") {
+    return;
+  }
+
+  showApiError(plan.title ?? title, {
+    detail: plan.detail,
     correlationId: err.correlationId,
+    type: plan.type,
   });
 }

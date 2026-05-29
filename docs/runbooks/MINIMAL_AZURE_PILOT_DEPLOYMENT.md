@@ -39,6 +39,7 @@
 
 ## Evidence to capture at handoff
 
+- `production-like-azure-pilot-proof.md` from `./scripts/collect-first-pilot-proof.ps1` (configured vs measured vs not-enabled)
 - `/health/ready`, `/version`, `/openapi/v1.json`
 - SQL migration success in startup logs
 - Telemetry export status (App Insights connection string present)

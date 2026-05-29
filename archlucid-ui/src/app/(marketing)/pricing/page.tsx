@@ -5,7 +5,7 @@ import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/Mark
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { TrialNudgePricingQuoteFocus } from "@/components/marketing/TrialNudgePricingQuoteFocus";
-import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
+import { BUYER_MARKETING_PRICING_PAGE_INTRO, BUYER_SALES_LED_V1_PRICING_NOTE } from "@/lib/buyer-polish-copy";
 import { BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE } from "@/lib/buyer-polish-copy";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
 import {
@@ -51,6 +51,12 @@ export default async function PricingPage(props: PricingPageProps) {
         preferSalesLedQuoteCta={preferSalesLedQuoteCta}
       />
       <MarketingPricingPublicCutoverNotice />
+      <p
+        className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        data-testid="pricing-sales-led-v1-note"
+      >
+        {BUYER_SALES_LED_V1_PRICING_NOTE}
+      </p>
       <p
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"

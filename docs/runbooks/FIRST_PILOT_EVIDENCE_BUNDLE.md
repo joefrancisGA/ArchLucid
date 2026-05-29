@@ -27,7 +27,13 @@ Optional `-DeferredBuyerRequirement` values document buyer requirements that are
   -OutputDirectory artifacts/first-pilot-proof
 ```
 
-The pipeline emits `go-no-go-summary.md`, `go-no-go-summary.json`, `quote-to-proof-packet.md`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `procurement-deal-ready-check.txt`, data-consistency readiness output, and the committed-run evidence bundle when `-RunId` is supplied. Triage IDs in the summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
+The pipeline emits **`first-pilot-command-center.md`** and **`first-pilot-command-center.json`** (primary phased status surface aligned to [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) labels), `go-no-go-summary.md`, `go-no-go-summary.json`, `quote-to-proof-packet.md`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `route-tier-policy-nav-drift.json`, `scale-envelope-evidence.md`, `first-pilot-timing-budget.md`, `admin-operational-posture.md`, `procurement-deal-ready-check.txt`, `procurement-deal-ready-classification.md`, **`data-consistency-readiness/`** (including `data-consistency-summary.json` rolled into `go-no-go-summary.json` as `dataConsistencyProof`), and the committed-run evidence bundle when `-RunId` is supplied. **BLOCK/WARN** rows in `go-no-go-summary.md` include a **`supportNextStep`** column pointing at support-bundle or collector commands (no secrets). Triage IDs in the detailed summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
+
+## First-pilot command center
+
+Open **`first-pilot-command-center.md`** first after proof collection. It rolls up five phases — platform ready, evidence ingest, review lifecycle, sponsor package, procurement posture — using only **READY**, **WARN**, **HOLD**, **DEFERRED**, and one **NEXT ACTION** row. Each **HOLD** phase links to exactly one remediation doc. Deferred V1.1/V2/(B) buyer requirements appear under **DEFERRED** and do not block V1 handoff when `sponsorPacketDisposition` is `DEFERRED_SCOPE`. Without `-RunId`, review lifecycle stays **WARN** (readiness-only); the pipeline does not crash.
+
+`go-no-go-summary.json` includes a `commandCenter` pointer (`jsonPath`, `mdPath`, `readinessOnly`, `nextActionSummary`) for automation.
 
 ## GitHub / Azure DevOps workflow handoff (optional)
 
@@ -42,7 +48,23 @@ After proof collection, attach buyer-safe artifacts to an existing PR, issue, or
 | `HOLD` | Any blocking finding: missing `RunId`, unresolved PilotStrict signals, unsafe ROI basis, data-consistency HOLD, stale procurement pack, route/tier/policy/nav drift, or other BLOCK rows |
 | `DEFERRED_SCOPE` | V1 proof passes (`blockCount=0`) but `-DeferredBuyerRequirement` or procurement output documents V1.1/V2/(B) buyer requirements such as SOC 2 CPA, public reference customer, live marketplace checkout, MCP, or first-party ITSM/chat/doc connectors |
 
-`go-no-go-summary.json` includes `blockingReasons`, `deferredScopeReasons`, `dataConsistencyStatus`, `roiBasisStatus`, `roiSponsorSafe`, and `aiQualityProof` when a committed run is collected.
+`go-no-go-summary.json` includes `blockingReasons`, `deferredScopeReasons`, `dataConsistencyStatus`, `roiBasisStatus`, `roiSponsorSafe`, `aiQualityProof`, and `aiReadinessGate` when proof collection runs.
+
+## Consolidated AI readiness gate
+
+`collect-first-pilot-proof.ps1` emits **`ai-readiness-gate.json`** and **`ai-readiness-gate.md`** with a single **PASS / WARN / HOLD** disposition. The gate rolls up:
+
+| Signal | Source |
+| --- | --- |
+| Agent execution mode | `pilot-observability-summary.json` → `llmExecutionMode` |
+| Quality gate mode / disposition | Host config + per-run PilotStrict signals |
+| Faithfulness floor | `pilotStrictMinAgentResultFaithfulnessSupportRatio` |
+| Faithfulness/citation observed | Mean citation coverage from `retrieval-grounding.json` (proxy label) |
+| Retrieval IR status | Offline `retrieval-ir-report.md` copied into the proof folder |
+| LLM budget status | `llm-budget-status.json` when collected |
+| Simulator-only posture | Explicit when mode is simulator/WarnOnly — does **not** prove real LLM quality |
+
+**HOLD** on sponsor handoff (`-SponsorHandoff`) when real-mode or PilotStrict configuration exists but sponsor-safe AI evidence is missing or rejected. **WARN** for simulator-only or partial signals. **PASS** only when PilotStrict sponsor-evidence passes with buyer-safe redaction and attested grounding.
 
 ## AI Quality Proof
 
@@ -105,8 +127,27 @@ Sponsor-facing exports and the review-detail sponsor banner surface **evidence s
 | Heuristic fallback | Conservative estimates — review before dollar claims |
 | Demo-derived | Sample/demo tenant — not externally publishable |
 | Fresh / Stale / Missing / Not collected | Cost evidence collection posture |
+| Evidence-backed | Explanation or sponsor row has persisted citations or complete proof fields |
+| Estimate | Narrative depends on fallback ROI, defaulted baselines, or deterministic fallback context |
+| Low support | PilotStrict or faithfulness evidence is below the sponsor-safe threshold |
+| Manual review required | Evidence basis is incomplete or simulator substitution must be disclosed |
+| Deferred scope | Buyer ask belongs to explicitly deferred V1.1/V2/(B) scope |
 
 Stale, missing, demo-derived, or heuristic-only badges must **not** be presented as current customer proof in Markdown, PDF, DOCX, or sponsor email.
+Low-support, estimate, manual-review-required, or deferred-scope labels require sponsor-safe caveats; they are product evidence labels, not legal/audit attestations.
+
+## Minimum viable ROI baseline (before sponsor readout)
+
+Capture these on the pilot scorecard (`/scorecard`) and confirm `proofPackageCompleteness.roiBaselineInputs` on `GET /v1/pilots/runs/{runId}/pilot-run-deltas` before external send:
+
+| Input | Persisted source | Required basis for projected dollars |
+| --- | --- | --- |
+| Review-cycle hours | Tenant trial signup or baseline settings | `buyer-provided` (not `defaulted` or `not collected`) |
+| Architect prep hours / review | Tenant manual-prep baseline field | `buyer-provided` |
+| Evidence assembly cadence | Scorecard `baselineReviewsPerQuarter` | `buyer-provided` |
+| Loaded architect hourly cost | Scorecard `baselineArchitectHourlyCost` | `buyer-provided` |
+
+When any field is `defaulted`, `demo-derived`, or `not collected`, the first-value Markdown includes sponsor-safe fallback copy and `projectedDollarClaimsSponsorSafe` is **false** — do not lead sponsor email or banners with projected USD savings from findings rollups. Use qualitative deltas and explicit estimate labels until all four inputs are buyer-provided.
 
 ## Committed-run evidence command
 

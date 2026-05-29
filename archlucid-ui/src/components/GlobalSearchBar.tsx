@@ -102,7 +102,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const resultsPanelOpen = open && query.trim().length >= 2;
 
   return (
-    <div ref={rootRef} className={props.className ?? "relative min-w-[12rem] flex-1 max-w-md"} data-testid="global-search">
+    <div ref={rootRef} className={props.className ?? "relative w-full"} data-testid="global-search">
       <label htmlFor={inputId} className="sr-only">
         Global search
       </label>
@@ -110,7 +110,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
         ref={inputRef}
         id={inputId}
         type="search"
-        placeholder="Search review packages, findings, evidence, and policies…"
+        placeholder="Search reviews, findings, and policies…"
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);

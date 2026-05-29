@@ -1,0 +1,43 @@
+{
+  "generatedUtc": "2026-05-29T05:40:41.658706+00:00",
+  "purpose": "Sales-led V1 packaging boundaries \u2014 not live marketplace checkout.",
+  "salesLedNote": "Request a quote for packaging, fair-use limits, and diligence artifacts; list tiers illustrate scope.",
+  "tiers": [
+    {
+      "id": "team",
+      "label": "Team",
+      "role": "Small architecture practice; limited review volume.",
+      "docs": [
+        "docs/go-to-market/PRICING_PHILOSOPHY.md"
+      ]
+    },
+    {
+      "id": "professional",
+      "label": "Professional",
+      "role": "Typical procurement path for first pilot and ARB evidence packs.",
+      "docs": [
+        "docs/go-to-market/ORDER_FORM_TEMPLATE.md",
+        "docs/go-to-market/QUOTE_TO_PROOF_PACKET.md"
+      ]
+    },
+    {
+      "id": "enterprise",
+      "label": "Enterprise",
+      "role": "Hosted pilot, procurement pack, and production-like proof gates.",
+      "docs": [
+        "docs/go-to-market/TRUST_CENTER.md",
+        "docs/runbooks/PROCUREMENT_DEAL_READY.md"
+      ]
+    }
+  ],
+  "deferredCommerce": [
+    "Live marketplace checkout",
+    "Self-serve subscription without sales engineering",
+    "Reference customer logos in (A) scope"
+  ],
+  "proofArtifacts": [
+    "quote-to-proof-packet.md",
+    "procurement-deal-ready-classification.md",
+    "commercial-next-step.json"
+  ]
+}

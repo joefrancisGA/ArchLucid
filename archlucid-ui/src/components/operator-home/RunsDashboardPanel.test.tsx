@@ -289,7 +289,7 @@ describe("RunsDashboardPanel", () => {
       expect(screen.getByText("Decision: Package finalized")).toBeInTheDocument();
       expect(screen.queryByTestId("operator-home-showcase-demo-banner")).toBeNull();
       expect(screen.queryByRole("link", { name: "Jump to review journey" })).toBeNull();
-      expect(screen.getByRole("link", { name: "Claims Intake sample" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Claims Intake Modernization Review" })).toHaveAttribute(
         "href",
         "/reviews/claims-intake-modernization",
       );

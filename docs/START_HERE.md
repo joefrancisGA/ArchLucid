@@ -5,6 +5,8 @@
 
 Use this page to pick **one** door based on your role.
 
+> **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps. [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only. [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) is depth, not a second checklist. Machine-readable router index: [`library/V1_NAVIGATION_INDEX.json`](library/V1_NAVIGATION_INDEX.json).
+
 ```text
 START_HERE.md (you are here)
 │

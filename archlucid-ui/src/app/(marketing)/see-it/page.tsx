@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
+import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { normalizeSeeItMarketingPayload } from "./normalize-see-it-payload";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
@@ -26,10 +28,15 @@ export default async function SeeItMarketingPage() {
       <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
         See a finalized review package in 30 seconds
       </h1>
-      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        A finalized review package from the Claims Intake workspace — decisions, findings, evidence, and audit trail in
-        one governed record.
+      <p
+        className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        data-testid="see-it-outcome-led-lead"
+      >
+        {BUYER_OUTCOME_LED_VALUE_PROPOSITION}
       </p>
+      <div className="mt-6">
+        <MarketingProofChainStrip />
+      </div>
       <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
         Sample data.{" "}
         <Link className="text-teal-800 underline underline-offset-2 dark:text-teal-200" href="/WORKED_EXAMPLE_ROI.pdf">

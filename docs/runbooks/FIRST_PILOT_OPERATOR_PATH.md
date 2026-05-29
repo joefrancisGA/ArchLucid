@@ -38,7 +38,7 @@ Every step below maps to a **shipped** API, operator UI route, or CLI verb. Opti
 |------|--------|----------------|---------|
 | A1 | Configure SQL connection string, `ArchLucidAuth:Mode`, and hosting role (`Hosting:Role` for API and/or Worker). | `GET /health/ready` returns **Healthy** (or documented degraded entries are accepted). | API · [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) |
 | A0 | Run first-run preflight (`dotnet run --project ArchLucid.Cli -- --json pilot preflight`). | No **BLOCK** rows; warnings understood. | CLI · [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
-| A0b | *(Preferred handoff)* Run the proof pipeline without `-RunId` for readiness-only go/no-go. | `go-no-go-summary.md` has no **BLOCK** rows; missing `RunId` appears as **WARN** until commit. | `./scripts/collect-first-pilot-proof.ps1` |
+| A0b | *(Preferred handoff)* Run the proof pipeline without `-RunId` for readiness-only go/no-go. | **`first-pilot-command-center.md`** shows phased **READY/WARN/HOLD**; missing committed review is **WARN** (not a crash). Full findings table: `go-no-go-summary.md`. | `./scripts/collect-first-pilot-proof.ps1` |
 | A2 | Start API + worker (or combined host); confirm DbUp migrations applied. | `GET /version` returns build identity; logs show catalog ready. | API · [`PILOT_GUIDE.md`](../library/PILOT_GUIDE.md) |
 | A3 | Sign in to operator UI (`/auth/signin` or dev bypass locally only). | Home loads; no endless 401/403 on `/api/proxy`. | UI · [`FIRST_RUN_WIZARD.md`](../library/FIRST_RUN_WIZARD.md) |
 
@@ -80,9 +80,10 @@ Until you have one **committed** architecture review package, you do **not** nee
 | Step | Action | Success signal | Surface |
 |------|--------|----------------|---------|
 | D1 | Inspect **findings**, explanation aggregate, and **artifacts** on review detail. | Sponsor-readable summary; severity badges; evidence refs present. | UI review detail · `GET /v1/architecture/run/{runId}` |
+| D1b | Follow the **Next after commit** card: one **primary** action (sponsor packet) plus optional compare, evidence chain, governance dry-run, or quote-to-proof index. | Primary CTA scrolls to sponsor deliverables; optional links stay secondary. | Review detail post-commit habit loop |
 | D2 | Export **sponsor packet** (markdown/DOCX/PDF per tenant config) or **Email this review to your sponsor** when manifest exists. | Download succeeds; ROI basis labels show evidence source (not placeholder-only unless static demo). | UI exports · [`go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) |
 | D3 | Record **run id**, manifest id, and any **`X-Correlation-ID`** for support before escalating. | Ticket-ready notes. | [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md) |
-| D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | `go-no-go-summary.md` plus committed-run evidence folder with checksum manifest and buyer-safe artifacts. Production-like or sponsor handoff also collects `config-lint-production-like-hosted-pilot.md`, `route-tier-policy-nav-parity.md`, and `procurement-deal-ready-check.txt` (deal-ready **PASS/HOLD**). | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
+| D4 | Collect first-pilot proof with `-RunId` for sponsor/procurement handoff. | **`first-pilot-command-center.md`** (primary status) plus `go-no-go-summary.md` and committed-run evidence folder with checksum manifest and buyer-safe artifacts. Production-like or sponsor handoff also collects `config-lint-production-like-hosted-pilot.md`, `route-tier-policy-nav-parity.md`, and `procurement-deal-ready-check.txt` (deal-ready **PASS/HOLD**). | [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](FIRST_PILOT_EVIDENCE_BUNDLE.md) |
 | D5 | *(Optional workflow handoff)* Attach proof artifacts to a GitHub PR/issue or Azure DevOps work item. | Work item links to the sponsor packet, evidence manifest, and send/hold status without requiring a V1.1 connector. | [`V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md`](V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md) |
 
 ---

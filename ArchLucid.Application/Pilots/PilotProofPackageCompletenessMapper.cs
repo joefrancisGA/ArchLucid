@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Persistence.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -18,7 +19,8 @@ public static class PilotProofPackageCompletenessMapper
         GoldenManifest? manifest,
         PilotRunDeltas deltas,
         PilotBuyerSafeEvidenceGateResult gate,
-        ValueReportSnapshot snapshot)
+        ValueReportSnapshot snapshot,
+        PilotBaselineRecord? scorecardBaselines = null)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
@@ -33,6 +35,8 @@ public static class PilotProofPackageCompletenessMapper
             manifest is not null && manifest.Metadata.CreatedUtc != default;
 
         SponsorProofReadinessClassification sponsorReadiness = SponsorProofReadinessClassifier.Classify(deltas, gate);
+        PilotRoiBaselineInputsStatusResponse roiBaselineInputs =
+            PilotRoiBaselineInputsStatusResolver.Resolve(snapshot, deltas, scorecardBaselines);
 
         return new ProofPackageCompletenessResponse
         {
@@ -61,6 +65,7 @@ public static class PilotProofPackageCompletenessMapper
             AgentOutputPilotStrictEvidenceSatisfied =
                 !(deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true }),
             SponsorProofReadiness = sponsorReadiness.ToString(),
+            RoiBaselineInputs = roiBaselineInputs,
         };
     }
 

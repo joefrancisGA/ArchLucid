@@ -11,6 +11,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 
+import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
+
 type RunDetailRunExplanationCollapsibleProps = {
   readonly runId: string;
   readonly buyerPolishedArtifactTable: boolean;
@@ -47,6 +49,11 @@ export function RunDetailRunExplanationCollapsible(
         defaultOpen={buyerPolishedArtifactTable}
       >
         <FindingsWhatIfAnalysisPanel findings={quickDecisionFindings} baselineAnnualCostUsd={baselineAnnualCostUsd} isIllustrativePricing={isIllustrativePricing} />
+        <RunDetailSponsorModeExplanationCard
+          explanationSummary={explanationSummary}
+          findings={quickDecisionFindings}
+          buyerPolishedArtifactTable={buyerPolishedArtifactTable}
+        />
         <QuickDecisionSummary
           runId={runId}
           findings={quickDecisionFindings}

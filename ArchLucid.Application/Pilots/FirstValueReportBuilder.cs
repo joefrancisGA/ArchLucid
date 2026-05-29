@@ -3,6 +3,7 @@ using System.Text;
 
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
@@ -13,6 +14,7 @@ using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.Configuration;
@@ -42,6 +44,7 @@ public sealed class FirstValueReportBuilder(
     IConfiguration configuration,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ITenantFirstValueReportBrandingRepository tenantFirstValueReportBrandingRepository,
+    IPilotBaselineRepository pilotBaselineRepository,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -57,6 +60,9 @@ public sealed class FirstValueReportBuilder(
 
     private readonly ITenantFirstValueReportBrandingRepository _tenantFirstValueReportBrandingRepository =
         tenantFirstValueReportBrandingRepository ?? throw new ArgumentNullException(nameof(tenantFirstValueReportBrandingRepository));
+
+    private readonly IPilotBaselineRepository _pilotBaselineRepository =
+        pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
 
     private readonly ILogger<FirstValueReportBuilder> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
@@ -98,13 +104,15 @@ public sealed class FirstValueReportBuilder(
         DateTimeOffset start = end.AddDays(-30);
         ValueReportSnapshot valueWindowSnapshot =
             await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
+        PilotBaselineRecord? scorecardBaselines =
+            await _pilotBaselineRepository.GetAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
         PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
         FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
         SponsorSafeProofDisposition sponsorSafeDisposition = SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
         ProofPackageCompletenessResponse proofCompleteness =
-            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
+            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot, scorecardBaselines);
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
@@ -114,6 +122,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine(
             "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
+        AppendSponsorFirstPageStatusBlock(sb, detail, sponsorSafeDisposition, proofCompleteness, deltas, run);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorArtifactEvidenceBadgeMarkdownFormatter.AppendMarkdownSection(
             sb,
@@ -138,10 +147,13 @@ public sealed class FirstValueReportBuilder(
         FirstValueEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, evidenceCompleteness);
         PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
         AppendRunSection(sb, run, manifest, baseUrl);
-        AppendProofPackageContractSection(sb, deltas, proofCompleteness, manifest);
+        AppendProofPackageContractSection(sb, deltas, proofCompleteness, manifest, run);
         AppendComputedDeltasSection(sb, deltas);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
+
+        if (proofCompleteness.RoiBaselineInputs is not null)
+            PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);
         AppendFindingFeedbackMarkdownSection(sb, valueWindowSnapshot);
         AppendFindingsSection(sb, deltas);
         AppendElapsedSection(sb, deltas);
@@ -170,7 +182,8 @@ public sealed class FirstValueReportBuilder(
             sb.ToString(),
             evidenceCompleteness,
             SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate),
-            tenantBranding);
+            tenantBranding,
+            proofCompleteness);
     }
 
     private async Task<TenantFirstValueReportBrandingForExport?> TryResolveTenantBrandingAsync(
@@ -204,6 +217,128 @@ public sealed class FirstValueReportBuilder(
             sb.AppendLine();
         }
     }
+
+    private static void AppendSponsorFirstPageStatusBlock(
+        StringBuilder sb,
+        ArchitectureRunDetail detail,
+        SponsorSafeProofDisposition disposition,
+        ProofPackageCompletenessResponse proof,
+        PilotRunDeltas deltas,
+        ArchitectureRun run)
+    {
+        sb.AppendLine("## Sponsor first-page status");
+        sb.AppendLine();
+        sb.AppendLine(
+            "Read this block before forwarding the packet. It summarizes the evidence basis, quality posture, ROI basis, top findings, deferred buyer requirements, and next action without adding new claims.");
+        sb.AppendLine();
+        sb.AppendLine("| Question | Sponsor-safe answer |");
+        sb.AppendLine("| --- | --- |");
+        sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
+        sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
+        sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof)} |");
+        sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
+        sb.AppendLine($"| Top findings | {FormatSponsorTopFindings(detail)} |");
+        sb.AppendLine($"| Deferred buyer requirements | {FormatSponsorDeferredBuyerRequirements()} |");
+        sb.AppendLine($"| Recommended next action | {FormatSponsorNextAction(disposition, proof, deltas, run)} |");
+        sb.AppendLine();
+    }
+
+    private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof)
+    {
+        if (proof.DemoTenantWarningRequired)
+            return "**Demo-derived** — illustrative sample output; do not present as buyer outcome.";
+
+        return proof.BuyerSafeRedactionProfile.Length > 0
+            ? $"**{EscapeMarkdownTableCell(proof.BuyerSafeRedactionProfile)}** — tenant-scoped persisted proof fields."
+            : "**Tenant evidence** — persisted proof fields available; redaction profile not labeled.";
+    }
+
+    private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof)
+    {
+        return proof.AgentOutputPilotStrictEvidenceSatisfied
+            ? "PilotStrict posture satisfied — no rejecting trace/faithfulness signals attested for this run."
+            : "**HOLD** — PilotStrict posture failed; do not use sponsor-safe real-mode wording yet.";
+    }
+
+    private static string FormatSponsorLlmCallBasis(PilotRunDeltas deltas, ProofPackageCompletenessResponse proof)
+    {
+        if (!proof.LlmCallCountResolved)
+            return "**Not attested** — execution trace query failed; do not cite an LLM call count.";
+
+        return $"**{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}** trace row(s) for this run (zero may be valid when simulator substitution applies — see quality disposition).";
+    }
+
+    private static string FormatSponsorRoiBasis(ProofPackageCompletenessResponse proof)
+    {
+        string label = EscapeMarkdownTableCell(proof.RoiConfidenceLabel);
+        string inputsSummary = proof.RoiBaselineInputs is null
+            ? string.Empty
+            : $" Per-field inputs: {EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(proof.RoiBaselineInputs))}.";
+
+        if (proof.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Strong
+            && proof.RoiBaselineInputs?.ProjectedDollarClaimsSponsorSafe == true)
+            return $"**{proof.RoiEvidenceConfidence}** — {label}.{inputsSummary}";
+
+        string fallback = proof.RoiBaselineInputs?.SponsorSafeFallbackCopy.Length > 0
+            ? EscapeMarkdownTableCell(proof.RoiBaselineInputs.SponsorSafeFallbackCopy)
+            : "use qualitative wording or estimate labels until buyer baselines are collected";
+
+        return $"**{proof.RoiEvidenceConfidence}** — {label}; {fallback}.{inputsSummary}";
+    }
+
+    private static string FormatSponsorTopFindings(ArchitectureRunDetail detail)
+    {
+        List<ArchitectureFinding> topFindings = detail.Results
+            .SelectMany(static r => r.Findings)
+            .Select(static (Finding, Index) => new { Finding, Index })
+            .Where(static f => !f.Finding.IsMuted)
+            .OrderByDescending(static f => f.Finding.Severity)
+            .ThenBy(static f => f.Index)
+            .Take(3)
+            .Select(static f => f.Finding)
+            .ToList();
+
+        if (topFindings.Count == 0)
+            return "No active findings recorded in this package.";
+
+        return string.Join(
+            "<br />",
+            topFindings.Select(static f => $"{f.Severity}: {EscapeMarkdownTableCell(TruncateSponsorFinding(f.Message))}"));
+    }
+
+    private static string FormatSponsorDeferredBuyerRequirements()
+        => "SOC 2 CPA report, external third-party pen-test summary, public reference customer, and live commerce/Marketplace publication remain deferred scope; do not imply they exist.";
+
+    private static string FormatSponsorNextAction(
+        SponsorSafeProofDisposition disposition,
+        ProofPackageCompletenessResponse proof,
+        PilotRunDeltas deltas,
+        ArchitectureRun run)
+    {
+        if (disposition == SponsorSafeProofDisposition.Sendable)
+            return "Send sponsor packet after human redaction review and qualitative baseline confirmation.";
+
+        if (proof.DemoTenantWarningRequired || deltas.IsDemoTenant)
+            return "Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send.";
+
+        if (!proof.AgentOutputPilotStrictEvidenceSatisfied || run.RealModeFellBackToSimulator)
+            return "Hold sponsor send; resolve AI quality/simulator disclosure before forwarding.";
+
+        return "Review caveats, collect missing ROI/evidence fields, then regenerate the packet.";
+    }
+
+    private static string TruncateSponsorFinding(string value)
+    {
+        string trimmed = value.Trim();
+
+        if (trimmed.Length <= 96)
+            return trimmed;
+
+        return string.Concat(trimmed.AsSpan(0, 93), "...");
+    }
+
+    private static string EscapeMarkdownTableCell(string value)
+        => value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", " ", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal).Trim();
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)
     {
@@ -248,7 +383,12 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
     }
 
-    private static void AppendProofPackageContractSection(StringBuilder sb, PilotRunDeltas deltas, ProofPackageCompletenessResponse c, GoldenManifest? manifest)
+    private static void AppendProofPackageContractSection(
+        StringBuilder sb,
+        PilotRunDeltas deltas,
+        ProofPackageCompletenessResponse c,
+        GoldenManifest? manifest,
+        ArchitectureRun run)
     {
         sb.AppendLine("## Buyer-safe proof package contract");
         sb.AppendLine();
@@ -269,14 +409,46 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
         sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
         sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {c.RoiConfidenceLabel} |");
+
+        if (c.RoiBaselineInputs is not null)
+        {
+            sb.AppendLine(
+                $"| ROI baseline inputs (per field) | {EscapeMarkdownTableCell(PilotRoiBaselineInputsStatusResolver.FormatInputsSummary(c.RoiBaselineInputs))} |");
+            sb.AppendLine(
+                $"| Projected dollar claims sponsor-safe | {(c.RoiBaselineInputs.ProjectedDollarClaimsSponsorSafe ? "Yes" : "**No** — do not lead with projected USD savings")} |");
+        }
+
         sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
         sb.AppendLine(
             $"| PilotStrict agent-output posture | {(c.AgentOutputPilotStrictEvidenceSatisfied ? "Satisfied — no PilotStrict trace/faithfulness failures attested for this run." : "**FAILED** — PilotStrict quality gate reported rejecting signals; withhold sponsor-grade real-mode claims until traces pass.")} |");
+        sb.AppendLine($"| Evidence-basis labels | {FormatEvidenceBasisLabels(c, run)} |");
         sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` · **{c.EvidenceCompleteness}** |");
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Sponsor-proof readiness (classification) | {(Enum.TryParse(c.SponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness) ? SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness) : "**Incomplete** — classification unavailable.")} |");
         sb.AppendLine();
+    }
+
+    private static string FormatEvidenceBasisLabels(ProofPackageCompletenessResponse c, ArchitectureRun run)
+    {
+        List<string> labels = [];
+
+        if (c.DemoTenantWarningRequired)
+            labels.Add("**Demo-derived**");
+
+        if (!c.AgentOutputPilotStrictEvidenceSatisfied)
+            labels.Add("**Low support**");
+
+        if (c.RoiEvidenceConfidence is PilotRoiEvidenceConfidence.Partial or PilotRoiEvidenceConfidence.Low)
+            labels.Add("**Estimate**");
+
+        if (run.RealModeFellBackToSimulator)
+            labels.Add("**Manual review required**");
+
+        if (labels.Count == 0)
+            labels.Add("**Evidence-backed**");
+
+        return string.Join(" · ", labels);
     }
 
     private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)

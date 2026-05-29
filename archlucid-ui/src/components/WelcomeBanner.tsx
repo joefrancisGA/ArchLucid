@@ -208,9 +208,9 @@ export function WelcomeBanner() {
     </>
   ) : (
     <>
-      <strong>Create a review</strong>, <strong>let the pipeline finish</strong>, <strong>finalize</strong> when the
-      UI is ready, then <strong>open your review package</strong> (summary, findings, downloads). Your AI co-architect
-      asks questions until that package is coherent — loose goals and notes use the same flow.
+      <strong>Create a review</strong>, attach evidence, <strong>complete the guided assessment</strong>, then{" "}
+      <strong>open your review package</strong> (summary, findings, downloads). The same wizard supports structured
+      capture or loose architecture scope notes.
     </>
   );
 
@@ -343,13 +343,13 @@ export function WelcomeBanner() {
 
         {!returningUser ? (
           <div
-            className="w-full shrink-0 rounded-lg border border-neutral-200/80 bg-white/80 px-4 py-3 text-sm shadow-sm backdrop-blur-sm dark:border-neutral-800/60 dark:bg-neutral-900/80 dark:backdrop-blur-sm lg:max-w-[17rem]"
+            className="w-full shrink-0 rounded-lg border border-teal-200/90 bg-white/95 px-4 py-3.5 text-sm shadow-md ring-1 ring-teal-100/80 backdrop-blur-sm dark:border-teal-800/70 dark:bg-neutral-900/90 dark:ring-teal-950/40 lg:max-w-[18rem]"
             aria-label={
               returningUser ? "Resume architecture reviews — shortcuts" : "What one completed architecture review delivers"
             }
           >
-            <p className="m-0 mb-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200">What you&apos;ll get</p>
-            <ul className="m-0 mb-2 list-none space-y-1.5 p-0">
+            <p className="m-0 mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">What you&apos;ll get</p>
+            <ul className="m-0 mb-2.5 list-none space-y-2 p-0">
               {(
                 [
                   { id: "governed-manifest", label: "Governed manifest" as const, Icon: FileCheck2 },
@@ -362,8 +362,8 @@ export function WelcomeBanner() {
                   { id: "review-trail", label: "Review trail" as const, Icon: ClipboardCheck },
                 ] as const
               ).map(({ id, label, Icon }) => (
-                <li key={id} className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-                  <Icon className="h-3.5 w-3.5 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
+                <li key={id} className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                  <Icon className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
                   {label}
                 </li>
               ))}

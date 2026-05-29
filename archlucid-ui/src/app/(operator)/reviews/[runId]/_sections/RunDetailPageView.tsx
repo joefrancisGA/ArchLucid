@@ -4,7 +4,7 @@ import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner"
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
-import { PostCommitRetentionRail } from "@/components/PostCommitRetentionRail";
+import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
@@ -264,7 +264,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       />
 
       {m.manifestId ? (
-        <PostCommitRetentionRail
+        <PostCommitHabitLoopCard
           runId={m.routeRunId}
           showCompareCta={m.canShowCompareReviewButton}
           buyerShowcaseQuickLinks={m.usedStaticDemoRun}

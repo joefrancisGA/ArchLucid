@@ -11,7 +11,7 @@ import { AUTH_MODE } from "@/lib/auth-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   fetchLlmMonthlyDollarBudgetStatusCached,
-  llmBudgetUtilizationPercent,
+  llmBudgetRemainingPercent,
   resolveLlmBudgetUtilizationTone,
   type LlmBudgetUtilizationTone,
   type LlmMonthlyDollarBudgetStatus,
@@ -33,13 +33,25 @@ function pillClassForTone(tone: LlmBudgetUtilizationTone): string {
   return "border-teal-300 bg-teal-50 text-teal-900 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100 dark:hover:bg-teal-950/60";
 }
 
-function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, pct: number | null): string {
-  const display = pct !== null ? `${pct}%` : "—";
+function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: number | null): string {
+  const display = remainingPercent !== null ? `${remainingPercent}%` : "—";
   const paused =
     status.blocksAdditionalLlmExecution ||
     (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
 
-  return paused ? `Budget: ${display} — paused` : `Budget: ${display}`;
+  return paused ? `AI budget: ${display} left — paused` : `AI budget: ${display} left`;
+}
+
+function buildPillAriaLabel(remainingPercent: number | null, paused: boolean): string {
+  if (remainingPercent === null) {
+    return "AI analysis budget for this month";
+  }
+
+  if (paused) {
+    return `AI analysis budget for this month: ${remainingPercent}% left, new runs paused`;
+  }
+
+  return `AI analysis budget for this month: ${remainingPercent}% left`;
 }
 
 function isOperatorShellAuthenticated(): boolean {
@@ -105,8 +117,12 @@ export function LlmBudgetStatusPill() {
   }
 
   const tone = resolveLlmBudgetUtilizationTone(status);
-  const pct = llmBudgetUtilizationPercent(status);
-  const label = buildPillLabel(status, pct);
+  const remainingPercent = llmBudgetRemainingPercent(status);
+  const paused =
+    status.blocksAdditionalLlmExecution ||
+    (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);
+  const label = buildPillLabel(status, remainingPercent);
+  const ariaLabel = buildPillAriaLabel(remainingPercent, paused);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -118,6 +134,7 @@ export function LlmBudgetStatusPill() {
             size="sm"
             className={cn("h-7 shrink-0 border px-2.5 text-xs font-semibold tabular-nums", pillClassForTone(tone))}
             data-testid="llm-budget-status-pill"
+            aria-label={ariaLabel}
             aria-expanded={open}
             aria-haspopup="dialog"
           >

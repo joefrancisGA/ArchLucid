@@ -41,7 +41,7 @@ describe("CorePilotBuyerStepHint", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("shows Step 1 of 4 and Capture when no runs", async () => {
+  it("shows Step 1 of 4 and Evidence intake when no runs", async () => {
     render(<CorePilotBuyerStepHint />);
 
     await waitFor(() => {
@@ -49,7 +49,7 @@ describe("CorePilotBuyerStepHint", () => {
     });
 
     expect(screen.getByTestId("core-pilot-buyer-step-badge")).toHaveTextContent("Step 1 of 4");
-    expect(screen.getByRole("link", { name: "Capture" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Evidence intake" })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("shows Step 2–3 of 4 when a run exists without commit", async () => {

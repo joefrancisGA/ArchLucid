@@ -57,6 +57,7 @@ Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
 | **Playwright** operator smoke may use **mocked** `/api/proxy`; it does not replace **SQL-backed** API + UI validation for a given release | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [V1_SCOPE.md](V1_SCOPE.md) §3 |
 | **Audit search** keyset cursor uses **`OccurredUtc` with optional `EventId` tie-break** (`GET /v1/audit/search?beforeUtc=…&beforeEventId=…`); clients must pass both when continuing past same-second events | [AuditController.cs](../../ArchLucid.Api/Controllers/Admin/AuditController.cs), operator audit UI “Load more” |
 | **CI — merged line ≥ 95% + coverage ratchet** | **`.github/workflows/ci.yml`** (`dotnet-coverage-merge`): **`assert_merged_line_coverage_min.py`** enforces a **merge-blocking merged line ≥ 75%** (alongside branch **63%** and per-package line **63%**); **`assert_coverage_floor_ratchet.py`** + **`.coverage-floor`** are not invoked until **V1.1**. **V1.1:** raise merged line to **95%**, re-enable the ratchet step, and keep docs (**`docs/engineering/BUILD.md`**, **`docs/library/coverage-exclusions.md`**, **`docs/library/COVERAGE_GAP_ANALYSIS.md`**) in sync. |
+| **Next.js major upgrade (`15.5.x` → `16.x`)** — isolated dependency/CI PR for `archlucid-ui` (`next`, `eslint-config-next`, codemods, full lint/Vitest/Playwright/standalone build) | [UI_ARCHITECTURE_V1_1.md](UI_ARCHITECTURE_V1_1.md) **§8**; V1 stays on **`next@^15.5.18`** + React 19 |
 
 ---
 

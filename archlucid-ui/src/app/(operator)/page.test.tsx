@@ -97,6 +97,7 @@ describe("HomePage — buyer-polished shell", () => {
     render(<HomePage />);
 
     expect(screen.queryByText("ArchLucid — your AI co-architect.")).toBeNull();
+    expect(screen.queryByText(/AI co-architect/i)).toBeNull();
     expect(screen.queryByText("Advanced Analysis")).toBeNull();
     expect(screen.queryByText("Explore when ready")).toBeNull();
     expect(screen.queryByText("Operational metrics")).toBeNull();
@@ -115,7 +116,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
     expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
     expect(screen.getByText("Search & Insights")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start with sample review" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open sample review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );

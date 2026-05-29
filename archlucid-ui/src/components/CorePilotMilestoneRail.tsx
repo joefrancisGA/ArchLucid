@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-const MILESTONE_SHORT: readonly string[] = ["Request", "Pipeline", "Finalize", "Package"];
+const MILESTONE_SHORT: readonly string[] = ["Request", "Review process", "Finalize", "Package"];
 
 /** Compact Core Pilot milestones aligned with docs/CORE_PILOT §3 four steps — server + checklist signals only. */
 export function CorePilotMilestoneRail(props: {

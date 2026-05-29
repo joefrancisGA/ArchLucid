@@ -163,8 +163,9 @@ curl -sL -o rc-run-export.zip "$BASE/v1/artifacts/runs/RUN_ID/export"
 | **`scripts/run-readiness-check.ps1`** | Release build + **fast core** tests + UI unit/build—**no** live API drill ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)). |
 | **`scripts/release-smoke.ps1`** | Deeper **build + tests + temporary API + CLI `run --quick` + artifact assertion** ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). |
 | **`scripts/v1-rc-drill.ps1`** | Assumes API already running; walks **two-run** HTTP path: health/version, dual request/execute/commit, artifacts list, end-to-end compare, authority **ReconstructOnly** replay, run export ZIP, **`doctor`** + **`support-bundle`**. |
+| **`scripts/v1-integration-correctness-drill.ps1`** | Single-run PASS/WARN/HOLD report: lifecycle model (authority vs coordinator), commit idempotency, artifacts/explain/first-value, Problem Details negatives. See [V1_INTEGRATION_CORRECTNESS_DRILL.md](V1_INTEGRATION_CORRECTNESS_DRILL.md). |
 
-**Suggested order for a hard RC gate:** `run-readiness-check` → deploy RC → **`scripts/v1-rc-drill.ps1`** (or manual steps above) → optional **`scripts/release-smoke.ps1`** on a build agent with SQL.
+**Suggested order for a hard RC gate:** `run-readiness-check` → deploy RC → **`scripts/v1-integration-correctness-drill.ps1`** → **`scripts/v1-rc-drill.ps1`** (or manual steps above) → optional **`scripts/release-smoke.ps1`** on a build agent with SQL.
 
 ---
 

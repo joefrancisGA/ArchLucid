@@ -57,7 +57,7 @@ export function AuthPanel() {
         className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-2 py-0 text-[11px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
       >
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
-        Development workspace
+        Sample workspace
       </div>
     );
   }

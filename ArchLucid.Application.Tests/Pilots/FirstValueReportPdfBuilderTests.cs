@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 
@@ -73,7 +74,7 @@ public sealed class FirstValueReportPdfBuilderTests
     }
 
     [SkippableFact]
-    public async Task BuildPdfAsync_WhenEvidenceIncomplete_StillReturnsValidPdf()
+    public async Task BuildPdfAsync_WhenRoiBaselinesMissing_ThrowsSponsorPdfBlocked()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();
         Mock<IRunDetailQueryService> query = new();
@@ -94,17 +95,17 @@ public sealed class FirstValueReportPdfBuilderTests
                 IsDemoTenant = false,
             });
 
-        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
+        Mock<IPilotBaselineRepository> pilotBaselines = new();
+        pilotBaselines
+            .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PilotBaselineRecord?)null);
+
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object, pilotBaselines.Object);
         FirstValueReportPdfBuilder sut = new(markdown);
 
-        byte[]? pdf = await sut.BuildPdfAsync("r-pdf-incomplete", "http://localhost:5000");
+        Func<Task> act = () => sut.BuildPdfAsync("r-pdf-incomplete", "http://localhost:5000");
 
-        pdf.Should().NotBeNull();
-        ReadOnlySpan<byte> head = pdf.AsSpan(0, 4);
-        head[0].Should().Be((byte)'%');
-        head[1].Should().Be((byte)'P');
-        head[2].Should().Be((byte)'D');
-        head[3].Should().Be((byte)'F');
+        await act.Should().ThrowAsync<SponsorFirstValuePdfBlockedException>();
     }
 
     [SkippableFact]
@@ -120,7 +121,10 @@ public sealed class FirstValueReportPdfBuilderTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    private static FirstValueReportBuilder CreateMarkdownBuilder(IRunDetailQueryService query, IPilotRunDeltaComputer deltas)
+    private static FirstValueReportBuilder CreateMarkdownBuilder(
+        IRunDetailQueryService query,
+        IPilotRunDeltaComputer deltas,
+        IPilotBaselineRepository? pilotBaselines = null)
     {
         Mock<IValueReportMetricsReader> metrics = new();
         metrics
@@ -176,6 +180,8 @@ public sealed class FirstValueReportPdfBuilderTests
             .Setup(b => b.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
 
+        IPilotBaselineRepository baselineRepo = pilotBaselines ?? CreateDefaultPilotBaselineRepository();
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -185,7 +191,27 @@ public sealed class FirstValueReportPdfBuilderTests
             configuration,
             siteOpts.Object,
             branding.Object,
+            baselineRepo,
             NullLogger<FirstValueReportBuilder>.Instance);
+    }
+
+    private static IPilotBaselineRepository CreateDefaultPilotBaselineRepository()
+    {
+        Mock<IPilotBaselineRepository> pilotBaselines = new();
+        pilotBaselines
+            .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PilotBaselineRecord
+                {
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    BaselineHoursPerReview = 40m,
+                    BaselineReviewsPerQuarter = 12,
+                    BaselineArchitectHourlyCost = 175m,
+                    UpdatedUtc = DateTimeOffset.UtcNow,
+                });
+
+        return pilotBaselines.Object;
+    }
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()

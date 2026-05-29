@@ -1,0 +1,53 @@
+{
+  "generatedUtc": "2026-05-29T05:19:41.392248+00:00",
+  "disposition": "PASS",
+  "retrievalIr": {
+    "casesEvaluated": 31,
+    "meanRecallAt5": 5.0,
+    "meanMrr": 0.922,
+    "floorRecallAt5": 5.0,
+    "floorMrr": 0.75
+  },
+  "history": [
+    {
+      "generatedUtc": "2026-05-29T05:19:38.308221+00:00",
+      "disposition": "PASS",
+      "retrievalIr": {
+        "casesEvaluated": 31,
+        "meanRecallAt5": 5.0,
+        "meanMrr": 0.922,
+        "floorRecallAt5": 5.0,
+        "floorMrr": 0.75
+      }
+    },
+    {
+      "generatedUtc": "2026-05-29T05:19:41.392248+00:00",
+      "disposition": "PASS",
+      "retrievalIr": {
+        "casesEvaluated": 31,
+        "meanRecallAt5": 5.0,
+        "meanMrr": 0.922,
+        "floorRecallAt5": 5.0,
+        "floorMrr": 0.75
+      }
+    }
+  ],
+  "remediationLinks": [
+    {
+      "label": "Regenerate retrieval IR",
+      "path": "scripts/ci/eval_retrieval_ir.py"
+    },
+    {
+      "label": "AI readiness gate docs",
+      "path": "docs/library/AGENT_OUTPUT_EVALUATION.md"
+    },
+    {
+      "label": "Retrieval IR report",
+      "path": "docs/quality/retrieval-ir-report.md"
+    },
+    {
+      "label": "In-app health",
+      "path": "/health"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import type { RunTrustEvidenceCard } from "@/types/authority";
+import type { RunTrustEvidenceCard, RunTrustEvidenceRouteRef, TrustEvidenceFieldSnapshot } from "@/types/authority";
 
 function proxyApiPath(path: string): string {
   if (path.startsWith("/v1/")) {
@@ -57,6 +57,124 @@ function FieldRow(props: {
       {detail ? (
         <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{detail}</p>
       ) : null}
+    </div>
+  );
+}
+
+function linkByRel(links: readonly RunTrustEvidenceRouteRef[], rel: string): RunTrustEvidenceRouteRef | null {
+  return links.find((link) => link.rel === rel) ?? null;
+}
+
+function proofStepTone(field: TrustEvidenceFieldSnapshot): string {
+  const key = field.status.trim().toLowerCase();
+
+  if (key === "available") {
+    return "border-teal-200 bg-teal-50/70 dark:border-teal-900 dark:bg-teal-950/30";
+  }
+
+  if (key === "demo-only") {
+    return "border-violet-200 bg-violet-50/70 dark:border-violet-900 dark:bg-violet-950/30";
+  }
+
+  return "border-amber-300 bg-amber-50/80 dark:border-amber-800 dark:bg-amber-950/35";
+}
+
+function ProofChainStep(props: {
+  readonly index: number;
+  readonly label: string;
+  readonly field: TrustEvidenceFieldSnapshot;
+  readonly href?: string | null;
+  readonly linkLabel?: string;
+}): ReactElement {
+  const { index, label, field, href, linkLabel } = props;
+  const unavailable = field.status.trim().toLowerCase() !== "available";
+
+  return (
+    <li className={`rounded-lg border p-3 ${proofStepTone(field)}`} data-testid={`proof-chain-step-${index}`}>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            Step {index}: {label}
+          </p>
+          <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{field.title}</p>
+        </div>
+        <span className={`rounded px-2 py-0.5 text-xs font-semibold ${statusClass(field.status)}`}>{field.status}</span>
+      </div>
+      {field.detail ? (
+        <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300">{field.detail}</p>
+      ) : null}
+      {href ? (
+        <p className="m-0 mt-2 text-xs">
+          <Link className="font-medium text-teal-800 underline dark:text-teal-200" href={proxyApiPath(href)}>
+            {linkLabel ?? "Open supporting evidence"}
+          </Link>
+        </p>
+      ) : unavailable ? (
+        <p className="m-0 mt-2 text-xs font-medium text-amber-900 dark:text-amber-100">
+          WARN: supporting link is missing; collect or regenerate proof before sponsor send.
+        </p>
+      ) : null}
+    </li>
+  );
+}
+
+function ProofChainView(props: { readonly card: RunTrustEvidenceCard }): ReactElement {
+  const { card } = props;
+  const evidenceLink = linkByRel(card.links, "evidence");
+  const topFindingLink = linkByRel(card.links, "topFindingEvidenceChain");
+  const traceabilityLink = linkByRel(card.links, "traceabilityZip");
+  const tracesLink = linkByRel(card.links, "traces");
+
+  return (
+    <div
+      className="rounded-lg border border-neutral-200 bg-neutral-50/70 p-4 dark:border-neutral-700 dark:bg-neutral-900/45"
+      data-testid="evidence-to-manifest-audit-proof-chain"
+    >
+      <div className="space-y-1">
+        <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          Evidence → finding → manifest → artifact → audit proof chain
+        </h4>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          This chain shows why a committed ArchLucid review is stronger than a free-form AI answer: each sponsor-facing
+          claim can point back to stored evidence, a finding, a committed manifest, an exportable artifact, and durable
+          audit or trace metadata. It is not a legal attestation.
+        </p>
+      </div>
+      <ol className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <ProofChainStep
+          index={1}
+          label="Evidence"
+          field={card.aiExplainability}
+          href={evidenceLink?.path}
+          linkLabel={evidenceLink?.label}
+        />
+        <ProofChainStep
+          index={2}
+          label="Finding"
+          field={{
+            title: card.topFinding?.title ?? "Top finding evidence chain",
+            status: card.topFinding ? "Available" : "Missing",
+            detail: card.topFinding?.evidencePointersSummary ?? "No top finding evidence-chain pointer is available.",
+          }}
+          href={topFindingLink?.path}
+          linkLabel={topFindingLink?.label}
+        />
+        <ProofChainStep index={3} label="Manifest" field={card.goldenManifest} />
+        <ProofChainStep
+          index={4}
+          label="Artifact"
+          field={card.artifactBundlePointer}
+          href={traceabilityLink?.path}
+          linkLabel={traceabilityLink?.label}
+        />
+        <ProofChainStep
+          index={5}
+          label="Audit"
+          field={card.auditTrail.status.trim().toLowerCase() === "available" ? card.auditTrail : card.agentTraces}
+          href={tracesLink?.path}
+          linkLabel={tracesLink?.label}
+        />
+      </ol>
     </div>
   );
 }
@@ -130,6 +248,8 @@ export function RunTrustEvidenceCardSection(props: {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-2">{rows}</div>
+
+          <ProofChainView card={card} />
 
           {trimmedAskRun.length > 0 ? (
             <div

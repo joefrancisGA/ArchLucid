@@ -36,6 +36,8 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Strong));
         c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeTrue();
         c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.Sendable));
+        c.RoiBaselineInputs.Should().NotBeNull();
+        c.RoiBaselineInputs!.ReviewCycleHoursBasis.Should().Be(PilotRoiBaselineInputBasis.BuyerProvided);
     }
 
     [Fact]

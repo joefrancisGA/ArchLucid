@@ -223,7 +223,7 @@ export function resolveFirstPilotCommandCenterPhase(input: {
 
       phase: "sponsor-packet-hold",
 
-      headline: "Sponsor packet HOLD",
+      headline: "Sponsor handoff — review needed",
 
       summary: !baselinesEntered
 

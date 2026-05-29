@@ -49,17 +49,19 @@ describe("SampleFirstReviewPackageCard", () => {
     expect(screen.getByText("9")).toBeInTheDocument();
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Start with sample review" })).toHaveAttribute(
+    expect(screen.getByText("Approved with monitoring")).toBeInTheDocument();
+    expect(screen.getByText(/audit package ready/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open sample review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "Use my own input" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Create from my evidence" })).toHaveAttribute("href", "/reviews/new");
   });
 
   it("records review-output telemetry when the sample is opened", () => {
     render(<SampleFirstReviewPackageCard />);
 
-    fireEvent.click(screen.getByRole("link", { name: "Start with sample review" }));
+    fireEvent.click(screen.getByRole("link", { name: "Open sample review package" }));
 
     expect(recordCorePilotRailChecklistStep).toHaveBeenCalledWith(3);
   });

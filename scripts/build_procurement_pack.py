@@ -36,6 +36,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 import procurement_pack_validation as pp_val  # noqa: E402
+import procurement_scope_classification as scope_class  # noqa: E402
 
 
 TEXT_PACK_SUFFIXES = frozenset({".md", ".txt", ".json", ".yaml", ".yml", ".html", ".xml", ".csv"})
@@ -305,6 +306,12 @@ def main() -> int:
         default=None,
         help="Optional machine-readable deal-ready summary JSON (used by first-pilot proof).",
     )
+    parser.add_argument(
+        "--classification-md-out",
+        type=Path,
+        default=None,
+        help="Optional Markdown scope-classification table (defaults beside --json-summary-out).",
+    )
     args = parser.parse_args()
 
     strict_env = os.environ.get("PROCUREMENT_PACK_STRICT", "").strip().lower() in ("1", "true", "yes")
@@ -327,16 +334,33 @@ def main() -> int:
         deal_ready_bundle=deal_ready,
     )
 
-    def _maybe_write_deal_ready_json(*, ok: bool, violations: list[str]) -> pp_val.build_deal_ready_summary:
+    def _classification_md_path() -> Path | None:
+        if args.classification_md_out is not None:
+            return args.classification_md_out.expanduser().resolve()
+
+        if args.json_summary_out is not None:
+            json_path = args.json_summary_out.expanduser().resolve()
+            return json_path.with_name("procurement-deal-ready-classification.md")
+
+        return None
+
+    def _maybe_write_deal_ready_json(*, ok: bool, violations: list[str]) -> dict[str, object]:
         summary = pp_val.build_deal_ready_summary(
             ok=ok,
             violations=violations,
             strict_mode=strict,
             deal_ready_mode=deal_ready,
+            root=root,
         )
 
         if args.json_summary_out is not None:
             pp_val.write_deal_ready_summary_json(args.json_summary_out.expanduser().resolve(), summary)
+
+        classification_path = _classification_md_path()
+
+        if deal_ready and classification_path is not None:
+            rows = list(summary.get("scope_classification_rows") or [])
+            scope_class.write_scope_classification_markdown(classification_path, rows)
 
         return summary
 
@@ -348,7 +372,7 @@ def main() -> int:
         blocking = list(summary["blocking_violations"])
 
         if deal_ready:
-            print(pp_val.format_deal_ready_disposition(ok=len(blocking) == 0, violations=pre_checks))
+            print(pp_val.format_deal_ready_disposition(ok=len(blocking) == 0, violations=pre_checks, root=root))
 
         if not blocking and deal_ready and args.dry_run:
             print("procurement pack dry-run: OK (deferred procurement realism notes only).")
@@ -370,7 +394,7 @@ def main() -> int:
             suffix = f" Preview manifest/redaction wrote to `{args.dry_run_preview_dir}`."
 
         if deal_ready:
-            print(pp_val.format_deal_ready_disposition(ok=True, violations=[]))
+            print(pp_val.format_deal_ready_disposition(ok=True, violations=[], root=root))
             _maybe_write_deal_ready_json(ok=True, violations=[])
 
         print(f"procurement pack dry-run: OK.{suffix}")
@@ -422,7 +446,7 @@ def main() -> int:
             for v in deal_violations:
                 print(f"  - {v}", file=sys.stderr)
 
-            print(pp_val.format_deal_ready_disposition(ok=False, violations=deal_violations))
+            print(pp_val.format_deal_ready_disposition(ok=False, violations=deal_violations, root=root))
             _maybe_write_deal_ready_json(ok=False, violations=deal_violations)
 
             return 1

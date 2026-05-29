@@ -33,6 +33,14 @@ vi.mock("@/lib/api", async () => {
   };
 });
 
+async function expandWorkflowChecklist(): Promise<void> {
+  fireEvent.click(screen.getByText("Show workflow checklist"));
+
+  await waitFor(() => {
+    expect(screen.getByTestId("operator-first-run-wizard-step-1")).toBeInTheDocument();
+  });
+}
+
 describe("OperatorFirstRunWorkflowPanel", () => {
   afterEach(() => {
     localStorage.clear();
@@ -44,6 +52,9 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     const heading = await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
     expect(heading).toBeInTheDocument();
+
+    await expandWorkflowChecklist();
+
     expect(await screen.findByTestId("core-pilot-milestone-rail")).toBeInTheDocument();
 
     const section = heading.closest("section");
@@ -62,7 +73,8 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     async () => {
       render(<OperatorFirstRunWorkflowPanel />);
 
-      await screen.findByTestId("operator-first-run-wizard-step-1");
+      await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
+      await expandWorkflowChecklist();
 
       expect(
         within(screen.getByTestId("operator-first-run-wizard-step-1")).getByRole("link", {
@@ -122,7 +134,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
   it("exploreCompletedOutput lists manifest link before review detail and walkthrough", async () => {
     render(<OperatorFirstRunWorkflowPanel exploreCompletedOutput />);
 
-    expect(await screen.findByRole("heading", { name: "Explore completed output" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Sample package shortcuts" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View manifest summary" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization/manifest",
