@@ -81,12 +81,12 @@ public sealed class TrialTenantBootstrapService(
             }
 
             ContosoRetailDemoIds demoIds = ContosoRetailDemoIds.ForTenant(result.TenantId);
+            Guid sampleRunId = ContosoRetailDemoIds.TrialWelcomeAuthorityRunId(result.TenantId);
+            bool fullDemoSeedSucceeded = false;
 
             try
             {
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken);
-
-                bool fullDemoSeedSucceeded = false;
 
                 try
                 {
@@ -101,11 +101,21 @@ public sealed class TrialTenantBootstrapService(
                             "Full demo seed failed for tenant {TenantId}; activating trial with welcome sample run only.",
                             result.TenantId);
                 }
+            }
+            catch (Exception ex)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning(
+                        ex,
+                        "Trial welcome seed failed for tenant {TenantId}; activating trial with deterministic sample run id.",
+                        result.TenantId);
+            }
 
-                Guid sampleRunId = fullDemoSeedSucceeded
-                    ? demoIds.AuthorityRunBaselineId
-                    : ContosoRetailDemoIds.TrialWelcomeAuthorityRunId(result.TenantId);
+            if (fullDemoSeedSucceeded)
+                sampleRunId = demoIds.AuthorityRunBaselineId;
 
+            try
+            {
                 DateTimeOffset start = TimeProvider.System.GetUtcNow();
                 DateTimeOffset expires = start.AddDays(14);
                 await _tenantRepository.CommitSelfServiceTrialAsync(

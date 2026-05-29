@@ -77,23 +77,25 @@ public sealed class WorkspaceBaselineArtifactsEndpointTests(GreenfieldSqlApiFact
         {
             ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
 
-            using StreamWriter sw = new(manifest.Open());
+            using (StreamWriter sw = new(manifest.Open()))
+            {
+                sw.Write(
+                    """
 
-            sw.Write(
-                """
+                    {"schemaVersion":1,"scriptVersion":"1.0.0-tests","collectionTimestamp":"2026-05-06T12:00:00Z",
+                    "subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    "scope":"/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
 
-                {"schemaVersion":1,"scriptVersion":"1.0.0-tests","collectionTimestamp":"2026-05-06T12:00:00Z",
-                "subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-                "scope":"/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-                "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
-
-                """);
+                    """);
+            }
 
             ZipArchiveEntry resources = zip.CreateEntry("resources.json");
 
-            using StreamWriter rw = new(resources.Open());
-
-            rw.Write("[]");
+            using (StreamWriter rw = new(resources.Open()))
+            {
+                rw.Write("[]");
+            }
         }
 
         return ms.ToArray();

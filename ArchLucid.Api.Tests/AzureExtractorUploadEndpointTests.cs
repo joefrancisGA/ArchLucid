@@ -272,29 +272,31 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
                 ZipArchiveEntry m = zip.CreateEntry("manifest.json");
 
-                using StreamWriter sw = new(m.Open());
-
                 int schemaVersion = schemaVersionOverride ?? 1;
 
-                sw.Write(
+                using (StreamWriter sw = new(m.Open()))
+                {
+                    sw.Write(
 
-                    $$"""
+                        $$"""
 
-                    {"schemaVersion":{{schemaVersion}},"scriptVersion":"1.0.0-tests","collectionTimestamp":"2026-05-06T12:00:00Z",
+                        {"schemaVersion":{{schemaVersion}},"scriptVersion":"1.0.0-tests","collectionTimestamp":"2026-05-06T12:00:00Z",
 
-                    "subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                        "subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
 
-                    "scope":"/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                        "scope":"/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
 
-                    "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
+                        "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
 
-                    """);
+                        """);
+                }
 
                 ZipArchiveEntry resources = zip.CreateEntry("resources.json");
 
-                using StreamWriter rw = new(resources.Open());
-
-                rw.Write("[]");
+                using (StreamWriter rw = new(resources.Open()))
+                {
+                    rw.Write("[]");
+                }
 
             }
 

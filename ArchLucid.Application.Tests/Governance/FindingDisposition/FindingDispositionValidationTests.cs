@@ -17,6 +17,7 @@ public sealed class FindingDispositionValidationTests
         {
             FindingId = "f1",
             Disposition = Disposition.Deferred,
+            Rationale = "defer until next quarter",
         };
 
         Action act = () => FindingDispositionValidation.Validate(request);
