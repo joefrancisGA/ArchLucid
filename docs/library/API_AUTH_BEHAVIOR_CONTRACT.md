@@ -17,16 +17,30 @@
 ## ApiKey details
 
 - Header: **`X-Api-Key`**
-- Enable: `Authentication:ApiKey:Enabled=true` plus non-placeholder `AdminKey` and/or `ReadOnlyKey`.
+- Enable: set `Authentication:ApiKey:Enabled` to true and supply non-placeholder values for **AdminKey** and/or **ReadOnlyKey** (see [Secret storage](#secret-storage) — never in git).
 - **Admin key** maps to `Admin` role; **read-only key** maps to `Reader` role.
-- `Authentication:ApiKey:DevelopmentBypassAll=true` may authenticate as synthetic admin **only in non-Production**; **never allowed in Production**.
+- `Authentication:ApiKey:DevelopmentBypassAll` may authenticate as synthetic admin **only in non-Production**; **never allowed in Production**.
 - Expired keys (when `*ExpiresAt` set) fail authentication.
 
 ## DevelopmentBypass details
 
-- Configured via `ArchLucidAuth:Mode=DevelopmentBypass`.
-- Optional test headers when `ArchLucidAuth:AllowTestActorHeaders=true` (**never in Production**).
+- Set `ArchLucidAuth:Mode` to **DevelopmentBypass** (Development host profile).
+- Optional test headers when **Allow test actor headers** is enabled on `ArchLucidAuth` (**never in Production**).
 - Does not bypass authorization policies — it only supplies a principal.
+
+## Secret storage (key material)
+
+**Never commit API key values** to git. Gitleaks and pre-receive hooks block them by design.
+
+| Surface | Where to store values |
+| --- | --- |
+| **Local API** (`dotnet run`) | [User Secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) on `ArchLucid.Api` — e.g. `dotnet user-secrets set "Authentication:ApiKey:AdminKey" "<your-key>"` and `Authentication:ApiKey:Enabled` = true |
+| **Local UI / Playwright** | `archlucid-ui/.env.local` (gitignored): `ARCHLUCID_API_KEY=<your-key>` — see `archlucid-ui/.env.example` |
+| **Local CLI** | Environment `ARCHLUCID_API_KEY` or user-local `archlucid.json` (not tracked) |
+| **GitHub Actions** | Repository secrets: `gh secret set LIVE_API_KEY` / `LIVE_API_KEY_READONLY` (wired in `.github/workflows/ci.yml` for live ApiKey E2E) |
+| **Hosted / production** | Azure Key Vault or Container Apps secret refs — see [`CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md) |
+
+Shipped `appsettings*.json` keep `AdminKey` / `ReadOnlyKey` as **null**; docs and tests reference **key names** only.
 
 ## JwtBearer details
 
