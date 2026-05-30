@@ -75,7 +75,7 @@ function Get-ApiIntegrationTestShardClassNames {
         $assigned.Add($AllClassNames[$index])
     }
 
-    return @($assigned)
+    return ,@($assigned.ToArray())
 }
 
 function New-ApiIntegrationTestClassFilter {
