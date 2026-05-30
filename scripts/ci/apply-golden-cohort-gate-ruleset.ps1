@@ -9,7 +9,8 @@
   otherwise POSTs a new ruleset from .github/rulesets/golden-cohort-gate-required-check.json.
 
   Run after at least one green golden-cohort-nightly workflow on the default branch so the
-  check name appears in GitHub autocomplete (required for merge enforcement to behave predictably).
+  check name appears in GitHub autocomplete. If push is blocked before the first green run,
+  temporarily set ruleset enforcement to "evaluate" in GitHub Settings -> Rules -> Rulesets.
 #>
 [CmdletBinding()]
 param(
@@ -29,7 +30,17 @@ if (-not (Test-Path -LiteralPath $payloadPath)) {
 $payload = Get-Content -LiteralPath $payloadPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $rulesetName = [string]$payload.name
 
-$existingId = gh api "repos/$Repo/rulesets" --jq ".[] | select(.name==`"$rulesetName`") | .id" 2>$null
+$rulesetsJson = gh api "repos/$Repo/rulesets" 2>$null
+$existingId = $null
+
+if (-not [string]::IsNullOrWhiteSpace($rulesetsJson)) {
+    $rulesets = $rulesetsJson | ConvertFrom-Json
+    $match = $rulesets | Where-Object { $_.name -eq $rulesetName } | Select-Object -First 1
+
+    if ($null -ne $match) {
+        $existingId = [string]$match.id
+    }
+}
 
 if ([string]::IsNullOrWhiteSpace($existingId)) {
     Write-Host "Creating ruleset '$rulesetName' on $Repo..."

@@ -115,7 +115,7 @@ $goldenCohort = @(
     @{ Kind = 'var';   Name = 'ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED'; Purpose = 'Must be true for golden-cohort-nightly.yml baseline drift job' }
     @{ Kind = 'var';   Name = 'ARCHLUCID_GOLDEN_COHORT_REAL_LLM';         Purpose = 'Must be true for cohort-real-llm-gate / live invoke paths' }
     @{ Kind = 'secret'; Name = 'ARCHLUCID_GOLDEN_COHORT_API_HOST';         Purpose = 'API base URL for live cohort drift (ARCHLUCID_API_URL)' }
-    @{ Kind = 'secret'; Name = 'ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID'; Purpose = 'Cost Management probe resource id for budget kill-switch' }
+    @{ Kind = 'secret'; Name = 'ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID'; Purpose = 'Cost Management probe resource id for budget kill-switch (optional until live gate enabled on schedule)' }
     @{ Kind = 'secret'; Name = 'AZURE_OPENAI_API_KEY';                     Purpose = 'Runner-side key for cohort-real-llm-live drift step' }
     @{ Kind = 'var';   Name = 'AZURE_OPENAI_ENDPOINT';                      Purpose = 'Runner-side endpoint for cohort-real-llm-live drift step' }
     @{ Kind = 'var';   Name = 'ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED'; Purpose = 'Optional; true enables Sunday 06:00 UTC unattended live invoke' }
@@ -170,6 +170,7 @@ foreach ($item in $selected) {
         'ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT',
         'ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED',
         'ARCHLUCID_GOLDEN_COHORT_API_HOST',
+        'ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID',
         'AZURE_OPENAI_ENDPOINT',
         'AZURE_OPENAI_API_KEY',
         'ARCHLUCID_REAL_AOAI_TEST_ENDPOINT',

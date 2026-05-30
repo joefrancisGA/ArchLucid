@@ -161,9 +161,9 @@ jobs:
         if: steps.eligibility.outputs.enabled == 'true'
         uses: azure/login@v2
         with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Improvement 11 (2026-04-24) — Q15-conditional kill-switch.
       # Exit codes (defined in scripts/golden_cohort_budget_probe.py):
@@ -177,7 +177,7 @@ jobs:
         name: Golden cohort budget probe ($50/mo cap, 80% warn / 95% kill)
         if: steps.eligibility.outputs.enabled == 'true'
         env:
-          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
         run: |
           set -uo pipefail
