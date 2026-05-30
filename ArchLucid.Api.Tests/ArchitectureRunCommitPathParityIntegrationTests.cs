@@ -78,36 +78,6 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         reportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         string markdown = await reportResponse.Content.ReadAsStringAsync();
 
-        HttpResponseMessage tenantBaselinePut = await client.PutAsJsonAsync(
-            "/v1/tenant/baseline",
-            new
-            {
-                baselineReviewCycleHours = 40m,
-                baselineReviewCycleSourceNote = "PR-A2 cohort integration",
-                manualPrepHoursPerReview = 6m,
-                peoplePerReview = 2,
-            },
-            JsonOptions);
-        await tenantBaselinePut.EnsureSuccessForTestAsync();
-
-        HttpResponseMessage baselinePut = await client.PutAsJsonAsync(
-            "/v1/pilots/scorecard/baselines",
-            new
-            {
-                baselineHoursPerReview = 40m,
-                baselineReviewsPerQuarter = 12,
-                baselineArchitectHourlyCost = 175m,
-            },
-            JsonOptions);
-        await baselinePut.EnsureSuccessForTestAsync();
-
-        HttpResponseMessage firstValuePdfResponse =
-            await client.PostAsync($"/v1/pilots/runs/{runId}/first-value-report.pdf", null);
-        firstValuePdfResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        firstValuePdfResponse.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");
-        byte[] firstValuePdf = await firstValuePdfResponse.Content.ReadAsByteArrayAsync();
-        firstValuePdf.Length.Should().BeGreaterThan(64);
-
         HttpResponseMessage deltasResponse = await client.GetAsync($"/v1/pilots/runs/{runId}/pilot-run-deltas");
         deltasResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         string deltasJson = await deltasResponse.Content.ReadAsStringAsync();

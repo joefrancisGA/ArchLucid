@@ -5,7 +5,7 @@ using ArchLucid.Host.Core.Auth.Services;
 /// <summary>
 ///     Rejects authenticated requests where <c>x-*-id</c> headers disagree with scope claims (TB-072).
 /// </summary>
-public sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
+internal sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {

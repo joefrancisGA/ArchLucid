@@ -58,6 +58,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
+        ArchitectureRequestConcurrencyTestSupport.AlignHttpClientTimeoutForSqlIdempotencyLockChain(
+            client,
+            ParallelCreateRunHangGuard);
+
         await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(client);
 
         using CancellationTokenSource hangGuard = new();
@@ -78,7 +82,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
                 10,
                 500,
                 ct,
-                ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+                ParallelCreateRunHangGuard);
 
         responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
             client,

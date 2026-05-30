@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Integrations.AzureDevOps;
+using ArchLucid.Mcp.Tools;
 using ArchLucid.Notifications;
 using ArchLucid.Notifications.Email.RazorLight;
 using ArchLucid.Persistence.Pilots;
@@ -97,6 +98,7 @@ public sealed class SingleCompositionRootServiceCollectionExtensionsTests
         typeof(AzureDevOpsPullRequestDecorator).Assembly,
         typeof(ArchLucid.Integrations.AzureExtractor.HostedAzureExtractorClient).Assembly,
         typeof(ArchLucid.KnowledgeGraph.Services.KnowledgeGraphService).Assembly,
+        typeof(RetrievalTools).Assembly,
         typeof(WebhookPostOptions).Assembly,
         typeof(EmailTemplateAnchor).Assembly,
         typeof(DapperPilotReportCardMetricsReader).Assembly,
