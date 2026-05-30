@@ -16,23 +16,27 @@ Describe 'ApiIntegrationTestShardSupport' {
 
         $classes = ConvertFrom-DotNetTestListOutput -Lines $lines
 
-        $classes | Should -Be @(
-            'ArchLucid.Api.Tests.BarTests',
-            'ArchLucid.Api.Tests.FooTests'
-        )
+        $classes.Count | Should Be 2
+        $classes[0] | Should Be 'ArchLucid.Api.Tests.BarTests'
+        $classes[1] | Should Be 'ArchLucid.Api.Tests.FooTests'
     }
 
     It 'assigns classes round-robin across shards deterministically' {
         $all = @('A', 'B', 'C', 'D', 'E')
 
-        Get-ApiIntegrationTestShardClassNames -AllClassNames $all -ShardIndex 0 -ShardCount 3 |
-            Should -Be @('A', 'D')
+        $shard0 = Get-ApiIntegrationTestShardClassNames -AllClassNames $all -ShardIndex 0 -ShardCount 3
+        $shard0.Count | Should Be 2
+        $shard0[0] | Should Be 'A'
+        $shard0[1] | Should Be 'D'
 
-        Get-ApiIntegrationTestShardClassNames -AllClassNames $all -ShardIndex 1 -ShardCount 3 |
-            Should -Be @('B', 'E')
+        $shard1 = Get-ApiIntegrationTestShardClassNames -AllClassNames $all -ShardIndex 1 -ShardCount 3
+        $shard1.Count | Should Be 2
+        $shard1[0] | Should Be 'B'
+        $shard1[1] | Should Be 'E'
 
-        Get-ApiIntegrationTestShardClassNames -AllClassNames $all -ShardIndex 2 -ShardCount 3 |
-            Should -Be @('C')
+        $shard2 = Get-ApiIntegrationTestShardClassNames -AllClassNames $all -ShardIndex 2 -ShardCount 3
+        $shard2.Count | Should Be 1
+        $shard2[0] | Should Be 'C'
     }
 
     It 'builds a combined Category and FullyQualifiedName filter' {
@@ -40,6 +44,6 @@ Describe 'ApiIntegrationTestShardSupport' {
             -ClassNames @('ArchLucid.Api.Tests.FooTests') `
             -BaseFilter 'Category!=Slow&Category=Integration'
 
-        $filter | Should -Be 'Category!=Slow&Category=Integration&(FullyQualifiedName~ArchLucid.Api.Tests.FooTests)'
+        $filter | Should Be 'Category!=Slow&Category=Integration&(FullyQualifiedName~ArchLucid.Api.Tests.FooTests)'
     }
 }
