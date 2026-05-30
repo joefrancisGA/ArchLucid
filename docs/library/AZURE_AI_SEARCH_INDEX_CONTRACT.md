@@ -1,4 +1,4 @@
-> **Scope:** Authoritative Azure AI Search index field contract for ArchLucid retrieval — OData names, formats, and precedence when an index already exists outside the repo.
+> **Scope:** Contributor-reference — Authoritative Azure AI Search index field contract for ArchLucid retrieval — OData names, formats, and precedence when an index already exists outside the repo.
 >
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

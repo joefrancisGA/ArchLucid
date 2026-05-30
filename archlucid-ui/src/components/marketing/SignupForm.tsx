@@ -320,12 +320,12 @@ export function SignupForm() {
             finalized review using the conservative model from{" "}
             <code className="text-[0.85em]">docs/PILOT_ROI_MODEL.md</code>{" "}
             when you leave the modeled default — see also the{" "}
-            <a
+            <Link
               className="text-teal-800 underline dark:text-teal-300"
               href="/help/executive-summary"
             >
               trial baseline privacy note
-            </a>
+            </Link>
             .
           </p>
 

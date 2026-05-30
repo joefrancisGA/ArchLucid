@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Honest mapping between application configuration keys and Terraform roots.
+
 # IaC runtime parity (code config → Terraform roots)
 
 **Purpose:** Honest mapping between application configuration keys and Terraform roots. Advisory vs required follows hosting profile in [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md).

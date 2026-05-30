@@ -30,6 +30,7 @@ import {
 } from "@/lib/first-pilot-operating-rail-status";
 import { mapReadinessStatusToOperatorLabel } from "@/lib/first-pilot-operator-status-vocabulary";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
+import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";

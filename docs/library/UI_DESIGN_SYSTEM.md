@@ -1,4 +1,4 @@
-> **Scope:** Owner-ratified UI aesthetic standard for ArchLucid V1 GA and beyond. Authoritative for all UI work.  
+> **Scope:** Contributor-reference — Owner-ratified UI aesthetic standard for ArchLucid V1 GA and beyond. Authoritative for all UI work.  
 > **Decision date:** 2026-05-27. **Owner:** product owner.  
 > **Audience:** engineers, AI coding agents, and designers working on `archlucid-ui/`.
 

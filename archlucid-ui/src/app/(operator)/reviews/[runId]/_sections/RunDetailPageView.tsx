@@ -6,6 +6,7 @@ import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
+import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";

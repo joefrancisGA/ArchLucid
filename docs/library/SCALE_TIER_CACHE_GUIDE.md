@@ -1,4 +1,4 @@
-> **Scope:** Scale tiers and cache consistency assumptions for hosted and self-hosted pilots.
+> **Scope:** Contributor-reference — Scale tiers and cache consistency assumptions for hosted and self-hosted pilots.
 
 # Scale tier and cache consistency guide
 

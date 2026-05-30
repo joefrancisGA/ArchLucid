@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — Hosted production Terraform root scaffold and apply order pointer.
+
 # Hosted production Terraform root (repo scaffold)
 
 **Canonical path (when `infra/` is writable in CI):** `infra/terraform/prod/`  
