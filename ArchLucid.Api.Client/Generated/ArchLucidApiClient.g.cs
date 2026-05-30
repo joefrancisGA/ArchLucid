@@ -43740,6 +43740,16 @@ namespace ArchLucid.Api.Client.Generated
                             throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
+                        if (status_ == 409)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
                             throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
@@ -54756,6 +54766,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
         public int? SchemaVersion { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("triageScenarioId")]
+        public string? TriageScenarioId { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -61179,6 +61192,31 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ExecutiveOrphanCandidateSummary
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("annualSavingsUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? AnnualSavingsUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("candidateCount")]
+        public int? CandidateCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidenceRunId")]
+        public string? EvidenceRunId { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ExecutiveRoiAggregatesResponse
     {
 
@@ -61415,6 +61453,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? EaDiscountMultiplier { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("expiringWaiversCount14Days")]
+        public int? ExpiringWaiversCount14Days { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("historicalTrends")]
         public System.Collections.Generic.ICollection<ExecutiveRoiSystemicIssueTrendSeries>? HistoricalTrends { get; set; } = default!;
 
@@ -61426,6 +61467,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("newlyDiscoveredFindingsCount30Days")]
         public int? NewlyDiscoveredFindingsCount30Days { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("orphanCandidates")]
+        public ExecutiveOrphanCandidateSummary? OrphanCandidates { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("realizedValue")]
         public RealizedValueSummary? RealizedValue { get; set; } = default!;
@@ -65228,6 +65272,42 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("daily")]
         public System.Collections.Generic.ICollection<LlmCostDailyBucketResponse>? Daily { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("topRuns")]
+        public System.Collections.Generic.ICollection<LlmCostTopRunRowResponse>? TopRuns { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class LlmCostTopRunRowResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("completionTokens")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long? CompletionTokens { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? EstimatedCostUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("llmCallCount")]
+        public int? LlmCallCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("promptTokens")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long? PromptTokens { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runId")]
+        public string? RunId { get; set; } = default!;
+
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -67100,6 +67180,39 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class PilotRoiBaselineInputsStatusResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("architectHourlyCostBasis")]
+        public int? ArchitectHourlyCostBasis { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("architectPrepHoursPerReviewBasis")]
+        public int? ArchitectPrepHoursPerReviewBasis { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidenceAssemblyEffortBasis")]
+        public int? EvidenceAssemblyEffortBasis { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("projectedDollarClaimsSponsorSafe")]
+        public bool? ProjectedDollarClaimsSponsorSafe { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("reviewCycleHoursBasis")]
+        public int? ReviewCycleHoursBasis { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("sponsorSafeFallbackCopy")]
+        public string? SponsorSafeFallbackCopy { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class PilotRunDeltaSeverityCountResponse
     {
 
@@ -67154,6 +67267,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("proofPackageCompleteness")]
         public ProofPackageCompletenessResponse? ProofPackageCompleteness { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("roiMetricSources")]
+        public System.Collections.Generic.ICollection<RoiMetricSourceRow>? RoiMetricSources { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("roiSourceFreshnessDisposition")]
+        public string? RoiSourceFreshnessDisposition { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runCreatedUtc")]
         public System.DateTimeOffset? RunCreatedUtc { get; set; } = default!;
@@ -69011,6 +69130,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("publishingTier")]
         public string? PublishingTier { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("roiBaselineInputs")]
+        public PilotRoiBaselineInputsStatusResponse? RoiBaselineInputs { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("roiConfidenceLabel")]
         public string? RoiConfidenceLabel { get; set; } = default!;
 
@@ -70394,6 +70516,40 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RoiMetricSourceRow
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("citationDetail")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string CitationDetail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("displayLabel")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string DisplayLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("metricKey")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string MetricKey { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("sourceKind")]
+        public int SourceKind { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("valueSummary")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ValueSummary { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RuleCandidateComparisonRequest
     {
 
@@ -70532,8 +70688,39 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunAgentLlmCostEstimateDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("costEstimationBasis")]
+        public string? CostEstimationBasis { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? EstimatedCostUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("model")]
+        public string? Model { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("tokenCounts")]
+        public RunLlmTokenCountsDto? TokenCounts { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunAgentLlmCostEstimateResponse
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("costEstimationBasis")]
+        public string? CostEstimationBasis { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
@@ -70706,6 +70893,9 @@ namespace ArchLucid.Api.Client.Generated
     public partial class RunDetailDto
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("agentExecutionLlmCostEstimate")]
+        public RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundle")]
         public ArtifactBundle? ArtifactBundle { get; set; } = default!;
 
@@ -70736,11 +70926,23 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshot")]
         public GraphSnapshot? GraphSnapshot { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("lastAgentExecutionFailure")]
+        public AgentExecutionFailureSummary? LastAgentExecutionFailure { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("results")]
+        public System.Collections.Generic.ICollection<AgentResult>? Results { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("retrievalGroundingSummary")]
+        public RunRetrievalGroundingSummaryDto? RetrievalGroundingSummary { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("run")]
         public RunRecord? Run { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runDegradedExecution")]
         public bool? RunDegradedExecution { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("trustEvidenceCard")]
+        public RunTrustEvidenceCard? TrustEvidenceCard { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -71179,6 +71381,29 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunLlmTokenCountsDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("completion")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long? Completion { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("prompt")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long? Prompt { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunLlmTokenCountsResponse
     {
 
@@ -71506,6 +71731,43 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("score")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? Score { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunRetrievalGroundingSummaryDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentsWithTraces")]
+        public System.Collections.Generic.ICollection<string>? AgentsWithTraces { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("averageCitationCoverage")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? AverageCitationCoverage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("disposition")]
+        public string? Disposition { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("expectedAgentsMissingTraces")]
+        public System.Collections.Generic.ICollection<string>? ExpectedAgentsMissingTraces { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("operatorDetail")]
+        public string? OperatorDetail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalRetrievedChunks")]
+        public int? TotalRetrievedChunks { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceCount")]
+        public int? TraceCount { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

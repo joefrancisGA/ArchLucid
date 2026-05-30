@@ -998,6 +998,12 @@
           "schemaVersion": {
             "format": "int32",
             "type": "integer"
+          },
+          "triageScenarioId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -7358,6 +7364,30 @@
         },
         "type": "object"
       },
+      "ExecutiveOrphanCandidateSummary": {
+        "properties": {
+          "annualSavingsUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "candidateCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "evidenceRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ExecutiveRoiAggregatesResponse": {
         "properties": {
           "complianceRisksMitigated": {
@@ -7612,6 +7642,10 @@
               "string"
             ]
           },
+          "expiringWaiversCount14Days": {
+            "format": "int32",
+            "type": "integer"
+          },
           "historicalTrends": {
             "items": {
               "$ref": "#/components/schemas/ExecutiveRoiSystemicIssueTrendSeries"
@@ -7632,6 +7666,16 @@
           "newlyDiscoveredFindingsCount30Days": {
             "format": "int32",
             "type": "integer"
+          },
+          "orphanCandidates": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExecutiveOrphanCandidateSummary"
+              }
+            ]
           },
           "realizedValue": {
             "oneOf": [
@@ -11503,6 +11547,48 @@
               "$ref": "#/components/schemas/LlmCostDailyBucketResponse"
             },
             "type": "array"
+          },
+          "topRuns": {
+            "items": {
+              "$ref": "#/components/schemas/LlmCostTopRunRowResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "LlmCostTopRunRowResponse": {
+        "properties": {
+          "completionTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "llmCallCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "promptTokens": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "runId": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -13382,6 +13468,32 @@
         ],
         "type": "object"
       },
+      "PilotRoiBaselineInputBasis": {
+        "type": "integer"
+      },
+      "PilotRoiBaselineInputsStatusResponse": {
+        "properties": {
+          "architectHourlyCostBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "architectPrepHoursPerReviewBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "evidenceAssemblyEffortBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "projectedDollarClaimsSponsorSafe": {
+            "type": "boolean"
+          },
+          "reviewCycleHoursBasis": {
+            "$ref": "#/components/schemas/PilotRoiBaselineInputBasis"
+          },
+          "sponsorSafeFallbackCopy": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PilotRoiEvidenceConfidence": {
         "type": "integer"
       },
@@ -13454,6 +13566,15 @@
                 "$ref": "#/components/schemas/ProofPackageCompletenessResponse"
               }
             ]
+          },
+          "roiMetricSources": {
+            "items": {
+              "$ref": "#/components/schemas/RoiMetricSourceRow"
+            },
+            "type": "array"
+          },
+          "roiSourceFreshnessDisposition": {
+            "type": "string"
           },
           "runCreatedUtc": {
             "format": "date-time",
@@ -15271,6 +15392,16 @@
           "publishingTier": {
             "type": "string"
           },
+          "roiBaselineInputs": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotRoiBaselineInputsStatusResponse"
+              }
+            ]
+          },
           "roiConfidenceLabel": {
             "type": "string"
           },
@@ -16661,6 +16792,36 @@
         },
         "type": "object"
       },
+      "RoiMetricSourceKind": {
+        "type": "integer"
+      },
+      "RoiMetricSourceRow": {
+        "properties": {
+          "citationDetail": {
+            "type": "string"
+          },
+          "displayLabel": {
+            "type": "string"
+          },
+          "metricKey": {
+            "type": "string"
+          },
+          "sourceKind": {
+            "$ref": "#/components/schemas/RoiMetricSourceKind"
+          },
+          "valueSummary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "citationDetail",
+          "displayLabel",
+          "metricKey",
+          "sourceKind",
+          "valueSummary"
+        ],
+        "type": "object"
+      },
       "RuleCandidateComparisonRequest": {
         "properties": {
           "candidateACompositeRule": {
@@ -16825,8 +16986,34 @@
         },
         "type": "object"
       },
+      "RunAgentLlmCostEstimateDto": {
+        "properties": {
+          "costEstimationBasis": {
+            "type": "string"
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "model": {
+            "type": "string"
+          },
+          "tokenCounts": {
+            "$ref": "#/components/schemas/RunLlmTokenCountsDto"
+          }
+        },
+        "type": "object"
+      },
       "RunAgentLlmCostEstimateResponse": {
         "properties": {
+          "costEstimationBasis": {
+            "type": "string"
+          },
           "estimatedCostUsd": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
@@ -16981,6 +17168,16 @@
       },
       "RunDetailDto": {
         "properties": {
+          "agentExecutionLlmCostEstimate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunAgentLlmCostEstimateDto"
+              }
+            ]
+          },
           "artifactBundle": {
             "oneOf": [
               {
@@ -17066,11 +17263,50 @@
               }
             ]
           },
+          "lastAgentExecutionFailure": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentExecutionFailureSummary"
+              }
+            ]
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/AgentResult"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "retrievalGroundingSummary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunRetrievalGroundingSummaryDto"
+              }
+            ]
+          },
           "run": {
             "$ref": "#/components/schemas/RunRecord"
           },
           "runDegradedExecution": {
             "type": "boolean"
+          },
+          "trustEvidenceCard": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunTrustEvidenceCard"
+              }
+            ]
           }
         },
         "type": "object"
@@ -17551,6 +17787,27 @@
         },
         "type": "object"
       },
+      "RunLlmTokenCountsDto": {
+        "properties": {
+          "completion": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "prompt": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "RunLlmTokenCountsResponse": {
         "properties": {
           "completion": {
@@ -17941,6 +18198,48 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "RunRetrievalGroundingSummaryDto": {
+        "properties": {
+          "agentsWithTraces": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "averageCitationCoverage": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "disposition": {
+            "type": "string"
+          },
+          "expectedAgentsMissingTraces": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "operatorDetail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "totalRetrievedChunks": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "traceCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -52237,6 +52536,16 @@
               }
             },
             "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict"
           }
         },
         "tags": [
