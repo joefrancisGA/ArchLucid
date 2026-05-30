@@ -144,7 +144,8 @@ public sealed class SamlSigningCertificateStartupWarningHostedServiceTests
         CertificateRequest request =
             new("CN=archlucid-saml-startup-warning-test", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 
-        DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(-1);
+        // notBefore must be strictly before notAfter (expired certs pass notAfter in the past).
+        DateTimeOffset start = notAfterUtc.AddYears(-1);
 
         using X509Certificate2 certificate = request.CreateSelfSigned(start, notAfterUtc);
 
