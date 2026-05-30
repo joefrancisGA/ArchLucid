@@ -1,8 +1,6 @@
 using ArchLucid.TestSupport;
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Api.Tests;
 
@@ -10,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 ///     API host with <c>ArchLucid:StorageProvider=InMemory</c> so advisory scans use in-memory authority + alert stores
 ///     (same DI graph as production, different backing stores).
 /// </summary>
-public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
+public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
 {
     private readonly string _connectionString;
 
@@ -22,24 +20,13 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
         SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
     }
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
-        builder.UseEnvironment("Development");
-
-        builder.UseSetting("ConnectionStrings:ArchLucid", _connectionString);
-        builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
-
-        builder.ConfigureAppConfiguration((_, config) =>
-        {
-            Dictionary<string, string?> settings = new()
-            {
-                ["ArchLucid:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchLucid"] = _connectionString
-            };
-
-            ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
-            config.AddInMemoryCollection(settings);
-        });
+        settings["ArchLucid:StorageProvider"] = "InMemory";
+        settings["ConnectionStrings:ArchLucid"] = _connectionString;
+        settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+        // Background TrialFunnelHealthProbe defaults to http://127.0.0.1:5000 under TestServer; disable for integration hosts.
+        settings["Demo:Enabled"] = "false";
     }
 
     protected override void Dispose(bool disposing)
