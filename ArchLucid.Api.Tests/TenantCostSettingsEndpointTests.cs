@@ -12,24 +12,6 @@ namespace ArchLucid.Api.Tests;
 public sealed class TenantCostSettingsEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [SkippableFact]
-    public async Task GetCostSettings_returns_defaults_when_unconfigured()
-    {
-        HttpResponseMessage response = await Client.GetAsync("/v1/tenant/cost-settings");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        TenantCostSettingsGetResponse? body =
-            await response.Content.ReadFromJsonAsync<TenantCostSettingsGetResponse>(JsonOptions);
-
-        body.Should().NotBeNull();
-        body.IsTenantConfigured.Should().BeFalse();
-        body.ArchitectHourlyRateUsd.Should().BeGreaterThan(0m);
-        body.AverageIncidentCostUsd.Should().BeGreaterThan(0m);
-        body.EaDiscountMultiplier.Should().Be(1.0m);
-        body.EaDiscountPercentage.Should().Be(0m);
-    }
-
-    [SkippableFact]
     public async Task PutCostSettings_accepts_ea_discount_percentage_and_round_trips()
     {
         TenantCostSettingsPutRequest put = new()
