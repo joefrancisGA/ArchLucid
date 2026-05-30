@@ -208,6 +208,7 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
             "circuit_breakers",
             "database",
             "distributed_cache",
+            "orchestrator",
         ]);
 
         JsonElement cacheEntry = root

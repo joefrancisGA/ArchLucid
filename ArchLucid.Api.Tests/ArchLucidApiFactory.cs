@@ -32,6 +32,8 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 public class ArchLucidApiFactory : BaseIntegrationTestFixture
 {
+    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("InMemory");
+
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchLucidApiFactory()
     {
@@ -77,6 +79,9 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>
     protected override void Dispose(bool disposing)
     {
+        if (disposing)
+            _storageProviderEnvironment.Dispose();
+
         base.Dispose(disposing);
 
         if (!disposing)

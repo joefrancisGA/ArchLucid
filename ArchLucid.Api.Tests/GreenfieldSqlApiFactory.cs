@@ -14,6 +14,8 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 {
+    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("Sql");
+
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
     {
@@ -54,8 +56,6 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     /// <inheritdoc />
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        GreenfieldSqlIntegrationTestEnvironmentOverrides.Apply();
-
         base.ConfigureWebHost(builder);
 
         ApplySqlPersistenceHostOverrides(builder, GetAdditionalHostConfigurationOverrides());
@@ -177,12 +177,13 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
+        if (disposing)
+            _storageProviderEnvironment.Dispose();
+
         base.Dispose(disposing);
 
         if (!disposing)
             return;
-
-        GreenfieldSqlIntegrationTestEnvironmentOverrides.Clear();
 
         try
         {
