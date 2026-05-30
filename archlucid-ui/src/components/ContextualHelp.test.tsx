@@ -47,8 +47,6 @@ describe("ContextualHelp", () => {
   });
 
   it("renders learn-more link when the entry defines learnMoreUrl", () => {
-    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE", "https://example.com/prefix");
-
     render(<ContextualHelp helpKey="commit-manifest" />);
     const button = screen.getByLabelText(contextualHelpTriggerAriaLabel("commit-manifest")!);
 
@@ -57,7 +55,7 @@ describe("ContextualHelp", () => {
     });
 
     const more = screen.getByRole("link", { name: /learn more/i });
-    expect(more.getAttribute("href")).toBe("https://example.com/prefix/docs/CORE_PILOT.md#commit");
+    expect(more.getAttribute("href")).toBe("/help/core-pilot#commit");
     expect(more).toHaveAttribute("target", "_blank");
   });
 

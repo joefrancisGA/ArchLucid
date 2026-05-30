@@ -1,9 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
-import { afterEach, describe, expect, it, vi } from "vitest";
-
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { describe, expect, it } from "vitest";
 
 import {
   CONTEXTUAL_HELP_PAGE_KEYS,
@@ -15,30 +13,21 @@ import {
 const repoRoot = join(process.cwd(), "..");
 
 describe("contextual-help", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it("maps every known page key to a URL", () => {
+  it("maps every known page key to an in-app help route", () => {
     for (const key of CONTEXTUAL_HELP_PAGE_KEYS) {
       const url = getHelpUrl(key);
 
-      expect(url, key).toMatch(/^https?:\/\//);
+      expect(url, key).toMatch(/^\/help(?:\/|$)/);
     }
   });
 
-  it("uses NEXT_PUBLIC_DOCS_BASE_URL when set", () => {
-    vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", "https://docs.example.com/root/");
-
-    expect(getHelpUrl("/compare")).toBe("https://docs.example.com/root/docs/library/COMPARISON_REPLAY.md");
+  it("maps compare to the comparison replay help topic", () => {
+    expect(getHelpUrl("/compare")).toBe("/help/comparison-replay");
   });
 
   it("includes fragments for runs list and run detail keys", () => {
-    vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", undefined);
-
-    const blobBase = DEFAULT_GITHUB_BLOB_BASE.replace(/\/$/, "");
-    expect(getHelpUrl("/runs")).toBe(`${blobBase}/docs/library/OPERATOR_QUICKSTART.md#operator-ui`);
-    expect(getHelpUrl("/runs/[id]")).toContain("#main-workflow");
+    expect(getHelpUrl("/runs")).toBe("/help/getting-started#operator-ui");
+    expect(getHelpUrl("/runs/[id]")).toBe("/help/operator-shell#main-workflow");
   });
 
   it("resolves every mapped doc path to a file under the repo root", () => {

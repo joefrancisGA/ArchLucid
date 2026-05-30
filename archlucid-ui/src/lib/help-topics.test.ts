@@ -1,46 +1,28 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { DEFAULT_GITHUB_BLOB_BASE } from "./docs-public-base";
 import { getDocHref } from "./help-topics";
 
 describe("getDocHref", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
+  it("maps known repo paths to in-app help routes", () => {
+    expect(getDocHref("docs/library/FIRST_RUN_WIZARD.md")).toBe("/help/getting-started");
+    expect(getDocHref("docs/library/ALERTS.md")).toBe("/help/alerts");
   });
 
-  it("returns a full URL when NEXT_PUBLIC_DOCS_BASE_URL is set", () => {
-    vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", "https://docs.example.com/archlucid");
-
-    expect(getDocHref("docs/library/FIRST_RUN_WIZARD.md")).toBe(
-      "https://docs.example.com/archlucid/docs/library/FIRST_RUN_WIZARD.md",
+  it("preserves hash fragments on in-app routes", () => {
+    expect(getDocHref("docs/library/OPERATOR_QUICKSTART.md#operator-ui")).toBe(
+      "/help/getting-started#operator-ui",
     );
   });
 
-  it("returns the public GitHub blob URL when NEXT_PUBLIC_DOCS_BASE_URL is unset", () => {
-    vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", undefined);
-
-    expect(getDocHref("docs/ALERTS.md")).toBe(
-      `${DEFAULT_GITHUB_BLOB_BASE.replace(/\/$/, "")}/docs/ALERTS.md`,
-    );
+  it("strips leading slash from the path before resolving", () => {
+    expect(getDocHref("/docs/library/COMPARISON_REPLAY.md")).toBe("/help/comparison-replay");
   });
 
-  it("returns the public GitHub blob URL when NEXT_PUBLIC_DOCS_BASE_URL is empty", () => {
-    vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", "");
-
-    expect(getDocHref("docs/ALERTS.md")).toBe(
-      `${DEFAULT_GITHUB_BLOB_BASE.replace(/\/$/, "")}/docs/ALERTS.md`,
-    );
-  });
-
-  it("strips trailing slash from the base and leading slash from the path", () => {
-    vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", "https://docs.example.com/root/");
-
-    expect(getDocHref("/docs/X.md")).toBe("https://docs.example.com/root/docs/X.md");
+  it("returns help index for unknown doc paths", () => {
+    expect(getDocHref("/docs/X.md")).toBe("/help");
   });
 
   it("returns null when docPath is empty or whitespace", () => {
-    vi.stubEnv("NEXT_PUBLIC_DOCS_BASE_URL", undefined);
-
     expect(getDocHref("")).toBeNull();
     expect(getDocHref("   ")).toBeNull();
   });

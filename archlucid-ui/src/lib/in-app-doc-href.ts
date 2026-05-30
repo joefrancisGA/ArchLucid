@@ -52,6 +52,7 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/runbooks/azure_extractor_ingest.md": "evidence-intake",
   "docs/go-to-market/tenant_isolation.md": "audit-trail",
   "docs/go-to-market/customer_trust_and_access.md": "audit-trail",
+  "docs/library/azure_extractor.md": "evidence-intake",
   "docs/library/azure_extractor_technical_backlog.md": "evidence-intake",
   "docs/go-to-market/procurement_faq.md": "executive-summary",
   "docs/deployment/per_tenant_cost_model.md": "executive-summary",

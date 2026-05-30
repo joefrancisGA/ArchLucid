@@ -76,7 +76,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     });
 
     expect(screen.getByTestId("extract-upload-error-code")).toHaveTextContent("AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE");
-    expect(screen.getByTestId("extract-upload-troubleshooting-link")).toHaveAttribute("href", expect.stringContaining("AZURE_EXTRACTOR.md"));
+    expect(screen.getByTestId("extract-upload-troubleshooting-link")).toHaveAttribute("href", "/help/evidence-intake");
     expect(screen.getByText("Invalid ZIP archive")).toBeInTheDocument();
   });
 
