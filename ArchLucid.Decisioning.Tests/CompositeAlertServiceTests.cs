@@ -1,8 +1,8 @@
+using ArchLucid.Core.Alerts;
+using ArchLucid.Core.Alerts.Composite;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
-using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Decisioning.Alerts.Composite;
-using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.IntegrationOutbox;
@@ -118,11 +118,17 @@ public sealed class CompositeAlertServiceTests
         metrics.Setup(x => x.Build(It.IsAny<AlertEvaluationContext>())).Returns(snapshot);
 
         Mock<ICompositeAlertRuleEvaluator> evaluator = new();
-        evaluator.Setup(x => x.Evaluate(rule, snapshot)).Returns(true);
+        evaluator
+            .Setup(x => x.Evaluate(It.IsAny<CompositeAlertRule>(), It.IsAny<AlertMetricSnapshot>()))
+            .Returns(true);
 
         Mock<IAlertSuppressionPolicy> suppression = new();
         suppression
-            .Setup(x => x.DecideAsync(rule, It.IsAny<AlertEvaluationContext>(), snapshot, It.IsAny<CancellationToken>()))
+            .Setup(x => x.DecideAsync(
+                It.IsAny<CompositeAlertRule>(),
+                It.IsAny<AlertEvaluationContext>(),
+                It.IsAny<AlertMetricSnapshot>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new AlertSuppressionDecision
                 {
@@ -196,11 +202,17 @@ public sealed class CompositeAlertServiceTests
         metrics.Setup(x => x.Build(It.IsAny<AlertEvaluationContext>())).Returns(snapshot);
 
         Mock<ICompositeAlertRuleEvaluator> evaluator = new();
-        evaluator.Setup(x => x.Evaluate(rule, snapshot)).Returns(true);
+        evaluator
+            .Setup(x => x.Evaluate(It.IsAny<CompositeAlertRule>(), It.IsAny<AlertMetricSnapshot>()))
+            .Returns(true);
 
         Mock<IAlertSuppressionPolicy> suppression = new();
         suppression
-            .Setup(x => x.DecideAsync(rule, It.IsAny<AlertEvaluationContext>(), snapshot, It.IsAny<CancellationToken>()))
+            .Setup(x => x.DecideAsync(
+                It.IsAny<CompositeAlertRule>(),
+                It.IsAny<AlertEvaluationContext>(),
+                It.IsAny<AlertMetricSnapshot>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new AlertSuppressionDecision
                 {
