@@ -28,7 +28,7 @@ internal static class AuthSsoPreflightEvaluator
         results.Add(new AuthSsoPreflightCheckResult(
             "auth.apiKey",
             apiKeyEnabled ? AuthSsoPreflightCheckStatus.Pass : AuthSsoPreflightCheckStatus.Info,
-            apiKeyEnabled ? "Authentication:ApiKey:Enabled=true." : "API key auth disabled in merged configuration."));
+            apiKeyEnabled ? "ApiKey authentication is enabled in merged configuration." : "API key auth disabled in merged configuration."));
 
         if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {
