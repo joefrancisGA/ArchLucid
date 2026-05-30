@@ -236,9 +236,9 @@ public sealed class RealAzureOpenAIEndToEndTests
             anyCitation,
             RealLiveAoaiEvidenceProfiles.FullPipeline);
 
-        merge.Success.Should().BeTrue();
+        merge.Success.Should().BeTrue("merge errors: {0}", string.Join("; ", merge.Errors));
         merge.Manifest.Services.Count.Should().BeGreaterThan(0);
-        merge.Decisions.Count.Should().BeGreaterThan(0);
+        merge.DecisionTraces.Count.Should().BeGreaterThan(0);
     }
 
     /// <summary>
@@ -447,6 +447,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             ["mergeSuccess"] = merge.Success,
             ["manifestServiceCount"] = merge.Manifest.Services.Count,
             ["decisionsCount"] = merge.Decisions.Count,
+            ["decisionTraceCount"] = merge.DecisionTraces.Count,
             ["totalClaims"] = results.Sum(static r => r.Claims.Count),
             ["totalFindings"] = results.Sum(static r => r.Findings.Count),
             ["topologyProposalItemCount"] = results.Sum(static r =>

@@ -26,7 +26,7 @@ public sealed class AgentTopologyProposalJsonConverter : JsonConverter<AgentTopo
         if (reader.TokenType != JsonTokenType.StartObject)
             throw new JsonException("Expected object, null, or empty array for agent topology proposal.");
 
-        return JsonSerializer.Deserialize<AgentTopologyProposal>(ref reader, options);
+        return JsonSerializer.Deserialize<AgentTopologyProposal>(ref reader, OptionsWithoutSelf(options));
     }
 
     public override void Write(Utf8JsonWriter writer, AgentTopologyProposal? value, JsonSerializerOptions options)
@@ -37,6 +37,20 @@ public sealed class AgentTopologyProposalJsonConverter : JsonConverter<AgentTopo
             return;
         }
 
-        JsonSerializer.Serialize(writer, value, options);
+        JsonSerializer.Serialize(writer, value, OptionsWithoutSelf(options));
+    }
+
+    private static JsonSerializerOptions OptionsWithoutSelf(JsonSerializerOptions options)
+    {
+        JsonSerializerOptions clone = new(options);
+
+        for (int i = clone.Converters.Count - 1; i >= 0; i--)
+        {
+
+            if (clone.Converters[i] is AgentTopologyProposalJsonConverter)
+                clone.Converters.RemoveAt(i);
+        }
+
+        return clone;
     }
 }

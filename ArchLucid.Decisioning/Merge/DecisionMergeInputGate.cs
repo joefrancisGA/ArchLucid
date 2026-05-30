@@ -73,7 +73,7 @@ public sealed class DecisionMergeInputGate(ISchemaValidationService schemaValida
 
         foreach (AgentResult result in validResults)
         {
-            string resultJson = SchemaValidationSerializer.Serialize(result);
+            string resultJson = AgentResultMergeSchemaSerializer.Serialize(result);
             SchemaValidationResult schemaValidation = _schemaValidationService.ValidateAgentResultJson(resultJson);
 
             if (schemaValidation.IsValid)

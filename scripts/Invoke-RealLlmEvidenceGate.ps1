@@ -274,19 +274,21 @@ function Add-ProfileEvidenceRows {
 
         $dec = [int]$Metrics.decisionsCount
 
+        $traces = if ($null -ne $Metrics.decisionTraceCount) { [int]$Metrics.decisionTraceCount } else { 0 }
+
         $claims = [int]$Metrics.totalClaims
 
 
 
-        if ($mergeOk -and ($svc -gt 0) -and ($dec -gt 0) -and ($claims -gt 0)) {
+        if ($mergeOk -and ($svc -gt 0) -and (($dec -gt 0) -or ($traces -gt 0)) -and ($claims -gt 0)) {
 
-            Add-EvidenceRow $List "$ProfileLabel merge completeness" "Passed" "services=$svc decisions=$dec claims=$claims"
+            Add-EvidenceRow $List "$ProfileLabel merge completeness" "Passed" "services=$svc decisionTraces=$traces claims=$claims"
 
         }
 
         else {
 
-            Add-EvidenceRow $List "$ProfileLabel merge completeness" "Failed" "mergeSuccess=$mergeOk services=$svc decisions=$dec claims=$claims"
+            Add-EvidenceRow $List "$ProfileLabel merge completeness" "Failed" "mergeSuccess=$mergeOk services=$svc decisions=$dec decisionTraces=$traces claims=$claims"
 
         }
 
