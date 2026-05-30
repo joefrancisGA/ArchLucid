@@ -74,12 +74,12 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 """
                 INSERT INTO dbo.ContextSnapshots
                 (
-                    SnapshotId, RunId, ProjectId, CreatedUtc,
+                    SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                     CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                 )
                 VALUES
                 (
-                    @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                    @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                     @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                 );
                 """,
@@ -88,6 +88,9 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = "proj-bf",
+                    TenantId,
+                    WorkspaceId,
+                    ScopeProjectId = ProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,

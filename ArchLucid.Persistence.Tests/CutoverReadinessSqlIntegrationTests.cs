@@ -136,14 +136,17 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
         await connection.ExecuteAsync(new CommandDefinition(
             """
             INSERT INTO dbo.ContextSnapshots
-            (SnapshotId, RunId, ProjectId, CreatedUtc, CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson)
-            VALUES (@SnapshotId, @RunId, 'proj-readiness-json', @CreatedUtc, @CanonicalObjectsJson, NULL, @WarningsJson, @ErrorsJson, @SourceHashesJson);
+            (SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc, CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson)
+            VALUES (@SnapshotId, @RunId, 'proj-readiness-json', @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc, @CanonicalObjectsJson, NULL, @WarningsJson, @ErrorsJson, @SourceHashesJson);
             """,
             new
             {
                 SnapshotId = snapshotId,
                 RunId = runId,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                TenantId,
+                WorkspaceId,
+                ScopeProjectId,
                 CanonicalObjectsJson = JsonEntitySerializer.Serialize(new List<CanonicalObject>
                 {
                     new()

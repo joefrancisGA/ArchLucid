@@ -1426,12 +1426,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         const string insertContext = """
                                      INSERT INTO dbo.ContextSnapshots
                                      (
-                                         SnapshotId, RunId, ProjectId, CreatedUtc,
+                                         SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                          CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                      )
                                      VALUES
                                      (
-                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                         @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                          @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                      );
                                      """;
@@ -1444,6 +1444,9 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     SnapshotId = contextSnapshotId,
                     RunId = runId,
                     ProjectId = "proj-ab",
+                    TenantId,
+                    WorkspaceId,
+                    ScopeProjectId = ProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = emptyCanonical,
                     DeltaSummary = (string?)null,
@@ -1460,12 +1463,12 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         const string insertGraph = """
                                    INSERT INTO dbo.GraphSnapshots
                                    (
-                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                        NodesJson, EdgesJson, WarningsJson
                                    )
                                    VALUES
                                    (
-                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                        @NodesJson, @EdgesJson, @WarningsJson
                                    );
                                    """;
@@ -1478,6 +1481,9 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     GraphSnapshotId = graphSnapshotId,
                     ContextSnapshotId = contextSnapshotId,
                     RunId = runId,
+                    TenantId,
+                    WorkspaceId,
+                    ScopeProjectId = ProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,

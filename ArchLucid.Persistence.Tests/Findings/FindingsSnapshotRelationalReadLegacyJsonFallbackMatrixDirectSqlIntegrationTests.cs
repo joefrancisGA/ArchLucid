@@ -57,12 +57,12 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
         const string insertGraph = """
                                    INSERT INTO dbo.GraphSnapshots
                                    (
-                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                        NodesJson, EdgesJson, WarningsJson
                                    )
                                    VALUES
                                    (
-                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                        @NodesJson, @EdgesJson, @WarningsJson
                                    );
                                    """;
@@ -75,6 +75,9 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,

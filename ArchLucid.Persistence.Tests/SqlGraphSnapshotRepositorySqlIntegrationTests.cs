@@ -206,12 +206,12 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -224,6 +224,9 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = nodesJson,
                     EdgesJson = edgesJson,
@@ -316,12 +319,12 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -334,6 +337,9 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = nodesJson,
                     EdgesJson = edgesJson,
@@ -375,12 +381,12 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -393,6 +399,9 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = createdUtc,
                     NodesJson = (string?)null,
                     EdgesJson = (string?)null,
@@ -694,12 +703,12 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -712,6 +721,9 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = createdUtc,
                     NodesJson = nodesJson,
                     EdgesJson = "[]",

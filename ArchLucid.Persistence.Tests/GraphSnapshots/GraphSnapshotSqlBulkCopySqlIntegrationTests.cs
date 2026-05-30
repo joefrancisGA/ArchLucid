@@ -46,12 +46,12 @@ public sealed class GraphSnapshotSqlBulkCopySqlIntegrationTests(SqlServerPersist
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, SYSUTCDATETIME(),
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, SYSUTCDATETIME(),
                                         '[]', '[]', '[]'
                                     );
                                     """;
@@ -63,7 +63,10 @@ public sealed class GraphSnapshotSqlBulkCopySqlIntegrationTests(SqlServerPersist
                 {
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
-                    RunId = runId
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId
                 },
                 cancellationToken: CancellationToken.None));
 

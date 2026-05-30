@@ -54,12 +54,12 @@ public sealed class GraphSnapshotRelationalReadNoEdgesDirectSqlIntegrationTests(
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -72,6 +72,9 @@ public sealed class GraphSnapshotRelationalReadNoEdgesDirectSqlIntegrationTests(
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     NodesJson = JsonEntitySerializer.Serialize(jsonNodes),
                     EdgesJson = JsonEntitySerializer.Serialize(new List<GraphEdge>()),

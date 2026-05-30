@@ -798,12 +798,12 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         const string insertContext = """
                                      INSERT INTO dbo.ContextSnapshots
                                      (
-                                         SnapshotId, RunId, ProjectId, CreatedUtc,
+                                         SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                          CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                      )
                                      VALUES
                                      (
-                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                         @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                          @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                      );
                                      """;
@@ -816,6 +816,9 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     SnapshotId = contextSnapshotId,
                     RunId = runId,
                     ProjectId = "proj-seed",
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = emptyCanonical,
                     DeltaSummary = (string?)null,
@@ -832,12 +835,12 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         const string insertGraph = """
                                    INSERT INTO dbo.GraphSnapshots
                                    (
-                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                        NodesJson, EdgesJson, WarningsJson
                                    )
                                    VALUES
                                    (
-                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                        @NodesJson, @EdgesJson, @WarningsJson
                                    );
                                    """;
@@ -850,6 +853,9 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphSnapshotId,
                     ContextSnapshotId = contextSnapshotId,
                     RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,

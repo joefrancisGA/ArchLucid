@@ -59,14 +59,17 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
             new CommandDefinition(
                 """
                 INSERT INTO dbo.GraphSnapshots
-                (GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc, NodesJson, EdgesJson, WarningsJson)
-                VALUES (@G, @C, @R, SYSUTCDATETIME(), @Nj, @Ej, @Wj);
+                (GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc, NodesJson, EdgesJson, WarningsJson)
+                VALUES (@G, @C, @R, @TenantId, @WorkspaceId, @ScopeProjectId, SYSUTCDATETIME(), @Nj, @Ej, @Wj);
                 """,
                 new
                 {
                     G = graphId,
                     C = contextId,
                     R = runId,
+                    TenantId,
+                    WorkspaceId,
+                    ScopeProjectId,
                     Nj = EmptyList<GraphNode>(),
                     Ej = EmptyList<GraphEdge>(),
                     Wj = EmptyList<string>()

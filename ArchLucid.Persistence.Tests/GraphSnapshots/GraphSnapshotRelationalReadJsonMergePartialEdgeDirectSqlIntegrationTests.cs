@@ -68,12 +68,12 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -86,6 +86,9 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     NodesJson = emptyNodes,
                     EdgesJson = edgesJson,

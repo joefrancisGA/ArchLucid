@@ -136,12 +136,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -154,6 +154,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = "proj-legacy-json",
+                    TenantId = TestTenantId,
+                    WorkspaceId = TestWorkspaceId,
+                    ScopeProjectId = TestScopeProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,
@@ -224,12 +227,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -242,6 +245,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = "proj-canonical-props-json",
+                    TenantId = TestTenantId,
+                    WorkspaceId = TestWorkspaceId,
+                    ScopeProjectId = TestScopeProjectId,
                     CreatedUtc = createdUtc,
                     CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,
@@ -297,12 +303,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -315,6 +321,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = "proj-all-json-null",
+                    TenantId = TestTenantId,
+                    WorkspaceId = TestWorkspaceId,
+                    ScopeProjectId = TestScopeProjectId,
                     CreatedUtc = createdUtc,
                     CanonicalObjectsJson = (string?)null,
                     DeltaSummary = (string?)null,
@@ -358,12 +367,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -378,6 +387,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = projectId,
+                    TenantId = TestTenantId,
+                    WorkspaceId = TestWorkspaceId,
+                    ScopeProjectId = TestScopeProjectId,
                     CreatedUtc = createdUtc,
                     CanonicalObjectsJson = empty,
                     DeltaSummary = (string?)null,
@@ -536,12 +548,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -554,6 +566,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = projectId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = createdUtc,
                     CanonicalObjectsJson = JsonEntitySerializer.Serialize(canonical),
                     DeltaSummary = "ds",
@@ -621,12 +636,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -639,6 +654,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = projectId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = createdUtc,
                     CanonicalObjectsJson = JsonEntitySerializer.Serialize(new List<CanonicalObject>()),
                     DeltaSummary = (string?)null,
@@ -700,12 +718,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -718,6 +736,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = projectId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = createdUtc,
                     CanonicalObjectsJson = JsonEntitySerializer.Serialize(new List<CanonicalObject>()),
                     DeltaSummary = (string?)null,
@@ -794,12 +815,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
-                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                     )
                                     VALUES
                                     (
-                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                     );
                                     """;
@@ -812,6 +833,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SnapshotId = snapshotId,
                     RunId = runId,
                     ProjectId = projectId,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
                     CreatedUtc = createdUtc,
                     CanonicalObjectsJson = JsonEntitySerializer.Serialize(staleJson),
                     DeltaSummary = (string?)null,

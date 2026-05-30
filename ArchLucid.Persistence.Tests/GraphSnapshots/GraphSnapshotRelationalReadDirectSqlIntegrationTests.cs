@@ -51,12 +51,12 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -69,6 +69,9 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     NodesJson = JsonEntitySerializer.Serialize(new List<GraphNode>()),
                     EdgesJson = emptyListEdges,
@@ -229,12 +232,12 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -247,6 +250,9 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
@@ -331,12 +337,12 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
                                     (
-                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                         NodesJson, EdgesJson, WarningsJson
                                     )
                                     VALUES
                                     (
-                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                         @NodesJson, @EdgesJson, @WarningsJson
                                     );
                                     """;
@@ -349,6 +355,9 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     GraphSnapshotId = graphId,
                     ContextSnapshotId = contextId,
                     RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     NodesJson = emptyNodes,
                     EdgesJson = edgesJson,

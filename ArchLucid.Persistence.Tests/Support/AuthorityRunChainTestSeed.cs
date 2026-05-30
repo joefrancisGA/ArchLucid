@@ -68,15 +68,50 @@ public static class AuthorityRunChainTestSeed
         string emptyCanonical = JsonEntitySerializer.Serialize(new List<CanonicalObject>());
         string emptyList = JsonEntitySerializer.Serialize(new List<string>());
 
+        await InsertContextSnapshotHeaderAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            projectId,
+            contextSnapshotId,
+            runId,
+            projectSlug,
+            TimeProvider.System.UtcNowDateTime(),
+            emptyCanonical,
+            null,
+            emptyList,
+            emptyList,
+            JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+            ct);
+    }
+
+    /// <summary>Direct INSERT into <c>dbo.ContextSnapshots</c> (JSON columns; greenfield requires RLS scope columns).</summary>
+    public static async Task InsertContextSnapshotHeaderAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid scopeProjectId,
+        Guid snapshotId,
+        Guid runId,
+        string projectId,
+        DateTime createdUtc,
+        string canonicalObjectsJson,
+        string? deltaSummary,
+        string warningsJson,
+        string errorsJson,
+        string sourceHashesJson,
+        CancellationToken ct,
+        IDbTransaction? transaction = null)
+    {
         const string insertContext = """
                                      INSERT INTO dbo.ContextSnapshots
                                      (
-                                         SnapshotId, RunId, ProjectId, CreatedUtc,
+                                         SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                                          CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
                                      )
                                      VALUES
                                      (
-                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                         @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                                          @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
                                      );
                                      """;
@@ -86,16 +121,20 @@ public static class AuthorityRunChainTestSeed
                 insertContext,
                 new
                 {
-                    SnapshotId = contextSnapshotId,
+                    SnapshotId = snapshotId,
                     RunId = runId,
-                    ProjectId = projectSlug,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                    CanonicalObjectsJson = emptyCanonical,
-                    DeltaSummary = (string?)null,
-                    WarningsJson = emptyList,
-                    ErrorsJson = emptyList,
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
+                    ProjectId = projectId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
+                    CreatedUtc = createdUtc,
+                    CanonicalObjectsJson = canonicalObjectsJson,
+                    DeltaSummary = deltaSummary,
+                    WarningsJson = warningsJson,
+                    ErrorsJson = errorsJson,
+                    SourceHashesJson = sourceHashesJson
                 },
+                transaction,
                 cancellationToken: ct));
     }
 
@@ -150,67 +189,39 @@ public static class AuthorityRunChainTestSeed
         string emptyCanonical = JsonEntitySerializer.Serialize(new List<CanonicalObject>());
         string emptyList = JsonEntitySerializer.Serialize(new List<string>());
 
-        const string insertContext = """
-                                     INSERT INTO dbo.ContextSnapshots
-                                     (
-                                         SnapshotId, RunId, ProjectId, CreatedUtc,
-                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-                                     )
-                                     VALUES
-                                     (
-                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-                                     );
-                                     """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertContext,
-                new
-                {
-                    SnapshotId = contextSnapshotId,
-                    RunId = runId,
-                    ProjectId = projectSlug,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                    CanonicalObjectsJson = emptyCanonical,
-                    DeltaSummary = (string?)null,
-                    WarningsJson = emptyList,
-                    ErrorsJson = emptyList,
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
-                },
-                cancellationToken: ct));
+        await InsertContextSnapshotHeaderAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            contextSnapshotId,
+            runId,
+            projectSlug,
+            TimeProvider.System.UtcNowDateTime(),
+            emptyCanonical,
+            null,
+            emptyList,
+            emptyList,
+            JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+            ct);
 
         string emptyNodes = JsonEntitySerializer.Serialize(new List<GraphNode>());
         string emptyEdges = JsonEntitySerializer.Serialize(new List<GraphEdge>());
         string emptyGraphWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
-        const string insertGraph = """
-                                   INSERT INTO dbo.GraphSnapshots
-                                   (
-                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                                       NodesJson, EdgesJson, WarningsJson
-                                   )
-                                   VALUES
-                                   (
-                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                                       @NodesJson, @EdgesJson, @WarningsJson
-                                   );
-                                   """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertGraph,
-                new
-                {
-                    GraphSnapshotId = graphSnapshotId,
-                    ContextSnapshotId = contextSnapshotId,
-                    RunId = runId,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                    NodesJson = emptyNodes,
-                    EdgesJson = emptyEdges,
-                    WarningsJson = emptyGraphWarnings
-                },
-                cancellationToken: ct));
+        await InsertGraphSnapshotHeaderAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphSnapshotId,
+            contextSnapshotId,
+            runId,
+            TimeProvider.System.UtcNowDateTime(),
+            emptyNodes,
+            emptyEdges,
+            emptyGraphWarnings,
+            ct);
 
         const string insertFindings = """
                                       INSERT INTO dbo.FindingsSnapshots
@@ -287,6 +298,55 @@ public static class AuthorityRunChainTestSeed
                     WorkspaceId = workspaceId,
                     ProjectId = scopeProjectId
                 },
+                cancellationToken: ct));
+    }
+
+    /// <summary>Direct INSERT into <c>dbo.GraphSnapshots</c> (JSON columns; greenfield requires RLS scope columns).</summary>
+    public static async Task InsertGraphSnapshotHeaderAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid scopeProjectId,
+        Guid graphSnapshotId,
+        Guid contextSnapshotId,
+        Guid runId,
+        DateTime createdUtc,
+        string? nodesJson,
+        string? edgesJson,
+        string? warningsJson,
+        CancellationToken ct,
+        IDbTransaction? transaction = null)
+    {
+        const string insertGraph = """
+                                   INSERT INTO dbo.GraphSnapshots
+                                   (
+                                       GraphSnapshotId, ContextSnapshotId, RunId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
+                                       NodesJson, EdgesJson, WarningsJson
+                                   )
+                                   VALUES
+                                   (
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
+                                       @NodesJson, @EdgesJson, @WarningsJson
+                                   );
+                                   """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertGraph,
+                new
+                {
+                    GraphSnapshotId = graphSnapshotId,
+                    ContextSnapshotId = contextSnapshotId,
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
+                    CreatedUtc = createdUtc,
+                    NodesJson = nodesJson,
+                    EdgesJson = edgesJson,
+                    WarningsJson = warningsJson
+                },
+                transaction,
                 cancellationToken: ct));
     }
 }
