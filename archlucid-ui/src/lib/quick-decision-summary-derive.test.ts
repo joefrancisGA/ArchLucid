@@ -259,7 +259,6 @@ describe("quick-decision-summary-derive", () => {
           traceCompletenessRatio: 1,
           traceConfidenceLabel: "High",
           findingTitle: "Title A",
-          recommendedActions: ["Do thing"],
           confidenceLevel: "Medium",
         },
       ],
@@ -270,10 +269,12 @@ describe("quick-decision-summary-derive", () => {
     expect(resolved).toHaveLength(1);
     expect(resolved[0]?.findingId).toBe("f-a");
     expect(resolved[0]?.isMuted).toBe(false);
+    expect(resolved[0]?.confidenceLevel).toBe("Medium");
+    expect(resolved[0]?.traceConfidenceLabel).toBe("High");
 
     const snaps = buildFindingWireSnapshotsForRunDetail(detail, summary);
 
     expect(snaps["f-a"]).toBeDefined();
-    expect(snaps["f-a"]?.reasoningTrace).toContain("Do thing");
+    expect(snaps["f-a"]?.reasoningTrace).toBe("High");
   });
 });

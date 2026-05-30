@@ -53,9 +53,13 @@ export function normalizeFindingConfidenceLevel(
 
   if (typeof level === "string") {
     const trimmed = level.trim();
+    const normalized =
+      trimmed.length > 0
+        ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase()
+        : trimmed;
 
-    if (trimmed === "High" || trimmed === "Medium" || trimmed === "Low") {
-      return trimmed;
+    if (normalized === "High" || normalized === "Medium" || normalized === "Low") {
+      return normalized;
     }
   }
 

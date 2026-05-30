@@ -24,6 +24,7 @@ class TestInvokeRealLlmEvidenceGate(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "gate.md"
             env = os.environ.copy()
+            env["ARCHLUCID_SKIP_LOCAL_REAL_AOAI_ENV"] = "1"
             for k in list(env.keys()):
                 if k.startswith("ARCHLUCID_REAL_AOAI") or k == "ARCHLUCID_REAL_LLM_RUN_METRICS_JSON":
                     del env[k]
@@ -48,12 +49,11 @@ class TestInvokeRealLlmEvidenceGate(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
             text = out.read_text(encoding="utf-8")
             self.assertIn("| Credentials present | **Skipped**", text)
-            self.assertIn("| Run executed | **Not captured**", text)
-            self.assertIn("| Schema validation | **Skipped**", text)
-            self.assertIn("| Structural completeness | **Skipped**", text)
+            self.assertIn("| Topology smoke run executed | **Skipped**", text)
+            self.assertIn("| Full pipeline run executed | **Skipped**", text)
             self.assertIn("| Semantic score | **Skipped**", text)
-            self.assertIn("| Parse failures | **Skipped**", text)
-            self.assertIn("| Token/cost estimate | **Skipped**", text)
-            self.assertIn("| Trace persistence | **Skipped**", text)
-            self.assertIn("| Evidence-chain availability | **Skipped**", text)
-            self.assertIn("does **not** claim real LLM validation ran unless **Run executed**", text)
+            self.assertIn("SKIPPED_NO_CREDENTIALS", text)
+            self.assertIn(
+                "Do not cite this gate as live validation unless disposition is `PASS`",
+                text,
+            )

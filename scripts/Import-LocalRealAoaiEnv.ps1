@@ -14,6 +14,10 @@ param(
 
 Set-StrictMode -Version Latest
 
+if ($env:ARCHLUCID_SKIP_LOCAL_REAL_AOAI_ENV -eq '1') {
+    return
+}
+
 function Normalize-AzureOpenAiEndpoint {
     param([string] $Endpoint)
 
