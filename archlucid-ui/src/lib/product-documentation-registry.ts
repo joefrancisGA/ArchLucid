@@ -127,7 +127,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "operator-auth-roles",
     title: "Operator authentication and roles",
-    summary: "JWT bearer role mapping, Entra app roles, and least-privilege operator access expectations.",
+    summary: "JWT bearer role mapping, Entra app roles, and least-privilege role expectations.",
     audience: "developer",
     sourcePaths: ["docs/library/contributor-reference/SECURITY.md"],
   },

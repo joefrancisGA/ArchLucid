@@ -67,7 +67,7 @@
   },
   {
     "title": "CANONICAL_PIPELINE",
-    "summary": "Authority vs legacy coordinator path; when to use each ingestion mode.",
+    "summary": "Authority vs alternate coordinator path; when to use each ingestion mode.",
     "category": "Architecture",
     "url": "/help"
   },
@@ -355,7 +355,7 @@
   },
   {
     "title": "Operator authentication and roles",
-    "summary": "JWT bearer role mapping, Entra app roles, and least-privilege operator access expectations.",
+    "summary": "JWT bearer role mapping, Entra app roles, and least-privilege role expectations.",
     "category": "Operations",
     "url": "/help/operator-auth-roles"
   },
