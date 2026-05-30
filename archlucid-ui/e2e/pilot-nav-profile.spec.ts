@@ -31,7 +31,7 @@ async function dismissBlockingHomeModals(page: Page): Promise<void> {
   }
 }
 
-/** Collapsible triggers detach when /me refetch re-mounts sidebar clusters; DOM click + toPass avoids Playwright scroll flake. */
+/** Collapsible triggers detach when /me refetch re-mounts sidebar clusters; scroll + toPass avoids Playwright flake. */
 async function clickSidebarDisclosureTrigger(sidebarNav: Locator, ariaControlsId: string): Promise<void> {
   await expect(async () => {
     await sidebarNav.evaluate((element) => {
@@ -41,10 +41,8 @@ async function clickSidebarDisclosureTrigger(sidebarNav: Locator, ariaControlsId
     const trigger = sidebarNav.locator(`[aria-controls="${ariaControlsId}"]`);
 
     await expect(trigger).toHaveCount(1);
-    await trigger.evaluate((button: HTMLButtonElement) => {
-      button.click();
-    });
-  }).toPass({ timeout: 15_000 });
+    await trigger.click({ timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
 }
 
 /**
@@ -119,6 +117,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await scrollOperatorSidebarFooterIntoView(page);
     await expect(showAllFeatures).toBeVisible();
     await showAllFeatures.click();
+    await expect(showAllFeatures).toHaveAttribute("aria-expanded", "true");
 
     const analysisNav = page.getByRole("navigation", { name: "Analysis" });
 
@@ -128,6 +127,9 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     const sidebarNavEl = page.getByTestId("sidebar-nav");
 
+    await expect(sidebarNavEl.locator('[aria-controls="sidebar-group-operate-governance-content"]')).toBeVisible({
+      timeout: 15_000,
+    });
     await clickSidebarDisclosureTrigger(sidebarNavEl, "sidebar-group-operate-governance-content");
 
     const governanceNav = page.getByRole("navigation", { name: "Governance", exact: true });
@@ -140,11 +142,9 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await expect(async () => {
       await scrollOperatorSidebarFooterIntoView(page);
       await expect(showAdvancedToggle).toBeVisible();
-      await showAdvancedToggle.evaluate((button: HTMLButtonElement) => {
-        button.click();
-      });
+      await showAdvancedToggle.click();
       await expect(showAdvancedToggle).toHaveAttribute("aria-pressed", "true");
-    }).toPass({ timeout: 15_000 });
+    }).toPass({ timeout: 30_000 });
 
     await expect(governanceNav.getByRole("link", { name: "Governance workflow" })).toHaveAttribute(
       "href",

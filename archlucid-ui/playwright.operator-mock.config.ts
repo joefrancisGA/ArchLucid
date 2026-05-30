@@ -33,7 +33,7 @@ export default defineConfig({
       name: "chromium-operator-shell",
       testDir: "e2e",
       testMatch: ["pilot-nav-profile.spec.ts"],
-      timeout: 60_000,
+      timeout: 120_000,
       use: { ...devices["Desktop Chrome"] },
     },
   ],
