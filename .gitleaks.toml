@@ -30,6 +30,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "SSO preflight CLI: configuration key status strings only (no credential values); generic-api-key false positives on Authentication:ApiKey paths in git history"
+paths = [
+  '''(?:^|/)ArchLucid\.Cli/Commands/AuthSsoPreflightEvaluator\.cs$''',
+]
+
+[[allowlists]]
 description = "API auth behavior contract: configuration key names and header names only — never commit key values; generic-api-key false positives on ArchLucidAuth / Authentication:ApiKey paths"
 paths = [
   '''(?:^|/)docs/library/API_AUTH_BEHAVIOR_CONTRACT\.md$''',
