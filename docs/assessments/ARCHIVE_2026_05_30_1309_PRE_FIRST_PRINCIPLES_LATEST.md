@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 78.8%
+﻿> **Scope:** ArchLucid Assessment – (A) Headline Readiness: 78.8% - full detail, tables, and links in the sections below.
+
+# ArchLucid Assessment – (A) Headline Readiness: 78.8%
 
 This score is the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, using the user-provided weights exactly and excluding explicitly deferred items. Deferred items excluded from the score include SOC 2 CPA attestation, signed design partner, owner-output GTM assets/cohorts, public plugin SDK, MCP as a V1 transport, third-party plugin marketplace, third-party pen-test publication, multi-region active/active guarantees, browser folder-recursive upload, and other items explicitly assigned to V1.1/V2/backlog in `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md`.
 

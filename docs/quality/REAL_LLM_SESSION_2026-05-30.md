@@ -1,3 +1,5 @@
+> **Scope:** Real-LLM session record — 2026-05-30 - full detail, tables, and links in the sections below.
+
 # Real-LLM session record — 2026-05-30
 
 Assessment improvement **#28** credentialed golden-cohort evidence run (owner dev subscription).

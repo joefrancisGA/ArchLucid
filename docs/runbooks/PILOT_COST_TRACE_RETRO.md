@@ -1,3 +1,5 @@
+> **Scope:** Pilot cost trace retro - full detail, tables, and links in the sections below.
+
 # Pilot cost trace retro
 
 > **Scope:** Post-pilot economics review — **estimates only**, not invoice truth.

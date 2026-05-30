@@ -1,4 +1,6 @@
-﻿# ArchLucid Assessment – (A) Headline Readiness: 79.76%
+﻿> **Scope:** ArchLucid Assessment – (A) Headline Readiness: 79.76% - full detail, tables, and links in the sections below.
+
+# ArchLucid Assessment – (A) Headline Readiness: 79.76%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding deferred items. Deferred exclusions include SOC 2 CPA attestation, third-party pen-test execution/publication, signed design partner, owner-output proof cohorts/demo assets, live commerce un-hold, first-party V1.1 connectors, MCP/public plugin ecosystem, multi-cloud analysis, multi-region active/active, and other items documented as V1.1/V1.x/V2 or procurement-only `(B)` realism.
 

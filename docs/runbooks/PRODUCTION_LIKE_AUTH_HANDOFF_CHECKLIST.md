@@ -1,3 +1,5 @@
+> **Scope:** Production-like auth handoff checklist - full detail, tables, and links in the sections below.
+
 # Production-like auth handoff checklist
 
 > **Scope:** PASS/HOLD checks before enterprise handoff. **Depth:** [`../security/`](../security/) · identity provider setup in operator UI.

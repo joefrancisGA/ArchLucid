@@ -1,3 +1,5 @@
+> **Scope:** First value in 20 minutes (operator) - full detail, tables, and links in the sections below.
+
 # First value in 20 minutes (operator)
 
 > **Scope:** Shortest path from zero to a sponsor-safe artifact. **Depth docs:** [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) (canonical checklist).

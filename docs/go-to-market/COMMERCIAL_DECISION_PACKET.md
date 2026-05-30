@@ -1,3 +1,5 @@
+> **Scope:** Commercial decision packet (founder-led motion) - full detail, tables, and links in the sections below.
+
 # Commercial decision packet (founder-led motion)
 
 > **Scope:** Shortest buyer-facing next step after a credible first review. **Prices:** link to [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) — do not duplicate list prices here unless already published.

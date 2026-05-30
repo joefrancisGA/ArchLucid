@@ -1,3 +1,5 @@
+> **Scope:** First-run demo script (simulator) - full detail, tables, and links in the sections below.
+
 # First-run demo script (simulator)
 
 > **Scope:** One narrow buyer scenario using **Simulator** execution — not a customer outcome claim.

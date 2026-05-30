@@ -1,3 +1,5 @@
+> **Scope:** AI evidence appendix (buyer-safe) - full detail, tables, and links in the sections below.
+
 # AI evidence appendix (buyer-safe)
 
 > **Scope:** Index of **current** AI evidence in the repository. Does **not** claim third-party validation or fresh live-model proof unless explicitly noted.

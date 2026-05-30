@@ -1,3 +1,5 @@
+> **Scope:** Hot-path performance budgets (assessment #18) - full detail, tables, and links in the sections below.
+
 # Hot-path performance budgets (assessment #18)
 
 Operator-facing paths with local/CI-friendly budget checks. Cloud-dependent load tests remain opt-in (`k6-*` workflows).

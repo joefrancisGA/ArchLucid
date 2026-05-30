@@ -1,3 +1,5 @@
+> **Scope:** Real-LLM session record — 2026-05-29 - full detail, tables, and links in the sections below.
+
 # Real-LLM session record — 2026-05-29
 
 Assessment improvement **#1** evidence capture (owner dev subscription).

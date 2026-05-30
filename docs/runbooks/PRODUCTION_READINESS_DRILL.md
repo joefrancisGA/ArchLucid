@@ -1,3 +1,5 @@
+> **Scope:** Production readiness drill pack - full detail, tables, and links in the sections below.
+
 # Production readiness drill pack
 
 **Purpose:** Repeatable rehearsal for deployment handoff, health, config lint, smoke review, export, support bundle, backup/restore evidence, and rollback **decision** — without destructive automation.
