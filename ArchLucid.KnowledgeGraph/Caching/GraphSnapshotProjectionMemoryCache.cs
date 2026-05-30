@@ -74,7 +74,7 @@ public sealed class GraphSnapshotProjectionMemoryCache(
         KnowledgeGraphProjectionCacheOptions options = _optionsMonitor.CurrentValue;
         long maxBytes = options.MaxSingleEntryBytes;
 
-        if (maxBytes < KnowledgeGraphProjectionCacheOptions.DefaultMaxSingleEntryBytes / 10)
+        if (maxBytes <= 0)
             maxBytes = KnowledgeGraphProjectionCacheOptions.DefaultMaxSingleEntryBytes;
 
         return maxBytes;
