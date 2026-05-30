@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Client.Generated;
 
+using JsonElement = System.Text.Json.JsonElement;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;

@@ -180,10 +180,13 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
         run: |
+          # GitHub's default bash -e would abort on probe exit 1–3 before we map codes to a green skip.
           set -uo pipefail
+          set +e
           set -o pipefail
           python scripts/golden_cohort_budget_probe.py --usage-ledger tests/golden-cohort/usage-mtd.json 2>&1 | tee "${RUNNER_TEMP}/golden-cohort-budget-probe.log"
           code=${PIPESTATUS[0]}
+          set -e
           set +o pipefail
           mtd_line=$(grep '^EXPORT_MTD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
           mtd_val="${mtd_line#EXPORT_MTD_USD=}"
