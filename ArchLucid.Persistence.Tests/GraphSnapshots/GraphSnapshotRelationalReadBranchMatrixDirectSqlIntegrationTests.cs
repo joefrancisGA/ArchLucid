@@ -132,10 +132,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
             new CommandDefinition(
                 """
                 INSERT INTO dbo.GraphSnapshotNodes
-                (GraphNodeRowId, GraphSnapshotId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
-                VALUES (@RowId, @G, 0, N'n1', N't', N'L', NULL, NULL, NULL);
+                (GraphNodeRowId, GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
+                VALUES (@RowId, @G, @TenantId, @WorkspaceId, @ScopeProjectId, 0, N'n1', N't', N'L', NULL, NULL, NULL);
                 """,
-                new { RowId = nodeRowId, G = graphId },
+                new { RowId = nodeRowId, G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -164,10 +164,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
-                VALUES (@G, 0, N'w-a');
+                INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, SortOrder, WarningText)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, 0, N'w-a');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -206,12 +206,12 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e1', N'a', N'b', N't', 1.0);
-                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, N'e1', 0, N'$ArchLucid:EdgeLabel', N'from-sql-label');
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e1', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e1', 0, N'$ArchLucid:EdgeLabel', N'from-sql-label');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -251,12 +251,12 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e2', N'a', N'b', N't', 1.0);
-                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, N'e2', 0, N'k1', N'v1');
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e2', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e2', 0, N'k1', N'v1');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -297,14 +297,14 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e3', N'a', N'b', N't', 1.0);
-                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e3', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES
-                (@G, N'e3', 0, N'$ArchLucid:EdgeLabel', N'Lbl'),
-                (@G, N'e3', 1, N'p', N'q');
+                (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e3', 0, N'$ArchLucid:EdgeLabel', N'Lbl'),
+                (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e3', 1, N'p', N'q');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -347,10 +347,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e4', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e4', N'a', N'b', N't', 1.0);
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -393,10 +393,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e5', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e5', N'a', N'b', N't', 1.0);
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -437,12 +437,12 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e6', N'a', N'b', N't', 1.0);
-                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, N'e6', 0, N'$ArchLucid:EdgeLabel', N'sql-label');
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e6', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e6', 0, N'$ArchLucid:EdgeLabel', N'sql-label');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -485,12 +485,12 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e7', N'a', N'b', N't', 1.0);
-                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, N'e7', 0, N'from', N'sql');
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e7', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e7', 0, N'from', N'sql');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -531,10 +531,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e8', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e8', N'a', N'b', N't', 1.0);
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -564,10 +564,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
             new CommandDefinition(
                 """
                 INSERT INTO dbo.GraphSnapshotNodes
-                (GraphNodeRowId, GraphSnapshotId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
-                VALUES (@R, @G, 0, N'n2', N't2', N'Lb', NULL, NULL, NULL);
+                (GraphNodeRowId, GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
+                VALUES (@R, @G, @TenantId, @WorkspaceId, @ScopeProjectId, 0, N'n2', N't2', N'Lb', NULL, NULL, NULL);
                 """,
-                new { R = Guid.NewGuid(), G = graphId },
+                new { R = Guid.NewGuid(), G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -599,12 +599,12 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
             new CommandDefinition(
                 """
                 INSERT INTO dbo.GraphSnapshotNodes
-                (GraphNodeRowId, GraphSnapshotId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
-                VALUES (@R, @G, 0, N'n3', N't3', N'Lb', NULL, NULL, NULL);
-                INSERT INTO dbo.GraphSnapshotNodeProperties (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@R, 0, N'a', N'b');
+                (GraphNodeRowId, GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
+                VALUES (@R, @G, @TenantId, @WorkspaceId, @ScopeProjectId, 0, N'n3', N't3', N'Lb', NULL, NULL, NULL);
+                INSERT INTO dbo.GraphSnapshotNodeProperties (GraphNodeRowId, TenantId, WorkspaceId, ScopeProjectId, PropertySortOrder, PropertyKey, PropertyValue)
+                VALUES (@R, @TenantId, @WorkspaceId, @ScopeProjectId, 0, N'a', N'b');
                 """,
-                new { R = rowId, G = graphId },
+                new { R = rowId, G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -649,12 +649,12 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                VALUES (@G, N'e9', N'a', N'b', N't', 1.0);
-                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, N'e9', 0, N'only', N'sql');
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e9', N'a', N'b', N't', 1.0);
+                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e9', 0, N'only', N'sql');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -706,14 +706,14 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES
-                (@G, N'ea', N'1', N'2', N't', 1.0),
-                (@G, N'eb', N'2', N'3', N't', 2.0);
-                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, N'eb', 0, N'$ArchLucid:EdgeLabel', N'sql-b');
+                (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'ea', N'1', N'2', N't', 1.0),
+                (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'eb', N'2', N'3', N't', 2.0);
+                INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'eb', 0, N'$ArchLucid:EdgeLabel', N'sql-b');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -744,10 +744,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
-                VALUES (@G, 0, N'rel-w');
+                INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, SortOrder, WarningText)
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, 0, N'rel-w');
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -790,14 +790,14 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
             new CommandDefinition(
                 """
                 INSERT INTO dbo.GraphSnapshotNodes
-                (GraphNodeRowId, GraphSnapshotId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
-                VALUES (NEWID(), @G, 0, N'1', N't', N'n', NULL, NULL, NULL);
-                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                (GraphNodeRowId, GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
+                VALUES (NEWID(), @G, @TenantId, @WorkspaceId, @ScopeProjectId, 0, N'1', N't', N'n', NULL, NULL, NULL);
+                INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES
-                (@G, N'only-one', N'1', N'2', N't', 1.0),
-                (@G, N'no-json', N'2', N'3', N't', 2.0);
+                (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'only-one', N'1', N'2', N't', 1.0),
+                (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'no-json', N'2', N'3', N't', 2.0);
                 """,
-                new { G = graphId },
+                new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);

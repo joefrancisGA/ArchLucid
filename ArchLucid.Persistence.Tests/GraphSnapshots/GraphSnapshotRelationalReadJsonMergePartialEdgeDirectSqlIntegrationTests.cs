@@ -96,38 +96,31 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertEdge = """
-                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-                                  """;
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgeAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            "e-in-both",
+            "a",
+            "b",
+            "REL",
+            3d,
+            CancellationToken.None);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdge,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-in-both",
-                    FromNodeId = "a",
-                    ToNodeId = "b",
-                    EdgeType = "REL",
-                    Weight = 3d
-                },
-                cancellationToken: CancellationToken.None));
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdge,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-sql-only",
-                    FromNodeId = "x",
-                    ToNodeId = "y",
-                    EdgeType = "LINK",
-                    Weight = 0.5d
-                },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgeAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            "e-sql-only",
+            "x",
+            "y",
+            "LINK",
+            0.5d,
+            CancellationToken.None);
 
         const string selectRow = """
                                  SELECT

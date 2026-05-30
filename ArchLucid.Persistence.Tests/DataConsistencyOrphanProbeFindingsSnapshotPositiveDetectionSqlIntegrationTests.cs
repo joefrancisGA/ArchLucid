@@ -1,6 +1,5 @@
-using System.Globalization;
-
 using ArchLucid.Host.Core.DataConsistency;
+using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
@@ -36,31 +35,13 @@ public sealed class DataConsistencyOrphanProbeFindingsSnapshotPositiveDetectionS
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync(CancellationToken.None);
 
-        bool nchecked = false;
+        IReadOnlyList<string> disabledForeignKeys = [];
 
         try
         {
-            object? fkRow = await connection.ExecuteScalarAsync(
-                new CommandDefinition(
-                    """
-                    SELECT COUNT(1)
-                    FROM sys.foreign_keys
-                    WHERE name = N'FK_FindingsSnapshots_Runs_RunId'
-                      AND parent_object_id = OBJECT_ID(N'dbo.FindingsSnapshots');
-                    """,
-                    cancellationToken: CancellationToken.None));
-
-            int fkHits = fkRow is int i ? i : Convert.ToInt32(fkRow ?? 0, CultureInfo.InvariantCulture);
-
-            if (fkHits > 0)
-            {
-                await connection.ExecuteAsync(
-                    new CommandDefinition(
-                        "ALTER TABLE dbo.FindingsSnapshots NOCHECK CONSTRAINT FK_FindingsSnapshots_Runs_RunId;",
-                        cancellationToken: CancellationToken.None));
-
-                nchecked = true;
-            }
+            disabledForeignKeys = await FindingsSnapshotOrphanProbeTestSupport.DisableOrphanProbeForeignKeysAsync(
+                connection,
+                CancellationToken.None);
 
             const string insertOrphanFindings = """
                                                 INSERT INTO dbo.FindingsSnapshots
@@ -105,20 +86,10 @@ public sealed class DataConsistencyOrphanProbeFindingsSnapshotPositiveDetectionS
                     new { FindingsSnapshotId = findingsSnapId },
                     cancellationToken: CancellationToken.None));
 
-            if (nchecked)
-            {
-                try
-                {
-                    await connection.ExecuteAsync(
-                        new CommandDefinition(
-                            "ALTER TABLE dbo.FindingsSnapshots WITH CHECK CHECK CONSTRAINT FK_FindingsSnapshots_Runs_RunId;",
-                            cancellationToken: CancellationToken.None));
-                }
-                catch (SqlException)
-                {
-                    // Probe test may leave orphan rows until cleanup; re-trust only when no orphans remain.
-                }
-            }
+            await FindingsSnapshotOrphanProbeTestSupport.TryReEnableOrphanProbeForeignKeysAsync(
+                connection,
+                disabledForeignKeys,
+                CancellationToken.None);
         }
     }
 }

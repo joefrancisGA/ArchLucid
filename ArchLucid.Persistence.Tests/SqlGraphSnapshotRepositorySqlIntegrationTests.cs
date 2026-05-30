@@ -234,24 +234,18 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertEdge = """
-                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-                                  """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdge,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-legacy",
-                    FromNodeId = "legacy-n",
-                    ToNodeId = "x",
-                    EdgeType = "REL",
-                    Weight = 1d
-                },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgeAsync(
+            connection,
+            Guid.Empty,
+            Guid.Empty,
+            Guid.Empty,
+            graphId,
+            "e-legacy",
+            "legacy-n",
+            "x",
+            "REL",
+            1d,
+            CancellationToken.None);
 
         GraphSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), graphId, CancellationToken.None);
         loaded.Should().NotBeNull();

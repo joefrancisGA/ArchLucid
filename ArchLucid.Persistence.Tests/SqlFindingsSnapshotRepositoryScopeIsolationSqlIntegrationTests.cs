@@ -1,8 +1,10 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
@@ -50,16 +52,19 @@ public sealed class SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTes
             "scope-iso",
             CancellationToken.None);
 
-        const string insertGraph = """
-                                   INSERT INTO dbo.GraphSnapshots (GraphSnapshotId, RunId, ContextSnapshotId, CreatedUtc, GraphJson)
-                                   VALUES (@GraphSnapshotId, @RunId, @ContextSnapshotId, SYSUTCDATETIME(), N'{}');
-                                   """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertGraph,
-                new { GraphSnapshotId = graphId, RunId = runId, ContextSnapshotId = contextId },
-                cancellationToken: CancellationToken.None));
+        await AuthorityRunChainTestSeed.InsertGraphSnapshotHeaderAsync(
+            connection,
+            ScopeA.TenantId,
+            ScopeA.WorkspaceId,
+            ScopeA.ProjectId,
+            graphId,
+            contextId,
+            runId,
+            TimeProvider.System.UtcNowDateTime(),
+            JsonEntitySerializer.Serialize(new List<GraphNode>()),
+            JsonEntitySerializer.Serialize(new List<GraphEdge>()),
+            JsonEntitySerializer.Serialize(new List<string>()),
+            CancellationToken.None);
 
         SqlFindingsSnapshotRepository repository = new(
             factory,

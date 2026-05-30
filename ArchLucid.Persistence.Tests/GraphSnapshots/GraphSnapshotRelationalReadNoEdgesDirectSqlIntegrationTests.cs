@@ -82,35 +82,21 @@ public sealed class GraphSnapshotRelationalReadNoEdgesDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertNode = """
-                                  INSERT INTO dbo.GraphSnapshotNodes
-                                  (
-                                      GraphNodeRowId, GraphSnapshotId, SortOrder,
-                                      NodeId, NodeType, Label, Category, SourceType, SourceId
-                                  )
-                                  VALUES
-                                  (
-                                      @GraphNodeRowId, @GraphSnapshotId, @SortOrder,
-                                      @NodeId, @NodeType, @Label, @Category, @SourceType, @SourceId
-                                  );
-                                  """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertNode,
-                new
-                {
-                    GraphNodeRowId = nodeRowId,
-                    GraphSnapshotId = graphId,
-                    SortOrder = 0,
-                    NodeId = "n-no-edge",
-                    NodeType = "Service",
-                    Label = "RelationalOnly",
-                    Category = "c",
-                    SourceType = "s",
-                    SourceId = "sid"
-                },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertNodeAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            nodeRowId,
+            graphId,
+            0,
+            "n-no-edge",
+            "Service",
+            "RelationalOnly",
+            "c",
+            "s",
+            "sid",
+            CancellationToken.None);
 
         const string selectRow = """
                                  SELECT

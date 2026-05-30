@@ -79,97 +79,69 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertNode = """
-                                  INSERT INTO dbo.GraphSnapshotNodes
-                                  (
-                                      GraphNodeRowId, GraphSnapshotId, SortOrder,
-                                      NodeId, NodeType, Label, Category, SourceType, SourceId
-                                  )
-                                  VALUES
-                                  (
-                                      @GraphNodeRowId, @GraphSnapshotId, @SortOrder,
-                                      @NodeId, @NodeType, @Label, @Category, @SourceType, @SourceId
-                                  );
-                                  """;
+        await GraphSnapshotRelationalTestInsertSupport.InsertNodeAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            nodeRowId,
+            graphId,
+            0,
+            "n-rel",
+            "Service",
+            "NodeLabel",
+            "cat",
+            "src",
+            "id1",
+            CancellationToken.None);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertNode,
-                new
-                {
-                    GraphNodeRowId = nodeRowId,
-                    GraphSnapshotId = graphId,
-                    SortOrder = 0,
-                    NodeId = "n-rel",
-                    NodeType = "Service",
-                    Label = "NodeLabel",
-                    Category = "cat",
-                    SourceType = "src",
-                    SourceId = "id1"
-                },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertNodePropertyAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            nodeRowId,
+            0,
+            "nk",
+            "nv",
+            CancellationToken.None);
 
-        const string insertNodeProp = """
-                                      INSERT INTO dbo.GraphSnapshotNodeProperties (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue)
-                                      VALUES (@GraphNodeRowId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-                                      """;
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgeAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            "e-rel",
+            "n-rel",
+            "n-other",
+            "USES",
+            1.5d,
+            CancellationToken.None);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertNodeProp,
-                new { GraphNodeRowId = nodeRowId, PropertySortOrder = 0, PropertyKey = "nk", PropertyValue = "nv" },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgePropertyAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            "e-rel",
+            0,
+            GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey,
+            "edge-label-relational",
+            CancellationToken.None);
 
-        const string insertEdge = """
-                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-                                  """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdge,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-rel",
-                    FromNodeId = "n-rel",
-                    ToNodeId = "n-other",
-                    EdgeType = "USES",
-                    Weight = 1.5d
-                },
-                cancellationToken: CancellationToken.None));
-
-        const string insertEdgeProp = """
-                                      INSERT INTO dbo.GraphSnapshotEdgeProperties
-                                      (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                                      VALUES (@GraphSnapshotId, @EdgeId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-                                      """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdgeProp,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-rel",
-                    PropertySortOrder = 0,
-                    PropertyKey = GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey,
-                    PropertyValue = "edge-label-relational"
-                },
-                cancellationToken: CancellationToken.None));
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdgeProp,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-rel",
-                    PropertySortOrder = 1,
-                    PropertyKey = "epk",
-                    PropertyValue = "epv"
-                },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgePropertyAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            "e-rel",
+            1,
+            "epk",
+            "epv",
+            CancellationToken.None);
 
         const string selectRow = """
                                  SELECT
@@ -260,16 +232,15 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertWarning = """
-                                     INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
-                                     VALUES (@GraphSnapshotId, @SortOrder, @WarningText);
-                                     """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertWarning,
-                new { GraphSnapshotId = graphId, SortOrder = 0, WarningText = "relational-graph-warning" },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertWarningAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            0,
+            "relational-graph-warning",
+            CancellationToken.None);
 
         const string selectRow = """
                                  SELECT
@@ -365,24 +336,18 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertEdge = """
-                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-                                  """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdge,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-merge",
-                    FromNodeId = "a",
-                    ToNodeId = "b",
-                    EdgeType = "REL",
-                    Weight = 2d
-                },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgeAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            "e-merge",
+            "a",
+            "b",
+            "REL",
+            2d,
+            CancellationToken.None);
 
         const string selectRow = """
                                  SELECT

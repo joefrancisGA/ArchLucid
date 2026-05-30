@@ -94,24 +94,18 @@ public sealed class GraphSnapshotRelationalReadJsonMergeLabelFromEdgesJsonDirect
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertEdge = """
-                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-                                  """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertEdge,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    EdgeId = "e-merge-label",
-                    FromNodeId = "a",
-                    ToNodeId = "b",
-                    EdgeType = "REL",
-                    Weight = 1d
-                },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertEdgeAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            "e-merge-label",
+            "a",
+            "b",
+            "REL",
+            1d,
+            CancellationToken.None);
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
             new CommandDefinition(

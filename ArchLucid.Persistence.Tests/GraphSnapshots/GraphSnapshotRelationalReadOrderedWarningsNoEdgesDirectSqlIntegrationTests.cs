@@ -82,22 +82,25 @@ public sealed class GraphSnapshotRelationalReadOrderedWarningsNoEdgesDirectSqlIn
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertWarning = """
-                                     INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
-                                     VALUES (@GraphSnapshotId, @SortOrder, @WarningText);
-                                     """;
+        await GraphSnapshotRelationalTestInsertSupport.InsertWarningAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            1,
+            "second-row-should-appear-last",
+            CancellationToken.None);
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertWarning,
-                new { GraphSnapshotId = graphId, SortOrder = 1, WarningText = "second-row-should-appear-last" },
-                cancellationToken: CancellationToken.None));
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertWarning,
-                new { GraphSnapshotId = graphId, SortOrder = 0, WarningText = "first-row-should-appear-first" },
-                cancellationToken: CancellationToken.None));
+        await GraphSnapshotRelationalTestInsertSupport.InsertWarningAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            graphId,
+            0,
+            "first-row-should-appear-first",
+            CancellationToken.None);
 
         const string selectRow = """
                                  SELECT
