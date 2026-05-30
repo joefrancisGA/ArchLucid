@@ -31,9 +31,11 @@ Data-plane isolation boundaries (**tenant / workspace / project** scopes, audit 
 
 | Surface | V1 posture | Typical V1.1 deltas (examples — finalize against release notes) |
 |---------|------------|-------------------------------------------------------------------|
+| **Evidence bulk upload** | Up to **200** files per request; **ZIP expansion** server-side (UI advertises ZIP). | Browser **folder recursion** (`webkitdirectory`) when product prioritizes it |
+| **Topology / RAG** | Reference-architecture **exemplar style prior** wired into Topology agent (fail-open). Owner curates `templates/reference-architectures/**`. | Fingerprint-based exemplar matching; expanded exemplar library |
+| **MCP / agent ecosystem** | **HTTP bridge** for three read-only retrieval tools (`/v1/mcp/retrieval/*`, non-GA). REST/CLI remain supported. | Streamable HTTP **MCP membrane**, seven governance read tools (**§6d**), production hardening |
 | **Commerce / billing** | Sales-led motion may run without live Stripe/Marketplace un-hold (**§6b**) | Live Stripe keys + Marketplace publication + DNS cutovers become relevant when finance/legal completes Partner Center readiness |
 | **Chat-ops** | Slack outbound parity targets **V1 GA** per **`V1_SCOPE.md`** §2.14 | **In-Slack interactive approvals** are pinned **V1.1** (**`V1_DEFERRED.md` §6a**) |
-| **Agent ecosystem / MCP** | Documentation-scoped **V1.1** candidates (**§6d**) | MCP ergonomics, policy, or connector expansions ship with explicit docs + OpenAPI alignment |
 | **Policy packs / governance** | V1 governance emits durable audit events | Promotions of stricter packs or new enforcement modes must arrive with **`BREAKING_CHANGES`** entries when customer-visible |
 
 ## 6. Data flow

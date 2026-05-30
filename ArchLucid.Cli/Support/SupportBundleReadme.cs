@@ -46,9 +46,11 @@ public static class SupportBundleReadme
                 6. {SupportBundleArchiveWriter.EnvironmentFileName} — safe env snapshot (sensitive names show (set)/(not set) only)
                 7. {SupportBundleArchiveWriter.WorkspaceFileName}  — outputs folder stats
                 8. {SupportBundleArchiveWriter.LogsFileName}         — optional local last-run excerpt
-                9. {SupportBundleArchiveWriter.ReferencesFileName}   — doc links and correlation triage hints
+                9. {SupportBundleArchiveWriter.RedactionManifestFileName} — redaction rules, covered files, evidence claim, and sharing caveats
+                10. {SupportBundleArchiveWriter.ReferencesFileName}   — doc links and correlation triage hints
 
-                manifest.json includes triageReadOrder, bundleFormatVersion, includedFilesLexOrder, and whether a text redaction pass ran on serialized sections.
+                manifest.json includes triageReadOrder, bundleFormatVersion, includedFilesLexOrder, redactionManifestPath, and whether a text redaction pass ran on serialized sections.
+                redaction-manifest.json should show status PASS before external circulation.
 
                 {SupportBundleNextStepsDocument.AdvisoryDisclaimer}
 

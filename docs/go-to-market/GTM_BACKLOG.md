@@ -34,6 +34,54 @@
 
 ---
 
+## Proof-gated rollout criteria
+
+**Captured 2026-05-29.** This section defines **when ArchLucid is safe to sell harder and broaden**, expanding on the service-led baseline's "demand signal before broader motion" stance and the **Most Important Truth** in **[`../assessments/LATEST.md`](../assessments/LATEST.md)**: *the product is pilot-ready, not oversell-ready.*
+
+### What "oversell-ready" means (and what it does not)
+
+- **It is not calendar- or headcount-gated.** Broadening does **not** trigger because *N* weeks passed or *N* clients signed.
+- **It is proof-gated.** The trigger is **proof density**: each real run reliably produces **buyer-verifiable, mode-labeled, source-cited evidence**, and the open isolation/security gaps that would make a claim false are closed.
+- **The risk being managed** is a **credibility failure** — a buyer or their security reviewer catching a claim (real AI, guaranteed savings, full isolation, SOC posture) that the handed-over artifacts do **not** support. In enterprise selling the first such miss is often fatal.
+
+| Common (wrong) framing | Proof-gated framing |
+|---|---|
+| Roll out gradually; expand when "stable" | Pilot aggressively now; expand **claims + scale** once runs reliably produce verifiable proof |
+| Trigger = clients or time elapsed | Trigger = proof density (real-mode runs + ROI sourcing + isolation closure) |
+| Risk = system cannot handle load | Risk = a buyer catches a claim the artifacts cannot support |
+
+### Rollout stages and gates
+
+Each stage **unlocks** broader claims/motion only when its **exit gate** is met. Do not skip stages.
+
+| Stage | Motion allowed | Exit gate (all must hold) |
+|---|---|---|
+| **0 — Controlled pilots (now)** | Founder-led pilots; demos clearly labeled (simulator allowed if labeled); no quantified public claims | Pilot path runs end-to-end; `pilot proof-packet` generates for a committed run; **`WHAT_NOT_TO_PROMISE.md`** in active use |
+| **1 — Evidence-backed selling** | Quote-to-cash on **real-mode** reviews; share ROI with source labels; reference run evidence in sales | **G1–G4** below all green for **≥3 distinct real pilot runs** |
+| **2 — Broad GTM / scale claims** | Public quantified claims (with permission), heavier outbound, multi-tenant scale messaging | **G1–G6** all green; ≥1 published/permissioned reference (deferred — owner) |
+
+### Gate signals (G1–G6)
+
+Treat each as **PASS / HOLD**. A single HOLD on G1–G4 blocks Stage 1; a HOLD on G5–G6 blocks Stage 2.
+
+- **G1 — Execution-mode honesty.** Every sponsor-facing artifact (UI run detail, first-value report, PDF/DOCX, proof-packet) labels `Real / Simulator / Fallback / Mixed`, and a PilotStrict HOLD prevents sponsor-safe forwarding. *Depends on engineering: run-detail fidelity (TB-106–108), proof-packet PilotStrict HOLD (assessment Imp. 21).*
+- **G2 — ROI source integrity.** No dollar/time claim leaves the building without a `RoiMetricSourceKind` (`CustomerProvided` vs `BenchmarkAssumption` vs `NotEstimated`). *Depends on: ROI table in proof-packet (assessment Imp. 8).*
+- **G3 — Tenant isolation provable.** **Azure AI Search is required on all production-like profiles** (owner 2026-05-29): `Retrieval:VectorIndex=AzureSearch` + configured `Retrieval:AzureSearch:*`, with tenant OData filter on every search/delete and scope bound to identity (not headers). *Depends on: TB-071, TB-072, TB-073; [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) pilot profiles.*
+- **G4 — Repeatable proof packet.** ≥3 real committed runs each produced a clean, redacted, buyer-safe proof packet without manual artifact surgery.
+- **G5 — Live AI evidence.** A credentialed real-LLM golden-cohort run exists and is linked from **`AI_EVIDENCE_APPENDIX.md`**; faithfulness floor holds. *Depends on: owner credentials (assessment Imp. 23, DEFERRED) + workflow (Imp. 9).*
+- **G6 — Procurement posture honest and sufficient for target tier.** Trust pack current; deferred items (CPA SOC 2, third-party pen test, live commerce) stated as deferred, not implied as present. *Note: absence of CPA SOC 2 is `(B)` only — it gates **broad enterprise** claims, not Stage 1.*
+
+### How to use this
+
+1. Before each new motion expansion, score **G1–G6** as PASS/HOLD in the pilot review notes.
+2. Convert HOLDs into the corresponding engineering improvement (assessment **`LATEST.md` §9**) or owner action.
+3. Use early pilots **deliberately** to manufacture G1–G4 evidence — the pilots are the proof factory, not just revenue.
+4. Do **not** advance claims ahead of the gate; pace marketing copy to the highest fully-passed stage.
+
+**Cross-refs:** **[`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)** (claim guardrails), **[`COMMERCIAL_DECISION_PACKET.md`](COMMERCIAL_DECISION_PACKET.md)** (pilot deliverables), **[`../assessments/LATEST.md`](../assessments/LATEST.md)** (improvement IDs + impact), **`V1_DEFERRED.md` §6b–§6c** (deferred commerce/assurance).
+
+---
+
 ## V1 Marketing Backlog
 
 ### Phase 1 — Demo and messaging foundation (Days 1–15)

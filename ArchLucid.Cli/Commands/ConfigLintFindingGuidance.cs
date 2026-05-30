@@ -69,6 +69,20 @@ internal static class ConfigLintFindingGuidance
                     "Configure Application Insights, OTLP, or Prometheus export and rerun observability export readiness.",
                     "observability-export-readiness.md · config-lint-production-like-hosted-pilot.json"),
 
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.AzureAiSearchVectorIndexRequiredProductionLike =>
+                new Guidance(
+                    "Production-like hosts must use tenant-scoped Azure AI Search for RAG — not in-memory vector index.",
+                    "Retrieval:VectorIndex; Retrieval:AzureSearch:Endpoint; Retrieval:AzureSearch:IndexName",
+                    "Set Retrieval:VectorIndex=AzureSearch and provision Search per CONFIGURATION_REFERENCE.md (owner 2026-05-29).",
+                    "config-lint-production-like-hosted-pilot.json"),
+
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.AzureAiSearchEndpointRequiredProductionLike =>
+                new Guidance(
+                    "Azure AI Search endpoint is required whenever production-like hosting uses VectorIndex=AzureSearch.",
+                    "Retrieval:AzureSearch:Endpoint; Retrieval:AzureSearch:IndexName; Retrieval:AzureSearch:ApiKey",
+                    "Configure the Search service URL and credentials (prefer Key Vault references) before sponsor handoff.",
+                    "config-lint-production-like-hosted-pilot.json"),
+
             ProductionLikeHostingMisconfigurationAdvisorRuleNames.CorsAllowedOriginsEmptyProductionLikeHost =>
                 new Guidance(
                     "Browser clients on staging/production-like hosts need explicit CORS origins.",

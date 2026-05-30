@@ -34,7 +34,8 @@ public sealed class CostAgentHandlerRetailGroundingTests
         };
 
         InMemoryAzureRetailPriceStructuredLookup lookup = new();
-        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, lookup);
+        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, lookup);
+        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
 
         prompt.Should().Contain("Azure Retail row");
         prompt.Should().Contain("Standard_D2s_v5");
@@ -64,7 +65,8 @@ public sealed class CostAgentHandlerRetailGroundingTests
         };
 
         InMemoryAzureRetailPriceStructuredLookup lookup = new();
-        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, lookup);
+        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, lookup);
+        string prompt = CostAgentHandler.BuildUserPrompt("run-1", request, evidence, task, grounding);
 
         prompt.Should().NotContain("Azure Retail row");
         prompt.Should().NotContain("groundingMissing");

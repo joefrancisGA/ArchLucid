@@ -37,6 +37,15 @@ describe("llm-cost-reporting", () => {
           completionTokens: 2,
         },
       ],
+      topRuns: [
+        {
+          runId: "abc123",
+          estimatedCostUsd: 4.2,
+          promptTokens: 100,
+          completionTokens: 40,
+          llmCallCount: 3,
+        },
+      ],
     };
 
     vi.stubGlobal(
@@ -54,6 +63,7 @@ describe("llm-cost-reporting", () => {
     expect(dash.isMocked).toBe(false);
     expect(dash.daily.length).toBe(1);
     expect(dash.byWorkspaceProject.length).toBe(1);
+    expect(dash.topRuns.length).toBe(1);
     expect(dash.byWorkspaceProject[0]?.estimatedCostUsd).toBe(99);
     vi.unstubAllGlobals();
   });

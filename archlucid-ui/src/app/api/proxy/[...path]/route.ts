@@ -11,7 +11,7 @@ import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
 import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
-import { getScopeHeaders } from "@/lib/scope";
+import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
 /** Forwards JSON/binary calls to the upstream C# API (`GET`/`POST`/`PUT`/`DELETE`). */
 type ForwardMethod = "GET" | "POST" | "PUT" | "DELETE";
@@ -19,7 +19,7 @@ type ForwardMethod = "GET" | "POST" | "PUT" | "DELETE";
 /**
  * Builds headers for the upstream C# API request.
  * Attaches API key, forwards browser Authorization header, and merges scope headers
- * (uses browser-provided scope values if present, otherwise falls back to dev defaults).
+ * In production-like posture, client scope headers are ignored (see `proxy-scope-resolution.ts`).
  */
 function buildUpstreamHeaders(request: NextRequest): Headers {
   const h = new Headers();
@@ -43,9 +43,8 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
     h.set("Authorization", bearerToUse);
   }
 
-  for (const [k, v] of Object.entries(getScopeHeaders())) {
-    const incoming = request.headers.get(k);
-    h.set(k, incoming && incoming.trim().length > 0 ? incoming : v);
+  for (const [k, v] of Object.entries(resolveProxyUpstreamScopeHeaders(request.headers))) {
+    h.set(k, v);
   }
 
   const incomingCorrelation = request.headers.get(CORRELATION_ID_HEADER);

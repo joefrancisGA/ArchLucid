@@ -436,8 +436,8 @@ public static partial class ServiceCollectionExtensions
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
                     string endpoint = config["AzureOpenAI:Endpoint"]
                                       ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
-                    string apiKey = config["AzureOpenAI:ApiKey"]
-                                    ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
+                    string? apiKey = config["AzureOpenAI:ApiKey"];
+                    string authenticationMode = config["AzureOpenAI:AuthenticationMode"]?.Trim() ?? "ApiKey";
                     int maxTokens = config.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 
                     if (maxTokens <= 0)
@@ -452,15 +452,37 @@ public static partial class ServiceCollectionExtensions
                     IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
                         sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
 
+                    bool useManagedIdentity =
+                        string.Equals(authenticationMode, "ManagedIdentity", StringComparison.OrdinalIgnoreCase);
+
                     return new AzureOpenAiCompletionClientCache(deploymentName =>
-                        new AzureOpenAiCompletionClient(
+                    {
+                        if (useManagedIdentity)
+                        {
+                            return AzureOpenAiCompletionClient.CreateWithManagedIdentity(
+                                endpoint,
+                                deploymentName,
+                                maxTokens,
+                                schema,
+                                completionLogger,
+                                llmTelemetryOptions);
+                        }
+
+                        if (string.IsNullOrWhiteSpace(apiKey))
+                        {
+                            throw new InvalidOperationException(
+                                "AzureOpenAI:ApiKey is missing while AuthenticationMode is ApiKey.");
+                        }
+
+                        return new AzureOpenAiCompletionClient(
                             endpoint,
                             apiKey,
                             deploymentName,
                             maxTokens,
                             schema,
                             completionLogger,
-                            llmTelemetryOptions));
+                            llmTelemetryOptions);
+                    });
                 });
 
                 services.AddSingleton<AzureOpenAiCompletionClient>(sp =>
@@ -468,8 +490,8 @@ public static partial class ServiceCollectionExtensions
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
                     string endpoint = config["AzureOpenAI:Endpoint"]
                                       ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
-                    string apiKey = config["AzureOpenAI:ApiKey"]
-                                    ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
+                    string? apiKey = config["AzureOpenAI:ApiKey"];
+                    string authenticationMode = config["AzureOpenAI:AuthenticationMode"]?.Trim() ?? "ApiKey";
                     string deploymentName = config["AzureOpenAI:DeploymentName"]
                                             ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
                     int maxTokens = config.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
@@ -485,6 +507,20 @@ public static partial class ServiceCollectionExtensions
                         sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
                     IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
                         sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+
+                    if (string.Equals(authenticationMode, "ManagedIdentity", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return AzureOpenAiCompletionClient.CreateWithManagedIdentity(
+                            endpoint,
+                            deploymentName,
+                            maxTokens,
+                            schema,
+                            completionLogger,
+                            llmTelemetryOptions);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(apiKey))
+                        throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
 
                     return new AzureOpenAiCompletionClient(
                         endpoint,

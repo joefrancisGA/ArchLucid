@@ -39,7 +39,7 @@ class TestBuyerClaimDrift(unittest.TestCase):
                 target = root / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(
-                    "SOC 2 Type II is not currently issued. Generic OIDC is supported when configured.\n",
+                    "SOC 2 Type II is not currently issued. Do not claim SOC 2 certified. Generic OIDC is supported when configured.\n",
                     encoding="utf-8",
                 )
 
@@ -77,6 +77,69 @@ class TestBuyerClaimDrift(unittest.TestCase):
 
             self.assertTrue(any("SOC 2 CPA reports" in violation for violation in violations))
 
+    def test_soc_2_certified_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/TRUST_CENTER.md"
+            bad.write_text("ArchLucid is SOC 2 certified.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("SOC 2 certification" in violation for violation in violations))
+
+    def test_third_party_pen_test_report_available_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/PROCUREMENT_FAQ.md"
+            bad.write_text("The third-party pen-test report is available under NDA.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("penetration-test report availability" in violation for violation in violations))
+
+    def test_mcp_ga_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/INTEGRATION_CATALOG.md"
+            bad.write_text("MCP public plugin marketplace is GA for customers.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("MCP and public plugin ecosystem" in violation for violation in violations))
+
+    def test_broad_real_llm_validation_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/AI_EVIDENCE_APPENDIX.md"
+            bad.write_text("Full real-LLM validation is complete for the product.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("real-LLM proof" in violation for violation in violations))
 
     def test_marketplace_published_phrase_fails(self):
         with tempfile.TemporaryDirectory() as tmp:

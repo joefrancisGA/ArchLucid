@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
@@ -22,6 +23,77 @@ public sealed class RetrievalIndexingServiceTests
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
+    private static RetrievalIndexingService CreateSut(
+        IEmbeddingService embeddings,
+        IEmbeddingModelIdentity identity,
+        IVectorIndex index,
+        IRetrievalDocumentIndexCatalog catalog,
+        IOptionsMonitor<RetrievalEmbeddingCapOptions> caps,
+        IScopeContextProvider? scopeContextProvider = null)
+    {
+        IScopeContextProvider scope = scopeContextProvider ?? CreateMatchingScopeProvider();
+
+        return new RetrievalIndexingService(
+            new SimpleTextChunker(),
+            new PolicyPackChunker(),
+            new PriorManifestChunker(),
+            embeddings,
+            identity,
+            index,
+            catalog,
+            caps,
+            scope);
+    }
+
+    private static IScopeContextProvider CreateMatchingScopeProvider()
+    {
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        });
+
+        return scope.Object;
+    }
+
+    [Fact]
+    public async Task IndexDocumentsAsync_rejects_cross_tenant_document_metadata()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            new InMemoryVectorIndex(),
+            new InMemoryRetrievalDocumentIndexCatalog(),
+            caps.Object);
+
+        RetrievalDocument doc = new()
+        {
+            DocumentId = "cross-tenant",
+            TenantId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "wrong tenant",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Func<Task> act = async () => await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*TenantId*");
+    }
+
     [Fact]
     public async Task IndexDocumentsAsync_SplitsEmbedManyIntoBatchesPerCap()
     {
@@ -43,10 +115,7 @@ public sealed class RetrievalIndexingServiceTests
 
         InMemoryVectorIndex index = new();
         InMemoryRetrievalDocumentIndexCatalog catalog = new();
-        RetrievalIndexingService sut = new(
-            new SimpleTextChunker(),
-            new PolicyPackChunker(),
-            new PriorManifestChunker(),
+        RetrievalIndexingService sut = CreateSut(
             embeddings.Object,
             identity.Object,
             index,
@@ -83,10 +152,7 @@ public sealed class RetrievalIndexingServiceTests
         identity.SetupGet(i => i.ModelId).Returns("test-model");
         identity.SetupGet(i => i.ExpectedDimension).Returns(32);
 
-        RetrievalIndexingService sut = new(
-            new SimpleTextChunker(),
-            new PolicyPackChunker(),
-            new PriorManifestChunker(),
+        RetrievalIndexingService sut = CreateSut(
             embeddings.Object,
             identity.Object,
             new InMemoryVectorIndex(),
@@ -130,10 +196,7 @@ public sealed class RetrievalIndexingServiceTests
 
         InMemoryVectorIndex index = new();
         InMemoryRetrievalDocumentIndexCatalog catalog = new();
-        RetrievalIndexingService sut = new(
-            new SimpleTextChunker(),
-            new PolicyPackChunker(),
-            new PriorManifestChunker(),
+        RetrievalIndexingService sut = CreateSut(
             embeddings.Object,
             identity.Object,
             index,
@@ -187,10 +250,7 @@ public sealed class RetrievalIndexingServiceTests
 
         InMemoryVectorIndex index = new();
         InMemoryRetrievalDocumentIndexCatalog catalog = new();
-        RetrievalIndexingService sut = new(
-            new SimpleTextChunker(),
-            new PolicyPackChunker(),
-            new PriorManifestChunker(),
+        RetrievalIndexingService sut = CreateSut(
             embeddings.Object,
             identity.Object,
             index,
@@ -245,10 +305,7 @@ public sealed class RetrievalIndexingServiceTests
         identity.SetupGet(i => i.ExpectedDimension).Returns(4);
 
         InMemoryRetrievalDocumentIndexCatalog catalog = new();
-        RetrievalIndexingService sut = new(
-            new SimpleTextChunker(),
-            new PolicyPackChunker(),
-            new PriorManifestChunker(),
+        RetrievalIndexingService sut = CreateSut(
             embeddings.Object,
             identity.Object,
             new InMemoryVectorIndex(),

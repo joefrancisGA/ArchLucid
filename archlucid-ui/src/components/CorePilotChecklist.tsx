@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import {
   CORE_PILOT_CHECKLIST_CHANGED_EVENT,
@@ -15,12 +15,12 @@ import {
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 
 /** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
-const CORE_PILOT_DOC_FRAGMENTS = [
-  "#first-session-checklist",
-  "#new-run",
-  "#pipeline-status",
-  "#commit",
-  "#manifest-review",
+const CORE_PILOT_HELP_HASH_FRAGMENTS = [
+  "first-session-checklist",
+  "new-run",
+  "pipeline-status",
+  "commit",
+  "manifest-review",
 ] as const;
 
 /** Operator-home checklist: manual "mark complete" synced with `archlucid-pilot-checklist` and legacy step keys. */
@@ -111,7 +111,7 @@ export function CorePilotChecklist() {
         >
           Review workflow checklist
         </h2>
-        <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
+        <InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />
       </div>
 
       <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
@@ -122,7 +122,7 @@ export function CorePilotChecklist() {
       <ol className="m-0 list-none space-y-4 p-0">
         {CORE_PILOT_STEPS.map((step, index) => {
           const checkboxId = `core-pilot-checklist-step-${index}`;
-          const docPath = `/docs/CORE_PILOT.md${CORE_PILOT_DOC_FRAGMENTS[index]}`;
+          const hashFragment = CORE_PILOT_HELP_HASH_FRAGMENTS[index];
 
           return (
             <li
@@ -136,9 +136,10 @@ export function CorePilotChecklist() {
                 >
                   {step.title}
                 </Link>
-                <HelpLink
-                  docPath={docPath}
-                  label={`Core Pilot guide — step ${index + 1} (new tab)`}
+                <InAppHelpLink
+                  helpSlug="core-pilot"
+                  hashFragment={hashFragment}
+                  label={`Core Pilot guide — step ${index + 1}`}
                 />
               </div>
               <p className="m-0 mt-1 text-sm text-neutral-700 dark:text-neutral-300">{step.shortBody}</p>

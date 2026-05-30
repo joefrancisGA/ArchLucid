@@ -22,6 +22,7 @@ public static class SupportBundleFinalManifestBuilder
             SupportBundleArchiveWriter.ReadmeFileName,
             SupportBundleArchiveWriter.ReferencesFileName,
             SupportBundleLayout.NextStepsFileName,
+            SupportBundleArchiveWriter.RedactionManifestFileName,
             SupportBundleArchiveWriter.TriageIndexJsonFileName,
             SupportBundleArchiveWriter.TriageIndexMarkdownFileName,
             SupportBundleArchiveWriter.WorkspaceFileName

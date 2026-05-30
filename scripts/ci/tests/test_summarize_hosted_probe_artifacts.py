@@ -30,12 +30,15 @@ def test_all_green_staging_and_full_uptime() -> None:
     assert model.failed_probe_count == 0
     assert model.uptime_percent_of_attempted is not None
     assert abs(model.uptime_percent_of_attempted - 100.0) < 0.0001
+    assert model.overall_disposition == "WARN"
+    assert model.buyer_safe_evidence is False
 
     md = sh.render_markdown(model)
 
     assert "Not a contractual SLA" in md
     assert "**staging**" in md or "staging" in md
     assert "100.0000%" in md
+    assert "**WARN**" in md
 
 
 def test_partial_failure_uptime_and_caveat() -> None:
@@ -59,12 +62,15 @@ def test_insufficient_data_no_attempted_probes() -> None:
 
     assert model.attempted_count == 0
     assert model.uptime_percent_of_attempted is None
+    assert model.overall_disposition == "INCONCLUSIVE"
+    assert model.buyer_safe_evidence is False
 
     md = sh.render_markdown(model)
 
     assert "insufficient data" in md.lower()
     assert "99.9" in md
     assert "Target SLO" in md
+    assert "**INCONCLUSIVE**" in md
 
 
 def test_csv_loads_and_inference_production() -> None:
@@ -73,6 +79,8 @@ def test_csv_loads_and_inference_production() -> None:
 
     assert model.attempted_count == 1
     assert model.environment_label == "production"
+    assert model.overall_disposition == "PASS"
+    assert model.buyer_safe_evidence is True
 
 
 def test_mixed_base_urls_environment_unknown() -> None:
@@ -95,6 +103,8 @@ def test_mixed_base_urls_environment_unknown() -> None:
     model = sh.build_rollup(rows)
 
     assert model.environment_label == "unknown"
+    assert model.overall_disposition == "INCONCLUSIVE"
+    assert model.buyer_safe_evidence is False
     assert any("Mixed environment" in c for c in model.caveats)
 
 

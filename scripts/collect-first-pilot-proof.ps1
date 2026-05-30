@@ -749,8 +749,8 @@ function Add-CommittedReviewTraceChainSummaryFinding {
 function Add-ProductionLikeConfigLintFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
-    if (-not $ProductionLikeHostedPilot -and -not $SponsorHandoff) {
-        Add-ProofFinding -Disposition 'WARN' -Name 'production-like-config-lint' -Detail 'Skipped; rerun with -ProductionLikeHostedPilot or -SponsorHandoff for profile lint artifacts.' -Remediation 'Run archlucid config lint --profile production-like-hosted-pilot before hosted sponsor handoff.' -TriageCard 'FP-T022'
+    if (-not $ProductionLikeHostedPilot -and -not $SponsorHandoff -and [string]::IsNullOrWhiteSpace($RunId)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'production-like-config-lint' -Detail 'Skipped; supply -RunId or use -ProductionLikeHostedPilot / -SponsorHandoff for profile lint artifacts.' -Remediation 'Run archlucid config lint --profile production-like-hosted-pilot before hosted sponsor handoff.' -TriageCard 'FP-T022'
         return
     }
 
@@ -780,14 +780,76 @@ function Add-ProductionLikeConfigLintFinding {
     Add-ProofArtifact -Name 'config-lint-production-like-hosted-pilot.json' -Path 'config-lint-production-like-hosted-pilot.json' -Purpose 'Production-like hosted pilot config lint JSON for auth, telemetry, LLM redaction, and hosting advisor checks.'
     Add-ProofArtifact -Name 'config-lint-production-like-hosted-pilot.md' -Path 'config-lint-production-like-hosted-pilot.md' -Purpose 'Human-readable config lint disposition for production-like hosted pilot handoff.'
 
-    if ($lintExit -eq 0) {
-        Add-ProofFinding -Disposition 'PASS' -Name 'production-like-config-lint' -Detail 'Production-like hosted pilot config lint passed with no blocking findings.' -Remediation ''
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        $detail = "Production-like hosted pilot config lint failed with exit code $lintExit and no JSON artifact."
+
+        Add-ProofFinding -Disposition 'BLOCK' -Name 'production-like-config-lint' -Detail $detail -Remediation 'Fix blocking config lint findings and rerun with --profile production-like-hosted-pilot.' -TriageCard 'FP-T022'
         return
     }
 
-    $detail = "Production-like hosted pilot config lint failed with exit code $lintExit."
+    $lintDoc = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json
+    $proofDisposition = [string]$lintDoc.proofDisposition
 
-    Add-ProofFinding -Disposition 'BLOCK' -Name 'production-like-config-lint' -Detail $detail -Remediation 'Fix blocking config lint findings and rerun with --profile production-like-hosted-pilot.' -TriageCard 'FP-T022'
+    if ([string]::IsNullOrWhiteSpace($proofDisposition)) {
+        $proofDisposition = if ($lintDoc.ok) { 'READY' } else { 'HOLD' }
+    }
+
+    switch ($proofDisposition) {
+        'READY' {
+            Add-ProofFinding -Disposition 'PASS' -Name 'production-like-config-lint' -Detail 'Production-like hosted pilot config lint passed with no blocking findings.' -Remediation ''
+            return
+        }
+        'WARN' {
+            $advisoryCount = @($lintDoc.advisoryFindings).Count
+            $detail = "Production-like hosted pilot config lint returned WARN with $advisoryCount advisory finding(s); externally sendable with caveats."
+
+            Add-ProofFinding -Disposition 'WARN' -Name 'production-like-config-lint' -Detail $detail -Remediation 'Review advisory rows in config-lint-production-like-hosted-pilot.md before sponsor handoff.' -TriageCard 'FP-T022'
+            return
+        }
+        default {
+            $detail = "Production-like hosted pilot config lint returned HOLD (exit code $lintExit)."
+
+            Add-ProofFinding -Disposition 'BLOCK' -Name 'production-like-config-lint' -Detail $detail -Remediation 'Fix blocking config lint findings and rerun with --profile production-like-hosted-pilot.' -TriageCard 'FP-T022'
+        }
+    }
+}
+
+function Add-PilotProofPacketFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [Parameter(Mandatory = $true)][string] $RunIdValue
+    )
+
+    $packetDir = Join-Path $ProofDirectory 'pilot-proof-packet'
+    $cliProject = Join-Path $root 'ArchLucid.Cli\ArchLucid.Cli.csproj'
+    $packetArgs = @(
+        'run',
+        '--project', $cliProject,
+        '--',
+        'pilot',
+        'proof-packet',
+        $RunIdValue.Trim(),
+        '--out',
+        $packetDir
+    )
+
+    Push-Location -LiteralPath $root
+    try {
+        & dotnet @packetArgs 2>&1 | Out-Null
+        $packetExit = $LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+    }
+
+    Add-ProofArtifact -Name 'pilot-proof-packet' -Path 'pilot-proof-packet/' -Purpose 'Buyer-safe proof-packet folder (run evidence, ROI sources, limitations).'
+
+    if ($packetExit -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'pilot-proof-packet' -Detail "Wrote proof-packet folder for run $RunIdValue."
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'pilot-proof-packet' -Detail "archlucid pilot proof-packet exited $packetExit." -Remediation 'Confirm API connectivity and run scope, then rerun collect-first-pilot-proof.ps1.' -TriageCard 'FP-T006'
 }
 
 function Add-DemoWorkspaceValidationFinding {
@@ -903,8 +965,8 @@ function Write-QuoteToProofPacketMarkdown {
     $procurementStatus = Resolve-FindingDisposition -Name 'procurement-deal-ready'
     $routeTierStatus = Resolve-FindingDisposition -Name 'route-tier-policy-nav-parity'
     $evidenceStatus = Resolve-FindingDisposition -Name 'committed-run-evidence'
-    $annualReady = ($SponsorPacketDisposition -eq 'SEND' -and $RoiSponsorSafe -and $BlockCount -eq 0)
-    $commercialDisposition = if ($BlockCount -gt 0) { 'HOLD' } elseif ($SponsorPacketDisposition -eq 'DEFERRED_SCOPE') { 'DEFERRED_SCOPE' } elseif ($SponsorPacketDisposition -eq 'SEND') { 'PASS' } else { 'HOLD' }
+    $annualReady = ($SponsorPacketDisposition -eq 'READY' -and $RoiSponsorSafe -and $BlockCount -eq 0)
+    $commercialDisposition = if ($BlockCount -gt 0) { 'HOLD' } elseif ($SponsorPacketDisposition -eq 'DEFERRED_SCOPE') { 'DEFERRED_SCOPE' } elseif ($SponsorPacketDisposition -in @('READY', 'WARN')) { 'PASS' } else { 'HOLD' }
 
     $commercialStep = Resolve-CommercialNextStepRecommendation `
         -SponsorPacketDisposition $SponsorPacketDisposition `
@@ -1529,7 +1591,44 @@ function Add-HostedAvailabilityRollupFinding {
         return
     }
 
-    Add-ProofFinding -Disposition 'PASS' -Name 'hosted-availability-rollup' -Detail 'Hosted availability rollup attached with staging/probe caveats.' -Remediation ''
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'hosted-availability-rollup' -Detail 'Hosted availability rollup JSON missing after probe artifact processing.' -Remediation 'Verify probe artifacts and rerun hosted availability rollup.'
+        return
+    }
+
+    $rollup = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json
+    $overallDisposition = [string]$rollup.overallDisposition
+
+    if ([string]::IsNullOrWhiteSpace($overallDisposition)) {
+        $overallDisposition = 'INCONCLUSIVE'
+    }
+
+    $buyerSafe = $false
+
+    if ($null -ne $rollup.buyerSafeEvidence) {
+        $buyerSafe = [bool]$rollup.buyerSafeEvidence
+    }
+
+    switch ($overallDisposition) {
+        'PASS' {
+            Add-ProofFinding -Disposition 'PASS' -Name 'hosted-availability-rollup' -Detail 'Hosted availability rollup attached with production probe success and buyer-safe evidence flag true.' -Remediation ''
+        }
+        'WARN' {
+            $detail = 'Hosted availability rollup attached; staging or partial probe failures — not buyer-safe production SLA evidence.'
+
+            Add-ProofFinding -Disposition 'WARN' -Name 'hosted-availability-rollup' -Detail $detail -Remediation 'Attach production probe history with both /health/live and /health/ready OK before buyer SLA claims.'
+        }
+        default {
+            $detail = 'Hosted availability rollup is INCONCLUSIVE (missing, mixed, or insufficient probe data).'
+
+            if ($ProductionLikeHostedPilot -and $SponsorHandoff) {
+                Add-ProofFinding -Disposition 'BLOCK' -Name 'hosted-availability-rollup' -Detail $detail -Remediation 'Collect non-skipped production probe artifacts before production-like sponsor handoff.' -TriageCard 'FP-T023'
+            }
+            else {
+                Add-ProofFinding -Disposition 'WARN' -Name 'hosted-availability-rollup' -Detail $detail -Remediation 'Collect probe artifacts per docs/runbooks/HOSTED_AVAILABILITY_ROLLUP.md.'
+            }
+        }
+    }
 }
 
 function Add-AzureExtractorUploadUxFinding {
@@ -1995,6 +2094,84 @@ function Add-GovernancePolicyPackProofFinding {
     Add-ProofFinding -Disposition 'WARN' -Name 'governance-policy-pack-dry-run-proof' -Detail "Governance policy-pack proof fixture check failed with exit code $exitCode." -Remediation 'Repair scripts/ci/fixtures/governance-policy-pack-dry-run-proof.json and accelerator walkthrough non-certification language.'
 }
 
+function Add-TenantRetrievalBoundaryProofFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'tenant-retrieval-boundary-proof.md'
+    $jsonPath = Join-Path $ProofDirectory 'tenant-retrieval-boundary-proof.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_tenant_retrieval_boundary_proof.py'
+    & python $scriptPath --out-md $markdownPath --out-json $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'tenant-retrieval-boundary-proof.md' -Path 'tenant-retrieval-boundary-proof.md' -Purpose 'Tenant scope and retrieval filter controls — buyer-safe PASS/HOLD summary.'
+    Add-ProofArtifact -Name 'tenant-retrieval-boundary-proof.json' -Path 'tenant-retrieval-boundary-proof.json' -Purpose 'Machine-readable tenant/retrieval boundary proof.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'tenant-retrieval-boundary-proof' -Detail 'Tenant/retrieval boundary proof was not generated.' -Remediation 'Run python scripts/ci/report_tenant_retrieval_boundary_proof.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+
+    if ([string]$payload.disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'tenant-retrieval-boundary-proof' -Detail 'Tenant scope binding and retrieval filter controls documented with regression tests.' -Remediation ''
+        return
+    }
+
+    $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+    Add-ProofFinding -Disposition $proofDisposition -Name 'tenant-retrieval-boundary-proof' -Detail 'Tenant/retrieval boundary proof reported HOLD — missing evidence files.' -Remediation 'Restore scope binding and retrieval filter tests before sponsor handoff.'
+}
+
+function Add-IacParityScanFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'iac-runtime-parity-scan.md'
+    $jsonPath = Join-Path $ProofDirectory 'iac-runtime-parity-scan.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_iac_parity_scan.py'
+    & python $scriptPath --out-md $markdownPath --out-json $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'iac-runtime-parity-scan.md' -Path 'iac-runtime-parity-scan.md' -Purpose 'Configured runtime services vs Terraform roots (TB-091+).'
+    Add-ProofArtifact -Name 'iac-runtime-parity-scan.json' -Path 'iac-runtime-parity-scan.json' -Purpose 'Machine-readable IaC parity scan disposition.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'iac-runtime-parity-scan' -Detail 'IaC parity scan was not generated.' -Remediation 'Run python scripts/ci/report_iac_parity_scan.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$payload.disposition
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'iac-runtime-parity-scan' -Detail 'Essential configured services map to Terraform roots.' -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'HOLD') {
+        $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+        Add-ProofFinding -Disposition $proofDisposition -Name 'iac-runtime-parity-scan' -Detail 'Pilot-essential service configured without matching Terraform root.' -Remediation 'See docs/library/IAC_RUNTIME_PARITY.md.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'iac-runtime-parity-scan' -Detail "IaC parity scan disposition is $disposition." -Remediation 'See docs/library/IAC_RUNTIME_PARITY.md.'
+}
+
+function Add-StarterProofPackValidationFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $jsonPath = Join-Path $ProofDirectory 'starter-proof-pack-validation.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\check_starter_proof_packs.py'
+    & python $scriptPath --json-out $jsonPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'starter-proof-pack-validation.json' -Path 'starter-proof-pack-validation.json' -Purpose 'Starter proof pack metadata and required-file validation (TB-115/TB-116).'
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'starter-proof-pack-validation' -Detail 'All starter proof packs passed metadata and required-file validation.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'starter-proof-pack-validation' -Detail "Starter proof pack validation failed with exit code $exitCode." -Remediation 'Run python scripts/ci/check_starter_proof_packs.py and repair pack metadata.'
+}
+
 Write-Host "Collecting first-pilot proof @ $normalizedBase"
 Write-Host "Output: $proofDir"
 
@@ -2027,6 +2204,9 @@ Add-MutatingRouteIdempotencyPostureFinding -ProofDirectory $proofDir
 Add-TerraformPilotValidationMatrixFinding -ProofDirectory $proofDir
 Add-AuditPathSemanticsFinding -ProofDirectory $proofDir
 Add-GovernancePolicyPackProofFinding -ProofDirectory $proofDir
+Add-TenantRetrievalBoundaryProofFinding -ProofDirectory $proofDir
+Add-IacParityScanFinding -ProofDirectory $proofDir
+Add-StarterProofPackValidationFinding -ProofDirectory $proofDir
 Add-ProductionLikeAzurePilotProofFinding -ProofDirectory $proofDir
 Add-SecurityReviewerOnePagerFinding -ProofDirectory $proofDir
 Add-CompliancePostureClarityFinding -ProofDirectory $proofDir
@@ -2195,6 +2375,8 @@ else {
 
         Add-LlmBudgetStatusFinding -ProofDirectory $proofDir -EvidenceRoot $evidenceOut -LlmExecutionMode $llmMode
 
+        Add-PilotProofPacketFinding -ProofDirectory $proofDir -RunIdValue $RunId
+
         if (-not $SkipCommercialHandoff) {
             Add-RoiBasisLabelFinding -EvidenceRoot $evidenceOut
             Add-DemoDerivedRoiCommercialGate
@@ -2238,6 +2420,7 @@ $deferredScopeReasons = Resolve-DeferredScopeReasons `
 $sponsorPacketDisposition = Resolve-SponsorPacketDisposition `
     -SponsorHandoff:$SponsorHandoff `
     -BlockCount $blockCount `
+    -WarnCount $warnCount `
     -DeferredScopeReasons $deferredScopeReasons
 
 $triageCardPath = Join-Path $root 'docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md'

@@ -22,7 +22,7 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
     elseif ($SponsorPacketDisposition -eq 'DEFERRED_SCOPE') {
         'DEFERRED_SCOPE'
     }
-    elseif ($SponsorPacketDisposition -eq 'SEND') {
+    elseif ($SponsorPacketDisposition -in @('READY', 'WARN')) {
         'PASS'
     }
     else {

@@ -16,7 +16,8 @@ export type FirstPilotOperatingRailStepDefinition = {
   shortBody: string;
   primaryHref: string;
   primaryLabel: string;
-  troubleshootDocPath: string;
+  /** In-app help slug (`/help/{slug}`) for step-level triage. */
+  troubleshootHelpSlug: string;
 };
 
 export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefinition[] = [
@@ -26,7 +27,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     shortBody: "Confirm API readiness and sign-in before you ingest evidence or start a review.",
     primaryHref: "/health",
     primaryLabel: "Open system health",
-    troubleshootDocPath: "/docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    troubleshootHelpSlug: "troubleshooting",
   },
   {
     id: "ingest-evidence",
@@ -34,7 +35,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     shortBody: FIRST_PILOT_BUYER_COPY.ingestEvidenceWithoutUpload,
     primaryHref: "/settings/extract-upload",
     primaryLabel: "Extract and upload",
-    troubleshootDocPath: "/docs/library/AZURE_EXTRACTOR.md",
+    troubleshootHelpSlug: "evidence-intake",
   },
   {
     id: "create-review",
@@ -42,7 +43,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     shortBody: "Capture system identity and constraints in the new-review wizard.",
     primaryHref: "/reviews/new",
     primaryLabel: "New review",
-    troubleshootDocPath: "/docs/runbooks/PILOT_RESCUE_PLAYBOOK.md",
+    troubleshootHelpSlug: "pilot-guide",
   },
   {
     id: "execute-review",
@@ -50,7 +51,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     shortBody: "Let agents finish on review detail — status moves to ready to finalize when findings exist.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open reviews",
-    troubleshootDocPath: "/docs/runbooks/PILOT_RESCUE_PLAYBOOK.md",
+    troubleshootHelpSlug: "pilot-guide",
   },
   {
     id: "finalize-package",
@@ -58,7 +59,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     shortBody: "Commit the golden manifest on review detail to lock artifacts and exports.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Finalize on review detail",
-    troubleshootDocPath: "/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
+    troubleshootHelpSlug: "governance-approval",
   },
   {
     id: "sponsor-packet",
@@ -66,7 +67,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
     shortBody: "Download the one-click sponsor ZIP or email the review after finalize — estimated vs realized labels stay explicit.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open finalized review",
-    troubleshootDocPath: "/docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
+    troubleshootHelpSlug: "executive-summary",
   },
 ];
 

@@ -1,0 +1,94 @@
+---
+description: >-
+  Dual-score readiness rubric — V1.1 headline excludes SOC 2 CPA attestation,
+  signed design partner, owner-output GTM assets/cohorts, public extension/plugin SDK,
+  MCP-as-V1.1-only, third-party plugin marketplace, assistive-technology user testing
+  as a headline gate, sales-engineer-led LLM onboarding as a hosted-SaaS gate for
+  `(A)`, and similar out-of-scope items; penalize `(A)` only on in-contract gates.
+alwaysApply: false
+---
+
+# ArchLucid assessment scope — headline V1.1 vs procurement realism
+
+## Headline scores (must follow)
+
+When producing **weighted readiness**, **solution quality**, **go-to-market**, or **trust/procurement** assessments for this repo:
+
+1. **`(A)` V1.1 delivery / product readiness (headline)** — score **only** commitments that are **in scope for V1 GA and the named V1.1 release-window engineering items** documented in **`docs/library/V1_SCOPE.md`**, **`docs/library/V1_DEFERRED.md`**, and **`docs/go-to-market/TRUST_CENTER.md`**.
+
+2. **`(B)` Enterprise procurement realism (informational)** — discuss buyer friction (SOC 2 CPA reports, rigid RFP wording, procurement timing) honestly, with **explicit links** to roadmap and trust posture. **`(B)` must use weight `0`** when recomputing or narrating **`(A)`**. Do **not** fold **`(B)`** into pillar weights or the **`(A)`** composite unless the user explicitly asks for a **second blended score**.
+
+## Assessment improvements #23 and #25 — V1.1 backlog only
+
+Per **`.cursor/rules/V1_1-assurance-backlog.mdc`** (owner 2026-05-29): improvement **#23** (SOC 2 CPA) and **#25** (third-party pen test) are **TB-135 / TB-136** on the **V1.1 backlog**. **Do not** re-list them as deferred assessment implementation batches or engineering prompts unless the user explicitly asks to pick up those backlog IDs.
+
+## SOC 2 — always mention, never headline-penalize
+
+- **`(A)` must not be reduced** for absence of **SOC 2 Type I / II CPA attestation**, **issued SOC report**, or ISO 27001 certificate. Those items are **not** V1 or V1.1 headline gates per **`docs/library/V1_DEFERRED.md` §6c** and **`docs/library/V1_SCOPE.md` §3**.
+
+- **Still cover SOC credibly**: cite **self-assessment**, **trust center honesty**, **`docs/security/SOC2_SELF_ASSESSMENT_2026.md`**, **`docs/go-to-market/SOC2_ROADMAP.md`**, CAIQ/SIG/DPA/process narratives — then place **SOC 2 CPA gap** under **`§ Enterprise procurement realism (informational)`** or equivalent, not under **`Defects against V1.1 headline readiness`**.
+
+- **Explicitly prohibited:** lowering **`(A)` Compliance / Procurement / Trust pillar scores solely because CPA SOC 2 is not issued; treating SOC 2 as a “formal assurance gap against V1.1 contract” unless the narrative labels that sentence as **`(B)` procurement-only**.
+
+## Design partner — omit from headline defects; never score on `(A)`
+
+- **Not a V1 gate:** A **signed or active design partner** (commercial motion described in **`docs/go-to-market/PRICING_PHILOSOPHY.md`**) is a **V1.1** commercial item per **`docs/library/V1_DEFERRED.md` §6b** and **`docs/library/V1_SCOPE.md` §3**. V1 GA and pilot success do **not** require it.
+
+- **`(A)` must not be reduced** for absence of a design partner — not in Marketability, Stickiness, Proof-of-ROI, trust pillars, or “readiness” composites.
+
+- **Narrative:** Do **not** add recurring assessment sections (defect lists, open-question dumps, improvement gates) whose **primary** gap is “no design partner yet.” **Do not** imply the product is blocked pending a design partner. If the user **explicitly** asks for GTM or pipeline analysis, mention design-partner status **only** under **`(B)` market-motion / procurement realism** (zero weight on **`(A)`**), briefly.
+
+- **Explicitly prohibited:** lowering **`(A)`** because the repo or org has not closed a design-partner contract; framing headline readiness as conditional on “finding” a design partner.
+
+## Owner-output GTM assets and cohorts — V1.1 backlog only
+
+- **Not V1 assessment defects:** **Real Pilot Proof Packet Cohort** and **Market-Facing Demo Asset Production** are **V1.1 backlog** items tracked as **TB-141** and **TB-142** in `docs/library/TECH_BACKLOG.md` and `docs/library/V1_DEFERRED.md` §6b. They require owner-selected scenarios, data/environment approvals, brand/channel decisions, and publication approval.
+
+- **`(A)` must not be reduced** for the absence of these owner-output GTM deliverables. V1 assessment work may score the reusable mechanics that make those later outputs credible: proof-packet correctness, source labels, release rollups, skip semantics, claim-language lint, starter proof packs, and first-screen proof status.
+
+- **Narrative:** Do **not** list these items as current top improvement opportunities, open questions, deferred engineering batches, or headline weaknesses in V1 assessments. If the user explicitly asks for V1.1 GTM planning, discuss them as backlog items, not as V1 defects.
+
+## Extension SDK, MCP, and third-party plugin marketplace — headline non-gates
+
+- **Not V1 headline gates:** Per **`docs/library/V1_SCOPE.md`** (including the **speculative ecosystem** row and the **MCP** row) and **`docs/library/V1_DEFERRED.md` §6d**, the following are **out of `(A)`** unless the user explicitly asks for a separate ecosystem score:
+
+  1. **No public extension / plugin SDK** — absence of a published, productized third-party extension SDK (or equivalent store-facing developer kit) for building ArchLucid plugins.
+
+  2. **MCP not in V1** — absence of an inbound MCP server / MCP transport in the **V1** shipping boundary. **MCP is a named V1.1 engineering candidate**, not a pilot or V1 GA gate; narrate under roadmap / **`(B)`** if useful.
+
+  3. **No third-party plugin marketplace** — absence of a customer-facing marketplace or agent store for third-party plugins (distinct from **Azure commercial marketplace** billing/GTM for ArchLucid’s own offer).
+
+- **`(A)` must not be reduced** for any of the above in integrability, ecosystem, marketability, or “platform openness” pillars **unless `V1_SCOPE.md` / `V1_DEFERRED.md` explicitly lists the item as an in-window V1 or V1.1 engineering commitment you are scoring.**
+
+- **Explicitly prohibited:** treating “no public extension SDK,” “no MCP yet,” or “no third-party plugin marketplace” as defects against **V1.1 headline readiness** in **`(A)`**; folding them into weighted deductions without labeling them **`(B)`** optional ecosystem realism.
+
+## Assistive technology user testing — headline non-gate
+
+- **Not a headline delivery gate for `(A)`:** Absence of **participant user testing with assistive technologies** (e.g. scheduled research sessions with screen-reader or other AT users as primary validation) is **out of scope** for headline readiness scoring. ArchLucid’s **projected primary users and buyers** are **not** modeled as requiring or valuing that class of study as a product commitment in **`(A)`**.
+
+- **`(A)` must not be reduced** for “no AT user testing,” “no screen reader usability panel,” or similar — not under Trust, Quality, Inclusive design, or procurement-adjacent pillars unless **`V1_SCOPE.md` / `V1_DEFERRED.md` / `TRUST_CENTER.md`** explicitly names such testing as an in-window commitment.
+
+- **Does not negate honest narrative:** If the assessment discusses **inclusive design**, **Section 508**, or **buyer accessibility questionnaires**, place material obligations, regulatory risk, or stretch goals under **`(B)` informational** (or a user-requested accessibility deep-dive), **without** treating missing AT user studies as a weighted defect inside **`(A)`**.
+
+- **Explicitly prohibited:** lowering **`(A)`** solely because the org has not run user tests with assistive technologies; implying V1.1 headline readiness is deficient for lacking that research program.
+
+## Hosted SaaS real LLM — not a sales-engineer gate for `(A)`
+
+- **`(A)` must not be reduced** for lack of **sales-engineer-assisted onboarding** to obtain **real LLM** execution on **ArchLucid-hosted** SaaS. Per **`docs/library/V1_SCOPE.md` §2.4**, **platform-provisioned Azure OpenAI** on the standard hosted path is the **V1** posture; optional white-glove for **non-LLM** topics (identity, networking, procurement) belongs in **`(B)`** narrative when relevant — not as a headline defect that **real** LLM is “blocked” pending SE setup.
+
+- **Explicitly prohibited:** claiming **Customer self-sufficiency**, **Time-to-Value**, or **Adoption friction** headline gaps **solely** because buyers were not walked through **LLM credential** setup on hosted SaaS — that contradicts the **V1** contract unless **`V1_SCOPE.md`** is superseded by an explicit owner decision.
+
+## Alignment with broader realism rules
+
+Workspace **`Enterprise-Realism.mdc`** still applies for design trade-offs. For **numerical readiness scoring**, this rule **wins**: organizational procurement pressure is modeled in **`(B)`**, not as hidden deductions inside **`(A)`**.
+
+---
+
+## Copy-paste — user prompt preamble (repeat in chat when scoping assessments)
+
+Produce **two labeled scores**:
+
+- **`(A) V1.1 headline readiness (100)`** — only in-contract V1 / V1.1 gates per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and trust-center commitments. **Out of `(A)`:** SOC 2 CPA attestation, ISO certificate, signed design partner, **owner-output GTM assets/cohorts**, **public third-party extension/plugin SDK**, **MCP absence in V1** (MCP is **V1.1**-scoped per docs), **third-party plugin marketplace / agent store**, and **participant user testing with assistive technologies** (not a projected ICP commitment in headline scoring) — cite under **`(B)`** or roadmap only when relevant.
+- **`(B) Procurement / market-motion realism (informational, not weighted into `(A)`)`** — buyer friction incl. SOC 2 report expectations; optional GTM pipeline (design partner, reference pipeline) **only if the user asked**.
+
+Do **not** reduce **`(A)`** for missing CPA SOC 2 / ISO certs, lacking a design partner, lacking owner-output GTM assets/cohorts, lacking a public extension SDK, lacking MCP in V1, lacking a third-party plugin marketplace, **not having run user tests with assistive technologies**, or **absence of sales-engineer-led LLM setup on ArchLucid-hosted SaaS**; summarize interim posture + roadmap citations instead.

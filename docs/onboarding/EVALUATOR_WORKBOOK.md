@@ -19,6 +19,8 @@
 
 Read [`go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](../go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md) for Pilot vs Operate before deep configuration.
 
+**Starter proof packs:** choose a vertical with [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md) · golden walkthrough: [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md).
+
 ---
 
 ## Session flow (four steps)

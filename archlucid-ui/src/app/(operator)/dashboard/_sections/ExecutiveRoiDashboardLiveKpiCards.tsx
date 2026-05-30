@@ -8,41 +8,45 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import {
   getArchitectureRiskRegister,
   type ArchitectureRiskRegisterEntry,
-  type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import {
+  presentCostEvidenceFreshness,
+  presentExecutiveKpiCount,
+} from "@/lib/executive-roi-kpi-display";
+import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
-const RISK_EXCEPTIONS_PATH = `/api/proxy/${ApiV1Routes.governance}/risk-exceptions`;
-
 type LiveKpiState = {
   summary: ExecutiveRoiSummary | null;
   staleRiskCount: number;
   expiringWaiversCount: number;
 };
 
-function countExpiringWaivers(records: RiskExceptionRecord[]): number {
-  const soon = Date.now() + 14 * 24 * 60 * 60 * 1000;
-
-  return records.filter((record) => {
-    const expires = Date.parse(record.expiresAtUtc);
-
-    return Number.isFinite(expires) && expires <= soon;
-  }).length;
-}
-
 function countStaleRisks(entries: ArchitectureRiskRegisterEntry[]): number {
   return entries.filter((entry) => entry.isStale).length;
 }
 
-function formatCount(value: number | undefined): string {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
-    return "—";
+function KpiFootnote(props: { readonly text: string | null; readonly runbookHref?: string | null }) {
+  if (!props.text) {
+    return null;
   }
 
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);
+  return (
+    <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+      {props.text}
+      {props.runbookHref ? (
+        <>
+          {" "}
+          <Link href={toDocsBlobUrl(props.runbookHref)} className="underline" rel="noopener noreferrer" target="_blank">
+            Runbook
+          </Link>
+        </>
+      ) : null}
+    </p>
+  );
 }
 
 /** Live KPI tiles for `/dashboard` backed by ROI and governance stickiness APIs (TB-062). */
@@ -57,16 +61,12 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
 
     void (async () => {
       try {
-        const [summaryRes, riskRegister, exceptionsRes] = await Promise.all([
+        const [summaryRes, riskRegister] = await Promise.all([
           fetch(
             EXECUTIVE_ROI_SUMMARY_PATH,
             mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
           ),
           getArchitectureRiskRegister(),
-          fetch(
-            RISK_EXCEPTIONS_PATH,
-            mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-          ),
         ]);
 
         if (!summaryRes.ok) {
@@ -76,21 +76,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         const summary = (await summaryRes.json()) as ExecutiveRoiSummary & {
           resolvedFindingsCount30Days?: number;
           newlyDiscoveredFindingsCount30Days?: number;
+          expiringWaiversCount14Days?: number;
         };
-
-        let expiringWaiversCount = 0;
-
-        if (exceptionsRes.ok) {
-          const exceptions = (await exceptionsRes.json()) as RiskExceptionRecord[];
-
-          expiringWaiversCount = countExpiringWaivers(exceptions);
-        }
 
         if (!cancelled) {
           setState({
             summary,
             staleRiskCount: countStaleRisks(riskRegister.entries),
-            expiringWaiversCount,
+            expiringWaiversCount: summary.expiringWaiversCount14Days ?? 0,
           });
         }
       } catch (e: unknown) {
@@ -117,10 +110,19 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
     );
   }
 
-  const resolved = state.summary?.resolvedFindingsCount30Days;
-  const discovered = state.summary?.newlyDiscoveredFindingsCount30Days;
-  const remediated = state.summary?.realizedValue?.findingsRemediatedCount30Days;
-  const costFreshness = state.summary?.costEvidenceFreshnessStatus;
+  const resolved = presentExecutiveKpiCount(state.summary?.resolvedFindingsCount30Days, { loading });
+  const discovered = presentExecutiveKpiCount(state.summary?.newlyDiscoveredFindingsCount30Days, { loading });
+  const remediated = presentExecutiveKpiCount(state.summary?.realizedValue?.findingsRemediatedCount30Days, {
+    loading,
+  });
+  const staleRisks = presentExecutiveKpiCount(loading ? undefined : state.staleRiskCount, { loading });
+  const expiringWaivers = presentExecutiveKpiCount(loading ? undefined : state.expiringWaiversCount, { loading });
+  const costFreshness = presentCostEvidenceFreshness({
+    loading,
+    status: state.summary?.costEvidenceFreshnessStatus,
+    savingsPricingBasis: state.summary?.savingsPricingBasis,
+    staleAfterDays: state.summary?.costEvidenceStaleAfterDays,
+  });
 
   return (
     <>
@@ -135,8 +137,9 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         </CardHeader>
         <CardContent>
           <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {loading ? "…" : formatCount(resolved)}
+            {resolved.display}
           </p>
+          <KpiFootnote text={resolved.footnote} />
         </CardContent>
       </Card>
 
@@ -151,8 +154,9 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         </CardHeader>
         <CardContent>
           <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {loading ? "…" : formatCount(discovered)}
+            {discovered.display}
           </p>
+          <KpiFootnote text={discovered.footnote} />
         </CardContent>
       </Card>
 
@@ -170,8 +174,9 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         </CardHeader>
         <CardContent>
           <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {loading ? "…" : formatCount(state.staleRiskCount)}
+            {staleRisks.display}
           </p>
+          <KpiFootnote text={staleRisks.footnote} />
         </CardContent>
       </Card>
 
@@ -186,8 +191,9 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         </CardHeader>
         <CardContent>
           <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {loading ? "…" : formatCount(state.expiringWaiversCount)}
+            {expiringWaivers.display}
           </p>
+          <KpiFootnote text={expiringWaivers.footnote} />
         </CardContent>
       </Card>
 
@@ -202,8 +208,9 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         </CardHeader>
         <CardContent>
           <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {loading ? "…" : formatCount(remediated)}
+            {remediated.display}
           </p>
+          <KpiFootnote text={remediated.footnote} />
         </CardContent>
       </Card>
 
@@ -218,8 +225,9 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
         </CardHeader>
         <CardContent>
           <p className="font-mono text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {loading ? "…" : costFreshness ?? "—"}
+            {costFreshness.display}
           </p>
+          <KpiFootnote text={costFreshness.footnote} runbookHref={costFreshness.runbookHref} />
         </CardContent>
       </Card>
     </>

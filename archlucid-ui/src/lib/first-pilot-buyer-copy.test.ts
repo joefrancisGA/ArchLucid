@@ -39,6 +39,7 @@ describe("first-pilot-buyer-copy", () => {
       signals: { ...signals, hasCommittedManifest: true },
       scorecard: null,
       scorecardLoadFailed: false,
+      configLint: null,
     });
 
     const proofPipeline = rows.find((row) => row.id === "proof-pipeline");

@@ -9,6 +9,8 @@ import { filterArchLucidAuthConfigRows } from "./filter-arch-lucid-auth-config-r
 import type { IdentityProvidersSettingsPageServerLoad } from "./load-identity-providers-settings-page-data";
 
 type AdminConfigSummaryResponse = components["schemas"]["AdminConfigSummaryResponse"];
+type AdminAuthConfigurationDiagnosticsResponse =
+  components["schemas"]["AdminAuthConfigurationDiagnosticsResponse"];
 type AdminIdentityProviderDiagnosticsResponse =
   components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
 type AdminOidcDiagnosticsResponse = components["schemas"]["AdminOidcDiagnosticsResponse"];
@@ -21,6 +23,9 @@ export type UseIdentityProvidersSettingsPageModel = {
   identityProviderDiagnostics: AdminIdentityProviderDiagnosticsResponse | null;
   identityProviderDiagnosticsNote: string | null;
   identityProviderDiagnosticsLoaded: boolean;
+  authConfigurationDiagnostics: AdminAuthConfigurationDiagnosticsResponse | null;
+  authConfigurationDiagnosticsNote: string | null;
+  authConfigurationDiagnosticsLoaded: boolean;
   oidcDiagnostics: AdminOidcDiagnosticsResponse | null;
   oidcDiagnosticsNote: string | null;
   oidcDiagnosticsLoaded: boolean;
@@ -41,6 +46,10 @@ export function useIdentityProvidersSettingsPage(
     useState<AdminIdentityProviderDiagnosticsResponse | null>(null);
   const [identityProviderDiagnosticsNote, setIdentityProviderDiagnosticsNote] = useState<string | null>(null);
   const [identityProviderDiagnosticsLoaded, setIdentityProviderDiagnosticsLoaded] = useState(false);
+  const [authConfigurationDiagnostics, setAuthConfigurationDiagnostics] =
+    useState<AdminAuthConfigurationDiagnosticsResponse | null>(null);
+  const [authConfigurationDiagnosticsNote, setAuthConfigurationDiagnosticsNote] = useState<string | null>(null);
+  const [authConfigurationDiagnosticsLoaded, setAuthConfigurationDiagnosticsLoaded] = useState(false);
 
   const [oidcDiagnostics, setOidcDiagnostics] = useState<AdminOidcDiagnosticsResponse | null>(null);
   const [oidcDiagnosticsNote, setOidcDiagnosticsNote] = useState<string | null>(null);
@@ -56,6 +65,9 @@ export function useIdentityProvidersSettingsPage(
     setIdentityProviderDiagnostics(null);
     setIdentityProviderDiagnosticsNote(null);
     setIdentityProviderDiagnosticsLoaded(false);
+    setAuthConfigurationDiagnostics(null);
+    setAuthConfigurationDiagnosticsNote(null);
+    setAuthConfigurationDiagnosticsLoaded(false);
     setOidcDiagnostics(null);
     setOidcDiagnosticsNote(null);
     setOidcDiagnosticsLoaded(false);
@@ -66,9 +78,10 @@ export function useIdentityProvidersSettingsPage(
     try {
       const opts = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" });
 
-      const [summaryRes, diagnosticsRes, oidcRes, samlRes] = await Promise.all([
+      const [summaryRes, diagnosticsRes, authConfigRes, oidcRes, samlRes] = await Promise.all([
         fetch("/api/proxy/v1/admin/configuration/summary?includeEffectiveValues=true", opts),
         fetch("/api/proxy/v1/admin/diagnostics/identity-providers", opts),
+        fetch("/api/proxy/v1/admin/auth/configuration-diagnostics", opts),
         fetch("/api/proxy/v1/admin/auth/oidc-diagnostics", opts),
         fetch("/api/proxy/v1/admin/auth/saml-operational-health", opts),
       ]);
@@ -100,6 +113,20 @@ export function useIdentityProvidersSettingsPage(
 
         setIdentityProviderDiagnostics(body);
         setIdentityProviderDiagnosticsNote(null);
+      }
+
+      if (!authConfigRes.ok) {
+        setAuthConfigurationDiagnostics(null);
+        setAuthConfigurationDiagnosticsNote(
+          authConfigRes.status === 401 || authConfigRes.status === 403
+            ? "Admin session required to read auth configuration diagnostics."
+            : `Auth configuration diagnostics unavailable (HTTP ${authConfigRes.status}).`,
+        );
+      } else {
+        const body = (await authConfigRes.json()) as AdminAuthConfigurationDiagnosticsResponse;
+
+        setAuthConfigurationDiagnostics(body);
+        setAuthConfigurationDiagnosticsNote(null);
       }
 
       if (!oidcRes.ok) {
@@ -134,12 +161,15 @@ export function useIdentityProvidersSettingsPage(
       setNote(e instanceof Error ? e.message : String(e));
       setIdentityProviderDiagnostics(null);
       setIdentityProviderDiagnosticsNote("Identity provider diagnostics could not be loaded.");
+      setAuthConfigurationDiagnostics(null);
+      setAuthConfigurationDiagnosticsNote("Auth configuration diagnostics could not be loaded.");
       setOidcDiagnostics(null);
       setOidcDiagnosticsNote("OIDC discovery diagnostics could not be loaded.");
       setSamlOperationalHealth(null);
       setSamlOperationalHealthNote("SAML operational health could not be loaded.");
     } finally {
       setIdentityProviderDiagnosticsLoaded(true);
+      setAuthConfigurationDiagnosticsLoaded(true);
       setOidcDiagnosticsLoaded(true);
       setSamlOperationalHealthLoaded(true);
     }
@@ -155,6 +185,9 @@ export function useIdentityProvidersSettingsPage(
     identityProviderDiagnostics,
     identityProviderDiagnosticsNote,
     identityProviderDiagnosticsLoaded,
+    authConfigurationDiagnostics,
+    authConfigurationDiagnosticsNote,
+    authConfigurationDiagnosticsLoaded,
     oidcDiagnostics,
     oidcDiagnosticsNote,
     oidcDiagnosticsLoaded,

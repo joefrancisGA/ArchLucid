@@ -23,10 +23,27 @@
 - **2026-05-05 — Connectors V1 GA:** **Jira**, **ServiceNow**, **Slack**, **Confluence** first-party connectors / chat-ops / doc publish in **V1 GA** — [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15; *Resolved 2026-05-05* and *Confluence promoted 2026-05-05* below. **Superseded for headline V1 GA window (2026-05-18):** same connectors → **V1.1** per *Resolved 2026-05-18*.
 - **2026-05-03 (commercial entity):** phased playbook **Francis Architecture, LLC** — [`runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md). Until **`CHANGELOG.md`** records completion, sole-prop / Stripe owner resolutions below stay in force.
 - **2026-05-03 — Design partner:** signed commercial engagement → **V1.1** motion, **not** V1 GA gate; **`(A)` assessments must not** penalize absence — [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b.
-- **2026-05-01 — Third-party pen test:** **V2** window; **V1** = owner-conducted; see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
+- **2026-05-30 — Real pilot proof cohort data policy:** customer data, sanitized internal data, and demo-only data are all allowed input classes for the V1.1 real pilot proof packet cohort, subject to tenant/customer authorization, redaction, source labeling, and buyer-safe caveats. See *Resolved 2026-05-30 (real pilot proof cohort data policy)* below.
+- **2026-05-30 — First proof-density cohort scenarios:** first cohort scenarios are AI / LLM workload governance, regulated SaaS procurement / SOC-style diligence, and Azure cost / orphan / governance review. See *Resolved 2026-05-30 (first proof-density cohort scenarios)* below.
+- **2026-05-30 — Market-facing demo asset evidence policy:** real-mode output may be shown in public assets when authorized, redacted, source-labeled, and caveated; synthetic/demo-labeled assets remain allowed. See *Resolved 2026-05-30 (market-facing demo asset evidence policy)* below.
+- **2026-05-30 — First market-facing demo asset channel:** optimize Upwork first for V1.1 market-facing demo asset production; website, sales email, LinkedIn, and live demo can reuse the asset system later. See *Resolved 2026-05-30 (first demo asset channel)* below.
+- **2026-05-30 — Third-party pen-test customer wording:** customer-facing materials should say **"planned, not yet scheduled"** for the third-party pen-test program, not "V1.1 backlog" or release-specific phrasing. Internal backlog tracking remains TB-136. See *Resolved 2026-05-30 (third-party pen-test customer wording)* below.
+- **2026-05-30 — SOC 2 readiness timing wording:** Trust Center and buyer-facing readiness wording should continue to cite the ARR/procurement trigger for SOC 2 Type I engagement. See *Resolved 2026-05-30 (SOC 2 readiness timing wording)* below.
+- **2026-05-30 — Azure example region and naming:** examples should assume Azure **East US** (`eastus`) and Microsoft-standard Azure naming conventions. See *Resolved 2026-05-30 (Azure example region and naming)* below.
+- **2026-05-30 — Hosted production Terraform root:** `infra/terraform/prod` is the authoritative hosted production footprint root. See *Resolved 2026-05-30 (hosted production Terraform root)* below.
+- **2026-05-30 — Azure OpenAI / Azure AI Search Terraform composition:** hosted SaaS examples should compose Azure OpenAI and Azure AI Search into the hosted stack by default; separate roots remain validation/module staging surfaces or special-deployment escape hatches. See *Resolved 2026-05-30 (Azure OpenAI and Search Terraform composition)* below.
+- **2026-05-30 — Broader-claims threshold source:** the minimum threshold for moving from controlled pilots to broader claims is already defined by [`GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md) § *Proof-gated rollout criteria*. See *Resolved 2026-05-30 (broader-claims threshold source)* below.
+- **2026-05-30 — `signup.archlucid.net` DNS cutover readiness:** the **`signup.archlucid.net`** hostname is **owned** and **ready for DNS cutover** to the production Front Door custom domain when commerce un-hold executes. This does **not** authorize cutover before the owner flips live Stripe/Marketplace settings. See *Resolved 2026-05-30 (signup.archlucid.net DNS cutover readiness)* below.
+- **2026-05-30 — Team self-serve Stripe SKU at launch:** keep the **interim bundled Team Checkout SKU** (**$249**/month USD, single `PriceIdTeam`) at commerce un-hold launch — do **not** split into per-component Stripe line items first. See *Resolved 2026-05-30 (Team self-serve Stripe SKU at launch)* below.
+- **2026-05-30 — Enterprise UI design system rollout sequencing:** phased rollout — **not** a single all-components pass. Shared primitives first, then **first-pilot path + run detail**, then **Home/dashboard**, then **governance/audit**, then cross-cutting spacing/typography polish. See *Resolved 2026-05-30 (Enterprise UI design system rollout sequencing)* below.
+- **2026-05-30 — Azure AI Search index field names:** repo contract in [`AZURE_AI_SEARCH_INDEX_CONTRACT.md`](library/AZURE_AI_SEARCH_INDEX_CONTRACT.md) is authoritative over out-of-repo index schemas — camelCase `tenantId`, `workspaceId`, `projectId`, `corpusKind`, `documentId`, `chunkId` (key), vector field **`embedding`**, lexical **`text`**. See *Resolved 2026-05-30 (Azure AI Search index field contract)* below.
+- **2026-05-29 — Assessment #23 / #25 → V1.1 backlog:** SOC 2 CPA (**TB-135**) and third-party pen test (**TB-136**) are **V1.1 backlog** organizational programs — **not** V1 assessment implementation prompts. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c. *Resolved 2026-05-29 (assurance V1.1 backlog)* below.
+- **2026-05-29 — Azure AI Search on production-like profiles:** **Required for all production-like profiles** (not optional when reranking alone). See *Resolved 2026-05-29 (Azure AI Search — production-like requirement)* below.
+- **2026-05-29 — Scope-to-identity / API key pilots:** **No** existing pilots rely on header-only tenant selection with API keys; TB-072 may enforce binding without a pilot carve-out. See *Resolved 2026-05-29 (API key scope binding — no legacy pilots)* below.
+- **2026-05-01 — Third-party pen test:** **V1.1 backlog (TB-136)**; **V1** = owner-conducted (**TB-005**); supersedes prior **V2** framing where it conflicted — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 - **2026-04-27:** (1) Auth default: Entra ID or explicit API keys (Resolved). (2) Hidden UI features: **404** (Resolved).
 
-**Last updated:** 2026-05-18 — **Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **operator UI** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
+**Last updated:** 2026-05-30 — **Azure AI Search index field contract** (*Resolved 2026-05-30*) · **Enterprise UI design system rollout sequencing** (*Resolved 2026-05-30*) · **Team self-serve bundled Stripe SKU at launch** (*Resolved 2026-05-30*) · **`signup.archlucid.net` DNS readiness** (*Resolved 2026-05-30*). Prior **2026-05-18 — Connectors + integration contract:** first-party **Jira** / **ServiceNow** / **Confluence** / **Slack** and **Teams** / **webhooks** / **recipes** as **buyer-contract** paths → **V1.1** (*Resolved 2026-05-18* + scope clarification same day). **V1** buyer bar: **REST** / **CLI** / **operator UI** / **§2.16+**. Prior **2026-05-05** commerce / breadth / WCAG / pricing block unchanged except connector window.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -100,6 +117,162 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Sub-decision | Decision | Affects |
 |---|---|---|
 | **First PLG / paying-tenant graduation to `Published`** | **Owner solo** — monitors trial-to-paid, coordinates case-study draft validation with the customer, and updates the table row in [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) from **`Customer review`** → **`Published`** per that file’s workflow. Revisit if a CS hire owns this later. | Items **7** (64.14 assessment) and **19** (67.61 assessment); [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §5.4 CI guard; aggregate ROI bulletin gate (item **27**) |
+
+---
+
+## Resolved 2026-05-29 (assurance V1.1 backlog — assessment #23 / #25)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **SOC 2 CPA attestation program (assessment #23)** | **V1.1 backlog** — track as **TB-135** in [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md). Not a V1 assessment implementation batch; pick up only when owner directs. ARR/procurement trigger unchanged (*Resolved 2026-05-05*). | **`.cursor/rules/V1_1-assurance-backlog.mdc`**, [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c, [`SOC2_ROADMAP.md`](go-to-market/SOC2_ROADMAP.md) |
+| **Third-party pen-test program (assessment #25)** | **V1.1 backlog** — track as **TB-136**. Supersedes prior **V2** framing for external vendor engagement. V1 remains owner-conducted (**TB-005**). Not a V1 assessment implementation batch. | Same rule + [`pen-test-summaries/`](security/pen-test-summaries/) templates |
+
+---
+
+## Resolved 2026-05-30 (real pilot proof cohort data policy)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Allowed input data classes** | **All three are allowed** for the V1.1 real pilot proof packet cohort: customer data, sanitized internal data, and demo-only data. | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) TB-141, [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b |
+| **Safety conditions** | Customer data requires tenant/customer authorization and normal privacy boundaries. Sanitized internal data must preserve redaction. Demo-only data must remain visibly labeled as demo/synthetic. Sponsor-send status still depends on execution mode, PilotStrict, ROI source basis, proof disposition, and redaction/caveat checks. | Proof-packet acceptance criteria, sponsor-safe GTM claims |
+
+---
+
+## Resolved 2026-05-30 (broader-claims threshold source)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Threshold source of truth** | Use [`GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md) § *Proof-gated rollout criteria* as the authoritative threshold for moving from controlled pilots to broader claims. Do not create a second threshold in assessment or backlog docs. | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) TB-141, assessments, GTM planning |
+| **Current summary** | Stage 1 evidence-backed selling requires G1–G4 all green for at least three distinct real pilot runs. Stage 2 broad GTM / scale claims require G1–G6 all green plus the published/permissioned reference condition recorded in the GTM backlog. | Proof-packet cohort planning, sales claim guardrails |
+
+---
+
+## Resolved 2026-05-30 (first proof-density cohort scenarios)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Scenario 1** | **AI / LLM workload governance** using `templates/starter-proof-packs/ai-llm-workload/`. This proves the core AI-governance buyer job and stresses faithfulness-friendly citations. | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) TB-141, proof cohort planning |
+| **Scenario 2** | **Regulated SaaS procurement / SOC-style diligence** using `templates/starter-proof-packs/regulated-saas-soc-procurement/`. This proves procurement-safe caveats without claiming CPA SOC 2 or third-party assurance. | TB-141, GTM proof narrative |
+| **Scenario 3** | **Azure cost / orphan / governance review** using `templates/starter-proof-packs/azure-cost-governance/`. This proves ROI/source-label discipline and Azure-native buyer value. | TB-141, proof-of-ROI evidence |
+| **Later vertical candidate** | **Healthcare data workflow** remains useful but is not in the first three because it is more vertical-specific and carries extra PHI/certification overclaim risk. | Future proof cohort planning |
+
+---
+
+## Resolved 2026-05-30 (market-facing demo asset evidence policy)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Real-mode output in public assets** | **Allowed.** Real-mode output may be shown in market-facing screenshots, video, and sales copy when the underlying data/output is authorized for publication, redacted, source-labeled, and caveated. | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) TB-142, GTM asset production |
+| **Synthetic/demo fallback** | Synthetic/demo-labeled assets remain allowed and should be used when real output is not approved, is too sensitive, or would imply unsupported customer proof. | [`WHAT_NOT_TO_PROMISE.md`](go-to-market/WHAT_NOT_TO_PROMISE.md), public claims review |
+| **Limits** | Do not imply public customer proof, production SLA, CPA SOC 2, third-party validation, or broad real-LLM validation unless separate evidence exists. | Promise-language checks, publication approval |
+
+---
+
+## Resolved 2026-05-30 (first demo asset channel)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Primary channel** | **Upwork first.** The first market-facing demo asset pass should optimize for Upwork proposals/profile proof, where concise proof, narrow buyer jobs, and claim discipline matter most. | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) TB-142, GTM asset production |
+| **Reuse channels** | Website, sales email, LinkedIn, and live demo can reuse and adapt the Upwork-first asset system later; they are not first-pass optimization targets. | Future GTM asset production |
+
+---
+
+## Resolved 2026-05-30 (third-party pen-test customer wording)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Customer-facing phrase** | Use **"planned, not yet scheduled"** for the third-party pen-test program in buyer-facing materials. Do not expose "V1.1 backlog" or TB IDs in customer-facing wording unless the buyer specifically asks for roadmap internals. | `TRUST_CENTER.md`, `trust-center.md`, procurement responses |
+| **Internal tracking** | Keep internal planning and assessment scope tracking as TB-136 / V1.1 backlog so coding agents do not reintroduce the item as a V1 assessment defect. | [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md), [`V1_DEFERRED.md`](library/V1_DEFERRED.md), Cursor rules |
+
+---
+
+## Resolved 2026-05-30 (SOC 2 readiness timing wording)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Trust Center timing language** | **Yes, continue citing the ARR/procurement trigger** for SOC 2 Type I engagement: **$250K ARR** or the first binding procurement requirement from a contracted customer, whichever is earlier. | `TRUST_CENTER.md`, `SOC2_ROADMAP.md`, procurement responses |
+| **Wording guardrail** | Keep the language directional and non-contractual; do not imply a CPA report is issued, scheduled, or committed before the trigger is met and an assessor engagement is executed. | Trust Center and SOC 2 roadmap |
+
+---
+
+## Resolved 2026-05-30 (Azure example region and naming)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Example Azure region** | Use **East US** (`eastus`) as the default region in examples unless a specific environment or residency requirement says otherwise. | Azure examples, runbooks, Terraform snippets |
+| **Example naming convention** | Use Microsoft-standard Azure naming conventions: Cloud Adoption Framework-style resource type abbreviations, lowercase where Azure requires it, workload/environment/region/instance tokens, and provider-specific uniqueness rules for globally unique names such as storage accounts and container registries. | Azure examples, Terraform docs, procurement/runbook snippets |
+
+---
+
+## Resolved 2026-05-30 (hosted production Terraform root)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Authoritative hosted production root** | Use **`infra/terraform/prod`** as the authoritative Terraform root for the hosted production footprint. | `docs/library/IAC_RUNTIME_PARITY.md`, hosted production IaC docs, assessment pending questions |
+| **Interpretation** | When docs say "authoritative hosted SaaS stack" for production, read that as `infra/terraform/prod` unless a future owner decision renames or replaces the root. Validation/module roots may exist, but production-like examples should converge on this root. | Terraform backlog, Azure deployment examples |
+
+---
+
+## Resolved 2026-05-30 (Azure OpenAI and Search Terraform composition)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Hosted SaaS default** | Compose **Azure OpenAI** and **Azure AI Search** into `infra/terraform/prod` by default so production-like LLM and retrieval dependencies are provisioned, networked, tagged, and validated with the API/worker environment. | `docs/library/IAC_RUNTIME_PARITY.md`, Terraform backlog, hosted deployment examples |
+| **Reuse boundary** | Keep reusable modules or temporary separate roots only for focused validation, migration staging, or specialized deployments where OpenAI/Search are intentionally supplied by an existing enterprise landing zone. The composed hosted stack should be the default path in docs and examples. | `infra/terraform-openai`, future Search Terraform work |
+| **Rationale** | Composing required hosted dependencies reduces portal drift, avoids partial "production-like" environments, keeps private endpoints/RBAC/tags/diagnostics consistent, and gives procurement reviewers one apply/plan story. Separate roots are useful for development but should not be the default operator mental model. | IaC parity, security, deployability, reliability |
+
+---
+
+## Resolved 2026-05-30 (signup.archlucid.net DNS cutover readiness)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Hostname ownership** | **`signup.archlucid.net`** is **owned** by the operator. | Commerce un-hold prerequisite checklist, trial signup DNS planning |
+| **Cutover readiness** | DNS is **ready for cutover** to the production Front Door custom domain when the owner executes commerce un-hold. | [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b commerce-un-hold row, [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](runbooks/STRIPE_OPERATOR_CHECKLIST.md) |
+| **Guardrail** | **Ready ≠ cut over.** Staging workflows and trial-funnel CI must **not** point production traffic at this hostname until live Stripe keys, production webhook secrets, and the owner’s explicit un-hold approval land on the same change window. | [`.github/workflows/trial-funnel-test-mode.yml`](../.github/workflows/trial-funnel-test-mode.yml), assessment pending questions |
+
+---
+
+## Resolved 2026-05-30 (Team self-serve Stripe SKU at launch)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Launch SKU shape** | **Yes** — at commerce un-hold launch, Team self-serve stays the **interim bundled Stripe Price** (one recurring **`Billing:Stripe:PriceIdTeam`**, **$249**/month USD per [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) § **3.2**). | [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md), [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](runbooks/STRIPE_OPERATOR_CHECKLIST.md), `archlucid-ui/public/pricing.json` |
+| **Deferred split** | Do **not** block launch on per-component Checkout line items or metered seat/workspace decomposition in Stripe. Quotes and order forms may still use § **5.2** decomposition; self-serve Checkout remains one bundled total. | Stripe integration backlog, commercial packaging docs |
+| **Grandfathering** | Existing § **3.2** grandfather policy remains in force for subscriptions that start at **$249**. | Billing ops, renewal notices |
+
+---
+
+## Resolved 2026-05-30 (Enterprise UI design system rollout sequencing)
+
+**Owner delegation (2026-05-30):** sequencing decided by engineering assessment — **not** a single big-bang pass across all shared components and routes.
+
+| Wave | Scope | Rationale |
+|---|---|---|
+| **0 — Primitives** | Design tokens (**TB-114** UI cluster), canonical status tags (**TB-116**), `EnterpriseTable` (**TB-117**), Carbon conformance Cursor rule (**TB-120** UI cluster) | Every page pass depends on shared semantics; avoids one-off palette/badge/table drift |
+| **1 — First-pilot + run detail** | Home first-pilot command-center rows, onboarding/new-review wizard, reviews list entry, **buyer-polished run detail** (proof disposition, deliverables, findings, exports) | Highest buyer/sponsor visibility; matches golden path in [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| **2 — Home / dashboard** | Operator Home executive ROI summary, first-value CTAs, sample-review entry cards | Sponsor-facing value after wave 1 tables/tags exist |
+| **3 — Governance / Operate** | Governance dashboard, findings, audit log, policy packs, alerts inbox tables | Operate layer is post-commit; benefits from status tags + `EnterpriseTable` from wave 0 |
+| **4 — Polish** | Surface/card audit (**TB-115** UI cluster), spacing (**TB-118**), typography (**TB-119**), remaining shared cards | Cross-cutting cleanup after route priorities stabilize |
+
+**Explicitly not in scope for wave 0–1:** rewriting all `archlucid-ui/src/components/` in one PR, full marketing-site reskin, or business-logic/API contract changes.
+
+**Canonical standard:** [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Backlog IDs:** UI design-system cluster at end of [`TECH_BACKLOG.md`](TECH_BACKLOG.md) (same TB numbers as accelerator cluster — read section headings, not IDs alone).
+
+---
+
+## Resolved 2026-05-30 (Azure AI Search index field contract)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Authoritative source** | **`docs/library/AZURE_AI_SEARCH_INDEX_CONTRACT.md`** + `AzureSearchSdkClient` / `AzureSearchTenantScopeFilterBuilder` — **not** an ad-hoc portal or out-of-repo schema. | TB-096 Terraform, TB-071 production client, retrieval ops |
+| **Tenant / workspace / project** | Index fields **`tenantId`**, **`workspaceId`**, **`projectId`** — `Edm.String`, GUID **D** format. | OData scope filters on every search/delete |
+| **Corpus kind** | Index field **`corpusKind`** — string enum name (`Conversation`, `TenantManifest`, `PolicyPack`, …). | Platform corpus OR branch in scope filter |
+| **Document id** | Index field **`documentId`** — logical parent id. | Scoped delete by document |
+| **Chunk key** | Index field **`chunkId`** — Azure Search **document key**. | Upsert + delete batch |
+| **Vector content** | Index field **`embedding`** (`Collection(Edm.Single)`). **Not** `vectorContent`. | VectorizedQuery target |
+| **Lexical content** | Index field **`text`**. | Hit snippet / future lexical search |
+| **External index reconciliation** | Rename/migrate/reindex to this contract; do not configure ArchLucid against alternate field names without a code change. | Hosted prod cutover, customer LZ indexes |
 
 ---
 
@@ -345,10 +518,10 @@ Verbatim owner decision tables for **2026-04-22** (assessment + ADR 0030), **202
 
 1. **Design-partner row (`DESIGN_PARTNER_NEXT`)** — When a **named** design partner (not PLG) is authorized, replace `<<CUSTOMER_NAME>>` in [`DESIGN_PARTNER_NEXT_CASE_STUDY.md`](go-to-market/reference-customers/DESIGN_PARTNER_NEXT_CASE_STUDY.md) and move the table row through **Drafting → Customer review → Published** per [`reference-customers/README.md`](go-to-market/reference-customers/README.md).
 
-2. **External pen-test vendor (third-party)** — **V2** — when funded, select vendor, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery. **Owner 2026-05-01:** there is **no** commitment to Aeronova or any other third-party vendor; **V1** pen testing is **owner-conducted** ([`2026-Q2-OWNER-CONDUCTED.md`](security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). **Independent quality assessments must not** penalize V1 for lacking a third-party pen test.
+2. **External pen-test vendor (third-party)** — **V1.1 backlog (TB-136)** — when funded, select vendor, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery. **Owner 2026-05-01:** there is **no** commitment to Aeronova or any other third-party vendor; **V1** pen testing is **owner-conducted** ([`2026-Q2-OWNER-CONDUCTED.md`](security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). **Independent quality assessments must not** penalize V1 for lacking a third-party pen test. **Not** a V1 assessment implementation prompt — see **`.cursor/rules/V1_1-assurance-backlog.mdc`**.
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.net`** is canonical. Trust Center, `SECURITY.md`, `INCIDENT_COMMUNICATIONS_POLICY.md`, and `security.txt` all aligned in this change set; the eventual PGP UID must use the same address.
-    - **Release window (owner 2026-05-01):** **V2** for third-party engagement + assessor deliverables. Prior "V1.1" pen-test publication framing is **superseded** for external scope — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c and [`V1_SCOPE.md`](library/V1_SCOPE.md) §3.
+    - **Release window (owner 2026-05-29):** **V1.1 backlog (TB-136)** for third-party engagement + assessor deliverables. Prior **V2** framing superseded — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c and [`V1_SCOPE.md`](library/V1_SCOPE.md) §3.
 
 3. **PGP for coordinated disclosure** — [`SECURITY.md`](../SECURITY.md) now points at `archlucid-ui/public/.well-known/pgp-key.txt` as **pending** until the custodian commits the public key. **Mailbox alignment (Resolved 2026-04-21): the UID is `security@archlucid.net`.** Items 10 / 21 still own the actual key generation.
 
@@ -430,7 +603,7 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 
 19. **First-paying-tenant graduation owner** — **Resolved 2026-05-05:** **Owner solo** watches the trial-to-paid transition, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`. See *Resolved 2026-05-05 (Reference publication owner)* above.
 
-20. **Third-party pen-test execution window (V2)** — when a vendor is selected under item **2**, schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. **Owner 2026-05-01:** no Aeronova or other vendor awarded; this item applies only to a **future V2** third-party cycle.
+20. **Third-party pen-test execution window (V1.1 backlog — TB-136)** — when a vendor is selected under item **2**, schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. **Owner 2026-05-01:** no Aeronova or other vendor awarded; pick up only when owner directs TB-136.
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.net`**. All public surfaces aligned in this change set; assessor comms must use the same address.
     - **Release window (owner 2026-05-01):** **V2** — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c. Historical Q10 / Q11 text in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B) reflected an earlier posture; **external** pen test is **not** a V1.1 scoring obligation.
@@ -442,7 +615,7 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 
 22. **Marketplace + Stripe live go-live calendar — HELD (2026-04-21); V1 trial-funnel TEST-mode end-to-end shipped 2026-04-23.** Owner has not chosen a live-keys calendar; production-safety guards (CI alignment, `BillingProductionSafetyRules`, `archlucid marketplace preflight`) continue to ship and stay green, but **no live keys are flipped**. The **V1 deliverable that makes a future V1.1 commerce un-hold safe** landed 2026-04-23 (Improvement 2): the trial signup funnel now runs end-to-end on staging in **Stripe TEST mode** for sales-engineer-led product evaluation — `archlucid trial smoke --staging` (one-line PASS|FAIL + correlation id), [`archlucid-ui/e2e/trial-funnel-test-mode.spec.ts`](../archlucid-ui/e2e/trial-funnel-test-mode.spec.ts) (UI smoke, self-skips when `STRIPE_TEST_KEY` unset), nightly [`.github/workflows/trial-funnel-test-mode.yml`](../.github/workflows/trial-funnel-test-mode.yml), merge-blocking CI guard [`scripts/ci/assert_billing_safety_rules_shipped.py`](../scripts/ci/assert_billing_safety_rules_shipped.py), and a sales-engineer playbook in [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md) § 9.1. See the 2026-04-23 entry "Trial funnel TEST-mode end-to-end on staging" in [`docs/CHANGELOG.md`](CHANGELOG.md). When the owner picks a live-keys date, all four sub-items below become live decisions on that day; until then this item is intentionally parked, not abandoned.
 
-    - **Needed from owner (when un-held):** **Partial — Resolved 2026-05-05:** **Stripe live keys + production webhooks first**, then **Marketplace go-live** (two windows acceptable). **Rollback owner** (**both stages**): **Joseph Francis** — *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* above. **Still needed:** (**b**) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (**c**) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until flip (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (**d**) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day **before Marketplace** flip (defaults to **same owner** unless delegated); (**e**) the real `STAGING_ONCALL_WEBHOOK_URL` for the nightly trial-funnel workflow (currently a placeholder secret that soft no-ops when unset). **Operational strike list:** [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](runbooks/STRIPE_OPERATOR_CHECKLIST.md) (pricing § 3.2 amount, **`PriceIdTeam`**, webhook **`checkout.session.completed`**, DB verification).
+    - **Needed from owner (when un-held):** **Partial — Resolved 2026-05-05:** **Stripe live keys + production webhooks first**, then **Marketplace go-live** (two windows acceptable). **Rollback owner** (**both stages**): **Joseph Francis** — *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* above. **`signup.archlucid.net` DNS ownership + cutover readiness — Resolved 2026-05-30** (*Resolved 2026-05-30 (signup.archlucid.net DNS cutover readiness)* above; cutover still waits on un-hold). **Team self-serve bundled Stripe SKU at launch — Resolved 2026-05-30:** **Yes** — keep interim **$249**/month bundled **`PriceIdTeam`** at launch (*Resolved 2026-05-30 (Team self-serve Stripe SKU at launch)* above). **Still needed:** (**b**) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (**c**) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until flip (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (**d**) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day **before Marketplace** flip (defaults to **same owner** unless delegated); (**e**) the real `STAGING_ONCALL_WEBHOOK_URL` for the nightly trial-funnel workflow (currently a placeholder secret that soft no-ops when unset). **Operational strike list:** [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](runbooks/STRIPE_OPERATOR_CHECKLIST.md) (pricing § 3.2 amount, **`PriceIdTeam`**, webhook **`checkout.session.completed`**, DB verification).
 
 23. **Microsoft Teams connector scope** — **Resolved 2026-04-21: notification-only for v1.** Two-way (approve governance from Teams) is a V1.1 candidate; no Teams app manifest registration in v1. `MICROSOFT_TEAMS_NOTIFICATIONS.md` and the Logic Apps workflow keep their notification-only posture.
 
@@ -509,8 +682,27 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 
 - **Cadence:** **Weekly.** Each pass produces a `QUALITY_ASSESSMENT_<date>_INDEPENDENT_<score>.md` plus a paired `CURSOR_PROMPTS_<...>.md` and updates this file.
 - **Next pass:** **2026-04-28.**
-- **Trigger to break cadence:** any of these "score-moving" owner events — first PLG row `Published`, Marketplace listing live, or **V2** third-party pen-test summary published (when that programme completes) — when one lands, run an unscheduled pass within 48 hours so the score reflects the new artefact. **V1** does **not** require a third-party pen-test summary for scoring; owner-conducted V1 testing does **not** trigger this bullet by itself.
+- **Trigger to break cadence:** any of these "score-moving" owner events — first PLG row `Published`, Marketplace listing live, or **V1.1 backlog** third-party pen-test summary published (when **TB-136** completes) — when one lands, run an unscheduled pass within 48 hours so the score reflects the new artefact. **V1** does **not** require a third-party pen-test summary for scoring; owner-conducted V1 testing does **not** trigger this bullet by itself.
 - **Documentation layout (Resolved 2026-04-23):** Buyer-facing canonical entry is **[`docs/START_HERE.md`](START_HERE.md)**. CI caps markdown files directly under `docs/` (see `scripts/ci/assert_docs_root_size.py`). Most former root reference pages moved to **[`docs/library/`](library/)** with markdown links rewritten; superseded Cursor/quality packs (except the latest **68.60** pair at repo root) live under **[`docs/archive/quality/2026-04-23-doc-depth-reorg/`](archive/quality/2026-04-23-doc-depth-reorg/)**. Doc orientation: **[`docs/library/REPO_DIGEST.md`](library/REPO_DIGEST.md)**; on-demand full `docs/**/*.md` table (excluding `docs/archive/`): `python scripts/generate_doc_inventory.py`.
+
+---
+
+## Resolved 2026-05-29 (Azure AI Search — production-like requirement)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Scope** | **Azure AI Search is required for all production-like profiles** — Staging, Production, `archlucid config lint --profile production-like-hosted-pilot`, and sponsor handoff evidence. **Not** limited to optional reranking (`Retrieval:Reranking:Provider`) or a hypothetical `Retrieval:Provider` switch. | [`CONFIGURATION_REFERENCE.md`](library/CONFIGURATION_REFERENCE.md), proof-gate **G3** in [`GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md), TB-071, TB-096, assessment improvement #1 |
+| **Config contract** | **`Retrieval:VectorIndex`** must be **`AzureSearch`** (not **`InMemory`**). **`Retrieval:AzureSearch:Endpoint`** (and index/credential material per [`AzureSearchOptions`](../../ArchLucid.Retrieval/Indexing/AzureSearchOptions.cs)) must be set so **`AzureSearchSdkClient`** registers — not **`NotConfiguredAzureSearchClient`**. Tenant OData filter on every search/delete remains mandatory (TB-071). | `appsettings.Staging.json` / `appsettings.Production.json`, [`ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`](../../ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs) |
+| **Dev / test exception** | **Development** and explicit CI/test hosts may keep **`Retrieval:VectorIndex=InMemory`** for ergonomics. | Local dev, unit/integration tests |
+
+---
+
+## Resolved 2026-05-29 (API key scope binding — no legacy pilots)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Legacy pilot posture** | **No** existing pilots rely on **header-only** tenant selection (`x-tenant-id` / scope headers without API-key or token claims). | TB-072, assessment improvement #2 |
+| **TB-072 implementation** | Enforce scope-to-identity binding at API ingress **without** a grandfather carve-out for “legacy” ApiKey pilots. Document breaking-change posture only for **future** misconfigured clients. | `ArchLucid.Api` ingress, [`CUSTOMER_TRUST_AND_ACCESS.md`](library/CUSTOMER_TRUST_AND_ACCESS.md) |
 
 ---
 

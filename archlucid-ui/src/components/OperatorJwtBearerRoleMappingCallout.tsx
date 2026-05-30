@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { HelpLink } from "@/components/HelpLink";
-import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 type OperatorJwtBearerRoleMappingCalloutProps = {
   testId?: string;
@@ -11,7 +11,7 @@ type OperatorJwtBearerRoleMappingCalloutProps = {
  * Troubleshooting banner for generic OIDC (`JwtBearer`) deployments where the token lacks `ArchLucidRoles` claims.
  */
 export function OperatorJwtBearerRoleMappingCallout(props: OperatorJwtBearerRoleMappingCalloutProps) {
-  const configurationReferenceUrl = toDocsBlobUrl("/docs/library/CONFIGURATION_REFERENCE.md");
+  const configurationReferenceHref = inAppHelpHref("configuration-reference");
 
   return (
     <div
@@ -26,17 +26,15 @@ export function OperatorJwtBearerRoleMappingCallout(props: OperatorJwtBearerRole
       </p>
       <p className="mb-0 mt-2">
         <Link
-          href={configurationReferenceUrl}
+          href={configurationReferenceHref}
           className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-          target="_blank"
-          rel="noopener noreferrer"
         >
-          Open CONFIGURATION_REFERENCE.md (ArchLucidAuth role mapping)
+          Open configuration reference (ArchLucidAuth role mapping)
         </Link>
         {" · "}
-        <HelpLink
-          docPath="/docs/library/contributor-reference/SECURITY.md"
-          label="Open SECURITY.md ArchLucidRoles reference (new tab)"
+        <InAppHelpLink
+          helpSlug="operator-auth-roles"
+          label="Open SECURITY.md ArchLucidRoles reference"
           className="inline-flex h-4 w-4 align-middle"
         />
       </p>

@@ -22,7 +22,7 @@
 
 ### 2. Can we see the latest penetration-test report?
 
-**Answer:** **V1** uses **owner-conducted** penetration-style testing and internal assessments (see [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). **Third-party** vendor engagements are **V2** — when funded, they follow an SoW shaped like **[2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md)** (template until a vendor is selected). There is **no** awarded external vendor for V1 (**owner 2026-05-01**). Redacted assessor summaries, when they exist, are distributed **under NDA** per **`docs/PENDING_QUESTIONS.md`** and [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. **V1 quality assessments must not** penalize the product for lacking a third-party report.
+**Answer:** **V1** uses **owner-conducted** penetration-style testing and internal assessments (see [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). A **third-party** vendor engagement is **planned, not yet scheduled**; when funded, it follows an SoW shaped like **[2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md)** (template until a vendor is selected). There is **no** awarded external vendor today (**owner 2026-05-30**). Redacted assessor summaries, when they exist, are distributed **under NDA** per **`docs/PENDING_QUESTIONS.md`** and [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. **V1 quality assessments must not** penalize the product for lacking a third-party report.
 
 ---
 

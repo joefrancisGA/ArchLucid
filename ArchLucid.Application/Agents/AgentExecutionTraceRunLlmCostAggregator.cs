@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 
@@ -67,11 +68,22 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         string modelLabel = BuildModelLabel(traces, measurableDeployments);
 
         decimal? estimatedUsd = null;
+        string costBasis = RunLlmCostEstimationBasis.Unavailable;
 
-        if (promptSum + completionSum > 0)
-            estimatedUsd = anyCost ? costAccum : null;
+        if (promptSum + completionSum <= 0)
+            return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
 
-        return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel);
+        if (anyCost)
+        {
+            estimatedUsd = costAccum;
+            costBasis = RunLlmCostEstimationBasis.EstimatedFromConfiguredRates;
+        }
+        else
+        {
+            costBasis = RunLlmCostEstimationBasis.ProviderTokensWithoutRate;
+        }
+
+        return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
     }
 
     private static string BuildModelLabel(
@@ -98,4 +110,5 @@ public sealed record AgentExecutionTraceRunLlmCostSummary(
     decimal? EstimatedCostUsd,
     long PromptTokens,
     long CompletionTokens,
-    string ModelLabel);
+    string ModelLabel,
+    string CostEstimationBasis);

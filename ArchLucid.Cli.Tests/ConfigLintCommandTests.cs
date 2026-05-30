@@ -133,7 +133,19 @@ public sealed class ConfigLintCommandTests
 
         await File.WriteAllTextAsync(
             Path.Combine(temp, "appsettings.json"),
-            "{\"ArchLucidAuth\":{\"Mode\":\"ApiKey\"},\"Authentication\":{\"ApiKey\":{\"Enabled\":true}}}");
+            """
+            {
+              "ArchLucidAuth": { "Mode": "ApiKey" },
+              "Authentication": { "ApiKey": { "Enabled": true } },
+              "Retrieval": {
+                "VectorIndex": "AzureSearch",
+                "AzureSearch": {
+                  "Endpoint": "https://example.search.windows.net",
+                  "IndexName": "archlucid-retrieval-test"
+                }
+              }
+            }
+            """);
 
         string jsonPath = Path.Combine(temp, "config-lint-production-like-hosted-pilot.json");
 
@@ -159,6 +171,76 @@ public sealed class ConfigLintCommandTests
             root.GetProperty("profileName").GetString().Should().Be("production-like-hosted-pilot");
             root.GetProperty("ok").GetBoolean().Should().BeTrue();
             root.GetProperty("hostingEnvironmentName").GetString().Should().Be("Production");
+            root.GetProperty("schema").GetString().Should().Be("archlucid.config-lint-report.v1");
+            string proofDisposition = root.GetProperty("proofDisposition").GetString()!;
+            proofDisposition.Should().BeOneOf("READY", "WARN");
+            root.GetProperty("sponsorHandoffRecommended").GetBoolean().Should().BeTrue();
+        }
+
+        finally
+        {
+            Environment.CurrentDirectory = prevCwd;
+            RestoreEnv(saved);
+
+            try
+            {
+                Directory.Delete(temp, true);
+            }
+
+            catch
+            {
+                // best-effort cleanup
+            }
+        }
+    }
+
+    [Fact]
+    public async Task ConfigLint_ProductionLikeProfile_WithInMemoryVectorIndex_ReturnsHoldJson()
+    {
+        string prevCwd = Environment.CurrentDirectory;
+
+        Dictionary<string, string?> saved = SaveClearEnv(
+          ["ASPNETCORE_ENVIRONMENT", "DOTNET_ENVIRONMENT", "ARCHLUCID_ENVIRONMENT", "ARCHLUCID_API_URL"]);
+
+        string temp =
+            Path.Combine(Path.GetTempPath(), "ArchLucid.Cli.Tests.configLint." + Guid.NewGuid().ToString("N")[..8]);
+        Directory.CreateDirectory(temp);
+
+        await File.WriteAllTextAsync(
+            Path.Combine(temp, "appsettings.json"),
+            """
+            {
+              "ArchLucidAuth": { "Mode": "ApiKey" },
+              "Authentication": { "ApiKey": { "Enabled": true } },
+              "Retrieval": { "VectorIndex": "InMemory" }
+            }
+            """);
+
+        string jsonPath = Path.Combine(temp, "config-lint-production-like-hosted-pilot.json");
+
+        try
+        {
+            Environment.CurrentDirectory = temp;
+
+            int exit = await Program.RunAsync(
+              [
+                  "config",
+                  "lint",
+                  "--profile",
+                  "production-like-hosted-pilot",
+                  "--json-out",
+                  jsonPath,
+              ]);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            File.Exists(jsonPath).Should().BeTrue();
+
+            using JsonDocument document = JsonDocument.Parse(await File.ReadAllTextAsync(jsonPath));
+            JsonElement root = document.RootElement;
+            root.GetProperty("ok").GetBoolean().Should().BeFalse();
+            root.GetProperty("proofDisposition").GetString().Should().Be("HOLD");
+            root.GetProperty("sponsorHandoffRecommended").GetBoolean().Should().BeFalse();
+            root.GetRawText().Should().Contain("azure_ai_search_vector_index_required_production_like");
         }
 
         finally

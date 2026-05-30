@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Roi;
 
 namespace ArchLucid.Contracts.Pilots;
 
@@ -106,6 +107,20 @@ public sealed class PilotRunDeltasResponse
         get;
         init;
     }
+
+    /// <summary>ROI source catalog rows for the tenant value window aligned with this run (proof-packet).</summary>
+    public IReadOnlyList<RoiMetricSourceRow> RoiMetricSources
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>PASS, WARN, or HOLD — server-side ROI freshness disposition (assessment #6).</summary>
+    public string RoiSourceFreshnessDisposition
+    {
+        get;
+        init;
+    } = "PASS";
 }
 
 /// <summary>One severity bucket from <see cref="PilotRunDeltasResponse.FindingsBySeverity" />.</summary>

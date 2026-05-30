@@ -398,8 +398,8 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               />
               <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
                 Compatible with the{" "}
-                <Link className="text-teal-700 underline" href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/SECOND_RUN.md">
-                  SECOND_RUN
+                <Link className="text-teal-700 underline" href="/help/review-packages">
+                  review package import
                 </Link>{" "}
                 schema.
               </p>

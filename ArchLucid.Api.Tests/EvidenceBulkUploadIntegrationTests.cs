@@ -20,7 +20,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [SkippableFact]
-    public async Task UploadBulkEvidence_With30Files_ReturnsSuccess_AndAudits()
+    public async Task UploadBulkEvidence_With200Files_ReturnsSuccess_AndAudits()
     {
         // Arrange
         HttpResponseMessage createResponse = await Client.PostAsync(
@@ -31,7 +31,8 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         string runId = created!.Run.RunId;
 
         using var content = new MultipartFormDataContent();
-        for (int i = 0; i < 30; i++)
+
+        for (int i = 0; i < 200; i++)
         {
             var fileContent = new ByteArrayContent([1, 2, 3]);
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
@@ -50,11 +51,11 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
 
         var bulkEvents = events.Where(e => e.RunId == Guid.Parse(runId) && e.EventType == AuditEventTypes.EvidenceBulkAttached).ToList();
         bulkEvents.Should().HaveCount(1);
-        bulkEvents[0].DataJson.Should().Contain("30");
+        bulkEvents[0].DataJson.Should().Contain("200");
     }
 
     [SkippableFact]
-    public async Task UploadBulkEvidence_With31Files_ReturnsBadRequest_AndNoAudits()
+    public async Task UploadBulkEvidence_With201Files_ReturnsBadRequest_AndNoAudits()
     {
         // Arrange
         HttpResponseMessage createResponse = await Client.PostAsync(
@@ -65,7 +66,8 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         string runId = created!.Run.RunId;
 
         using var content = new MultipartFormDataContent();
-        for (int i = 0; i < 31; i++)
+
+        for (int i = 0; i < 201; i++)
         {
             var fileContent = new ByteArrayContent([1, 2, 3]);
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");

@@ -31,3 +31,5 @@ See `ArchLucid.Api/appsettings.KeyVault.sample.json` for a non-functional templa
 ## Terraform
 
 Represent the App Service settings as `azurerm_app_service` / `azurerm_linux_web_app` `app_settings` blocks whose values are Key Vault reference strings, and use a `azurerm_key_vault_access_policy` or RBAC for the web app’s system-assigned identity.
+
+When `public_network_access_enabled = false` on the vault, provision **`infra/terraform-private`** Key Vault private endpoint + `privatelink.vaultcore.azure.net` DNS (TB-091). Set `enable_private_data_plane = true` and pass `key_vault_id` before apply. Validate with `terraform -chdir=infra/terraform-private validate` (see [`IAC_RUNTIME_PARITY.md`](IAC_RUNTIME_PARITY.md)).

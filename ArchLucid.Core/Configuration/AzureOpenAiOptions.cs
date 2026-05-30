@@ -22,6 +22,16 @@ public sealed class AzureOpenAiOptions
         set;
     } = string.Empty;
 
+    /// <summary>
+    ///     <c>ApiKey</c> (default) or <c>ManagedIdentity</c>. Managed identity uses <see cref="Endpoint" /> without
+    ///     <see cref="ApiKey" /> on hosted Azure deployments.
+    /// </summary>
+    public string AuthenticationMode
+    {
+        get;
+        set;
+    } = "ApiKey";
+
     public string DeploymentName
     {
         get;

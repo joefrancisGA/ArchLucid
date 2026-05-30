@@ -287,6 +287,15 @@ jobs:
       - name: Procurement PACK_INDEX table validation
         run: python scripts/ci/check_procurement_pack_index.py
 
+      - name: Starter proof pack metadata validation (TB-115/TB-116)
+        run: python scripts/ci/check_starter_proof_packs.py
+
+      - name: Starter proof pack validation unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_starter_proof_packs.py"
+
+      - name: Hot-path performance budget registry (assessment #18)
+        run: python scripts/ci/assert_hot_path_performance_budgets.py
+
       - name: Procurement claim coherence guard
         run: python scripts/ci/check_procurement_claim_coherence.py
 

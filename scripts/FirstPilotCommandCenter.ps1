@@ -278,7 +278,7 @@ function Resolve-FirstPilotCommandCenterNextAction {
         }
     }
 
-    if ($SponsorPacketDisposition -eq 'SEND') {
+    if ($SponsorPacketDisposition -in @('READY', 'WARN')) {
         return [ordered]@{
             label              = 'NEXT ACTION'
             summary            = 'Collect proof with -SponsorHandoff and follow the sponsor handoff runbook before external circulation.'

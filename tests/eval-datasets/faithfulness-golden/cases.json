@@ -1,9 +1,12 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "minSupportRatio": 0.8,
+  "minPositiveSupportRatio": 0.8,
+  "maxNegativeSupportRatio": 0.35,
   "cases": [
     {
       "id": "faithfulness-policy-cited",
+      "category": "azure-saas-readiness",
       "expectedCorpusKind": "PolicyPack",
       "retrievalHits": [
         { "sourceId": "rule-kv-01", "title": "Key Vault", "corpusKind": "PolicyPack" },
@@ -13,6 +16,7 @@
     },
     {
       "id": "faithfulness-partial-citation",
+      "category": "azure-saas-readiness",
       "expectedCorpusKind": "AzureRetail",
       "retrievalHits": [
         { "sourceId": "chunk-a", "title": "Front Door", "corpusKind": "AzureRetail" },
@@ -22,6 +26,7 @@
     },
     {
       "id": "faithfulness-uncited",
+      "category": "missing-citation",
       "expectedCorpusKind": "PolicyPack",
       "retrievalHits": [
         { "sourceId": "fabricated-1", "title": "Fabricated Service", "corpusKind": "PolicyPack" }
@@ -30,6 +35,7 @@
     },
     {
       "id": "azure-saas-readiness-citation-required",
+      "category": "azure-saas-readiness",
       "expectedCorpusKind": "AzureRetail",
       "retrievalHits": [
         { "sourceId": "azure-frontdoor-waf-standard", "title": "Azure Front Door WAF", "corpusKind": "AzureRetail" },
@@ -39,6 +45,7 @@
     },
     {
       "id": "ai-governance-wrong-corpus-detected",
+      "category": "wrong-corpus",
       "expectedCorpusKind": "PolicyPack",
       "retrievalHits": [
         { "sourceId": "ai-gov-human-review-required", "title": "Human review required", "corpusKind": "PriorManifest" },
@@ -48,6 +55,7 @@
     },
     {
       "id": "healthcare-claims-policy-review-citation-required",
+      "category": "healthcare-regulatory",
       "expectedCorpusKind": "PolicyPack",
       "retrievalHits": [
         { "sourceId": "hipaa-minimum-necessary", "title": "Minimum necessary PHI", "corpusKind": "PolicyPack" },
@@ -57,6 +65,7 @@
     },
     {
       "id": "roi-cost-claim-unsupported",
+      "category": "roi-cost-unsupported",
       "expectedCorpusKind": "AzureRetail",
       "requiredEvidenceTokens": ["azure-cost-baseline-q2"],
       "claimIssueKind": "unsupported-roi-cost-claim",
@@ -64,6 +73,187 @@
         { "sourceId": "azure-app-service-p1v3", "title": "App Service P1v3", "corpusKind": "AzureRetail" }
       ],
       "agentOutputText": "The review should save $42,000 per quarter by resizing App Service P1v3."
+    },
+    {
+      "id": "azure-saas-private-endpoint-cited",
+      "category": "azure-saas-readiness",
+      "expectedCorpusKind": "AzureRetail",
+      "retrievalHits": [
+        { "sourceId": "azure-pe-sql", "title": "SQL private endpoint", "corpusKind": "AzureRetail" },
+        { "sourceId": "azure-pe-kv", "title": "Key Vault private endpoint", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Route SQL via SQL private endpoint (azure-pe-sql) and Key Vault via Key Vault private endpoint (azure-pe-kv)."
+    },
+    {
+      "id": "azure-saas-missing-waf-citation",
+      "category": "missing-citation",
+      "expectedCorpusKind": "AzureRetail",
+      "retrievalHits": [
+        { "sourceId": "azure-waf-policy-01", "title": "WAF policy baseline", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Enable WAF on the public edge without citing retrieved policy text."
+    },
+    {
+      "id": "ai-governance-model-card-cited",
+      "category": "ai-governance",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "ai-model-card-required", "title": "Model card required", "corpusKind": "PolicyPack" },
+        { "sourceId": "ai-prompt-redaction", "title": "Prompt redaction", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Publish Model card required (ai-model-card-required) and enforce Prompt redaction (ai-prompt-redaction) before production inference."
+    },
+    {
+      "id": "ai-governance-partial-human-review",
+      "category": "ai-governance",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "ai-human-review-high-risk", "title": "Human review for high risk", "corpusKind": "PolicyPack" },
+        { "sourceId": "ai-eval-golden-cohort", "title": "Golden cohort evaluation", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Require Human review for high risk (ai-human-review-high-risk) only; golden cohort is implied but not cited."
+    },
+    {
+      "id": "healthcare-baa-required-cited",
+      "category": "healthcare-regulatory",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "hipaa-baa-required", "title": "BAA required", "corpusKind": "PolicyPack" },
+        { "sourceId": "hipaa-encryption-transit", "title": "Encryption in transit", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Execute BAA required (hipaa-baa-required) and enforce Encryption in transit (hipaa-encryption-transit) for PHI workloads."
+    },
+    {
+      "id": "healthcare-wrong-corpus-clinical",
+      "category": "wrong-corpus",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "clinical-trial-consent", "title": "Clinical trial consent", "corpusKind": "PriorManifest" },
+        { "sourceId": "claims-prior-auth", "title": "Prior authorization", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Prior authorization (claims-prior-auth) must reference Clinical trial consent (clinical-trial-consent) controls."
+    },
+    {
+      "id": "roi-cost-supported-with-baseline",
+      "category": "roi-cost-supported",
+      "expectedCorpusKind": "AzureRetail",
+      "requiredEvidenceTokens": ["azure-cost-baseline-q2"],
+      "retrievalHits": [
+        { "sourceId": "azure-cost-baseline-q2", "title": "Q2 Azure cost baseline", "corpusKind": "AzureRetail" },
+        { "sourceId": "azure-reserved-instance", "title": "Reserved instance guidance", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Using Q2 Azure cost baseline (azure-cost-baseline-q2), right-size with Reserved instance guidance (azure-reserved-instance)."
+    },
+    {
+      "id": "roi-cost-hours-supported",
+      "category": "roi-cost-supported",
+      "expectedCorpusKind": "CustomerProvided",
+      "requiredEvidenceTokens": ["customer-architect-hours-baseline"],
+      "retrievalHits": [
+        { "sourceId": "customer-architect-hours-baseline", "title": "Customer architect hours baseline", "corpusKind": "CustomerProvided" }
+      ],
+      "agentOutputText": "Compare against Customer architect hours baseline (customer-architect-hours-baseline) before estimating savings."
+    },
+    {
+      "id": "roi-cost-unsupported-savings-percent",
+      "category": "roi-cost-unsupported",
+      "expectedCorpusKind": "AzureRetail",
+      "requiredEvidenceTokens": ["azure-cost-baseline-q2"],
+      "claimIssueKind": "unsupported-roi-cost-claim",
+      "retrievalHits": [
+        { "sourceId": "azure-sql-hyperscale", "title": "SQL Hyperscale", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Guaranteed 35% savings by moving to SQL Hyperscale without citing azure-cost-baseline-q2."
+    },
+    {
+      "id": "demo-derived-evidence-labeled",
+      "category": "demo-vs-customer",
+      "expectedCorpusKind": "DemoDerived",
+      "retrievalHits": [
+        { "sourceId": "contoso-demo-topology", "title": "Contoso demo topology", "corpusKind": "DemoDerived" }
+      ],
+      "agentOutputText": "Contoso demo topology (contoso-demo-topology) illustrates the pattern; not a customer outcome."
+    },
+    {
+      "id": "customer-provided-evidence-cited",
+      "category": "demo-vs-customer",
+      "expectedCorpusKind": "CustomerProvided",
+      "retrievalHits": [
+        { "sourceId": "customer-network-diagram-v3", "title": "Customer network diagram v3", "corpusKind": "CustomerProvided" }
+      ],
+      "agentOutputText": "Align subnets per Customer network diagram v3 (customer-network-diagram-v3)."
+    },
+    {
+      "id": "wrong-corpus-pricing-in-policy-pack",
+      "category": "wrong-corpus",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "azure-retail-app-service-price", "title": "App Service retail price", "corpusKind": "AzureRetail" },
+        { "sourceId": "policy-pack-encryption", "title": "Encryption at rest policy", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Encryption at rest policy (policy-pack-encryption) applies; App Service retail price (azure-retail-app-service-price) was retrieved from pricing corpus."
+    },
+    {
+      "id": "missing-citation-multi-hit",
+      "category": "missing-citation",
+      "expectedCorpusKind": "AzureRetail",
+      "retrievalHits": [
+        { "sourceId": "azure-monitor-alerts", "title": "Azure Monitor alerts", "corpusKind": "AzureRetail" },
+        { "sourceId": "azure-log-analytics", "title": "Log Analytics workspace", "corpusKind": "AzureRetail" },
+        { "sourceId": "azure-action-groups", "title": "Action groups", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Observability should use standard alerting patterns without citing retrieved chunks."
+    },
+    {
+      "id": "azure-saas-identity-cited",
+      "category": "azure-saas-readiness",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "entra-conditional-access", "title": "Conditional Access", "corpusKind": "PolicyPack" },
+        { "sourceId": "entra-pim-eligible", "title": "PIM eligible roles", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Require Conditional Access (entra-conditional-access) and PIM eligible roles (entra-pim-eligible) for admin access."
+    },
+    {
+      "id": "ai-governance-content-safety-cited",
+      "category": "ai-governance",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "ai-content-filter-required", "title": "Content filter required", "corpusKind": "PolicyPack" },
+        { "sourceId": "ai-jailbreak-detection", "title": "Jailbreak detection", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Enable Content filter required (ai-content-filter-required) and Jailbreak detection (ai-jailbreak-detection) on inference endpoints."
+    },
+    {
+      "id": "healthcare-audit-retention-cited",
+      "category": "healthcare-regulatory",
+      "expectedCorpusKind": "PolicyPack",
+      "retrievalHits": [
+        { "sourceId": "hipaa-audit-retention-6y", "title": "Six year audit retention", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Retain audit logs per Six year audit retention (hipaa-audit-retention-6y)."
+    },
+    {
+      "id": "roi-cost-supported-multi-token",
+      "category": "roi-cost-supported",
+      "expectedCorpusKind": "AzureRetail",
+      "requiredEvidenceTokens": ["azure-cost-baseline-q2", "azure-reserved-instance"],
+      "retrievalHits": [
+        { "sourceId": "azure-cost-baseline-q2", "title": "Q2 Azure cost baseline", "corpusKind": "AzureRetail" },
+        { "sourceId": "azure-reserved-instance", "title": "Reserved instance guidance", "corpusKind": "AzureRetail" }
+      ],
+      "agentOutputText": "Baseline from Q2 Azure cost baseline (azure-cost-baseline-q2) then apply Reserved instance guidance (azure-reserved-instance)."
+    },
+    {
+      "id": "roi-cost-unsupported-annualized",
+      "category": "roi-cost-unsupported",
+      "expectedCorpusKind": "CustomerProvided",
+      "requiredEvidenceTokens": ["customer-labor-rate-usd"],
+      "claimIssueKind": "unsupported-roi-cost-claim",
+      "retrievalHits": [
+        { "sourceId": "customer-review-hours", "title": "Customer review hours", "corpusKind": "CustomerProvided" }
+      ],
+      "agentOutputText": "Annualized $180,000 labor savings from Customer review hours without customer-labor-rate-usd evidence."
     }
   ]
 }

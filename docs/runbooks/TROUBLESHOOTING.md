@@ -7,7 +7,7 @@
 
 **Goal:** Faster triage without reading the whole codebase.
 
-**Symptom index:** [First-pilot troubleshooting decision tree](FIRST_PILOT_TROUBLESHOOTING.md) (symptom → first check → escalation artifact) · [Pilot rescue playbook](PILOT_RESCUE_PLAYBOOK.md) (quick matrix).
+**Symptom index:** [First-pilot troubleshooting decision tree](FIRST_PILOT_TROUBLESHOOTING.md) (symptom → first check → escalation artifact) · [Pilot rescue playbook](PILOT_RESCUE_PLAYBOOK.md) (quick matrix) · [First-pilot support triage one-pager](FIRST_PILOT_SUPPORT_TRIAGE.md) (support bundle + audit escalation order).
 
 ## First-line steps (try in order)
 
@@ -114,15 +114,16 @@ Default output: folder **`support-bundle-<yyyyMMdd-HHmmss>Z`** in the current di
 dotnet run --project ArchLucid.Cli -- support-bundle --output ./my-bundle --zip
 ```
 
-**Contents:** **`README.txt`** (read this first — includes a generated **advisory** “next steps” list), **`next-steps.json`** (same summary as structured JSON + `hints`), **`manifest.json`** (`bundleFormatVersion` **1.2**, `triageReadOrder`, `archlucidJsonPresent`, `redactionRulesApplied` when the text redaction pass ran), **`build.json`** (CLI build + raw **`GET /version`**), **`health.json`** (`attemptedHealthRelativePaths` plus `/health/live`, `/health/ready`, `/health`, truncated bodies), **`api-contract.json`** (bounded **`GET /openapi/v1.json`** preview — proves the contract endpoint responds), **`config-summary.json`** (**storage** and **host auth mode** summaries without secrets; **CLI outbound API-key env** flag only; **`validate-config`** Warning/Error **`category`** + **`check`** names — no connection strings), **`environment.json`** (filtered), **`workspace.json`**, **`references.json`** (includes **`correlationTraceGuidance`**), **`logs.json`**. In-product (**`/v1/admin/support-bundle`**) ZIPs use **`bundleFormatVersion` `server-1.1`** and the same **`next-steps.json`** pattern with host-only signals. Secrets are not copied literally: sensitive env names are **`(set)`** / **`(not set)`**; **`ARCHLUCID_*`** keys containing **`SQL`** never expose values; HTTP URLs may be redacted; JWT-shaped tokens, bearer/`X-Api-Key` lines, **`sk-`** API-key-shaped strings, **`apiKey`**/**`clientSecret`** JSON pairs, and long LLM-shaped **`content`** / **`systemPrompt`** JSON strings receive a deterministic pass — **still review** externally.
+**Contents:** **`README.txt`** (read this first — includes a generated **advisory** “next steps” list), **`next-steps.json`** (same summary as structured JSON + `hints`), **`manifest.json`** (`bundleFormatVersion` **1.4**, `triageReadOrder`, `archlucidJsonPresent`, `redactionManifestPath`, `redactionRulesApplied` when the text redaction pass ran), **`redaction-manifest.json`** (redaction status, rules, covered files, omitted secret-bearing categories, and sharing caveats), **`build.json`** (CLI build + raw **`GET /version`**), **`health.json`** (`attemptedHealthRelativePaths` plus `/health/live`, `/health/ready`, `/health`, truncated bodies), **`api-contract.json`** (bounded **`GET /openapi/v1.json`** preview — proves the contract endpoint responds), **`config-summary.json`** (**storage** and **host auth mode** summaries without secrets; **CLI outbound API-key env** flag only; **`validate-config`** Warning/Error **`category`** + **`check`** names — no connection strings), **`environment.json`** (filtered), **`workspace.json`**, **`references.json`** (includes **`correlationTraceGuidance`**), **`logs.json`**. In-product (**`/v1/admin/support-bundle`**) ZIPs use **`bundleFormatVersion` `server-1.1`** and the same **`next-steps.json`** pattern with host-only signals. Secrets are not copied literally: sensitive env names are **`(set)`** / **`(not set)`**; **`ARCHLUCID_*`** keys containing **`SQL`** never expose values; HTTP URLs may be redacted; JWT-shaped tokens, bearer/`X-Api-Key` lines, **`sk-`** API-key-shaped strings, **`apiKey`**/**`clientSecret`** JSON pairs, and long LLM-shaped **`content`** / **`systemPrompt`** JSON strings receive a deterministic pass — **still review** externally.
 
 **Before you send externally (checklist)**
 
 1. Open **every file** once; automation cannot enforce your jurisdiction, customer contract, or “no GPT upload” policies.
-2. Keep **tenant / contact PII** out of attachments unless **`ExecuteAuthority`** explicitly allows that forward (manual review — see **`docs/PENDING_QUESTIONS.md`** item **37(c)** resolution).
-3. Paste at least **one correlation handle** (**`X-Correlation-ID`**, **`correlationId`**, **`run id`**) into the ticket body itself, not only inside the zip.
-4. **Do not expect full LLM prompts** in **`logs.json`** — long prompt bodies are intentionally collapsed or stripped.
-5. If you shipped **`--zip`**, unzip locally and spot-check **`build.json`** / **`logs.json`** for literals your SOC still forbids.
+2. Confirm **`redaction-manifest.json`** shows **`status` = `PASS`** and read its limitations before external circulation.
+3. Keep **tenant / contact PII** out of attachments unless **`ExecuteAuthority`** explicitly allows that forward (manual review — see **`docs/PENDING_QUESTIONS.md`** item **37(c)** resolution).
+4. Paste at least **one correlation handle** (**`X-Correlation-ID`**, **`correlationId`**, **`run id`**) into the ticket body itself, not only inside the zip.
+5. **Do not expect full LLM prompts** in **`logs.json`** — long prompt bodies are intentionally collapsed or stripped.
+6. If you shipped **`--zip`**, unzip locally and spot-check **`build.json`** / **`logs.json`** for literals your SOC still forbids.
 
 Full CLI flags: [CLI_USAGE.md](../library/CLI_USAGE.md).
 

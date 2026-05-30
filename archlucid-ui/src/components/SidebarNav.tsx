@@ -172,6 +172,11 @@ export function SidebarNav() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
+  /**
+   * The preset that was active before "Show all features" upgraded it to "full".
+   * Restored when the user clicks "Fewer sidebar links" so collapsing actually removes links.
+   */
+  const [preExpandPresetId, setPreExpandPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showProgressiveDisclosureChrome = !demoUi && !buyerPolishedShell;
@@ -711,8 +716,20 @@ export function SidebarNav() {
               const next = !navAllFeaturesExpanded;
               setNavAllFeaturesExpanded(next);
 
-              if (next && effectiveShellPresetId !== "full") {
-                persistShellPreset("full");
+              if (next) {
+                // Expanding: save the current preset so we can restore it on collapse,
+                // then upgrade to full so the newly-revealed links aren't stripped by the preset filter.
+                setPreExpandPresetId(shellPresetId);
+
+                if (effectiveShellPresetId !== "full") {
+                  persistShellPreset("full");
+                }
+              } else {
+                // Collapsing: restore the preset that was active before expansion so
+                // "Fewer sidebar links" actually removes links rather than doing nothing.
+                if (shellPresetId === "full") {
+                  persistShellPreset(preExpandPresetId);
+                }
               }
 
               try {
@@ -822,7 +839,16 @@ export function SidebarNav() {
               : `${NAV_DISCLOSURE.advancedOperationsSidebar.show}. ${NAV_DISCLOSURE.advancedOperationsSidebar.assistiveCollapsed}`
           }
           onClick={() => {
-            setShowAdvanced(!showAdvanced);
+            const next = !showAdvanced;
+            setShowAdvanced(next);
+
+            // When revealing governance links, ensure the current preset doesn't block them.
+            // The pilot_operator preset only allows /reviews, /graph, /dashboard, etc. —
+            // not /governance, /audit, or /alerts — so governance links would be silently
+            // filtered out even with showAdvanced = true unless the preset allows them.
+            if (next && !operatorShellPresetAllowsHref(effectiveShellPresetId, "/governance")) {
+              persistShellPreset("full");
+            }
           }}
         >
           {shellShowAdvanced

@@ -22,6 +22,52 @@ public sealed class SponsorSafeProofStatusMarkdownFormatterTests
             CreatedUtc = DateTime.UtcNow
         };
 
+    private static ArchitectureRun SimulatorFallbackRun() =>
+        new()
+        {
+            RunId = "r",
+            RequestId = "q",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = DateTime.UtcNow,
+            RealModeFellBackToSimulator = true,
+        };
+
+    [Fact]
+    public void EnumerateConcreteGaps_simulator_fallback_calls_out_substitution()
+    {
+        List<string> gaps = SponsorSafeProofStatusMarkdownFormatter
+            .EnumerateConcreteGapsEnumerable(
+                SponsorSafeProofDisposition.NeedsOperatorReview,
+                StrongProof(),
+                CompleteDeltas(topFindingId: null),
+                SimulatorFallbackRun())
+            .ToList();
+
+        gaps.Should().Contain(s => s.Contains("Simulator substitution", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_simulator_run_includes_fallback_gap()
+    {
+        StringBuilder sb = new();
+        PilotBuyerSafeEvidenceGateResult gate = new(
+            PilotBuyerSafeEvidencePublishingTier.Partial,
+            ProofPackageSendability.SendableWithCaveats,
+            [],
+            [],
+            ["soft"]);
+
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            SponsorSafeProofDisposition.NeedsOperatorReview,
+            gate,
+            StrongProof(),
+            CompleteDeltas(topFindingId: null),
+            SimulatorFallbackRun());
+
+        sb.ToString().Should().Contain("Simulator substitution");
+    }
+
     [Fact]
     public void AppendMarkdownSection_includes_sponsor_proof_readiness_sendable()
     {

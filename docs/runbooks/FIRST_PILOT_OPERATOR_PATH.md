@@ -6,7 +6,7 @@
 
 **Last reviewed:** 2026-05-28
 
-**Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **In-product rail:** operator **Home** → **First-pilot operating path** (setup verification through sponsor packet). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md).
+**Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`FIRST_VALUE_20_MINUTES.md`](FIRST_VALUE_20_MINUTES.md). **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
 
 ---
 
@@ -15,7 +15,7 @@
 | | What you need | What success produces | When to stop |
 | --- | --- | --- | --- |
 | **Inputs** | SQL + auth configured, evidence uploaded or demo accepted, one architecture run executed and **committed** | — | Do not sponsor-send while `sponsorPacketDisposition` is **HOLD** or data-consistency is **NOT_RUN** in sponsor-handoff mode |
-| **Outputs** | — | `first-pilot-command-center.md`, `go-no-go-summary.md`, committed-run `first-value-report.md` + PDF, `quote-to-proof-packet.md`, proof folder under `artifacts/first-pilot-proof/` | Stop external circulation when ROI basis is demo-derived or PilotStrict failed without caveat |
+| **Outputs** | — | `first-pilot-command-center.md`, `go-no-go-summary.md`, committed-run `first-value-report.md` + PDF, `quote-to-proof-packet.md`, proof folder under `artifacts/first-pilot-proof/`, run-scoped folder via `archlucid pilot proof-packet <runId>` | Stop external circulation when ROI basis is demo-derived or PilotStrict failed without caveat |
 
 **Do not start here for the checklist:** [`onboarding/EVALUATION_GUIDE.md`](../onboarding/EVALUATION_GUIDE.md) (depth only), [`FIRST_PILOT_TROUBLESHOOTING.md`](FIRST_PILOT_TROUBLESHOOTING.md) (recovery only), [`architecture/README.md`](../architecture/README.md) (contributor map).
 
@@ -29,6 +29,7 @@ When Phase D completes with `-RunId` and sponsor handoff flags as needed, expect
 | Go/no-go findings | `go-no-go-summary.md` · `go-no-go-summary.json` |
 | Committed-run bundle | `first-pilot-evidence/` (first-value report, observability summary, deltas) |
 | Commercial index | `quote-to-proof-packet.md` · `commercial-next-step.json` · `commercial-closeout.md` |
+| Run detail first-screen proof status | Operator UI **Run detail** → **Proof status** strip (READY/WARN/HOLD from `pilot-run-deltas`) |
 | Data consistency | `data-consistency-readiness/data-consistency-summary.json` |
 | Config / drift (hosted) | `config-lint-production-like-hosted-pilot.md` · `route-tier-policy-nav-parity.md` |
 

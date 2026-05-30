@@ -1,4 +1,4 @@
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -38,10 +38,7 @@ export function AuditPageView(props: AuditPageViewProps) {
         }
         helpKey="audit-log"
         actions={
-          <HelpLink
-            docPath="/docs/library/AUDIT_COVERAGE_MATRIX.md"
-            label="Audit coverage matrix documentation on GitHub (new tab)"
-          />
+          <InAppHelpLink helpSlug="audit-trail" label="Audit coverage matrix documentation" />
         }
       />
       {buyerPolishedShell ? (

@@ -36,6 +36,7 @@ internal static class RunAgentExecutionLlmCostEstimateAppender
                 Completion = summary.CompletionTokens,
             },
             Model = summary.ModelLabel,
+            CostEstimationBasis = summary.CostEstimationBasis,
         };
     }
 }

@@ -1,5 +1,6 @@
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 
@@ -92,6 +93,7 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.CompletionTokens.Should().Be(50);
         summary.EstimatedCostUsd.Should().Be(1.25m);
         summary.ModelLabel.Should().Be("dep-a, dep-b");
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.EstimatedFromConfiguredRates);
 
         estimator.Verify(e => e.EstimateUsd(100, 40, 0, "dep-a"), Times.Once);
         estimator.Verify(e => e.EstimateUsd(50, 10, 0, "dep-b"), Times.Once);
@@ -119,6 +121,7 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.PromptTokens.Should().Be(10);
         summary.CompletionTokens.Should().Be(5);
         summary.EstimatedCostUsd.Should().BeNull();
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.ProviderTokensWithoutRate);
     }
 
     [Fact]

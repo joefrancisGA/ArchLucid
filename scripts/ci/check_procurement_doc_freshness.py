@@ -35,6 +35,7 @@ def main() -> int:
         (root / "docs" / "go-to-market" / "PROCUREMENT_PACK_INDEX.md", 90),
         (root / "docs" / "go-to-market" / "SUBPROCESSORS.md", 90),
         (root / "docs" / "go-to-market" / "SLA_SUMMARY.md", 45),
+        (root / "docs" / "go-to-market" / "SUPPORT_POLICY.md", 45),
         (root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md", 45),
         (root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md", 45),
         (root / "docs" / "go-to-market" / "SOC2_ROADMAP.md", 120),

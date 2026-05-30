@@ -219,7 +219,9 @@ public sealed class RealRuntimeMixedModeTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
-            schemaRemediation);
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            schemaRemediation,
+            ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
 
         ComplianceAgentHandler complianceHandler = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(new StubAgentCompletionClient(complianceJson)),

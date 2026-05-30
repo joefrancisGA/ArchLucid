@@ -9,6 +9,8 @@ using ArchLucid.Core.Diagnostics;
 
 using Azure.AI.OpenAI;
 
+using Azure.Identity;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -52,6 +54,39 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
     private readonly IOptionsMonitor<LlmTelemetryOptions>? _llmTelemetryOptions;
 
     /// <summary>
+    ///     Creates a client for the given deployment using Azure AD (managed identity / DefaultAzureCredential).
+    /// </summary>
+    public static AzureOpenAiCompletionClient CreateWithManagedIdentity(
+        string endpoint,
+        string deploymentName,
+        int maxCompletionTokens,
+        BinaryData? structuredOutputAgentResultSchema = null,
+        ILogger<AzureOpenAiCompletionClient>? logger = null,
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
+        ArgumentException.ThrowIfNullOrWhiteSpace(deploymentName);
+
+        if (maxCompletionTokens < 1)
+            throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens,
+                "Must be at least 1.");
+
+        Uri endpointUri = new(AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(endpoint));
+        AzureOpenAIClient azureClient = new(endpointUri, new DefaultAzureCredential());
+
+        AzureOpenAiCompletionClient client = new(
+            azureClient,
+            deploymentName.Trim(),
+            maxCompletionTokens,
+            structuredOutputAgentResultSchema,
+            logger,
+            llmTelemetryOptions,
+            endpointUri);
+
+        return client;
+    }
+
+    /// <summary>
     ///     Creates a client for the given deployment (model) on the Azure OpenAI resource.
     /// </summary>
     /// <param name="endpoint">Azure OpenAI endpoint URI.</param>
@@ -84,12 +119,30 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
             throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens,
                 "Must be at least 1.");
 
-        Uri endpointUri = new(endpoint);
+        Uri endpointUri = new(AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(endpoint));
         AzureOpenAIClient azureClient = new(
             endpointUri,
             new ApiKeyCredential(apiKey));
 
         _deploymentName = deploymentName.Trim();
+        _chatClient = azureClient.GetChatClient(_deploymentName);
+        _maxOutputTokens = maxCompletionTokens;
+        _structuredOutputAgentResultSchema = structuredOutputAgentResultSchema;
+        _logger = logger;
+        _llmTelemetryOptions = llmTelemetryOptions;
+        Descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, _deploymentName);
+    }
+
+    private AzureOpenAiCompletionClient(
+        AzureOpenAIClient azureClient,
+        string deploymentName,
+        int maxCompletionTokens,
+        BinaryData? structuredOutputAgentResultSchema,
+        ILogger<AzureOpenAiCompletionClient>? logger,
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions,
+        Uri endpointUri)
+    {
+        _deploymentName = deploymentName;
         _chatClient = azureClient.GetChatClient(deploymentName);
         _maxOutputTokens = maxCompletionTokens;
         _structuredOutputAgentResultSchema = structuredOutputAgentResultSchema;

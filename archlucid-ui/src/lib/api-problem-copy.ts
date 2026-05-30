@@ -37,6 +37,12 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
   EXPORT_FAILED: "Export failed",
   UNAVAILABLE_IN_PRODUCTION: "Not available in this environment",
   BATCH_REPLAY_ALL_FAILED: "Batch replay failed",
+  QUALITY_GATE_REJECTED: "Quality gate rejected",
+  UPSTREAM_INTEGRATION_FAILED: "Upstream integration failed",
+  GOVERNANCE_PRE_COMMIT_BLOCKED: "Governance blocked commit",
+  PROOF_PACKET_HOLD: "Proof packet blocked",
+  CONFIG_LINT_HOLD: "Config lint blocked",
+  SPONSOR_HANDOFF_HOLD: "Sponsor handoff blocked",
 };
 
 /**
@@ -71,6 +77,18 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
     "This operation is disabled in production for this deployment (often a safety gate). Use a non-production environment or an allowed API surface.",
   BATCH_REPLAY_ALL_FAILED:
     "None of the replay jobs in the batch succeeded. Open individual replay results for error detail, then retry failed items.",
+  QUALITY_GATE_REJECTED:
+    "Agent output did not meet the workspace quality bar. Review evidence depth, rerun execute after adding context, or adjust quality settings with a workspace owner. See docs/runbooks/QUALITY_GATE_REJECTION.md.",
+  UPSTREAM_INTEGRATION_FAILED:
+    "An upstream identity or integration dependency failed. Verify OIDC/SAML settings, network reachability, and IdP metadata before retrying.",
+  GOVERNANCE_PRE_COMMIT_BLOCKED:
+    "Governance policy blocked manifest commit. Resolve critical findings or obtain approval per your policy pack before finalizing.",
+  PROOF_PACKET_HOLD:
+    "Proof collection returned HOLD. Open the proof disposition JSON, clear blocking findings, and rerun collect-first-pilot-proof before external send.",
+  CONFIG_LINT_HOLD:
+    "Production-like config lint reported blocking findings. Run `archlucid config lint --profile production-like-hosted-pilot`, fix blocking rows, then retry.",
+  SPONSOR_HANDOFF_HOLD:
+    "Sponsor handoff is blocked until HOLD findings are cleared. Review first-pilot proof disposition and triage cards before sending externally.",
 };
 
 function mergeRateLimitCopy(
@@ -128,6 +146,18 @@ export function operatorCopyForProblem(
           heading: "Not permitted",
           body: trimmedFallback,
           hint: "Your role may not allow this action. Ask an administrator to grant the right capability, or open a workspace where you have operator permissions.",
+        },
+        context,
+        null,
+      );
+    }
+
+    if (status === 402) {
+      return mergeRateLimitCopy(
+        {
+          heading: "Trial or billing limit",
+          body: trimmedFallback,
+          hint: "This tenant hit a trial or billing limit. Review trial status or contact sales before retrying sponsor handoff or mutating operations.",
         },
         context,
         null,

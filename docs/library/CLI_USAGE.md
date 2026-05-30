@@ -86,7 +86,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `webhooks test` | POST a **sample CloudEvents-shaped JSON** probe to any HTTPS receiver (integration smoke). Optional `--secret` / `ARCHLUCID_WEBHOOK_TEST_SECRET` adds `X-ArchLucid-Webhook-Signature: sha256=…` over the UTF-8 body (matches outbound digest/alert webhook signing). `--payload <file.json>` replaces the embedded sample. Exit **0** on HTTP 2xx, **4** on transport/HTTP failure, **1** on usage errors. |
 | `saml test-config` | **Offline** SAML 2.0 SP configuration validation from merged `appsettings` / env (`ArchLucidAuth:Saml2`): issuer, optional signing PFX, IdP metadata HTTPS URL fetch, and certificate/metadata expiry signals. Prints **Pass/Fail/Warn/Info** per component; does **not** run a SAML login. No API required. Honors global **`--json`**. Exit **4** when any component **Fail**s. |
 | `doctor` / `check` | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
-| `support-bundle` | Writes a **pilot/support** folder (and optional **`--zip`**): **`README.txt`** (triage order), **`manifest.json`** (format **1.1**, `triageReadOrder`; includes **`redactionRulesApplied`**), **`build.json`**, **`health.json`** (**`attemptedHealthRelativePaths`** + `/health/*` probes), **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`** (storage/auth summaries; **`validate-config`** Warning/Error names — **never connection strings**), **`environment.json`**, **`workspace.json`**, **`references.json`** (**`correlationTraceGuidance`**), **`logs.json`**. Review before external upload — checklist: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#support-bundle-attach-to-tickets). Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, **`--zip`**. |
+| `support-bundle` | Writes a **pilot/support** folder (and optional **`--zip`**): **`README.txt`** (triage order), **`manifest.json`** (format **1.4**, `triageReadOrder`, `redactionManifestPath`; includes **`redactionRulesApplied`**), **`redaction-manifest.json`** (redaction status, rules, covered files, omitted secret-bearing categories, and sharing caveats), **`build.json`**, **`health.json`** (**`attemptedHealthRelativePaths`** + `/health/*` probes), **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`** (storage/auth summaries; **`validate-config`** Warning/Error names — **never connection strings**), **`environment.json`**, **`workspace.json`**, **`references.json`** (**`correlationTraceGuidance`**), **`logs.json`**. Review before external upload — checklist: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#support-bundle-attach-to-tickets). Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, **`--zip`**. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
 | `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
 | `comparisons replay-batch <id1,id2,...>` | Replay multiple comparison records and download a ZIP of the exported artifacts. |
@@ -97,7 +97,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `graph export <runId> [--format mermaid\|graphml] [--decision <key>] [--out <path>]` | Fetch the provenance knowledge graph from **`GET /v1/authority/runs/{runId}/graph`** (or **`…/graph/decision/{decisionKey}`** when **`--decision`** is set) and emit **Mermaid** flowchart (default) or **GraphML** XML. GraphML uses the standard GraphML namespace and schema location for tools such as Gephi. Writes to stdout (GraphML is raw XML; Mermaid is a fenced-free diagram block) or **`--out`**. Requires **`ReadAuthority`** scope and a GUID **`runId`**. |
 | `completions bash` \| `zsh` \| `powershell` | Print a shell completion script to stdout (source from your profile). |
 
-**Before sending a support bundle:** open every generated file once; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. Full checklist: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
+**Before sending a support bundle:** open every generated file once; confirm **`redaction-manifest.json`** shows **`status=PASS`**; put **correlation** (**`X-Correlation-ID`** / **`correlationId`**) and **run id** in the ticket text; never attach raw **`.env`** or Key Vault dumps; expect **LLM prompt bodies to be truncated** in **`logs.json`** by design; if you used **`--zip`**, unzip and re-scan for literals your policy forbids. Full checklist: [TROUBLESHOOTING.md](../TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
 
 ---
 
@@ -415,6 +415,18 @@ Example (with plugin lock and Terraform path, common for `archlucid new`):
   "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
 }
 ```
+
+---
+
+## Proof-packet GTM guardrails (CI)
+
+Warn-only scan for forbidden sales promises (see [`WHAT_NOT_TO_PROMISE.md`](../go-to-market/WHAT_NOT_TO_PROMISE.md)):
+
+```bash
+python scripts/ci/check_proof_summary_promise_language.py path/to/proof-summary.md
+```
+
+Use `--enforce` to fail CI when a generated sponsor artifact contains forbidden phrases (negations such as "do not claim SOC 2 certified" are allowed).
 
 ---
 

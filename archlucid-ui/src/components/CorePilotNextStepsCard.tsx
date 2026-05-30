@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import {
   corePilotStepBadgeLabel,
   deriveCorePilotCommitProgressState,
@@ -68,7 +68,7 @@ function RescueLink() {
         Help
       </Link>
       {" "}or use the{" "}
-      <HelpLink docPath="/docs/CORE_PILOT.md" label="Core Pilot guide (new tab)" />
+      <InAppHelpLink helpSlug="core-pilot" label="Core Pilot guide" />
     </p>
   );
 }
@@ -229,7 +229,7 @@ export function CorePilotNextStepsCard() {
           </code>
           <p className="mb-0 mt-2 text-[11px] text-neutral-600 dark:text-neutral-400">
             <code className="font-mono">run-support-packet</code> prints manifest/version/trace/context for escalation — pair with{" "}
-            <HelpLink docPath="/docs/library/CLI_USAGE.md" label="CLI_USAGE.md on GitHub (new tab)" />.
+            <InAppHelpLink helpSlug="cli-usage" label="CLI usage guide" />.
           </p>
         </div>
 
@@ -267,7 +267,7 @@ export function CorePilotNextStepsCard() {
           Architecture review workflow
           </h2>
           <StepBadge label={corePilotStepBadgeLabel("has-run")} />
-          <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
+          <InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />
         </div>
 
         {latestRunId !== null ? <RunIdNote runId={latestRunId} /> : null}
@@ -326,7 +326,7 @@ export function CorePilotNextStepsCard() {
           Architecture review workflow
         </h2>
         <StepBadge label={corePilotStepBadgeLabel("no-run")} />
-        <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot guide on GitHub (new tab)" />
+        <InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />
       </div>
 
       <ol className="m-0 mt-3 list-none space-y-2 p-0 text-sm text-neutral-800 dark:text-neutral-200">

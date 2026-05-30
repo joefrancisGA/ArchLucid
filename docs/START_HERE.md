@@ -5,7 +5,7 @@
 
 Use this page to pick **one** door based on your role.
 
-> **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps. [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only. [`onboarding/EVALUATION_GUIDE.md`](onboarding/EVALUATION_GUIDE.md) is depth, not a second checklist. Machine-readable router index: [`library/V1_NAVIGATION_INDEX.json`](library/V1_NAVIGATION_INDEX.json).
+> **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps. **Production-like preflight:** [`runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`runbooks/FIRST_VALUE_20_MINUTES.md`](runbooks/FIRST_VALUE_20_MINUTES.md). [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only.
 
 ```text
 START_HERE.md (you are here)
@@ -14,6 +14,7 @@ START_HERE.md (you are here)
 │   ├─ https://archlucid.net
 │   ├─ CORE_PILOT.md                               (**four-step narrative — read second**)
 │   ├─ runbooks/FIRST_PILOT_OPERATOR_PATH.md     (single V1 pilot path — **start here for operators**)
+│   ├─ runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md (production-like sponsor handoff preflight)
 │   ├─ runbooks/FIRST_PILOT_TROUBLESHOOTING.md   (symptom decision tree — when stuck)
 │   ├─ go-to-market/demo-proof-packets/README.md  (static demo proof shape — before setup)
 │   ├─ go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md  (Pilot vs Operate — one screen)
@@ -53,4 +54,4 @@ START_HERE.md (you are here)
 
 **Core Pilot — first session:** create architecture review → execute → finalize/commit → open review package. Use [CORE_PILOT.md](CORE_PILOT.md#first-session-checklist) for the short narrative and [FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md) for the operational checklist. Treat `runId` as tracking metadata; the buyer-facing object is the **architecture review**.
 
-**Writing and terminology:** [`library/CONCEPT_VOCABULARY.md`](library/CONCEPT_VOCABULARY.md) (canonical vs rejected phrasing) · [`library/GLOSSARY.md`](library/GLOSSARY.md) (definitions and record taxonomies).
+**Writing and terminology:** [`library/CONCEPT_VOCABULARY.md`](library/CONCEPT_VOCABULARY.md) (canonical vs rejected phrasing) · [`library/GLOSSARY.md`](library/GLOSSARY.md) (definitions and record taxonomies) · [`library/PRODUCT_DOCUMENTATION_PRESENTATION.md`](library/PRODUCT_DOCUMENTATION_PRESENTATION.md) (in-app help vs GitHub — V1 product rule).

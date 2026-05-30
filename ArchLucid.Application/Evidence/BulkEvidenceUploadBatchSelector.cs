@@ -22,7 +22,7 @@ public static class BulkEvidenceUploadBatchSelector
         if (files.Count == 0)
             return [];
 
-        int effectiveBatchSize = Math.Clamp(batchSize, 1, 30);
+        int effectiveBatchSize = Math.Clamp(batchSize, 1, 200);
 
         if (!TryParseBatchIndex(paginationToken, out int batchIndex))
             return files.ToList();

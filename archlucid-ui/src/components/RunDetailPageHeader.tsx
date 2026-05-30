@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { HelpButton } from "@/components/ui/help-button";
 import { Badge } from "@/components/ui/badge";
@@ -123,10 +123,7 @@ export function RunDetailPageHeader({
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <HelpButton pageKey="/runs/[id]" />
-              <HelpLink
-                docPath="/docs/CORE_PILOT.md"
-                label="Architecture review steps — Core Pilot guide on GitHub (new tab)"
-              />
+              <InAppHelpLink helpSlug="core-pilot" label="Architecture review steps — Core Pilot guide" />
             </div>
           </div>
           {buyerPolishedShell === true && executionFlavorBuyerSummary ? (

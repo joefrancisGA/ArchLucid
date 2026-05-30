@@ -14,8 +14,7 @@ export type AgentExecutionCostPreviewPayload = {
   deploymentName: string | null;
 };
 
-const DOCS_URL =
-  "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/deployment/PER_TENANT_COST_MODEL.md";
+const DOCS_URL = "/help/executive-summary";
 
 export type RunWizardCostPreviewCardProps = {
   /** Defaults to same-origin BFF proxy path. */

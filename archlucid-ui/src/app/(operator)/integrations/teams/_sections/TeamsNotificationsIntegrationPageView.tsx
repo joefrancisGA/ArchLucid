@@ -40,9 +40,9 @@ export function TeamsNotificationsIntegrationPageView(props: Props) {
           webhook URL in SQL — Logic Apps or workers resolve the secret at delivery time. See{" "}
           <Link
             className="text-blue-700 underline dark:text-blue-300"
-            href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md"
+            href="/help/troubleshooting"
           >
-            MICROSOFT_TEAMS_NOTIFICATIONS.md
+            Teams notifications help
           </Link>
           .
         </p>

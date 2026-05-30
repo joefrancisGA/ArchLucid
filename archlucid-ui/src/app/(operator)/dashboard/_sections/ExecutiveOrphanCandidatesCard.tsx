@@ -5,12 +5,10 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { getRunDetail, fetchArtifactContentUtf8 } from "@/lib/api";
-import { heuristicAnnualUsdOpportunityFromOrphanCandidatesJson } from "@/lib/run-potential-savings-parser";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 
-function formatUsd(value: number): string {
-  if (!Number.isFinite(value)) {
+function formatUsd(value: number | null | undefined): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
     return "—";
   }
 
@@ -21,8 +19,9 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
+/** Server-authoritative orphan KPI tile (TB-103). */
 export function ExecutiveOrphanCandidatesCard() {
-  const [data, setData] = useState<{ count: number; savings: number } | null>(null);
+  const [data, setData] = useState<{ count: number; savings: number | null } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,45 +38,24 @@ export function ExecutiveOrphanCandidatesCard() {
           throw new Error(`HTTP ${res.status}`);
         }
 
-        const json = (await res.json()) as ExecutiveRoiSummary;
+        const json = (await res.json()) as ExecutiveRoiSummary & {
+          orphanCandidates?: {
+            candidateCount?: number;
+            annualSavingsUsd?: number | null;
+            evidenceRunId?: string | null;
+          };
+        };
 
-        if (cancelled) return;
-
-        // Find the latest committed run
-        const latestSystem = json.systems
-          .filter((s) => s.committedUtc !== null)
-          .sort((a, b) => new Date(b.committedUtc!).getTime() - new Date(a.committedUtc!).getTime())[0];
-
-        if (!latestSystem) {
-          setData({ count: 0, savings: 0 });
+        if (cancelled) {
           return;
         }
 
-        const runDetail = await getRunDetail(latestSystem.runId);
-        if (cancelled) return;
+        const orphans = json.orphanCandidates;
 
-        const manifestId = (runDetail.data?.run as { goldenManifestId?: string })?.goldenManifestId;
-        if (!manifestId) {
-          setData({ count: 0, savings: 0 });
-          return;
-        }
-
-        try {
-          const artifact = await fetchArtifactContentUtf8(manifestId, "orphan-candidates");
-          if (cancelled) return;
-
-          const parsed = JSON.parse(artifact.text);
-          const list = Array.isArray(parsed) ? parsed : (parsed as { candidates?: unknown[] }).candidates ?? [];
-          const count = list.length;
-          const savings = heuristicAnnualUsdOpportunityFromOrphanCandidatesJson(parsed);
-
-          setData({ count, savings });
-        } catch {
-          // Artifact might not exist
-          if (!cancelled) {
-            setData({ count: 0, savings: 0 });
-          }
-        }
+        setData({
+          count: orphans?.candidateCount ?? 0,
+          savings: orphans?.annualSavingsUsd ?? null,
+        });
       } catch (e: unknown) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : "Failed to load orphan candidates.");
@@ -98,7 +76,7 @@ export function ExecutiveOrphanCandidatesCard() {
             Orphan Candidates
           </CardTitle>
           <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-            From latest committed review
+            Server-classified from latest committed review
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -116,7 +94,7 @@ export function ExecutiveOrphanCandidatesCard() {
             Orphan Candidates
           </CardTitle>
           <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-            From latest committed review
+            Server-classified from latest committed review
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -133,18 +111,18 @@ export function ExecutiveOrphanCandidatesCard() {
           Orphan Candidates
         </CardTitle>
         <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-          From latest committed review
+          Server-classified from latest committed review
         </CardDescription>
       </CardHeader>
       <CardContent>
         <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
           {data.count}
         </p>
-        {data.count > 0 && (
+        {data.count > 0 ? (
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
             Estimated savings: {formatUsd(data.savings)}/yr
           </p>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );

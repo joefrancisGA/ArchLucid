@@ -1,10 +1,13 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Contracts.Runs;
+using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Models;
 
@@ -114,6 +117,41 @@ public class RunDetailDto
 
     /// <summary>Synthesized artifacts when both bundle and manifest ids are present and lookup succeeds.</summary>
     public ArtifactBundle? ArtifactBundle
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Agent task results for this run (architecture pipeline; TB-106).</summary>
+    public List<AgentResult>? Results
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Summed LLM token usage and USD estimate from persisted execution traces.</summary>
+    public RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Self-attested trust evidence for committed runs only.</summary>
+    public RunTrustEvidenceCard? TrustEvidenceCard
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Rollup of persisted retrieval grounding traces for operator decision surfaces.</summary>
+    public RunRetrievalGroundingSummaryDto? RetrievalGroundingSummary
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Parsed agent execution failure summary when the run last failed (no raw LLM body).</summary>
+    public AgentExecutionFailureSummary? LastAgentExecutionFailure
     {
         get;
         set;

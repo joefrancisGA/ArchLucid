@@ -10,3 +10,5 @@ Curated **sample** inputs for a **second architecture review** after the default
 **Not for the first-session sample path.** Use these only after `archlucid try` or the operator demo, when you want a realistic second pass. See [docs/library/SECOND_RUN.md](../../docs/library/SECOND_RUN.md).
 
 All names and scenarios are **fictional**. Do not present outputs as real customer evidence, SOC 2 audit opinions, or measured savings.
+
+**Choose a pack:** [`STARTER_PROOF_PACK_CHOOSER.md`](STARTER_PROOF_PACK_CHOOSER.md) · **Golden walkthrough:** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../../docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md)

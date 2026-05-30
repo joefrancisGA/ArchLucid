@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { EstimatedLlmCostBarChart } from "@/components/EstimatedLlmCostBarChart";
 import { LlmBudgetUtilizationMeter } from "@/components/LlmBudgetUtilizationMeter";
+import { LlmCostCommandCenterSummaryCard } from "@/components/LlmCostCommandCenterSummaryCard";
+import { OperatorOutboxDiagnosticsCard } from "@/components/OperatorOutboxDiagnosticsCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -81,6 +83,8 @@ export function CostReportingSettingsPageView(props: Props) {
         </p>
       ) : null}
 
+      <LlmCostCommandCenterSummaryCard dashboard={data} />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">LLM budget utilization</CardTitle>
@@ -93,6 +97,8 @@ export function CostReportingSettingsPageView(props: Props) {
           <LlmBudgetUtilizationMeter />
         </CardContent>
       </Card>
+
+      <OperatorOutboxDiagnosticsCard />
 
       <Card>
         <CardHeader>

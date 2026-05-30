@@ -53,7 +53,8 @@ public static class ArchitectureReviewBoardExportDocumentFactory
         string? httpCorrelationId,
         string? extractorTimestampUtcLabel,
         bool? isDemoTenant = null,
-        string? tenantDisplayName = null)
+        string? tenantDisplayName = null,
+        string? explanationConfidenceCallout = null)
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(report);
@@ -83,6 +84,9 @@ public static class ArchitectureReviewBoardExportDocumentFactory
             RecommendedNextActions = BuildRecommendedActions(report, detail),
             IsDemoTenant = demo,
             TenantDisplayName = string.IsNullOrWhiteSpace(tenantDisplayName) ? null : tenantDisplayName.Trim(),
+            ExplanationConfidenceCallout = string.IsNullOrWhiteSpace(explanationConfidenceCallout)
+                ? null
+                : explanationConfidenceCallout.Trim(),
         };
     }
 

@@ -1,9 +1,7 @@
 using System.Diagnostics;
 
-using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
@@ -15,8 +13,6 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using Polly;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -36,17 +32,7 @@ namespace ArchLucid.AgentRuntime;
 /// </remarks>
 public sealed class RealAgentExecutor : IAgentExecutor
 {
-    private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
-    private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputBudgetGate;
-    private readonly IOptionsMonitor<ArchLucidLlmOptions> _archLucidLlmOptions;
-    private readonly IPromptRedactor _promptRedactor;
-    private readonly IReadOnlyDictionary<string, IAgentHandler> _handlers;
-    private readonly ILogger<RealAgentExecutor> _logger;
-    private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
-    private readonly IOptions<AgentExecutionResilienceOptions> _resilienceOptions;
-    private readonly IOptions<StagedCriticAgentOptions> _stagedCriticOptions;
-    private readonly IScopeContextProvider _scopeContextProvider;
-    private readonly IAgentResultRepository _agentResultRepository;
+    private readonly RealAgentExecutorExecutionDependencies _dependencies;
 
     /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey" /> (duplicates throw).</summary>
     public RealAgentExecutor(
@@ -63,31 +49,46 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IAgentResultRepository agentResultRepository)
     {
         ArgumentNullException.ThrowIfNull(handlers);
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _promptCatalog = promptCatalog ?? throw new ArgumentNullException(nameof(promptCatalog));
-        _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-        _concurrencyGate = concurrencyGate ?? throw new ArgumentNullException(nameof(concurrencyGate));
-        _resilienceOptions = resilienceOptions ?? throw new ArgumentNullException(nameof(resilienceOptions));
-        _stagedCriticOptions = stagedCriticOptions ?? throw new ArgumentNullException(nameof(stagedCriticOptions));
-        _agentOutputBudgetGate = agentOutputBudgetGate ?? throw new ArgumentNullException(nameof(agentOutputBudgetGate));
-        _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
-        _archLucidLlmOptions = archLucidLlmOptions ?? throw new ArgumentNullException(nameof(archLucidLlmOptions));
-        _agentResultRepository = agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(promptCatalog);
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(concurrencyGate);
+        ArgumentNullException.ThrowIfNull(resilienceOptions);
+        ArgumentNullException.ThrowIfNull(stagedCriticOptions);
+        ArgumentNullException.ThrowIfNull(agentOutputBudgetGate);
+        ArgumentNullException.ThrowIfNull(promptRedactor);
+        ArgumentNullException.ThrowIfNull(archLucidLlmOptions);
+        ArgumentNullException.ThrowIfNull(agentResultRepository);
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
-            .GroupBy(h => h.AgentTypeKey, StringComparer.OrdinalIgnoreCase)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
+            .GroupBy(static handler => handler.AgentTypeKey, StringComparer.OrdinalIgnoreCase)
+            .Where(static group => group.Count() > 1)
+            .Select(static group => group.Key)
             .ToArray();
 
         if (duplicateKeys.Length > 0)
-
+        {
             throw new ArgumentException(
                 $"Duplicate IAgentHandler registrations for keys: {string.Join(", ", duplicateKeys)}",
                 nameof(handlers));
+        }
 
-        _handlers = list.ToDictionary(h => h.AgentTypeKey, StringComparer.OrdinalIgnoreCase);
+        IReadOnlyDictionary<string, IAgentHandler> handlerLookup =
+            list.ToDictionary(static handler => handler.AgentTypeKey, StringComparer.OrdinalIgnoreCase);
+
+        _dependencies = new RealAgentExecutorExecutionDependencies(
+            handlerLookup,
+            logger,
+            promptCatalog,
+            scopeContextProvider,
+            concurrencyGate,
+            resilienceOptions,
+            stagedCriticOptions,
+            agentOutputBudgetGate,
+            promptRedactor,
+            archLucidLlmOptions,
+            agentResultRepository);
     }
 
     /// <inheritdoc />
@@ -110,23 +111,23 @@ public sealed class RealAgentExecutor : IAgentExecutor
         if (orderedTasks.Length == 0)
             return [];
 
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (_dependencies.Logger.IsEnabled(LogLevel.Information))
         {
             string types = string.Join(
                 ',',
                 orderedTasks.Select(AgentTypeKeys.ResolveDispatchKey));
 
-            _logger.LogInformationAgentExecutionBatchStarting(runId, types, orderedTasks.Length);
+            _dependencies.Logger.LogInformationAgentExecutionBatchStarting(runId, types, orderedTasks.Length);
         }
 
-        ScopeContext batchScope = _scopeContextProvider.GetCurrentScope();
+        ScopeContext batchScope = _dependencies.ScopeContextProvider.GetCurrentScope();
 
         IReadOnlyList<AgentResult> persistedResults =
-            await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            await _dependencies.AgentResultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
 
         Dictionary<string, AgentResult> persistedByTaskId = persistedResults
-            .GroupBy(static r => r.TaskId, StringComparer.Ordinal)
-            .ToDictionary(static g => g.Key, static g => g.Last(), StringComparer.Ordinal);
+            .GroupBy(static result => result.TaskId, StringComparer.Ordinal)
+            .ToDictionary(static group => group.Key, static group => group.Last(), StringComparer.Ordinal);
 
         AgentExecutionLlmCallAccumulator llmCalls = new();
 
@@ -136,77 +137,27 @@ public sealed class RealAgentExecutor : IAgentExecutor
         {
             try
             {
-                StagedCriticAgentOptions stagedOpts = _stagedCriticOptions.Value;
-                stagedOpts.Normalize();
-
-                bool useStagedCritic = stagedOpts.StagedCriticEnabled
-                    && orderedTasks.Any(static t => t.AgentType == AgentType.Critic)
-                    && orderedTasks.Any(static t => t.AgentType != AgentType.Critic);
+                StagedCriticAgentOptions stagedOptions = _dependencies.StagedCriticOptions.Value;
+                stagedOptions.Normalize();
 
                 AgentResult[] finished;
 
-                if (useStagedCritic)
+                if (RealAgentExecutorStagedCriticExecution.ShouldUseStagedCritic(stagedOptions, orderedTasks))
                 {
-                    AgentTask[] phase1 = orderedTasks.Where(static t => t.AgentType != AgentType.Critic).ToArray();
-                    AgentTask[] phase2 = orderedTasks.Where(static t => t.AgentType == AgentType.Critic).ToArray();
-
-                    AgentResult[] phase1Results;
-                    using (Activity? phase1Activity = ArchLucidInstrumentation.AgentExecution.StartActivity(
-                               "AgentExecution.Phase1"))
-                    {
-                        phase1Activity?.SetTag("archlucid.run_id", runId);
-
-                        phase1Results = await ExecutePhaseWhenAllAsync(
-                                runId,
-                                request,
-                                evidence,
-                                phase1,
-                                persistedByTaskId,
-                                linked)
-                            .ConfigureAwait(false);
-                    }
-
-                    ReplaceStagedPriorSummaryNotes(evidence);
-                    EvidenceNote note = StagedPriorAgentsSummaryBuilder.CreateNote(phase1Results, stagedOpts);
-                    evidence.Notes.Add(note);
-
-                    int summarizedClaimsCount = CountStagedPriorSummarizedClaimSlots(phase1Results, stagedOpts);
-
-                    AgentResult[] phase2Results;
-                    using (Activity? phase2Activity = ArchLucidInstrumentation.AgentExecution.StartActivity(
-                               "AgentExecution.Phase2_Critic"))
-                    {
-                        phase2Activity?.SetTag("archlucid.run_id", runId);
-                        phase2Activity?.SetTag("archlucid.staged_critic.summarized_claims_count", summarizedClaimsCount);
-
-                        phase2Results = await TryExecuteStagedCriticPhaseAsync(
-                                runId,
-                                request,
-                                evidence,
-                                phase2,
-                                persistedByTaskId,
-                                stagedOpts,
-                                linked)
-                            .ConfigureAwait(false);
-                    }
-
-                    Dictionary<string, AgentResult> byTaskId = new(StringComparer.Ordinal);
-
-                    foreach (AgentResult r in phase1Results)
-                    {
-                        byTaskId[r.TaskId] = r;
-                    }
-
-                    foreach (AgentResult r in phase2Results)
-                    {
-                        byTaskId[r.TaskId] = r;
-                    }
-
-                    finished = orderedTasks.Select(t => byTaskId[t.TaskId]).ToArray();
+                    finished = await RealAgentExecutorStagedCriticExecution.ExecuteAsync(
+                            _dependencies,
+                            runId,
+                            request,
+                            evidence,
+                            orderedTasks,
+                            persistedByTaskId,
+                            linked)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
-                    finished = await ExecutePhaseWhenAllAsync(
+                    finished = await RealAgentExecutorParallelPhaseExecution.ExecutePhaseWhenAllAsync(
+                            _dependencies,
                             runId,
                             request,
                             evidence,
@@ -216,9 +167,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
                         .ConfigureAwait(false);
                 }
 
-                if (_logger.IsEnabled(LogLevel.Information))
-
-                    _logger.LogInformationAgentExecutionBatchCompleted(runId, finished.Length);
+                if (_dependencies.Logger.IsEnabled(LogLevel.Information))
+                    _dependencies.Logger.LogInformationAgentExecutionBatchCompleted(runId, finished.Length);
 
                 return finished;
             }
@@ -238,430 +188,10 @@ public sealed class RealAgentExecutor : IAgentExecutor
             }
             finally
             {
-                int n = llmCalls.Consume();
+                int callCount = llmCalls.Consume();
 
-                ArchLucidInstrumentation.LlmCallsPerRun.Record(n);
+                ArchLucidInstrumentation.LlmCallsPerRun.Record(callCount);
             }
         }
-    }
-
-    private async Task<AgentResult[]> TryExecuteStagedCriticPhaseAsync(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage evidence,
-        IReadOnlyList<AgentTask> criticTasks,
-        IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
-        StagedCriticAgentOptions stagedOpts,
-        CancellationTokenSource linkedCancellation)
-    {
-        if (criticTasks.Count == 0)
-            return [];
-
-        if (stagedOpts.CriticTimeoutSeconds <= 0)
-        {
-            return await ExecutePhaseWhenAllAsync(
-                    runId,
-                    request,
-                    evidence,
-                    criticTasks,
-                    persistedByTaskId,
-                    linkedCancellation)
-                .ConfigureAwait(false);
-        }
-
-        using CancellationTokenSource criticPhaseCancellation =
-            CancellationTokenSource.CreateLinkedTokenSource(linkedCancellation.Token);
-
-        criticPhaseCancellation.CancelAfter(TimeSpan.FromSeconds(stagedOpts.CriticTimeoutSeconds));
-
-        try
-        {
-            return await ExecutePhaseWhenAllAsync(
-                    runId,
-                    request,
-                    evidence,
-                    criticTasks,
-                    persistedByTaskId,
-                    criticPhaseCancellation)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex) when (IsStagedCriticPhaseTimeout(ex, criticPhaseCancellation, linkedCancellation))
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Staged Critic phase timed out after {TimeoutSeconds}s for RunId={RunId}; continuing without Critic output.",
-                    stagedOpts.CriticTimeoutSeconds,
-                    runId);
-            }
-
-            evidence.Notes.Add(new EvidenceNote
-            {
-                NoteType = EvidenceNoteTypes.CriticTimeout,
-                Message =
-                    $"Staged Critic phase exceeded the dedicated {stagedOpts.CriticTimeoutSeconds}s timeout; Critic output was skipped.",
-            });
-
-            return StagedCriticSkippedResultFactory.CreateSkippedResults(
-                runId,
-                criticTasks,
-                stagedOpts.CriticTimeoutSeconds);
-        }
-    }
-
-    private static bool IsStagedCriticPhaseTimeout(
-        Exception ex,
-        CancellationTokenSource criticPhaseCancellation,
-        CancellationTokenSource linkedCancellation)
-    {
-        if (criticPhaseCancellation.IsCancellationRequested && !linkedCancellation.IsCancellationRequested)
-            return true;
-
-        for (Exception? walker = ex; walker is not null; walker = walker.InnerException)
-        {
-            if (walker is OperationCanceledException
-                && criticPhaseCancellation.IsCancellationRequested
-                && !linkedCancellation.IsCancellationRequested)
-                return true;
-        }
-
-        return false;
-    }
-
-    private async Task<AgentResult[]> ExecutePhaseWhenAllAsync(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage evidence,
-        IReadOnlyList<AgentTask> phaseTasks,
-        IReadOnlyDictionary<string, AgentResult> persistedByTaskId,
-        CancellationTokenSource linkedCancellation)
-    {
-        if (phaseTasks.Count == 0)
-            return [];
-
-        Task<AgentResult>[] tasks = new Task<AgentResult>[phaseTasks.Count];
-
-        for (int i = 0; i < phaseTasks.Count; i++)
-        {
-            AgentTask phaseTaskItem = phaseTasks[i];
-            persistedByTaskId.TryGetValue(phaseTaskItem.TaskId, out AgentResult? persistedResult);
-            tasks[i] =
-                ExecuteSingleAsync(
-                    runId,
-                    request,
-                    evidence,
-                    phaseTaskItem,
-                    persistedResult,
-                    linkedCancellation.Token);
-        }
-
-        if (!_agentOutputBudgetGate.Value.PersistPartialOutputsOnBudgetExceeded)
-            return await Task.WhenAll(tasks).ConfigureAwait(false);
-
-        return await DrainParallelHandlersWithBudgetSupportAsync(tasks, phaseTasks, linkedCancellation)
-            .ConfigureAwait(false);
-    }
-
-    /// <summary>
-    ///     Drains concurrently running handler tasks until all complete. When run-level token/USD ceilings trip, cancels peer
-    ///     tasks and either throws <see cref="AgentRunPartialBudgetException"/> (successful peers first) or
-    ///     <see cref="CostLimitExceededException"/>.
-    /// </summary>
-    private async Task<AgentResult[]> DrainParallelHandlersWithBudgetSupportAsync(
-        Task<AgentResult>[] tasks,
-        IReadOnlyList<AgentTask> phaseTasks,
-        CancellationTokenSource linkedCancellation)
-    {
-        HashSet<Task<AgentResult>> pending = new(tasks);
-        CostLimitExceededException? budgetCause = null;
-
-        while (pending.Count > 0)
-        {
-            Task<AgentResult> finishedTask = await Task.WhenAny(pending).ConfigureAwait(false);
-
-            _ = pending.Remove(finishedTask);
-
-            if (finishedTask.IsCompletedSuccessfully)
-                continue;
-
-            if (finishedTask.IsCanceled)
-                continue;
-
-            if (!finishedTask.IsFaulted)
-                continue;
-
-            Exception flattened = ExtractFailureRoot(finishedTask);
-
-            CostLimitExceededException? candidate = ExtractCostLimitCause(flattened);
-
-            budgetCause ??= candidate ?? throw flattened;
-
-            if (!linkedCancellation.IsCancellationRequested)
-                await linkedCancellation.CancelAsync();
-        }
-
-        AgentResult[] orderedSuccesses =
-            SnapshotSuccessfulResultsPreservePhaseTaskOrder(tasks, phaseTasks.Count);
-
-        if (budgetCause is not null && orderedSuccesses.Length > 0)
-            throw new AgentRunPartialBudgetException(budgetCause, orderedSuccesses);
-
-        if (budgetCause is not null)
-            throw budgetCause;
-
-        return orderedSuccesses.Length != phaseTasks.Count ? throw new InvalidOperationException("Parallel agent scheduling finished without aligning task outcomes.") : orderedSuccesses;
-    }
-
-    private static Exception ExtractFailureRoot(Task<AgentResult> faultedTask)
-    {
-        Exception ex = faultedTask.Exception ?? throw new InvalidOperationException("Expected faulted task exception.");
-
-        if (ex is not AggregateException aggregate)
-            return ex;
-
-        AggregateException flattened = aggregate.Flatten();
-
-        return flattened.InnerExceptions.Count == 1 ? flattened.InnerExceptions[0] : throw flattened;
-    }
-
-    private static CostLimitExceededException? ExtractCostLimitCause(Exception ex)
-    {
-        for (Exception? walker = ex; walker is not null; walker = walker.InnerException)
-        {
-            if (walker is CostLimitExceededException matched)
-                return matched;
-        }
-
-        return ex is not AggregateException ae ? null : ae.Flatten().InnerExceptions.Select(ExtractCostLimitCause).OfType<CostLimitExceededException>().FirstOrDefault();
-    }
-
-    /// <summary>Collects successes in ascending <paramref name="phaseTasks" /> order for stable parity with callers.</summary>
-    private static AgentResult[] SnapshotSuccessfulResultsPreservePhaseTaskOrder(Task<AgentResult>[] tasks, int phaseLen)
-    {
-        List<AgentResult> successes = [];
-
-        for (int i = 0; i < phaseLen; i++)
-        {
-            Task<AgentResult> task = tasks[i];
-
-            if (task.Status != TaskStatus.RanToCompletion)
-                continue;
-
-            successes.Add(task.Result);
-        }
-
-        return successes.Count == 0 ? [] : successes.ToArray();
-    }
-
-    private static void ReplaceStagedPriorSummaryNotes(AgentEvidencePackage evidence)
-    {
-        ArgumentNullException.ThrowIfNull(evidence);
-
-        evidence.Notes.RemoveAll(static n =>
-            EvidenceNoteTypes.StagedPriorAgentsSummary.Equals(n.NoteType, StringComparison.Ordinal));
-    }
-
-    /// <summary>
-    ///     Upper-bound count of claim lines eligible for the staged Critic summary (per-agent cap
-    ///     <see cref="StagedCriticAgentOptions.MaxClaimsPerAgentIncluded" />), for trace tags.
-    /// </summary>
-    private static int CountStagedPriorSummarizedClaimSlots(
-        IReadOnlyList<AgentResult> phase1Results,
-        StagedCriticAgentOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(phase1Results);
-        ArgumentNullException.ThrowIfNull(options);
-
-        if (options.MaxClaimsPerAgentIncluded <= 0)
-            return 0;
-
-        return phase1Results.Sum(r => Math.Min(r.Claims.Count, options.MaxClaimsPerAgentIncluded));
-    }
-
-    private async Task<AgentResult> ExecuteSingleAsync(
-        string runId,
-        ArchitectureRequest request,
-        AgentEvidencePackage evidence,
-        AgentTask task,
-        AgentResult? persistedResult,
-        CancellationToken cancellationToken)
-    {
-        using (AgentHandlerLlmReasoningTrace.BeginHandlerScope())
-        {
-            string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
-
-            if (AgentExecuteIdempotentResultPolicy.ShouldSkipRetry(persistedResult, out string? skipReason))
-            {
-                ArchLucidInstrumentation.AgentExecuteTaskSkippedIdempotentTotal.Add(
-                    1,
-                    new KeyValuePair<string, object?>("agent_type", task.AgentType.ToString()),
-                    new KeyValuePair<string, object?>("reason", skipReason ?? "unknown"));
-
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug(
-                        "Skipping idempotent agent execute for RunId={RunId} TaskId={TaskId} Agent={AgentType} Reason={Reason}.",
-                        runId,
-                        task.TaskId,
-                        dispatchKey,
-                        skipReason);
-                }
-
-                return persistedResult!;
-            }
-
-            if (!_handlers.TryGetValue(dispatchKey, out IAgentHandler? handler))
-
-                throw new InvalidOperationException(
-                    $"No handler is registered for agent type key '{dispatchKey}'.");
-
-            int timeoutSeconds = _resilienceOptions.Value.ResolveTimeoutSecondsForAgent(dispatchKey);
-            AgentExecutionResilienceOptions resilienceOptions = _resilienceOptions.Value;
-            ResiliencePipeline<AgentResult> handlerPipeline =
-                RealAgentExecutorHandlerResiliencePipeline.Resolve(dispatchKey, timeoutSeconds, resilienceOptions);
-
-            Stopwatch sw = Stopwatch.StartNew();
-
-            AgentResult result;
-
-            using (Activity? activity = ArchLucidInstrumentation.AgentHandler.StartActivity(
-                       "archlucid.agent.handle"))
-            {
-                activity?.SetTag("archlucid.run_id", runId);
-                activity?.SetTag("archlucid.task_id", task.TaskId);
-                activity?.SetTag("archlucid.agent.type", dispatchKey);
-                activity?.SetTag("archlucid.agent.type_enum", task.AgentType.ToString());
-
-                string promptVersion = ResolvePromptVersion(dispatchKey);
-                activity?.SetTag("archlucid.agent.prompt_version", promptVersion);
-
-                try
-                {
-                    using (LlmAccountingInvocationScope.Begin(task.AgentType, LlmInvokeKind.Primary))
-                    {
-                        result = await _concurrencyGate.ExecuteAsync(
-                            async ct =>
-                                await handlerPipeline.ExecuteAsync(
-                                    async (_, innerCt) => await handler.ExecuteAsync(
-                                        runId,
-                                        request,
-                                        evidence,
-                                        task,
-                                        innerCt),
-                                    ct, ct),
-                            cancellationToken);
-                    }
-
-                    ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
-                        1,
-                        new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                        new KeyValuePair<string, object?>("outcome", "success"));
-                }
-                catch (Exception ex)
-                {
-                    if (RealAgentExecutorHandlerResiliencePipeline.ShouldUseDegradedFallback(task, resilienceOptions)
-                        && RealAgentExecutorHandlerResiliencePipeline.IsDegradableFailure(ex))
-                    {
-                        if (_logger.IsEnabled(LogLevel.Warning))
-                        {
-                            _logger.LogWarning(
-                                ex,
-                                "Non-Critic agent handler degraded for RunId={RunId} TaskId={TaskId} Agent={AgentTypeKey}.",
-                                runId,
-                                task.TaskId,
-                                dispatchKey);
-                        }
-
-                        string degradationReason = AgentHandlerDegradationTelemetry.ResolveReasonCode(ex);
-
-                        result = AgentHandlerDegradedResultFactory.Create(
-                            runId,
-                            task,
-                            degradationReason,
-                            "Agent output degraded due to upstream LLM latency or circuit-open state; review run telemetry.");
-
-                        AgentHandlerDegradationTelemetry.Record(
-                            activity,
-                            runId,
-                            task,
-                            dispatchKey,
-                            degradationReason);
-
-                        ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
-                            1,
-                            new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                            new KeyValuePair<string, object?>("outcome", "degraded"));
-
-                        activity?.SetStatus(ActivityStatusCode.Error, "Agent handler degraded.");
-                        activity?.AddException(ex);
-                    }
-                    else
-                    {
-                        activity?.SetStatus(ActivityStatusCode.Error, "Agent handler failed.");
-                        activity?.AddException(ex);
-
-                        ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
-                            1,
-                            new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                            new KeyValuePair<string, object?>("outcome", "error"));
-
-                        throw new AgentExecutionFailedException(
-                            runId,
-                            task.TaskId,
-                            new AgentHandlerExecutionException(dispatchKey, task.AgentType, ex));
-                    }
-                }
-
-                activity?.SetTag("archlucid.agent.confidence", result.Confidence);
-                activity?.SetTag("archlucid.agent.findings_count", result.Findings.Count);
-                activity?.SetTag("archlucid.agent.claims_count", result.Claims.Count);
-            }
-
-            sw.Stop();
-
-            if (_logger.IsEnabled(LogLevel.Debug))
-
-                _logger.LogDebugAgentTaskFinished(runId, task.TaskId, dispatchKey, sw.ElapsedMilliseconds);
-
-            string? providerTrace = AgentHandlerLlmReasoningTrace.TryConsumeBuffered();
-
-            return MergeProviderReasoningTrace(result, providerTrace);
-        }
-    }
-
-    private AgentResult MergeProviderReasoningTrace(AgentResult result, string? providerTrace)
-    {
-        if (!string.IsNullOrWhiteSpace(providerTrace))
-        {
-            string trimmed = providerTrace.Trim();
-
-            if (string.IsNullOrWhiteSpace(result.ReasoningTrace))
-                result.ReasoningTrace = trimmed;
-            else
-                result.ReasoningTrace = result.ReasoningTrace.TrimEnd() + "\n\n---\n\n" + trimmed;
-        }
-
-        if (!_archLucidLlmOptions.CurrentValue.RedactReasoningTrace || string.IsNullOrWhiteSpace(result.ReasoningTrace))
-            return result;
-
-        PromptRedactionOutcome outcome = _promptRedactor.RedactAlways(result.ReasoningTrace);
-
-        foreach (KeyValuePair<string, int> kv in outcome.CountsByCategory)
-            ArchLucidInstrumentation.RecordLlmPromptRedactions(kv.Key, kv.Value);
-
-        result.ReasoningTrace = outcome.Text;
-
-        return result;
-    }
-
-    private string ResolvePromptVersion(string agentTypeKey)
-    {
-        AgentPromptCatalogOptions current = _promptCatalog.CurrentValue;
-
-        if (current.Versions.TryGetValue(agentTypeKey, out string? v) && !string.IsNullOrWhiteSpace(v))
-            return v.Trim();
-
-        return "default";
     }
 }

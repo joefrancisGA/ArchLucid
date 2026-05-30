@@ -127,7 +127,7 @@ These items are intentionally **not** claimed as completed V1 procurement eviden
 | Item | Current packet posture | Evidence / source of truth |
 |---|---|---|
 | SOC 2 Type II CPA-issued report | Not claimed as issued. Current posture is self-assessment plus roadmap. | [SOC 2 Procurement Status](SOC2_STATUS_PROCUREMENT.md), [SOC 2 Self-Assessment](../security/SOC2_SELF_ASSESSMENT_2026.md), [V1 Deferred](../library/V1_DEFERRED.md) |
-| Third-party penetration test summary | Not a V1 claim. V2 vendor-led scope is deferred. | [V1 Deferred](../library/V1_DEFERRED.md), [Pen-test SoW Template](../security/pen-test-summaries/2026-Q2-SOW.md) |
+| Third-party penetration test summary | Not available today. Vendor-led testing is planned, not yet scheduled. | [V1 Deferred](../library/V1_DEFERRED.md), [Pen-test SoW Template](../security/pen-test-summaries/2026-Q2-SOW.md) |
 | Public named reference customer | Not required for V1 readiness. V1.1 commercial milestone if/when owner/customer conditions are met. | [V1 Deferred](../library/V1_DEFERRED.md) |
 | Published Marketplace / live Stripe transactability | Not required for V1 readiness. Sales-led pilots and templates are the V1 commercial path. | [V1 Deferred](../library/V1_DEFERRED.md) |
 | PGP key for coordinated disclosure | V1.1 candidate, not V1 evidence. | [V1 Deferred](../library/V1_DEFERRED.md), [PGP Key Generation Recipe](../security/PGP_KEY_GENERATION_RECIPE.md) |

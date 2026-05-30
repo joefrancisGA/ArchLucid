@@ -121,11 +121,24 @@ $configLint = Read-JsonFileIfPresent -Path $configLintPath
 if ($null -eq $configLint) {
     Add-PostureRow -Rows $rows -Signal 'config-lint' -Disposition 'WARN' -Summary 'Production-like config lint artifact not collected.' -Remediation 'Rerun proof with -ProductionLikeHostedPilot or -SponsorHandoff.'
 }
-elseif ($configLint.ok -eq $true) {
-    Add-PostureRow -Rows $rows -Signal 'config-lint' -Disposition 'PASS' -Summary 'Config lint ok for production-like hosted pilot profile.' -Remediation ''
-}
 else {
-    Add-PostureRow -Rows $rows -Signal 'config-lint' -Disposition 'HOLD' -Summary 'Config lint reported blocking findings.' -Remediation 'Fix blocking rows in config-lint-production-like-hosted-pilot.md and rerun lint.'
+    $proofDisposition = [string]$configLint.proofDisposition
+
+    if ([string]::IsNullOrWhiteSpace($proofDisposition)) {
+        $proofDisposition = if ($configLint.ok -eq $true) { 'READY' } else { 'HOLD' }
+    }
+
+    switch ($proofDisposition) {
+        'READY' {
+            Add-PostureRow -Rows $rows -Signal 'config-lint' -Disposition 'PASS' -Summary 'Config lint READY for production-like hosted pilot profile.' -Remediation ''
+        }
+        'WARN' {
+            Add-PostureRow -Rows $rows -Signal 'config-lint' -Disposition 'WARN' -Summary 'Config lint WARN with advisory findings only.' -Remediation 'Review advisory rows in config-lint-production-like-hosted-pilot.md.'
+        }
+        default {
+            Add-PostureRow -Rows $rows -Signal 'config-lint' -Disposition 'HOLD' -Summary 'Config lint reported blocking findings.' -Remediation 'Fix blocking rows in config-lint-production-like-hosted-pilot.md and rerun lint.'
+        }
+    }
 }
 
 $dataSummaryPath = Join-Path $proofDir 'data-consistency-readiness/data-consistency-summary.json'

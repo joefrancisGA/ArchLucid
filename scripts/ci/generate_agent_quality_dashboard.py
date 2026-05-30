@@ -28,18 +28,57 @@ def _read_text(path: Path) -> str | None:
 
 def _parse_faithfulness(text: str) -> dict[str, object]:
     cases = re.search(r"\*\*Cases evaluated:\*\*\s*(\d+)", text)
-    mean = re.search(r"\*\*Mean support ratio:\*\*\s*([\d.]+)", text)
+    positive_mean = re.search(r"\*\*Positive readiness support ratio:\*\*\s*([\d.]+)", text)
+    negative_mean = re.search(r"\*\*Negative-control support ratio:\*\*\s*([\d.]+)", text)
+    combined_mean = re.search(r"\*\*Combined diagnostic support ratio:\*\*\s*([\d.]+)", text)
+    legacy_mean = re.search(r"\*\*Mean support ratio:\*\*\s*([\d.]+)", text)
     floor = re.search(r"\*\*Floor \(minSupportRatio\):\*\*\s*([\d.]+)", text)
     unsupported_roi = len(re.findall(r"unsupported-roi-cost", text, flags=re.IGNORECASE))
+
+    parsed_positive = float(positive_mean.group(1)) if positive_mean else None
+    parsed_negative = float(negative_mean.group(1)) if negative_mean else None
+    parsed_combined = (
+        float(combined_mean.group(1))
+        if combined_mean
+        else float(legacy_mean.group(1))
+        if legacy_mean
+        else None
+    )
 
     return {
         "present": True,
         "casesEvaluated": int(cases.group(1)) if cases else None,
-        "meanSupportRatio": float(mean.group(1)) if mean else None,
+        "positiveSupportRatio": parsed_positive,
+        "negativeSupportRatio": parsed_negative,
+        "meanSupportRatio": parsed_combined,
         "floorMinSupportRatio": float(floor.group(1)) if floor else None,
         "unsupportedRoiCostRows": unsupported_roi,
         "evidenceMode": "deterministic-offline-fixtures",
     }
+
+
+def _faithfulness_status(faith: dict[str, object]) -> str:
+    positive = faith.get("positiveSupportRatio")
+    negative = faith.get("negativeSupportRatio")
+    floor = faith.get("floorMinSupportRatio")
+    roi_rows = faith.get("unsupportedRoiCostRows", 0)
+
+    if not isinstance(positive, float) or not isinstance(floor, float):
+        combined = faith.get("meanSupportRatio")
+        if isinstance(combined, float) and isinstance(floor, float) and combined >= floor:
+            return "PASS"
+        return "WARN"
+
+    if positive < floor:
+        return "WARN"
+
+    if isinstance(negative, float) and negative > 0.35:
+        return "WARN"
+
+    if isinstance(roi_rows, int) and roi_rows > 0:
+        return "WARN"
+
+    return "PASS"
 
 
 def _parse_retrieval_ir(text: str) -> dict[str, object]:
@@ -139,14 +178,17 @@ def build_dashboard(root: Path) -> str:
     lines.append("| --- | --- | --- |")
 
     if faith.get("present"):
+        positive_ratio = faith.get("positiveSupportRatio")
+        negative_ratio = faith.get("negativeSupportRatio")
         mean_ratio = faith.get("meanSupportRatio")
         floor = faith.get("floorMinSupportRatio")
-        status = "PASS" if isinstance(mean_ratio, float) and isinstance(floor, float) and mean_ratio >= floor else "WARN"
+        status = _faithfulness_status(faith)
         lines.append(
-            f"| Faithfulness support ratio | **{status}** (mean={mean_ratio}, floor={floor}) | offline fixtures |"
+            f"| Faithfulness positive readiness | **{status}** "
+            f"(positive={positive_ratio}, negative={negative_ratio}, combined={mean_ratio}, floor={floor}) | offline fixtures |"
         )
     else:
-        lines.append("| Faithfulness support ratio | **NOT_COLLECTED** | — |")
+        lines.append("| Faithfulness positive readiness | **NOT_COLLECTED** | — |")
 
     if ir.get("present"):
         recall = ir.get("meanRecallAt5")

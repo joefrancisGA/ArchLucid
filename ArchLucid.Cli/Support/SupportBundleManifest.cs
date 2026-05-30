@@ -72,6 +72,14 @@ public sealed class SupportBundleManifest
         init;
     }
 
+    /// <summary>Dedicated redaction evidence artifact path inside the support bundle.</summary>
+    [JsonPropertyName("redactionManifestPath")]
+    public string RedactionManifestPath
+    {
+        get;
+        init;
+    } = SupportBundleArchiveWriter.RedactionManifestFileName;
+
     /// <summary>Logical redaction rules applied to text (see <see cref="SupportBundleRedactor.TextPatternRedactionRules" />).</summary>
     [JsonPropertyName("redactionRulesApplied")]
     public IReadOnlyList<string> RedactionRulesApplied

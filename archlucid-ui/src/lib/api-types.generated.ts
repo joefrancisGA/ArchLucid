@@ -22729,15 +22729,6 @@ export interface paths {
                         "application/pdf": components["schemas"]["ProblemDetails"];
                     };
                 };
-                /** @description Conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/pdf": components["schemas"]["ProblemDetails"];
-                    };
-                };
             };
         };
         delete?: never;
@@ -32190,15 +32181,6 @@ export interface components {
             count?: number;
             severity: string;
         };
-        PilotRoiBaselineInputBasis: number;
-        PilotRoiBaselineInputsStatusResponse: {
-            architectHourlyCostBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
-            architectPrepHoursPerReviewBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
-            evidenceAssemblyEffortBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
-            projectedDollarClaimsSponsorSafe?: boolean;
-            reviewCycleHoursBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
-            sponsorSafeFallbackCopy?: string;
-        };
         PilotRoiEvidenceConfidence: number;
         PilotRunDeltaSeverityCountResponse: {
             /** Format: int32 */
@@ -32802,7 +32784,6 @@ export interface components {
             llmCallCountResolved?: boolean;
             proofSendability?: string;
             publishingTier?: string;
-            roiBaselineInputs?: null | components["schemas"]["PilotRoiBaselineInputsStatusResponse"];
             roiConfidenceLabel?: string;
             roiEvidenceConfidence?: components["schemas"]["PilotRoiEvidenceConfidence"];
             runInCommittedStatus?: boolean;

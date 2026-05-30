@@ -1,0 +1,14 @@
+resource_group_name = "rg-archlucid-prod-example"
+location            = "eastus2"
+
+openai_compose_mode          = "create"
+openai_account_name          = "aoai-archlucid-prod-example"
+openai_custom_subdomain_name = "aoai-archlucid-prod-example"
+
+search_compose_mode = "create"
+search_service_name = "srch-archlucid-prod-example"
+
+tags = {
+  environment = "production"
+  product     = "archlucid"
+}

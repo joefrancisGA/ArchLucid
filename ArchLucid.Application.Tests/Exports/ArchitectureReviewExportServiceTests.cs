@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -54,14 +55,18 @@ public sealed class ArchitectureReviewExportServiceTests
         IRunDetailQueryService runDetailQuery,
         IArchitectureAnalysisService analysis,
         IScopeContextProvider? scopeContextProvider = null,
-        ITenantRepository? tenantRepository = null)
+        ITenantRepository? tenantRepository = null,
+        IRunExplanationSummaryService? runExplanationSummaryService = null)
     {
+        IRunExplanationSummaryService explanation = runExplanationSummaryService ?? Mock.Of<IRunExplanationSummaryService>();
+
         if (scopeContextProvider is not null)
             return new ArchitectureReviewExportService(
                 runDetailQuery,
                 analysis,
                 scopeContextProvider,
                 tenantRepository ?? Mock.Of<ITenantRepository>(),
+                explanation,
                 tenantReviewBoardCoverLogoStore: null,
                 new ArchitectureReviewDocxBuilder(),
                 new ArchitectureReviewPdfBuilder());
@@ -74,6 +79,7 @@ public sealed class ArchitectureReviewExportServiceTests
             analysis,
             scopeContextProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
+            explanation,
             tenantReviewBoardCoverLogoStore: null,
             new ArchitectureReviewDocxBuilder(),
             new ArchitectureReviewPdfBuilder());

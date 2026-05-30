@@ -6,6 +6,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Priority order:** Items are listed highest → lowest priority. When picking up work, start at the top. Re-sort when new items are added: items that affect customer-visible correctness rank above ops/observability improvements, which rank above developer-experience polish.
 
+**TB-114 – TB-120** were added 2026-05-30 from the owner-ratified UI design standard (decision date 2026-05-27). They close the gap between the current Tailwind/shadcn default aesthetics and the **IBM Carbon–inspired enterprise visual language** mandated for V1 GA. Canonical standard: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **TB-114** (design tokens) and **TB-115** (surface/card pass) are foundational and should be done first; **TB-116** (status tags) and **TB-117** (data tables) unlock governance credibility; **TB-118** (spacing) and **TB-119** (typography) are polish; **TB-120** (agent rule) ensures future AI-written code stays conformant.
+
 **Recently shipped (IDs kept for grep, ADRs, and code comments — spec text removed below):** **TB-001** (informational async audit best-effort + counter), **TB-002** (`archlucid_startup_config_warnings_total`), **TB-003** (named-query p95 allowlist + `archlucid_query_p95_ms`), **TB-006** (`ComparisonRecords` run id GUID + FK migration), **TB-022** (long-safe run token aggregation), **TB-024** (reasoning-token test coverage), **TB-026** (`LlmCostEstimationOptions` negative-rate validation + runtime guard).
 
 **TB-022 – TB-026** were added 2026-05-24 from an audit-grade correctness review of `LlmCostEstimator` (see `ArchLucid.AgentRuntime/LlmCostEstimator.cs` and `ArchLucid.Application/Agents/AgentExecutionTraceRunLlmCostAggregator.cs`). They form a single thematic cluster: TB-022 + TB-026 are correctness fixes; TB-024 is test coverage; TB-023 + TB-025 are documentation/annotation.
@@ -33,6 +35,14 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-106 – TB-113** were added 2026-05-27 from a `RunDetailPageView` operator fidelity audit (does the run detail page surface everything needed to approve, reject, or remediate a run?). Root cause is a split API contract: the operator loader calls `GET /v1/authority/runs/{runId}` but the UI reads `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` that exist only on the architecture endpoint — those fields are null on every live run. Additional gaps: retrieval hits and tool calls have no dedicated UI surface anywhere; `findingCoverageSummary.hasCommitBlockingFailures` and `dispositionCoverage` are computed in `GetRunDetailAsync` but dropped before render; `hasGovernanceWarnings` and `lastFailureReason` from `RunRecord` are never shown. **TB-106**–**TB-108** are correctness/operator-visibility P0s; **TB-109**–**TB-111** are P1 operator-visibility additions; **TB-112** is P2 workflow; **TB-113** is P2 schema hygiene. Canvas audit: `canvases/run-detail-operator-fidelity.canvas.tsx` (IDE-only).
 
+**TB-114 – TB-118** were added 2026-05-29 from a Template and Accelerator Richness review. The conclusion was **not** to add template volume for its own sake. The V1 opportunity is to make existing starter proof packs easier to choose, validate, trust, and dry-run. **TB-114** is the highest leverage because it maps buyer jobs to existing accelerators; **TB-115** prevents stale/unsafe pack metadata; **TB-116** and **TB-117** add deterministic validation and proof dry-run coverage; **TB-118** creates one golden walkthrough that sales/operators can use without multiplying templates.
+
+**TB-119 – TB-134** were added 2026-05-29 from a Policy/Governance, Auditability, and Commercial Packaging review. The theme is proof discipline: make governance packs, audit trails, and sales-led packaging harder to misread, drift, or overclaim. **TB-119 – TB-123** cover policy/governance alignment; **TB-124 – TB-128** cover auditability; **TB-129 – TB-134** cover commercial packaging readiness. Owner-gated items such as live commerce and named customer references remain deferred outside this cluster.
+
+**TB-135 – TB-142** were added 2026-05-29 per owner decision: assessment improvements **#23** (SOC 2 CPA), **#25** (third-party pen test), **Real Pilot Proof Packet Cohort**, and **Market-Facing Demo Asset Production** are **V1.1 backlog** organizational / owner-output programs — **not** V1 assessment implementation prompts. **TB-137 – TB-140** capture follow-on real-LLM engineering after assessment improvement **#1** local evidence shipped. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c.
+
+**TB-143 – TB-148** were added 2026-05-30 from owner-ratified product documentation presentation guidance (decision date 2026-05-27). Customer-facing help must not dump buyers or operators into raw GitHub repository browsing. **TB-143** (in-app markdown renderer + `/help/{topic}` routes) and **TB-144** (documentation registry) are foundational; **TB-145** migrates existing GitHub blob links; **TB-146** bans redirect stubs; **TB-147** adds CI drift guard; **TB-148** adds role-gated optional source links. Canonical standard: [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md).
+
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 | ID | Title | Priority driver | Size |
@@ -54,10 +64,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | Defense-in-depth — whitespace rejected but malformed IDs pass through to ARM without format guard | XS |
 | TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | Security --- KV has `public_network_access_enabled=false` but no private endpoint or DNS zone in `terraform-private`; portal-only configuration, unmanageable by TF | XS-S |
 | TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | Security --- container apps read KV secrets at runtime via managed identity; role assignment absent from all TF roots; portal-created, subject to drift | XS |
-| TB-093 | Create `terraform-openai` root --- provision Azure OpenAI account + model deployments | IaC coverage (HIGH) --- code comment says "out-of-band"; model deployments, content filters, CMK, and private endpoint are all unmanaged; aligns with TB-080 | M |
+| TB-093 | Compose Azure OpenAI into hosted Terraform stack --- provision account + model deployments | IaC coverage (HIGH) --- code comment says "out-of-band"; model deployments, content filters, CMK, and private endpoint are all unmanaged; aligns with TB-080. Separate `terraform-openai` work can remain a validation/module staging surface, but hosted examples should compose it into `infra/terraform/prod`. | M |
 | TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | IaC coverage --- `HotPathCache.RedisConnectionString` present in `appsettings.Production.json`; no `azurerm_redis_cache`; SKU, eviction, private endpoint unmanaged | S |
 | TB-095 | Assess + codify Cosmos DB --- create `terraform-cosmos` if active in production | IaC coverage --- `CosmosDb.ConnectionString` in `appsettings.json`; `Microsoft.Azure.Cosmos` NuGet in `ArchLucid.Persistence`; consistency/throughput/backup unmanaged if live | S-M |
-| TB-096 | Create `terraform-search` root --- Azure AI Search service | IaC coverage --- private endpoint variable wired in `terraform-private` but service never created; cross-ref TB-071 (production search client gap) | S |
+| TB-096 | Compose Azure AI Search into hosted Terraform stack | IaC coverage --- private endpoint variable wired in `terraform-private` but service never created; cross-ref TB-071 (production search client gap). Separate Search root/module work can remain a validation surface, but hosted production-like examples should compose it into `infra/terraform/prod`. | S |
 | TB-097 | Create `terraform-acr` root --- Azure Container Registry | IaC coverage --- read via `data` source in `terraform-container-apps`; geo-replication, retention, and network rules are portal-only | S |
 | TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage --- `var.azure_monitor_workspace_id` referenced by P0+SLO Prometheus rule groups but resource never created; apply fails if workspace drifts | XS |
 | TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability --- consistent with pattern already in `terraform-logicapps/diagnostics.tf`; three resources, one Log Analytics workspace target | S |
@@ -78,6 +88,33 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-111 | RunDetailPageView — inline provenance summary card (collapse from sibling route) | Operator visibility (P1) — provenance requires full-page navigation to a sibling route using a different API; operator loses run context while reviewing | S |
 | TB-112 | RunDetailPageView — add run-level approve / reject / request-remediation actions | Operator workflow (P2) — `CommitRunButton` (finalize manifest) is the only run-level action; all finding disposition lives on per-finding sub-routes with no run-level governance action | M |
 | TB-113 | Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types | Schema hygiene (P2) — C# `RunDetailDto` has both fields; generated `api-types.generated.ts` may omit them; silent type-level omission makes it impossible to add UI without bypassing type safety | XS |
+| TB-114 | Accelerator chooser — map buyer job → starter proof pack → expected proof output | Template richness / time-to-value — existing accelerators are useful but not easy enough to choose in the first 10 minutes | S |
+| TB-115 | Starter proof pack metadata contract | Template trust — packs need owner, last-reviewed, buyer persona, required inputs, expected outputs, V1/V1.1/deferred scope, and "do not use when" fields | S |
+| TB-116 | Starter proof pack static validation gate | Correctness / template safety — every pack should parse, include required files, avoid placeholders/secrets, and have valid scope labels before release | S |
+| TB-117 | Template-to-proof dry-run harness | Time-to-value / regression safety — dry-run each starter pack through minimal request + policy/context path without live cloud dependencies | M |
+| TB-118 | Golden accelerator walkthrough (one pack only) | Marketability / enablement — one canonical walkthrough with expected artifacts/screenshots improves trust without adding template sprawl | S |
+| TB-119 | Policy pack metadata and buyer-safe caveat validation | Governance alignment — every policy pack needs scope, owner, last reviewed, sample finding, and explicit "not certification" language | S |
+| TB-120 | Policy pack dry-run index | Time-to-value / governance usability — list packs by buyer job, required inputs, expected findings, and V1/V1.1/deferred scope | S |
+| TB-121 | Route/tier/policy/nav parity release gate hardening | Governance drift prevention — changes to routes, tiers, policy surfaces, or nav must refresh parity proof before release | S |
+| TB-122 | Governance outcome summary in sponsor proof | Trust / buyer clarity — sponsor proof should summarize applied policies, approvals, waivers, unresolved governance items, and buyer-safe status | S |
+| TB-123 | Policy-pack freshness report in proof/procurement artifacts | Governance freshness — proof packets should show policy-pack last-reviewed posture and stale-pack warnings | S |
+| TB-124 | Audit coverage drift gate for critical workflows | Auditability — mutating routes, governance actions, and proof actions must map to expected audit event types or explicit allowlist rationale | M |
+| TB-125 | Buyer-safe audit evidence summary in proof bundles | Auditability / trust — proof bundles need audit categories, correlation IDs, run/manifest traceability, and omitted sensitive-field notes | S |
+| TB-126 | Audit event catalog metadata | Supportability — event types need owner, purpose, actor, scope fields, retention sensitivity, and buyer-safe/export posture | M |
+| TB-127 | Audit tests for sponsor/procurement proof actions | Correctness — critical proof generation and commercial handoff actions should emit audit rows or document informational-only rationale | M |
+| TB-128 | Support/audit triage one-pager | Supportability — given runId/correlationId, operators need one artifact-open order for audit and support investigation | XS-S |
+| TB-129 | Quote-to-proof readiness checklist | Commercial packaging — quote, tier, proof status, ROI basis, deferred asks, and next commercial action should be one checklist | S |
+| TB-130 | Quote aging export and follow-up SLA report | Decision velocity — open quote requests need aging buckets, follow-up status, warn/breach counts, and AdminAuthority-only export | M |
+| TB-131 | Commercial closeout artifact hardening | Monetization — generated PASS/HOLD/DEFERRED_SCOPE, next ask, owner, and caveats should agree with proof JSON | S |
+| TB-132 | Tier fit validation matrix | Packaging correctness — tiers should map to buyer jobs, included evidence outputs, excluded capabilities, and deferred capabilities | S |
+| TB-133 | Service-led offer pack aligned to pricing | GTM execution — one-page offer, pilot scope, order-form path, proof outputs, exclusions, and buyer prerequisites | S |
+| TB-134 | Commercial copy overclaim guard | Trust / packaging safety — CI should catch copy implying live commerce, Marketplace transactability, SOC 2 CPA, public references, or unsupported ROI claims | S |
+| TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | Customer-visible UX — product help must render inside ArchLucid shell, not GitHub blob pages | M |
+| TB-144 | Customer-facing documentation registry | Correctness / maintainability — stable map from product topics to in-app routes and repo source paths | S |
+| TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | Customer-visible UX — HelpPanel, contextual help, doc index, hard-coded marketing/operator GitHub links | M |
+| TB-146 | Redirect-stub ban + canonical target resolution in registry | Trust — never link compatibility stubs such as `PILOT_GUIDE.md`; resolve final markdown internally | XS |
+| TB-147 | CI drift guard — no customer-facing GitHub blob links in product UI | Regression prevention — lint/CI fails on new `github.com/.../blob/` links in operator/marketing UI paths | S |
+| TB-148 | Role-gated optional “View source on GitHub” footer | Developer ergonomics — source link only in admin/developer/diagnostics mode, not buyer/operator primary UI | XS |
 | TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | Paid + organic honesty — **`SEO_AND_PAID_ACQUISITION.md`** data flow requires measurable **`TenantProvisioningService`** outcomes; avoids raw-UTM metric cardinality explosions | M |
 | TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | SERP + honest analytics posture | S–M |
 
@@ -132,6 +169,757 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
+## TB-114 — Accelerator chooser — buyer job → starter proof pack → expected proof output
+
+**Objective:** Give evaluators one obvious way to pick the right existing accelerator without browsing the whole `templates/` tree.
+
+**Scope:**
+
+- Add a chooser artifact that maps buyer jobs to existing starter proof packs, for example:
+  - AI governance / LLM risk review → `templates/starter-proof-packs/ai-llm-workload/`
+  - Regulated SaaS procurement → `templates/starter-proof-packs/regulated-saas-soc-procurement/`
+  - Azure cost governance → `templates/starter-proof-packs/azure-cost-governance/`
+  - Healthcare workflow review → `templates/starter-proof-packs/healthcare-data-workflow/`
+- Include expected inputs, expected proof outputs, target persona, time-to-first-value, and when not to use the pack.
+- Link from `templates/README.md`, `docs/onboarding/EVALUATOR_WORKBOOK.md`, and the first-pilot command-center docs if the chooser becomes part of the operator path.
+
+**Acceptance criteria:**
+
+- A first-time evaluator can select one pack from a buyer job without reading every template README.
+- The chooser points only to existing, V1-safe packs unless a row is explicitly marked deferred.
+- No new starter pack is added as part of this item.
+
+**Refs:** `templates/starter-proof-packs/`, `templates/README.md`, `docs/onboarding/EVALUATOR_WORKBOOK.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-115 — Starter proof pack metadata contract
+
+**Objective:** Make every starter proof pack self-describing and reviewable as a V1 artifact, not a loose folder of examples.
+
+**Scope:**
+
+- Define a small metadata contract, likely `starter-pack.json`, for each `templates/starter-proof-packs/*` folder.
+- Required fields: `id`, `title`, `targetBuyer`, `buyerJob`, `owner`, `lastReviewedUtc`, `requiredInputs`, `expectedOutputs`, `scopeLabel`, `doNotUseWhen`, and `deferredScopeNotes`.
+- Keep scope labels explicit: `V1-ready`, `V1.1-deferred`, `V2-deferred`, or `owner-input-required`.
+
+**Acceptance criteria:**
+
+- Every starter proof pack has metadata with non-empty required fields.
+- Metadata says when the pack is inappropriate, not only when it is useful.
+- Deferred capabilities such as first-party ITSM/chat/doc connectors, live commerce, SOC 2 CPA, and public references are not implied by a V1-ready pack.
+
+**Refs:** `templates/starter-proof-packs/*`, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-116 — Starter proof pack static validation gate
+
+**Objective:** Prevent starter packs from drifting, breaking, or shipping buyer-unsafe placeholders.
+
+**Scope:**
+
+- Add a CI script under `scripts/ci/` that scans every `templates/starter-proof-packs/*` folder.
+- Validate required files exist, JSON files parse, metadata contract is complete, Markdown links are local/valid where practical, placeholders are absent from V1-ready files, and no obvious secret-shaped values are present.
+- Reuse existing placeholder/secret patterns where possible; do not create a second inconsistent scanner if an existing helper can be shared.
+
+**Acceptance criteria:**
+
+- CI fails on missing metadata, malformed JSON, buyer-unsafe placeholders in V1-ready pack files, or missing required pack artifacts.
+- Tests cover at least one valid fixture and one invalid fixture.
+- The gate does not require live cloud credentials or network calls.
+
+**Refs:** `scripts/ci/`, `templates/starter-proof-packs/`, existing procurement/template validation helpers.
+
+**Size estimate:** S.
+
+---
+
+## TB-117 — Template-to-proof dry-run harness
+
+**Objective:** Prove each starter pack can flow through the minimal ArchLucid request/policy/context path without live cloud dependencies.
+
+**Scope:**
+
+- Add a deterministic dry-run harness that loads each starter pack's `architecture-request.json`, policy/context files, and expected second-run inputs where present.
+- Validate that the pack can produce the minimum proof-shape expected by V1: request accepted by local schema/contract validation, policy context parseable, expected output labels present, and scope/deferred labels preserved.
+- Prefer fast local validation over full API execution unless a pre-existing simulator path can be reused cheaply.
+
+**Acceptance criteria:**
+
+- One command validates all starter packs offline.
+- Failure output names the pack, file, field, and remediation.
+- The harness distinguishes "template invalid" from "live cloud dependency not exercised."
+
+**Refs:** `templates/starter-proof-packs/*`, `scripts/ci/eval_template_harness.py`, `ArchLucid.Contracts`.
+
+**Size estimate:** M.
+
+---
+
+## TB-118 — Golden accelerator walkthrough (one pack only)
+
+**Objective:** Create one canonical accelerator walkthrough that demonstrates the end-to-end evaluator experience without expanding template count.
+
+**Recommended pack:** `templates/starter-proof-packs/regulated-saas-soc-procurement/` unless current GTM focus favors `ai-llm-workload`.
+
+**Scope:**
+
+- Add a concise walkthrough showing: choose pack, inspect required inputs, run or dry-run the pack, collect proof, interpret expected artifacts, and identify sponsor-safe caveats.
+- Include expected artifact names and screenshots only if they can be generated from stable local/demo assets.
+- Keep the walkthrough explicit that it is example proof, not SOC 2 CPA, third-party assurance, live commerce, or public customer reference evidence.
+
+**Acceptance criteria:**
+
+- The walkthrough can be followed by an evaluator without reading the full repo.
+- Expected artifacts line up with actual starter pack files and first-pilot proof docs.
+- No second or third walkthrough is created until this one proves useful in demos or pilots.
+
+**Refs:** `templates/starter-proof-packs/regulated-saas-soc-procurement/`, `docs/runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`, `docs/onboarding/EVALUATOR_WORKBOOK.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-119 — Policy pack metadata and buyer-safe caveat validation
+
+**Objective:** Ensure every V1 policy pack is reviewable, scoped, and impossible to mistake for a compliance certification.
+
+**Scope:**
+
+- Add or standardize metadata for each policy pack: owner, last reviewed date, target buyer/job, applicable scope, required inputs, sample finding, and buyer-safe caveat.
+- Validate that default policy packs include explicit "not certification / not legal advice / architecture-review input" wording.
+- Prefer reusing any metadata created for starter proof packs instead of inventing a second schema.
+
+**Acceptance criteria:**
+
+- Every policy pack included in V1 proof or procurement surfaces has required metadata.
+- Missing caveats or stale `lastReviewedUtc` values fail validation or produce a proof warning.
+- No default policy pack claims SOC 2, HIPAA, PCI, ISO, or regulator certification.
+
+**Refs:** `templates/policy-packs/`, `docs/library/POLICY_PACK_CONTENT_BACKLOG.md`, `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-120 — Policy pack dry-run index
+
+**Objective:** Give operators and evaluators a compact map of available policy packs, what each one proves, and what inputs it expects.
+
+**Scope:**
+
+- Generate or maintain an index listing policy pack ID, buyer job, target persona, required inputs, expected findings, caveats, and V1/V1.1/deferred scope.
+- Link from accelerator chooser work (**TB-114**) and first-pilot/procurement proof docs where relevant.
+- Include "do not use when" guidance so packs are not selected as generic compliance rubber stamps.
+
+**Acceptance criteria:**
+
+- A policy pack can be selected from the index without opening every pack README.
+- Deferred or future connector assumptions are clearly labeled.
+- Index is generated or validated in CI from pack metadata.
+
+**Refs:** `templates/policy-packs/`, `templates/starter-proof-packs/`, `docs/runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-121 — Route/tier/policy/nav parity release gate hardening
+
+**Objective:** Prevent UI, packaging, authorization, and policy surfaces from drifting apart after route or tier changes.
+
+**Scope:**
+
+- Harden the existing route/tier/policy/nav parity scripts so changed route/nav/tier/policy files require regenerated parity proof.
+- Ensure proof output is copied into first-pilot sponsor proof and release evidence.
+- Keep failures actionable: name changed files, missing registry rows, and remediation command.
+
+**Acceptance criteria:**
+
+- CI or release proof fails when route/tier/policy/nav surfaces drift after a relevant file change.
+- Sponsor proof includes parity output or a clear skipped/not-applicable reason.
+- The gate does not hide routes or tier definitions; it points maintainers to fix registries.
+
+**Refs:** `scripts/ci/assert_route_tier_policy_nav.py`, `scripts/ci/data/route_tier_policy_nav_registry.json`, `scripts/collect-first-pilot-proof.ps1`.
+
+**Size estimate:** S.
+
+---
+
+## TB-122 — Governance outcome summary in sponsor proof
+
+**Objective:** Make governance status visible to sponsors without forcing them through internal governance screens.
+
+**Scope:**
+
+- Add a concise governance summary to first-pilot proof and sponsor artifacts.
+- Fields should include policies applied, approval posture, unresolved waivers, governance warnings, whether evidence is buyer-safe, and whether any item blocks sponsor handoff.
+- Reuse existing governance/proof state; do not recompute business logic in a separate script.
+
+**Acceptance criteria:**
+
+- Sponsor proof includes a governance PASS/WARN/HOLD-style summary.
+- Deferred/non-certification caveats remain explicit.
+- Missing governance evidence cannot be silently absent when policy packs are part of the buyer claim.
+
+**Refs:** `scripts/collect-first-pilot-proof.ps1`, `docs/runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`, governance workflow DTOs.
+
+**Size estimate:** S.
+
+---
+
+## TB-123 — Policy-pack freshness report in proof/procurement artifacts
+
+**Objective:** Surface stale policy packs before they appear in buyer proof.
+
+**Scope:**
+
+- Produce a policy-pack freshness report with pack ID, version, owner, last reviewed date, and stale/warn threshold.
+- Include the report in procurement pack or first-pilot proof when policy packs are used.
+- Align thresholds with procurement freshness checks where possible.
+
+**Acceptance criteria:**
+
+- Stale policy packs are visible as WARN/HOLD depending on sponsor/procurement mode.
+- Freshness report is machine-readable and Markdown-readable.
+- No external service or legal review is required to run the check.
+
+**Refs:** `templates/policy-packs/`, `scripts/build_procurement_pack.py`, `scripts/collect-first-pilot-proof.ps1`.
+
+**Size estimate:** S.
+
+---
+
+## TB-124 — Audit coverage drift gate for critical workflows
+
+**Objective:** Keep audit coverage aligned with mutating routes, governance actions, and proof/commercial handoff operations.
+
+**Scope:**
+
+- Extend or add a drift gate that maps critical routes/actions to expected `AuditEventTypes`.
+- Include governance approvals, waiver actions, proof collection/handoff markers, quote/commercial follow-up changes, and support bundle generation where applicable.
+- Allow explicit informational-only exceptions with rationale.
+
+**Acceptance criteria:**
+
+- New/changed critical route or workflow without an audit mapping fails CI or release proof.
+- Exceptions are named, reviewed, and buyer-safe.
+- Output names the missing action/event pair and remediation doc.
+
+**Refs:** `ArchLucid.Core/Audit/AuditEventTypes.cs`, `docs/library/AUDIT_COVERAGE_MATRIX.md`, `scripts/ci/`.
+
+**Size estimate:** M.
+
+---
+
+## TB-125 — Buyer-safe audit evidence summary in proof bundles
+
+**Objective:** Let sponsors and support teams understand audit evidence without exposing raw audit payloads.
+
+**Scope:**
+
+- Add a proof artifact summarizing recent audit event categories, correlation IDs, run/manifest linkage, and omitted sensitive fields.
+- Keep it category/count/identifier based; do not include raw payloads or PII.
+- Link to support/audit triage guidance (**TB-128**).
+
+**Acceptance criteria:**
+
+- First-pilot proof folder includes Markdown and JSON audit evidence summary when a `RunId` is supplied.
+- Summary includes enough correlation handles for support follow-up.
+- Sensitive audit payloads remain omitted by design.
+
+**Refs:** `scripts/collect-first-pilot-evidence.ps1`, `scripts/collect-first-pilot-proof.ps1`, audit repositories/controllers.
+
+**Size estimate:** S.
+
+---
+
+## TB-126 — Audit event catalog metadata
+
+**Objective:** Make audit event types self-describing for support, compliance review, and drift checks.
+
+**Scope:**
+
+- Add catalog metadata for each event type: owner/function, purpose, expected actor, expected tenant/workspace/project scope fields, sensitivity, retention/export posture, and buyer-safe summary.
+- Use the catalog in docs or drift gates rather than duplicating explanations in multiple places.
+
+**Acceptance criteria:**
+
+- Every `AuditEventTypes` member has catalog metadata or an explicit exclusion.
+- Catalog can generate or validate `AUDIT_COVERAGE_MATRIX.md`.
+- Tests fail when a new event type lacks metadata.
+
+**Refs:** `ArchLucid.Core/Audit/AuditEventTypes.cs`, `docs/library/AUDIT_COVERAGE_MATRIX.md`.
+
+**Size estimate:** M.
+
+---
+
+## TB-127 — Audit tests for sponsor/procurement proof actions
+
+**Objective:** Prove commercially sensitive proof actions are auditable or explicitly informational-only.
+
+**Scope:**
+
+- Add targeted tests around sponsor proof generation, procurement pack/deal-ready checks, quote follow-up mutations, and commercial closeout state transitions.
+- Where an action intentionally does not write audit rows, document why and ensure support artifacts still have traceability.
+
+**Acceptance criteria:**
+
+- Critical sponsor/procurement actions either emit audit events or have explicit informational-only rationale.
+- Tests cover at least one success and one blocked/HOLD path.
+- No test requires live buyer data or external services.
+
+**Refs:** proof scripts, marketing quote admin controllers/repositories, audit integration tests.
+
+**Size estimate:** M.
+
+---
+
+## TB-128 — Support/audit triage one-pager
+
+**Objective:** Give operators a short, deterministic investigation path from `runId` or `correlationId`.
+
+**Scope:**
+
+- Add a one-page runbook: given `runId`, `manifestId`, or `correlationId`, open these artifacts/endpoints in order.
+- Include support bundle, audit slice, committed-run evidence, first-pilot command center, and trace/provenance links.
+- Keep raw SQL optional and clearly marked internal-only.
+
+**Acceptance criteria:**
+
+- Operators can follow one page without reading the whole troubleshooting tree.
+- Buyer-safe vs internal-only artifacts are labeled.
+- Linked from support bundle README or `references.json` if appropriate.
+
+**Refs:** `docs/runbooks/TROUBLESHOOTING.md`, `docs/runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md`, support bundle docs.
+
+**Size estimate:** XS-S.
+
+---
+
+## TB-129 — Quote-to-proof readiness checklist
+
+**Objective:** Tie sales-led quote requests to actual proof readiness before asking for annual conversion.
+
+**Scope:**
+
+- Add a checklist covering quote request, target tier, proof status, ROI basis, AI evidence posture, data consistency, deferred buyer asks, and next commercial action.
+- Reuse proof JSON fields and quote/admin data; do not create a parallel truth source.
+
+**Acceptance criteria:**
+
+- Checklist can distinguish `SEND`, `HOLD`, and `DEFERRED_SCOPE`.
+- Unsupported/defaulted/demo-derived ROI blocks or caveats the commercial ask.
+- Output is available as Markdown and JSON for sales/admin use.
+
+**Refs:** `scripts/FirstPilotCommercialCloseout.ps1`, `scripts/collect-first-pilot-proof.ps1`, marketing quote admin APIs.
+
+**Size estimate:** S.
+
+---
+
+## TB-130 — Quote aging export and follow-up SLA report
+
+**Objective:** Make sales-led commercial packaging operational instead of passive.
+
+**Scope:**
+
+- Add AdminAuthority-only CSV/JSON export for open quote requests with age bucket, tier interest, source, and follow-up status.
+- Add SLA summary: open count, warning count, breach count, and oldest unacknowledged request.
+- Avoid external CRM integration unless already present.
+
+**Acceptance criteria:**
+
+- Admin users can inspect/export quote aging rows without exposing PII outside admin routes.
+- Tests cover authorization and age-bucket logic.
+- Docs state recommended follow-up SLA.
+
+**Refs:** `MarketingPricingQuoteAgingAdminController`, quote aging repositories, `docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`.
+
+**Size estimate:** M.
+
+---
+
+## TB-131 — Commercial closeout artifact hardening
+
+**Objective:** Make the generated commercial closeout artifact authoritative and consistent with proof state.
+
+**Scope:**
+
+- Verify `commercial-closeout.md/json` agree with `go-no-go-summary.json`, command center disposition, ROI basis, procurement posture, and deferred scope.
+- Add tests or fixture assertions for PASS, HOLD, and DEFERRED_SCOPE.
+- Include owner, next ask, caveats, and linked proof artifacts.
+
+**Acceptance criteria:**
+
+- Markdown and JSON dispositions cannot diverge silently.
+- HOLD due to AI/ROI/data/procurement appears as commercial HOLD.
+- Deferred buyer requirements are labeled `DEFERRED_SCOPE`, not missing product evidence.
+
+**Refs:** `scripts/FirstPilotCommercialCloseout.ps1`, `scripts/ci/tests/FirstPilotCommercialCloseout.Tests.ps1`, first-pilot proof fixtures.
+
+**Size estimate:** S.
+
+---
+
+## TB-132 — Tier fit validation matrix
+
+**Objective:** Keep pricing tiers aligned with buyer jobs, evidence outputs, and explicit exclusions.
+
+**Scope:**
+
+- Add a matrix mapping each tier to buyer job, included proof outputs, support/assurance posture, excluded/deferred capabilities, and upgrade path.
+- Validate tier names and exclusions against pricing philosophy and commercial/procurement copy.
+
+**Acceptance criteria:**
+
+- Tier matrix is machine-readable or CI-checkable.
+- Copy cannot imply V1 includes live Marketplace transactability, SOC 2 CPA, public references, or V1.1 connectors.
+- Matrix links to quote-to-proof and service-led offer materials.
+
+**Refs:** `docs/go-to-market/PRICING_PHILOSOPHY.md`, `docs/library/PRODUCT_PACKAGING.md`, route/tier/policy/nav registry.
+
+**Size estimate:** S.
+
+---
+
+## TB-133 — Service-led offer pack aligned to pricing
+
+**Objective:** Turn the current pricing and order-form materials into a sales-led package that can be reused in founder-led sales.
+
+**Scope:**
+
+- Produce a concise offer pack: one-page offer, pilot scope, expected proof artifacts, buyer prerequisites, exclusions, order-form path, and next step after proof.
+- Align with named SKUs in service-led GTM docs and pricing philosophy.
+- Keep owner/customer/legal inputs out of committed placeholders unless explicitly approved.
+
+**Acceptance criteria:**
+
+- Offer pack can be sent internally to prepare a sales-led engagement.
+- It does not claim live commerce, public references, or external attestations.
+- It links to proof readiness checklist and commercial closeout artifacts.
+
+**Refs:** `docs/go-to-market/PRICING_PHILOSOPHY.md`, `docs/go-to-market/ORDER_FORM_TEMPLATE.md`, `docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`, `docs/go-to-market/SERVICE_LED_OFFERS.md` if present.
+
+**Size estimate:** S.
+
+---
+
+## TB-134 — Commercial copy overclaim guard
+
+**Objective:** Prevent buyer-facing commercial copy from implying unavailable capabilities or unsupported ROI.
+
+**Scope:**
+
+- Add CI checks for phrases implying live commerce, Azure Marketplace transactability, SOC 2 CPA, third-party pen-test completion, public customer references, or unsupported ROI/cost claims.
+- Reuse procurement claim-coherence scanners where possible.
+- Cover committed docs and selected UI marketing/operator copy that buyers may see.
+
+**Acceptance criteria:**
+
+- A fixture with a false SOC 2/live-commerce/public-reference/unsupported-ROI claim fails.
+- Approved deferred-scope language passes.
+- The check reports file path, matched phrase, and suggested caveat.
+
+**Refs:** `scripts/procurement_pack_validation.py`, `docs/go-to-market/`, `archlucid-ui/src/app/(marketing)/`, `archlucid-ui/src/app/(operator)/why-archlucid/`.
+
+**Size estimate:** S.
+
+---
+
+## TB-135 — V1.1 backlog: SOC 2 CPA attestation program kickoff (assessment #23)
+
+**Window:** **V1.1 backlog** — owner / organizational program, not V1 engineering. **Do not** re-prompt from assessment batches; see **`.cursor/rules/V1_1-assurance-backlog.mdc`**.
+
+**Context:** V1 ships honest self-assessment, CAIQ/SIG/DPA templates, and roadmap (`docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/SOC2_ROADMAP.md`, `docs/go-to-market/TRUST_CENTER.md`). CPA Type I/II engagement is gated on ARR or binding procurement requirement per [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-05-05 (SOC 2 ARR trigger)*.
+
+**Pick up when owner directs:**
+
+1. Confirm scope (Trust Services Criteria), budget ceiling, and auditor/readiness consultant shortlist.
+2. Align observation window and target report type with [`SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md).
+3. Update Trust Center rows only when posture changes — no implied “SOC 2 issued” language before CPA delivery.
+
+**Explicit limits:** Not a coding-agent default task; **`(A)` assessments must not** treat absent CPA SOC 2 as a V1 defect.
+
+**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c, assessment improvement **#23**.
+
+**Size estimate:** Organizational — multi-week / multi-month; no repo SLA.
+
+---
+
+## TB-136 — V1.1 backlog: third-party pen-test program (assessment #25)
+
+**Window:** **V1.1 backlog** — funded vendor engagement, not V1 engineering. **Do not** re-prompt from assessment batches; see **`.cursor/rules/V1_1-assurance-backlog.mdc`**. V1 relies on **owner-conducted** testing (**TB-005**).
+
+**Pick up when owner directs:**
+
+1. Select vendor, award SoW (`docs/security/pen-test-summaries/2026-Q2-SOW.md` template).
+2. Execute engagement, remediate material findings, decide public vs NDA-only summary policy.
+3. Populate redacted summary working copy (`2026-Q2-REDACTED-SUMMARY.md`) and refresh Trust Center when published.
+
+**Explicit limits:** Not a substitute for **TB-005** owner-conducted V1 exercise; not autonomous external attack from the coding agent.
+
+**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c, assessment improvement **#25**, **TB-005**.
+
+**Size estimate:** Organizational — vendor-led; calendar not pinned here.
+
+---
+
+## TB-137 — Real-LLM evidence: full quad-agent live pipeline gate
+
+**Status:** Open. Assessment improvement **#1** shipped a **topology-only** live smoke (`Live_topology_agent_only_produces_valid_agent_result` + `scripts/Invoke-RealLlmEvidenceGate.ps1`). The full four-agent path (`Live_pipeline_topology_compliance_cost_merge_produces_non_empty_manifest`) still fails on live JSON merge/manifest completeness.
+
+**Pick up when:**
+
+1. Harden Compliance/Critic live JSON (proposedChanges, findings severity labels) until merge succeeds reliably.
+2. Promote gate filter to full pipeline or add a second profile (`full-pipeline`) with merge-based schema/structural rows.
+3. Re-run `Invoke-RealLlmEvidenceGate.ps1` and refresh `artifacts/release/real-llm-evidence-gate.md`.
+
+**Refs:** `ArchLucid.AgentRuntime.Tests/RealAzureOpenAIEndToEndTests.cs`, `RealLiveAoaiEvidenceProfiles`, assessment **#1**.
+
+**Size estimate:** M (~4–8 h).
+
+---
+
+## TB-138 — Real-LLM evidence: GitHub golden-cohort secrets + required PR check (TB-007 Gap A remainder)
+
+**Status:** Partially unblocked locally (2026-05-29). Owner can run `secrets/local-real-aoai.env` + `scripts/Invoke-RealLlmEvidenceGate.ps1` for assessment **#1** evidence. **CI promotion** still blocked on protected Environment secrets / federated identity for `archlucid-golden-cohort` (eastus).
+
+**Pick up when:**
+
+1. Inject `ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_KEY` (or federated identity) into the protected GitHub Environment.
+2. Add `cohort-real-llm-gate` to required main-branch status checks per `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` § 2.
+3. Verify with `.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate -UseGitHubCli`.
+
+**Refs:** **TB-007** Gap A, `docs/engineering/BUILD.md` § *Real-mode LLM CI and golden cohort*.
+
+**Size estimate:** S operational (~1 h once deployment exists).
+
+---
+
+## TB-139 — Real-LLM evidence: capture token usage and cost in gate metrics
+
+**Status:** Partial (2026-05-30). `TryWriteRealLlmRunMetricsJson` now computes `estimatedCostUsd` when token totals are &gt; 0 (env-rate override or GPT-4o defaults). **`inputTokensTotal` / `outputTokensTotal`** still depend on Azure `Usage` reaching `LiveAoaiTraceSpy` and on fixing production double-consume in `LlmCompletionAccountingClient`.
+
+**Pick up when:**
+
+1. Trace token counts from `AzureOpenAiCompletionClient` into `IAgentExecutionTraceRecorder` for live runs.
+2. Optionally surface `estimatedCostUsd` via existing `AgentExecution:LlmCostEstimation` options in gate metrics JSON.
+3. Gate row **Token/cost estimate** should flip from **Not captured** to **Passed** on live runs.
+
+**Refs:** `RealAzureOpenAIEndToEndTests.TryWriteRealLlmRunMetricsJson`, `scripts/Invoke-RealLlmEvidenceGate.ps1`.
+
+**Size estimate:** S (~2–4 h).
+
+---
+
+## TB-140 — Real-LLM eval corpus: real-mode scenarios + nightly scoring (TB-007 Gap C)
+
+**Status:** Open. All `tests/eval-corpus/` scenarios remain `"mode": "simulator"`. No CI job asserts real-model finding quality against keyword expectations.
+
+**Pick up when:**
+
+1. Add at least one eval-corpus scenario with `"mode": "real"` and meaningful `expectedFindings` keyword checks.
+2. Wire nightly or post-deploy job running `scripts/ci/eval_agent_corpus.py` against real-mode API (same secrets/budget probe as golden cohort gate).
+3. Gate on `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` variable documented in **TB-007** Gap C.
+
+**Refs:** **TB-007** Gap C, `.github/workflows/golden-cohort-nightly.yml`, `tests/eval-corpus/`.
+
+**Size estimate:** M (~4 h).
+
+---
+
+## TB-141 — V1.1 backlog: real pilot proof packet cohort
+
+**Window:** **V1.1 backlog** — owner-selected scenarios/environments required. Data policy resolved 2026-05-30: customer data, sanitized internal data, and demo-only data are all allowed input classes when the relevant authorization, redaction, source labeling, and buyer-safe caveats are satisfied. **Do not** re-prompt from V1 assessment batches unless the owner explicitly asks to pick up this V1.1 item.
+
+**Context:** V1 can improve proof-packet mechanics, source labeling, release rollups, skip semantics, and first-screen proof status. The first proof-density cohort scenarios were selected on 2026-05-30: AI / LLM workload governance, regulated SaaS procurement / SOC-style diligence, and Azure cost / orphan / governance review. A named cohort of real pilot proof packets still requires owner decisions on environments and credentials, so it is not a V1 scored defect. The threshold for moving from controlled pilots to broader claims is already defined in `docs/go-to-market/GTM_BACKLOG.md` § *Proof-gated rollout criteria*.
+
+**Pick up when owner directs:**
+
+1. Define environment boundaries for the selected first cohort scenarios:
+   - AI / LLM workload governance (`templates/starter-proof-packs/ai-llm-workload/`)
+   - Regulated SaaS procurement / SOC-style diligence (`templates/starter-proof-packs/regulated-saas-soc-procurement/`)
+   - Azure cost / orphan / governance review (`templates/starter-proof-packs/azure-cost-governance/`)
+2. Apply the `GTM_BACKLOG.md` proof-gated rollout criteria when deciding whether the cohort unlocks broader sales claims.
+3. Run the cohort, archive buyer-safe packets, and update GTM materials only with claims supported by those packets.
+
+**Explicit limits:** Do not treat absence of this cohort as a current `(A)` headline readiness penalty. V1 assessment work should focus on the reusable evidence harnesses and proof semantics that make the later cohort credible.
+
+**Refs:** `docs/assessments/LATEST.md` §9, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md`.
+
+**Size estimate:** Owner/program work — depends on selected scenarios and environment access.
+
+---
+
+## TB-142 — V1.1 backlog: market-facing demo asset production
+
+**Window:** **V1.1 backlog** — brand, audience, and publication approval required. Channel resolved 2026-05-30: optimize **Upwork** first; website, sales email, LinkedIn, and live demo can reuse/adapt later. Evidence policy resolved 2026-05-30: real-mode output may be shown in public assets when authorized, redacted, source-labeled, and caveated; synthetic/demo-labeled assets remain allowed. **Do not** re-prompt from V1 assessment batches unless the owner explicitly asks to pick up this V1.1 item.
+
+**Context:** V1 can harden proof artifacts, claim-language lint, starter proof packs, and operator first-value paths. Final market-facing screenshots, video, sales copy, and channel-specific demo assets are owner-approved GTM outputs and are not a V1 scored defect.
+
+**Pick up when owner directs:**
+
+1. Select the primary Upwork audience and proposal/profile format.
+2. Choose the evidence source for each asset: authorized real-mode output when publishable, or synthetic/demo-labeled output when safer.
+3. Produce screenshots/video/copy and run promise-language checks before publication.
+
+**Explicit limits:** Do not claim public customer proof, live production SLA, SOC 2 CPA, third-party validation, or broad real-LLM validation unless separate evidence exists.
+
+**Refs:** `docs/go-to-market/WHAT_NOT_TO_PROMISE.md`, `docs/go-to-market/COMMERCIAL_DECISION_PACKET.md`, `templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`.
+
+**Size estimate:** Owner/GTM production work — depends on channel and approval path.
+
+---
+
+## TB-143 — In-app markdown documentation renderer + `/help/{topic}` routes
+
+**Status:** Open. Partial shell exists (`archlucid-ui/src/app/(operator)/help/`) but product users still land on GitHub blob pages for “Learn more” and documentation index links.
+
+**Objective:** Render customer-facing Markdown inside the ArchLucid operator (and selected marketing) shell at stable routes such as `/help/pilot-guide`.
+
+**Scope:**
+
+- Add dynamic route(s) under `archlucid-ui/src/app/(operator)/help/[topic]/` (or equivalent) that load registry-defined source markdown at build time or via a controlled server read path.
+- Render with product typography/spacing per [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md) and [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+- Include in-page navigation (topic list, headings TOC) and reuse existing help search where practical.
+- No GitHub chrome, branch selector, file tree, or raw/edit/blame affordances.
+
+**Acceptance criteria:**
+
+- `/help/pilot-guide` renders buyer-safe pilot content without leaving ArchLucid.
+- Help panel and contextual help can target in-app slugs instead of external URLs.
+- Page title + summary appear above body content; markdown links to other registered topics stay in-app.
+
+**Refs:** **TB-144**, `HelpProductGuide.tsx`, `HelpDocsClient.tsx`, `getDocHref()`, `toDocsBlobUrl()`.
+
+**Size estimate:** M (~1–2 days).
+
+---
+
+## TB-144 — Customer-facing documentation registry
+
+**Status:** Open.
+
+**Objective:** Single registry mapping product documentation topics to canonical in-app routes and repo source markdown paths.
+
+**Scope:**
+
+- Add `archlucid-ui/src/lib/product-documentation-registry.ts` (or generated manifest from repo metadata) with entries for at minimum: pilot guide, getting started, evidence intake, review packages, executive summary, evidence trail, governance approval, audit trail, troubleshooting.
+- Each entry: `id`, `slug`, `title`, `summary`, `sourcePaths[]`, `audience`, optional `redirectFrom[]` stub paths.
+- Export helpers: `getInAppDocHref(slug)`, `resolveDocSourcePaths(slug)`, `allCustomerFacingTopics()`.
+- Document registry authoring rules in [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md).
+
+**Acceptance criteria:**
+
+- Registry is the only authoritative map from product topic id → `/help/{slug}` → markdown source.
+- Unit tests cover slug lookup and stub-path resolution (**TB-146**).
+
+**Refs:** **TB-143**, **TB-145**, **TB-146**, `help-topics.ts`, `doc-index.json`.
+
+**Size estimate:** S (~2–4 h).
+
+---
+
+## TB-145 — Migrate operator/product help links from GitHub blob to in-app routes
+
+**Status:** Open.
+
+**Objective:** Replace customer-facing GitHub blob links with in-app documentation routes across operator and buyer-visible surfaces.
+
+**Scope:**
+
+- `HelpPanel.tsx` — topic links and core pilot guide CTA use registry in-app hrefs.
+- `contextual-help-content.ts` / `ContextualHelp` — `learnMoreUrl` resolves to `/help/{slug}` not `toDocsBlobUrl()`.
+- `help-topics.ts` — add optional `inAppSlug` (or derive from registry); stop defaulting `getDocHref()` to GitHub for operator audiences.
+- `archlucid-ui/public/doc-index.json` generation — emit in-app URLs for customer-facing entries.
+- Audit and migrate hard-coded GitHub links in buyer-polished operator components and marketing modules where the audience is not developer/contributor (integrations page may keep GitHub for admin-only deep links if gated).
+
+**Acceptance criteria:**
+
+- Default deployed operator UI (without `NEXT_PUBLIC_DOCS_BASE_URL`) opens in-app help, not github.com.
+- No product “Learn more” link targets `docs/library/PILOT_GUIDE.md` stub on GitHub.
+
+**Refs:** **TB-143**, **TB-144**, **TB-146**, `WizardStepPreset.tsx`, `security-trust-content.ts`, `PilotStartHereStrip.tsx`.
+
+**Size estimate:** M (~4–8 h).
+
+---
+
+## TB-146 — Redirect-stub ban + canonical target resolution in registry
+
+**Status:** Open.
+
+**Objective:** Ensure product UI never links compatibility redirect stubs; resolve final canonical markdown internally.
+
+**Scope:**
+
+- Registry entries must not use stub-only files as rendered source (e.g. `docs/library/PILOT_GUIDE.md` → [`docs/library/customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) and/or merged `CORE_PILOT.md` sections).
+- Add validation script or unit test that fails when a customer-facing registry entry points at a file whose H1/title matches “Moved —” or “redirect” without a resolved `canonicalSourcePath`.
+- Update any remaining UI/doc-index references that still point at stub paths.
+
+**Acceptance criteria:**
+
+- Clicking pilot guide help from product UI never shows a four-line “Moved — pilot guide” page (in-app or external).
+- Validation fails CI if a new stub is registered for operator/buyer audience.
+
+**Refs:** **TB-144**, **TB-145**, `docs/library/PILOT_GUIDE.md`.
+
+**Size estimate:** XS (~1–2 h).
+
+---
+
+## TB-147 — CI drift guard — no customer-facing GitHub blob links in product UI
+
+**Status:** Open.
+
+**Objective:** Prevent regression of GitHub blob URLs into operator and marketing UI code paths.
+
+**Scope:**
+
+- Add lint script (Python or Node) scanning `archlucid-ui/src/app/(operator)/`, `archlucid-ui/src/app/(marketing)/`, `archlucid-ui/src/components/`, and selected `archlucid-ui/src/lib/` files for `github.com/.+/blob/` patterns.
+- Allowlist: explicit developer/diagnostics modules, tests, comments marked `docs-source-only`, env examples.
+- Wire into existing UI lint or docs CI gate (reuse pattern from **TB-134** / procurement validators where practical).
+
+**Acceptance criteria:**
+
+- Introducing a new unallowlisted GitHub blob href in operator/marketing UI fails CI with file path and matched URL.
+- Existing known violations either fixed (**TB-145**) or temporarily allowlisted with TB reference and expiry note.
+
+**Refs:** **TB-145**, **TB-134**, `scripts/procurement_pack_validation.py`.
+
+**Size estimate:** S (~2–4 h).
+
+---
+
+## TB-148 — Role-gated optional “View source on GitHub” footer
+
+**Status:** Open.
+
+**Objective:** Provide optional source transparency for admins/developers without making GitHub the primary documentation experience.
+
+**Scope:**
+
+- On in-app doc pages (**TB-143**), render a collapsed footer link “View source documentation” only when user is in admin/developer/diagnostics mode (reuse existing admin/diagnostics env or role signals — do not expose to buyer-polished shell).
+- Footer link may point at registry `sourcePaths[0]` on GitHub for contributors; hidden entirely in buyer-polished operator shell.
+
+**Acceptance criteria:**
+
+- Buyer-polished deployments: no visible GitHub source link on help pages.
+- Admin/configuration contexts: optional footer link present and correct.
+
+**Refs:** **TB-143**, **TB-144**, `isBuyerPolishedOperatorShellEnv()`, `PRODUCT_DOCUMENTATION_PRESENTATION.md`.
+
+**Size estimate:** XS (~1–2 h).
+
+---
+
 ## TB-004 — Wire OTel exporters + verify agent-output metrics; add Azure alerts
 
 **Status (2026-05-25):** **Closed for production-like hosts with managed Prometheus.** **`infra/terraform-monitoring/prometheus_agent_output_rules.tf`** deploys Azure Monitor Prometheus rules mirroring **`infra/prometheus/archlucid-alerts.yml`** group **`archlucid-agent-output-quality`** (quality-gate rejects, semantic **p10/p50**, LLM faithfulness **p50**, parse failures, trace blob upload failures) to **`azurerm_monitor_action_group.ops`**. Requires **`enable_prometheus_slo_rule_group`** + non-empty **`azure_monitor_workspace_id`**. Eval baseline CI failure remains a **GitHub Actions** alert path (not Terraform). See **`docs/library/OBSERVABILITY.md`**, **`docs/library/AGENT_OUTPUT_EVALUATION.md`** §9, and dashboard import runbook **`docs/runbooks/OBSERVABILITY_DASHBOARD_BINDING.md`** (Improvement **#9**, Batch J).
@@ -175,7 +963,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 4. **Tracker hygiene** — Structure findings rows (severity, summary, owner, PR, retest) for [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md).
 5. **Posture text** — When retests are green, draft **stub → final** narrative that matches what was run and fixed and stays consistent with [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
 
-**Explicit limits:** The agent does **not** autonomously attack **archlucid.net** or Azure; **you** run tools in your environments and supply redacted logs or behaviour descriptions. This backlog item is **not** a substitute for a **V2** third-party report.
+**Explicit limits:** The agent does **not** autonomously attack **archlucid.net** or Azure; **you** run tools in your environments and supply redacted logs or behaviour descriptions. Third-party vendor engagement is **V1.1 backlog** (**TB-136**), not a substitute for this owner-conducted V1 exercise.
 
 **Size estimate:** Ongoing — budget **30–60 min sessions** per surface or CI failure cluster; close the item when the 2026-Q2 owner tracker is complete and posture text is updated.
 
@@ -187,7 +975,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ### Gap A — Promote cohort-real-llm-gate to a required PR status check
 
-**Status:** Blocked on owner task. The Azure OpenAI deployment (archlucid-golden-cohort in eastus) must be provisioned and the GitHub protected-Environment secret (ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_KEY or federated identity) injected before the gate can be promoted. See docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md § 2 and § 6 for the one-line promotion change and the stop-and-ask boundary.
+**Status (2026-05-29):** **Local path shipped** for assessment improvement **#1** — `secrets/local-real-aoai.env` (gitignored), `scripts/Import-LocalRealAoaiEnv.ps1` (Foundry URL → classic host), `scripts/Invoke-RealLlmEvidenceGate.ps1` (topology-only profile), tolerant parsers (`AgentTypeJsonConverter`, `EvalCorpusFindingSeverityJsonConverter`), and `AzureOpenAiEndpointNormalizer` in `AzureOpenAiCompletionClient`. **CI promotion** remains blocked on owner task: Azure OpenAI golden-cohort deployment secrets / federated identity in the protected GitHub Environment. See **TB-138** and `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` § 2 and § 6.
 
 **Prerequisite checklist (Improvement #20, Batch J):** Run **`.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate`** locally (names only). With GitHub CLI: **`-UseGitHubCli`**. Documented in **`docs/engineering/BUILD.md`** § *Real-mode LLM CI and golden cohort*.
 
@@ -3250,17 +4038,19 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ---
 
-## TB-093 --- Create `terraform-openai` root --- provision Azure OpenAI account + model deployments
+## TB-093 --- Compose Azure OpenAI into hosted Terraform stack
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
 **Problem:**
 
-`terraform-openai/main.tf` explicitly states the Azure OpenAI resource "may be out-of-band" and only manages a consumption budget. The Cognitive Services account itself (`Microsoft.CognitiveServices/accounts`), model deployments (completion, embedding), content filter policies, CMK configuration, private endpoint, and diagnostic settings are all managed outside Terraform. `ArchLucid.AgentRuntime` and `ArchLucid.Retrieval` both depend on this service at runtime (`Azure.AI.OpenAI` NuGet, `AzureOpenAI` config section). Any quota change, model version bump, or capacity reconfiguration done in the portal cannot be reviewed as code or reproduced automatically. Cross-ref **TB-080** (migrate from API key to `DefaultAzureCredential` --- the Terraform root must emit the endpoint so the app can be switched to managed identity auth).
+`terraform-openai/main.tf` explicitly states the Azure OpenAI resource "may be out-of-band" and only manages a consumption budget. The Cognitive Services account itself (`Microsoft.CognitiveServices/accounts`), model deployments (completion, embedding), content filter policies, CMK configuration, private endpoint, and diagnostic settings are all managed outside Terraform. `ArchLucid.AgentRuntime` and `ArchLucid.Retrieval` both depend on this service at runtime (`Azure.AI.OpenAI` NuGet, `AzureOpenAI` config section). Any quota change, model version bump, or capacity reconfiguration done in the portal cannot be reviewed as code or reproduced automatically. Cross-ref **TB-080** (migrate from API key to `DefaultAzureCredential` --- the hosted stack must emit the endpoint so the app can be switched to managed identity auth).
+
+**Owner decision (2026-05-30):** Hosted SaaS examples should compose Azure OpenAI into `infra/terraform/prod` by default. A separate `terraform-openai` root can remain as a validation or module-staging surface, but it should not be the default production-like operator path.
 
 **What to do:**
 
-1. Rename or extend `terraform-openai` to own the `azurerm_cognitive_account` resource (kind `OpenAI`, sku `S0`).
+1. Move or wrap the `terraform-openai` resource definitions into `infra/terraform/prod`, using reusable module boundaries if helpful.
 2. Add `azurerm_cognitive_deployment` blocks for the completion and embedding model deployments, accepting model name and capacity as variables.
 3. Add optional `azurerm_private_endpoint` and `azurerm_private_dns_zone` for `privatelink.openai.azure.com`.
 4. Add `azurerm_monitor_diagnostic_setting` forwarding to Log Analytics.
@@ -3269,13 +4059,14 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 **Acceptance criteria:**
 
-- `terraform apply` on `terraform-openai` creates the Cognitive Services account and at least one model deployment.
-- Endpoint output can be consumed by `terraform-container-apps` as an env var, replacing hard-coded API key config.
+- Hosted-stack `terraform validate` and `terraform plan` include the Cognitive Services account and at least one model deployment when real LLM is enabled.
+- Endpoint output is consumed by the API/worker app settings, replacing hard-coded API key config where managed identity is selected.
 - Existing consumption budget resource is preserved.
 
 **Affected files / projects:**
 
-- `infra/terraform-openai/main.tf`, `variables.tf`, `outputs.tf`
+- `infra/terraform-openai/main.tf`, `variables.tf`, `outputs.tf` (module/validation staging as needed)
+- `infra/terraform/prod`
 - `infra/terraform-pilot/main.tf` (pilot_essential flag)
 
 **Cross-ref:** **TB-080** (Entra auth migration), **TB-091** (private endpoint pattern), **TB-092** (managed identity chain).
@@ -3353,7 +4144,7 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ---
 
-## TB-096 --- Create `terraform-search` root --- Azure AI Search service
+## TB-096 --- Compose Azure AI Search into hosted Terraform stack
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
@@ -3363,7 +4154,7 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 **What to do:**
 
-1. Create `infra/terraform-search/` with `main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`, `versions.tf`, `backend.tf`, `checks.tf`.
+1. Add Azure AI Search resources to `infra/terraform/prod`, using a reusable module or temporary `infra/terraform-search/` validation surface if helpful.
 2. Provision `azurerm_search_service` with SKU as variable (minimum `basic` for staging, `standard` for production), replica and partition count, semantic search tier.
 3. Set `public_network_access_enabled = false` if VNet integration is enabled.
 4. Export `search_service_id` and `primary_key` (or use managed identity) for consumption by `terraform-private` and `terraform-container-apps`.
@@ -3378,7 +4169,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 **Affected files / projects:**
 
-- `infra/terraform-search/` (new root)
+- `infra/terraform/prod`
+- `infra/terraform-search/` (optional module/validation staging surface)
 - `infra/terraform-private/network.tf`, `variables.tf`
 - `infra/terraform-pilot/main.tf`
 
@@ -4051,5 +4843,266 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 **Cross-ref:** **TB-108** (rendered coverage fields depend on correct types); **TB-106** (same schema drift risk for `agentExecutionLlmCostEstimate` / `trustEvidenceCard`).
 
 **Size estimate:** **XS** — ~1–2 h (regeneration + annotation fix + cast cleanup).
+
+---
+
+## TB-114 — Establish enterprise design-token layer (Carbon-aligned neutral palette and accent scale)
+
+**Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Problem:**
+
+The current UI inherits Tailwind's default palette and shadcn component defaults. The result is `teal-500` borders, `neutral-100` card backgrounds, and accent colors with a startup-dashboard feel rather than a Carbon-grade enterprise visual language. There is no single place that defines the ArchLucid surface palette — changes to brand-significant tokens scatter across dozens of component files.
+
+**What to do:**
+
+1. Create `archlucid-ui/src/lib/design-tokens.ts` (or a CSS custom-properties file) that declares the authoritative token set:
+   - **Neutral surface scale:** `--al-surface-base`, `--al-surface-raised`, `--al-surface-overlay` — mapped to Carbon's `$layer-01` / `$layer-02` semantics (cool gray range: `gray-50` → `gray-100` for light mode).
+   - **Accent:** a single restrained teal (`teal-700` / `teal-800`) with clearly named roles (`--al-accent-interactive`, `--al-accent-border-focus`). Eliminate free-form teal use elsewhere.
+   - **Status semantic tokens:** `--al-status-ready`, `--al-status-warn`, `--al-status-blocked`, `--al-status-approved`, `--al-status-approved-monitoring` — each with a background, foreground, and border variant.
+   - **Text hierarchy:** `--al-text-primary`, `--al-text-secondary`, `--al-text-placeholder`, `--al-text-disabled`.
+2. Update `tailwind.config.ts` to extend Tailwind's theme with these tokens, so component files use semantic names (`text-al-text-secondary`) rather than raw palette positions (`text-neutral-500`).
+3. Document the token map in `docs/library/UI_DESIGN_SYSTEM.md` §Tokens.
+
+**Acceptance criteria:**
+
+- Design token file exists and is the single source of truth for surface, accent, status, and text colors.
+- `tailwind.config.ts` exposes the tokens as Tailwind utilities.
+- No component file hardcodes a raw palette value that contradicts the token set.
+- Light and dark mode both have token-mapped values.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/lib/design-tokens.ts` (new)
+- `archlucid-ui/tailwind.config.ts`
+- `archlucid-ui/src/app/globals.css`
+- `docs/library/UI_DESIGN_SYSTEM.md` (token table section)
+
+**Cross-ref:** **TB-115** (surface/card pass depends on tokens being defined first); **TB-116** (status tags use status tokens).
+
+**Size estimate:** **S** — ~4–6 h (token definition + Tailwind wiring + docs; excludes component migration which is TB-115/116/117).
+
+---
+
+## TB-115 — Surface and card audit: remove pastel cards; apply Carbon-style neutral surfaces
+
+**Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Problem:**
+
+Operator surfaces contain large pastel cards with colored backgrounds (`bg-teal-50`, `bg-amber-50`, `bg-blue-50`, `bg-green-50`) used decoratively rather than to communicate actionable status. These read as consumer SaaS, not enterprise governance. Carbon's aesthetic uses flat neutral surfaces (`$layer-01`) with structured borders and restrained elevation — color appears only on status indicators and interactive elements.
+
+**What to do:**
+
+1. Audit all `archlucid-ui/src/app/(operator)/` and `archlucid-ui/src/components/` files for cards using colored `bg-*-50` or `bg-*-100` backgrounds. Produce an enumerated list.
+2. For each card: determine whether the color communicates actionable status.
+   - If **yes** (e.g. an error callout, a governance block): replace with the canonical status token from **TB-114** (`--al-status-warn`, etc.).
+   - If **no** (decorative): replace with the neutral surface token (`--al-surface-raised`), a `border border-neutral-200` border, and no background color fill.
+3. Apply the same audit to teal border overuse: remove `border-teal-*` from non-interactive, non-focused elements. Teal borders should only appear on focus rings and interactive affordances.
+4. Large marketing-card layouts inside operator views (giant hero cards, oversized onboarding banners) should be reduced to compact enterprise card size following Carbon's `16px` internal padding convention.
+
+**Acceptance criteria:**
+
+- No operator surface uses a decorative pastel background.
+- Every colored card surface has a documented status reason.
+- Teal border usage is limited to focus rings and interactive affordances.
+- Cards in operator views use compact enterprise sizing, not marketing card sizing.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/` — all page views and section components
+- `archlucid-ui/src/components/` — shared cards (e.g. `CorePilotNextStepsCard.tsx`, `OperatorNextActionsCard.tsx`, `WelcomeBanner.tsx`, `SampleFirstReviewPackageCard.tsx`)
+
+**Cross-ref:** **TB-114** (tokens must exist before this pass); **TB-116** (status cards get canonical tags, not ad-hoc coloring).
+
+**Size estimate:** **M** — ~1.5 days (audit + systematic replacement across ~40–60 component files).
+
+---
+
+## TB-116 — Implement canonical status tag component and replace ad-hoc status badges
+
+**Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Problem:**
+
+Run status, governance approval state, and finding severity are communicated through a mix of ad-hoc colored `span` elements, `Badge` variants, and inline `cn()` conditionals scattered across the codebase. There is no single canonical set of status tokens. The result is visual inconsistency and copy inconsistency — the same state appears as "READY", "Ready", "ready", or "✓" depending on where the user looks.
+
+**What to do:**
+
+1. Create `archlucid-ui/src/components/ui/StatusTag.tsx` — a single component accepting a `status` prop with the canonical value set:
+   - `ready` · `needs-attention` · `blocked` · `approved` · `approved-with-monitoring` · `in-progress` · `draft`
+   - Each renders a compact tag using the status tokens from **TB-114** (background, foreground, optional border).
+   - Copy must match exactly: `Ready`, `Needs attention`, `Blocked`, `Approved`, `Approved with monitoring`, `In progress`, `Draft`.
+2. Replace all ad-hoc status rendering in operator views with `<StatusTag status="..." />`.
+3. Finding severity (`Critical`, `High`, `Medium`, `Low`, `Info`) should use a separate `SeverityTag` component with the same token discipline.
+4. Export both from `archlucid-ui/src/components/ui/index.ts`.
+
+**Acceptance criteria:**
+
+- `StatusTag` and `SeverityTag` exist and cover all production statuses.
+- No operator view renders status as an ad-hoc colored `span` or inline badge.
+- Copy is consistent across all surfaces for the same state value.
+- Tags are compact (Carbon-style: `12px` text, `4px 8px` padding, `2px` border-radius).
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/components/ui/StatusTag.tsx` (new)
+- `archlucid-ui/src/components/ui/SeverityTag.tsx` (new)
+- `archlucid-ui/src/app/(operator)/reviews/` (run status rendering)
+- `archlucid-ui/src/app/(operator)/governance/` (governance approval state)
+- `archlucid-ui/src/components/` — any component rendering status/severity badges
+
+**Cross-ref:** **TB-114** (status tokens); **TB-115** (card status colors → tags).
+
+**Size estimate:** **S** — ~4–6 h (component creation + replacement pass).
+
+---
+
+## TB-117 — Operator data tables: Carbon-style structured tables for runs, findings, and audit
+
+**Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Problem:**
+
+The reviews list, findings list, and audit timeline use a mix of card-stacked rows, custom `div`-based grids, and minimal `table` elements. None conform to Carbon's structured data table pattern: column headers with sort indicators, row hover states using a single `$layer-hover` tint, compact row height (~40px), and clear primary/secondary column hierarchy. Procurement and CIO reviewers evaluate enterprise products on how their data tables look — a mature table communicates governance credibility; a card stack does not.
+
+**What to do:**
+
+1. Create `archlucid-ui/src/components/ui/EnterpriseTable.tsx` — a typed generic table component:
+   - `<EnterpriseTable columns={...} rows={...} />` with column definition supporting `label`, `key`, `sortable`, `width`, and a `renderCell` slot.
+   - Row hover: `$layer-hover` neutral tint (no teal).
+   - Selected row: left border accent (`--al-accent-interactive`), no full row background.
+   - Compact row height; sticky headers for long tables.
+   - Accessible: `role="grid"`, `aria-sort`, `scope="col"`.
+2. Migrate the runs list (`RunsListClient.tsx`), findings table, and audit results table (`AuditResultsSection.tsx`) to `EnterpriseTable`.
+3. Remove card-stacked row patterns from these surfaces.
+
+**Acceptance criteria:**
+
+- `EnterpriseTable` exists, is typed, and is accessible.
+- Runs list, findings list, and audit timeline use `EnterpriseTable`.
+- Tables have sortable column headers where the underlying data supports sorting.
+- No data list in operator views uses a card-stack layout when a table is more appropriate.
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/components/ui/EnterpriseTable.tsx` (new)
+- `archlucid-ui/src/app/(operator)/reviews/RunsListClient.tsx`
+- `archlucid-ui/src/app/(operator)/audit/_sections/AuditResultsSection.tsx`
+- `archlucid-ui/src/app/(operator)/governance/findings/` (findings table)
+
+**Cross-ref:** **TB-114** (tokens); **TB-116** (status tags used inside table cells).
+
+**Size estimate:** **M** — ~1.5 days (component + three migration targets).
+
+---
+
+## TB-118 — Spacing audit: replace marketing-scale spacing with enterprise-compact spacing in operator views
+
+**Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Problem:**
+
+Operator page sections use `space-y-6`, `py-8`, `gap-6`, and similar spacing that is appropriate for marketing pages but makes enterprise governance surfaces feel open and under-dense. Carbon's operator surfaces use a `16px` base spacing unit with `8px` micro-spacing for inline elements. Many current operator views apply the same spacing as the marketing site.
+
+**What to do:**
+
+1. Define a spacing convention in `docs/library/UI_DESIGN_SYSTEM.md`:
+   - **Operator page section gap:** `space-y-4` (16px) — not `space-y-6` or `space-y-8`.
+   - **Card internal padding:** `p-4` (16px).
+   - **Inline element gap:** `gap-2` (8px).
+   - **Section header to content:** `mb-3` (12px).
+2. Audit all `archlucid-ui/src/app/(operator)/` page views for spacing that exceeds the convention without a documented reason.
+3. Apply the convention systematically — prioritize pages that procurement/CIO reviewers land on first: operator home, review detail, executive dashboard, and findings.
+
+**Acceptance criteria:**
+
+- Spacing convention is documented in `UI_DESIGN_SYSTEM.md`.
+- Operator home, review detail, executive dashboard, and findings pages conform.
+- No operator page section uses `space-y-8` or `py-8` purely for decoration.
+
+**Affected files / projects:**
+
+- `docs/library/UI_DESIGN_SYSTEM.md` (spacing convention section)
+- `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/`
+- `archlucid-ui/src/app/(operator)/governance/findings/`
+
+**Cross-ref:** **TB-115** (card sizing part of same enterprise compactness goal).
+
+**Size estimate:** **S** — ~3–4 h (convention doc + four-page audit and fix).
+
+---
+
+## TB-119 — Typography audit: enforce accessible enterprise type hierarchy across operator surfaces
+
+**Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Problem:**
+
+Current type scale mixes marketing-scale headings (`text-2xl`, `text-3xl`) with operator content without a clear enterprise hierarchy. Carbon's type scale is disciplined: body (`14px`/`0.875rem`), label (`12px`/`0.75rem`), section heading (`16px`/`1rem` semibold), page heading (`20px`/`1.25rem` semibold). No decorative font choices. Text hierarchy is communicated by size and weight, not color alone (color alone is an accessibility failure).
+
+**What to do:**
+
+1. Document the ArchLucid type scale in `docs/library/UI_DESIGN_SYSTEM.md`:
+   - `body`: `text-sm` (14px), `text-neutral-800`.
+   - `label/caption`: `text-xs` (12px), `text-neutral-600`.
+   - `section-heading`: `text-sm font-semibold uppercase tracking-wide`, `text-neutral-700`.
+   - `page-heading`: `text-xl font-semibold`, `text-neutral-900`.
+   - `data-value`: `text-sm font-medium`, `text-neutral-900`.
+2. Audit operator pages for headings that exceed `text-xl` without a documented reason.
+3. Verify that all text distinguishing meaning uses at least two signals (size + weight, not color alone) — accessibility requirement.
+4. Remove any decorative font weight or italic use that is not semantically motivated.
+
+**Acceptance criteria:**
+
+- Type scale is documented.
+- No operator page heading exceeds `text-xl` without a documented exception.
+- Text hierarchy uses size + weight as dual signals; no meaning conveyed by color alone.
+- Audit of operator home, review detail, and executive dashboard passes the convention.
+
+**Affected files / projects:**
+
+- `docs/library/UI_DESIGN_SYSTEM.md` (type scale section)
+- `archlucid-ui/src/app/(operator)/` — page heading and section heading elements
+
+**Cross-ref:** `.cursor/rules/UI-Accessibility-Baseline.mdc`; **TB-115** (cards); **TB-118** (spacing).
+
+**Size estimate:** **S** — ~3–4 h (convention doc + targeted fixes).
+
+---
+
+## TB-120 — Add Carbon-standard Cursor rule so AI-generated UI code stays conformant
+
+**Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
+
+**Problem:**
+
+There is no Cursor rule that instructs the AI assistant to follow the Carbon-inspired enterprise visual standard when writing or modifying UI code. Without a rule, every new component risks defaulting to Tailwind/shadcn aesthetic defaults — pastel cards, teal borders, marketing spacing — which directly contradicts the V1 GA requirement.
+
+**What to do:**
+
+1. Create `.cursor/rules/UI-Enterprise-Design-Standard.mdc` with the following content (adapt format to match existing rules in `.cursor/rules/`):
+   - Reference `docs/library/UI_DESIGN_SYSTEM.md` as the canonical standard.
+   - Include the full ratified agent instruction block verbatim (§ "Ratified instruction for AI coding agents" in `UI_DESIGN_SYSTEM.md`).
+   - Specify auto-attachment glob: `archlucid-ui/src/**/*.tsx`, `archlucid-ui/src/**/*.ts`.
+   - Add explicit "do not" list: no pastel cards for decoration, no `blob/main` doc links (use `blob/master`), no marketing-scale spacing in operator views, no raw status strings instead of `StatusTag`.
+2. Cross-reference the rule from `archlucid-ui/AGENTS.md` under the Cursor rules table.
+
+**Acceptance criteria:**
+
+- `.cursor/rules/UI-Enterprise-Design-Standard.mdc` exists with the full instruction block and correct glob auto-attachment.
+- `archlucid-ui/AGENTS.md` lists the rule.
+- A new component written by the AI assistant after this rule is applied does not use pastel card backgrounds, oversized spacing, or ad-hoc status coloring.
+
+**Affected files / projects:**
+
+- `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (new)
+- `archlucid-ui/AGENTS.md`
+
+**Cross-ref:** **TB-114**–**TB-119** (the design system items this rule enforces).
+
+**Size estimate:** **XS** — ~1 h (rule file + AGENTS.md update).
 
 ---

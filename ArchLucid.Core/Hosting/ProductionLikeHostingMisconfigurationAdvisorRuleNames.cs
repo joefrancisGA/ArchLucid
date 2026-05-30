@@ -32,4 +32,26 @@ public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
 
     /// <summary>Local JWT PEM validation path disallowed when ASP.NET Production or <c>ARCHLUCID_ENVIRONMENT=Production</c>.</summary>
     public const string JwtBearerLocalPemDisallowedProductionProfile = "jwt_bearer_local_pem_disallowed_production_profile";
+
+    /// <summary><c>Retrieval:VectorIndex</c> is not <c>AzureSearch</c> on production-like hosting (owner 2026-05-29).</summary>
+    public const string AzureAiSearchVectorIndexRequiredProductionLike = "azure_ai_search_vector_index_required_production_like";
+
+    /// <summary><c>Retrieval:AzureSearch:Endpoint</c> missing when Azure Search is required on production-like hosting.</summary>
+    public const string AzureAiSearchEndpointRequiredProductionLike = "azure_ai_search_endpoint_required_production_like";
+
+    /// <summary>Raw Service Bus connection string configured on production-like hosting.</summary>
+    public const string IntegrationEventsServiceBusConnectionStringDisallowedProductionLike =
+        "integration_events_service_bus_connection_string_disallowed_production_like";
+
+    /// <summary>Plaintext admin API key on production-like hosting.</summary>
+    public const string AuthenticationApiKeyAdminKeyPlaintextProductionLike =
+        "authentication_api_key_admin_key_plaintext_production_like";
+
+    /// <summary>Plaintext read-only API key on production-like hosting.</summary>
+    public const string AuthenticationApiKeyReadOnlyKeyPlaintextProductionLike =
+        "authentication_api_key_readonly_key_plaintext_production_like";
+
+    /// <summary>Plaintext Azure OpenAI API key on production-like real-mode hosting.</summary>
+    public const string AzureOpenAiApiKeyPlaintextProductionLike =
+        "azure_openai_api_key_plaintext_production_like";
 }

@@ -63,7 +63,9 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
-            schemaRemediation);
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            schemaRemediation,
+            ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
 
         ComplianceAgentHandler compliance = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),

@@ -29,7 +29,7 @@ import {
   type FirstPilotOperatingRailSignals,
 } from "@/lib/first-pilot-operating-rail-status";
 import { mapReadinessStatusToOperatorLabel } from "@/lib/first-pilot-operator-status-vocabulary";
-import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -118,6 +118,7 @@ export function FirstPilotReadinessCockpit() {
   const [healthLoadFailed, setHealthLoadFailed] = useState(false);
   const [runsLoadFailed, setRunsLoadFailed] = useState(false);
   const [scorecardLoadFailed, setScorecardLoadFailed] = useState(false);
+  const [configLint, setConfigLint] = useState<Awaited<ReturnType<typeof fetchAdminConfigLintSummary>> | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,6 +138,9 @@ export function FirstPilotReadinessCockpit() {
         getPilotScorecard().catch(() => null),
       ]);
 
+      const canAdmin = loadedPrincipal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
+      const loadedConfigLint = canAdmin ? await fetchAdminConfigLintSummary().catch(() => null) : null;
+
       if (cancelled)
         return;
 
@@ -147,6 +151,7 @@ export function FirstPilotReadinessCockpit() {
       setPrincipal(loadedPrincipal);
       setScorecard(loadedScorecard);
       setScorecardLoadFailed(loadedScorecard === null);
+      setConfigLint(loadedConfigLint);
       setSignals(
         buildFirstPilotOperatingRailSignals({
           healthStatus: nextHealthStatus,
@@ -177,8 +182,9 @@ export function FirstPilotReadinessCockpit() {
         signals,
         scorecard,
         scorecardLoadFailed,
+        configLint,
       }),
-    [healthStatus, healthLoadFailed, runsLoadFailed, principal, signals, scorecard, scorecardLoadFailed],
+    [healthStatus, healthLoadFailed, runsLoadFailed, principal, signals, scorecard, scorecardLoadFailed, configLint],
   );
   const blocker = firstBlockingRow(rows);
   const canExecute = principal.authorityRank >= AUTHORITY_RANK.ExecuteAuthority;

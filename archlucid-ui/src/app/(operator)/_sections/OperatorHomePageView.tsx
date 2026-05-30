@@ -7,10 +7,11 @@ import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCock
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
+import { PilotStartHereStrip } from "@/components/operator-home/PilotStartHereStrip";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
 import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
 import { OperatorCoArchitectHomeStrip } from "@/components/OperatorCoArchitectHomeStrip";
@@ -68,7 +69,7 @@ function OperatorHomeReviewsGrid() {
                 Operational metrics
               </h3>
 
-              <HelpLink docPath="/docs/CORE_PILOT.md" label="Open the core pilot guide on GitHub (new tab)" />
+              <InAppHelpLink helpSlug="core-pilot" label="Open the core pilot guide" />
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <PilotOutcomeCard />
@@ -131,14 +132,12 @@ function OperatorHomePageBody() {
       <WelcomeBanner />
       <SampleFirstReviewPackageCard />
       <FirstPilotReadinessCockpit />
+      <PilotStartHereStrip />
 
       <div className="max-w-prose space-y-3">
         <FirstWeekRouteGuidance variant="home" />
         <div className="flex flex-wrap items-center gap-2">
-          <HelpLink
-            docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
-            label="First-pilot operator path — full walkthrough on GitHub (new tab)"
-          />
+          <InAppHelpLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
         </div>
       </div>
 

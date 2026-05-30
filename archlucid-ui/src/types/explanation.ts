@@ -1,3 +1,5 @@
+import type { components } from "@/lib/api-types.generated";
+
 /** AI-generated explanation of a single run's decisions, risks, costs, and compliance. */
 export type RunExplanation = {
   summary: string;
@@ -30,78 +32,11 @@ export type StructuredExplanation = {
 /** API string enum for coarse evaluation-backed confidence (JSON via JsonStringEnumConverter). */
 export type FindingConfidenceLevel = "High" | "Medium" | "Low";
 
-/** Per-finding explainability trace completeness from the API. */
-export type FindingTraceConfidenceDto = {
-  findingId: string;
-  traceCompletenessRatio: number;
-  traceConfidenceLabel: string;
-  /** Logical rule id(s) from the explainability trace (`;`-joined when multiple), or `unspecified` when present. */
-  ruleId?: string | null;
-  /** Count of deterministic evidence references backing the finding. */
-  evidenceRefCount?: number | null;
-  /** Plain-language title; may be long — truncate in dense tables. */
-  findingTitle?: string | null;
-  /** Trace dimensions that were empty when completeness was scored. */
-  missingTraceFields?: string[] | null;
-  /** Actionable next steps from the finding / trace pipeline when present. */
-  recommendedActions?: string[] | null;
-  /** Deterministic score from harness / reference-case / trace completeness when persisted. */
-  evaluationConfidenceScore?: number | null;
-  /** Mapped bucket for {@link evaluationConfidenceScore}. */
-  confidenceLevel?: FindingConfidenceLevel | null;
-};
-
-/** Full explanation payload returned inside `RunExplanationSummary`. */
-export type ExplanationResult = {
-  rawText: string;
-  structured: StructuredExplanation | null;
-  confidence: number | null;
-  provenance: ExplanationProvenance | null;
-  summary: string;
-  keyDrivers: string[];
-  riskImplications: string[];
-  costImplications: string[];
-  complianceImplications: string[];
-  detailedNarrative: string;
-  /** Present on `GET /v1/explain/runs/{runId}/explain` when a findings snapshot exists. */
-  findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
-};
-
-/** Persisted artifact reference emitted with aggregate explanations (API: PascalCase → camelCase in JSON). */
-export type CitationReference = {
-  kind:
-    | "Manifest"
-    | "Finding"
-    | "DecisionTrace"
-    | "EvidenceBundle"
-    | "GraphSnapshot"
-    | "ContextSnapshot";
-  id: string;
-  label: string;
-  runId?: string | null;
-};
-
-/** Aggregate executive view for a run (themes, posture, counts + nested explanation). */
-export type RunExplanationSummary = {
-  explanation: ExplanationResult;
-  themeSummaries: string[];
-  overallAssessment: string;
-  riskPosture: string;
-  findingCount: number;
-  decisionCount: number;
-  unresolvedIssueCount: number;
-  complianceGapCount: number;
-  /** Set when faithfulness checker had claims to evaluate (0–1 support ratio). */
-  faithfulnessSupportRatio?: number | null;
-  /** True when aggregate text was substituted from manifest (low faithfulness); absent on older API responses. */
-  deterministicFallbackUsed?: boolean;
-  /** @deprecated Prefer {@link deterministicFallbackUsed}; older API wire name. */
-  usedDeterministicFallback?: boolean;
-  faithfulnessWarning?: string | null;
-  findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
-  /** Persisted artifacts backing the narrative; absent on older APIs. */
-  citations?: CitationReference[] | null;
-};
+/** OpenAPI-backed explanation DTOs used by aggregate explain surfaces (#20). */
+export type ExplanationResult = components["schemas"]["ExplanationResult"];
+export type FindingTraceConfidenceDto = components["schemas"]["FindingTraceConfidenceDto"];
+export type CitationReference = components["schemas"]["CitationReference"];
+export type RunExplanationSummary = components["schemas"]["RunExplanationSummary"];
 
 /** Deterministic factual explainability for one finding (never LLM-derived). */
 export type FindingExplainabilityEvidence = {

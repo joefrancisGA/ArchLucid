@@ -1,0 +1,31 @@
+{
+  "id": "azure-cost-governance",
+  "title": "Azure cost and orphan governance review",
+  "targetBuyer": "FinOps or cloud architect",
+  "buyerJob": "Azure cost, orphan, and governance signals from architecture evidence",
+  "owner": "ArchLucid GTM",
+  "lastReviewedUtc": "2026-05-29",
+  "requiredInputs": [
+    "second-run.json",
+    "architecture-request.json",
+    "optional Azure extractor ZIP via Tier 1 script"
+  ],
+  "expectedOutputs": [
+    "Cost/orphan-oriented findings with source classification",
+    "ROI lines labeled CustomerProvided or BenchmarkAssumption",
+    "proof-package-checklist.md satisfied"
+  ],
+  "scopeLabel": "V1-ready",
+  "doNotUseWhen": [
+    "Primary target cloud is non-Azure with no Azure evidence (AWS/GCP analysis is V1.1)",
+    "Buyer expects guaranteed dollar savings",
+    "First session before Core Pilot commit"
+  ],
+  "deferredScopeNotes": "Does not run terraform apply, live commerce, or ArchLucid-hosted Tier 2 auto-pull unless separately enabled.",
+  "sourceConfidence": "synthetic-demo-labeled",
+  "acceptanceChecks": [
+    "architecture-request.json deserializes in Contracts.Tests dry-run",
+    "ROI source labels enforced on pilot-run-deltas",
+    "proof-package-checklist.md satisfied"
+  ]
+}

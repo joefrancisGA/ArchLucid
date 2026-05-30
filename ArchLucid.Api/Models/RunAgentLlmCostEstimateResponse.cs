@@ -46,4 +46,11 @@ public sealed class RunAgentLlmCostEstimateResponse
         get;
         set;
     } = string.Empty;
+
+    /// <summary>How <see cref="EstimatedCostUsd" /> was derived. Not invoice truth.</summary>
+    public string CostEstimationBasis
+    {
+        get;
+        set;
+    } = ArchLucid.Contracts.Runs.RunLlmCostEstimationBasis.Unavailable;
 }

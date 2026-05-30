@@ -32,3 +32,8 @@ output "web_app_vnet_swift_connection_id" {
   value       = length(azurerm_app_service_virtual_network_swift_connection.web_app) > 0 ? azurerm_app_service_virtual_network_swift_connection.web_app[0].id : null
   description = "App Service regional VNet integration resource ID when linux_web_app_id and integration subnet are set."
 }
+
+output "key_vault_private_endpoint_id" {
+  value       = length(azurerm_private_endpoint.key_vault) > 0 ? azurerm_private_endpoint.key_vault[0].id : null
+  description = "Private endpoint resource ID for Key Vault when key_vault_id is set and private data plane is enabled."
+}

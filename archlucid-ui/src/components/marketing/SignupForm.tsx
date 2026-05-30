@@ -322,9 +322,7 @@ export function SignupForm() {
             when you leave the modeled default — see also the{" "}
             <a
               className="text-teal-800 underline dark:text-teal-300"
-              href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md"
-              target="_blank"
-              rel="noreferrer"
+              href="/help/executive-summary"
             >
               trial baseline privacy note
             </a>

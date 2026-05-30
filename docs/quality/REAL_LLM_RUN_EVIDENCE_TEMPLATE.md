@@ -20,6 +20,9 @@
 | **Quality gate outcome** | pass / accepted / rejected / unresolved |
 | **PilotStrict sponsor-evidence disposition** | `pilot-strict-sponsor-evidence-pass` / `pilot-strict-violates-sponsor-evidence` / `pilot-strict-signals-unresolved` |
 | **Human verdict** | **acceptable for pilot** / **not yet** — 1–3 sentences |
+| **Gate disposition** | `SKIPPED_NO_CREDENTIALS` / `PASS` / `HOLD` — from `artifacts/release/real-llm-evidence-gate.json` |
+| **Topology metrics JSON** | `artifacts/release/real-llm-topology-metrics.json` when topology smoke ran |
+| **Full pipeline metrics JSON** | `artifacts/release/real-llm-full-pipeline-metrics.json` when full pipeline ran |
 | **Structural / semantic scores** | If surfaced (UI, diagnostics, export) |
 | **Retrieval faithfulness / IR evidence** | Attach `faithfulness-report.md` and `retrieval-ir-report.md` when used for this release or pilot |
 | **Follow-ups** | Prompt, brief quality, agent-specific defects |

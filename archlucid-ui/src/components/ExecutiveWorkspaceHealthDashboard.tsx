@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
 import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
 import { ContextualHelp } from "@/components/ContextualHelp";
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -231,10 +231,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
             {buyerPolishedShell ? "Workspace overview" : "Executive Workspace Health"}
           </h1>
           <ContextualHelp helpKey="governance-dashboard" />
-          <HelpLink
-            docPath="/docs/library/GOVERNANCE_WORKFLOW_UI.md"
-            label="Governance workflows documentation on GitHub (new tab)"
-          />
+          <InAppHelpLink helpSlug="governance-approval" label="Governance workflows documentation" />
         </div>
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-lucid-azure-package-manifest-to-wizard";
@@ -85,9 +85,9 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
         <Label className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
           Azure packager ZIP
         </Label>
-        <HelpLink
-          docPath="/docs/library/PILOT_GUIDE.md"
-          label="Open pilot guide on GitHub (new tab)"
+        <InAppHelpLink
+          helpSlug="pilot-guide"
+          label="Open pilot guide"
           className="h-5 w-5"
         />
       </div>

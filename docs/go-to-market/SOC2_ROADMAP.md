@@ -11,7 +11,7 @@
 
 This document describes **controls and evidence** already reflected in the product and repo, **typical gaps** for a SOC 2 Type I / II program, and a **milestone roadmap**. It is **not** an auditor’s report.
 
-**2026-05-26 — Readiness vs attestation:** **SOC 2 Type I readiness** remains a planning track (consultant shortlist, evidence-room preparation, and observation-period planning). A **CPA opinion** remains gated on executed attestation agreement and budget. Interim artifacts are **owner-led self-assessment** ([`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)), CAIQ/SIG pre-fills, and future third-party pen-test **templates** / planning surfaces. A funded third-party penetration test is **V2** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c.
+**2026-05-26 — Readiness vs attestation:** **SOC 2 Type I readiness** remains a planning track (consultant shortlist, evidence-room preparation, and observation-period planning). A **CPA opinion** remains gated on executed attestation agreement and budget. Interim artifacts are **owner-led self-assessment** ([`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)), CAIQ/SIG pre-fills, and future third-party pen-test **templates** / planning surfaces. A funded third-party penetration test is planned, not yet scheduled; see [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c.
 
 ---
 
@@ -43,7 +43,7 @@ SOC 2 requires **documented** policies, **operating evidence**, and often **inde
 | **HR / training** | Security awareness training records, onboarding/offboarding checklists |
 | **BCP / DR** | Tested recovery objectives aligned with customer messaging; tie internal drills to RTO/RPO statements |
 | **Incident response** | Playbooks, tabletop exercises, evidence of post-incident reviews ([INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md)) |
-| **Penetration testing** | Owner-conducted V1 penetration-style testing; third-party pen test or bug bounty is V2 planning scope. Threat model notes “not a pen test” ([../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) §3). |
+| **Penetration testing** | Owner-conducted V1 penetration-style testing; third-party pen test or bug bounty is planned, not yet scheduled. Threat model notes “not a pen test” ([../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) §3). |
 | **Management oversight** | Risk register, periodic review minutes |
 | **Customer commitments** | SLAs and support tiers published where offered |
 
@@ -54,7 +54,7 @@ SOC 2 requires **documented** policies, **operating evidence**, and often **inde
 | Phase | Target | Outcomes |
 |-------|--------|----------|
 | **Phase 1** | Q3 2026 | Policy pack v1; vendor/subprocessor register; IR tabletop; evidence folders |
-| **Phase 2** | Q4 2026 | Auditor shortlist; readiness gap assessment; third-party pen-test scope prepared if V2 funding is approved |
+| **Phase 2** | Q4 2026 | Auditor shortlist; readiness gap assessment; third-party pen-test scope prepared if funding is approved |
 | **Phase 3** | Q1 2027 | SOC 2 Type I **observation period**; control testing |
 | **Phase 4** | Q2 2027 | **SOC 2 Type I** report issued (target) |
 | **Phase 5** | Q3 2027+ | **Type II** observation window |

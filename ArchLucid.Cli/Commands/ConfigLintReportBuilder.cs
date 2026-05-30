@@ -26,22 +26,50 @@ internal static class ConfigLintReportBuilder
             .Select(f => ToFinding(f, "WARN"))
             .ToList();
 
+        string disposition = ResolveDisposition(blocking.Count, advisory.Count);
+
         return new ConfigLintReportDocument
         {
             ProfileName = profileName ?? string.Empty,
             HostingEnvironmentName = snapshot.HostingEnvironmentName,
             Ok = blocking.Count == 0,
+            Disposition = disposition,
+            SponsorHandoffRecommended = disposition is "READY" or "WARN",
             BlockingFindings = blocking,
             AdvisoryFindings = advisory,
             CheckCategories = BuildCheckCategories(profileName),
         };
     }
 
+    internal static string ResolveDisposition(int blockingCount, int advisoryCount)
+    {
+        if (blockingCount > 0)
+            return "HOLD";
+
+        if (advisoryCount > 0)
+            return "WARN";
+
+        return "READY";
+    }
+
     internal static string ToJson(ConfigLintReportDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        return JsonSerializer.Serialize(document, JsonOptions);
+        return JsonSerializer.Serialize(
+            new
+            {
+                schema = "archlucid.config-lint-report.v1",
+                document.ProfileName,
+                document.HostingEnvironmentName,
+                document.Ok,
+                proofDisposition = document.Disposition,
+                document.SponsorHandoffRecommended,
+                blockingFindings = document.BlockingFindings,
+                advisoryFindings = document.AdvisoryFindings,
+                checkCategories = document.CheckCategories,
+            },
+            JsonOptions);
     }
 
     internal static string ToMarkdown(ConfigLintReportDocument document)
@@ -56,7 +84,8 @@ internal static class ConfigLintReportBuilder
             sb.AppendLine($"**Profile:** `{document.ProfileName}`");
 
         sb.AppendLine($"**Hosting environment:** `{document.HostingEnvironmentName}`");
-        sb.AppendLine($"**Disposition:** **{(document.Ok ? "PASS" : "HOLD")}**");
+        sb.AppendLine($"**Disposition:** **{document.Disposition}**");
+        sb.AppendLine($"**Sponsor handoff recommended:** **{document.SponsorHandoffRecommended}**");
         sb.AppendLine();
         sb.AppendLine(
             "_Blocking findings must be cleared before production-like hosted sponsor handoff. Advisory findings are WARN-only._");
@@ -154,6 +183,10 @@ internal static class ConfigLintReportBuilder
             || ruleName.Contains("connectivity", StringComparison.OrdinalIgnoreCase))
             return "Azure OpenAI real-mode readiness";
 
+        if (ruleName.Contains("azure_ai_search", StringComparison.OrdinalIgnoreCase)
+            || ruleName.Contains("retrieval", StringComparison.OrdinalIgnoreCase))
+            return "Azure AI Search / retrieval posture";
+
         if (ruleName.Contains("cors", StringComparison.OrdinalIgnoreCase))
             return "Browser client posture";
 
@@ -181,6 +214,12 @@ internal static class ConfigLintReportBuilder
             {
                 Category = "Azure OpenAI real-mode keys",
                 EvaluatedVia = "Advisory connectivity lint when real LLM endpoints are configured",
+            },
+            new ConfigLintReportCheckCategory
+            {
+                Category = "Azure AI Search (retrieval)",
+                EvaluatedVia =
+                    "Blocking `azure_ai_search_*` rules — Retrieval:VectorIndex=AzureSearch + Retrieval:AzureSearch:Endpoint (owner 2026-05-29)",
             },
             new ConfigLintReportCheckCategory
             {

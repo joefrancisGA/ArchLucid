@@ -13,7 +13,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('CiLiveAoai', 'GoldenCohortGate', 'All')]
+    [ValidateSet('CiLiveAoai', 'GoldenCohortGate', 'RealLlmEvidence', 'All')]
     [string]$Profile = 'All',
 
     [switch]$Strict,
@@ -62,6 +62,14 @@ $goldenCohort = @(
     @{ Kind = 'var';   Name = 'ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED'; Purpose = 'Optional; true enables Sunday 06:00 UTC unattended live invoke' }
 )
 
+# TB-138 / real-llm-golden-cohort.yml — repo secrets for optional Monday evidence workflow (owner injects).
+$realLlmEvidence = @(
+    @{ Kind = 'secret'; Name = 'ARCHLUCID_REAL_AOAI_TEST_ENDPOINT'; Purpose = 'Preferred endpoint for scripts/Invoke-RealLlmEvidenceGate.ps1' }
+    @{ Kind = 'secret'; Name = 'ARCHLUCID_REAL_AOAI_TEST_KEY';      Purpose = 'Preferred API key for real-LLM evidence gate' }
+    @{ Kind = 'secret'; Name = 'AZURE_OPENAI_ENDPOINT';            Purpose = 'Fallback endpoint mapped by Invoke-RealLlmGoldenCohort.ps1' }
+    @{ Kind = 'secret'; Name = 'AZURE_OPENAI_API_KEY';             Purpose = 'Fallback API key mapped by Invoke-RealLlmGoldenCohort.ps1' }
+)
+
 $selected = @()
 
 if ($Profile -eq 'CiLiveAoai' -or $Profile -eq 'All') {
@@ -70,6 +78,10 @@ if ($Profile -eq 'CiLiveAoai' -or $Profile -eq 'All') {
 
 if ($Profile -eq 'GoldenCohortGate' -or $Profile -eq 'All') {
     $selected += $goldenCohort
+}
+
+if ($Profile -eq 'RealLlmEvidence' -or $Profile -eq 'All') {
+    $selected += $realLlmEvidence
 }
 
 Write-Host ''
@@ -115,9 +127,12 @@ Write-Host ''
 Write-Host 'When jobs are skipped:'
 Write-Host '  - ci.yml Tier 2d (RealAzureOpenAIEndToEndTests): ARCHLUCID_CI_REAL_AOAI_ENABLED != true, or event is pull_request, or AOAI secrets missing.'
 Write-Host '  - golden-cohort-nightly cohort-real-llm-gate: ARCHLUCID_GOLDEN_COHORT_REAL_LLM != true or baseline not locked.'
+Write-Host '  - real-llm-golden-cohort.yml: ARCHLUCID_REAL_AOAI_TEST_* or AZURE_OPENAI_* secrets missing (skip-graceful exit 0).'
 Write-Host '  - Budget kill-switch exit 2: MTD spend >= 95% of tests/golden-cohort/budget.config.json cap - see docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md'
 Write-Host ''
-Write-Host 'Docs: docs/engineering/BUILD.md (Real-mode LLM CI), docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md, docs/library/TECH_BACKLOG.md TB-007'
+Write-Host 'Owner-only TB-138 promotion (after one green run): add required check cohort-real-llm-gate in GitHub branch protection; optionally inject RealLlmEvidence secrets above.'
+Write-Host ''
+Write-Host 'Docs: docs/engineering/BUILD.md (Real-mode LLM CI), docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md, docs/library/TECH_BACKLOG.md TB-007 / TB-138'
 Write-Host ''
 
 if ($Strict -and $missingRequired -gt 0) {

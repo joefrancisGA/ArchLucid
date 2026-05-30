@@ -438,3 +438,6 @@ _gh_artifacts/
 
 # Rolling assessment pass — local working copy only; archive snapshots under docs/archive/assessments/
 docs/assessments/LATEST.md
+
+# Local Azure OpenAI credentials for real-mode / golden-cohort runs (never commit)
+secrets/

@@ -71,9 +71,12 @@ public static class Program
 
                         if (normalized[1] == "proof")
                             return await PilotProofCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                        if (normalized[1] == "proof-packet")
+                            return await PilotProofPacketCommand.RunAsync(normalized.Skip(2).ToArray());
                     }
 
-                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot success-criteria-template | archlucid pilot preflight | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1]");
+                    Console.WriteLine("Expected: archlucid pilot up | archlucid pilot success-criteria-template | archlucid pilot preflight | archlucid pilot proof [-- args for collect-first-pilot-proof.ps1] | archlucid pilot proof-packet <runId> [--out <dir>]");
 
                     return CliExitCode.UsageError;
 

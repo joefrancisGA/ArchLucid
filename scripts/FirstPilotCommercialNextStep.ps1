@@ -13,7 +13,7 @@ function Resolve-CommercialNextStepRecommendation {
     )
 
     $owner = 'Sales / pilot operator'
-    $annualReady = ($SponsorPacketDisposition -eq 'SEND' -and $RoiSponsorSafe -and $BlockCount -eq 0)
+    $annualReady = ($SponsorPacketDisposition -eq 'READY' -and $RoiSponsorSafe -and $BlockCount -eq 0)
 
     if ($BlockCount -gt 0 -or $SponsorPacketDisposition -eq 'HOLD') {
         return [ordered]@{

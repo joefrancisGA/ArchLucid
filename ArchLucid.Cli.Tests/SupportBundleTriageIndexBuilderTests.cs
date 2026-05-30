@@ -67,7 +67,12 @@ public sealed class SupportBundleTriageIndexBuilderTests
             new SupportBundleLogsSection());
 
         SupportBundleTriageIndexDocument index =
-            await SupportBundleTriageIndexBuilder.BuildAsync(client, payload, runId: null, CancellationToken.None);
+            await SupportBundleTriageIndexBuilder.BuildAsync(
+                client,
+                payload,
+                runId: null,
+                redactionManifestPassApplied: false,
+                CancellationToken.None);
 
         index.Run.Should().BeNull();
         index.Health.ReadyHttpStatus.Should().Be(200);

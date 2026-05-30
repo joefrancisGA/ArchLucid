@@ -34,8 +34,14 @@ public static class OperatorConfigurationLintEvaluator
 
         blocking.AddRange(ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(configuration, trimmedEnv));
 
+        blocking.AddRange(
+            AzureAiSearchProductionLikeConfigurationLint.DescribeBlockingFindings(configuration, trimmedEnv));
+
         List<HostingMisconfigurationWarning> advisory =
             ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(configuration, trimmedEnv).ToList();
+
+        advisory.AddRange(
+            ProductionLikeSecretTransportConfigurationLint.DescribeAdvisoryFindings(configuration, trimmedEnv));
 
         HostingMisconfigurationWarning? openAiConnectivity =
             AzureOpenAiEndpointConnectivityLintAdvisor.TryDescribeConnectivityFinding(

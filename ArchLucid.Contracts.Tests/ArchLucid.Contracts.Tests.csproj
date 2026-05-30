@@ -32,4 +32,11 @@
     <Using Include="ArchLucid.Core.Manifest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\templates\starter-proof-packs\regulated-saas-soc-procurement\architecture-request.json" Link="templates\starter-proof-packs\regulated-saas-soc-procurement\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\healthcare-data-workflow\architecture-request.json" Link="templates\starter-proof-packs\healthcare-data-workflow\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\azure-cost-governance\architecture-request.json" Link="templates\starter-proof-packs\azure-cost-governance\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\starter-proof-packs\ai-llm-workload\architecture-request.json" Link="templates\starter-proof-packs\ai-llm-workload\architecture-request.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

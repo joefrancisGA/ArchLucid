@@ -16,6 +16,9 @@ const LEGACY_MOCK_EXECUTIVE_DASHBOARD_PATTERN =
 const MOCK_REPORTS_EXECUTIVE_SUMMARY_PATTERN =
   /getExecutiveSummary\s*\(|from\s+['"]@\/lib\/api\/reports-api['"]/;
 
+const FORBIDDEN_LOCAL_SAVINGS_MATH =
+  /\bannualizedUsd\s*[\*\/+-]|\bestimatedUsdSavings\s*[\*\/+-]|\borphanCandidates\.candidateCount\s*\*/;
+
 const PRODUCTION_ROUTE_ROOTS = [
   join(uiRoot, "src", "app", "(operator)", "dashboard"),
   join(uiRoot, "src", "app", "(operator)", "value-report"),
@@ -96,6 +99,13 @@ describe("production executive routes mock KPI guard (TB-062 / Batch C item 17)"
     expect(
       collectOffenders(MOCK_REPORTS_EXECUTIVE_SUMMARY_PATTERN),
       "Use GET /v1/roi/executive-summary via ExecutiveRoiSummary types instead.",
+    ).toEqual([]);
+  });
+
+  it("does not recompute executive savings math locally in production executive routes", () => {
+    expect(
+      collectOffenders(FORBIDDEN_LOCAL_SAVINGS_MATH),
+      "Use GET /v1/roi/executive-summary fields instead of client-side savings math.",
     ).toEqual([]);
   });
 });

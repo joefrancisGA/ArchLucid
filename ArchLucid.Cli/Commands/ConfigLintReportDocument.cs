@@ -9,6 +9,11 @@ internal sealed class ConfigLintReportDocument
 
     public bool Ok { get; init; }
 
+    /// <summary>READY, WARN, or HOLD aligned with first-pilot proof disposition.</summary>
+    public string Disposition { get; init; } = "READY";
+
+    public bool SponsorHandoffRecommended { get; init; }
+
     public IReadOnlyList<ConfigLintReportFinding> BlockingFindings { get; init; } = [];
 
     public IReadOnlyList<ConfigLintReportFinding> AdvisoryFindings { get; init; } = [];

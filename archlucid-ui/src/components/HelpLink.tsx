@@ -14,7 +14,7 @@ export type HelpLinkProps = {
 };
 
 /**
- * Subtle docs icon that opens canonical GitHub `main`-branch markdown on a new tab.
+ * Subtle docs icon that opens canonical GitHub `master`-branch markdown on a new tab.
  * Use sparingly beside titles; complements {@link ContextualHelp} in-app summaries.
  */
 export function HelpLink({ docPath, label, className }: HelpLinkProps) {

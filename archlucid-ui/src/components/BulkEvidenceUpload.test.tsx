@@ -17,50 +17,55 @@ describe("BulkEvidenceUpload Component", () => {
     postBulkEvidence.mockReset();
   });
 
-  it("renders quota indicator '0 / 30'", () => {
+  it("renders quota indicator '0 / 200'", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
-    expect(screen.getByText("0 / 30 files")).toBeInTheDocument();
-    expect(screen.getByText("Upload up to 30 files per action")).toBeInTheDocument();
+    expect(screen.getByText("0 / 200 files")).toBeInTheDocument();
+    expect(screen.getByText(/Upload up to 200 files per action/i)).toBeInTheDocument();
+    expect(screen.getByText(/ZIP archives are expanded automatically/i)).toBeInTheDocument();
   });
 
-  it("selecting 5 files shows '5 / 30'", () => {
+  it("selecting 5 files shows '5 / 200'", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
-    
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: 'input' });
-    
+
+    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+
     const files = Array.from({ length: 5 }).map((_, i) => new File(["content"], `file${i}.txt`, { type: "text/plain" }));
     fireEvent.change(fileInput, { target: { files } });
 
-    expect(screen.getByText("5 / 30 files")).toBeInTheDocument();
+    expect(screen.getByText("5 / 200 files")).toBeInTheDocument();
   });
 
-  it("selecting 31 files shows error and disables upload button", () => {
+  it("selecting 201 files shows error and disables upload button", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
-    
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: 'input' });
-    
-    const files = Array.from({ length: 31 }).map((_, i) => new File(["content"], `file${i}.txt`, { type: "text/plain" }));
+
+    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
+
+    const files = Array.from({ length: 201 }).map((_, i) => new File(["content"], `file${i}.txt`, { type: "text/plain" }));
     fireEvent.change(fileInput, { target: { files } });
 
-    expect(screen.getByText("Maximum 30 files per upload. Please remove 1 files or upload in multiple batches.")).toBeInTheDocument();
-    
+    expect(
+      screen.getByText(
+        "Maximum 200 files per upload. Please remove 1 files or upload in multiple batches.",
+      ),
+    ).toBeInTheDocument();
+
     const uploadButton = screen.getByRole("button", { name: "Upload Evidence" });
     expect(uploadButton).toBeDisabled();
   });
 
   it("removing a file updates count", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
-    
-    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: 'input' });
+
+    const fileInput = screen.getByLabelText(/drag and drop evidence files here/i, { selector: "input" });
     const file = new File(["content"], "test.txt", { type: "text/plain" });
     fireEvent.change(fileInput, { target: { files: [file] } });
-    
-    expect(screen.getByText("1 / 30 files")).toBeInTheDocument();
-    
+
+    expect(screen.getByText("1 / 200 files")).toBeInTheDocument();
+
     const removeBtn = screen.getByRole("button", { name: "Remove test.txt" });
     fireEvent.click(removeBtn);
 
-    expect(screen.getByText("0 / 30 files")).toBeInTheDocument();
+    expect(screen.getByText("0 / 200 files")).toBeInTheDocument();
   });
 
   it("shows upload progress and success summary", async () => {

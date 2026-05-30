@@ -183,6 +183,23 @@ type RunDetailOptionalWireExtras = {
       waivedCount?: number | null;
     } | null;
   } | null;
+  retrievalGroundingSummary?: RunRetrievalGroundingSummary | null;
+  lastAgentExecutionFailure?: {
+    readonly agentType?: string | null;
+    readonly agentTypeKey?: string | null;
+    readonly failureClass?: string | null;
+    readonly reasonCode?: string | null;
+  } | null;
+};
+
+export type RunRetrievalGroundingSummary = {
+  readonly traceCount?: number;
+  readonly agentsWithTraces?: readonly string[];
+  readonly expectedAgentsMissingTraces?: readonly string[];
+  readonly averageCitationCoverage?: number;
+  readonly totalRetrievedChunks?: number;
+  readonly disposition?: string;
+  readonly operatorDetail?: string | null;
 };
 
 type RunDetailDtoBase = components["schemas"]["RunDetailDto"];

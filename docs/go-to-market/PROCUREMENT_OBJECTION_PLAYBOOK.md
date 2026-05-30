@@ -28,8 +28,8 @@
 
 ### 2) "Where is the third-party pen-test report?"
 
-- **Short answer:** V1 uses owner-conducted penetration-style testing; third-party engagement is V2-scoped.
-- **Long answer:** We provide owner-conducted testing evidence for V1 and external-engagement templates. We do not claim an external V1 assessor report.
+- **Short answer:** V1 uses owner-conducted penetration-style testing; third-party engagement is planned, not yet scheduled.
+- **Long answer:** We provide owner-conducted testing evidence and external-engagement templates. We do not claim an external assessor report today.
 - **Evidence:** [TRUST_CENTER.md](TRUST_CENTER.md), [../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md), [../library/V1_DEFERRED.md](../library/V1_DEFERRED.md)
 - **Escalate when:** Buyer demands NDA package from an external assessor.
 

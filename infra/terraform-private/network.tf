@@ -138,3 +138,44 @@ resource "azurerm_private_endpoint" "search" {
     private_dns_zone_ids = [azurerm_private_dns_zone.search[0].id]
   }
 }
+
+# TB-091 — Key Vault private endpoint (when key_vault_id is set and private data plane is enabled).
+resource "azurerm_private_dns_zone" "key_vault" {
+  count = local.pe_enabled && length(trimspace(var.key_vault_id)) > 0 ? 1 : 0
+
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = local.pe_resource_group_name
+  tags                = var.tags
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "key_vault" {
+  count = local.pe_enabled && length(trimspace(var.key_vault_id)) > 0 ? 1 : 0
+
+  name                  = "kv-dns-link"
+  resource_group_name   = local.pe_resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.key_vault[0].name
+  virtual_network_id    = azurerm_virtual_network.main[0].id
+  tags                  = var.tags
+}
+
+resource "azurerm_private_endpoint" "key_vault" {
+  count = local.pe_enabled && length(trimspace(var.key_vault_id)) > 0 ? 1 : 0
+
+  name                = "pe-archlucid-keyvault"
+  location            = local.pe_location
+  resource_group_name = local.pe_resource_group_name
+  subnet_id           = azurerm_subnet.private_endpoints[0].id
+  tags                = var.tags
+
+  private_service_connection {
+    name                           = "psc-keyvault"
+    private_connection_resource_id = var.key_vault_id
+    is_manual_connection           = false
+    subresource_names              = ["vault"]
+  }
+
+  private_dns_zone_group {
+    name                 = "kv-zones"
+    private_dns_zone_ids = [azurerm_private_dns_zone.key_vault[0].id]
+  }
+}

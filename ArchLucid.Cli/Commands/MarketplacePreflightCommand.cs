@@ -55,13 +55,13 @@ internal static class MarketplacePreflightCommand
         }
 
         IReadOnlyList<MarketplacePreflightStepResult> steps = MarketplacePreflightRunner.Evaluate(root);
-        bool allPassed = steps.All(static s => s.Passed);
+        bool allPassed = steps.Where(static s => !s.NotAutomated).All(static s => s.Passed);
 
         if (CliExecutionContext.JsonOutput)
         {
             object payload = new
             {
-                repositoryRoot = root, allPassed, steps = steps.Select(static s => new { id = s.Id, passed = s.Passed, detail = s.Detail }).ToList()
+                repositoryRoot = root, allPassed, steps = steps.Select(static s => new { id = s.Id, passed = s.Passed, notAutomated = s.NotAutomated, detail = s.Detail }).ToList()
             };
 
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
@@ -77,7 +77,7 @@ internal static class MarketplacePreflightCommand
 
         foreach (MarketplacePreflightStepResult step in steps)
         {
-            string verdict = step.Passed ? "PASS" : "FAIL";
+            string verdict = step.NotAutomated ? "NOT_AUTOMATED" : step.Passed ? "PASS" : "FAIL";
             Console.WriteLine($"[{verdict}] {step.Id,-40} {step.Detail}");
         }
 

@@ -3,6 +3,7 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
+import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -81,6 +82,16 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
           <CopyIdButton value={trimmedCorrelation} aria-label="Copy correlation ID" />
         </div>
       ) : null}
+      <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+        Recovery:{" "}
+        <a className="underline" href={toDocsBlobUrl("/docs/runbooks/TROUBLESHOOTING.md")} rel="noopener noreferrer" target="_blank">
+          Troubleshooting runbook
+        </a>
+        {" · "}
+        <a className="underline" href={toDocsBlobUrl("/docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md")} rel="noopener noreferrer" target="_blank">
+          First-pilot triage cards
+        </a>
+      </p>
     </Callout>
   );
 }

@@ -98,11 +98,12 @@ def build_summary(*, proof_dir: Path | None, root: Path) -> dict[str, object]:
 
         if config_lint is not None:
             ok = config_lint.get("ok") is True
+            proof_disposition = str(config_lint.get("proofDisposition") or ("READY" if ok else "HOLD"))
             measured.append(
                 {
                     "signal": "production-like-config-lint",
                     "source": "config-lint-production-like-hosted-pilot.json",
-                    "note": f"Measured in proof folder — ok={ok}.",
+                    "note": f"Measured in proof folder — proofDisposition={proof_disposition}.",
                 },
             )
 

@@ -76,3 +76,9 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "key_vault_id" {
+  type        = string
+  description = "Full Azure resource ID of the Key Vault (Microsoft.KeyVault/vaults/...). Leave empty to skip the vault private endpoint and DNS zone."
+  default     = ""
+}

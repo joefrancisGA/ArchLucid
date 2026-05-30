@@ -115,7 +115,10 @@ public sealed class TopologyAgentHandlerTests
             catalog,
             audit.Object,
             scopeProvider.Object,
-            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
+            ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
 
         ArchitectureRequest request = new()
         {

@@ -10,8 +10,9 @@ public sealed class EvidenceBulkUploadOptions
 
     /// <summary>
     /// Maximum allowed number of files in a bulk evidence upload.
+    /// ZIP archives count as one file each; the server expands them up to 1 000 entries.
     /// </summary>
-    public int EvidenceBulkUploadMaxFiles { get; set; } = 30;
+    public int EvidenceBulkUploadMaxFiles { get; set; } = 200;
 
     /// <summary>Files processed per request when <c>paginationToken</c> batching is used.</summary>
     public int EvidenceBulkUploadBatchSize { get; set; } = 10;

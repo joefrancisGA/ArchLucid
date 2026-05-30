@@ -37,6 +37,31 @@ function stubIdentityProvidersFetch(keys: unknown[], oidcDiagnostics?: unknown):
         );
       }
 
+      if (url.includes("/auth/configuration-diagnostics")) {
+        return new Response(
+          JSON.stringify({
+            authMode: "JwtBearer",
+            audienceConfigured: true,
+            issuerOrAuthorityConfigured: true,
+            openIdDiscoverySucceeded: true,
+            saml2Enabled: false,
+            spEntityIdConfigured: null,
+            samlRoleClaimSourcesConfigured: null,
+            tenantClaimMappingConfigured: null,
+            tenantIdentityProviderProtocol: null,
+            jwksConfigured: true,
+            scimProvisioningConfigured: null,
+            scimBearerTokenActive: null,
+            roleClaimNameConfigured: true,
+            misconfigurationHints: [],
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
       if (url.includes("/auth/oidc-diagnostics")) {
         return new Response(
           JSON.stringify(
@@ -96,6 +121,12 @@ describe("IdentityProvidersSettingsPage", () => {
 
     expect(healthCard).toHaveTextContent("Identity provider health");
     expect(healthCard).toHaveTextContent("NotApplicable");
+
+    const setupChecklist = await screen.findByTestId("identity-provider-setup-checklist");
+
+    expect(setupChecklist).toHaveTextContent("Identity setup checklist");
+    expect(setupChecklist).toHaveTextContent("Core identity setup checks are ready");
+    expect(setupChecklist).toHaveTextContent("Role claim mapping");
 
     const samlCard = await screen.findByTestId("saml-operational-health-card");
 

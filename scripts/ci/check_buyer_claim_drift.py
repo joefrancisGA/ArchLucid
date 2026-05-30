@@ -40,6 +40,7 @@ DOCS_TO_SCAN: tuple[Path, ...] = (
     Path("docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md"),
     Path("docs/go-to-market/PROCUREMENT_FAQ.md"),
     Path("docs/go-to-market/SOC2_STATUS_PROCUREMENT.md"),
+    Path("docs/go-to-market/AI_EVIDENCE_APPENDIX.md"),
 )
 
 
@@ -48,6 +49,11 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
         re.compile(r"generic\s+OIDC\s*\([^)]*roadmap[^)]*\)", re.IGNORECASE),
         "generic OIDC must not be described as roadmap-only; V1 supports generic OIDC configuration.",
         "docs/library/V1_SCOPE.md",
+    ),
+    ClaimPattern(
+        re.compile(r"\bSOC\s*2\s+certified\b", re.IGNORECASE),
+        "SOC 2 certification must not be claimed while CPA attestation is not issued.",
+        "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
     ),
     ClaimPattern(
         re.compile(
@@ -64,7 +70,12 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
     ),
     ClaimPattern(
         re.compile(r"third-party\s+pen(?:etration)?\s+test\s+(?:completed|executed|passed)\s+(?:for|against)\s+V1", re.IGNORECASE),
-        "third-party penetration testing is V2, not completed for V1.",
+        "third-party penetration testing is planned, not yet scheduled; it is not completed for V1.",
+        "docs/library/V1_DEFERRED.md",
+    ),
+    ClaimPattern(
+        re.compile(r"third-party\s+pen(?:etration)?[-\s]test\s+(?:report|summary)\s+(?:is\s+)?(?:available|published|complete)", re.IGNORECASE),
+        "third-party penetration-test report availability must not be claimed before an engagement completes.",
         "docs/library/V1_DEFERRED.md",
     ),
     ClaimPattern(
@@ -81,6 +92,16 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
         re.compile(r"(?:public\s+)?(?:Stripe\s+)?checkout\s+(?:is\s+)?live", re.IGNORECASE),
         "public live checkout must not be claimed while live Stripe cutover is owner-gated.",
         "docs/go-to-market/PRICING_PHILOSOPHY.md",
+    ),
+    ClaimPattern(
+        re.compile(r"\bMCP\b[^.\n]*(?:GA|generally\s+available|public\s+plugin|marketplace)", re.IGNORECASE),
+        "MCP and public plugin ecosystem claims must remain deferred/roadmap, not GA.",
+        "docs/library/V1_DEFERRED.md",
+    ),
+    ClaimPattern(
+        re.compile(r"(?:full|broad|production[-\s]grade)\s+real[-\s]LLM\s+(?:validation|proof|cohort)\s+(?:is\s+)?(?:complete|available|passed)", re.IGNORECASE),
+        "real-LLM proof must not be described as broad/full when only limited topology evidence exists.",
+        "docs/go-to-market/AI_EVIDENCE_APPENDIX.md",
     ),
     ClaimPattern(
         re.compile(
@@ -115,6 +136,23 @@ def _line_is_allowlisted(line: str) -> bool:
     return ALLOWLIST_MARKER in line.lower()
 
 
+def _line_is_safe_negative(line: str) -> bool:
+    lower = line.lower()
+    safe_prefixes = (
+        "do not claim",
+        "do not promise",
+        "not ",
+        "never ",
+        "without ",
+        "planned, not yet scheduled",
+        "not currently",
+        "must not",
+        "no ",
+    )
+
+    return any(prefix in lower for prefix in safe_prefixes)
+
+
 def buyer_claim_drift_violations(root: Path) -> list[str]:
     violations: list[str] = []
 
@@ -135,7 +173,7 @@ def buyer_claim_drift_violations(root: Path) -> list[str]:
 
             line = _line_for_match(text, match)
 
-            if _line_is_allowlisted(line):
+            if _line_is_allowlisted(line) or _line_is_safe_negative(line):
                 continue
 
             violations.append(

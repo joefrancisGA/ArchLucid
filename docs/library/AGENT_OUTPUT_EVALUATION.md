@@ -224,6 +224,8 @@ For first-pilot sponsor handoff, do not rely on a loose statement that "agent qu
 3. `archlucid real-llm-evidence summarize --from-json <fixture-or-export>` for any real-mode session record. The summarizer exits non-zero when required fields are missing or the quality gate outcome is not passing.
 4. `python scripts/ci/eval_agent_faithfulness.py --enforce` and `python scripts/ci/eval_retrieval_ir.py --enforce` reports when retrieval-backed claims are part of the sponsor packet.
 
+**Faithfulness floor override:** set `ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO` (for example `0.80`) before `eval_agent_faithfulness.py` to override `minSupportRatio` in `tests/eval-datasets/faithfulness-golden/cases.json`. Default PR CI remains warn-only; merge-blocking `--enforce` is opt-in per workflow (see `Invoke-FaithfulnessTrendReport.ps1 -EnforceFaithfulness`).
+
 If any item fails, classify the sponsor packet as not ready and follow [`QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md) or [`RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md`](../runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md) before handoff.
 
 ## 9. Trending, reports, and email alerts

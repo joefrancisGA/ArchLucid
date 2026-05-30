@@ -149,6 +149,7 @@ function Resolve-SponsorPacketDisposition {
     param(
         [switch] $SponsorHandoff,
         [int] $BlockCount,
+        [int] $WarnCount = 0,
         [string[]] $DeferredScopeReasons = @()
     )
 
@@ -164,7 +165,11 @@ function Resolve-SponsorPacketDisposition {
         return 'DEFERRED_SCOPE'
     }
 
-    return 'SEND'
+    if ($WarnCount -gt 0) {
+        return 'WARN'
+    }
+
+    return 'READY'
 }
 
 function Get-BlockingReasonsFromFindings {

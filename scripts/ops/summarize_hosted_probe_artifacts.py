@@ -38,6 +38,8 @@ class RollupModel:
     uptime_percent_of_attempted: float | None
     target_slo_percent: float
     target_slo_window_label: str
+    overall_disposition: str
+    buyer_safe_evidence: bool
     caveats: tuple[str, ...] = field(default_factory=tuple)
 
 
@@ -159,6 +161,24 @@ def _window_bounds(rows: list[dict]) -> tuple[str | None, str | None]:
     return min(stamps), max(stamps)
 
 
+def resolve_proof_disposition(model: RollupModel) -> tuple[str, bool]:
+    """Return overall disposition (PASS/WARN/INCONCLUSIVE) and buyer-safe evidence flag."""
+
+    if model.attempted_count == 0:
+        return "INCONCLUSIVE", False
+
+    if model.environment_label == "unknown":
+        return "INCONCLUSIVE", False
+
+    if model.environment_label == "staging":
+        return "WARN", False
+
+    if model.both_ok_count == model.attempted_count:
+        return "PASS", True
+
+    return "WARN", False
+
+
 def build_rollup(rows: list[dict]) -> RollupModel:
     """Aggregate probes into a RollupModel."""
 
@@ -203,6 +223,24 @@ def build_rollup(rows: list[dict]) -> RollupModel:
         "and not a substitute for Prometheus / production error-budget reporting."
     )
 
+    provisional = RollupModel(
+        environment_label=env,
+        window_start_utc=start,
+        window_end_utc=end,
+        total_rows=len(rows),
+        skipped_count=skipped,
+        attempted_count=attempted,
+        both_ok_count=both_ok,
+        failed_probe_count=failed,
+        uptime_percent_of_attempted=uptime,
+        target_slo_percent=TARGET_AVAILABILITY_SLO_PERCENT,
+        target_slo_window_label=TARGET_SLO_WINDOW_LABEL,
+        overall_disposition="INCONCLUSIVE",
+        buyer_safe_evidence=False,
+        caveats=tuple(caveats),
+    )
+    disposition, buyer_safe = resolve_proof_disposition(provisional)
+
     return RollupModel(
         environment_label=env,
         window_start_utc=start,
@@ -215,6 +253,8 @@ def build_rollup(rows: list[dict]) -> RollupModel:
         uptime_percent_of_attempted=uptime,
         target_slo_percent=TARGET_AVAILABILITY_SLO_PERCENT,
         target_slo_window_label=TARGET_SLO_WINDOW_LABEL,
+        overall_disposition=disposition,
+        buyer_safe_evidence=buyer_safe,
         caveats=tuple(caveats),
     )
 
@@ -320,6 +360,8 @@ def render_markdown(model: RollupModel) -> str:
         f"| Both `/health/live` and `/health/ready` OK | {model.both_ok_count} |",
         f"| Failed probes (attempted − both OK) | {model.failed_probe_count} |",
         f"| **Uptime % (of attempted probes only)** | {uptime_line} |",
+        f"| **Overall disposition** | **{model.overall_disposition}** |",
+        f"| **Buyer-safe evidence** | **{str(model.buyer_safe_evidence).lower()}** |",
         "",
         "## Caveats",
         "",

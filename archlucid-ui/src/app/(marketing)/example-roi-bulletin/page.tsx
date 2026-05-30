@@ -56,7 +56,7 @@ export default function ExampleRoiBulletinMarketingPage() {
           Source of truth:{" "}
           <Link
             className="text-sky-700 underline underline-offset-2 dark:text-sky-400"
-            href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"
+            href="https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"
           >
             docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md
           </Link>{" "}

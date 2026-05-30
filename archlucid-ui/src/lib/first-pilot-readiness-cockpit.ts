@@ -1,9 +1,11 @@
+import type { AdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
+import { mapConfigLintReadiness } from "@/lib/map-config-lint-readiness";
 import type { CurrentPrincipal } from "@/lib/current-principal";
 import {
   FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,
   FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
 } from "@/lib/first-pilot-diagnostics-copy";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -69,6 +71,7 @@ export function buildFirstPilotReadinessRows(input: {
   signals: FirstPilotOperatingRailSignals;
   scorecard: PilotScorecardJson | null;
   scorecardLoadFailed: boolean;
+  configLint: AdminConfigLintSummary | null;
 }): FirstPilotReadinessRow[] {
   const canExecute = input.principal.authorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const canAdmin = input.principal.authorityRank >= AUTHORITY_RANK.AdminAuthority;
@@ -76,6 +79,7 @@ export function buildFirstPilotReadinessRows(input: {
   const committedRunHref = input.signals.firstCommittedRunId
     ? `/reviews/${encodeURIComponent(input.signals.firstCommittedRunId)}`
     : "/reviews?projectId=default";
+  const configLintCopy = mapConfigLintReadiness({ canAdmin, lint: input.configLint });
 
   return [
     {
@@ -87,6 +91,14 @@ export function buildFirstPilotReadinessRows(input: {
         : `Health reports ${input.healthStatus ?? "unknown"}.`,
       href: "/health",
       cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,    },
+    {
+      id: "config-lint",
+      label: "Production-like configuration",
+      status: configLintCopy.status,
+      summary: configLintCopy.summary,
+      href: canAdmin ? "/admin/health" : inAppHelpHref("troubleshooting"),
+      cta: canAdmin ? "Open config lint" : "Troubleshooting guide",
+    },
     {
       id: "principal-authority",
       label: "Review authority",
@@ -163,7 +175,7 @@ export function buildFirstPilotReadinessRows(input: {
       label: "Procurement evidence readiness",
       status: "attention",
       summary: "Procurement evidence package has not been generated yet.",
-      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/PROCUREMENT_DEAL_READY.md`,
+      href: "/trust",
       cta: "Generate procurement package",    },
     {
       id: "proof-pipeline",
@@ -172,8 +184,8 @@ export function buildFirstPilotReadinessRows(input: {
       summary: input.signals.hasCommittedManifest
         ? `${FIRST_PILOT_BUYER_COPY.proofPipelineAction} from diagnostics for go/no-go review.`
         : "Finalize a review before collecting the pilot evidence package.",
-      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`,
-      cta: "Open operator checklist",    },
+      href: inAppHelpHref("pilot-guide"),
+      cta: "Open pilot guide",    },
     {
       id: "data-consistency",
       label: "Data consistency readiness",

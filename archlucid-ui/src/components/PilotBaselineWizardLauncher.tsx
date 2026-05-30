@@ -37,9 +37,11 @@ export function PilotBaselineWizardLauncher(): React.ReactElement | null {
   const demoMode = isNextPublicDemoMode();
   const { loading, complete, reload } = usePilotRoiBaselineCompleteness();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [autoShown, setAutoShown] = useState(false);
 
   useEffect(() => {
     function onOpenRequested(): void {
+      setAutoShown(false);
       setDialogOpen(true);
     }
 
@@ -61,6 +63,7 @@ export function PilotBaselineWizardLauncher(): React.ReactElement | null {
       }
 
       sessionStorage.setItem(SESSION_AUTOSHOW_KEY, "1");
+      setAutoShown(true);
       setDialogOpen(true);
     } catch {
       /* private mode quota */
@@ -68,6 +71,7 @@ export function PilotBaselineWizardLauncher(): React.ReactElement | null {
   }, [complete, demoMode, loading, pathname]);
 
   const openWizard = useCallback(() => {
+    setAutoShown(false);
     setDialogOpen(true);
   }, []);
 
@@ -79,7 +83,7 @@ export function PilotBaselineWizardLauncher(): React.ReactElement | null {
 
   return (
     <>
-      <PilotBaselineWizard open={dialogOpen} onOpenChange={setDialogOpen} onSaved={() => void reload()} />
+      <PilotBaselineWizard open={dialogOpen} onOpenChange={setDialogOpen} onSaved={() => void reload()} autoShown={autoShown} />
 
       {showFab ? (
         <Button

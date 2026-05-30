@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import {
   corePilotCommitProgressFromContext,
   corePilotStepBadgeLabel,
@@ -150,11 +150,8 @@ export function CorePilotBuyerStepHint() {
         <p className="m-0 flex-1 text-sm leading-snug text-neutral-700 dark:text-neutral-300">
           {buyerHintBody(progress, latestRunId, firstCommittedRunId)}
         </p>
-        <HelpLink docPath="/docs/CORE_PILOT.md" label="Core Pilot steps — guide on GitHub (new tab)" />
-        <HelpLink
-          docPath="/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"
-          label="First-pilot operator path — full walkthrough on GitHub (new tab)"
-        />
+        <InAppHelpLink helpSlug="core-pilot" label="Core Pilot steps — guide" />
+        <InAppHelpLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
       </div>
     </section>
   );

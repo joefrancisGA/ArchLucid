@@ -99,6 +99,7 @@ Configure via `AgentExecution:Mode` and related appsettings. Test both paths bef
 | Check | Command / location |
 |-------|-------------------|
 | Handler unit tests | `ArchLucid.AgentRuntime.Tests/SampleRiskReviewHandlerTests.cs` (fixture: `Fixtures/SampleRiskReviewHandler.cs`) |
+| Registration proof | `ArchLucid.AgentRuntime.Tests/CustomAgentHandlerRegistrationProofTests.cs` — duplicate DI keys fail; allowed-tools guard enforced |
 | Host DI resolution | Boot API with handler registered — missing required handlers fail fast at startup |
 | Simulator smoke | Create → execute → commit on a dev tenant ([`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) Phase C) |
 | Architecture boundary | `ArchLucid.Architecture.Tests` — Decisioning must not reference Notifications directly when adding side effects (use domain events) |

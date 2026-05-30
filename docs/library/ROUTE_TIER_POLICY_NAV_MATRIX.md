@@ -4,6 +4,18 @@
 
 This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-boundary rules. **HTTP behavior** is defined by controllers and **`CommercialTenantTierFilter`**; **nav visibility** is defined by **`archlucid-ui/src/lib/nav-config.ts`** pipeline (**tier → authority** in **`nav-shell-visibility.ts`**). Cells cite source; use **verify pending** when an attribute was not re-checked in the same edit.
 
+## Freshness Summary
+
+| Signal | Current value |
+| --- | --- |
+| Registry rows | **159** controller route families (`route-tier-policy-nav-registry-count`) |
+| Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
+| CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
+| Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
+| Freshness trigger | Controller routes, `[Authorize]` policies, `[RequiresCommercialTenantTier]`, operator nav builders, packaging/pricing route claims |
+
+Reviewer shorthand: the appendix below is generated from the executable registry. If a branch changes route code, commercial tier filters, policy attributes, or operator navigation, rerun the guard before procurement or sponsor handoff. The matrix explains visibility; it does **not** grant access and does not replace API authorization.
+
 ## Pilot-critical routes (sample)
 
 | HTTP route family | Commercial tier gate (`RequiresCommercialTenantTier`) | Primary policy (`[Authorize(Policy=…)]`) | Nav (`href` · tier · `requiredAuthority`) | Notes |

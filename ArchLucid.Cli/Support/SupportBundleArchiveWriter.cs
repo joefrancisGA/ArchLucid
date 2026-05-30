@@ -20,6 +20,7 @@ public static class SupportBundleArchiveWriter
     public const string WorkspaceFileName = "workspace.json";
     public const string ReferencesFileName = "references.json";
     public const string LogsFileName = "logs.json";
+    public const string RedactionManifestFileName = "redaction-manifest.json";
 
     public const string DiagnosticsSummaryFileName = SupportBundleLayout.DiagnosticsSummaryFileName;
 
@@ -99,6 +100,8 @@ public static class SupportBundleArchiveWriter
                 Path.Combine(outputDirectory, ManifestFileName),
                 SupportBundleCollector.SerializeIndented(finalizedRedacted));
 
+            WriteRedactionManifest(outputDirectory, applyRedaction: true);
+
             return outputDirectory;
         }
 
@@ -129,6 +132,8 @@ public static class SupportBundleArchiveWriter
         WriteFile(
             Path.Combine(outputDirectory, ManifestFileName),
             SupportBundleCollector.SerializeIndented(finalized));
+
+        WriteRedactionManifest(outputDirectory, applyRedaction: false);
 
         return outputDirectory;
     }
@@ -237,5 +242,22 @@ public static class SupportBundleArchiveWriter
 
         WriteFile(jsonPath, json);
         WriteFile(mdPath, md);
+    }
+
+    private static void WriteRedactionManifest(string outputDirectory, bool applyRedaction)
+    {
+        SupportBundleRedactionManifest manifest =
+            SupportBundleRedactionManifestBuilder.Build(applyRedaction, outputDirectory);
+        string path = Path.Combine(outputDirectory, RedactionManifestFileName);
+        string json = SupportBundleCollector.SerializeIndented(manifest);
+
+        if (applyRedaction)
+        {
+            WriteRedactedFile(path, json);
+
+            return;
+        }
+
+        WriteFile(path, json);
     }
 }

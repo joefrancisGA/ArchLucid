@@ -5,10 +5,12 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
-import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
+import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";
+import { RunDetailLastFailureCard, resolveRunDetailLastFailureSummary } from "@/components/RunDetailLastFailureCard";
+import { RunRetrievalGroundingSummaryCard } from "@/components/RunRetrievalGroundingSummaryCard";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunSavingsSummary } from "@/components/RunSavingsSummary";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
@@ -35,6 +37,9 @@ import { RunDetailOperatorPipelineToolsCollapsible } from "./RunDetailOperatorPi
 import { RunDetailOperatorTechnicalFooter } from "./RunDetailOperatorTechnicalFooter";
 import { RunDetailPipelineTimelineSection } from "./RunDetailPipelineTimelineSection";
 import { RunDetailPreFinalizedEmptyState } from "./RunDetailPreFinalizedEmptyState";
+import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
+import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
+import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
@@ -93,6 +98,16 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         }.`
       : null;
 
+  const governanceAlertsEl = (
+    <>
+      <RunDetailGovernanceAlerts
+        run={m.resolvedDetail.run}
+        hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+      />
+      <RunDetailDeferredScopeNoticeClient />
+    </>
+  );
+
   const outcomeCardsEl = (
     <RunDetailOutcomeCards
       runId={m.resolvedDetail.run.runId}
@@ -150,11 +165,25 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
+      <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
+
+      {m.explanationSummary !== null ? (
+        <RunExplanationConfidenceBanner summary={m.explanationSummary} />
+      ) : null}
+
       {changesSinceLastReviewBannerEl}
 
       {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 
+      {governanceAlertsEl}
       {outcomeCardsEl}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <RunDetailLastFailureCard
+          summary={resolveRunDetailLastFailureSummary(m.resolvedDetail)}
+          legacyRunStatus={(m.resolvedDetail.run as { legacyRunStatus?: string | null }).legacyRunStatus ?? null}
+        />
+      ) : null}
 
       {buyerFinalizedPackage ? null : (
         <RunDetailExecutiveSummaryCtaCard runId={m.resolvedDetail.run.runId} />
@@ -175,6 +204,13 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {!m.buyerPolishedArtifactTable ? (
         <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <RunRetrievalGroundingSummaryCard
+          summary={m.resolvedDetail.retrievalGroundingSummary}
+          runId={m.resolvedDetail.run.runId}
+        />
       ) : null}
 
       {m.showProgressTracker ? (

@@ -196,6 +196,9 @@ public sealed class AzureSearchSdkClient(IOptionsMonitor<AzureSearchOptions> opt
         if (!string.IsNullOrWhiteSpace(chunk.FindingId))
             document["findingId"] = chunk.FindingId;
 
+        if (!string.IsNullOrWhiteSpace(chunk.PolicyPackRulePackId))
+            document["policyPackRulePackId"] = chunk.PolicyPackRulePackId;
+
         return document;
     }
 

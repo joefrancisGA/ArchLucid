@@ -146,7 +146,114 @@ public static class MarketplacePreflightRunner
                     ? "ArchLucid.Api/appsettings.json includes Billing:AzureMarketplace:MarketplaceOfferId"
                     : "ArchLucid.Api/appsettings.json must define MarketplaceOfferId under Billing:AzureMarketplace"));
 
+        AppendStripeCheckoutSteps(root, steps);
+        AppendOwnerOnlySteps(steps);
+
         return steps;
+    }
+
+    private static void AppendStripeCheckoutSteps(string root, List<MarketplacePreflightStepResult> steps)
+    {
+        string? pricingJson = TryReadUtf8(root, Path.Combine("archlucid-ui", "public", "pricing.json"));
+
+        if (pricingJson is null)
+        {
+            steps.Add(
+                new MarketplacePreflightStepResult(
+                    "pricing_json_present",
+                    false,
+                    "Missing archlucid-ui/public/pricing.json"));
+
+            return;
+        }
+
+        steps.Add(
+            new MarketplacePreflightStepResult(
+                "pricing_json_present",
+                true,
+                "Found archlucid-ui/public/pricing.json"));
+
+        string? checkoutUrl = TryReadJsonStringProperty(pricingJson, "teamStripeCheckoutUrl");
+        string classification = TeamStripeCheckoutPreflightClassifier.Classify(checkoutUrl);
+
+        switch (classification)
+        {
+            case TeamStripeCheckoutPreflightClassifier.Placeholder:
+                steps.Add(
+                    new MarketplacePreflightStepResult(
+                        "team_stripe_checkout_url",
+                        true,
+                        "teamStripeCheckoutUrl is a sales-led placeholder — live self-serve remains deferred (expected for V1)."));
+                break;
+
+            case TeamStripeCheckoutPreflightClassifier.TestMode:
+                steps.Add(
+                    new MarketplacePreflightStepResult(
+                        "team_stripe_checkout_url",
+                        true,
+                        "teamStripeCheckoutUrl is Stripe test-mode — production self-serve is not un-held."));
+                break;
+
+            case TeamStripeCheckoutPreflightClassifier.LiveCandidate:
+                steps.Add(
+                    new MarketplacePreflightStepResult(
+                        "team_stripe_checkout_url",
+                        false,
+                        "teamStripeCheckoutUrl looks like a live Stripe checkout URL — verify owner intent before public enablement."));
+                break;
+
+            default:
+                steps.Add(
+                    new MarketplacePreflightStepResult(
+                        "team_stripe_checkout_url",
+                        true,
+                        "teamStripeCheckoutUrl absent or non-Stripe — sales-led quote motion remains default."));
+                break;
+        }
+    }
+
+    private static void AppendOwnerOnlySteps(List<MarketplacePreflightStepResult> steps)
+    {
+        steps.Add(
+            new MarketplacePreflightStepResult(
+                "partner_center_seller_verification",
+                true,
+                "Owner-only — Partner Center seller verification is not machine-verifiable from the repo.",
+                NotAutomated: true));
+
+        steps.Add(
+            new MarketplacePreflightStepResult(
+                "partner_center_tax_and_payout",
+                true,
+                "Owner-only — tax profile and payout configuration are deferred live-commerce steps.",
+                NotAutomated: true));
+
+        steps.Add(
+            new MarketplacePreflightStepResult(
+                "marketplace_go_live",
+                true,
+                "Owner-only — Azure Marketplace \"Go live\" and DNS cutover are deferred (WHAT_NOT_TO_PROMISE.md).",
+                NotAutomated: true));
+    }
+
+    private static string? TryReadJsonStringProperty(string json, string propertyName)
+    {
+        try
+        {
+            using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(json);
+
+            if (doc.RootElement.TryGetProperty(propertyName, out System.Text.Json.JsonElement value)
+                && value.ValueKind == System.Text.Json.JsonValueKind.String)
+            {
+                return value.GetString();
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return null;
+        }
+
+        return null;
     }
 
     private static string? TryReadUtf8(string repositoryRoot, string relativePath)

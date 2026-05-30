@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Cli.Support;
@@ -21,6 +22,7 @@ public static class SupportBundleTriageIndexBuilder
         ArchLucidApiClient client,
         SupportBundlePayload payload,
         string? runId,
+        bool redactionManifestPassApplied = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(client);
@@ -31,6 +33,7 @@ public static class SupportBundleTriageIndexBuilder
         SupportBundleTriageRunSection? runSection = null;
         IReadOnlyList<string> artifactIds = [];
         IReadOnlyList<string> auditIds = [];
+        string? structuralExecutionModeLabel = null;
 
         if (!string.IsNullOrWhiteSpace(runId))
         {
@@ -48,6 +51,8 @@ public static class SupportBundleTriageIndexBuilder
                     ManifestVersion = run.CurrentManifestVersion,
                     OtelTraceId = run.OtelTraceId
                 };
+
+                structuralExecutionModeLabel = FormatStructuralExecutionMode(run.StructuralExecutionMode, run.RealModeFellBackToSimulator);
 
                 artifactIds = await client.TryListArtifactIdsForRunAsync(run.RunId, cancellationToken);
             }
@@ -81,6 +86,9 @@ public static class SupportBundleTriageIndexBuilder
             },
             ConfigModeSummary = payload.ConfigSummary.HostAuthModeSummary,
             HostVersionSummary = SummarizeVersion(payload.Build.ApiVersionJson, payload.Build.ApiVersionError),
+            RedactionManifestStatus = redactionManifestPassApplied ? "PASS" : "NOT_APPLIED",
+            StructuralExecutionModeLabel = structuralExecutionModeLabel,
+            LatestFailedGateHint = SummarizeLatestFailedGate(payload),
             RecentAuditEventIds = auditIds,
             ArtifactIds = artifactIds,
             RetrievalGroundingTraceIds = [],
@@ -100,6 +108,14 @@ public static class SupportBundleTriageIndexBuilder
         sb.AppendLine($"API base (redacted): {index.ApiBaseUrlRedacted}");
         sb.AppendLine($"Config mode: {index.ConfigModeSummary}");
         sb.AppendLine($"Host version: {index.HostVersionSummary}");
+        sb.AppendLine($"Redaction manifest: {index.RedactionManifestStatus}");
+        sb.AppendLine($"Structural execution mode: {OrNotCaptured(index.StructuralExecutionModeLabel)}");
+
+        if (!string.IsNullOrWhiteSpace(index.LatestFailedGateHint))
+        {
+            sb.AppendLine($"Latest failed gate hint: {index.LatestFailedGateHint}");
+        }
+
         sb.AppendLine();
         sb.AppendLine("## Scope");
         sb.AppendLine($"- tenantId: {OrNotCaptured(index.Scope.TenantId)}");
@@ -197,5 +213,37 @@ public static class SupportBundleTriageIndexBuilder
     private static string OrNotCaptured(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? "(not captured)" : value;
+    }
+
+    private static string? FormatStructuralExecutionMode(int? modeValue, bool? realModeFellBackToSimulator)
+    {
+        if (modeValue is null || !Enum.IsDefined(typeof(StructuralExecutionMode), modeValue.Value))
+        {
+            if (realModeFellBackToSimulator == true)
+                return "Fallback";
+
+            return null;
+        }
+
+        return ((StructuralExecutionMode)modeValue.Value).ToString();
+    }
+
+    private static string? SummarizeLatestFailedGate(SupportBundlePayload payload)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+
+        if (payload.Health.Ready.HttpStatus is >= 400 and < 600)
+            return $"/health/ready returned HTTP {payload.Health.Ready.HttpStatus.ToString(CultureInfo.InvariantCulture)}";
+
+        if (payload.Health.Combined.HttpStatus is >= 400 and < 600)
+            return $"/health/diagnostics returned HTTP {payload.Health.Combined.HttpStatus.ToString(CultureInfo.InvariantCulture)}";
+
+        SupportBundleValidateConfigAlert? blocking = payload.ConfigSummary.ValidateConfigAlerts
+            .FirstOrDefault(a => string.Equals(a.Severity, "Error", StringComparison.OrdinalIgnoreCase));
+
+        if (blocking is not null)
+            return $"Config validate alert [{blocking.Category}]: {blocking.Check}";
+
+        return null;
     }
 }

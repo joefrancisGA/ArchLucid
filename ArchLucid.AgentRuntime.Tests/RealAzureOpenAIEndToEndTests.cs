@@ -46,8 +46,7 @@ public sealed class RealAzureOpenAIEndToEndTests
 {
     private static bool HasLiveAzureOpenAiCredentials()
     {
-        return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_ENDPOINT"))
-               && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_KEY"));
+        return RealLiveAoaiTestConfiguration.TryGetLiveCredentials(out _);
     }
 
     [SkippableFact]
@@ -59,19 +58,18 @@ public sealed class RealAzureOpenAIEndToEndTests
         using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(120));
         CancellationToken cancellationToken = deadline.Token;
 
-        string endpoint = Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_ENDPOINT")!;
-        string apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_KEY")!;
-        string deployment =
-            (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT") ?? "gpt-4o").Trim();
+        RealLiveAoaiTestConfiguration.LiveCredentials live =
+            RealLiveAoaiTestConfiguration.TryGetLiveCredentials(out RealLiveAoaiTestConfiguration.LiveCredentials creds)
+                ? creds
+                : throw new InvalidOperationException("Live credentials required.");
 
-        if (string.IsNullOrWhiteSpace(deployment))
-        {
-            deployment = "gpt-4o";
-        }
+        string endpoint = live.Endpoint;
+        string apiKey = live.ApiKey;
+        string deployment = live.Deployment;
 
         AzureOpenAiCompletionClient completion = new(
-            endpoint.Trim(),
-            apiKey.Trim(),
+            endpoint,
+            apiKey,
             deployment,
             AzureOpenAiCompletionClient.DefaultMaxCompletionTokens);
 
@@ -92,7 +90,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             });
 
         IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediation =
-            AgentSchemaRemediationOptionsMonitorTestFactory.Create();
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(maxCompletionAttempts: 3);
 
         TopologyAgentHandler topology = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
@@ -102,7 +100,9 @@ public sealed class RealAzureOpenAIEndToEndTests
             promptCatalog,
             audit.Object,
             scopeProvider.Object,
-            schemaRemediation);
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            schemaRemediation,
+            ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
 
         ComplianceAgentHandler compliance = new(
             AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
@@ -120,11 +120,21 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         CapabilitiesCostAgentHandler cost = new();
 
+        CriticAgentHandler critic = new(
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
+            SchemaRemediationCompletionClientTestFactory.Create(completion),
+            parser,
+            traceSpy,
+            promptCatalog,
+            audit.Object,
+            scopeProvider.Object,
+            schemaRemediation);
+
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });
 
         RealAgentExecutor executor = new(
-            [topology, compliance, cost],
+            [topology, compliance, cost, critic],
             NullLogger<RealAgentExecutor>.Instance,
             new MixedModePromptMonitor(new AgentPromptCatalogOptions()),
             new FixedScopeProviderForLiveAoai(),
@@ -200,7 +210,7 @@ public sealed class RealAzureOpenAIEndToEndTests
         IReadOnlyList<AgentResult> results =
             await executor.ExecuteAsync(runId, request, evidence, coordination.Tasks, cancellationToken);
 
-        results.Should().HaveCount(3);
+        results.Should().HaveCount(4);
 
         foreach (AgentResult r in results)
         {
@@ -226,7 +236,164 @@ public sealed class RealAzureOpenAIEndToEndTests
             merge,
             results,
             deployment,
-            anyCitation);
+            anyCitation,
+            RealLiveAoaiEvidenceProfiles.FullPipeline);
+    }
+
+    /// <summary>
+    ///     Focused live smoke: one Topology agent call against Azure OpenAI. Used by
+    ///     <c>scripts/Invoke-RealLlmEvidenceGate.ps1</c> for assessment improvement #1 evidence capture.
+    /// </summary>
+    [SkippableFact]
+    public async Task Live_topology_agent_only_produces_valid_agent_result()
+    {
+        Skip.IfNot(HasLiveAzureOpenAiCredentials(),
+            "Set ARCHLUCID_REAL_AOAI_TEST_ENDPOINT and ARCHLUCID_REAL_AOAI_TEST_KEY.");
+
+        using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(120));
+        CancellationToken cancellationToken = deadline.Token;
+
+        RealLiveAoaiTestConfiguration.LiveCredentials live =
+            RealLiveAoaiTestConfiguration.TryGetLiveCredentials(out RealLiveAoaiTestConfiguration.LiveCredentials creds)
+                ? creds
+                : throw new InvalidOperationException("Live credentials required.");
+
+        string endpoint = live.Endpoint;
+        string apiKey = live.ApiKey;
+        string deployment = live.Deployment;
+
+        AzureOpenAiCompletionClient completion = new(
+            endpoint,
+            apiKey,
+            deployment,
+            AzureOpenAiCompletionClient.DefaultMaxCompletionTokens);
+
+        AgentResultParser parser = new();
+        LiveAoaiTraceSpy traceSpy = new();
+        IAgentSystemPromptCatalog promptCatalog = AgentPromptCatalogTestFactory.Create();
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = ScopeIds.DefaultTenant,
+                WorkspaceId = ScopeIds.DefaultWorkspace,
+                ProjectId = ScopeIds.DefaultProject
+            });
+
+        IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediation =
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create(maxCompletionAttempts: 3);
+
+        TopologyAgentHandler topology = new(
+            AgentTierCompletionRouterTestFactory.CreatePassThrough(completion),
+            SchemaRemediationCompletionClientTestFactory.Create(completion),
+            parser,
+            traceSpy,
+            promptCatalog,
+            audit.Object,
+            scopeProvider.Object,
+            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            schemaRemediation,
+            ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
+
+        string runId = Guid.NewGuid().ToString("N");
+        string taskId = Guid.NewGuid().ToString("N");
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "real-aoai-topology-" + Guid.NewGuid().ToString("N"),
+            SystemName = "ContosoRetailWeb",
+            Description =
+                "Design a 3-tier web application on Azure with SQL backend, Redis cache, and App Service frontend.",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Constraints = ["Prefer managed services", "Private endpoints for data tiers"],
+            RequiredCapabilities = ["Azure SQL", "Azure Cache for Redis", "App Service"]
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            RunId = runId,
+            RequestId = request.RequestId,
+            SystemName = request.SystemName,
+            Environment = request.Environment,
+            CloudProvider = request.CloudProvider.ToString(),
+            Request = new RequestEvidence
+            {
+                Description = request.Description,
+                Constraints = request.Constraints.ToList(),
+                RequiredCapabilities = request.RequiredCapabilities.ToList(),
+                Assumptions = request.Assumptions.ToList()
+            }
+        };
+
+        AgentTask task = new()
+        {
+            TaskId = taskId,
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            AgentTypeKey = AgentTypeKeys.Topology
+        };
+
+        AgentResult result = await topology.ExecuteAsync(runId, request, evidence, task, cancellationToken);
+
+        result.Claims.Count.Should().BeGreaterThan(0);
+        result.EvidenceRefs.Count.Should().BeGreaterThan(0);
+
+        bool anyCitation = traceSpy.RawResponses.Any(static s => s.Contains("evidenceRefs", StringComparison.Ordinal));
+        anyCitation.Should().BeTrue();
+
+        SchemaValidationService validationService = new(
+            NullLogger<SchemaValidationService>.Instance,
+            Options.Create(new SchemaValidationOptions()));
+
+        DecisionEngineService engine = new(validationService);
+        DecisionMergeResult merge = engine.MergeResults(runId, request, "v1", [result], [], []);
+
+        // Topology-only smoke: require parsed real LLM output; merge may stay partial without full proposedChanges.
+        TryWriteRealLlmRunMetricsJson(
+            traceSpy,
+            merge,
+            [result],
+            deployment,
+            anyCitation,
+            RealLiveAoaiEvidenceProfiles.TopologyOnly);
+    }
+
+    /// <summary>
+    ///     Computes a USD cost estimate from raw token counts using per-million rates sourced from environment variables
+    ///     (<c>ARCHLUCID_REAL_LLM_INPUT_RATE_USD_PER_M</c>, <c>ARCHLUCID_REAL_LLM_OUTPUT_RATE_USD_PER_M</c>).
+    ///     Falls back to GPT-4o published rates ($5 / $15 per million) when the variables are absent.
+    ///     Returns null when both token counts are zero (provider did not return usage).
+    /// </summary>
+    private static decimal? EstimateGateCostUsd(int inputTokens, int outputTokens, string deploymentName)
+    {
+        if (inputTokens <= 0 && outputTokens <= 0)
+            return null;
+
+        _ = deploymentName; // reserved for per-deployment rate tables in a future pass
+
+        decimal inputRatePerM = TryParseEnvDecimal("ARCHLUCID_REAL_LLM_INPUT_RATE_USD_PER_M", 5.00m);
+        decimal outputRatePerM = TryParseEnvDecimal("ARCHLUCID_REAL_LLM_OUTPUT_RATE_USD_PER_M", 15.00m);
+
+        return inputTokens * inputRatePerM / 1_000_000m
+             + outputTokens * outputRatePerM / 1_000_000m;
+    }
+
+    private static decimal TryParseEnvDecimal(string variable, decimal fallback)
+    {
+        string? raw = Environment.GetEnvironmentVariable(variable);
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return fallback;
+
+        return decimal.TryParse(raw.Trim(), System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out decimal parsed)
+            ? parsed
+            : fallback;
     }
 
     /// <summary>
@@ -238,7 +405,8 @@ public sealed class RealAzureOpenAIEndToEndTests
         DecisionMergeResult merge,
         IReadOnlyList<AgentResult> results,
         string deploymentName,
-        bool evidenceRefsObserved)
+        bool evidenceRefsObserved,
+        string liveEvidenceProfile)
     {
         string? path = Environment.GetEnvironmentVariable("ARCHLUCID_REAL_LLM_RUN_METRICS_JSON");
 
@@ -247,10 +415,16 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         int parseFailures = traceSpy.ParseOutcomeHistory.Count(static x => !x.ParseSucceeded);
 
+        decimal? estimatedCostUsd = EstimateGateCostUsd(
+            traceSpy.InputTokensTotal,
+            traceSpy.OutputTokensTotal,
+            deploymentName);
+
         Dictionary<string, object?> payload = new()
         {
             ["generatedUtc"] = DateTime.UtcNow.ToString("o"),
             ["deploymentName"] = deploymentName.Trim(),
+            ["liveEvidenceProfile"] = liveEvidenceProfile,
             ["mergeSuccess"] = merge.Success,
             ["manifestServiceCount"] = merge.Manifest.Services.Count,
             ["decisionsCount"] = merge.Decisions.Count,
@@ -259,7 +433,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             ["parseFailures"] = parseFailures,
             ["inputTokensTotal"] = traceSpy.InputTokensTotal,
             ["outputTokensTotal"] = traceSpy.OutputTokensTotal,
-            ["estimatedCostUsd"] = null,
+            ["estimatedCostUsd"] = estimatedCostUsd,
             ["semanticScoreCaptured"] = false,
             ["evidenceRefsObserved"] = evidenceRefsObserved,
             ["traceRecorderInvocations"] = traceSpy.RawResponses.Count,

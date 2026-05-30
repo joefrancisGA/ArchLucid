@@ -120,6 +120,20 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     }
+
+    /// <summary>Active waivers expiring within the default 14-day UTC window (TB-104).</summary>
+    public int ExpiringWaiversCount14Days
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Orphan-candidate count and savings from latest committed run (TB-103).</summary>
+    public ExecutiveOrphanCandidateSummary? OrphanCandidates
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>

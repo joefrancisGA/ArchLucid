@@ -19,9 +19,18 @@ export type LlmCostWorkspaceProjectRow = {
   completionTokens: number;
 };
 
+export type LlmCostTopRunRow = {
+  runId: string;
+  estimatedCostUsd: number;
+  promptTokens: number;
+  completionTokens: number;
+  llmCallCount: number;
+};
+
 export type LlmCostReportingDashboard = {
   daily: LlmCostDailyBucket[];
   byWorkspaceProject: LlmCostWorkspaceProjectRow[];
+  topRuns: LlmCostTopRunRow[];
   /** ISO 4217 code from API; mock uses USD. */
   currency: string;
   /** True when the dedicated reporting endpoint was missing or returned an unusable payload. */
@@ -107,7 +116,7 @@ export function buildMockLlmCostReportingDashboard(): LlmCostReportingDashboard 
     },
   ];
 
-  return { daily, byWorkspaceProject, currency: "USD", isMocked: true };
+  return { daily, byWorkspaceProject, topRuns: [], currency: "USD", isMocked: true };
 }
 
 function parseLlmCostReportingDashboardPayload(json: unknown): LlmCostReportingDashboard | null {
@@ -134,7 +143,12 @@ function parseLlmCostReportingDashboardPayload(json: unknown): LlmCostReportingD
     .map(parseWorkspaceProjectRow)
     .filter((r): r is LlmCostWorkspaceProjectRow => r !== null);
 
-  return { daily, byWorkspaceProject, currency, isMocked: false };
+  const rawTopRuns = root.topRuns ?? root.byRun;
+  const topRuns = Array.isArray(rawTopRuns)
+    ? rawTopRuns.map(parseTopRunRow).filter((r): r is LlmCostTopRunRow => r !== null)
+    : [];
+
+  return { daily, byWorkspaceProject, topRuns, currency, isMocked: false };
 }
 
 function parseDailyBucket(entry: unknown): LlmCostDailyBucket | null {
@@ -187,6 +201,27 @@ function parseWorkspaceProjectRow(entry: unknown): LlmCostWorkspaceProjectRow | 
     promptTokens,
     completionTokens,
   };
+}
+
+function parseTopRunRow(entry: unknown): LlmCostTopRunRow | null {
+  if (entry === null || typeof entry !== "object")
+    return null;
+
+  const o = entry as Record<string, unknown>;
+  const runId = pickString(o, ["runId", "run_id"]);
+
+  if (runId === null)
+    return null;
+
+  const estimatedCostUsd = pickFiniteNumber(o, ["estimatedCostUsd", "estimatedCost", "costUsd", "usd"]);
+  const promptTokens = Math.max(0, Math.round(pickFiniteNumber(o, ["promptTokens", "inputTokens"], 0)));
+  const completionTokens = Math.max(0, Math.round(pickFiniteNumber(o, ["completionTokens", "outputTokens"], 0)));
+  const llmCallCount = Math.max(0, Math.round(pickFiniteNumber(o, ["llmCallCount", "callCount"], 0)));
+
+  if (estimatedCostUsd === null || estimatedCostUsd < 0)
+    return null;
+
+  return { runId, estimatedCostUsd, promptTokens, completionTokens, llmCallCount };
 }
 
 function pickString(

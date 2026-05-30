@@ -17,6 +17,10 @@ import { Label } from "@/components/ui/label";
 import { dryRunPolicyPack } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  buildPolicyPackSimulationSummary,
+  type PolicyPackSimulationSummary,
+} from "@/lib/policy-pack-dry-run-summary";
+import {
   POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE,
   POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE,
   type PolicyPackDryRunResponse,
@@ -191,6 +195,22 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
               data-testid="dry-run-result"
               className="grid gap-2 rounded-md border border-neutral-200 p-3 text-sm dark:border-neutral-700"
             >
+              {(() => {
+                const simulationSummary: PolicyPackSimulationSummary | null =
+                  buildPolicyPackSimulationSummary(result);
+
+                return simulationSummary !== null ? (
+                  <div
+                    className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
+                    data-testid="policy-pack-simulation-summary"
+                  >
+                    <p className="m-0 font-semibold">{simulationSummary.headline}</p>
+                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                      {simulationSummary.detail}
+                    </p>
+                  </div>
+                ) : null;
+              })()}
               <div className="font-semibold">Result</div>
               <div>
                 Evaluated {result.deltaCounts.evaluated} review(s) — would block{" "}

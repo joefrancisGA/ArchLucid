@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
@@ -223,7 +223,7 @@ export function FirstPilotOperatingRail() {
           <p className="m-0 mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">{shellCopy.intro}</p>
         </div>
         {shellCopy.showHeaderHelpLink ? (
-          <HelpLink docPath={shellCopy.headerHelpDocPath} label={shellCopy.headerHelpLabel} />
+          <InAppHelpLink helpSlug={shellCopy.headerHelpSlug} label={shellCopy.headerHelpLabel} />
         ) : null}
       </div>
 
@@ -274,7 +274,11 @@ export function FirstPilotOperatingRail() {
                   </Button>
                 ) : null}
                 {shellCopy.showStepTroubleshootLinks && (status === "attention" || status === "current") ? (
-                  <HelpLink docPath={step.troubleshootDocPath} label={`Troubleshoot — ${step.title} (new tab)`} />
+                  <InAppHelpLink
+                    helpSlug={step.troubleshootHelpSlug}
+                    label={`Troubleshoot — ${step.title}`}
+                    variant="text"
+                  />
                 ) : null}
               </div>
             </li>

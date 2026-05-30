@@ -58,7 +58,7 @@ COPY docs/go-to-market/PRICING_PHILOSOPHY.md /pricing-source/docs/go-to-market/P
 # do not re-invoke npm run generate:pricing (which assumes the ../scripts/
 # path available in local dev but not inside the container).
 # NEXT_PUBLIC_* is inlined at build time for client bundles — keep in sync with docker-compose `ui.build.args`.
-ARG NEXT_PUBLIC_DOCS_BASE_URL=https://github.com/joefrancisGA/ArchLucid/blob/main
+ARG NEXT_PUBLIC_DOCS_BASE_URL=https://github.com/joefrancisGA/ArchLucid/blob/master
 ARG NEXT_PUBLIC_DEMO_URL=
 ARG NEXT_PUBLIC_ARCHLUCID_SITE_URL=
 ENV NEXT_PUBLIC_DOCS_BASE_URL=${NEXT_PUBLIC_DOCS_BASE_URL}

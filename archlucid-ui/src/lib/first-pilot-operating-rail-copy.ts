@@ -8,7 +8,7 @@ export type FirstPilotOperatingRailShellCopy = {
   readonly heading: string;
   readonly intro: string;
   readonly showHeaderHelpLink: boolean;
-  readonly headerHelpDocPath: string;
+  readonly headerHelpSlug: string;
   readonly headerHelpLabel: string;
   readonly showStepTroubleshootLinks: boolean;
   readonly minimizedExpandLabel: string;
@@ -21,8 +21,8 @@ const OPERATOR_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   intro:
     "Six steps from setup verification to sponsor packet. Operate compare, governance dashboards, and V1.1 connectors stay secondary until you have a finalized review package.",
   showHeaderHelpLink: true,
-  headerHelpDocPath: "/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md",
-  headerHelpLabel: "Full first-pilot operator path on GitHub (new tab)",
+  headerHelpSlug: "first-pilot-path",
+  headerHelpLabel: "Full first-pilot operator path",
   showStepTroubleshootLinks: true,
   minimizedExpandLabel: "Show full pilot operating path",
   completeMessage:
@@ -35,8 +35,8 @@ const BUYER_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   intro:
     "Six steps from workspace readiness to a signed review package. Complete the core package first — governance, comparison, and audit views are most useful once the evidence record is finalized.",
   showHeaderHelpLink: false,
-  headerHelpDocPath: "/docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md",
-  headerHelpLabel: "Full first-pilot operator path on GitHub (new tab)",
+  headerHelpSlug: "first-pilot-path",
+  headerHelpLabel: "Full first-pilot operator path",
   showStepTroubleshootLinks: false,
   minimizedExpandLabel: "Show guided workflow",
   completeMessage:

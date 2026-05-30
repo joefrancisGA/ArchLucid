@@ -2,8 +2,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Validation;
 
@@ -27,7 +28,12 @@ public sealed class AgentResultParser : IAgentResultParser
     {
         PropertyNameCaseInsensitive = true,
         MaxDepth = MaxJsonDepth,
-        Converters = { new JsonStringEnumConverter() }
+        Converters =
+        {
+            new EvalCorpusFindingSeverityJsonConverter(),
+            new AgentTypeJsonConverter(),
+            new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true)
+        }
     };
 
     private readonly ILogger<AgentResultParser> _logger;

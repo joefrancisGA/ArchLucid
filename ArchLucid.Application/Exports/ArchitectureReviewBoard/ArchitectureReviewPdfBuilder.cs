@@ -357,6 +357,18 @@ public sealed class ArchitectureReviewPdfBuilder
 
         column.Item().Height(10);
 
+        if (!string.IsNullOrWhiteSpace(model.ExplanationConfidenceCallout))
+        {
+            column.Item()
+                .Background(Colors.Amber.Lighten4)
+                .Padding(10)
+                .Text(model.ExplanationConfidenceCallout.Trim())
+                .FontSize(8)
+                .FontColor(Colors.Amber.Darken3);
+
+            column.Item().Height(8);
+        }
+
         IReadOnlyList<ArchitectureReviewBoardExportDispositionItem> items = model.AiDispositionFindings ?? [];
 
         if (items.Count == 0)

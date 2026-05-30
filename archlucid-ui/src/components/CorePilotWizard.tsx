@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -292,7 +292,7 @@ export function CorePilotWizardLauncher() {
             <div className="flex flex-wrap items-center gap-3">
               <DialogTitle>{step.title}</DialogTitle>
 
-              <HelpLink docPath="/docs/CORE_PILOT.md" label="Open the Core Pilot guide on GitHub (new tab)" />
+              <InAppHelpLink helpSlug="core-pilot" label="Open the Core Pilot guide" />
             </div>
 
             <div className="space-y-3">

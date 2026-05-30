@@ -152,6 +152,9 @@ public sealed class FirstValueReportBuilder(
         AppendComputedDeltasSection(sb, deltas);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
+        RoiMetricSourceMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            RoiMetricSourceCatalogBuilder.Build(valueWindowSnapshot));
 
         if (proofCompleteness.RoiBaselineInputs is not null)
             PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);

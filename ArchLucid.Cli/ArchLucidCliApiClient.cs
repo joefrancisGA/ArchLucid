@@ -1339,6 +1339,13 @@ public sealed class ArchLucidApiClient
             get;
             set;
         }
+
+        /// <summary>INV-002 persisted structural execution mode (0=Simulator, 1=Real, 2=Fallback, 3=Mixed).</summary>
+        public int? StructuralExecutionMode
+        {
+            get;
+            set;
+        }
     }
 
     public sealed class AgentTaskInfo

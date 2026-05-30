@@ -1,4 +1,5 @@
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Models;
@@ -20,7 +21,8 @@ public sealed class RetrievalIndexingService(
     IEmbeddingModelIdentity embeddingModelIdentity,
     IVectorIndex vectorIndex,
     IRetrievalDocumentIndexCatalog indexCatalog,
-    IOptionsMonitor<RetrievalEmbeddingCapOptions> capOptions) : IRetrievalIndexingService
+    IOptionsMonitor<RetrievalEmbeddingCapOptions> capOptions,
+    IScopeContextProvider scopeContextProvider) : IRetrievalIndexingService
 {
     private readonly SimpleTextChunker _defaultChunker =
         defaultChunker ?? throw new ArgumentNullException(nameof(defaultChunker));
@@ -39,6 +41,9 @@ public sealed class RetrievalIndexingService(
     private readonly IRetrievalDocumentIndexCatalog _indexCatalog =
         indexCatalog ?? throw new ArgumentNullException(nameof(indexCatalog));
 
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc />
     public async Task IndexDocumentsAsync(IReadOnlyList<RetrievalDocument> documents, CancellationToken ct)
     {
@@ -46,6 +51,9 @@ public sealed class RetrievalIndexingService(
 
         if (documents.Count == 0)
             return;
+
+        ScopeContext ambientScope = _scopeContextProvider.GetCurrentScope();
+        RetrievalIndexingScopeValidator.ValidateDocuments(documents, ambientScope);
 
         RetrievalEmbeddingCapOptions caps = capOptions.CurrentValue;
         int batchSize = Math.Clamp(caps.MaxTextsPerEmbeddingRequest, 1, 2048);

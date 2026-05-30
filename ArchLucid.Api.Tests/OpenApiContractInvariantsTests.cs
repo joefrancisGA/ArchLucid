@@ -115,6 +115,17 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         runSummaryProperties.ContainsKey("isSample").Should().BeTrue();
         runSummaryProperties.ContainsKey("hasWarnings").Should().BeTrue();
         runSummaryProperties.ContainsKey("hasGovernanceWarnings").Should().BeTrue();
+
+        JsonObject? runDetailSchema = schemas["RunDetailDto"]?.AsObject();
+        runDetailSchema.Should().NotBeNull();
+        JsonObject runDetailProperties = runDetailSchema!["properties"]!.AsObject();
+        runDetailProperties.ContainsKey("retrievalGroundingSummary").Should().BeTrue();
+        runDetailProperties.ContainsKey("lastAgentExecutionFailure").Should().BeTrue();
+
+        JsonObject? pilotDeltasSchema = schemas["PilotRunDeltasResponse"]?.AsObject();
+        pilotDeltasSchema.Should().NotBeNull();
+        JsonObject pilotDeltasProperties = pilotDeltasSchema!["properties"]!.AsObject();
+        pilotDeltasProperties.ContainsKey("roiSourceFreshnessDisposition").Should().BeTrue();
     }
 
     private static void AssertRequiredProperties(JsonObject schemas, string schemaName, params string[] expected)

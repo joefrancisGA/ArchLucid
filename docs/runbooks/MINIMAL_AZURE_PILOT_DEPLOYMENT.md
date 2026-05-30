@@ -2,7 +2,7 @@
 
 # Minimal known-good Azure pilot deployment
 
-**Preferred region when unconstrained:** **US East** (assessment recorded decision).
+**Preferred region when unconstrained:** **East US** (`eastus`) with Microsoft-standard Azure naming conventions (assessment recorded decision).
 
 ## Required resources
 
@@ -12,8 +12,11 @@
 | Azure Container Apps or App Service (API + worker roles) | Host `ArchLucid.Api` / worker |
 | Azure Key Vault (recommended) | Secrets |
 | Azure OpenAI (when `AgentExecution:Mode=Real`) | Agent completion |
+| Azure AI Search (production-like profiles) | Tenant-filtered retrieval / grounding |
 | Azure Blob Storage | Artifacts / extractor staging |
 | Application Insights / Azure Monitor | Telemetry |
+
+**IaC shape:** Hosted SaaS examples should compose Azure OpenAI and Azure AI Search into `infra/terraform/prod` by default. Separate roots/modules are acceptable only for isolated validation, migration staging, or customer-provided landing-zone dependencies.
 
 ## Preflight (no apply)
 

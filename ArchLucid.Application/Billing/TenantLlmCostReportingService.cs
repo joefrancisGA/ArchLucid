@@ -22,7 +22,8 @@ public sealed class TenantLlmCostReportingService(
     IScopeContextProvider scopeContextProvider,
     ILlmTenantBudgetRepository budgetRepository,
     ITenantRepository tenantRepository,
-    IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> budgetOptionsMonitor) : ITenantLlmCostReportingService
+    IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> budgetOptionsMonitor,
+    ITenantLlmCostTopRunRanker topRunRanker) : ITenantLlmCostReportingService
 {
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -38,6 +39,9 @@ public sealed class TenantLlmCostReportingService(
 
     private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _budgetOptionsMonitor =
         budgetOptionsMonitor ?? throw new ArgumentNullException(nameof(budgetOptionsMonitor));
+
+    private readonly ITenantLlmCostTopRunRanker _topRunRanker =
+        topRunRanker ?? throw new ArgumentNullException(nameof(topRunRanker));
 
     public async Task<LlmCostReportingDashboardResponse> BuildDashboardAsync(
         int days,
@@ -102,12 +106,17 @@ public sealed class TenantLlmCostReportingService(
             },
         ];
 
+        IReadOnlyList<LlmCostTopRunRowResponse> topRuns = await _topRunRanker
+            .RankAsync(maxRunsToScan: 12, take: 5, cancellationToken)
+            .ConfigureAwait(false);
+
         return new LlmCostReportingDashboardResponse
         {
             Daily = dailyRows,
             ByWorkspaceProject = breakdownRows,
             Currency = "USD",
             CostBasisLabel = hardCap > 0m ? "estimated" : "estimated",
+            TopRuns = topRuns.ToList(),
         };
     }
 

@@ -35,4 +35,7 @@ internal static class ComplianceAgentHandlerTestDependencies
 
     internal static ILogger<ComplianceAgentHandler> CreateNullLogger() =>
         NullLogger<ComplianceAgentHandler>.Instance;
+
+    internal static ILogger<TopologyAgentHandler> CreateTopologyNullLogger() =>
+        NullLogger<TopologyAgentHandler>.Instance;
 }

@@ -108,4 +108,32 @@ describe("operatorCopyForProblem", () => {
     expect(copy.heading).toBe("Graph could not be built");
     expect(copy.hint).toContain("ingestion");
   });
+
+  it("maps quality gate, proof, and config lint hold codes to actionable hints", () => {
+    const qualityGate = operatorCopyForProblem(
+      { errorCode: "QUALITY_GATE_REJECTED", title: "Conflict", detail: "Rejected" },
+      "fallback",
+    );
+    expect(qualityGate.heading).toBe("Quality gate rejected");
+    expect(qualityGate.hint).toContain("QUALITY_GATE_REJECTION.md");
+
+    const proofHold = operatorCopyForProblem(
+      { errorCode: "PROOF_PACKET_HOLD", title: "Hold", detail: "Blocked" },
+      "fallback",
+    );
+    expect(proofHold.hint).toContain("collect-first-pilot-proof");
+
+    const configLint = operatorCopyForProblem(
+      { errorCode: "CONFIG_LINT_HOLD", title: "Hold", detail: "Blocked" },
+      "fallback",
+    );
+    expect(configLint.hint).toContain("config lint");
+  });
+
+  it("uses trial heading when httpStatus is 402", () => {
+    const copy = operatorCopyForProblem(null, "Payment required", { httpStatus: 402 });
+
+    expect(copy.heading).toBe("Trial or billing limit");
+    expect(copy.hint).toContain("trial");
+  });
 });

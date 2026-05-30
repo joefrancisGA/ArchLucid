@@ -67,7 +67,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
     competitorBaseline:
       "Manual **prompt regression review** for each model or policy change — often **half a day per release** of unstructured diff reading — is the usual substitute when no locked cohort exists (**first-party assertion (no external citation yet)**).",
     citation:
-      "https://github.com/joefrancisGA/ArchLucid/blob/main/.github/workflows/golden-cohort-nightly.yml",
+      "https://github.com/joefrancisGA/ArchLucid/blob/master/.github/workflows/golden-cohort-nightly.yml",
     narrativeParagraph:
       "The placeholder SHA constant exists so CI can fail loudly until an owner-approved baseline lock run replaces zeros with real fingerprints. The assert script is the merge-blocking guardrail; the nightly workflow is where longer cohort work runs. Together they document **deterministic drift detection** instead of vibes-based \"the model feels fine.\"",
   },

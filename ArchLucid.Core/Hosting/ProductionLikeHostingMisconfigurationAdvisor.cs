@@ -37,6 +37,20 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
             : structured.Select(static w => w.Message).ToList();
     }
 
+    /// <summary>
+    ///     True when staging/production-like hosting advisories and production-like retrieval policy apply
+    ///     (same gate as <see cref="DescribeWarningRecords" />).
+    /// </summary>
+    public static bool IsProductionLikeHosting(string hostingEnvironmentName, IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        if (string.IsNullOrWhiteSpace(hostingEnvironmentName))
+            throw new ArgumentException("Hosting environment name is required.", nameof(hostingEnvironmentName));
+
+        return ShouldEvaluateProductionLikeWarnings(hostingEnvironmentName.Trim(), configuration);
+    }
+
     /// <summary>TB-002: exposes stable <paramref name="RuleName"/> for metrics alongside operator <see cref="HostingMisconfigurationWarning.Message"/>.</summary>
     public static IReadOnlyList<HostingMisconfigurationWarning> DescribeWarningRecords(
         IConfiguration configuration,
@@ -47,7 +61,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         if (string.IsNullOrWhiteSpace(hostingEnvironmentName))
             throw new ArgumentException("Hosting environment name is required.", nameof(hostingEnvironmentName));
 
-        if (!ShouldEvaluateProductionLikeWarnings(hostingEnvironmentName.Trim(), configuration))
+        if (!IsProductionLikeHosting(hostingEnvironmentName, configuration))
             return [];
 
         List<HostingMisconfigurationWarning> warnings = [];

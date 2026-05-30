@@ -328,6 +328,12 @@ public sealed class ArchitectureReviewDocxBuilder
         ArchitectureReviewDocxOpenXmlPrimitives.AddCallout(body,
             "Findings requiring human disposition — model-assisted observations are advisory only. ArchLucid does not exercise autonomous authority over production posture.");
 
+        if (!string.IsNullOrWhiteSpace(model.ExplanationConfidenceCallout))
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCallout(body, model.ExplanationConfidenceCallout.Trim());
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
+        }
+
         IReadOnlyList<ArchitectureReviewBoardExportDispositionItem> items = model.AiDispositionFindings ?? [];
 
         if (items.Count == 0)

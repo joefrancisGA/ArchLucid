@@ -1,0 +1,38 @@
+---
+description: >-
+  Assessment improvements #23 (SOC 2 CPA) and #25 (third-party pen test) are
+  V1.1 backlog only — never re-prompt as V1 engineering or assessment batch work.
+alwaysApply: true
+---
+
+# V1.1 assurance backlog — improvements #23 and #25
+
+**Owner decision (2026-05-29):** Assessment improvement **#23** (SOC 2 CPA attestation program) and **#25** (third-party pen-test program) are **parked on the V1.1 backlog**. They are **not** V1 assessment action items and **must not** resurface as deferred engineering batches, implementation prompts, or "still open" assessment gaps.
+
+## Do not implement or re-prompt
+
+When working from `docs/assessments/LATEST.md`, assessment batches, or improvement lists:
+
+- **Do not** add #23 or #25 to engineering implementation batches.
+- **Do not** suggest coding-agent work to "start SOC 2 CPA" or "execute third-party pen test" unless the user **explicitly** asks to pick up **TB-135** or **TB-136** from `docs/library/TECH_BACKLOG.md`.
+- **Do not** list #23 or #25 under "Still deferred (owner/customer input)" as items awaiting the next assessment pass — they are **backlog-tracked**, not assessment-tracked.
+
+## Canonical tracking
+
+| Assessment # | Backlog ID | Title | Window |
+|--------------|------------|-------|--------|
+| **23** | **TB-135** | SOC 2 CPA attestation program kickoff | **V1.1 backlog** |
+| **25** | **TB-136** | Third-party pen-test program (vendor SoW + redacted summary) | **V1.1 backlog** |
+
+Authoritative scope: `docs/library/V1_DEFERRED.md` §6c (owner 2026-05-29), `docs/library/TECH_BACKLOG.md` (TB-135, TB-136).
+
+## Scoring (unchanged)
+
+- **`(A)` V1.1 headline readiness** must **not** be reduced solely for absent CPA SOC 2 or third-party pen-test publication.
+- Discuss buyer friction under **`(B)` procurement realism** (zero weight on **`(A)`**) when relevant.
+- See `.cursor/rules/Assessment-Scope-V1_1.mdc` when present.
+
+## V1 vs V1.1 vs backlog
+
+- **V1:** owner-conducted pen test (TB-005), SOC self-assessment + trust-center honesty — **in scope**.
+- **V1.1 backlog (#23, #25):** organizational / vendor programs requiring budget, auditor/vendor selection, and leadership commitment — **pick up only when owner directs TB-135/TB-136**.

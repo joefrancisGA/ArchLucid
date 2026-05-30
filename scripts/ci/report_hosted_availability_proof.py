@@ -41,8 +41,11 @@ def main() -> int:
 
     if not paths:
         summary = {
+            "schema": "archlucid.hosted-availability-rollup.v1",
             "generatedUtc": datetime.now(timezone.utc).isoformat(),
             "disposition": "NOT_COLLECTED",
+            "overallDisposition": "INCONCLUSIVE",
+            "buyerSafeEvidence": False,
             "environmentLabel": "unknown",
             "probeArtifactCount": 0,
             "message": "No hosted probe artifacts supplied; this is informational unless production-like proof profile requires it.",
@@ -54,6 +57,8 @@ def main() -> int:
                 "| Field | Value |",
                 "| --- | --- |",
                 "| Disposition | **NOT_COLLECTED** |",
+                "| Overall disposition | **INCONCLUSIVE** |",
+                "| Buyer-safe evidence | **false** |",
                 "",
                 "No hosted-saas-probe artifacts were attached. Staging probe history does **not** imply production SLA evidence.",
                 "",
@@ -66,8 +71,11 @@ def main() -> int:
         model = summarize.build_rollup(rows)
         markdown = summarize.render_markdown(model)
         summary = {
+            "schema": "archlucid.hosted-availability-rollup.v1",
             "generatedUtc": datetime.now(timezone.utc).isoformat(),
             "disposition": "COLLECTED",
+            "overallDisposition": model.overall_disposition,
+            "buyerSafeEvidence": model.buyer_safe_evidence,
             "environmentLabel": model.environment_label,
             "probeArtifactCount": len(rows),
             "attemptedCount": model.attempted_count,
@@ -85,7 +93,7 @@ def main() -> int:
         json_path.parent.mkdir(parents=True, exist_ok=True)
         json_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
 
-    print(f"hosted availability proof: {summary['disposition']}")
+    print(f"hosted availability proof: {summary['overallDisposition']}")
     return 0
 
 

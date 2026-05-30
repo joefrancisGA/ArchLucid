@@ -136,6 +136,7 @@ By signing this order form, Customer agrees to the following (each incorporated 
 | **Master Service Agreement** | [MSA_TEMPLATE.md](MSA_TEMPLATE.md) |
 | **Data Processing Agreement** | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) |
 | **Service Level Objectives** | [SLA_SUMMARY.md](SLA_SUMMARY.md) |
+| **Support and professional services** | [SUPPORT_POLICY.md](SUPPORT_POLICY.md) |
 | **Acceptable Use Policy** | [TBD — URL] |
 | **Subprocessors** | [SUBPROCESSORS.md](SUBPROCESSORS.md) |
 

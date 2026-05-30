@@ -156,6 +156,13 @@ public sealed class ExecutiveRoiSummaryService(
         ExecutiveRoiPricingLabels pricingLabels =
             await ResolveExecutiveRoiPricingLabelsAsync(latestDetails, cancellationToken).ConfigureAwait(false);
 
+        IReadOnlyList<RiskExceptionRecord> activeWaiversForExpiry =
+            await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken).ConfigureAwait(false);
+
+        int expiringWaivers14Days = CountExpiringWaivers(activeWaiversForExpiry, windowDays: 14);
+        ExecutiveOrphanCandidateSummary orphanCandidates =
+            ExecutiveOrphanCandidateKpiCalculator.BuildFromLatestDetails(latestDetails);
+
         return new ExecutiveRoiSummaryResponse
         {
             TotalEstimatedUsdSavings = totalSavings,
@@ -174,7 +181,24 @@ public sealed class ExecutiveRoiSummaryService(
             HistoricalTrends = historicalTrends,
             RealizedValue = realizedValue,
             BasisBreakdown = basisBreakdown,
+            ExpiringWaiversCount14Days = expiringWaivers14Days,
+            OrphanCandidates = orphanCandidates,
         };
+    }
+
+    private static int CountExpiringWaivers(IReadOnlyList<RiskExceptionRecord> activeWaivers, int windowDays)
+    {
+        DateTimeOffset cutoff = TimeProvider.System.UtcNowDateTime().AddDays(windowDays);
+
+        int count = 0;
+
+        foreach (RiskExceptionRecord waiver in activeWaivers)
+        {
+            if (waiver.ExpiresAtUtc <= cutoff)
+                count++;
+        }
+
+        return count;
     }
 
     private async Task<ExecutiveRoiBasisBreakdown> BuildBasisBreakdownAsync(

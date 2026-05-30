@@ -16,7 +16,8 @@ public sealed class MarketplacePreflightRunnerTests
         IReadOnlyList<MarketplacePreflightStepResult> steps = MarketplacePreflightRunner.Evaluate(root);
 
         steps.Should().NotBeEmpty();
-        steps.Should().OnlyContain(static s => s.Passed);
+        steps.Where(static s => !s.NotAutomated).Should().OnlyContain(static s => s.Passed);
+        steps.Should().Contain(static s => s.NotAutomated && s.Id == "partner_center_seller_verification");
     }
 
     [Fact]

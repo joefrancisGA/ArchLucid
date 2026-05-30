@@ -187,6 +187,7 @@ public sealed class SupportBundleTests
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleLayout.NextStepsFileName)).Should().BeTrue();
+            File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.RedactionManifestFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleLayout.DiagnosticsSummaryFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.HealthFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ApiContractFileName)).Should().BeTrue();
@@ -196,6 +197,8 @@ public sealed class SupportBundleTests
                 .Contain("includedFilesLexOrder");
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
                 .Contain("redactionPassAppliedToSerializedSections");
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
+                .Contain("redactionManifestPath");
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should()
                 .Contain("next-steps.json");
         }
@@ -225,6 +228,8 @@ public sealed class SupportBundleTests
         {
             GeneratedUtc = "2026-01-01T00:00:00Z",
             ConfigModeSummary = "DevelopmentBypass",
+            RedactionManifestStatus = "PASS",
+            StructuralExecutionModeLabel = "Simulator",
             RecentAuditEventIds = ["audit-1"]
         };
 
@@ -237,6 +242,10 @@ public sealed class SupportBundleTests
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexJsonFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexMarkdownFileName)).Should().BeTrue();
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexJsonFileName)).Should().Contain("audit-1");
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexMarkdownFileName))
+                .Should()
+                .Contain("Redaction manifest: PASS")
+                .And.Contain("Structural execution mode: Simulator");
         }
         finally
         {
@@ -272,12 +281,20 @@ public sealed class SupportBundleTests
             SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, dir);
 
             string manifest = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName));
+            string redactionManifest = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.RedactionManifestFileName));
 
             manifest.Should().Contain("\"redactionPassAppliedToSerializedSections\": true");
             manifest.Should().Contain("strip-authorization-bearer-secret");
             manifest.Should().Contain("mask-jwt-like-tokens");
             manifest.Should().Contain("mask-json-escaped-jwt-strings");
             manifest.Should().Contain("includedFilesLexOrder");
+            manifest.Should().Contain("redaction-manifest.json");
+            redactionManifest.Should().Contain("\"status\": \"PASS\"");
+            redactionManifest.Should().Contain("NOT_RECORDED_BY_DESIGN_PATTERN_REDACTION_APPLIED");
+            redactionManifest.Should().Contain("raw API key values");
+            redactionManifest.Should().Contain("Pattern redaction is a defense-in-depth support control");
+            redactionManifest.Should().Contain(SupportBundleArchiveWriter.LogsFileName);
+            redactionManifest.Should().NotContain("supersecret");
 
             string diagnostics = File.ReadAllText(Path.Combine(dir, SupportBundleLayout.DiagnosticsSummaryFileName));
 
@@ -347,6 +364,82 @@ public sealed class SupportBundleTests
         {
             if (Directory.Exists(dir))
 
+                Directory.Delete(dir, true);
+        }
+    }
+
+    [Fact]
+    public void Incident_drill_bundle_surfaces_correlation_run_subsystem_and_redaction_pass()
+    {
+        const string correlationId = "corr-incident-drill-001";
+        const string runId = "run-incident-drill-001";
+
+        SupportBundleLogsSection logs = new()
+        {
+            LocalLogExcerpt =
+                $"x-correlation-id: {correlationId}\r\nGET /v1/pilots/runs/{runId}/pilot-run-deltas failed HTTP 502"
+        };
+
+        SupportBundleHealthSection health = new()
+        {
+            Live = new SupportBundleHealthProbe { HttpStatus = 503 },
+            Ready = new SupportBundleHealthProbe { HttpStatus = 503 },
+            Combined = new SupportBundleHealthProbe { HttpStatus = 503 }
+        };
+
+        SupportBundlePayload payload = new(
+            new SupportBundleManifest { CreatedUtc = "2026-01-01T00:00:00Z", CliWorkingDirectory = "/tmp" },
+            new SupportBundleBuildSection(),
+            health,
+            new SupportBundleApiContractSection(),
+            new SupportBundleConfigSummary { HostAuthModeSummary = "ApiKey", ApiBaseUrlRedacted = "http://stub.local" },
+            new SupportBundleEnvironmentSection(),
+            new SupportBundleWorkspaceSection(),
+            new SupportBundleReferencesSection(),
+            logs);
+
+        SupportBundleTriageIndexDocument triageIndex = new()
+        {
+            GeneratedUtc = "2026-05-30T00:00:00Z",
+            ApiBaseUrlRedacted = "http://stub.local",
+            Run = new SupportBundleTriageRunSection
+            {
+                RunId = runId,
+                RequestId = "REQ-INCIDENT-001",
+                Status = "ExecutionCompleted"
+            },
+            Health = new SupportBundleTriageHealthSection
+            {
+                LiveHttpStatus = 503,
+                ReadyHttpStatus = 503,
+                CombinedHttpStatus = 503
+            },
+            ConfigModeSummary = "ApiKey",
+            RedactionManifestStatus = "PASS",
+            LatestFailedGateHint = "/health/ready returned HTTP 503",
+            Notes = ["Proof disposition WARN — sponsor handoff requires review before external send."]
+        };
+
+        string dir = Path.Combine(Path.GetTempPath(), "bundleIncident." + Guid.NewGuid().ToString("N")[..8]);
+
+        try
+        {
+            SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, dir, triageIndex);
+
+            string triageMarkdown = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.TriageIndexMarkdownFileName));
+            string redactionManifest = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.RedactionManifestFileName));
+            string logsJson = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.LogsFileName));
+
+            triageMarkdown.Should().Contain(runId);
+            triageMarkdown.Should().Contain("HTTP 503");
+            triageMarkdown.Should().Contain("Proof disposition WARN");
+            logsJson.Should().Contain(correlationId);
+            redactionManifest.Should().Contain("\"status\": \"PASS\"");
+            redactionManifest.Should().Contain("fileIntegrity");
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
                 Directory.Delete(dir, true);
         }
     }

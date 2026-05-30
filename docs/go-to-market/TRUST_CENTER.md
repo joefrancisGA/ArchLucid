@@ -8,11 +8,11 @@
 
 **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service.
 
-**Last reviewed:** 2026-05-01
+**Last reviewed:** 2026-05-30
 
 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 
-**Buyer orientation (one screen):** [BUYER_ORIENTATION_ONE_SCREEN.md](BUYER_ORIENTATION_ONE_SCREEN.md) · **AI output limits:** [AI_OUTPUT_DECISION_SUPPORT.md](AI_OUTPUT_DECISION_SUPPORT.md) · **Audit walkthrough:** [SECURITY_AUDIT_WALKTHROUGH.md](SECURITY_AUDIT_WALKTHROUGH.md)
+**Third-party assurance posture (2026-05-30):** External third-party penetration testing is **planned, not yet scheduled** (V1.1 backlog TB-136). V1 ships **owner-conducted** testing only. [BUYER_ORIENTATION_ONE_SCREEN.md](BUYER_ORIENTATION_ONE_SCREEN.md) · **AI output limits:** [AI_OUTPUT_DECISION_SUPPORT.md](AI_OUTPUT_DECISION_SUPPORT.md) · **Audit walkthrough:** [SECURITY_AUDIT_WALKTHROUGH.md](SECURITY_AUDIT_WALKTHROUGH.md)
 
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
@@ -69,14 +69,14 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 **Owner-conducted (V1):** **V1** penetration-style testing and related evidence are **owner-led** (not a third-party attestation). Track progress in [`../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md). **Independent quality assessments must not** penalize V1 for lacking an **external** third-party pen test — see [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c (owner 2026-05-01).
 
-**Third-party (V2, procurement-grade):** funded **external** vendor engagements are **not** committed in V1; they are **V2** — use procurement templates below when planning. Procurement posture: redacted customer summaries may be distributed **under NDA** per owner decisions in **`docs/PENDING_QUESTIONS.md`**.
+**Third-party (planned, not yet scheduled):** funded **external** vendor engagements are not currently scheduled; use the procurement templates below when planning. Procurement posture: redacted customer summaries may be distributed **under NDA** per owner decisions in **`docs/PENDING_QUESTIONS.md`**.
 
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
-- [2026 Q2 — SoW **template** (vendor to be selected; use when V2 vendor is selected)](../security/pen-test-summaries/2026-Q2-SOW.md)
+- [2026 Q2 — SoW **template** (vendor to be selected; use when a third-party engagement is scheduled)](../security/pen-test-summaries/2026-Q2-SOW.md)
 - [2026 Q2 — redacted summary working copy](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (assessor narrative — **not** a public artefact)
 
-**NDA-gated pen-test summaries:** When a **third-party** assessor delivers a report **(V2)**, redacted summaries are made available **under NDA** as agreed in that SoW; the public Trust Center records the existence of the engagement and the high-level posture. Contact **`security@archlucid.net`**. The folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of assessor deliverables.
+**NDA-gated pen-test summaries:** When a **third-party** assessor delivers a report, redacted summaries are made available **under NDA** as agreed in that SoW; the public Trust Center records the existence of the engagement and the high-level posture. Contact **`security@archlucid.net`**. The folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of assessor deliverables.
 
 **Questionnaires (pre-filled):**
 
@@ -93,7 +93,7 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 | Engagement | Vendor | Scope | Completed (UTC) | Summary access |
 |------------|--------|-------|-----------------|----------------|
 | **2026-Q2 owner-conducted penetration-style assessment** | ArchLucid internal | Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane review (paired with checklist-driven UI coverage) | Window tracked in **[`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** (stub until closed) | **NDA-aligned public stub** — quantitative findings withheld; procurement detail under **`security@archlucid.net`** alongside Trust Center paragraph above |
-| Third-party penetration test (vendor to be selected) | **V2-planned** — no vendor committed for V1 | API, operator UI, hosted SaaS data plane (typical scope — confirm in executed SoW) | Not scheduled — use **[`2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)** template when engaging (**V2**) | NDA-only when executed — email `security@archlucid.net` after assessor delivers redacted summary |
+| Third-party penetration test (vendor to be selected) | Planned, not yet scheduled — no vendor committed | API, operator UI, hosted SaaS data plane (typical scope — confirm in executed SoW) | Not scheduled — use **[`2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)** template when engaging | NDA-only when executed — email `security@archlucid.net` after assessor delivers redacted summary |
 | Internal owner security self-assessment | ArchLucid (internal CISO ownership) | STRIDE-aligned control review across SOC 2 Common Criteria mapping | 2026-Q2 (latest revision tracked in [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)) | Public summary available at [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md); detailed gap register on request |
 | Accessibility self-attestation review | ArchLucid (accessibility custodian, same operational team as `security@`) | WCAG 2.2 Level AA **target** on operator UI top routes — axe-core (wcag22aa + WCAG 2.x tags) + jsx-a11y; **manual AT user testing not claimed complete** | 2026-04-22 (annual cadence; next window 2027-04-22 — see [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) "Review cadence") | Public — see marketing route `/accessibility`, root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md), and [`PROCUREMENT_DEAL_READY_ONE_PAGER.md`](PROCUREMENT_DEAL_READY_ONE_PAGER.md) §Accessibility |
 | Quarterly staging chaos exercise | ArchLucid Platform / on-call | Staging-only fault injection (SQL pool exhaustion 2026-04-29; subsequent runs 2026-07-29, 2026-10-28) — production chaos out-of-scope per owner decision 2026-04-22 ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34) | Calendar published 2026-04-22; first run 2026-04-29 (staging) — see [`docs/quality/game-day-log/`](../quality/game-day-log/README.md) | Public — closing reports linked from the game-day calendar |
@@ -149,6 +149,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [../security/PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) | PII framing and retention considerations for conversation / Ask data. |
 | [../security/DSAR_PROCESS.md](../security/DSAR_PROCESS.md) | GDPR Data Subject Access Request process — PII map, fulfillment steps, erasure constraints. |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Buyer-facing SLO targets (availability **99.9%**, tiered latency, maintenance). |
+| [SUPPORT_POLICY.md](SUPPORT_POLICY.md) | Per-tier support entitlements, severity definitions, professional services, IP/reuse. |
 | [BACKUP_AND_DR.md](BACKUP_AND_DR.md) | Backup schedule, disaster recovery, data lifecycle, RTO/RPO estimates. |
 | [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) | Status page plan and operational transparency roadmap. |
 | [PROCUREMENT_OBJECTION_PLAYBOOK.md](PROCUREMENT_OBJECTION_PLAYBOOK.md) | Standardized answers and escalation triggers for high-frequency objections. |

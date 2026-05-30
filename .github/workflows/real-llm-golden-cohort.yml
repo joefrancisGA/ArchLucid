@@ -1,0 +1,43 @@
+# Optional credentialed real-LLM golden cohort (Improvement #9).
+# Skips gracefully when AZURE_OPENAI_* / ARCHLUCID_REAL_AOAI_TEST_* secrets are absent.
+name: real-llm-golden-cohort
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  real-llm-golden-cohort:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Real-LLM golden cohort (skip-graceful)
+        env:
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          ARCHLUCID_REAL_AOAI_TEST_ENDPOINT: ${{ secrets.ARCHLUCID_REAL_AOAI_TEST_ENDPOINT }}
+          ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_REAL_AOAI_TEST_KEY }}
+        run: pwsh -NoProfile -File ./scripts/ci/Invoke-RealLlmGoldenCohort.ps1
+
+      - name: Upload real-LLM session artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-llm-golden-cohort
+          path: |
+            artifacts/release/real-llm-evidence-gate.md
+            artifacts/release/real-llm-evidence-gate.json
+            artifacts/release/real-llm-topology-metrics.json
+            artifacts/release/real-llm-full-pipeline-metrics.json
+            docs/quality/REAL_LLM_SESSION_*.md
+          if-no-files-found: ignore

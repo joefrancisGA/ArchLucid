@@ -4,12 +4,29 @@
 
 Next.js (App Router) UI for ArchLucid: marketing, operator shell, and review workflows. It consumes the HTTP API; **business rules and authority logic live in .NET** under the repo root.
 
+## UI visual standard (V1 GA requirement — read before writing any component)
+
+**Canonical doc:** [`docs/library/UI_DESIGN_SYSTEM.md`](../docs/library/UI_DESIGN_SYSTEM.md)
+
+ArchLucid's V1 GA UI must follow **IBM Carbon Design System** as the primary visual reference, with **Microsoft Fluent 2** for shell/navigation polish. Tailwind/shadcn defaults are component primitives only — they are **not** the aesthetic target.
+
+Key rules for every component:
+- Neutral gray surfaces; restrained teal accent only for interactive elements and focus rings.
+- No decorative pastel card backgrounds.
+- Compact enterprise spacing (`space-y-4`, `p-4`) — not marketing-scale spacing.
+- Status is communicated via `<StatusTag>` and `<SeverityTag>` with canonical copy.
+- Technical details (IDs, CLI commands, model names) are hidden behind disclosure affordances on normal surfaces.
+- Product language: *review package*, *finding*, *evidence trail*, *governance approval*, *audit trail* — not *run*, *job*, *alert* (unless it is an alert), *log*.
+
+Backlog items to reach full conformance: **TB-114 – TB-120** in [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
+
 ## Before large UI refactors
 
 - **API contract of record:** `docs/library/API_CONTRACTS.md` (canonical surface is **`GET /openapi/v1.json`**, not Swagger-only JSON).
 - **Generated types:** `npm run generate:api-types` → `src/lib/api-types.generated.ts` (must stay aligned when OpenAPI changes; see root workspace rule **`Http-Surface-Docs-And-Clients.mdc`**).
 - **`src/lib/openapi-schemas.ts`** re-exports `components` / `paths`; prefer aliasing schemas there (see `types/authority.ts`) over parallel DTO structs.
 - **Deferred UI architecture work:** `docs/library/UI_ARCHITECTURE_V1_1.md` (data-fetching layer, SidebarNav refactor, Suspense polish, …).
+- **Product documentation presentation (V1):** `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md` — customer-facing help links must use in-app `/help/{topic}` routes, not GitHub blob pages (**TB-143 – TB-148**).
 
 ## Typical commands
 

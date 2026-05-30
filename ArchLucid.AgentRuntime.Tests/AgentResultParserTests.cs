@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
@@ -150,6 +151,33 @@ public sealed class AgentResultParserTests
         AgentResult result = sut.ParseAndValidate(json, "r1", "t1", AgentType.Topology);
 
         result.Claims.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void ParseAndValidate_when_agentType_is_dispatch_key_topology_succeeds()
+    {
+        const string json = """
+                            {"runId":"run1","taskId":"task1","agentType":"topology","resultId":"res1","claims":["c"],"evidenceRefs":["e"],"confidence":0.75,"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
+
+        AgentResult result = _sut.ParseAndValidate(json, "run1", "task1", AgentType.Topology);
+
+        result.AgentType.Should().Be(AgentType.Topology);
+    }
+
+    [SkippableFact]
+    public void ParseAndValidate_when_findings_use_legacy_low_medium_high_severity_succeeds()
+    {
+        const string json = """
+                            {"runId":"run1","taskId":"task1","agentType":"Compliance","resultId":"res1","claims":["c"],"evidenceRefs":["e"],"confidence":0.75,"findings":[{"severity":"Low","category":"Security","message":"Legacy low label"},{"severity":"Medium","category":"Security","message":"Legacy medium label"},{"severity":"High","category":"Security","message":"Legacy high label"}],"createdUtc":"2026-01-01T00:00:00Z"}
+                            """;
+
+        AgentResult result = _sut.ParseAndValidate(json, "run1", "task1", AgentType.Compliance);
+
+        result.Findings.Should().HaveCount(3);
+        result.Findings[0].Severity.Should().Be(FindingSeverity.Info);
+        result.Findings[1].Severity.Should().Be(FindingSeverity.Warning);
+        result.Findings[2].Severity.Should().Be(FindingSeverity.Error);
     }
 
     private static SchemaValidationService CreateSchemaService()

@@ -3,9 +3,11 @@ using System.Text;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -19,6 +21,7 @@ public sealed class ArchitectureReviewExportService(
     IArchitectureAnalysisService architectureAnalysisService,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
+    IRunExplanationSummaryService runExplanationSummaryService,
     ITenantReviewBoardCoverLogoStore? tenantReviewBoardCoverLogoStore,
     ArchitectureReviewDocxBuilder docxBuilder,
     ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
@@ -34,6 +37,9 @@ public sealed class ArchitectureReviewExportService(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IRunExplanationSummaryService _runExplanationSummaryService =
+        runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
 
     private readonly ArchitectureReviewDocxBuilder _docxBuilder =
         docxBuilder ?? throw new ArgumentNullException(nameof(docxBuilder));
@@ -80,6 +86,7 @@ public sealed class ArchitectureReviewExportService(
         ArchitectureAnalysisReport report = await _architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
 
         string? tenantDisplayName = await ResolveTenantDisplayNameAsync(cancellationToken).ConfigureAwait(false);
+        string? explanationCallout = await TryBuildExplanationConfidenceCalloutAsync(detail, cancellationToken).ConfigureAwait(false);
 
         ArchitectureReviewBoardExportDocumentModel documentModel =
             ArchitectureReviewBoardExportDocumentFactory.Create(
@@ -87,7 +94,8 @@ public sealed class ArchitectureReviewExportService(
                 report,
                 httpCorrelationId,
                 extractorTimestampUtcLabel: null,
-                tenantDisplayName: tenantDisplayName);
+                tenantDisplayName: tenantDisplayName,
+                explanationConfidenceCallout: explanationCallout);
 
         string? activeTrialExportNotice = await ResolveActiveTrialExportNoticeAsync(cancellationToken).ConfigureAwait(false);
 
@@ -167,6 +175,51 @@ public sealed class ArchitectureReviewExportService(
             return null;
 
         return tenant.Name.Trim();
+    }
+
+    private async Task<string?> TryBuildExplanationConfidenceCalloutAsync(
+        ArchitectureRunDetail detail,
+        CancellationToken cancellationToken)
+    {
+        string runId = detail.Run.RunId ?? string.Empty;
+
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return null;
+
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunExplanationSummary? summary = await _runExplanationSummaryService
+                .GetSummaryAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (summary is null)
+                return null;
+
+            RunExplanationConfidenceSignals signals = RunExplanationConfidenceCalloutBuilder.FromSummary(summary);
+
+            return RunExplanationConfidenceCalloutBuilder.BuildExportCallout(signals);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return null;
+        }
+    }
+
+    private static bool TryParseRunGuid(string runId, out Guid runGuid)
+    {
+        runGuid = Guid.Empty;
+
+        if (string.IsNullOrWhiteSpace(runId))
+            return false;
+
+        if (Guid.TryParse(runId, out runGuid))
+            return true;
+
+        if (runId.Length >= 32 && Guid.TryParseExact(runId[..32], "N", out runGuid))
+            return true;
+
+        return false;
     }
 
     private static string BuildMinimalHtml(ArchitectureReviewBoardExportDocumentModel documentModel)

@@ -1,57 +1,52 @@
-variable "enable_openai_consumption_budget" {
-  type        = bool
-  description = "When true, create an azurerm_consumption_budget_resource_group for Azure OpenAI / Cognitive Services spend in openai_consumption_budget_resource_group_id."
-  default     = false
+# Optional OpenAI consumption budget hooks — Terraform resource labels use `archlucid` naming (greenfield IaC).
+# Rename via `terraform state mv` during a planned maintenance window.
+# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+
+locals {
+  openai_consumption_budget_enabled = var.enable_openai_consumption_budget && length(trimspace(var.openai_consumption_budget_resource_group_id)) > 0
+
+  openai_budget_filter_dimension_name = length(var.openai_consumption_budget_account_resource_ids) > 0 ? "ResourceId" : "ResourceType"
+
+  openai_budget_filter_values = length(var.openai_consumption_budget_account_resource_ids) > 0 ? var.openai_consumption_budget_account_resource_ids : [
+    "Microsoft.CognitiveServices/accounts",
+  ]
 }
 
-variable "openai_consumption_budget_resource_group_id" {
-  type        = string
-  description = "Full ARM id of the resource group that contains the Azure OpenAI (Cognitive Services) account(s): /subscriptions/{sub}/resourceGroups/{name}."
-  default     = ""
-}
+resource "azurerm_consumption_budget_resource_group" "openai" {
+  count = local.openai_consumption_budget_enabled ? 1 : 0
 
-variable "openai_consumption_budget_account_resource_ids" {
-  type        = list(string)
-  description = "Optional full ARM ids of specific Microsoft.CognitiveServices/accounts resources to scope the budget. When empty, the budget filters all Cognitive Services accounts in the resource group."
-  default     = []
-}
+  name              = var.openai_consumption_budget_name
+  resource_group_id = trimspace(var.openai_consumption_budget_resource_group_id)
 
-variable "openai_consumption_budget_name" {
-  type        = string
-  description = "Budget name (unique within the resource group scope in Cost Management)."
-  default     = "archlucid-openai-monthly"
+  amount     = var.openai_consumption_budget_amount
+  time_grain = "Monthly"
 
-  validation {
-    condition     = length(var.openai_consumption_budget_name) >= 1 && length(var.openai_consumption_budget_name) <= 63
-    error_message = "openai_consumption_budget_name must be 1-63 characters."
+  time_period {
+    start_date = var.openai_consumption_budget_time_period_start
   }
-}
 
-variable "openai_consumption_budget_amount" {
-  type        = number
-  description = "Monthly budget amount in the subscription billing currency (e.g. USD)."
-  default     = 300
-
-  validation {
-    condition     = var.openai_consumption_budget_amount > 0
-    error_message = "openai_consumption_budget_amount must be positive."
+  filter {
+    dimension {
+      name   = local.openai_budget_filter_dimension_name
+      values = local.openai_budget_filter_values
+    }
   }
-}
 
-variable "openai_consumption_budget_time_period_start" {
-  type        = string
-  description = "Budget period start (RFC3339, first day of a month UTC). Azure requires month boundaries."
-  default     = "2026-01-01T00:00:00Z"
-}
+  notification {
+    enabled        = true
+    threshold      = 80.0
+    operator       = "GreaterThan"
+    threshold_type = "Actual"
+    contact_emails = length(var.openai_consumption_budget_contact_emails) > 0 ? var.openai_consumption_budget_contact_emails : null
+    contact_roles  = length(var.openai_consumption_budget_contact_emails) > 0 ? null : var.openai_consumption_budget_contact_roles
+  }
 
-variable "openai_consumption_budget_contact_emails" {
-  type        = list(string)
-  description = "Email addresses for budget alerts. When empty, contact_roles is used instead."
-  default     = []
-}
-
-variable "openai_consumption_budget_contact_roles" {
-  type        = list(string)
-  description = "RBAC roles to notify when openai_consumption_budget_contact_emails is empty."
-  default     = ["Owner"]
+  notification {
+    enabled        = true
+    threshold      = 100.0
+    operator       = "GreaterThan"
+    threshold_type = "Forecasted"
+    contact_emails = length(var.openai_consumption_budget_contact_emails) > 0 ? var.openai_consumption_budget_contact_emails : null
+    contact_roles  = length(var.openai_consumption_budget_contact_emails) > 0 ? null : var.openai_consumption_budget_contact_roles
+  }
 }

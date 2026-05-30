@@ -102,7 +102,12 @@ internal static class SupportBundleCommand
             await SupportBundleCollector.CollectAsync(client, cwd, config, cancellationToken);
 
         SupportBundleTriageIndexDocument triageIndex =
-            await SupportBundleTriageIndexBuilder.BuildAsync(client, payload, runId, cancellationToken);
+            await SupportBundleTriageIndexBuilder.BuildAsync(
+                client,
+                payload,
+                runId,
+                redactionManifestPassApplied: true,
+                cancellationToken);
 
         string written = SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, bundleDir, triageIndex);
 

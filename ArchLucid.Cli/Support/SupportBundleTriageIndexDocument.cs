@@ -31,6 +31,15 @@ public sealed class SupportBundleTriageIndexDocument
     [JsonPropertyName("hostVersionSummary")]
     public string HostVersionSummary { get; init; } = string.Empty;
 
+    [JsonPropertyName("redactionManifestStatus")]
+    public string RedactionManifestStatus { get; init; } = "NOT_CAPTURED";
+
+    [JsonPropertyName("structuralExecutionModeLabel")]
+    public string? StructuralExecutionModeLabel { get; init; }
+
+    [JsonPropertyName("latestFailedGateHint")]
+    public string? LatestFailedGateHint { get; init; }
+
     [JsonPropertyName("recentAuditEventIds")]
     public IReadOnlyList<string> RecentAuditEventIds { get; init; } = [];
 

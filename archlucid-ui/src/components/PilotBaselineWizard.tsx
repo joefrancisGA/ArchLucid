@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useState, type FormEvent, type ReactElement } from "react";
 
-import { HelpLink } from "@/components/HelpLink";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,6 +25,8 @@ export type PilotBaselineWizardProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved?: () => void;
+  /** True when the dialog was opened automatically on first visit, not by a user action. */
+  autoShown?: boolean;
 };
 
 function parsePositiveHours(raw: string): number | null {
@@ -61,7 +63,7 @@ function parsePeopleOrNull(raw: string): number | null {
 
 /** Guided capture for PILOT_ROI_MODEL §3 anchors — persists via `PUT /v1/tenant/baseline`. */
 
-export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaselineWizardProps): ReactElement {
+export function PilotBaselineWizard({ open, onOpenChange, onSaved, autoShown }: PilotBaselineWizardProps): ReactElement {
   const demoMode = isNextPublicDemoMode();
   const [stepIndex, setStepIndex] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -225,7 +227,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
           <div className="flex flex-wrap items-center gap-3">
             <DialogTitle>{title}</DialogTitle>
 
-            <HelpLink docPath="/docs/library/PILOT_ROI_MODEL.md" label="Open pilot ROI model on GitHub (new tab)" />
+            <InAppHelpLink helpSlug="pilot-roi-model" label="Open pilot ROI model" />
           </div>
 
           <div className="space-y-3">
@@ -241,6 +243,12 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
         </DialogHeader>
 
         <div id="pilot-baseline-wizard-body" className="space-y-4 pb-4 text-sm text-neutral-800 dark:text-neutral-100">
+          {autoShown && !demoMode ? (
+            <p className="m-0 rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-xs leading-relaxed text-teal-800 dark:border-teal-800 dark:bg-teal-950 dark:text-teal-200">
+              ArchLucid opened this automatically because your ROI baseline has not been set yet. These two values power the sponsor-facing ROI exports and the before/after delta view.
+            </p>
+          ) : null}
+
           {demoMode ? (
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
               Demo mode hides authenticated baseline persistence — connect a tenant workspace to capture ROI anchors.

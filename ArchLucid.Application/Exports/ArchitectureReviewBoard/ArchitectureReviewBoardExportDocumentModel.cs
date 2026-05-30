@@ -117,4 +117,11 @@ public sealed class ArchitectureReviewBoardExportDocumentModel
         get;
         init;
     }
+
+    /// <summary>Sponsor-safe explanation confidence caveat when faithfulness is WARN/HOLD (#20).</summary>
+    public string? ExplanationConfidenceCallout
+    {
+        get;
+        init;
+    }
 }

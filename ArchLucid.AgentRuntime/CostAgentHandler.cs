@@ -8,6 +8,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Pricing;
 
@@ -28,6 +29,7 @@ public sealed class CostAgentHandler(
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
     IAzureRetailPriceStructuredLookup retailPriceLookup,
+    IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
     ILogger<CostAgentHandler> logger)
     : IAgentHandler
@@ -39,6 +41,9 @@ public sealed class CostAgentHandler(
 
     private readonly IAzureRetailPriceStructuredLookup _retailPriceLookup =
         retailPriceLookup ?? throw new ArgumentNullException(nameof(retailPriceLookup));
+
+    private readonly IRetrievalGroundingTraceWriter _retrievalGroundingTraceWriter =
+        retrievalGroundingTraceWriter ?? throw new ArgumentNullException(nameof(retrievalGroundingTraceWriter));
 
     private readonly ILogger<CostAgentHandler> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -69,7 +74,9 @@ public sealed class CostAgentHandler(
         string systemPrompt = systemResolved.Text;
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
-        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, _retailPriceLookup);
+        CostRetailGroundingResult retailGrounding = CostRetailGroundingBuilder.Build(request, evidence, _retailPriceLookup);
+        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task, retailGrounding);
+        await TryPersistRetailGroundingTraceAsync(runId, request, retailGrounding, cancellationToken);
         string lastCompletionJson = string.Empty;
 
         try
@@ -167,7 +174,7 @@ public sealed class CostAgentHandler(
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         AgentTask task,
-        IAzureRetailPriceStructuredLookup retailPriceLookup)
+        CostRetailGroundingResult grounding)
     {
         StringBuilder sb = new();
 
@@ -177,8 +184,6 @@ public sealed class CostAgentHandler(
         AgentUserPromptBuilder.AppendRunHeader(sb, runId, task.TaskId, "Cost");
         AgentUserPromptBuilder.AppendArchitectureRequestAndEvidence(sb, request, evidence);
         AgentUserPromptBuilder.AppendTaskObjectiveToolsAndSources(sb, task);
-
-        CostRetailGroundingResult grounding = CostRetailGroundingBuilder.Build(request, evidence, retailPriceLookup);
 
         if (!grounding.SkippedNonAzure)
         {
@@ -193,5 +198,38 @@ public sealed class CostAgentHandler(
         sb.AppendLine("- Return JSON only.");
 
         return sb.ToString();
+    }
+
+    private async Task TryPersistRetailGroundingTraceAsync(
+        string runId,
+        ArchitectureRequest request,
+        CostRetailGroundingResult grounding,
+        CancellationToken cancellationToken)
+    {
+        if (grounding.SkippedNonAzure)
+            return;
+
+        if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        RetrievalGroundingTraceInsert insert =
+            RetailPriceRetrievalGroundingTraceMapper.BuildInsert(scope, runGuid, request, grounding);
+
+        try
+        {
+            await _retrievalGroundingTraceWriter.AppendAsync(insert, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Failed to persist retail-price grounding trace for cost agent run {RunId}.",
+                    runId);
+            }
+        }
     }
 }

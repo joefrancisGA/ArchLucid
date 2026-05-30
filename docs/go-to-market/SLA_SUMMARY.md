@@ -7,11 +7,13 @@
 
 **Audience:** Procurement, security reviewers, and technical evaluators assessing ArchLucid's reliability commitments.
 
-**Last reviewed:** 2026-04-29
+**Last reviewed:** 2026-05-30
 
 ArchLucid targets **high availability and low latency** for the production API. This document translates internal engineering objectives into buyer-readable commitments. For engineering depth (Prometheus rules, OTel metrics, burn-rate math), see [../API_SLOS.md](../library/API_SLOS.md).
 
-**Important:** These are **service level objectives** (targets), not contractual guarantees. Contractual SLA terms, including service credits, will be defined in the commercial agreement. See [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) for contract framing.
+**Support entitlements:** [SUPPORT_POLICY.md](SUPPORT_POLICY.md) — per-tier support, severity definitions, professional services, and feature-commitment posture (owner terms resolved 2026-05-30).
+
+**Important:** Team and Professional tiers receive **engineering SLO targets** below. **Contractual SLA terms and service credits apply to Enterprise only** when included in the executed commercial agreement. See [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md).
 
 ---
 
@@ -20,6 +22,14 @@ ArchLucid targets **high availability and low latency** for the production API. 
 | Metric | Target | Measurement |
 |--------|--------|-------------|
 | **Monthly availability** | **99.9%** | Ratio of successful API responses (**non-5xx**) to total requests, measured over a **30-day rolling window** (same SLI as Prometheus burn-rate rules in `infra/prometheus/archlucid-slo-rules.yml`). |
+
+**Tier posture:**
+
+| Tier | Target | Contractual SLA / credits |
+|------|--------|---------------------------|
+| Team | 99.9% engineering target | No credits |
+| Professional | 99.9% engineering target | No credits |
+| Enterprise | 99.9% monthly (hosted API + operator UI) | Availability-based service credits when included in executed agreement — [SUPPORT_POLICY.md](SUPPORT_POLICY.md) |
 
 **What counts as downtime:** Periods where the API fails to meet the availability target above. **5xx rate** is the same signal: a **99.9%** target implies at most **0.1%** of requests may be **5xx** over the window for that measurement. Planned maintenance windows that are communicated in advance are **excluded** from the availability calculation.
 
@@ -54,14 +64,16 @@ Engineering detail (synthetic probes, Prometheus histograms, internal early warn
 | Commitment | Detail |
 |------------|--------|
 | **Advance notice** | **72 hours** minimum for scheduled maintenance that may affect availability. |
-| **Maintenance windows** | Prefer off-peak hours; specific windows communicated per customer's primary region. |
+| **Maintenance windows** | **Sunday early-morning** window in the customer's primary region/time zone (see [SUPPORT_POLICY.md](SUPPORT_POLICY.md)). |
 | **Zero-downtime target** | Rolling deployments are the default; maintenance requiring downtime is exceptional and always communicated. |
 
 ---
 
 ## 4. Service credits
 
-Service credit terms (e.g., percentage credit for availability below target) are **to be defined** in the commercial SLA attached to the subscription agreement. This document describes **objectives**, not contractual obligations.
+**Enterprise only:** When included in an executed Enterprise agreement, availability-based service credits are **monthly capped** and the customer's **sole remedy** for availability shortfalls. Credits do **not** apply to support response-time targets. Percentage schedule is defined in the order form / SLA exhibit.
+
+Team and Professional receive **no service credits** — 99.9% remains an engineering target only. Full posture: [SUPPORT_POLICY.md](SUPPORT_POLICY.md).
 
 ---
 
@@ -109,4 +121,5 @@ See [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) for the status pa
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
 | [../API_SLOS.md](../library/API_SLOS.md) | Engineering SLO detail |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident classification and comms |
+| [SUPPORT_POLICY.md](SUPPORT_POLICY.md) | Support entitlements and professional services |
 | [BACKUP_AND_DR.md](BACKUP_AND_DR.md) | Backup, DR, and data lifecycle |

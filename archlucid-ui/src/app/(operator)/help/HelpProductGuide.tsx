@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_HOME_PRIMARY_CTA } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { inAppHelpHref, listProductDocumentationEntries } from "@/lib/product-documentation-registry";
 
 /**
  * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.
@@ -115,6 +116,25 @@ export function HelpProductGuide() {
           </CardContent>
         </Card>
       </div>
+
+      <section aria-labelledby="help-in-app-topics" className="space-y-3">
+        <h3 id="help-in-app-topics" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          In-app guides
+        </h3>
+        <ul className="m-0 grid gap-2 sm:grid-cols-2">
+          {listProductDocumentationEntries().map((topic) => (
+            <li key={topic.slug}>
+              <Link
+                href={inAppHelpHref(topic.slug)}
+                className="block rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm shadow-sm hover:border-teal-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-teal-800"
+              >
+                <span className="font-medium text-teal-800 dark:text-teal-300">{topic.title}</span>
+                <span className="mt-1 block text-neutral-600 dark:text-neutral-400">{topic.summary}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         <strong>Start here:</strong> open the{" "}

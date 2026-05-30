@@ -5,6 +5,7 @@ using ArchLucid.Application.Audit;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Provenance;
+using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Audit;
@@ -42,6 +43,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
+    IAuthorityRunDetailOperatorEnricher runDetailOperatorEnricher,
     IRunRationaleService runRationaleService,
     IRunRetrievalGroundingService runRetrievalGroundingService,
     IRunPipelineAuditTimelineService pipelineAuditTimeline,
@@ -172,6 +174,10 @@ public sealed class AuthorityQueryController(
         result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             result.Run.RealModeFellBackToSimulator,
             _configuration["AgentExecution:Mode"]);
+
+        await runDetailOperatorEnricher
+            .EnrichAsync(result, _configuration["AgentExecution:Mode"], ct)
+            .ConfigureAwait(false);
 
         int findingCount = result.FindingsSnapshot?.Findings?.Count ?? 0;
         FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(GetRunDetail), findingCount);

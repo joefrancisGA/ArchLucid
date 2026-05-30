@@ -1,7 +1,10 @@
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.Roi;
 using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Core;
 using ArchLucid.Persistence.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -35,10 +38,24 @@ public static class PilotRunDeltasResponseMapper
         ProofPackageCompletenessResponse completeness =
             PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, valueWindowSnapshot, scorecardBaselines);
 
-        return MapCore(deltas, extractorCollectionTimestampUtc, completeness);
+        IReadOnlyList<RoiMetricSourceRow> roiSources = RoiMetricSourceCatalogBuilder.Build(valueWindowSnapshot);
+
+        string roiFreshnessDisposition = RoiMetricSourceFreshnessRules.ResolveDisposition(
+            extractorCollectionTimestampUtc,
+            deltas.IsDemoTenant,
+            deltas.EstimatedUsdSavings,
+            roiSources,
+            TimeProvider.System.UtcNowDateTime());
+
+        return MapCore(deltas, extractorCollectionTimestampUtc, completeness, roiSources, roiFreshnessDisposition);
     }
 
-    private static PilotRunDeltasResponse MapCore(PilotRunDeltas deltas, DateTime? extractorCollectionTimestampUtc, ProofPackageCompletenessResponse? proofPackage)
+    private static PilotRunDeltasResponse MapCore(
+        PilotRunDeltas deltas,
+        DateTime? extractorCollectionTimestampUtc,
+        ProofPackageCompletenessResponse? proofPackage,
+        IReadOnlyList<RoiMetricSourceRow>? roiMetricSources = null,
+        string? roiSourceFreshnessDisposition = null)
     {
         return new PilotRunDeltasResponse
         {
@@ -57,6 +74,8 @@ public static class PilotRunDeltasResponseMapper
             IsDemoTenant = deltas.IsDemoTenant,
             EstimatedUsdSavings = deltas.EstimatedUsdSavings,
             ProofPackageCompleteness = proofPackage,
+            RoiMetricSources = roiMetricSources ?? [],
+            RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? "PASS",
         };
     }
 }

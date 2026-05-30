@@ -53,6 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Api.Client\ArchLucid.Api.Client.csproj" />
     <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
     <ProjectReference Include="..\ArchLucid.AgentRuntime\ArchLucid.AgentRuntime.csproj" />
     <ProjectReference Include="..\ArchLucid.Api\ArchLucid.Api.csproj" />

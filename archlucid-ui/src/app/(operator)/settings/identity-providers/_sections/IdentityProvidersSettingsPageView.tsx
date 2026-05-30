@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { IdentityProviderSetupChecklist } from "./IdentityProviderSetupChecklist";
 import { IdentityProviderHealthStrip } from "./IdentityProviderHealthStrip";
 import { OidcDiagnosticsStrip } from "./OidcDiagnosticsStrip";
 import { SamlOperationalHealthStrip } from "./SamlOperationalHealthStrip";
@@ -18,6 +19,9 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
     identityProviderDiagnostics,
     identityProviderDiagnosticsNote,
     identityProviderDiagnosticsLoaded,
+    authConfigurationDiagnostics,
+    authConfigurationDiagnosticsNote,
+    authConfigurationDiagnosticsLoaded,
     oidcDiagnostics,
     oidcDiagnosticsNote,
     oidcDiagnosticsLoaded,
@@ -92,6 +96,14 @@ export function IdentityProvidersSettingsPageView({ model }: IdentityProvidersSe
         <IdentityProviderHealthStrip
           payload={identityProviderDiagnostics}
           fetchNote={identityProviderDiagnosticsNote}
+        />
+      ) : null}
+
+      {authConfigurationDiagnosticsLoaded ? (
+        <IdentityProviderSetupChecklist
+          configDiagnostics={authConfigurationDiagnostics}
+          configDiagnosticsNote={authConfigurationDiagnosticsNote}
+          samlOperationalHealth={samlOperationalHealth}
         />
       ) : null}
 

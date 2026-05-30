@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -72,29 +73,107 @@ def _evaluate_case(
     return len(hits), supported, ratio, unsupported, wrong_corpus, unsupported_claims
 
 
+def _summarize_by_category(rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    grouped: dict[str, list[dict[str, object]]] = {}
+
+    for row in rows:
+        category = str(row.get("category") or "uncategorized")
+        grouped.setdefault(category, []).append(row)
+
+    summaries: list[dict[str, object]] = []
+
+    for category in sorted(grouped.keys()):
+        bucket = grouped[category]
+        ratios = [float(row["ratio"]) for row in bucket]
+        summaries.append(
+            {
+                "category": category,
+                "caseCount": len(bucket),
+                "meanSupportRatio": sum(ratios) / len(ratios),
+            }
+        )
+
+    return summaries
+
+
+NEGATIVE_CONTROL_CATEGORIES: tuple[str, ...] = (
+    "missing-citation",
+    "wrong-corpus",
+    "roi-cost-unsupported",
+)
+
+
+def _cohort_kind(category: str) -> str:
+    normalized = category.strip().lower()
+
+    if normalized in NEGATIVE_CONTROL_CATEGORIES:
+        return "negative-control"
+
+    return "positive-readiness"
+
+
+def _mean_ratio(rows: list[dict[str, object]]) -> float:
+    if not rows:
+        return 0.0
+
+    return sum(float(row["ratio"]) for row in rows) / len(rows)
+
+
 def _write_report(
     path: Path,
     *,
     cases: list[dict[str, object]],
     mean_ratio: float,
     min_ratio: float,
+    category_breakdown: list[dict[str, object]],
 ) -> None:
+    positive_cases = [row for row in cases if row.get("cohortKind") == "positive-readiness"]
+    negative_cases = [row for row in cases if row.get("cohortKind") == "negative-control"]
+    positive_mean = _mean_ratio(positive_cases)
+    negative_mean = _mean_ratio(negative_cases)
     lines = [
+        "> **Scope:** Auto-generated offline faithfulness report from golden fixtures; does not claim live-model validation.",
+        "",
         "# RAG faithfulness report",
         "",
         f"- **Cases evaluated:** {len(cases)}",
-        f"- **Mean support ratio:** {mean_ratio:.4f}",
+        f"- **Positive readiness cases:** {len(positive_cases)}",
+        f"- **Positive readiness support ratio:** {positive_mean:.4f}",
+        f"- **Negative-control cases:** {len(negative_cases)}",
+        f"- **Negative-control support ratio:** {negative_mean:.4f}",
+        f"- **Combined diagnostic support ratio:** {mean_ratio:.4f}",
         f"- **Floor (minSupportRatio):** {min_ratio:.4f}",
         "",
-        "## Per-case results",
+        "## Interpretation",
         "",
-        "| Case | Retrieved | Supported | Ratio | Missing citations | Wrong corpus | Unsupported ROI/cost |",
-        "|------|-----------|-----------|-------|-------------------|--------------|----------------------|",
+        "- **Positive readiness support ratio** is the buyer-safe quality-posture number for normal supported-output fixtures.",
+        "- **Negative-control support ratio** is diagnostic detector coverage for deliberately missing citations, wrong corpus, or unsupported ROI/cost claims.",
+        "- **Combined diagnostic support ratio** preserves the historical all-case view for release engineering, but should not be quoted as the readiness-only score.",
+        "",
+        "## Per-category breakdown",
+        "",
+        "| Category | Cases | Mean support ratio |",
+        "| --- | ---: | ---: |",
     ]
+
+    for bucket in category_breakdown:
+        lines.append(
+            f"| {bucket['category']} | {bucket['caseCount']} | {float(bucket['meanSupportRatio']):.4f} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Per-case results",
+            "",
+            "| Case | Cohort | Category | Retrieved | Supported | Ratio | Missing citations | Wrong corpus | Unsupported ROI/cost |",
+            "|------|--------|----------|-----------|-----------|-------|-------------------|--------------|----------------------|",
+        ]
+    )
 
     for row in cases:
         lines.append(
-            f"| {row['id']} | {row['retrieved']} | {row['supported']} | {row['ratio']:.4f} | "
+            f"| {row['id']} | {row.get('cohortKind', '')} | {row.get('category', '')} | {row['retrieved']} | {row['supported']} | {row['ratio']:.4f} | "
             f"{', '.join(row['missingCitationIds']) or '-'} | "
             f"{', '.join(row['wrongCorpusIds']) or '-'} | "
             f"{', '.join(row['unsupportedRoiCostClaims']) or '-'} |"
@@ -104,12 +183,94 @@ def _write_report(
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _resolve_min_support_ratio(payload: dict[str, object]) -> float:
+    env_override = os.environ.get("ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO", "").strip()
+    if env_override:
+        return float(env_override)
+    return float(payload.get("minSupportRatio", 0.8))
+
+
+def _resolve_min_positive_support_ratio(payload: dict[str, object], min_ratio: float) -> float:
+    env_override = os.environ.get("ARCHLUCID_FAITHFULNESS_MIN_POSITIVE_SUPPORT_RATIO", "").strip()
+    if env_override:
+        return float(env_override)
+
+    configured = payload.get("minPositiveSupportRatio")
+    if configured is not None:
+        return float(configured)
+
+    return min_ratio
+
+
+def _resolve_max_negative_support_ratio(payload: dict[str, object]) -> float:
+    env_override = os.environ.get("ARCHLUCID_FAITHFULNESS_MAX_NEGATIVE_SUPPORT_RATIO", "").strip()
+    if env_override:
+        return float(env_override)
+
+    return float(payload.get("maxNegativeSupportRatio", 0.35))
+
+
+def _detector_failures(cases: list[dict[str, object]]) -> list[str]:
+    failures: list[str] = []
+
+    for row in cases:
+        category = str(row.get("category") or "")
+        case_id = str(row.get("id") or "unknown")
+        ratio = float(row["ratio"])
+        missing = row.get("missingCitationIds") or []
+        wrong_corpus = row.get("wrongCorpusIds") or []
+        unsupported = row.get("unsupportedRoiCostClaims") or []
+
+        if category == "missing-citation" and ratio > 0.0:
+            failures.append(f"missing-citation detector did not flag case {case_id} (ratio={ratio:.4f})")
+
+        if category == "wrong-corpus" and not wrong_corpus:
+            failures.append(f"wrong-corpus detector did not flag case {case_id}")
+
+        if category == "roi-cost-unsupported" and not unsupported:
+            failures.append(f"unsupported-roi-cost detector did not flag case {case_id}")
+
+    return failures
+
+
+def _enforce_faithfulness_floors(
+    *,
+    cases: list[dict[str, object]],
+    mean_ratio: float,
+    min_ratio: float,
+    min_positive_ratio: float,
+    max_negative_ratio: float,
+) -> list[str]:
+    failures: list[str] = []
+
+    positive_cases = [row for row in cases if row.get("cohortKind") == "positive-readiness"]
+    negative_cases = [row for row in cases if row.get("cohortKind") == "negative-control"]
+    positive_mean = _mean_ratio(positive_cases)
+    negative_mean = _mean_ratio(negative_cases)
+
+    if positive_cases and positive_mean < min_positive_ratio:
+        failures.append(
+            f"positive readiness support ratio {positive_mean:.4f} is below floor {min_positive_ratio:.4f}"
+        )
+
+    if negative_cases and negative_mean > max_negative_ratio:
+        failures.append(
+            f"negative-control support ratio {negative_mean:.4f} exceeds ceiling {max_negative_ratio:.4f}"
+        )
+
+    if mean_ratio < min_ratio:
+        failures.append(f"combined diagnostic support ratio {mean_ratio:.4f} is below floor {min_ratio:.4f}")
+
+    failures.extend(_detector_failures(cases))
+    return failures
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--enforce",
         action="store_true",
-        help="Exit 1 when mean support ratio is below minSupportRatio.",
+        help="Exit 1 when mean support ratio is below minSupportRatio (or ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO).",
     )
     parser.add_argument(
         "--cases",
@@ -138,7 +299,9 @@ def main(argv: list[str] | None = None) -> int:
         print("::error::cases.json must be an object")
         return 1
 
-    min_ratio = float(payload.get("minSupportRatio", 0.8))
+    min_ratio = _resolve_min_support_ratio(payload)
+    min_positive_ratio = _resolve_min_positive_support_ratio(payload, min_ratio)
+    max_negative_ratio = _resolve_max_negative_support_ratio(payload)
     raw_cases = payload.get("cases")
     if not isinstance(raw_cases, list) or not raw_cases:
         print("::error::cases must be a non-empty array")
@@ -153,6 +316,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
 
         case_id = str(entry.get("id") or "unknown")
+        category = str(entry.get("category") or "uncategorized")
         hits = entry.get("retrievalHits")
         output = str(entry.get("agentOutputText") or "")
         expected_corpus_kind = entry.get("expectedCorpusKind")
@@ -178,6 +342,8 @@ def main(argv: list[str] | None = None) -> int:
         evaluated.append(
             {
                 "id": case_id,
+                "category": category,
+                "cohortKind": _cohort_kind(category),
                 "retrieved": retrieved,
                 "supported": supported,
                 "ratio": ratio,
@@ -194,17 +360,39 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     mean_ratio = sum(ratios) / len(ratios)
-    _write_report(report_path, cases=evaluated, mean_ratio=mean_ratio, min_ratio=min_ratio)
+    category_breakdown = _summarize_by_category(evaluated)
+    _write_report(
+        report_path,
+        cases=evaluated,
+        mean_ratio=mean_ratio,
+        min_ratio=min_ratio,
+        category_breakdown=category_breakdown,
+    )
+
+    positive_cases = [row for row in evaluated if row.get("cohortKind") == "positive-readiness"]
+    negative_cases = [row for row in evaluated if row.get("cohortKind") == "negative-control"]
+    positive_mean = _mean_ratio(positive_cases)
+    negative_mean = _mean_ratio(negative_cases)
 
     print(f"Wrote {report_path}")
-    print(f"Mean faithfulness support ratio: {mean_ratio:.4f} (floor {min_ratio:.4f})")
+    print(f"Positive readiness support ratio: {positive_mean:.4f} (floor {min_positive_ratio:.4f})")
+    print(f"Negative-control support ratio: {negative_mean:.4f} (ceiling {max_negative_ratio:.4f})")
+    print(f"Combined diagnostic support ratio: {mean_ratio:.4f} (floor {min_ratio:.4f})")
 
-    if args.enforce and mean_ratio < min_ratio:
-        print(
-            f"::error::Mean support ratio {mean_ratio:.4f} is below floor {min_ratio:.4f}",
-            file=sys.stderr,
+    if args.enforce:
+        failures = _enforce_faithfulness_floors(
+            cases=evaluated,
+            mean_ratio=mean_ratio,
+            min_ratio=min_ratio,
+            min_positive_ratio=min_positive_ratio,
+            max_negative_ratio=max_negative_ratio,
         )
-        return 1
+
+        if failures:
+            for failure in failures:
+                print(f"::error::{failure}", file=sys.stderr)
+
+            return 1
 
     return 0
 

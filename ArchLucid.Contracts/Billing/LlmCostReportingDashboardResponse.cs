@@ -27,6 +27,13 @@ public sealed class LlmCostReportingDashboardResponse
         get;
         init;
     } = "estimated";
+
+    /// <summary>Top runs by estimated trace LLM spend in the current project scope.</summary>
+    public List<LlmCostTopRunRowResponse> TopRuns
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class LlmCostDailyBucketResponse

@@ -67,6 +67,7 @@ describe("buildFirstPilotReadinessRows", () => {
       signals: signals(),
       scorecard: scorecard(true),
       scorecardLoadFailed: false,
+      configLint: null,
     });
 
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("ready");
@@ -83,6 +84,7 @@ describe("buildFirstPilotReadinessRows", () => {
       signals: signals(),
       scorecard: scorecard(false),
       scorecardLoadFailed: false,
+      configLint: null,
     });
 
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("ready");
@@ -99,12 +101,44 @@ describe("buildFirstPilotReadinessRows", () => {
       signals: signals({ hasCommittedManifest: false, readyToFinalize: false, latestRunId: null }),
       scorecard: scorecard(false),
       scorecardLoadFailed: false,
+      configLint: null,
     });
 
     expect(rows.find((r) => r.id === "principal-authority")?.status).toBe("attention");
     expect(rows.find((r) => r.id === "review-pipeline")?.status).toBe("attention");
     expect(rows.find((r) => r.id === "roi-baselines")?.status).toBe("attention");
-    expect(rows.find((r) => r.id === "review-pipeline")?.summary).toContain("Read-only role cannot execute or finalize");  });
+    expect(rows.find((r) => r.id === "review-pipeline")?.summary).toContain("Read-only role cannot execute or finalize");
+  });
+
+  it("routes admins to config lint on system health", () => {
+    const rows = buildFirstPilotReadinessRows({
+      healthStatus: "Healthy",
+      healthLoadFailed: false,
+      runsLoadFailed: false,
+      principal: principal(AUTHORITY_RANK.AdminAuthority),
+      signals: signals(),
+      scorecard: scorecard(true),
+      scorecardLoadFailed: false,
+      configLint: null,
+    });
+
+    expect(rows.find((r) => r.id === "config-lint")?.href).toBe("/admin/health");
+  });
+
+  it("routes read-only users to troubleshooting for config lint", () => {
+    const rows = buildFirstPilotReadinessRows({
+      healthStatus: "Healthy",
+      healthLoadFailed: false,
+      runsLoadFailed: false,
+      principal: principal(AUTHORITY_RANK.ReadAuthority),
+      signals: signals(),
+      scorecard: scorecard(true),
+      scorecardLoadFailed: false,
+      configLint: null,
+    });
+
+    expect(rows.find((r) => r.id === "config-lint")?.href).toBe("/help/troubleshooting");
+  });
 
   it("surfaces a data consistency row that stays non-ready until proof collection", () => {
     const rows = buildFirstPilotReadinessRows({
@@ -115,6 +149,7 @@ describe("buildFirstPilotReadinessRows", () => {
       signals: signals(),
       scorecard: scorecard(true),
       scorecardLoadFailed: false,
+      configLint: null,
     });
 
     expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("attention");
@@ -129,9 +164,25 @@ describe("buildFirstPilotReadinessRows", () => {
       signals: signals({ setupUnhealthy: true, setupReady: false }),
       scorecard: scorecard(true),
       scorecardLoadFailed: false,
+      configLint: null,
     });
 
     expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("blocked");
+  });
+
+  it("marks config lint blocked when admin has blocking findings", () => {
+    const rows = buildFirstPilotReadinessRows({
+      healthStatus: "Healthy",
+      healthLoadFailed: false,
+      runsLoadFailed: false,
+      principal: principal(AUTHORITY_RANK.AdminAuthority),
+      signals: signals(),
+      scorecard: scorecard(true),
+      scorecardLoadFailed: false,
+      configLint: { blockingCount: 1, advisoryCount: 0, loadFailed: false },
+    });
+
+    expect(rows.find((r) => r.id === "config-lint")?.status).toBe("blocked");
   });
 
   it("surfaces API failure states without leaking details", () => {
@@ -143,6 +194,7 @@ describe("buildFirstPilotReadinessRows", () => {
       signals: signals({ setupReady: false, evidenceReady: false, hasAnyRun: false, hasCommittedManifest: false }),
       scorecard: null,
       scorecardLoadFailed: true,
+      configLint: null,
     });
 
     expect(rows.find((r) => r.id === "api-ready")?.status).toBe("unknown");

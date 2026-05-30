@@ -19,7 +19,7 @@ export interface BulkEvidenceUploadProps {
   runId: string;
 }
 
-const MAX_FILES = 30;
+const MAX_FILES = 200;
 
 function parseProblemDetail(bodyText: string): string | undefined {
   try {
@@ -170,7 +170,9 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
   return (
     <div className="space-y-4 rounded-lg border p-4">
       <h3 className="text-lg font-medium">Add evidence</h3>
-      <p className="text-sm text-neutral-500">Upload up to {MAX_FILES} files per action</p>
+      <p className="text-sm text-neutral-500">
+        Upload up to {MAX_FILES} files per action. ZIP archives are expanded automatically (up to 1 000 entries each).
+      </p>
 
       <div
         className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 transition-colors hover:bg-neutral-100"

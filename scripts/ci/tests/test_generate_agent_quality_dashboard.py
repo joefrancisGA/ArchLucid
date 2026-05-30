@@ -22,6 +22,6 @@ def test_dashboard_generates_from_committed_reports(tmp_path: Path) -> None:
 
     text = out.read_text(encoding="utf-8")
     assert "Agent quality evidence dashboard" in text
-    assert "Faithfulness support ratio" in text
+    assert "Faithfulness positive readiness" in text
     assert "offline fixtures" in text
     assert "Internal-only caveats" in text
