@@ -32,6 +32,65 @@ function Test-EnvPresent {
     return -not [string]::IsNullOrWhiteSpace($value)
 }
 
+function Test-GhNameListed {
+    param(
+        [string]$Kind,
+        [string]$Name
+    )
+
+    try {
+        if ($Kind -eq 'var') {
+            $ghValue = gh variable get $Name 2>$null
+
+            return -not [string]::IsNullOrWhiteSpace($ghValue)
+        }
+
+        $repoListed = gh secret list 2>$null | Select-String -SimpleMatch $Name
+
+        if ($null -ne $repoListed) {
+            return $true
+        }
+
+        $envListed = gh secret list --env dev 2>$null | Select-String -SimpleMatch $Name
+
+        return ($null -ne $envListed)
+    }
+    catch {
+        return $false
+    }
+}
+
+function Test-RealLlmCredentialGroupPresent {
+    param([switch]$UseGh)
+
+    $pairs = @(
+        @('ARCHLUCID_REAL_AOAI_TEST_ENDPOINT', 'ARCHLUCID_REAL_AOAI_TEST_KEY'),
+        @('AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY'),
+        @('ARCHLUCID_CI_REAL_AOAI_ENDPOINT', 'ARCHLUCID_CI_REAL_AOAI_KEY')
+    )
+
+    foreach ($pair in $pairs) {
+        $endpointPresent = Test-EnvPresent -Name $pair[0]
+        $keyPresent = Test-EnvPresent -Name $pair[1]
+
+        if ($UseGh) {
+            if (-not $endpointPresent) {
+                $endpointPresent = Test-GhNameListed -Kind 'secret' -Name $pair[0]
+            }
+
+            if (-not $keyPresent) {
+                $keyPresent = Test-GhNameListed -Kind 'secret' -Name $pair[1]
+            }
+        }
+
+        if ($endpointPresent -and $keyPresent) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 function Write-PrereqLine {
     param(
         [string]$Kind,
@@ -62,12 +121,14 @@ $goldenCohort = @(
     @{ Kind = 'var';   Name = 'ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED'; Purpose = 'Optional; true enables Sunday 06:00 UTC unattended live invoke' }
 )
 
-# TB-138 / real-llm-golden-cohort.yml — repo secrets for optional Monday evidence workflow (owner injects).
+# TB-138 / real-llm-golden-cohort.yml — any one credential pair satisfies RealLlmEvidence.
 $realLlmEvidence = @(
     @{ Kind = 'secret'; Name = 'ARCHLUCID_REAL_AOAI_TEST_ENDPOINT'; Purpose = 'Preferred endpoint for scripts/Invoke-RealLlmEvidenceGate.ps1' }
     @{ Kind = 'secret'; Name = 'ARCHLUCID_REAL_AOAI_TEST_KEY';      Purpose = 'Preferred API key for real-LLM evidence gate' }
     @{ Kind = 'secret'; Name = 'AZURE_OPENAI_ENDPOINT';            Purpose = 'Fallback endpoint mapped by Invoke-RealLlmGoldenCohort.ps1' }
     @{ Kind = 'secret'; Name = 'AZURE_OPENAI_API_KEY';             Purpose = 'Fallback API key mapped by Invoke-RealLlmGoldenCohort.ps1' }
+    @{ Kind = 'secret'; Name = 'ARCHLUCID_CI_REAL_AOAI_ENDPOINT';  Purpose = 'CI Tier 2d endpoint mapped by Invoke-RealLlmGoldenCohort.ps1' }
+    @{ Kind = 'secret'; Name = 'ARCHLUCID_CI_REAL_AOAI_KEY';       Purpose = 'CI Tier 2d API key mapped by Invoke-RealLlmGoldenCohort.ps1' }
 )
 
 $selected = @()
@@ -90,44 +151,49 @@ Write-Host "Profile: $Profile"
 Write-Host ''
 
 $missingRequired = 0
+$realLlmCredentialGroupPresent = $false
+
+if ($Profile -eq 'RealLlmEvidence' -or $Profile -eq 'All') {
+    $realLlmCredentialGroupPresent = Test-RealLlmCredentialGroupPresent -UseGh:$UseGitHubCli
+}
 
 foreach ($item in $selected) {
     $present = Test-EnvPresent -Name $item.Name
 
     if ($UseGitHubCli -and -not $present) {
-        try {
-            if ($item.Kind -eq 'var') {
-                $ghValue = gh variable get $item.Name 2>$null
-
-                if (-not [string]::IsNullOrWhiteSpace($ghValue)) {
-                    $present = $true
-                }
-            }
-            else {
-                $ghListed = gh secret list 2>$null | Select-String -SimpleMatch $item.Name
-
-                if ($null -ne $ghListed) {
-                    $present = $true
-                }
-            }
-        }
-        catch {
-            Write-Host "  (gh lookup skipped for $($item.Name): $($_.Exception.Message))"
-        }
+        $present = Test-GhNameListed -Kind $item.Kind -Name $item.Name
     }
 
     Write-PrereqLine -Kind $item.Kind -Name $item.Name -Purpose $item.Purpose -Present:$present
 
-    if (-not $present -and $item.Name -ne 'ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT' -and $item.Name -ne 'ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED') {
+    $optional = @(
+        'ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT',
+        'ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED',
+        'ARCHLUCID_GOLDEN_COHORT_API_HOST',
+        'AZURE_OPENAI_ENDPOINT',
+        'AZURE_OPENAI_API_KEY',
+        'ARCHLUCID_REAL_AOAI_TEST_ENDPOINT',
+        'ARCHLUCID_REAL_AOAI_TEST_KEY',
+        'ARCHLUCID_CI_REAL_AOAI_ENDPOINT',
+        'ARCHLUCID_CI_REAL_AOAI_KEY'
+    )
+
+    if (-not $present -and $optional -notcontains $item.Name) {
         $missingRequired++
     }
+}
+
+if (($Profile -eq 'RealLlmEvidence' -or $Profile -eq 'All') -and -not $realLlmCredentialGroupPresent) {
+    $missingRequired++
+    Write-Host ''
+    Write-Host '[group] RealLlmEvidence credential pair (any one)          MISSING  - Need endpoint+key from REAL_AOAI_TEST, AZURE_OPENAI, or CI_REAL_AOAI secrets'
 }
 
 Write-Host ''
 Write-Host 'When jobs are skipped:'
 Write-Host '  - ci.yml Tier 2d (RealAzureOpenAIEndToEndTests): ARCHLUCID_CI_REAL_AOAI_ENABLED != true, or event is pull_request, or AOAI secrets missing.'
 Write-Host '  - golden-cohort-nightly cohort-real-llm-gate: ARCHLUCID_GOLDEN_COHORT_REAL_LLM != true or baseline not locked.'
-Write-Host '  - real-llm-golden-cohort.yml: ARCHLUCID_REAL_AOAI_TEST_* or AZURE_OPENAI_* secrets missing (skip-graceful exit 0).'
+Write-Host '  - real-llm-golden-cohort.yml: no REAL_AOAI_TEST / AZURE_OPENAI / CI_REAL_AOAI credential pair (skip-graceful exit 0).'
 Write-Host '  - Budget kill-switch exit 2: MTD spend >= 95% of tests/golden-cohort/budget.config.json cap - see docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md'
 Write-Host ''
 Write-Host 'Owner-only TB-138 promotion (after one green run): add required check cohort-real-llm-gate in GitHub branch protection; optionally inject RealLlmEvidence secrets above.'

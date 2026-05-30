@@ -25,6 +25,8 @@ on:
     # Mon–Sat-only so Sunday does not double-fire alongside the Sunday cron below.
     - cron: "0 6 * * 1-6"
     - cron: "0 6 * * 0"
+  pull_request:
+    branches: [main, master]
   workflow_dispatch:
     inputs:
       run_live_invoke:
@@ -114,32 +116,54 @@ jobs:
 
   cohort-real-llm-gate:
     needs: cohort-contract
-    if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
+    runs-on: ubuntu-latest
+    environment: dev
     outputs:
       budget_exit_code: ${{ steps.budget.outputs.exit_code }}
-    runs-on: ubuntu-latest
     # Improvement 11 (2026-04-24) — issues:write needed by the warn/kill auto-issue step.
     permissions:
       contents: read
       id-token: write
       issues: write
     steps:
+      - name: Gate eligibility (var off, fork PR, or disabled path)
+        id: eligibility
+        run: |
+          set -euo pipefail
+          if [ "${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM }}" != "true" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "ARCHLUCID_GOLDEN_COHORT_REAL_LLM is not true; cohort-real-llm-gate passes as no-op."
+            exit 0
+          fi
+
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Fork pull request; cohort-real-llm-gate passes as no-op (secrets unavailable)."
+            exit 0
+          fi
+
+          echo "enabled=true" >> "${GITHUB_OUTPUT}"
+
       - uses: actions/checkout@v4
+        if: steps.eligibility.outputs.enabled == 'true'
 
       - name: Set up Python (golden cohort budget probe)
+        if: steps.eligibility.outputs.enabled == 'true'
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install requests (budget probe)
+        if: steps.eligibility.outputs.enabled == 'true'
         run: python -m pip install --upgrade pip && pip install requests
 
       - name: Azure login (Cost Management / management plane)
+        if: steps.eligibility.outputs.enabled == 'true'
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       # Improvement 11 (2026-04-24) — Q15-conditional kill-switch.
       # Exit codes (defined in scripts/golden_cohort_budget_probe.py):
@@ -151,8 +175,9 @@ jobs:
       # scripts/ci/assert_golden_cohort_kill_switch_present.py.
       - id: budget
         name: Golden cohort budget probe ($50/mo cap, 80% warn / 95% kill)
+        if: steps.eligibility.outputs.enabled == 'true'
         env:
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
         run: |
           set -uo pipefail
@@ -206,7 +231,7 @@ jobs:
       # Uses gh CLI bundled on ubuntu-latest. We DO NOT --label so the issue doesn't require
       # pre-existing labels. Title is dated so each calendar day appends only one issue per state.
       - name: Open issue on warn or kill (Q15 owner visibility)
-        if: ${{ steps.budget.outputs.exit_code == '1' || steps.budget.outputs.exit_code == '2' }}
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '1' || steps.budget.outputs.exit_code == '2') }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUDGET_EXIT: ${{ steps.budget.outputs.exit_code }}
@@ -240,14 +265,14 @@ jobs:
           gh issue create --title "${title}" --body "${body}" || echo "gh issue create failed; budget step still recorded the state in the workflow summary above."
 
       - name: Setup .NET (golden cohort real LLM gate)
-        if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
       # Improvement 11 (2026-04-24) — runs on exit 0 (green) AND exit 1 (warn — still under kill).
       - name: Cohort fixture presence check (no live LLM invocation in this job)
-        if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
         env:
           ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
           ARCHLUCID_GOLDEN_COHORT_LATENCY_REPORT_PATH: ${{ runner.temp }}/golden-cohort-latency.json
@@ -262,7 +287,7 @@ jobs:
       # ingestion is out of scope for this PR (no Application Insights connection string is wired
       # in here; doing so would inject a secret the prompt explicitly says we must not).
       - name: Upload per-scenario latency JSON
-        if: ${{ always() && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && always() && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
         uses: actions/upload-artifact@v4
         with:
           name: golden-cohort-latency
@@ -270,7 +295,7 @@ jobs:
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && always() }}
         with:
           name: golden-cohort-usage-mtd-ledger
           path: tests/golden-cohort/usage-mtd.json

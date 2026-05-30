@@ -10,7 +10,8 @@
   Gate summary path passed to Invoke-RealLlmEvidenceGate.ps1.
 
 .NOTES
-  Accepts AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_API_KEY or ARCHLUCID_REAL_AOAI_TEST_* (mapped for the gate).
+  Accepts AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_API_KEY, ARCHLUCID_REAL_AOAI_TEST_*,
+  or ARCHLUCID_CI_REAL_AOAI_* (mapped for the gate).
   Never prints secret values. Default CI must not fail when credentials are absent.
 #>
 [CmdletBinding()]
@@ -35,6 +36,8 @@ function Test-RealLlmCredentialsPresent {
     $azureKey = $env:AZURE_OPENAI_API_KEY
     $testEndpoint = $env:ARCHLUCID_REAL_AOAI_TEST_ENDPOINT
     $testKey = $env:ARCHLUCID_REAL_AOAI_TEST_KEY
+    $ciEndpoint = $env:ARCHLUCID_CI_REAL_AOAI_ENDPOINT
+    $ciKey = $env:ARCHLUCID_CI_REAL_AOAI_KEY
 
     if ((-not [string]::IsNullOrWhiteSpace($azureEndpoint)) -and (-not [string]::IsNullOrWhiteSpace($azureKey))) {
         return $true
@@ -44,16 +47,30 @@ function Test-RealLlmCredentialsPresent {
         return $true
     }
 
+    if ((-not [string]::IsNullOrWhiteSpace($ciEndpoint)) -and (-not [string]::IsNullOrWhiteSpace($ciKey))) {
+        return $true
+    }
+
     return $false
 }
 
 function Sync-RealAoaiEnvFromAzureOpenAi {
-    if ([string]::IsNullOrWhiteSpace($env:ARCHLUCID_REAL_AOAI_TEST_ENDPOINT) -and -not [string]::IsNullOrWhiteSpace($env:AZURE_OPENAI_ENDPOINT)) {
-        $env:ARCHLUCID_REAL_AOAI_TEST_ENDPOINT = $env:AZURE_OPENAI_ENDPOINT
+    if ([string]::IsNullOrWhiteSpace($env:ARCHLUCID_REAL_AOAI_TEST_ENDPOINT)) {
+        if (-not [string]::IsNullOrWhiteSpace($env:ARCHLUCID_CI_REAL_AOAI_ENDPOINT)) {
+            $env:ARCHLUCID_REAL_AOAI_TEST_ENDPOINT = $env:ARCHLUCID_CI_REAL_AOAI_ENDPOINT
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace($env:AZURE_OPENAI_ENDPOINT)) {
+            $env:ARCHLUCID_REAL_AOAI_TEST_ENDPOINT = $env:AZURE_OPENAI_ENDPOINT
+        }
     }
 
-    if ([string]::IsNullOrWhiteSpace($env:ARCHLUCID_REAL_AOAI_TEST_KEY) -and -not [string]::IsNullOrWhiteSpace($env:AZURE_OPENAI_API_KEY)) {
-        $env:ARCHLUCID_REAL_AOAI_TEST_KEY = $env:AZURE_OPENAI_API_KEY
+    if ([string]::IsNullOrWhiteSpace($env:ARCHLUCID_REAL_AOAI_TEST_KEY)) {
+        if (-not [string]::IsNullOrWhiteSpace($env:ARCHLUCID_CI_REAL_AOAI_KEY)) {
+            $env:ARCHLUCID_REAL_AOAI_TEST_KEY = $env:ARCHLUCID_CI_REAL_AOAI_KEY
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace($env:AZURE_OPENAI_API_KEY)) {
+            $env:ARCHLUCID_REAL_AOAI_TEST_KEY = $env:AZURE_OPENAI_API_KEY
+        }
     }
 }
 
@@ -99,7 +116,7 @@ function Write-SkippedSessionMarkdown {
 $credsPresent = Test-RealLlmCredentialsPresent
 
 if (-not $credsPresent) {
-    Write-Host 'SKIPPED_NO_CREDENTIALS: AZURE_OPENAI_* or ARCHLUCID_REAL_AOAI_TEST_* not set; exiting 0.' -ForegroundColor Yellow
+    Write-Host 'SKIPPED_NO_CREDENTIALS: AZURE_OPENAI_*, ARCHLUCID_REAL_AOAI_TEST_*, or ARCHLUCID_CI_REAL_AOAI_* not set; exiting 0.' -ForegroundColor Yellow
     Write-SkippedSessionMarkdown -DestinationPath $SessionMarkdownOut
     Write-Host "Wrote $SessionMarkdownOut" -ForegroundColor Green
     exit 0

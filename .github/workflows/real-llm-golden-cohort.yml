@@ -27,6 +27,8 @@ jobs:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           ARCHLUCID_REAL_AOAI_TEST_ENDPOINT: ${{ secrets.ARCHLUCID_REAL_AOAI_TEST_ENDPOINT }}
           ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_REAL_AOAI_TEST_KEY }}
+          ARCHLUCID_CI_REAL_AOAI_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
+          ARCHLUCID_CI_REAL_AOAI_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
         run: pwsh -NoProfile -File ./scripts/ci/Invoke-RealLlmGoldenCohort.ps1
 
       - name: Upload real-LLM session artifacts

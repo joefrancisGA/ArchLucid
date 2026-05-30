@@ -673,33 +673,25 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-137 — Real-LLM evidence: full quad-agent live pipeline gate
 
-**Status:** Open. Assessment improvement **#1** shipped a **topology-only** live smoke (`Live_topology_agent_only_produces_valid_agent_result` + `scripts/Invoke-RealLlmEvidenceGate.ps1`). The full four-agent path (`Live_pipeline_topology_compliance_cost_merge_produces_non_empty_manifest`) still fails on live JSON merge/manifest completeness.
+**Status:** Shipped (2026-05-30). Merge-time schema validation now uses `AgentResultMergeSchemaSerializer` + `AgentResultMergeNormalizer` (wire subset, tolerant enum/finding coercion, proposal id backfill). Live test asserts `DecisionTraces` instead of empty coordinator `DecisionNodes`. Re-run `Invoke-RealLlmEvidenceGate.ps1` locally for PASS/HOLD confirmation.
 
-**Pick up when:**
+**Pick up when:** live gate still HOLD after owner re-run — capture `merge.Errors` from test output and extend normalizer/converters.
 
-1. Harden Compliance/Critic live JSON (proposedChanges, findings severity labels) until merge succeeds reliably.
-2. Promote gate filter to full pipeline or add a second profile (`full-pipeline`) with merge-based schema/structural rows.
-3. Re-run `Invoke-RealLlmEvidenceGate.ps1` and refresh `artifacts/release/real-llm-evidence-gate.md`.
+**Refs:** `ArchLucid.Decisioning/Validation/AgentResultMergeSchemaSerializer.cs`, `ArchitectureFindingJsonConverter`, `RealAzureOpenAIEndToEndTests`.
 
-**Refs:** `ArchLucid.AgentRuntime.Tests/RealAzureOpenAIEndToEndTests.cs`, `RealLiveAoaiEvidenceProfiles`, assessment **#1**.
-
-**Size estimate:** M (~4–8 h).
+**Size estimate:** M (~4–8 h) — **closed**.
 
 ---
 
 ## TB-138 — Real-LLM evidence: GitHub golden-cohort secrets + required PR check (TB-007 Gap A remainder)
 
-**Status:** Partially unblocked locally (2026-05-29). Owner can run `secrets/local-real-aoai.env` + `scripts/Invoke-RealLlmEvidenceGate.ps1` for assessment **#1** evidence. **CI promotion** still blocked on protected Environment secrets / federated identity for `archlucid-golden-cohort` (eastus).
+**Status:** **Shipped (2026-05-30)** — `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true` repo variable, `cohort-real-llm-gate` runs on **pull_request** (fork-safe no-op), **`environment: dev`** for Azure federated login + Cost Management probe, CI AOAI secret fallbacks in `real-llm-golden-cohort.yml` / `Invoke-RealLlmGoldenCohort.ps1`, and **`cohort-real-llm-gate`** added to branch ruleset required checks. Owner confirms one green **`golden-cohort-nightly`** run on **`master`** after merge.
 
-**Pick up when:**
+**Remaining owner-only (not code):** optional live invoke secrets (`ARCHLUCID_GOLDEN_COHORT_API_HOST`, `ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED`) for unattended **`cohort-real-llm-live`**.
 
-1. Inject `ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_KEY` (or federated identity) into the protected GitHub Environment.
-2. Add `cohort-real-llm-gate` to required main-branch status checks per `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` § 2.
-3. Verify with `.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate -UseGitHubCli`.
+**Verify:** `.\scripts\ci\verify_real_mode_prereqs.ps1 -Profile GoldenCohortGate -UseGitHubCli -Strict`
 
-**Refs:** **TB-007** Gap A, `docs/engineering/BUILD.md` § *Real-mode LLM CI and golden cohort*.
-
-**Size estimate:** S operational (~1 h once deployment exists).
+**Refs:** **TB-007** Gap A, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md` § 2, `.github/workflows/golden-cohort-nightly.yml`.
 
 ---
 
