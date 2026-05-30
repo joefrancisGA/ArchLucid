@@ -149,12 +149,16 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
 
     const showAdvancedToggle = page.getByTestId("sidebar-show-advanced-operations-toggle");
 
+    // Scroll and wait for the toggle to be interactable before clicking once.
+    // The click must not be inside a toPass retry loop because each retry would
+    // flip the toggle back to "false", causing the predicate to never settle.
     await expect(async () => {
       await scrollOperatorSidebarFooterIntoView(page);
       await expect(showAdvancedToggle).toBeVisible();
-      await showAdvancedToggle.click();
-      await expect(showAdvancedToggle).toHaveAttribute("aria-pressed", "true");
-    }).toPass({ timeout: 30_000 });
+    }).toPass({ timeout: 15_000 });
+
+    await showAdvancedToggle.click();
+    await expect(showAdvancedToggle).toHaveAttribute("aria-pressed", "true", { timeout: 15_000 });
 
     await expect(governanceNav.getByRole("link", { name: "Governance workflow" })).toHaveAttribute(
       "href",
