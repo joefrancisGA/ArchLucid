@@ -14,10 +14,14 @@ const FETCH_BUDGET_MS = 10_000;
 export type CorePilotCommitContext = {
   /** True when tenant has at least one authority-committed manifest (trial anchor or run row). */
   hasCommittedManifest: boolean;
+  /** Committed reviews visible in the first-page scan (trial anchor counts as one when present). */
+  committedReviewCount: number;
   /** Newest run id on the first page, if any — useful for “open run detail” deep links. */
   latestRunId: string | null;
   /** First run on the page that already has a golden manifest, if any. */
   firstCommittedRunId: string | null;
+  /** Second committed run on the page when repeat-compare prompts need a prior anchor. */
+  secondCommittedRunId: string | null;
 };
 
 function isCommittedRunSummary(run: RunSummary): boolean {
@@ -32,8 +36,10 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
   if (isPublicDemoModeEnv()) {
     return {
       hasCommittedManifest: true,
+      committedReviewCount: 2,
       latestRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
       firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      secondCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
     };
   }
 
@@ -74,27 +80,36 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
     if (!coerced.ok) {
       return {
         hasCommittedManifest: trialAnchoredCommit,
+        committedReviewCount: trialAnchoredCommit ? 1 : 0,
         latestRunId: null,
         firstCommittedRunId: null,
+        secondCommittedRunId: null,
       };
     }
 
     const items = coerced.value.items;
     const latestRunId = items.length > 0 ? items[0].runId : null;
-    const committed = items.find((r) => isCommittedRunSummary(r));
+    const committedRuns = items.filter((r) => isCommittedRunSummary(r));
+    const committed = committedRuns[0];
+    const secondCommitted = committedRuns.length > 1 ? committedRuns[1] : undefined;
+    const committedReviewCount = Math.max(committedRuns.length, trialAnchoredCommit ? 1 : 0);
 
     const hasCommittedManifest = trialAnchoredCommit || committed !== undefined;
 
     return {
       hasCommittedManifest,
+      committedReviewCount,
       latestRunId,
       firstCommittedRunId: committed?.runId ?? null,
+      secondCommittedRunId: secondCommitted?.runId ?? null,
     };
   } catch {
     return {
       hasCommittedManifest: trialAnchoredCommit,
+      committedReviewCount: trialAnchoredCommit ? 1 : 0,
       latestRunId: null,
       firstCommittedRunId: null,
+      secondCommittedRunId: null,
     };
   }
 }

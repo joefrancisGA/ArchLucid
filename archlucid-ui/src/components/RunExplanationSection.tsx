@@ -8,6 +8,7 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
+import { isDeterministicExplanationFallback, normalizeFiniteRatio, traceCompletenessPercent } from "@/types/explanation";
 
 export type RunExplanationSectionProps = {
   summary: RunExplanationSummary | null;
@@ -78,12 +79,14 @@ export function riskPostureBadgeColors(posture: string): { background: string; c
   return { background: "#dcfce7", color: "#166534", borderColor: "#bbf7d0" };
 }
 
-function confidencePercent(confidence: number): number {
-  if (!Number.isFinite(confidence)) {
+function confidencePercent(confidence: number | string): number {
+  const normalized = typeof confidence === "number" ? confidence : Number(confidence);
+
+  if (!Number.isFinite(normalized)) {
     return 0;
   }
 
-  const pct = confidence <= 1 ? Math.round(confidence * 100) : Math.round(confidence);
+  const pct = normalized <= 1 ? Math.round(normalized * 100) : Math.round(normalized);
 
   return Math.min(100, Math.max(0, pct));
 }
@@ -193,16 +196,18 @@ export function RunExplanationSection({
   const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
   const riskPostureLabel = summary.riskPosture?.trim().length > 0 ? summary.riskPosture : "Not rated";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
-  const deterministicFallback =
-    summary.deterministicFallbackUsed === true || summary.usedDeterministicFallback === true;
+  const deterministicFallback = isDeterministicExplanationFallback(summary);
   const conf = expl.confidence;
-  const pct = conf !== null && conf !== undefined ? confidencePercent(conf) : null;
+  const pct =
+    conf !== null && conf !== undefined && (typeof conf === "number" || typeof conf === "string")
+      ? confidencePercent(conf)
+      : null;
   const prov = expl.provenance;
-  const faith = summary.faithfulnessSupportRatio;
+  const faith = normalizeFiniteRatio(summary.faithfulnessSupportRatio);
   let faithPct: number | null = null;
   let faithClass: string | null = null;
 
-  if (faith !== null && faith !== undefined && Number.isFinite(faith)) {
+  if (faith !== null) {
     faithPct = Math.round(faith * 100);
     faithClass = faithfulnessBadgeClass(faithPct);
   }
@@ -292,10 +297,13 @@ export function RunExplanationSection({
             Finding trace confidence
           </h3>
           <ul className="m-0 list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-            {summary.findingTraceConfidences.map((row) => (
+            {summary.findingTraceConfidences.map((row) => {
+              const tracePct = traceCompletenessPercent(row.traceCompletenessRatio);
+
+              return (
               <li key={row.findingId}>
                 <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{row.findingId}</code> —{" "}
-                {row.traceConfidenceLabel} ({Math.round(row.traceCompletenessRatio * 100)}% trace fields)
+                {row.traceConfidenceLabel} ({tracePct ?? 0}% trace fields)
                 {row.ruleId && row.ruleId.trim().length > 0 ? `; rule ${row.ruleId}` : ""}
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`
@@ -309,7 +317,8 @@ export function RunExplanationSection({
                   </span>
                 ) : null}
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       ) : null}

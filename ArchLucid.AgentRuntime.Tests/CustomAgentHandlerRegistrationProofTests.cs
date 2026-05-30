@@ -117,4 +117,18 @@ public sealed class CustomAgentHandlerRegistrationProofTests
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
             new InMemoryAgentResultRepository());
     }
+
+    private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    {
+        public AgentPromptCatalogOptions CurrentValue { get; } = value;
+
+        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
+
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
+    }
+
+    private sealed class FixedScopeProvider(ScopeContext scope) : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() => scope;
+    }
 }

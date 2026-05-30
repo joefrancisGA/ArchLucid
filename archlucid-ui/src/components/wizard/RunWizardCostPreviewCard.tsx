@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
+
 export type AgentExecutionCostPreviewPayload = {
   mode: string;
   maxCompletionTokens: number;
@@ -14,7 +16,7 @@ export type AgentExecutionCostPreviewPayload = {
   deploymentName: string | null;
 };
 
-const DOCS_URL = "/help/executive-summary";
+const DOCS_URL = resolveInAppDocHref("docs/deployment/PER_TENANT_COST_MODEL.md");
 
 export type RunWizardCostPreviewCardProps = {
   /** Defaults to same-origin BFF proxy path. */

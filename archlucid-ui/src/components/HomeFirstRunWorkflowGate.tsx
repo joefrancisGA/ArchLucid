@@ -8,8 +8,10 @@ import { useEffect, useState } from "react";
 
 const emptyCommitContext: CorePilotCommitContext = {
   hasCommittedManifest: false,
+  committedReviewCount: 0,
   latestRunId: null,
   firstCommittedRunId: null,
+  secondCommittedRunId: null,
 };
 
 /**

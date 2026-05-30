@@ -34,6 +34,22 @@ import { cn } from "@/lib/utils";
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
 const graduatedStorageKey = "archlucid_checklist_graduated";
 
+const emptyCommitContext: CorePilotCommitContext = {
+  hasCommittedManifest: false,
+  committedReviewCount: 0,
+  latestRunId: null,
+  firstCommittedRunId: null,
+  secondCommittedRunId: null,
+};
+
+const showcaseCommitContext: CorePilotCommitContext = {
+  hasCommittedManifest: true,
+  committedReviewCount: 1,
+  latestRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+  firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+  secondCommittedRunId: null,
+};
+
 type WorkflowStep = {
   title: string;
   shortBody: string;
@@ -70,13 +86,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [hasAnyRun, setHasAnyRun] = useState(false);
   const [commitCtx, setCommitCtx] = useState<CorePilotCommitContext>(() =>
-    exploreCompletedOutput
-      ? {
-          hasCommittedManifest: true,
-          latestRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
-          firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
-        }
-      : { hasCommittedManifest: false, latestRunId: null, firstCommittedRunId: null },
+    exploreCompletedOutput ? showcaseCommitContext : emptyCommitContext,
   );
   const [latestRunPipelineSignal, setLatestRunPipelineSignal] = useState<boolean>(exploreCompletedOutput === true);
 
@@ -96,7 +106,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         }
       } catch {
         if (!cancelled) {
-          setCommitCtx({ hasCommittedManifest: false, latestRunId: null, firstCommittedRunId: null });
+          setCommitCtx(emptyCommitContext);
         }
       }
     })();

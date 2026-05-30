@@ -1,6 +1,7 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { sortQuickDecisionFindings } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
+import { isDeterministicExplanationFallback } from "@/types/explanation";
 
 /** Serializable inputs for client-side MADR-style markdown (no network). */
 export type AdrGeneratorManifestCounts = {
@@ -155,8 +156,7 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
       structured !== null && Array.isArray(structured.caveats) ? asTrimmedStrings(structured.caveats) : null,
     provenanceLine,
     faithfulnessWarning: typeof summary.faithfulnessWarning === "string" ? summary.faithfulnessWarning.trim() : null,
-    deterministicFallbackUsed:
-      summary.deterministicFallbackUsed === true || summary.usedDeterministicFallback === true,
+    deterministicFallbackUsed: isDeterministicExplanationFallback(summary),
   };
 }
 

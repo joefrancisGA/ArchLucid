@@ -36,6 +36,7 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { FindingConfidenceLevel, FindingTraceConfidenceDto } from "@/types/explanation";
+import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import type { RunSummary } from "@/types/authority";
 
 /** Buyer-polished demo rows: action text aligned to each bundled decision synopsis (indices 0–7). */
@@ -171,7 +172,7 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         ? SHOWCASE_STATIC_DEMO_MANIFEST_ID
         : "—";
 
-      const firstAction = (t.recommendedActions ?? []).find((a: string) => a.trim().length > 0)?.trim();
+      const ruleHint = (t.ruleId ?? "").trim();
 
       return {
         runId: run.runId,
@@ -182,9 +183,12 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         severity: severityFromTrace(t.traceConfidenceLabel),
         category: (t.ruleId ?? "—").replace(/;/g, ", "),
         status: "Open",
-        recommended: firstAction ?? "Open the finding to review rationale, evidence, and recommended next steps.",
+        recommended:
+          ruleHint.length > 0
+            ? `Review finding tied to rule ${ruleHint}.`
+            : "Open the finding to review rationale, evidence, and recommended next steps.",
         recordKind: "finding",
-        traceConfidenceLevel: t.confidenceLevel ?? null,
+        traceConfidenceLevel: normalizeFindingConfidenceLevel(t.confidenceLevel),
       };
     });
 }

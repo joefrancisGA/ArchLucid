@@ -75,7 +75,7 @@ describe("RunWizardCostPreviewCard", () => {
     expect(screen.getByText(/Illustrative USD rates are still set from defaults/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /PER_TENANT_COST_MODEL/i })).toHaveAttribute(
       "href",
-      expect.stringContaining("PER_TENANT_COST_MODEL.md"),
+      expect.stringMatching(/\/help\/|PER_TENANT_COST_MODEL/),
     );
   });
 });

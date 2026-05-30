@@ -16,6 +16,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
+import { normalizeFindingConfidenceLevel, traceCompletenessPercent } from "@/types/explanation";
 
 export type RunFindingExplainabilityTableProps = {
   runId: string;
@@ -39,11 +40,13 @@ function gapsSummary(row: FindingTraceConfidenceDto): string {
 }
 
 function confidenceRank(level: FindingTraceConfidenceDto["confidenceLevel"]): number {
-  if (level === "High") return 0;
+  const normalized = normalizeFindingConfidenceLevel(level);
 
-  if (level === "Medium") return 1;
+  if (normalized === "High") return 0;
 
-  if (level === "Low") return 2;
+  if (normalized === "Medium") return 1;
+
+  if (normalized === "Low") return 2;
 
   return 3;
 }
@@ -155,10 +158,7 @@ export function RunFindingExplainabilityTable({
         >
           {rowVirtualizer.getVirtualItems().map((vi) => {
             const row = sortedRows[vi.index]!;
-            const pct =
-              row.traceCompletenessRatio <= 1
-                ? Math.round(row.traceCompletenessRatio * 100)
-                : Math.round(row.traceCompletenessRatio);
+            const pct = traceCompletenessPercent(row.traceCompletenessRatio) ?? 0;
             const titleFull =
               row.findingTitle !== null &&
               row.findingTitle !== undefined &&
@@ -166,11 +166,11 @@ export function RunFindingExplainabilityTable({
                 ? row.findingTitle.trim()
                 : "(no title)";
 
+            const confidenceLevel = normalizeFindingConfidenceLevel(row.confidenceLevel);
+
             const confidenceSlot =
-              row.confidenceLevel === "High" ||
-              row.confidenceLevel === "Medium" ||
-              row.confidenceLevel === "Low" ? (
-                <FindingConfidenceBadge level={row.confidenceLevel} />
+              confidenceLevel !== null ? (
+                <FindingConfidenceBadge level={confidenceLevel} />
               ) : (
                 <span className="text-neutral-400 dark:text-neutral-500">—</span>
               );

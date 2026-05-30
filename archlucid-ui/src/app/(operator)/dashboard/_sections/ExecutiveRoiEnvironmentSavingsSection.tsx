@@ -49,8 +49,6 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
     };
   }, []);
 
-  const total = slices.reduce((sum, slice) => sum + slice.estimatedUsdSavings, 0);
-
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -71,7 +69,7 @@ export function ExecutiveRoiEnvironmentSavingsSection() {
                 <div
                   key={slice.environment}
                   style={{
-                    width: `${Math.max(4, (slice.estimatedUsdSavings / Math.max(total, 1)) * 100)}%`,
+                    flex: `${Math.max(slice.estimatedUsdSavings, 1)} 1 0%`,
                     backgroundColor: SLICE_COLORS[index % SLICE_COLORS.length],
                   }}
                   title={`${slice.environment}: $${Math.round(slice.estimatedUsdSavings).toLocaleString()}`}

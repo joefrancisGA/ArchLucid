@@ -27,7 +27,7 @@ function traceToRows(traces: FindingTraceConfidenceDto[]): ExecutiveFindingRow[]
     .map((t) => {
       const findingId = t.findingId.trim();
       const titleRaw = (t.findingTitle ?? findingId).trim();
-      const firstAction = (t.recommendedActions ?? []).find((a: string) => a.trim().length > 0)?.trim();
+      const ruleHint = (t.ruleId ?? "").trim();
 
       const row: ExecutiveFindingRow = {
         findingId,
@@ -35,7 +35,10 @@ function traceToRows(traces: FindingTraceConfidenceDto[]): ExecutiveFindingRow[]
         severity: severityFromTrace(t.traceConfidenceLabel),
         confidence:
           (t.traceConfidenceLabel ?? "—").trim().length > 0 ? String(t.traceConfidenceLabel).trim() : "—",
-        recommended: firstAction ?? "See finding detail for recommended next steps.",
+        recommended:
+          ruleHint.length > 0
+            ? `Review finding tied to rule ${ruleHint}.`
+            : "See finding detail for recommended next steps.",
       };
 
       return { row, sortKey: severitySortRank(t.traceConfidenceLabel) };

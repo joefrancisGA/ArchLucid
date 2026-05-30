@@ -1,5 +1,6 @@
 import type { RunDetail } from "@/types/authority";
 import type { FindingConfidenceLevel, FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
+import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 
 /**
  * Persisted architecture finding wire snapshot for "AI reasoning" deep-dive UI.
@@ -38,47 +39,9 @@ export type QuickDecisionFinding = {
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {
-  if (raw === null || raw === undefined) {
-    return null;
-  }
-
-  if (raw === "High" || raw === "Medium" || raw === "Low") {
-    return raw;
-  }
-
-  if (typeof raw === "number" && Number.isFinite(raw)) {
-    const n = Math.trunc(raw);
-
-    if (n === 0) {
-      return "High";
-    }
-
-    if (n === 1) {
-      return "Medium";
-    }
-
-    if (n === 2) {
-      return "Low";
-    }
-  }
-
-  if (typeof raw === "string") {
-    const lower = raw.trim().toLowerCase();
-
-    if (lower === "high") {
-      return "High";
-    }
-
-    if (lower === "medium") {
-      return "Medium";
-    }
-
-    if (lower === "low") {
-      return "Low";
-    }
-  }
-
-  return null;
+  return normalizeFindingConfidenceLevel(
+    raw as FindingConfidenceLevel | number | string | null | undefined,
+  );
 }
 
 export function firstRecommendationSentence(text: string): string {
@@ -165,7 +128,7 @@ function findingTraceRowsFromSummary(summary: RunExplanationSummary | null): Fin
 }
 
 function severityValueFromTraceRow(row: FindingTraceConfidenceDto): number {
-  const level = row.confidenceLevel;
+  const level = normalizeFindingConfidenceLevel(row.confidenceLevel);
 
   if (level === "Low") {
     return 2;
@@ -203,9 +166,7 @@ function quickDecisionFindingFromTraceRow(row: FindingTraceConfidenceDto, order:
 
   const titleRaw = typeof row.findingTitle === "string" ? row.findingTitle.trim() : "";
   const title = titleRaw.length > 0 ? titleRaw : findingId;
-  const actions =
-    Array.isArray(row.recommendedActions) ? row.recommendedActions.filter((s) => typeof s === "string" && s.trim().length > 0) : [];
-  const recommendation = actions.join(" ");
+  const recommendation = typeof row.traceConfidenceLabel === "string" ? row.traceConfidenceLabel.trim() : "";
   let wireJson: string;
 
   try {

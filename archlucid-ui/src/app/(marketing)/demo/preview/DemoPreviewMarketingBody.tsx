@@ -17,6 +17,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { isDeterministicExplanationFallback } from "@/types/explanation";
 
 /**
  * Customer-safe fallback when the demo preview route cannot load (no API routing, network error, or HTTP error).
@@ -356,7 +357,7 @@ export function DemoPreviewMarketingBody({
             <ExplanationEvidenceBasisBadges
               citationCount={citationCount}
               faithfulnessSupportRatio={runEx?.faithfulnessSupportRatio}
-              deterministicFallbackUsed={runEx?.deterministicFallbackUsed ?? runEx?.usedDeterministicFallback}
+              deterministicFallbackUsed={runEx ? isDeterministicExplanationFallback(runEx) : false}
               demoDerived
             />
           </div>

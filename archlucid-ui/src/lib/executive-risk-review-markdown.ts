@@ -1,5 +1,6 @@
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
 import type { RunExplanationSummary } from "@/types/explanation";
+import { isDeterministicExplanationFallback } from "@/types/explanation";
 
 export type ExecutiveRiskReviewFindingMarkdownRow = {
   readonly findingId: string;
@@ -78,7 +79,7 @@ export function buildExecutiveRiskReviewMarkdown(
       ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "—")}.`
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
-    summary.deterministicFallbackUsed === true || summary.usedDeterministicFallback === true
+    isDeterministicExplanationFallback(summary)
       ? "Some narrative was deterministically aligned to the manifest when live synthesis was unavailable."
       : null,
   ].filter((s): s is string => typeof s === "string" && s.length > 0);

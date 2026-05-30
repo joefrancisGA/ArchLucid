@@ -1,4 +1,5 @@
 import type { CitationReference, RunExplanationSummary } from "@/types/explanation";
+import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidenceBasisBadges";
 
 type Props = {
@@ -30,7 +31,7 @@ export function DemoExplainExplanationPanel(props: Props) {
         <ExplanationEvidenceBasisBadges
           citationCount={citations.length}
           faithfulnessSupportRatio={summary.faithfulnessSupportRatio}
-          deterministicFallbackUsed={summary.deterministicFallbackUsed ?? summary.usedDeterministicFallback}
+          deterministicFallbackUsed={isDeterministicExplanationFallback(summary)}
           demoDerived
         />
       </header>
@@ -42,7 +43,7 @@ export function DemoExplainExplanationPanel(props: Props) {
         </p>
         <p className="mt-1 text-xs text-neutral-500">
           Risk posture: <code>{summary.riskPosture || "unknown"}</code>
-          {summary.deterministicFallbackUsed || summary.usedDeterministicFallback ? " · deterministic fallback in use" : ""}
+          {isDeterministicExplanationFallback(summary) ? " · deterministic fallback in use" : ""}
         </p>
       </div>
 

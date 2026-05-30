@@ -7,6 +7,7 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunExplanationSummary } from "@/types/explanation";
+import { isDeterministicExplanationFallback } from "@/types/explanation";
 
 export type ExecutiveReviewFirstViewportProps = {
   readonly runId: string;
@@ -85,7 +86,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
       ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "—")}.`
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
-    summary.deterministicFallbackUsed === true || summary.usedDeterministicFallback === true
+    isDeterministicExplanationFallback(summary)
       ? "Some narrative was deterministically aligned to the manifest when live synthesis was unavailable."
       : null,
   ]

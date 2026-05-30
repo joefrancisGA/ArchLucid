@@ -4,6 +4,7 @@ import { ExplanationEvidenceBasisBadges } from "@/components/ExplanationEvidence
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
+import { isDeterministicExplanationFallback, normalizeFiniteRatio } from "@/types/explanation";
 
 type RunDetailSponsorModeExplanationCardProps = {
   readonly explanationSummary: RunExplanationSummary | null;
@@ -47,7 +48,7 @@ export function RunDetailSponsorModeExplanationCard(
   }
 
   const citationCount = explanationSummary?.citations?.length ?? 0;
-  const faithfulnessRatio = explanationSummary?.faithfulnessSupportRatio;
+  const faithfulnessRatio = normalizeFiniteRatio(explanationSummary?.faithfulnessSupportRatio);
   const basisLabel =
     citationCount > 0
       ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
@@ -87,9 +88,7 @@ export function RunDetailSponsorModeExplanationCard(
             <ExplanationEvidenceBasisBadges
               citationCount={citationCount}
               faithfulnessSupportRatio={faithfulnessRatio}
-              deterministicFallbackUsed={
-                explanationSummary?.deterministicFallbackUsed ?? explanationSummary?.usedDeterministicFallback
-              }
+              deterministicFallbackUsed={isDeterministicExplanationFallback(explanationSummary)}
               compact
             />
           </dd>

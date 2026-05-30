@@ -1,3 +1,5 @@
+import { normalizeFiniteRatio } from "@/types/explanation";
+
 export type ExplanationEvidenceBasisLabel =
   | "evidence-backed"
   | "estimate"
@@ -15,7 +17,7 @@ export type ExplanationEvidenceBasisBadge = {
 
 export type ResolveExplanationEvidenceBasisInput = {
   readonly citationCount?: number | null;
-  readonly faithfulnessSupportRatio?: number | null;
+  readonly faithfulnessSupportRatio?: number | string | null;
   readonly deterministicFallbackUsed?: boolean | null;
   readonly demoDerived?: boolean;
   readonly deferredScope?: boolean;
@@ -37,9 +39,9 @@ function badge(
 }
 
 function hasLowSupport(input: ResolveExplanationEvidenceBasisInput): boolean {
-  const ratio = input.faithfulnessSupportRatio;
+  const ratio = normalizeFiniteRatio(input.faithfulnessSupportRatio);
 
-  if (typeof ratio !== "number" || !Number.isFinite(ratio)) {
+  if (ratio === null) {
     return false;
   }
 
