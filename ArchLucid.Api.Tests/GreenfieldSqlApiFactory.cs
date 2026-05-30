@@ -170,7 +170,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     {
         base.ConfigureClient(client);
 
-        // Worst wall clock for one POST: applock wait budget (10 min) + pipeline ceiling (5 min) — stay aligned with settings above.
+        // Worst wall clock for one POST: applock wait budget (10 min) + pipeline ceiling (5 min) + cold SQL headroom.
         client.Timeout = ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout;
     }
 

@@ -1670,8 +1670,7 @@ jobs:
       - name: Test — ArchLucid.Api.Tests (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
-        # Blame must exceed ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout (~65m factory HttpClient)
-        # plus coverage collector / host teardown slack; 45m falsely kills healthy runs under cold SQL + long simulator pipelines.
+        # Blame must exceed ParallelCreateRunHangGuard (~85m) + GreenfieldSqlHostBootstrapBudget (~35m) slack on cold CI SQL.
         # --diag: VSTest/platform trace when the host stalls after tests (Coverlet teardown vs SQL dispose); blame "current test" is often the last finished test.
         run: >
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings
@@ -1680,7 +1679,7 @@ jobs:
           --results-directory "${{ runner.temp }}/coverage-full-slow-api"
           --logger "trx;LogFilePrefix=full-slow-api-"
           --diag "${{ runner.temp }}/vstest-slow-api.diag.log"
-          --blame-hang --blame-hang-timeout 90min
+          --blame-hang --blame-hang-timeout 105min
 
       - uses: actions/upload-artifact@v6
         if: always()

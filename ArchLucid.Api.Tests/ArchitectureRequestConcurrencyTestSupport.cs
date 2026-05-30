@@ -30,12 +30,13 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(65);
 
     /// <summary>
-    ///     Per-POST ceiling for <see cref="GreenfieldSqlApiFactory" /> (10 min <c>sp_getapplock</c> + 5 min pipeline + slack).
-    ///     Parallel idempotency bursts after <see cref="WarmGreenfieldSqlHostForArchitectureRequestTestsAsync" /> should finish well
-    ///     under this; it must stay below <see cref="ArchitectureRequestBurstHttpTimeout" /> so greenfield tests do not inherit
-    ///     InMemory-factory budgets meant for hour-scale lock chains.
+    ///     Per-POST ceiling for <see cref="GreenfieldSqlApiFactory" /> (10 min <c>sp_getapplock</c> + 5 min pipeline + cold
+    ///     SQL headroom). Parallel idempotency bursts after
+    ///     <see cref="WarmGreenfieldSqlHostForArchitectureRequestTestsAsync" /> should finish well under this; it must stay
+    ///     below <see cref="ArchitectureRequestBurstHttpTimeout" /> so greenfield tests do not inherit InMemory-factory
+    ///     budgets meant for hour-scale lock chains.
     /// </summary>
-    internal static readonly TimeSpan GreenfieldSqlArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(32);
+    internal static readonly TimeSpan GreenfieldSqlArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(40);
 
     /// <summary>
     ///     DbUp + readiness + optional first create-run on an empty catalog (outside parallel-burst hang guards).

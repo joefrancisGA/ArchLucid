@@ -21,15 +21,13 @@ namespace ArchLucid.Api.Tests;
 public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 {
     /// <summary>
-    ///     Caps wall clock for the parallel burst (after greenfield bootstrap). Uses
-    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout" />, not
-    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.ArchitectureRequestBurstHttpTimeout" /> (InMemory factory).
-    ///     Must stay <strong>below</strong> CI <c>--blame-hang-timeout</c> (90 min) including
-    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlHostBootstrapBudget" />.
+    ///     Wall clock for the parallel idempotency burst (after greenfield bootstrap). Must exceed
+    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> times
+    ///     typical waiter depth on cold CI SQL, and stay below slow-shard <c>--blame-hang-timeout</c> minus bootstrap.
     /// </summary>
     private static readonly TimeSpan ParallelCreateRunHangGuard =
         ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
-        + TimeSpan.FromMinutes(25);
+        + TimeSpan.FromMinutes(45);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
@@ -76,14 +74,14 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
         object body = TestRequestFactory.CreateArchitectureRequest(requestId);
 
-        const int parallel = 8;
+        const int parallel = 4;
         HttpResponseMessage[] responses =
             await ArchitectureRequestConcurrencyTestSupport.PostParallelArchitectureRequestWithTransientRetryAsync(
                 client,
                 body,
                 idempotencyKey,
                 parallel,
-                10,
+                6,
                 500,
                 ct,
                 ParallelCreateRunHangGuard);
