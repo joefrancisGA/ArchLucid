@@ -167,5 +167,5 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
 export function documentationSearchOpenUrl(relativeDocsPath: string): void {
   const url = toDocsBlobUrl(`/${relativeDocsPath}`);
 
-  window.open(url, "_blank", "noopener,noreferrer");
+  window.location.assign(url);
 }

@@ -105,7 +105,7 @@ public static class RunStarterTaskFactory
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
-            AllowedTools = [ToolServiceCatalogReader, ToolPatternLibraryReader],
+            AllowedTools = [AgentTypeKeys.Topology],
             AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest]
         };
     }
@@ -122,7 +122,7 @@ public static class RunStarterTaskFactory
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
-            AllowedTools = [ToolPricingProfileReader, ToolCostEstimator],
+            AllowedTools = [AgentTypeKeys.Cost],
             AllowedSources = BuildCostAllowedSources(evidenceBundle)
         };
     }
@@ -150,7 +150,7 @@ public static class RunStarterTaskFactory
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
-            AllowedTools = [ToolPolicyPackReader, ToolControlMapper],
+            AllowedTools = [AgentTypeKeys.Compliance],
             AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest]
         };
     }
@@ -167,7 +167,7 @@ public static class RunStarterTaskFactory
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
-            AllowedTools = ["architecture-review-checklist", ToolPolicyPackReader],
+            AllowedTools = [AgentTypeKeys.Critic],
             AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest]
         };
     }

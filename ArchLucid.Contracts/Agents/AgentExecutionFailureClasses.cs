@@ -24,4 +24,13 @@ public static class AgentExecutionFailureClasses
     public const string InvalidOperation = "invalidOperation";
 
     public const string Dependency = "dependency";
+
+    /// <summary>Azure OpenAI or related credential/config missing for real-mode execution.</summary>
+    public const string MissingCredentials = "missingCredentials";
+
+    /// <summary>Azure AI Content Safety blocked prompt or completion envelope.</summary>
+    public const string ContentSafety = "contentSafety";
+
+    /// <summary>Post-execute output quality gate rejected trace (grounding / structural bar).</summary>
+    public const string QualityGate = "qualityGate";
 }

@@ -73,7 +73,7 @@ Treat each as **PASS / HOLD**. A single HOLD on G1–G4 blocks Stage 1; a HOLD o
 
 ### How to use this
 
-1. Before each new motion expansion, score **G1–G6** as PASS/HOLD in the pilot review notes.
+1. Before each new motion expansion, score **G1–G6** as PASS/HOLD using [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md) or pilot review notes.
 2. Convert HOLDs into the corresponding engineering improvement (assessment **`LATEST.md` §9**) or owner action.
 3. Use early pilots **deliberately** to manufacture G1–G4 evidence — the pilots are the proof factory, not just revenue.
 4. Do **not** advance claims ahead of the gate; pace marketing copy to the highest fully-passed stage.
@@ -158,7 +158,7 @@ All V1 marketing gate improvements referenced below are **COMPLETED** as of **20
 | Legacy batch label | Status | Marketing tasks unblocked |
 |---|---|---|
 | **#26** — Operator UI vocabulary alignment | **COMPLETED (2026-05-17)** | All in-app copy and demo scripts use aligned vocabulary |
-| **#27** — Bulk evidence upload (≤30 files) | **COMPLETED (2026-05-17)** | Landing page copy may disclose cap; M-19 demos show bulk capture |
+| **#27** — Bulk evidence upload (up to 200 files; ZIP as one file) | **COMPLETED (2026-05-17)** | Landing page copy may disclose cap; M-19 demos show bulk capture |
 | **#28** — DOCX/PDF export + consultant whitelabel | **COMPLETED (2026-05-17)** | M-06, M-24 |
 | **#29** — Default policy packs (AI governance + security baseline) | **COMPLETED (2026-05-17)** | M-25, all policy-pack copy claims |
 | **#30** — Two curated demo workspaces (Workspace A + B) | **COMPLETED (2026-05-17)** | M-04, M-05, M-07, M-16, M-19, M-26 |

@@ -50,3 +50,4 @@ Use this quick-reference to find where to make changes in the ArchLucid codebase
 ## 7. Before Opening a PR
 **"What else must I update for this change type?"**
 - **Checklist:** [`CHANGE_IMPACT_CHECKLIST.md`](CHANGE_IMPACT_CHECKLIST.md) covers API routes/DTOs, SQL, config, operator UI, commercial tiers, audit events, retrieval/agent behavior, pricing/trust docs, and V1 scope boundaries.
+- **Generated map:** [`MAINTAINABILITY_BOUNDARY_MAP.generated.md`](MAINTAINABILITY_BOUNDARY_MAP.generated.md) (regenerate with `python scripts/ci/generate_maintainability_boundary_map.py`).

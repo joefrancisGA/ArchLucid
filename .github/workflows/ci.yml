@@ -449,7 +449,43 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_assert_coordinator_reference_ceiling.py"
           python scripts/ci/assert_coordinator_reference_ceiling.py
 
-      - name: Procurement pack ZIP (deterministic docs bundle)
+      - name: Critical docs drift guard
+        run: python scripts/ci/check_critical_docs_drift.py
+
+      - name: API auth doc contract guard
+        run: python scripts/ci/check_api_auth_doc_contract.py
+
+      - name: Policy pack content quality harness
+        run: python scripts/ci/check_policy_pack_content_quality.py
+
+      - name: Hosted availability rollup tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_summarize_hosted_probe_artifacts.py"
+
+      - name: Audit semantic invariants guard
+        run: python scripts/ci/check_audit_semantic_invariants.py
+
+      - name: Maintainability boundary map (generate + path check)
+        run: python scripts/ci/generate_maintainability_boundary_map.py
+
+      - name: Capacity/performance evidence rollup (dry-run)
+        run: python scripts/ci/report_capacity_performance_evidence.py --markdown-out dist/capacity-performance-evidence.md --json-out dist/capacity-performance-evidence.json
+
+      - name: Real-agent failure triage guard
+        run: python scripts/ci/check_real_agent_failure_triage.py
+
+      - name: Real-agent failure triage rollup (dry-run)
+        run: python scripts/ci/report_real_agent_failure_triage.py --markdown-out dist/real-agent-failure-triage.md --json-out dist/real-agent-failure-triage.json
+
+      - name: Custom-handler extensibility readiness guard
+        run: python scripts/ci/check_custom_handler_extensibility_readiness.py
+
+      - name: Tenant isolation verification pack (dry-run)
+        run: python scripts/generate_tenant_isolation_verification_pack.py --dry-run
+
+      - name: Procurement pack ZIP (deterministic docs bundle, buyer-drop strict)
+        run: python scripts/build_procurement_pack.py --deal-ready --dry-run
+
+      - name: Procurement pack ZIP artifact (non-strict build for CI artifact)
         run: bash scripts/build_procurement_pack.sh
 
       - name: Mermaid syntax (mermaid-cli when available)

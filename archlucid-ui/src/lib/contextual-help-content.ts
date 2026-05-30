@@ -1,5 +1,4 @@
-import { DEFAULT_GITHUB_BLOB_BASE } from "./docs-public-base";
-import { getDocHref } from "./help-topics";
+import { resolveInAppDocHref } from "./in-app-doc-href";
 
 export type ContextualHelpEntry = {
   text: string;
@@ -8,7 +7,8 @@ export type ContextualHelpEntry = {
 
 /**
  * In-app help copy for the core pilot flow. `learnMoreUrl` values are app-relative; see
- * {@link toDocsBlobUrl} when linking to the repo default branch on the web.
+ * Relative in-repo docs paths (e.g. `/docs/CORE_PILOT.md`) resolve to in-app `/help/{topic}` routes via
+ * {@link toDocsBlobUrl}.
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "new-run-wizard": {
@@ -150,27 +150,8 @@ export function contextualHelpTriggerAriaLabel(helpKey: string): string | null {
 }
 
 /**
- * Resolves a relative in-repo docs path (e.g. `/docs/CORE_PILOT.md#h`) to a `blob` URL for “Learn more”.
- * Override with <code>NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE</code> when the default branch or fork differs;
- * when unset, uses the same public ArchLucid GitHub `master` blob base as `getDocHref` in `help-topics`.
+ * Resolves a relative in-repo docs path (e.g. `/docs/CORE_PILOT.md#h`) to an in-app help route.
  */
 export function toDocsBlobUrl(learnMoreUrl: string): string {
-  const customBlob = process.env.NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE?.trim();
-
-  if (customBlob && customBlob.length > 0) {
-    return `${customBlob.replace(/\/$/, "")}/${learnMoreUrl.replace(/^\//, "")}`;
-  }
-
-  const hashIdx = learnMoreUrl.indexOf("#");
-  const pathPart = hashIdx >= 0 ? learnMoreUrl.slice(0, hashIdx) : learnMoreUrl;
-  const fragment = hashIdx >= 0 ? learnMoreUrl.slice(hashIdx) : "";
-  const resolved = getDocHref(pathPart);
-
-  if (resolved == null) {
-    const withoutLeading = learnMoreUrl.replace(/^\//, "");
-
-    return `${DEFAULT_GITHUB_BLOB_BASE.replace(/\/$/, "")}/${withoutLeading}`;
-  }
-
-  return `${resolved}${fragment}`;
+  return resolveInAppDocHref(learnMoreUrl);
 }

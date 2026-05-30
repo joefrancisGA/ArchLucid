@@ -21,6 +21,12 @@ const CATEGORY_ORDER = [
 
 /** Default reference links so Help always has content before /doc-index.json loads. */
 const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
+  {
+    title: "Choose your next step",
+    summary: "Path chooser — evaluate, mid-pilot recovery, procurement, sponsor output, or engineering support.",
+    category: "Getting Started",
+    url: "/help/path-chooser",
+  },
   { title: "Operator home (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
   {
     title: "New architecture request",

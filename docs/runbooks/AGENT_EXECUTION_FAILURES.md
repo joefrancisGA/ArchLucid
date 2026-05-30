@@ -48,6 +48,36 @@
 5. **Retry posture**  
    Execute is designed to be retried with transactional persistence; if partial failure occurred, check for duplicate-key or orphan rows only if a bug regressed (contract tests cover replace semantics for evidence packages and results per run).
 
+## Real-agent failure triage matrix (no live secrets)
+
+Use `LastFailureReason` JSON (`failureClass`, optional `triageScenarioId`) on failed runs. Each scenario below maps to operator next steps in code catalog `RealAgentFailureTriageCatalog` and CI fixture `scripts/ci/fixtures/real_agent_failure_triage.json`.
+
+| `triageScenarioId` | Typical `failureClass` | Operator focus |
+| --- | --- | --- |
+| `missingCredentials` | `missingCredentials` | AzureOpenAI endpoint, deployment, credential transport; run `archlucid config lint` |
+| `contentSafetyRejection` | `contentSafety` | Content Safety endpoint/key; input severity; do not disable fail-closed in Production/Staging |
+| `schemaViolation` | `parse` | SchemaValidation paths; AgentResult JSON contract version |
+| `groundingInsufficiency` | `qualityGate` | PilotStrict faithfulness floors; evidence package depth; HTTP 409 quality rejected |
+| `timeout` | `timeout` | Network egress, Polly timeout, regional AOAI latency |
+| `budgetCutoff` | `costBudget` or `quota` | Run cost cap vs tenant token quota; LLM budget command center |
+| `fallbackToSimulator` | (run flag) | `Runs.RealModeFellBackToSimulator=true`; not buyer-safe live-model evidence |
+
+**missingCredentials:** Confirm `AgentExecution:Mode`, run `archlucid config lint --profile production-like-hosted-pilot`, verify `AzureOpenAI:*` and `/health/ready`.
+
+**contentSafetyRejection:** Review blocked category; confirm `ArchLucid:ContentSafety:*`; redact input — never paste raw prompts into tickets.
+
+**schemaViolation:** Validate `SchemaValidation:AgentResultSchemaPath` on host; check `AgentExecution:SchemaValidation:EnforceOnParse`.
+
+**groundingInsufficiency:** Inspect `ExecutionCompletedQualityRejected` and trace `qualityRejected`; add evidence before retry.
+
+**timeout:** Check private endpoint DNS, firewall, and completion client timeout policy; retry once stable.
+
+**budgetCutoff:** Distinguish per-run `costBudget` from tenant `quota`; adjust caps deliberately.
+
+**fallbackToSimulator:** See step 2a above; use `--strict-real` in CI; mark proof artifacts HOLD when fallback occurred.
+
+See also [`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md) and [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](GOLDEN_COHORT_REAL_LLM_GATE.md).
+
 ## Security
 
 - Traces may contain sensitive prompts; restrict SQL and log access; do not paste raw traces into untrusted channels.

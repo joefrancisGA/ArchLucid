@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
 
-const GITHUB_BLOB_PATTERN = /github\.com\/[^/]+\/[^/]+\/blob\//i;
+const GITHUB_BLOB_PATTERN = /github\.com\/[^/]+\/[^/]+\/(blob|tree)\//i;
 
 /** Paths scanned for customer-facing GitHub blob links (operator + marketing surfaces). */
 const CUSTOMER_SURFACE_DIRS = [
@@ -13,6 +13,9 @@ const CUSTOMER_SURFACE_DIRS = [
   "src/app/(marketing)",
   "src/components",
   "src/lib/contextual-help-content.ts",
+  "src/lib/help-topics.ts",
+  "src/lib/docs-search-index.ts",
+  "src/lib/in-app-doc-href.ts",
 ] as const;
 
 const ALLOWLIST_SUBSTRINGS = [
@@ -20,9 +23,9 @@ const ALLOWLIST_SUBSTRINGS = [
   "docs-public-base.ts",
   "privacy-policy-marketing.ts",
   "trust-center-marketing.ts",
+  "security-trust-content.ts",
   "example-roi-bulletin",
   "why-archlucid-comparison.ts",
-  "HelpLink.tsx",
 ] as const;
 
 function collectSourceFiles(relativeDir: string): string[] {
@@ -58,6 +61,17 @@ describe("customer-facing GitHub blob link guard", () => {
     for (const entry of PRODUCT_DOCUMENTATION_REGISTRY) {
       expect(entry.slug.length).toBeGreaterThan(0);
       expect(`/help/${entry.slug}`).toMatch(/^\/help\/[a-z0-9-]+$/);
+    }
+  });
+
+  it("doc-index.json does not use GitHub blob URLs", () => {
+    const raw = readFileSync(path.join(process.cwd(), "public/doc-index.json"), "utf8");
+    const index = JSON.parse(raw) as Array<{ title: string; url: string }>;
+
+    for (const row of index) {
+      expect(row.url, `doc-index entry "${row.title}" must not use GitHub blob URLs`).not.toMatch(
+        /github\.com\/[^/]+\/[^/]+\/blob\//i,
+      );
     }
   });
 

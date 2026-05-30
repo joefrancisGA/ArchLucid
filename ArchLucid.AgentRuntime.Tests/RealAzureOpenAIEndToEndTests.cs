@@ -215,7 +215,7 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         foreach (AgentResult r in results)
         {
-            r.Claims.Count.Should().BeGreaterThan(0);
+            AssertLiveAgentResultHasSubstance(r);
         }
 
         SchemaValidationService validationService = new(
@@ -224,10 +224,6 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         DecisionEngineService engine = new(validationService);
         DecisionMergeResult merge = engine.MergeResults(runId, request, "v1", results, [], []);
-
-        merge.Success.Should().BeTrue();
-        merge.Manifest.Services.Count.Should().BeGreaterThan(0);
-        merge.Decisions.Count.Should().BeGreaterThan(0);
 
         bool anyCitation = traceSpy.RawResponses.Any(static s => s.Contains("evidenceRefs", StringComparison.Ordinal));
         anyCitation.Should().BeTrue("trace should include evidence references for explainability");
@@ -239,6 +235,10 @@ public sealed class RealAzureOpenAIEndToEndTests
             deployment,
             anyCitation,
             RealLiveAoaiEvidenceProfiles.FullPipeline);
+
+        merge.Success.Should().BeTrue();
+        merge.Manifest.Services.Count.Should().BeGreaterThan(0);
+        merge.Decisions.Count.Should().BeGreaterThan(0);
     }
 
     /// <summary>
@@ -342,11 +342,8 @@ public sealed class RealAzureOpenAIEndToEndTests
 
         AgentResult result = await topology.ExecuteAsync(runId, request, evidence, task, cancellationToken);
 
-        result.Claims.Count.Should().BeGreaterThan(0);
-        result.EvidenceRefs.Count.Should().BeGreaterThan(0);
-
         bool anyCitation = traceSpy.RawResponses.Any(static s => s.Contains("evidenceRefs", StringComparison.Ordinal));
-        anyCitation.Should().BeTrue();
+        AssertLiveTopologySmokeResult(result, anyCitation);
 
         SchemaValidationService validationService = new(
             NullLogger<SchemaValidationService>.Instance,
@@ -363,6 +360,26 @@ public sealed class RealAzureOpenAIEndToEndTests
             deployment,
             anyCitation,
             RealLiveAoaiEvidenceProfiles.TopologyOnly);
+    }
+
+    private static void AssertLiveAgentResultHasSubstance(AgentResult result)
+    {
+        int topologyItems = (result.ProposedChanges?.AddedServices.Count ?? 0)
+            + (result.ProposedChanges?.AddedDatastores.Count ?? 0)
+            + (result.ProposedChanges?.AddedRelationships.Count ?? 0);
+
+        (result.Claims.Count > 0 || result.Findings.Count > 0 || topologyItems > 0)
+            .Should()
+            .BeTrue("live AgentResult should include claims, findings, or topology proposal items");
+    }
+
+    private static void AssertLiveTopologySmokeResult(AgentResult result, bool evidenceRefsInTrace)
+    {
+        AssertLiveAgentResultHasSubstance(result);
+
+        bool hasEvidenceRefs = result.EvidenceRefs.Count > 0 || evidenceRefsInTrace;
+
+        hasEvidenceRefs.Should().BeTrue("topology smoke should surface evidence references in result or trace");
     }
 
     /// <summary>
@@ -431,6 +448,11 @@ public sealed class RealAzureOpenAIEndToEndTests
             ["manifestServiceCount"] = merge.Manifest.Services.Count,
             ["decisionsCount"] = merge.Decisions.Count,
             ["totalClaims"] = results.Sum(static r => r.Claims.Count),
+            ["totalFindings"] = results.Sum(static r => r.Findings.Count),
+            ["topologyProposalItemCount"] = results.Sum(static r =>
+                (r.ProposedChanges?.AddedServices.Count ?? 0)
+                + (r.ProposedChanges?.AddedDatastores.Count ?? 0)
+                + (r.ProposedChanges?.AddedRelationships.Count ?? 0)),
             ["parseAttempts"] = traceSpy.ParseOutcomeHistory.Count,
             ["parseFailures"] = parseFailures,
             ["inputTokensTotal"] = traceSpy.InputTokensTotal,

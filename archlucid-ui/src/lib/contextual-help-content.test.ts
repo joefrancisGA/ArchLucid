@@ -45,11 +45,10 @@ describe("contextualHelpByKey", () => {
     }
   });
 
-  it("toDocsBlobUrl builds a GitHub blob URL for default branch", () => {
+  it("toDocsBlobUrl resolves in-app help routes", () => {
     const url = toDocsBlobUrl("/docs/CORE_PILOT.md#x");
 
-    expect(url).toMatch(/^https:\/\/github\.com\//);
-    expect(url).toContain("docs/CORE_PILOT.md#x");
+    expect(url).toBe("/help/core-pilot#x");
   });
 });
 
@@ -90,21 +89,11 @@ describe("contextualHelpTriggerAriaLabel", () => {
 });
 
 describe("toDocsBlobUrl", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
+  it("maps core pilot path to in-app help", () => {
+    expect(toDocsBlobUrl("/docs/CORE_PILOT.md#h")).toBe("/help/core-pilot#h");
   });
 
-  it("uses NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE when set", () => {
-    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE", "https://ghe.example.com/org/repo/blob/develop");
-
-    expect(toDocsBlobUrl("/docs/CORE_PILOT.md#h")).toBe(
-      "https://ghe.example.com/org/repo/blob/develop/docs/CORE_PILOT.md#h",
-    );
-  });
-
-  it("strips trailing slash from custom blob base", () => {
-    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE", "https://ghe.example.com/org/repo/blob/develop/");
-
-    expect(toDocsBlobUrl("/docs/X.md")).toBe("https://ghe.example.com/org/repo/blob/develop/docs/X.md");
+  it("falls back to help index for unknown paths", () => {
+    expect(toDocsBlobUrl("/docs/unknown/NO_SUCH_DOC.md")).toBe("/help");
   });
 });

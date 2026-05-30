@@ -38,6 +38,16 @@
 
 - Link to runbook updates or monitoring gaps; if AOAI-related, note whether `scripts/Invoke-RealLlmEvidenceGate.ps1` would have caught it in pre-release.
 
+## Incident readiness drill (dry-run)
+
+Generate timestamped rehearsal artifacts (triage scenarios + customer update template) without live production access:
+
+```powershell
+archlucid support incident-readiness-drill --out ./_drill-evidence/support-incident
+```
+
+See also `docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md`.
+
 ## Security / scalability / reliability / cost
 
 - **Security:** Treat admin diagnostics and webhook secrets as highly sensitive; keep triage notes out of public channels.

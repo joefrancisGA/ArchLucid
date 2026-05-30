@@ -149,6 +149,23 @@ When upgrading ArchLucid:
 4. Run a simulator create → execute → commit smoke, then one real-mode pilot if applicable.
 5. Verify DI registration still resolves (host fails fast on missing handler for required agent types).
 
+## 10. Extensibility readiness checklist
+
+Use this checklist before promoting a custom handler to a hosted pilot tenant:
+
+| Step | Verification |
+| --- | --- |
+| Handler compiles against current `ArchLucid.Contracts` | `dotnet build` on your fork |
+| Unique `AgentTypeKey` | No collision with built-in keys unless intentionally replacing in a fork |
+| DI registration in `Host.Composition` | Handler resolves at startup |
+| Unit tests for handler | Returns valid `AgentResult` without live LLM when simulator-safe |
+| Registration proof tests pass | `CustomAgentHandlerRegistrationProofTests` (duplicate keys fail; allowed-tools guard enforced) |
+| Quality gates respected | Handler uses accounting/redaction paths in Real mode; no bypass of PilotStrict |
+| Authority boundaries | Tenant scope via `IScopeContextProvider`; repository ports only |
+| Documentation | Update internal runbook if handler changes sponsor-visible behavior |
+
+This path is **not** a public plugin SDK, MCP tool surface, or marketplace listing. Out-of-process extensions remain documented in [`CUSTOM_AGENT_HANDLERS.md`](CUSTOM_AGENT_HANDLERS.md).
+
 ## Related documents
 
 - [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md) — capability layers; extensibility table links here

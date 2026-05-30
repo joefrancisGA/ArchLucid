@@ -79,6 +79,23 @@ Be explicit in sales and security packs to avoid over-claiming.
 
 ---
 
+## 7. Verification pack (generated)
+
+Generate a buyer-safe metadata pack (no tenant data, no secrets):
+
+```bash
+python scripts/generate_tenant_isolation_verification_pack.py
+```
+
+Outputs under `dist/tenant-isolation-verification-pack/`:
+
+- `tenant-isolation-verification.json` — topology, layer summary, test inventory, redaction notes
+- `tenant-isolation-verification.md` — human-readable mirror for procurement/support bundles
+
+CI validates references with `--dry-run`.
+
+---
+
 ## 6. Deep dives
 
 | Doc | Content |

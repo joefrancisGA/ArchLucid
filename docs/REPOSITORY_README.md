@@ -150,7 +150,7 @@ Configure in `appsettings.*` under **`ArchLucidAuth`**:
 | **`DevelopmentBypass`** | **`appsettings.Development.json`** when **`ASPNETCORE_ENVIRONMENT=Development`**: every request is authenticated as **`DevUserId`** with **`DevRole`**. |
 | **`JwtBearer`** | Production-style JWT validation using **`Authority`** and optional **`Audience`**. Map app roles to **`Admin`** / **`Operator`** / **`Reader`** in your IdP. |
 
-Role claims are mapped to legacy **`permission`** claims via `ArchLucidRoleClaimsTransformation` so existing policies (`CanCommitRuns`, etc.) keep working. Policies: **`ReadAuthority`** (Reader+), **`ExecuteAuthority`** (Operator+), **`AdminAuthority`** (Admin only). Debug principal: **`GET /api/auth/me`**.
+Role claims are mapped to legacy **`permission`** claims via `ArchLucidRoleClaimsTransformation` so existing policies (`CanCommitRuns`, etc.) keep working. Policies: **`ReadAuthority`** (Reader+), **`ExecuteAuthority`** (Operator+), **`AdminAuthority`** (Admin only). Debug principal: **`GET /api/auth/me`**. **Authoritative contract:** [`docs/library/API_AUTH_BEHAVIOR_CONTRACT.md`](library/API_AUTH_BEHAVIOR_CONTRACT.md).
 
 ## Development environment (`archlucid dev up`) — engineering only
 

@@ -126,8 +126,12 @@ public static class Program
                             normalized.Skip(2).ToArray(),
                             CliCommandShared.TryLoadConfigFromCwd());
 
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "sso-preflight", StringComparison.OrdinalIgnoreCase))
+                        return await AuthSsoPreflightCommand.RunAsync();
+
                     AuthValidateSamlCommand.WriteUsage();
                     AuthDiagnosticsCommand.WriteUsage();
+                    AuthSsoPreflightCommand.WriteUsage();
 
                     return CliExitCode.UsageError;
 
@@ -509,6 +513,15 @@ public static class Program
 
                 case "deployment-evidence":
                     return await DeploymentEvidenceCommand.RunAsync(normalized.Skip(1).ToArray());
+
+                case "support":
+                    if (normalized.Length > 2
+                        && string.Equals(normalized[1], "incident-readiness-drill", StringComparison.OrdinalIgnoreCase))
+                        return await SupportIncidentReadinessDrillCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    Console.WriteLine("Usage: archlucid support incident-readiness-drill --out <directory>");
+
+                    return CliExitCode.UsageError;
 
                 case "support-bundle":
                     return await SupportBundleCommand.RunAsync(normalized.Skip(1).ToArray());

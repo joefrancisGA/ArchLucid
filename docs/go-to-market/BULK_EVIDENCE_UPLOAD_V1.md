@@ -1,9 +1,7 @@
-> **Scope:** GTM, pilots, and implementers aligning on V1 GA bulk evidence uploads (up to 30 files per action); not ZIP expansion, folder recursion, or other deferred V1.1 batch mechanics in `docs/library/V1_DEFERRED.md`.
+> **Scope:** GTM, pilots, and implementers aligning on V1 GA bulk evidence uploads (up to **200** files per multipart request); **ZIP archives count as one file** and expand server-side. Folder recursion in the browser remains V1.1.
 
 # Bulk Evidence Upload (V1 GA)
 
-Bulk upload up to 30 files per action at GA.
+Bulk upload up to **200** files per multipart request at GA. Each **ZIP archive counts as one file** toward the cap; the server expands ZIP entries server-side (up to configured expansion limits).
 
-**Note:** Larger batches (ZIP expansion, folder recursion) are deferred to V1.1.
-
-See `docs/library/V1_DEFERRED.md` for more details on post-GA bulk processing features.
+**Note:** Browser folder recursion (`webkitdirectory`) and other deferred batch UX remain **V1.1** — see `docs/library/V1_DEFERRED.md`.

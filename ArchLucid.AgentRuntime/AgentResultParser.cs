@@ -32,6 +32,10 @@ public sealed class AgentResultParser : IAgentResultParser
         {
             new EvalCorpusFindingSeverityJsonConverter(),
             new AgentTypeJsonConverter(),
+            new ServiceTypeJsonConverter(),
+            new RuntimePlatformJsonConverter(),
+            new DatastoreTypeJsonConverter(),
+            new RelationshipTypeJsonConverter(),
             new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true)
         }
     };

@@ -90,11 +90,12 @@ function Write-AgentShellTable {
 $matches = @(Get-AgentShellProcesses)
 
 Write-Host "Matched $($matches.Count) agent shell process(es)." -ForegroundColor Cyan
-Write-AgentShellTable -Processes $matches
 
 if ($matches.Count -eq 0) {
     exit 0
 }
+
+Write-AgentShellTable -Processes $matches
 
 if ($DryRun) {
     Write-Host 'Dry run only; no processes stopped.' -ForegroundColor Yellow

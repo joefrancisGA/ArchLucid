@@ -1,15 +1,291 @@
 [
   {
-    "title": "Pilot guide",
-    "summary": "Create your first architecture review package, attach evidence, and export audit-ready proof.",
+    "title": "API contracts snapshot",
+    "summary": "High-level REST contracts and OpenAPI pointers for clients.",
+    "category": "API",
+    "url": "/help"
+  },
+  {
+    "title": "API_VERSIONING",
+    "summary": "Url-segment versioning, defaults, and client expectations for v1.",
+    "category": "API",
+    "url": "/help"
+  },
+  {
+    "title": "CONTROLLER_AREA_MAP",
+    "summary": "Logical grouping of ArchLucid.Api controllers for navigation and review.",
+    "category": "API",
+    "url": "/help"
+  },
+  {
+    "title": "Compare and diff authority",
+    "summary": "CompareController policies and ReadAuthority expectations for deltas.",
+    "category": "API",
+    "url": "/help"
+  },
+  {
+    "title": "INTEGRATION_EVENTS_AND_WEBHOOKS",
+    "summary": "Outbound events, CloudEvents envelopes, and webhook fan-out posture.",
+    "category": "API",
+    "url": "/help"
+  },
+  {
+    "title": "Integration events catalog",
+    "summary": "Machine-readable index of outbound integration JSON event types.",
+    "category": "API",
+    "url": "/help"
+  },
+  {
+    "title": "ADR directory",
+    "summary": "Architecture decision records describing major structural choices.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "ARCHITECTURE_CONSTRAINTS",
+    "summary": "NetArchTest rules and forbidden dependency direction.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "ARCHITECTURE_FLOWS",
+    "summary": "Sequence-level flows for run, export, compare, and replay.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "ARCHITECTURE_INDEX",
+    "summary": "Index of system architecture documents, ADRs, and runtime boundaries.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "ARCHITECTURE_ON_ONE_PAGE",
+    "summary": "C4 poster, ownership, and happy path on a single page.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "CANONICAL_PIPELINE",
+    "summary": "Authority vs legacy coordinator path; when to use each ingestion mode.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "CITATION_BOUND_RENDERING",
+    "summary": "How explanation citations render in the operator UI and exports.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "DATA_CONSISTENCY_ENFORCEMENT",
+    "summary": "Orphan probes and optional quarantine for persistence hygiene.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "DI_REGISTRATION_MAP",
+    "summary": "Composition root ordering for ArchLucid.Host.Composition registrations.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "PROJECT_MAP",
+    "summary": "Solution projects mapped to bounded contexts and dependencies.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "PostgreSQL vs SQL notes",
+    "summary": "When SQL Server is required versus auxiliary stores (inventory doc).",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "SYSTEM_MAP",
+    "summary": "Mermaid system map with entry points and trust boundaries.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "Trusted baseline (Contoso Retail)",
+    "summary": "Demo-seeded trusted baseline narrative for reproducible sponsor reviews.",
+    "category": "Architecture",
+    "url": "/help"
+  },
+  {
+    "title": "BUILD",
+    "summary": "How to build the API, UI, and run integration tests against SQL Server or LocalDB.",
     "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "CODE_MAP",
+    "summary": "Where to open first when changing agents, persistence, or API layers.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "CORE_PILOT",
+    "summary": "Default pilot journey: request, execute, commit, and review artifacts.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "Day-one developer",
+    "summary": "Week-one developer checklist: toolchain, SQL, and Core tests.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "FIRST_5_DOCS",
+    "summary": "Spine onboarding sequence for new operators. Links the minimum reading path before deep dives.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "NAVIGATOR",
+    "summary": "Doc map and cross-links for architecture, operations, and go-to-market materials.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "OPERATOR_QUICKSTART",
+    "summary": "Commands for curl, health checks, and smoke tests against a running stack.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "Onboarding README",
+    "summary": "Role-based onboarding tickets for dev, SRE, and security.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "README",
+    "summary": "Repository entry and high-level product orientation. Start here for clone and build instructions.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "START_HERE",
+    "summary": "Canonical buyer and evaluator spine with Day-0 orientation.",
+    "category": "Getting Started",
+    "url": "/help"
+  },
+  {
+    "title": "Executive sponsor brief",
+    "summary": "Buyer-facing headline narrative for architecture and governance leaders.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "First-value Markdown report",
+    "summary": "Pilot value report narrative generated from measured and baseline metrics.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "Marketing showcase notes",
+    "summary": "Read-only public showcase routes and demo manifest pointers.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "PILOT_ROI_MODEL",
+    "summary": "Measurement framework for pilot value: cycle time, artifacts, and governance evidence.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "Sample aggregate ROI bulletin (synthetic)",
+    "summary": "Illustrative bulletin table shape before N\u22655 paying tenants.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "Synthetic Contoso case study",
+    "summary": "Illustrative (non-production) ROI narrative aligned with demo seed data.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "V1_DEFERRED",
+    "summary": "Intentional deferrals and exploratory scope for future releases.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "V1_SCOPE",
+    "summary": "Product boundary for pilots: in-scope capabilities and release criteria.",
+    "category": "Go-to-Market",
+    "url": "/help"
+  },
+  {
+    "title": "Audit trail",
+    "summary": "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
+    "category": "Go-to-market",
+    "url": "/help/audit-trail"
+  },
+  {
+    "title": "Choose your next step",
+    "summary": "Map your current goal \u2014 evaluate, pilot, procurement, sponsor output, or engineering support \u2014 to one primary next action.",
+    "category": "Go-to-market",
+    "url": "/help/path-chooser"
+  },
+  {
+    "title": "Executive summary",
+    "summary": "Sponsor-safe summaries, ROI basis labels, and what executives should expect in exports.",
+    "category": "Go-to-market",
+    "url": "/help/executive-summary"
+  },
+  {
+    "title": "Pilot ROI model",
+    "summary": "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
+    "category": "Go-to-market",
+    "url": "/help/pilot-roi-model"
+  },
+  {
+    "title": "Pilot guide",
+    "summary": "Create your first architecture review package, attach evidence, review findings, finalize the signed decision record, and export audit-ready evidence.",
+    "category": "Go-to-market",
     "url": "/help/pilot-guide"
   },
   {
-    "title": "Getting started",
-    "summary": "Concepts, scope, and the fastest path to a governed review package.",
-    "category": "Getting Started",
-    "url": "/help/getting-started"
+    "title": "Alerts",
+    "summary": "Inbox, rules, routing, composite alerts, and simulation tuning.",
+    "category": "Operations",
+    "url": "/help/alerts"
+  },
+  {
+    "title": "CLI usage",
+    "summary": "Non-interactive `archlucid` commands for proof packets, config lint, and support bundles.",
+    "category": "Operations",
+    "url": "/help/cli-usage"
+  },
+  {
+    "title": "Compare and replay",
+    "summary": "Diff two reviews, replay stored comparison logic, and verify drift between runs.",
+    "category": "Operations",
+    "url": "/help/comparison-replay"
+  },
+  {
+    "title": "Configuration reference",
+    "summary": "ArchLucidAuth role mapping, hosting options, and production-like configuration keys.",
+    "category": "Operations",
+    "url": "/help/configuration-reference"
+  },
+  {
+    "title": "Core Pilot",
+    "summary": "Operator walkthrough from first session through commit \u2014 checklist anchors and recovery links.",
+    "category": "Operations",
+    "url": "/help/core-pilot"
+  },
+  {
+    "title": "Day-one SRE",
+    "summary": "Platform checklist for health endpoints and Terraform validation.",
+    "category": "Operations",
+    "url": "/help"
   },
   {
     "title": "Evidence intake",
@@ -18,22 +294,40 @@
     "url": "/help/evidence-intake"
   },
   {
-    "title": "Review packages",
-    "summary": "Browse, inspect, and export governed review packages in the operator shell.",
-    "category": "Operations",
-    "url": "/help/review-packages"
-  },
-  {
-    "title": "Executive summary",
-    "summary": "Sponsor-safe summaries, ROI basis labels, and executive export expectations.",
-    "category": "Go-to-Market",
-    "url": "/help/executive-summary"
-  },
-  {
     "title": "Evidence trail",
     "summary": "Trace findings, artifacts, and provenance without exposing raw engineering logs.",
     "category": "Operations",
     "url": "/help/evidence-trail"
+  },
+  {
+    "title": "First value in 20 minutes",
+    "summary": "Time-boxed runbook for a first governed review package when platform wiring is already green.",
+    "category": "Operations",
+    "url": "/help/first-value-20-minutes"
+  },
+  {
+    "title": "First-pilot operating path",
+    "summary": "Six-step operator path from setup verification through sponsor packet \u2014 what to do, when to defer Operate surfaces, and how to recover.",
+    "category": "Operations",
+    "url": "/help/first-pilot-path"
+  },
+  {
+    "title": "Getting started",
+    "summary": "Concepts, scope, and the fastest path to a governed review package.",
+    "category": "Operations",
+    "url": "/help/getting-started"
+  },
+  {
+    "title": "Glossary",
+    "summary": "Tenant, workspace, project scope headers and core product terms.",
+    "category": "Operations",
+    "url": "/help/glossary"
+  },
+  {
+    "title": "Governance and API contracts",
+    "summary": "Versioned HTTP behavior, auth, governance endpoints, and OpenAPI as contract of record.",
+    "category": "Operations",
+    "url": "/help/governance-api-contracts"
   },
   {
     "title": "Governance approval",
@@ -42,10 +336,94 @@
     "url": "/help/governance-approval"
   },
   {
-    "title": "Audit trail",
-    "summary": "Immutable audit events, correlation identifiers, and buyer-safe export posture.",
-    "category": "Security",
-    "url": "/help/audit-trail"
+    "title": "Manual QA checklist",
+    "summary": "Release readiness checklist for operator UI and API surfaces.",
+    "category": "Operations",
+    "url": "/help"
+  },
+  {
+    "title": "OPERATOR_ATLAS",
+    "summary": "Route \u00d7 API \u00d7 policy map for operator surfaces.",
+    "category": "Operations",
+    "url": "/help"
+  },
+  {
+    "title": "Observability",
+    "summary": "Custom metrics, OTEL export paths, and health diagnostics.",
+    "category": "Operations",
+    "url": "/help/observability"
+  },
+  {
+    "title": "Operator authentication and roles",
+    "summary": "JWT bearer role mapping, Entra app roles, and least-privilege operator access expectations.",
+    "category": "Operations",
+    "url": "/help/operator-auth-roles"
+  },
+  {
+    "title": "Operator decision guide",
+    "summary": "Packaging, tiers, and when to use Pilot vs Operate surfaces.",
+    "category": "Operations",
+    "url": "/help"
+  },
+  {
+    "title": "Operator shell map",
+    "summary": "UI routes, API seams, and progressive Pilot vs Operate disclosure.",
+    "category": "Operations",
+    "url": "/help/operator-shell"
+  },
+  {
+    "title": "Pilot feedback",
+    "summary": "Human judgments captured separately from recommendation learning.",
+    "category": "Operations",
+    "url": "/help/pilot-feedback"
+  },
+  {
+    "title": "Product packaging",
+    "summary": "Buyer layers, authority seams, and UI shaping rules versus API enforcement.",
+    "category": "Operations",
+    "url": "/help"
+  },
+  {
+    "title": "Projection cache and API replicas",
+    "summary": "When in-process graph caching is enough, when to enable Redis, and multi-replica footguns.",
+    "category": "Operations",
+    "url": "/help/projection-cache-replicas"
+  },
+  {
+    "title": "Quality assessment (cursor prompts)",
+    "summary": "Actionable improvement prompts from independent quality review.",
+    "category": "Operations",
+    "url": "/help"
+  },
+  {
+    "title": "RUNBOOK support tier-1",
+    "summary": "Support posture and Grafana starters for on-call.",
+    "category": "Operations",
+    "url": "/help"
+  },
+  {
+    "title": "Review packages",
+    "summary": "Browse, inspect, and export governed review packages in the operator shell.",
+    "category": "Operations",
+    "url": "/help/review-packages"
+  },
+  {
+    "title": "Review trail graph",
+    "summary": "Visual review trail and provenance for one architecture review.",
+    "category": "Operations",
+    "url": "/help/knowledge-graph"
+  },
+  {
+    "title": "Specialty walkthrough templates",
+    "summary": "Optional Azure SaaS, AI governance, and healthcare templates after first commit \u2014 not required for core pilot.",
+    "category": "Operations",
+    "url": "/help/specialty-walkthroughs"
+  },
+  {
+    "title": "Terraform SaaS stack order",
+    "summary": "Reference ordering for Azure SaaS roots during bring-up.",
+    "category": "Operations",
+    "url": "/help"
   },
   {
     "title": "Troubleshooting",
@@ -54,315 +432,33 @@
     "url": "/help/troubleshooting"
   },
   {
-    "title": "README",
-    "summary": "Repository entry and high-level product orientation. Start here for clone and build instructions.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/README.md"
-  },
-  {
-    "title": "FIRST_5_DOCS",
-    "summary": "Spine onboarding sequence for new operators. Links the minimum reading path before deep dives.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/START_HERE.md"
-  },
-  {
-    "title": "BUILD",
-    "summary": "How to build the API, UI, and run integration tests against SQL Server or LocalDB.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/BUILD.md"
-  },
-  {
-    "title": "NAVIGATOR",
-    "summary": "Doc map and cross-links for architecture, operations, and go-to-market materials.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/NAVIGATOR.md"
-  },
-  {
-    "title": "CORE_PILOT",
-    "summary": "Default pilot journey: request, execute, commit, and review artifacts.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/CORE_PILOT.md"
-  },
-  {
-    "title": "ARCHITECTURE_INDEX",
-    "summary": "Index of system architecture documents, ADRs, and runtime boundaries.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/ARCHITECTURE_INDEX.md"
-  },
-  {
-    "title": "ADR directory",
-    "summary": "Architecture decision records describing major structural choices.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/tree/master/docs/architecture/adrs"
-  },
-  {
-    "title": "Trusted baseline (Contoso Retail)",
-    "summary": "Demo-seeded trusted baseline narrative for reproducible sponsor reviews.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/TRUSTED_BASELINE.md"
-  },
-  {
-    "title": "Operator decision guide",
-    "summary": "Packaging, tiers, and when to use Pilot vs Operate surfaces.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/OPERATOR_DECISION_GUIDE.md"
-  },
-  {
-    "title": "Product packaging",
-    "summary": "Buyer layers, authority seams, and UI shaping rules versus API enforcement.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/PRODUCT_PACKAGING.md"
-  },
-  {
-    "title": "PILOT_ROI_MODEL",
-    "summary": "Measurement framework for pilot value: cycle time, artifacts, and governance evidence.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/PILOT_ROI_MODEL.md"
-  },
-  {
-    "title": "Synthetic Contoso case study",
-    "summary": "Illustrative (non-production) ROI narrative aligned with demo seed data.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md"
-  },
-  {
-    "title": "Executive sponsor brief",
-    "summary": "Buyer-facing headline narrative for architecture and governance leaders.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/EXECUTIVE_SPONSOR_BRIEF.md"
-  },
-  {
-    "title": "Security — Azure baseline alignment",
-    "summary": "Security defaults and port alignment notes for hosted deployments.",
-    "category": "Security",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/security/README.md"
-  },
-  {
-    "title": "Integration events catalog",
-    "summary": "Machine-readable index of outbound integration JSON event types.",
-    "category": "API",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/schemas/integration-events/catalog.json"
-  },
-  {
-    "title": "Manual QA checklist",
-    "summary": "Release readiness checklist for operator UI and API surfaces.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/quality/MANUAL_QA_CHECKLIST.md"
-  },
-  {
-    "title": "START_HERE",
-    "summary": "Canonical buyer and evaluator spine with Day-0 orientation.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/START_HERE.md"
-  },
-  {
-    "title": "ARCHITECTURE_ON_ONE_PAGE",
-    "summary": "C4 poster, ownership, and happy path on a single page.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/ARCHITECTURE_ON_ONE_PAGE.md"
-  },
-  {
-    "title": "OPERATOR_ATLAS",
-    "summary": "Route × API × policy map for operator surfaces.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/OPERATOR_ATLAS.md"
-  },
-  {
-    "title": "V1_SCOPE",
-    "summary": "Product boundary for pilots: in-scope capabilities and release criteria.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/V1_SCOPE.md"
-  },
-  {
     "title": "V1_RELEASE_CHECKLIST",
     "summary": "Actionable gates before shipping a V1 pilot slice.",
     "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/V1_RELEASE_CHECKLIST.md"
-  },
-  {
-    "title": "SYSTEM_MAP",
-    "summary": "Mermaid system map with entry points and trust boundaries.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/SYSTEM_MAP.md"
-  },
-  {
-    "title": "API_VERSIONING",
-    "summary": "Url-segment versioning, defaults, and client expectations for v1.",
-    "category": "API",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/API_VERSIONING.md"
-  },
-  {
-    "title": "CONTROLLER_AREA_MAP",
-    "summary": "Logical grouping of ArchLucid.Api controllers for navigation and review.",
-    "category": "API",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/CONTROLLER_AREA_MAP.md"
-  },
-  {
-    "title": "CANONICAL_PIPELINE",
-    "summary": "Authority vs legacy coordinator path; when to use each ingestion mode.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/CANONICAL_PIPELINE.md"
-  },
-  {
-    "title": "OBSERVABILITY",
-    "summary": "Meters, histograms, and tracing conventions for ArchLucid services.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/OBSERVABILITY.md"
-  },
-  {
-    "title": "INTEGRATION_EVENTS_AND_WEBHOOKS",
-    "summary": "Outbound events, CloudEvents envelopes, and webhook fan-out posture.",
-    "category": "API",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md"
-  },
-  {
-    "title": "Day-one developer",
-    "summary": "Week-one developer checklist: toolchain, SQL, and Core tests.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/onboarding/day-one-developer.md"
-  },
-  {
-    "title": "Day-one SRE",
-    "summary": "Platform checklist for health endpoints and Terraform validation.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/onboarding/day-one-sre.md"
+    "url": "/help"
   },
   {
     "title": "Day-one security",
     "summary": "Security onboarding: trust boundaries, authZ, and supply chain.",
     "category": "Security",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/onboarding/day-one-security.md"
-  },
-  {
-    "title": "OPERATOR_QUICKSTART",
-    "summary": "Commands for curl, health checks, and smoke tests against a running stack.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/OPERATOR_QUICKSTART.md"
-  },
-  {
-    "title": "PROJECT_MAP",
-    "summary": "Solution projects mapped to bounded contexts and dependencies.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/PROJECT_MAP.md"
-  },
-  {
-    "title": "ARCHITECTURE_FLOWS",
-    "summary": "Sequence-level flows for run, export, compare, and replay.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/ARCHITECTURE_FLOWS.md"
-  },
-  {
-    "title": "DATA_CONSISTENCY_ENFORCEMENT",
-    "summary": "Orphan probes and optional quarantine for persistence hygiene.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md"
-  },
-  {
-    "title": "CITATION_BOUND_RENDERING",
-    "summary": "How explanation citations render in the operator UI and exports.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/explainability/CITATION_BOUND_RENDERING.md"
-  },
-  {
-    "title": "Pilot guide",
-    "summary": "Extended pilot guidance for sponsors and operators during evaluation.",
-    "category": "Go-to-Market",
-    "url": "/help/pilot-guide"
-  },
-  {
-    "title": "Sample aggregate ROI bulletin (synthetic)",
-    "summary": "Illustrative bulletin table shape before N≥5 paying tenants.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"
-  },
-  {
-    "title": "Quality assessment (cursor prompts)",
-    "summary": "Actionable improvement prompts from independent quality review.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/quality/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_26.md"
+    "url": "/help"
   },
   {
     "title": "Scim and directory integration",
     "summary": "SCIM surface notes and admin token patterns (see API controllers).",
     "category": "Security",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/CONTROLLER_AREA_MAP.md"
-  },
-  {
-    "title": "Terraform SaaS stack order",
-    "summary": "Reference ordering for Azure SaaS roots during bring-up.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/REFERENCE_SAAS_STACK_ORDER.md"
-  },
-  {
-    "title": "DI_REGISTRATION_MAP",
-    "summary": "Composition root ordering for ArchLucid.Host.Composition registrations.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/DI_REGISTRATION_MAP.md"
-  },
-  {
-    "title": "ARCHITECTURE_CONSTRAINTS",
-    "summary": "NetArchTest rules and forbidden dependency direction.",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/ARCHITECTURE_CONSTRAINTS.md"
-  },
-  {
-    "title": "CODE_MAP",
-    "summary": "Where to open first when changing agents, persistence, or API layers.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/CODE_MAP.md"
-  },
-  {
-    "title": "RUNBOOK support tier-1",
-    "summary": "Support posture and Grafana starters for on-call.",
-    "category": "Operations",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/runbooks/README.md"
-  },
-  {
-    "title": "V1_DEFERRED",
-    "summary": "Intentional deferrals and exploratory scope for future releases.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/V1_DEFERRED.md"
-  },
-  {
-    "title": "PostgreSQL vs SQL notes",
-    "summary": "When SQL Server is required versus auxiliary stores (inventory doc).",
-    "category": "Architecture",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/ARCHITECTURE_INDEX.md"
-  },
-  {
-    "title": "API contracts snapshot",
-    "summary": "High-level REST contracts and OpenAPI pointers for clients.",
-    "category": "API",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/API_CONTRACTS.md"
+    "url": "/help"
   },
   {
     "title": "Security TXT and disclosure",
     "summary": "Coordinated disclosure pointers packaged for trust center exports.",
     "category": "Security",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/archlucid-ui/public/.well-known/security.txt"
+    "url": "/help"
   },
   {
-    "title": "Marketing showcase notes",
-    "summary": "Read-only public showcase routes and demo manifest pointers.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/go-to-market/PRODUCT_PACKAGING.md"
-  },
-  {
-    "title": "Compare and diff authority",
-    "summary": "CompareController policies and ReadAuthority expectations for deltas.",
-    "category": "API",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/OPERATOR_ATLAS.md"
-  },
-  {
-    "title": "First-value Markdown report",
-    "summary": "Pilot value report narrative generated from measured and baseline metrics.",
-    "category": "Go-to-Market",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/PILOT_ROI_MODEL.md"
-  },
-  {
-    "title": "Onboarding README",
-    "summary": "Role-based onboarding tickets for dev, SRE, and security.",
-    "category": "Getting Started",
-    "url": "https://github.com/joefrancisGA/ArchLucid/blob/master/docs/onboarding/README.md"
+    "title": "Security \u2014 Azure baseline alignment",
+    "summary": "Security defaults and port alignment notes for hosted deployments.",
+    "category": "Security",
+    "url": "/help"
   }
 ]

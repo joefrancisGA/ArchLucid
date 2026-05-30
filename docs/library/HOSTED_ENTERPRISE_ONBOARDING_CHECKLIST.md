@@ -35,7 +35,7 @@ Choose **one** primary workforce path (many customers run SAML SP; OIDC `JwtBear
 | Map IdP groups → ArchLucid roles (Admin, Operator, Reader, Auditor) | Joint | At least one Admin can sign in — see **[§2.1 SAML claim-mapping reference](#saml-claim-mapping-reference)** |
 | Smoke test: Admin + Operator login | Customer | Both roles reach expected UI surfaces |
 
-**SAML helpers:** `archlucid saml test-config` (live appsettings) · `archlucid auth validate-saml` (offline metadata + mapping files)
+**SAML helpers:** `archlucid auth sso-preflight` (offline merged appsettings) · `archlucid saml test-config` (live appsettings) · `archlucid auth validate-saml` (offline metadata + mapping files)
 
 **Operator UI:** [`/settings/identity-providers`](/settings/identity-providers) (read-only catalog) · [`/settings/identity/sso-wizard`](/settings/identity/sso-wizard) (guided tenant row — **not** a claim-mapping wizard). Claim-mapping tables below are the V1 contract.
 

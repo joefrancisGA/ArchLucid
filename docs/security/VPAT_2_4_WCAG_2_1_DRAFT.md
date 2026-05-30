@@ -1,3 +1,5 @@
+> **Superseded:** Canonical procurement ACR is [`VPAT_2_5_WCAG_2_1_AA.md`](VPAT_2_5_WCAG_2_1_AA.md). This VPAT 2.4–structure draft is retained for historical comparison only.
+
 > **Scope:** Procurement, accessibility reviewers, and security/compliance stakeholders evaluating **ArchLucid Operator UI** (web) against **WCAG 2.1 Level A and AA**; draft **VPAT® 2.4 Rev–style** ACR excerpt in Markdown; **not** a legal opinion, **not** certification, **not** a substitute for full manual conformance assessment across every workflow.
 
 # Accessibility Conformance Report (Draft) — ArchLucid Operator UI

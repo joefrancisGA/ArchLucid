@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Resilience;
 
@@ -14,20 +15,24 @@ namespace ArchLucid.Application.Runs;
 /// </summary>
 public static class AgentExecutionFailureSummaryFactory
 {
-    public static AgentExecutionFailureSummary FromException(Exception ex)
+    public static AgentExecutionFailureSummary FromException(
+        Exception ex,
+        RealAgentFailureTriageContext? triageContext = null)
     {
         ArgumentNullException.ThrowIfNull(ex);
         AgentHandlerExecutionException? agentEx = FindAgentHandlerExecutionException(ex);
 
         Exception root = agentEx?.InnerException ?? SelectPrimaryCause(ex);
 
-        return new AgentExecutionFailureSummary
+        AgentExecutionFailureSummary summary = new()
         {
             AgentTypeKey = agentEx?.AgentTypeKey,
             AgentType = agentEx?.AgentType.ToString(),
             FailureClass = Classify(root),
             ReasonCode = ResolveReasonCode(root)
         };
+
+        return RealAgentFailureTriageResolver.EnrichWithTriage(summary, triageContext);
     }
 
     internal static AgentHandlerExecutionException? FindAgentHandlerExecutionException(Exception ex)
@@ -87,6 +92,11 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionFailureClasses.Parse;
         }
 
+        if (root is AgentOutputQualityGateRejectedException)
+        {
+            return AgentExecutionFailureClasses.QualityGate;
+        }
+
         if (root is CircuitBreakerOpenException)
         {
             return AgentExecutionFailureClasses.CircuitBreaker;
@@ -107,7 +117,43 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionFailureClasses.Dependency;
         }
 
-        return root is InvalidOperationException or ArgumentException ? AgentExecutionFailureClasses.InvalidOperation : AgentExecutionFailureClasses.Unknown;
+        if (root is InvalidOperationException invalidOperation)
+        {
+            if (IsContentSafetyBlocked(invalidOperation))
+            {
+                return AgentExecutionFailureClasses.ContentSafety;
+            }
+
+            if (IsMissingAzureOpenAiCredentials(invalidOperation))
+            {
+                return AgentExecutionFailureClasses.MissingCredentials;
+            }
+
+            return AgentExecutionFailureClasses.InvalidOperation;
+        }
+
+        return root is ArgumentException ? AgentExecutionFailureClasses.InvalidOperation : AgentExecutionFailureClasses.Unknown;
+    }
+
+    internal static bool IsContentSafetyBlocked(InvalidOperationException ex)
+    {
+        string message = ex.Message;
+
+        return message.Contains("content safety", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Blocked by content safety", StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool IsMissingAzureOpenAiCredentials(InvalidOperationException ex)
+    {
+        string message = ex.Message;
+
+        if (message.Contains("AzureOpenAI", StringComparison.OrdinalIgnoreCase)
+            && message.Contains("required", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return message.Contains("AzureOpenAI:Endpoint is not configured", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string? ResolveReasonCode(Exception root)

@@ -1,4 +1,4 @@
-import { DEFAULT_GITHUB_BLOB_BASE } from "./docs-public-base";
+import { resolveInAppDocHref } from "./in-app-doc-href";
 
 /**
  * Static contextual help index for the operator shell. Doc paths are relative to the repository root.
@@ -192,8 +192,7 @@ export const HELP_TOPICS: HelpTopic[] = [
 ];
 
 /**
- * Full URL to the doc on the web. Uses NEXT_PUBLIC_DOCS_BASE_URL when set; otherwise the public
- * ArchLucid GitHub blob URL for `master`.
+ * In-app help route for a repo-relative docs path (`/help/{topic}` or `/help` fallback).
  */
 export function getDocHref(docPath: string): string | null {
   const relative = docPath?.trim() ?? "";
@@ -202,12 +201,7 @@ export function getDocHref(docPath: string): string | null {
     return null;
   }
 
-  const custom = process.env.NEXT_PUBLIC_DOCS_BASE_URL?.trim();
-  const base = custom && custom.length > 0 ? custom : DEFAULT_GITHUB_BLOB_BASE;
-  const normalized = base.replace(/\/$/, "");
-  const path = relative.replace(/^\//, "");
-
-  return `${normalized}/${path}`;
+  return resolveInAppDocHref(relative);
 }
 
 export function helpTopicsForGuidesTab(): HelpTopic[] {

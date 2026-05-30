@@ -20,4 +20,9 @@ public sealed class AgentExecutionFailureSummary
 
     /// <summary>Optional code aligned with <see cref="AgentExecutionTraceFailureReasonCodes" /> when applicable.</summary>
     public string? ReasonCode { get; set; }
+
+    /// <summary>
+    ///     Optional triage scenario id from <see cref="RealAgentFailureTriageScenarioIds" /> for operator runbooks.
+    /// </summary>
+    public string? TriageScenarioId { get; set; }
 }

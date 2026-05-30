@@ -69,7 +69,7 @@
     },
     {
       "title": "6k. Evidence Bulk Upload \u2014 Limits and Batching (V1.1 candidates)",
-      "summary": "**V1 GA stance:** Bulk upload of evidence files is supported up to a configured cap (30 files by default). The V1 endpoint natively handles multiple file parts and emits granular or aggregate audit events. The following bulk processing features are explicitly deferred to **V1.1**"
+      "summary": "**V1 GA stance:** Bulk upload of evidence files is supported up to a configured cap (**200 files** by default; **ZIP archives count as one file** and expand server-side). The V1 endpoint natively handles multiple file parts and emits granular or aggregate audit events. Browser folder recursion and other deferred batch UX are explicitly **V1.1**"
     },
     {
       "title": "6l. Multi-region active/active guarantees (**V1.1**)",

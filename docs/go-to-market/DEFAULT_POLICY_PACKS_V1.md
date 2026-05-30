@@ -80,6 +80,16 @@ Starter corpora use **informative thematic mapping** (`frameworkMappings`) to ac
 
 Bundles are **`PlatformDefault`** rows **scoped per tenant/workspace/project**, not silently shared writable globals. Operators **cannot republish** them through the shipped HTTP surface (UI disables **Publish**, API rejects `PublishVersion`).
 
+### Content quality harness (CI)
+
+Bundled pack JSON, manifest counts, curated rule corpora, disclaimer language, and duplicate rule keys are validated by:
+
+```bash
+python scripts/ci/check_policy_pack_content_quality.py
+```
+
+The harness fails on duplicate `complianceRuleKeys`, missing rule rationale in curated JSON, missing framework disclaimers, unsupported certification wording, or manifest/doc count drift. Unit tests live in `scripts/ci/tests/test_check_policy_pack_content_quality.py`.
+
 ---
 
 ## 5. Content roadmap

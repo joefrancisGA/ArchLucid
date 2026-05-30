@@ -124,5 +124,48 @@ public sealed class AgentExecutionFailureSummaryFactoryTests
         summary.AgentTypeKey.Should().Be(AgentTypeKeys.Compliance);
         summary.FailureClass.Should().Be(AgentExecutionFailureClasses.CostBudget);
         summary.ReasonCode.Should().Be(AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded);
+        summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.BudgetCutoff);
+    }
+
+    [Fact]
+    public void FromException_when_content_safety_blocked_CLASSIFIES_content_safety_and_triage()
+    {
+        InvalidOperationException inner = new("Blocked by content safety (user_prompt).");
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.ContentSafety);
+        summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.ContentSafetyRejection);
+    }
+
+    [Fact]
+    public void FromException_when_aoai_credentials_missing_CLASSIFIES_missing_credentials_and_triage()
+    {
+        InvalidOperationException inner = new(
+            "AzureOpenAI:Endpoint is required when Azure OpenAI credentials are partially configured.");
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.MissingCredentials);
+        summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.MissingCredentials);
+    }
+
+    [Fact]
+    public void FromException_when_quality_gate_rejected_CLASSIFIES_quality_gate_and_triage()
+    {
+        AgentOutputQualityGateRejectedException inner = new("run-1", "trace-1", "topology");
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner);
+
+        summary.FailureClass.Should().Be(AgentExecutionFailureClasses.QualityGate);
+        summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.GroundingInsufficiency);
+    }
+
+    [Fact]
+    public void FromException_when_fallback_context_sets_triage_even_for_unknown_class()
+    {
+        InvalidOperationException inner = new("unrelated");
+        RealAgentFailureTriageContext context = new() { RealModeFellBackToSimulator = true };
+
+        AgentExecutionFailureSummary summary = AgentExecutionFailureSummaryFactory.FromException(inner, context);
+
+        summary.TriageScenarioId.Should().Be(RealAgentFailureTriageScenarioIds.FallbackToSimulator);
     }
 }

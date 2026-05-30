@@ -21,6 +21,7 @@ import { OperatorNextActionsCard } from "@/components/OperatorNextActionsCard";
 import { OperatorStickinessSnapshotCard } from "@/components/OperatorStickinessSnapshotCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
+import { RepeatReviewActivationPrompt } from "@/components/RepeatReviewActivationPrompt";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPackageCard";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
@@ -55,6 +56,7 @@ function OperatorHomeReviewsGrid() {
 
         <OperationalMetricsGate>
           <div className="space-y-6" data-testid="operator-home-post-commit-surfaces">
+            <RepeatReviewActivationPrompt />
             <ValueRealizationDashboard />
             <OperatorNextActionsCard />
             <OperatorStickinessSnapshotCard />

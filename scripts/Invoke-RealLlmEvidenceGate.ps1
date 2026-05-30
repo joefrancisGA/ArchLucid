@@ -110,6 +110,34 @@ function Read-MetricsJsonSafely {
 
 }
 
+function Wait-ForMetricsJsonFile {
+
+    param(
+        [Parameter(Mandatory = $true)][string] $Path,
+        [int] $TimeoutSeconds = 60,
+        [int] $PollMilliseconds = 250
+    )
+
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+
+    while ([DateTime]::UtcNow -lt $deadline) {
+
+        $metrics = Read-MetricsJsonSafely -Path $Path
+
+        if ($null -ne $metrics) {
+
+            return $metrics
+
+        }
+
+        Start-Sleep -Milliseconds $PollMilliseconds
+
+    }
+
+    return $null
+
+}
+
 
 
 function Add-ProfileEvidenceRows {
@@ -131,6 +159,26 @@ function Add-ProfileEvidenceRows {
     if (-not $TestPassed) {
 
         Add-EvidenceRow $List "$ProfileLabel run executed" "Failed" "dotnet test exit non-zero"
+
+        if ($null -ne $Metrics) {
+
+            Add-EvidenceRow $List "$ProfileLabel metrics captured (partial)" "Passed" "profile=$($Metrics.liveEvidenceProfile) deployment=$($Metrics.deploymentName)"
+
+            if ([string]$Metrics.liveEvidenceProfile -eq 'full-pipeline') {
+
+                $mergeOk = [bool]$Metrics.mergeSuccess
+
+                $svc = [int]$Metrics.manifestServiceCount
+
+                $dec = [int]$Metrics.decisionsCount
+
+                $claims = [int]$Metrics.totalClaims
+
+                Add-EvidenceRow $List "$ProfileLabel merge completeness" "Failed" "mergeSuccess=$mergeOk services=$svc decisions=$dec claims=$claims (metrics captured before assertion)"
+
+            }
+
+        }
 
         return
 
@@ -319,6 +367,8 @@ if ($credsPresent) {
 
     $topologyExit = $LASTEXITCODE
 
+    $topologyMetrics = Wait-ForMetricsJsonFile -Path $topologyMetricsAbs
+
 
 
     Write-Host "Running RealAzureOpenAIEndToEndTests (full multi-agent pipeline)..." -ForegroundColor Cyan
@@ -329,6 +379,8 @@ if ($credsPresent) {
 
     $pipelineExit = $LASTEXITCODE
 
+    $pipelineMetrics = Wait-ForMetricsJsonFile -Path $pipelineMetricsAbs
+
 
 
     Remove-Item Env:ARCHLUCID_REAL_LLM_RUN_METRICS_JSON -ErrorAction SilentlyContinue
@@ -336,10 +388,6 @@ if ($credsPresent) {
 
 
     $exitCode = if (($topologyExit -ne 0) -or ($pipelineExit -ne 0)) { 1 } else { 0 }
-
-    $topologyMetrics = Read-MetricsJsonSafely -Path $topologyMetricsAbs
-
-    $pipelineMetrics = Read-MetricsJsonSafely -Path $pipelineMetricsAbs
 
 
 
@@ -535,23 +583,14 @@ $pipelineMetricsPathForJson = if ($credsPresent -and (Test-Path -LiteralPath $pi
 
 
 $jsonPayload = New-RealLlmEvidenceGateJsonPayload `
-
     -GeneratedUtc $generatedUtc `
-
     -Disposition $overallDisposition `
-
     -CredentialsPresent $credsPresent `
-
     -DotnetExitCode $exitCode `
-
     -Checks @($rows) `
-
     -TopologyMetricsRelativePath $topologyMetricsPathForJson `
-
     -PipelineMetricsRelativePath $pipelineMetricsPathForJson `
-
     -TopologyMetrics $topologyMetrics `
-
     -PipelineMetrics $pipelineMetrics
 
 

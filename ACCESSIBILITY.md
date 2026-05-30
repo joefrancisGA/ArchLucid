@@ -85,6 +85,10 @@ To add accessibility checks for a new page:
 2. For **live** e2e: ensure the live API + SQL happy path in `e2e/start-e2e-live-api.ts` / fixture IDs (`e2e/fixtures/ids.ts`) includes data for dynamic routes when needed. For **mock** Playwright: use `npx playwright test -c playwright.mock.config.ts` (that config ignores `live-api-*.spec.ts`).
 3. For route-level axe against a live API, run `npx playwright test` from **`archlucid-ui/`** with **`ArchLucid.Api`** up (see **`docs/LIVE_E2E_HAPPY_PATH.md`**). For component axe only: **`npm run test:axe-components`**.
 
+## Procurement disclosure
+
+Canonical **VPAT® 2.5 / WCAG 2.1** Accessibility Conformance Report for procurement: [`docs/security/VPAT_2_5_WCAG_2_1_AA.md`](docs/security/VPAT_2_5_WCAG_2_1_AA.md) (criteria-to-test evidence map: [`VPAT_EVIDENCE_MAP.md`](docs/security/VPAT_EVIDENCE_MAP.md)). **Participant assistive-technology user testing is not claimed complete.**
+
 ## Manual testing guidance
 
 Automated scanning catches roughly **30–40%** of accessibility issues encountered in audits. Supplement with:

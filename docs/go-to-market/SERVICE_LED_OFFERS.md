@@ -8,7 +8,7 @@
 
 **Purpose:** V1 already ships **Architecture Review Report** export (DOCX/PDF), **consultant whitelabel**, **bulk evidence attach**, **default policy packs**, and **curated demo workspaces**. This document names **buyable SKUs** so GTM leads with **relief from pain** and a **defensible report**, not a platform feature tour.
 
-**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion).
+**Related:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) (tasks M-22–M-28, M-34), [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md), [`SERVICE_LED_SOW_QUOTE_TEMPLATE.md`](SERVICE_LED_SOW_QUOTE_TEMPLATE.md), [`POSITIONING.md`](POSITIONING.md), [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) (public pricing posture; **Marketing alignment Q8** companion).
 
 ---
 
@@ -37,7 +37,7 @@ Use these names in landing copy, Upwork, SOWs, and outreach so buyers purchase a
 
 ## Delivery stack (what ArchLucid is in this motion)
 
-1. Evidence intake (including bulk attach within V1 limits — disclose **≤30 files** per upload).
+1. Evidence intake (including bulk attach within V1 limits — disclose **up to 200 files** per multipart request; **ZIP archives count as one file** and expand server-side).
 2. Structured review in the operator workflow (Capture → Evidence → Review → Findings → Decisions → Report).
 3. AI-assisted analysis with **human** architecture judgment and sign-off framing in exports.
 4. Traceable findings and **exportable** DOCX/PDF.
