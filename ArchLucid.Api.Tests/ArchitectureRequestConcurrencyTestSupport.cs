@@ -37,8 +37,12 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     /// </summary>
     internal static readonly TimeSpan GreenfieldSqlArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(32);
 
-    /// <summary>DbUp + readiness + first create-run on an empty catalog (outside parallel-burst hang guards).</summary>
-    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(30);
+    /// <summary>
+    ///     DbUp + readiness + optional first create-run on an empty catalog (outside parallel-burst hang guards).
+    ///     Must exceed <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> so a single warm POST is not
+    ///     cancelled by the bootstrap token before the HTTP client budget elapses.
+    /// </summary>
+    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(35);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {

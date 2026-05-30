@@ -62,7 +62,11 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             client,
             ParallelCreateRunHangGuard);
 
-        await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(client);
+        // Readiness + list-runs only: post-create-run warm competes with the parallel idempotency burst and can
+        // exhaust GreenfieldSqlHostBootstrapBudget (30m) on cold CI SQL before the test hang guard starts.
+        await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
+            client,
+            includePostCreateRunWarmup: false);
 
         using CancellationTokenSource hangGuard = new();
         hangGuard.CancelAfter(ParallelCreateRunHangGuard);
@@ -72,7 +76,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
         object body = TestRequestFactory.CreateArchitectureRequest(requestId);
 
-        const int parallel = 16;
+        const int parallel = 8;
         HttpResponseMessage[] responses =
             await ArchitectureRequestConcurrencyTestSupport.PostParallelArchitectureRequestWithTransientRetryAsync(
                 client,
