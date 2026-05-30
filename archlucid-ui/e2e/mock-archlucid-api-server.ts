@@ -1,6 +1,7 @@
 import http from "node:http";
 import { randomUUID } from "node:crypto";
 
+import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import {
   getMockEffectiveContent,
   getMockEffectivePacks,
@@ -32,6 +33,18 @@ import {
   getScreenshotMockFallbackGetJson,
   isGraphUpstreamPath,
 } from "./screenshot-mock-fallback";
+
+function fixtureRunDetailForRunId(runId: string): RunDetail {
+  const detail = fixtureRunDetail();
+
+  return {
+    ...detail,
+    run: {
+      ...detail.run,
+      runId,
+    },
+  };
+}
 
 function sendJson(res: http.ServerResponse, status: number, body: unknown): void {
   const payload = JSON.stringify(body);
@@ -294,6 +307,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
         if (runId === FIXTURE_RUN_ID) {
           sendJson(res, 200, fixtureRunDetail());
+        } else if (runId === MOCK_TRIAL_WELCOME_RUN_ID) {
+          sendJson(res, 200, fixtureRunDetailForRunId(MOCK_TRIAL_WELCOME_RUN_ID));
         } else if (runId === SHOWCASE_DEMO_RUN_ID || runId === SCREENSHOT_RUN_ID) {
           sendJson(res, 200, fixtureRunDetailAlignedToShowcase(runId));
         } else {
@@ -315,6 +330,11 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           return;
         }
 
+        if (rid === MOCK_TRIAL_WELCOME_RUN_ID) {
+          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureRunDetailForRunId(MOCK_TRIAL_WELCOME_RUN_ID)));
+          return;
+        }
+
         if (rid === SHOWCASE_DEMO_RUN_ID || rid === SCREENSHOT_RUN_ID) {
           sendJson(res, 200, jsonRunSummaryFromDetail(fixtureRunDetailAlignedToShowcase(rid)));
           return;
@@ -329,7 +349,13 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       if (explainAggregateMatch) {
         const runId = explainAggregateMatch[1];
         /** `getScreenshotMockFallbackGetJson` measured-roi uses `demoRunId: "demo"` — keep in sync. */
-        const aggregateFixtureRunIds = new Set<string>([FIXTURE_RUN_ID, "demo", SHOWCASE_DEMO_RUN_ID, SCREENSHOT_RUN_ID]);
+        const aggregateFixtureRunIds = new Set<string>([
+          FIXTURE_RUN_ID,
+          MOCK_TRIAL_WELCOME_RUN_ID,
+          "demo",
+          SHOWCASE_DEMO_RUN_ID,
+          SCREENSHOT_RUN_ID,
+        ]);
 
         if (aggregateFixtureRunIds.has(runId)) {
           sendJson(res, 200, fixtureRunExplanationSummary());

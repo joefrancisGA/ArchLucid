@@ -1,9 +1,13 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
 import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator-welcome-onboarding-storage";
+
+/** Must match `SESSION_KEY` in `TrialWelcomeRunDeepLink.tsx`. */
+const TRIAL_WELCOME_HOME_REDIRECT_SESSION_KEY = "archlucid_trial_welcome_home_redirect_v1";
 
 /** Footer disclosure controls sit in the scrollable operator sidebar — scroll before click to avoid CI flake. */
 async function scrollOperatorSidebarFooterIntoView(page: Page): Promise<void> {
@@ -100,6 +104,13 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         onboardingTourCompletedKey: ONBOARDING_TOUR_COMPLETED_KEY,
       },
     );
+    await page.addInitScript(
+      ([key, welcomeRunId]: readonly [string, string]) => {
+        // Mock trial-status exposes trialWelcomeRunId; prime guard so operator home stays on `/`.
+        window.sessionStorage.setItem(key, welcomeRunId);
+      },
+      [TRIAL_WELCOME_HOME_REDIRECT_SESSION_KEY, MOCK_TRIAL_WELCOME_RUN_ID] as const,
+    );
   });
 
   test("pilot profile hides compare and governance until expanded @pilot-nav", async ({ page }) => {
@@ -110,6 +121,7 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
     await page.goto("/");
     await meResponse;
     await dismissBlockingHomeModals(page);
+    await expect(page).toHaveURL((url) => new URL(url).pathname === "/");
     await expect(page.getByTestId("sidebar-nav")).toBeVisible({ timeout: 30_000 });
 
     const reviewNav = page.getByRole("navigation", { name: "Review work" });
