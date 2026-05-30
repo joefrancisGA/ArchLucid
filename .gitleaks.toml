@@ -30,6 +30,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Archived assessment backups: prose mentions route/policy/nav checks; generic-api-key false positive in git history"
+paths = [
+  '''(?:^|/)docs/archive/assessments/LATEST_.*_pre_rescore_backup\.md$''',
+]
+
+[[allowlists]]
 description = "Documented non-production literals (SQL dev passwords, one retired Stripe-shaped test fixture in git history) — rotate SQL passwords if you reuse outside this repo"
 paths = [
   # TB-003 named-query perf thresholds only; generic-api-key false-positive on *Keyset* in metric names (*key* keyword).

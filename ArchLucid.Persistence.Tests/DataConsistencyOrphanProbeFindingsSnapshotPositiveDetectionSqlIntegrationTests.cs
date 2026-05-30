@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence.Tests.Support;
 
@@ -27,49 +29,65 @@ public sealed class DataConsistencyOrphanProbeFindingsSnapshotPositiveDetectionS
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
+        Guid runId = Guid.NewGuid();
         Guid orphanRunId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
         Guid findingsSnapId = Guid.NewGuid();
+        Guid decisionTraceId = Guid.NewGuid();
+        bool nchecked = false;
 
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync(CancellationToken.None);
 
-        IReadOnlyList<string> disabledForeignKeys = [];
-
         try
         {
-            disabledForeignKeys = await FindingsSnapshotOrphanProbeTestSupport.DisableOrphanProbeForeignKeysAsync(
+            await AuthorityRunChainTestSeed.SeedFullChainAsync(
                 connection,
+                SeedTenantId,
+                SeedWorkspaceId,
+                SeedScopeProjectId,
+                runId,
+                contextId,
+                graphId,
+                findingsSnapId,
+                decisionTraceId,
+                "orphan-findings-probe",
                 CancellationToken.None);
 
-            const string insertOrphanFindings = """
-                                                INSERT INTO dbo.FindingsSnapshots
-                                                (
-                                                    FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
-                                                    TenantId, WorkspaceId, ProjectId,
-                                                    CreatedUtc, SchemaVersion, GenerationStatus, FindingsJson
-                                                )
-                                                VALUES
-                                                (
-                                                    @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
-                                                    @TenantId, @WorkspaceId, @ProjectId,
-                                                    SYSUTCDATETIME(), 1, N'Complete', N'{"findings":[]}'
-                                                );
-                                                """;
+            object? fkRow = await connection.ExecuteScalarAsync(
+                new CommandDefinition(
+                    """
+                    SELECT COUNT(1)
+                    FROM sys.foreign_keys
+                    WHERE name = N'FK_FindingsSnapshots_Runs_RunId'
+                      AND parent_object_id = OBJECT_ID(N'dbo.FindingsSnapshots');
+                    """,
+                    cancellationToken: CancellationToken.None));
+
+            int fkHits = fkRow is int i ? i : Convert.ToInt32(fkRow ?? 0, CultureInfo.InvariantCulture);
+
+            if (fkHits > 0)
+            {
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        "ALTER TABLE dbo.FindingsSnapshots NOCHECK CONSTRAINT FK_FindingsSnapshots_Runs_RunId;",
+                        cancellationToken: CancellationToken.None));
+
+                nchecked = true;
+            }
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
-                    insertOrphanFindings,
+                    """
+                    UPDATE dbo.FindingsSnapshots
+                    SET RunId = @OrphanRunId
+                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                    """,
                     new
                     {
+                        OrphanRunId = orphanRunId,
                         FindingsSnapshotId = findingsSnapId,
-                        RunId = orphanRunId,
-                        ContextSnapshotId = contextId,
-                        GraphSnapshotId = graphId,
-                        TenantId = SeedTenantId,
-                        WorkspaceId = SeedWorkspaceId,
-                        ProjectId = SeedScopeProjectId,
                     },
                     cancellationToken: CancellationToken.None));
 
@@ -86,10 +104,22 @@ public sealed class DataConsistencyOrphanProbeFindingsSnapshotPositiveDetectionS
                     new { FindingsSnapshotId = findingsSnapId },
                     cancellationToken: CancellationToken.None));
 
-            await FindingsSnapshotOrphanProbeTestSupport.TryReEnableOrphanProbeForeignKeysAsync(
-                connection,
-                disabledForeignKeys,
-                CancellationToken.None);
+            if (nchecked)
+            {
+                try
+                {
+                    await connection.ExecuteAsync(
+                        new CommandDefinition(
+                            """
+                            ALTER TABLE dbo.FindingsSnapshots WITH CHECK CHECK CONSTRAINT FK_FindingsSnapshots_Runs_RunId;
+                            """,
+                            cancellationToken: CancellationToken.None));
+                }
+                catch (SqlException)
+                {
+                    // Other parallel tests may leave orphan rows; re-trust only when valid.
+                }
+            }
         }
     }
 }
