@@ -10,6 +10,8 @@ import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryBut
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
+import { RunDecisionExplainabilitySection } from "@/components/RunDecisionExplainabilitySection";
+import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
 
@@ -24,6 +26,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly explanationFailure: ApiLoadFailureState | null;
   readonly baselineAnnualCostUsd: number | null;
   readonly isIllustrativePricing?: boolean;
+  readonly decisionExplainability: RunDecisionExplainabilityModel | null;
 };
 
 export function RunDetailRunExplanationCollapsible(
@@ -40,6 +43,7 @@ export function RunDetailRunExplanationCollapsible(
     explanationFailure,
     baselineAnnualCostUsd,
     isIllustrativePricing,
+    decisionExplainability,
   } = props;
 
   return (
@@ -105,6 +109,9 @@ export function RunDetailRunExplanationCollapsible(
                 />
               );
             })()}
+            {decisionExplainability !== null ? (
+              <RunDecisionExplainabilitySection model={decisionExplainability} />
+            ) : null}
           </>
         ) : null}
       </CollapsibleSection>

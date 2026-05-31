@@ -198,6 +198,7 @@ type RunDetailOptionalWireExtras = {
     savingsPricingBasis?: string | null;
     savingsPricingBasisDescription?: string | null;
   } | null;
+  decisionExplainability?: unknown;
 };
 
 export type RunRetrievalGroundingSummary = {

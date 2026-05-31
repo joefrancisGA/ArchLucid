@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Runs;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Models;
@@ -159,6 +160,13 @@ public class RunDetailDto
 
     /// <summary>Server-authoritative estimated USD savings from the findings snapshot (executive ROI resolver).</summary>
     public RunEstimatedUsdSavingsDto? EstimatedUsdSavingsSummary
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Unified authority + coordinator decision explainability for operator run detail (TB-054).</summary>
+    public RunDecisionExplainabilityDto? DecisionExplainability
     {
         get;
         set;

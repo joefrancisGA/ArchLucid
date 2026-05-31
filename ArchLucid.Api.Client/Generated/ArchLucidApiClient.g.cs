@@ -70949,6 +70949,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("degradedFindingCoverage")]
         public bool? DegradedFindingCoverage { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedUsdSavingsSummary")]
+        public RunEstimatedUsdSavingsDto? EstimatedUsdSavingsSummary { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("executionFlavorBuyerSummary")]
         public string? ExecutionFlavorBuyerSummary { get; set; } = default!;
 
@@ -71020,6 +71023,31 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("trustEvidenceCard")]
         public RunTrustEvidenceCard? TrustEvidenceCard { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunEstimatedUsdSavingsDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedUsdSavings")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? EstimatedUsdSavings { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("savingsPricingBasis")]
+        public string? SavingsPricingBasis { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("savingsPricingBasisDescription")]
+        public string? SavingsPricingBasisDescription { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

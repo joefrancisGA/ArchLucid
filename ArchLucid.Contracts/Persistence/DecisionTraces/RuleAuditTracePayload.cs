@@ -89,4 +89,32 @@ public sealed class RuleAuditTracePayload
         get;
         set;
     } = [];
+
+    /// <summary>Context snapshot evaluated when the authority rule engine ran (TB-052).</summary>
+    public Guid? ContextSnapshotId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Graph snapshot evaluated when the authority rule engine ran (TB-052).</summary>
+    public Guid? GraphSnapshotId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Findings snapshot evaluated when the authority rule engine ran (TB-052).</summary>
+    public Guid? FindingsSnapshotId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Distinct prompt templates referenced by accepted findings (TB-052).</summary>
+    public List<RuleAuditTracePromptRef> PromptRefs
+    {
+        get;
+        set;
+    } = [];
 }

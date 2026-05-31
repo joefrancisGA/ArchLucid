@@ -6701,6 +6701,27 @@ BEGIN
 END;
 GO
 
+/* ---- DbUp 231 parity: decisioning trace explainability join ids (see Migrations/231_DecisioningTraces_ExplainabilityJoinIds.sql) ---- */
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.DecisioningTraces', N'ContextSnapshotId') IS NULL
+    ALTER TABLE dbo.DecisioningTraces ADD ContextSnapshotId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.DecisioningTraces', N'GraphSnapshotId') IS NULL
+    ALTER TABLE dbo.DecisioningTraces ADD GraphSnapshotId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.DecisioningTraces', N'FindingsSnapshotId') IS NULL
+    ALTER TABLE dbo.DecisioningTraces ADD FindingsSnapshotId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.DecisioningTraces', N'PromptRefsJson') IS NULL
+    ALTER TABLE dbo.DecisioningTraces ADD PromptRefsJson NVARCHAR(MAX) NULL;
+GO
+
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.DecisioningTraces', N'WarningsJson') IS NULL
+    ALTER TABLE dbo.DecisioningTraces ADD WarningsJson NVARCHAR(MAX) NULL;
+GO
+
 /* 167: Marketing early-access / waitlist (see Migrations/167_MarketingEarlyAccessRequests.sql). */
 IF OBJECT_ID(N'dbo.MarketingEarlyAccessRequests', N'U') IS NULL
 BEGIN

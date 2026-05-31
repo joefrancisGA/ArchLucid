@@ -116,6 +116,10 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             .ReturnsAsync((decimal?)null);
 
         Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+        Mock<IDecisionNodeRepository> decisionNodes = new();
+        decisionNodes
+            .Setup(r => r.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         AuthorityRunDetailOperatorEnricher sut = new(
             runDetailQuery.Object,
@@ -124,7 +128,8 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             trustBuilder.Object,
             groundingReader.Object,
             savingsResolver.Object,
-            tenantCostSettings.Object);
+            tenantCostSettings.Object,
+            decisionNodes.Object);
 
         await sut.EnrichAsync(detail, "Real", CancellationToken.None);
 
@@ -184,6 +189,10 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             .ReturnsAsync((decimal?)null);
 
         Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+        Mock<IDecisionNodeRepository> decisionNodes = new();
+        decisionNodes
+            .Setup(r => r.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         AuthorityRunDetailOperatorEnricher sut = new(
             runDetailQuery.Object,
@@ -192,7 +201,8 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
             trustBuilder.Object,
             groundingReader.Object,
             savingsResolver.Object,
-            tenantCostSettings.Object);
+            tenantCostSettings.Object,
+            decisionNodes.Object);
 
         await sut.EnrichAsync(detail, "Simulator", CancellationToken.None);
 

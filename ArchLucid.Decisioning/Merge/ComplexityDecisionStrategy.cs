@@ -72,8 +72,8 @@ internal sealed class ComplexityDecisionStrategy : IDecisionStrategy
             SelectedOptionId = selected.OptionId,
             Confidence = selected.FinalScore,
             Rationale = selected == keep
-                ? "Complexity retained because opposition did not outweigh the base design confidence."
-                : "Complexity reduction recommended due to caution and opposition signals.",
+                ? $"Complexity retained because opposition did not outweigh the base design confidence ({DecisionStrategyAgentConfidenceResolver.DescribeStrategyPrior(keep.BaseConfidence)})."
+                : $"Complexity reduction recommended due to caution and opposition signals ({DecisionStrategyAgentConfidenceResolver.DescribeStrategyPrior(reduce.BaseConfidence)}).",
             SupportingEvaluationIds = relevant
                 .Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)

@@ -7,6 +7,8 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Persistence.Decisions;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -22,7 +24,8 @@ public sealed class AuthorityRunDetailOperatorEnricher(
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     IRetrievalGroundingTraceReader retrievalGroundingTraceReader,
     ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
-    ITenantCostSettingsRepository tenantCostSettingsRepository) : IAuthorityRunDetailOperatorEnricher
+    ITenantCostSettingsRepository tenantCostSettingsRepository,
+    IDecisionNodeRepository decisionNodeRepository) : IAuthorityRunDetailOperatorEnricher
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -44,6 +47,9 @@ public sealed class AuthorityRunDetailOperatorEnricher(
 
     private readonly ITenantCostSettingsRepository _tenantCostSettingsRepository =
         tenantCostSettingsRepository ?? throw new ArgumentNullException(nameof(tenantCostSettingsRepository));
+
+    private readonly IDecisionNodeRepository _decisionNodeRepository =
+        decisionNodeRepository ?? throw new ArgumentNullException(nameof(decisionNodeRepository));
 
     /// <inheritdoc />
     public async Task EnrichAsync(RunDetailDto detail, string? hostAgentExecutionMode, CancellationToken cancellationToken = default)
@@ -74,6 +80,7 @@ public sealed class AuthorityRunDetailOperatorEnricher(
         detail.Results = architectureDetail.Results;
 
         await AppendRetrievalGroundingSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
+        await AppendDecisionExplainabilityAsync(detail, cancellationToken).ConfigureAwait(false);
 
         if (!architectureDetail.IsCommitted)
             return;
@@ -125,5 +132,24 @@ public sealed class AuthorityRunDetailOperatorEnricher(
                 .ConfigureAwait(false);
 
         detail.RetrievalGroundingSummary = RunRetrievalGroundingSummaryBuilder.Build(traces, detail.Results);
+    }
+
+    private async Task AppendDecisionExplainabilityAsync(RunDetailDto detail, CancellationToken cancellationToken)
+    {
+        string runHex = detail.Run.RunId.ToString("N");
+
+        IReadOnlyList<DecisionNodeRecord> coordinatorNodes =
+            await _decisionNodeRepository.GetByRunIdAsync(runHex, cancellationToken).ConfigureAwait(false);
+
+        RunDecisionExplainabilityDto built = RunDecisionExplainabilityBuilder.Build(detail, coordinatorNodes);
+
+        if (built.AuthorityRuleAudit is null
+            && built.ManifestDecisions.Count == 0
+            && built.CoordinatorDecisionNodes.Count == 0)
+        {
+            return;
+        }
+
+        detail.DecisionExplainability = built;
     }
 }

@@ -110,6 +110,13 @@ public class RuleBasedDecisionEngine(
             }
         }
 
+        audit.ContextSnapshotId = contextSnapshotId;
+        audit.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
+        audit.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
+        audit.PromptRefs = RuleAuditTracePromptRefAggregator.FromAcceptedFindings(
+            findingsSnapshot,
+            audit.AcceptedFindingIds);
+
         DecisionTrace trace = RuleAuditTrace.From(audit);
 
         ManifestDocument manifest = manifestBuilder.Build(

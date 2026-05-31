@@ -41,14 +41,16 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                                TenantId, WorkspaceId, ProjectId,
                                DecisionTraceId, RunId, CreatedUtc,
                                RuleSetId, RuleSetVersion, RuleSetHash,
-                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
+                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
+                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, PromptRefsJson, WarningsJson
                            )
                            VALUES
                            (
                                @TenantId, @WorkspaceId, @ProjectId,
                                @DecisionTraceId, @RunId, @CreatedUtc,
                                @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                               @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson
+                               @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
+                               @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @PromptRefsJson, @WarningsJson
                            );
                            """;
 
@@ -66,7 +68,12 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             AppliedRuleIdsJson = JsonEntitySerializer.Serialize(audit.AppliedRuleIds),
             AcceptedFindingIdsJson = JsonEntitySerializer.Serialize(audit.AcceptedFindingIds),
             RejectedFindingIdsJson = JsonEntitySerializer.Serialize(audit.RejectedFindingIds),
-            NotesJson = JsonEntitySerializer.Serialize(audit.Notes)
+            NotesJson = JsonEntitySerializer.Serialize(audit.Notes),
+            audit.ContextSnapshotId,
+            audit.GraphSnapshotId,
+            audit.FindingsSnapshotId,
+            PromptRefsJson = JsonEntitySerializer.Serialize(audit.PromptRefs),
+            WarningsJson = JsonEntitySerializer.Serialize(audit.Warnings),
         };
 
         if (connection is not null)
@@ -89,7 +96,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                                TenantId, WorkspaceId, ProjectId,
                                DecisionTraceId, RunId, CreatedUtc,
                                RuleSetId, RuleSetVersion, RuleSetHash,
-                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
+                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
+                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, PromptRefsJson, WarningsJson
                            FROM dbo.DecisioningTraces
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -122,7 +130,12 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             AppliedRuleIds = JsonEntitySerializer.Deserialize<List<string>>(row.AppliedRuleIdsJson),
             AcceptedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.AcceptedFindingIdsJson),
             RejectedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.RejectedFindingIdsJson),
-            Notes = JsonEntitySerializer.Deserialize<List<string>>(row.NotesJson)
+            Notes = JsonEntitySerializer.Deserialize<List<string>>(row.NotesJson),
+            ContextSnapshotId = row.ContextSnapshotId,
+            GraphSnapshotId = row.GraphSnapshotId,
+            FindingsSnapshotId = row.FindingsSnapshotId,
+            PromptRefs = JsonEntitySerializer.Deserialize<List<RuleAuditTracePromptRef>>(row.PromptRefsJson ?? "[]"),
+            Warnings = JsonEntitySerializer.Deserialize<List<RuleAuditTraceWarning>>(row.WarningsJson ?? "[]"),
         });
     }
 
@@ -205,5 +218,35 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             get;
             init;
         } = null!;
+
+        public Guid? ContextSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public Guid? GraphSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public Guid? FindingsSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public string? PromptRefsJson
+        {
+            get;
+            init;
+        }
+
+        public string? WarningsJson
+        {
+            get;
+            init;
+        }
     }
 }
