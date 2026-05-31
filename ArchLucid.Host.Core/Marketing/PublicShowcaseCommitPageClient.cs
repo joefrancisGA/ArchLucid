@@ -1,7 +1,6 @@
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Audit;
 using ArchLucid.ArtifactSynthesis.Packaging;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Interfaces;

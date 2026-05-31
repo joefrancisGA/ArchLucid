@@ -4,6 +4,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class ConfigLintReportBuilderTests
 {
     [Theory]

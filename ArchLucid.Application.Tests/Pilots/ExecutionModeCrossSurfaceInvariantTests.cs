@@ -88,9 +88,13 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
 
         card.Should().NotBeNull();
 
-        if (mode is StructuralExecutionMode.Fallback or StructuralExecutionMode.Mixed)
+        if (mode == StructuralExecutionMode.Fallback)
         {
-            card!.ExecutionMode.Detail.Should().Contain(expectedLabel);
+            card!.ExecutionMode.Detail.Should().Be(StructuralExecutionModeLabels.ToOperatorDetail(StructuralExecutionMode.Fallback));
+        }
+        else if (mode == StructuralExecutionMode.Mixed)
+        {
+            card!.ExecutionMode.Detail.Should().Be(StructuralExecutionModeLabels.MixedDetail);
         }
         else if (mode == StructuralExecutionMode.Real)
         {
