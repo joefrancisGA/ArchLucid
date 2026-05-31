@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ACCELERATOR_CHOOSER_ENTRIES } from "@/lib/accelerator-chooser";
 
@@ -20,7 +20,7 @@ export function AcceleratorChooserCard(): React.JSX.Element {
             After your first committed review, choose a buyer job — each row maps to an existing pack in the repo.
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
-            <InAppHelpLink helpSlug="accelerator-chooser" label="Open the full accelerator chooser guide" />
+            <OperatorHomeGuidanceLink helpSlug="accelerator-chooser" label="Open the full accelerator chooser guide" />
           </div>
         </CardHeader>
         <CardContent>

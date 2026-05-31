@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactElement } from "react";
 
-import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
@@ -60,10 +60,10 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
             >
               {prompt.headline}
             </h2>
-            <InAppHelpLink helpSlug="repeat-review-loop" label="Repeat-review loop" />
           </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+          <OperatorHomeGuidanceLink helpSlug="repeat-review-loop" label="Repeat-review loop" />
           <p className="m-0">{prompt.summary}</p>
           <div>
             <Button asChild size="sm" variant="default">

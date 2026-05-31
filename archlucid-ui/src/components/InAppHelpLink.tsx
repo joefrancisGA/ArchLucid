@@ -11,13 +11,13 @@ export type InAppHelpLinkProps = {
   helpSlug: string;
   label: string;
   className?: string;
-  /** When true, render as text link instead of icon-only control. */
+  /** When true, render as text link instead of icon-only control (preferred on operator Home). */
   variant?: "icon" | "text";
   /** Optional hash fragment without leading `#` (e.g. `first-session-checklist`). */
   hashFragment?: string;
 };
 
-/** Opens canonical in-app help (`/help/{slug}`) — preferred over GitHub blob links in primary UI. */
+/** Opens canonical in-app help (`/help/{slug}`). Use `variant="text"` on operator Home; reserve icon `?` for sparse section-level use outside Home. */
 export function InAppHelpLink(props: InAppHelpLinkProps) {
   const href = inAppHelpHref(props.helpSlug, props.hashFragment);
 

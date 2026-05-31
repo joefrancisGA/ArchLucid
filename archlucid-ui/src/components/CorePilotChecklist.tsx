@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import {
   CORE_PILOT_CHECKLIST_CHANGED_EVENT,
   CORE_PILOT_STEP_COUNT,
@@ -84,8 +84,9 @@ export function CorePilotChecklist() {
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}
       defaultExpanded={defaultExpanded}
       collapsedSummary={`${CORE_PILOT_STEP_COUNT} manual steps from empty tenant to first architecture review package.`}
-      headerAside={<InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />}
     >
+      <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-3 inline-block" />
+
       <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
         Work through the {CORE_PILOT_STEP_COUNT} steps from an empty tenant to your first architecture review package
         — check each when you have done it.
@@ -108,7 +109,7 @@ export function CorePilotChecklist() {
                 >
                   {step.title}
                 </Link>
-                <InAppHelpLink
+                <OperatorHomeGuidanceLink
                   helpSlug="core-pilot"
                   hashFragment={hashFragment}
                   label={`Core Pilot guide — step ${index + 1}`}

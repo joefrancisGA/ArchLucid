@@ -7,7 +7,8 @@ import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCock
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
-import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
+import { OperatorHomeGuidanceLinks } from "@/components/operator-home/OperatorHomeGuidanceLinks";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { AcceleratorChooserCard } from "@/components/operator-home/AcceleratorChooserCard";
@@ -74,7 +75,7 @@ function OperatorHomeReviewsGrid() {
                 Operational metrics
               </h3>
 
-              <InAppHelpLink helpSlug="core-pilot" label="Open the core pilot guide" />
+              <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open the core pilot guide" />
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <PilotOutcomeCard />
@@ -142,9 +143,9 @@ function OperatorHomePageBody() {
 
       <div className="max-w-prose space-y-3">
         <FirstWeekRouteGuidance variant="home" />
-        <div className="flex flex-wrap items-center gap-2">
-          <InAppHelpLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
-        </div>
+        <OperatorHomeGuidanceLinks>
+          <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
+        </OperatorHomeGuidanceLinks>
       </div>
 
       <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">

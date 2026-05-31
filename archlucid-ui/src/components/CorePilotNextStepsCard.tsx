@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import {
   corePilotStepBadgeLabel,
   deriveCorePilotCommitProgressState,
@@ -69,7 +70,7 @@ function RescueLink() {
         Help
       </Link>
       {" "}or use the{" "}
-      <InAppHelpLink helpSlug="core-pilot" label="Core Pilot guide" />
+      <InAppHelpLink helpSlug="core-pilot" label="Core Pilot guide" variant="text" />
     </p>
   );
 }
@@ -171,7 +172,7 @@ export function CorePilotNextStepsCard() {
           </code>
           <p className="mb-0 mt-2 text-[11px] text-neutral-600 dark:text-neutral-400">
             <code className="font-mono">run-support-packet</code> prints manifest/version/trace/context for escalation — pair with{" "}
-            <InAppHelpLink helpSlug="cli-usage" label="CLI usage guide" />.
+            <InAppHelpLink helpSlug="cli-usage" label="CLI usage guide" variant="text" />.
           </p>
         </div>
 
@@ -207,13 +208,10 @@ export function CorePilotNextStepsCard() {
         legacyStorageKeys={[NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY]}
         defaultExpanded={false}
         collapsedSummary={`${corePilotStepBadgeLabel("has-run")} — evidence and finalize steps for your in-progress review.`}
-        headerAside={
-          <>
-            <StepBadge label={corePilotStepBadgeLabel("has-run")} />
-            <InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />
-          </>
-        }
+        headerAside={<StepBadge label={corePilotStepBadgeLabel("has-run")} />}
       >
+        <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-2 inline-block" />
+
         {latestRunId !== null ? <RunIdNote runId={latestRunId} /> : null}
 
         <ol className="m-0 mt-3 list-none space-y-2 p-0 text-sm text-neutral-800 dark:text-neutral-200">
@@ -268,13 +266,10 @@ export function CorePilotNextStepsCard() {
       legacyStorageKeys={[NEXT_STEPS_LEGACY_MINIMIZED_STORAGE_KEY]}
       defaultExpanded={false}
       collapsedSummary={`${corePilotStepBadgeLabel("no-run")} — create your first architecture request and follow the four-step path.`}
-      headerAside={
-        <>
-          <StepBadge label={corePilotStepBadgeLabel("no-run")} />
-          <InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />
-        </>
-      }
+      headerAside={<StepBadge label={corePilotStepBadgeLabel("no-run")} />}
     >
+      <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-2 inline-block" />
+
       <ol className="m-0 mt-0 list-none space-y-2 p-0 text-sm text-neutral-800 dark:text-neutral-200">
         <li className="flex items-start gap-2" aria-label="Step 1 active">
           <span aria-hidden className="mt-0.5 shrink-0 text-[11px] font-bold text-teal-700 dark:text-teal-300">▶</span>

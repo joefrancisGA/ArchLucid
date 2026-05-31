@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Button } from "@/components/ui/button";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
@@ -174,7 +174,7 @@ export function FirstPilotOperatingRail() {
       collapsedSummary="Six-step path from platform setup through sponsor proof packet."
       headerAside={
         shellCopy.showHeaderHelpLink ? (
-          <InAppHelpLink helpSlug={shellCopy.headerHelpSlug} label={shellCopy.headerHelpLabel} />
+          <OperatorHomeGuidanceLink helpSlug={shellCopy.headerHelpSlug} label={shellCopy.headerHelpLabel} />
         ) : null
       }
       sectionClassName="border-teal-200/90 dark:border-teal-900/70"
