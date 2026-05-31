@@ -10,6 +10,7 @@ import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
 import { RunDetailSectionNav } from "@/components/RunDetailSectionNav";
 import { RunEstimatedLlmCostCard } from "@/components/RunEstimatedLlmCostCard";
+import { RunAgentResultsSummaryCard } from "@/components/RunAgentResultsSummaryCard";
 import { RunDetailLastFailureCard, resolveRunDetailLastFailureSummary } from "@/components/RunDetailLastFailureCard";
 import { RunRetrievalGroundingSummaryCard } from "@/components/RunRetrievalGroundingSummaryCard";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
@@ -160,6 +161,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
             : null
         }
         commitBlockedReason={commitBlockedReason}
+        hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
       />
 
       <FirstWeekRouteGuidance
@@ -205,6 +207,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {!m.buyerPolishedArtifactTable ? (
         <RunEstimatedLlmCostCard estimate={m.resolvedDetail.agentExecutionLlmCostEstimate} />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <RunAgentResultsSummaryCard results={m.resolvedDetail.results} />
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (

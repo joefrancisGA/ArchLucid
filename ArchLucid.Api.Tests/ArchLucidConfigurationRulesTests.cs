@@ -1440,6 +1440,56 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
+    public void CollectErrors_WhenProductionApiKeyModeWithoutTenantId_contains_scope_binding_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "ApiKey",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "abcdefghijklmnopqrstuvwxyz1234567890abcd",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:TenantId", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionApiKeyModeWithTenantId_has_no_scope_binding_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ArchLucidAuth:Mode"] = "ApiKey",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "abcdefghijklmnopqrstuvwxyz1234567890abcd",
+            ["Authentication:ApiKey:TenantId"] = "11111111-1111-1111-1111-111111111111",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("Authentication:ApiKey:TenantId", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public void CollectErrors_WhenHotPathCacheEnabledWithInvalidProvider_contains_error()
     {
         Dictionary<string, string?> data = new()

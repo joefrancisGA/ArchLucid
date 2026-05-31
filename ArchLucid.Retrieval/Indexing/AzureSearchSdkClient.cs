@@ -50,7 +50,7 @@ public sealed class AzureSearchSdkClient(IOptionsMonitor<AzureSearchOptions> opt
         if (!TryCreateSearchClient(out SearchClient? client) || client is null)
             throw new InvalidOperationException("Azure AI Search is not configured.");
 
-        string filter = AzureSearchTenantScopeFilterBuilder.BuildScopeFilter(query);
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query);
         AzureSearchQueryTelemetry.LastScopeFilter = filter;
 
         SearchOptions searchOptions = new()
@@ -119,7 +119,7 @@ public sealed class AzureSearchSdkClient(IOptionsMonitor<AzureSearchOptions> opt
         if (!TryCreateSearchClient(out SearchClient? client) || client is null)
             return;
 
-        string scopeFilter = AzureSearchTenantScopeFilterBuilder.BuildScopeFilter(scope);
+        string scopeFilter = AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(scope);
         string documentFilter = $"documentId eq '{EscapeOData(documentId)}'";
         string combined = $"({scopeFilter}) and ({documentFilter})";
 

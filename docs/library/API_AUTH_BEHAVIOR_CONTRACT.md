@@ -21,12 +21,14 @@
 - **Admin key** maps to `Admin` role; **read-only key** maps to `Reader` role.
 - `Authentication:ApiKey:DevelopmentBypassAll` may authenticate as synthetic admin **only in non-Production**; **never allowed in Production**.
 - Expired keys (when `*ExpiresAt` set) fail authentication.
+- **Scope binding (TB-072):** When `Authentication:ApiKey:TenantId` (and optional `WorkspaceId` / `ProjectId`) are set, the handler emits matching `tenant_id` / `workspace_id` / `project_id` claims. Production hosts with `ArchLucidAuth:Mode=ApiKey` **must** configure `Authentication:ApiKey:TenantId`. Scope headers that disagree with authenticated claims are **rejected** (403) by `ScopeIdentityBindingMiddleware`; JWT/OIDC and API-key claims **win** over `x-*-id` headers in `HttpScopeContextProvider`.
 
 ## DevelopmentBypass details
 
 - Set `ArchLucidAuth:Mode` to **DevelopmentBypass** (Development host profile).
 - Optional test headers when **Allow test actor headers** is enabled on `ArchLucidAuth` (**never in Production**).
 - Does not bypass authorization policies — it only supplies a principal.
+- **Scope binding (TB-072):** Emits `tenant_id` / `workspace_id` / `project_id` claims from `ArchLucidAuth:DevTenantId` / `DevWorkspaceId` / `DevProjectId`, defaulting to development scope GUIDs when unset. **Blocked outside Development** by `AuthSafetyGuard`.
 
 ## Secret storage (key material)
 

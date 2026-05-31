@@ -128,6 +128,9 @@ export type ReplayResponse = {
 /** LLM usage rollup — **OpenAPI** `RunAgentLlmCostEstimateResponse`. */
 export type RunAgentExecutionLlmCostEstimate = components["schemas"]["RunAgentLlmCostEstimateResponse"];
 
+/** Agent pipeline result row on authority run detail (`RunDetailDto.results`). */
+export type RunDetailAgentResult = components["schemas"]["AgentResult"];
+
 export type TrustEvidenceFieldSnapshot = {
   title: string;
   status: string;
@@ -222,12 +225,14 @@ type RunDetailSnapshots = Pick<
  *
  * After `coerceRunDetail` succeeds, **`run`** includes required `runId` / `projectId` / `createdUtc`.
  */
-export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots> &
+export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots | "results"> &
   RunDetailOptionalWireExtras & {
     run: NonNullable<RunDetailDtoBase["run"]> & {
       runId: string;
       projectId: string;
       createdUtc: string;
+      hasGovernanceWarnings?: boolean;
+      lastFailureReason?: string | null;
     };
     contextSnapshot?: unknown;
     graphSnapshot?: unknown;
@@ -235,7 +240,7 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots>
     decisionTrace?: unknown;
     goldenManifest?: unknown;
     artifactBundle?: unknown;
-    results?: unknown;
+    results?: readonly RunDetailAgentResult[] | null;
   };
 
 /** Node in decision provenance graph (`GET …/provenance`). */

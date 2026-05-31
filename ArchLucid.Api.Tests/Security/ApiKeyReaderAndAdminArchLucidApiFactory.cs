@@ -1,4 +1,5 @@
 using ArchLucid.Api.Tests;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +25,10 @@ public sealed class ApiKeyReaderAndAdminArchLucidApiFactory : ArchLucidApiFactor
         ["Authentication:ApiKey:Enabled"] = "true",
         ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
         ["Authentication:ApiKey:AdminKey"] = IntegrationTestAdminApiKey,
-        ["Authentication:ApiKey:ReadOnlyKey"] = IntegrationTestReaderApiKey
+        ["Authentication:ApiKey:ReadOnlyKey"] = IntegrationTestReaderApiKey,
+        ["Authentication:ApiKey:TenantId"] = ScopeIds.DefaultTenant.ToString("D"),
+        ["Authentication:ApiKey:WorkspaceId"] = ScopeIds.DefaultWorkspace.ToString("D"),
+        ["Authentication:ApiKey:ProjectId"] = ScopeIds.DefaultProject.ToString("D")
     };
 
     /// <inheritdoc />

@@ -10,6 +10,31 @@ namespace ArchLucid.Retrieval.Indexing;
 public static class AzureSearchTenantScopeFilterBuilder
 {
     /// <summary>
+    ///     Validates that <paramref name="query" /> carries tenant/workspace/project scope before Azure AI Search dispatch.
+    /// </summary>
+    public static void EnsureQueryableScope(RetrievalQuery query)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        if (query.TenantId == Guid.Empty)
+            throw new InvalidOperationException("Azure AI Search queries require a non-empty tenant scope.");
+
+        if (query.WorkspaceId == Guid.Empty)
+            throw new InvalidOperationException("Azure AI Search queries require a non-empty workspace scope.");
+
+        if (query.ProjectId == Guid.Empty)
+            throw new InvalidOperationException("Azure AI Search queries require a non-empty project scope.");
+    }
+
+    /// <summary>Builds the OData filter after <see cref="EnsureQueryableScope" /> validation (TB-071).</summary>
+    public static string BuildRequiredScopeFilter(RetrievalQuery query)
+    {
+        EnsureQueryableScope(query);
+
+        return BuildScopeFilter(query);
+    }
+
+    /// <summary>
     ///     Returns a filter clause that scopes results to the tenant/workspace/project in
     ///     <paramref name="query" /> and excludes unassigned policy-pack corpora.
     /// </summary>

@@ -90,6 +90,30 @@ public class ArchLucidAuthOptions
     } = "Admin";
 
     /// <summary>
+    ///     DevelopmentBypass tenant scope claim. When unset, <see cref="Core.Scoping.ScopeIds.DefaultTenant" /> is used
+    ///     so local hosts do not rely on client <c>x-tenant-id</c> headers alone (TB-072).
+    /// </summary>
+    public Guid? DevTenantId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>DevelopmentBypass workspace scope claim; defaults to <see cref="Core.Scoping.ScopeIds.DefaultWorkspace" />.</summary>
+    public Guid? DevWorkspaceId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>DevelopmentBypass project scope claim; defaults to <see cref="Core.Scoping.ScopeIds.DefaultProject" />.</summary>
+    public Guid? DevProjectId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     Path to a PEM file containing an RSA <strong>public</strong> key for JWT signature validation.
     ///     When set, OIDC metadata from <see cref="Authority" /> is not used (CI / local signing-key E2E only).
     /// </summary>

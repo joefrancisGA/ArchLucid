@@ -14,6 +14,30 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
     private static readonly Guid ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [Fact]
+    public void EnsureQueryableScope_throws_when_tenant_scope_missing()
+    {
+        RetrievalQuery query = BaseQuery(includePlatform: false);
+        query.TenantId = Guid.Empty;
+
+        Action act = () => AzureSearchTenantScopeFilterBuilder.EnsureQueryableScope(query);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*tenant scope*");
+    }
+
+    [Fact]
+    public void BuildRequiredScopeFilter_includes_tenant_workspace_project()
+    {
+        RetrievalQuery query = BaseQuery(includePlatform: false);
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query);
+
+        filter.Should().Contain($"tenantId eq '{TenantId:D}'");
+        filter.Should().Contain($"workspaceId eq '{WorkspaceId:D}'");
+        filter.Should().Contain($"projectId eq '{ProjectId:D}'");
+    }
+
+    [Fact]
     public void BuildScopeFilter_includes_tenant_workspace_project()
     {
         RetrievalQuery query = BaseQuery(includePlatform: false);

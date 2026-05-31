@@ -19,8 +19,8 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     protected const string GovernanceSubmitterId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
     /// <summary>
-    ///     DevelopmentBypass authentication does not emit <c>tenant_id</c> claims; scope headers align the client with
-    ///     <see cref="ScopeIds" /> defaults so SQL-backed <c>CommercialTenantTierFilter</c> can resolve <c>dbo.Tenants</c>.
+    ///     DevelopmentBypass authentication emits <c>tenant_id</c> scope claims (TB-072); scope headers align the client
+    ///     with <see cref="ScopeIds" /> defaults so SQL-backed <c>CommercialTenantTierFilter</c> can resolve <c>dbo.Tenants</c>.
     /// </summary>
     protected readonly HttpClient Client = CreateClientWithDefaultScopeHeaders(factory);
 

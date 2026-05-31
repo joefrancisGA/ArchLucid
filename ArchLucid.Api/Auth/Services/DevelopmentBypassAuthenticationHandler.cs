@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Auth.Services;
 
-public sealed class DevelopmentBypassAuthenticationHandler(
+public class DevelopmentBypassAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
@@ -55,12 +56,19 @@ public sealed class DevelopmentBypassAuthenticationHandler(
             }
         }
 
+        Guid tenantId = opts.DevTenantId ?? ScopeIds.DefaultTenant;
+        Guid workspaceId = opts.DevWorkspaceId ?? ScopeIds.DefaultWorkspace;
+        Guid projectId = opts.DevProjectId ?? ScopeIds.DefaultProject;
+
         List<Claim> claims =
         [
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Name, userName),
             new("oid", userId),
-            new(ClaimTypes.Role, role)
+            new(ClaimTypes.Role, role),
+            new("tenant_id", tenantId.ToString("D")),
+            new("workspace_id", workspaceId.ToString("D")),
+            new("project_id", projectId.ToString("D"))
         ];
 
         ClaimsIdentity identity = new(claims, SchemeName);

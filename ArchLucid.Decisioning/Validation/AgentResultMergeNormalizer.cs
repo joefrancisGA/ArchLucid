@@ -51,26 +51,54 @@ public static class AgentResultMergeNormalizer
         proposal.RequiredControls ??= [];
         proposal.Warnings ??= [];
 
+        // Repair services: cross-fill name ↔ id, then drop only if both are empty.
+        // The schema requires serviceName minLength: 1. When only one field is present, derive the other.
         foreach (ManifestService service in proposal.AddedServices)
         {
-            if (string.IsNullOrWhiteSpace(service.ServiceId))
-                service.ServiceId = !string.IsNullOrWhiteSpace(service.ServiceName)
-                    ? service.ServiceName.Trim()
-                    : Guid.NewGuid().ToString("N");
+            bool hasName = !string.IsNullOrWhiteSpace(service.ServiceName);
+            bool hasId = !string.IsNullOrWhiteSpace(service.ServiceId);
+
+            if (hasName && !hasId)
+                service.ServiceId = service.ServiceName.Trim();
+            else if (!hasName && hasId)
+                service.ServiceName = service.ServiceId.Trim();
         }
 
+        proposal.AddedServices = proposal.AddedServices
+            .Where(s => !string.IsNullOrWhiteSpace(s.ServiceName))
+            .ToList();
+
+        // Repair datastores: cross-fill name ↔ id, then drop only if both are empty.
         foreach (ManifestDatastore datastore in proposal.AddedDatastores)
         {
-            if (string.IsNullOrWhiteSpace(datastore.DatastoreId))
-                datastore.DatastoreId = !string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                    ? datastore.DatastoreName.Trim()
-                    : Guid.NewGuid().ToString("N");
+            bool hasName = !string.IsNullOrWhiteSpace(datastore.DatastoreName);
+            bool hasId = !string.IsNullOrWhiteSpace(datastore.DatastoreId);
+
+            if (hasName && !hasId)
+                datastore.DatastoreId = datastore.DatastoreName.Trim();
+            else if (!hasName && hasId)
+                datastore.DatastoreName = datastore.DatastoreId.Trim();
         }
+
+        proposal.AddedDatastores = proposal.AddedDatastores
+            .Where(d => !string.IsNullOrWhiteSpace(d.DatastoreName))
+            .ToList();
+
+        // Drop relationships missing source/target — they cannot be resolved in the merge graph.
+        proposal.AddedRelationships = proposal.AddedRelationships
+            .Where(r => !string.IsNullOrWhiteSpace(r.SourceId) && !string.IsNullOrWhiteSpace(r.TargetId))
+            .ToList();
 
         foreach (ManifestRelationship relationship in proposal.AddedRelationships)
         {
             if (string.IsNullOrWhiteSpace(relationship.RelationshipId))
                 relationship.RelationshipId = Guid.NewGuid().ToString("N");
+
+            // JsonStringEnumConverter (registered before RelationshipTypeJsonConverter) serializes
+            // undefined enum values as their raw integer, which fails the schema's string enum
+            // constraint. Coerce any undefined value to Calls so the wire document stays valid.
+            if (!Enum.IsDefined(relationship.RelationshipType))
+                relationship.RelationshipType = RelationshipType.Calls;
         }
     }
 }

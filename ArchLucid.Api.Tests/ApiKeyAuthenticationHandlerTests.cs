@@ -69,6 +69,36 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     [SkippableFact]
+    public async Task When_scope_ids_configured_emits_tenant_workspace_and_project_claims()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "secret-admin");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["Authentication:ApiKey:TenantId"] = tenantId.ToString("D"),
+                ["Authentication:ApiKey:WorkspaceId"] = workspaceId.ToString("D"),
+                ["Authentication:ApiKey:ProjectId"] = projectId.ToString("D")
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst("tenant_id")?.Value.Should().Be(tenantId.ToString("D"));
+        result.Principal?.FindFirst("workspace_id")?.Value.Should().Be(workspaceId.ToString("D"));
+        result.Principal?.FindFirst("project_id")?.Value.Should().Be(projectId.ToString("D"));
+    }
+
+    [SkippableFact]
     public async Task When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates()
     {
         DefaultHttpContext httpFirst = new();

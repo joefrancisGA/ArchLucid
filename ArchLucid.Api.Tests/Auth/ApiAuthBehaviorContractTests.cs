@@ -62,6 +62,8 @@ public sealed class ApiAuthBehaviorContractTests
         text.Should().Contain("fail closed", because: "ApiKey disabled posture must be documented");
         text.Should().Contain("X-Api-Key");
         text.Should().Contain("Authentication:ApiKey:Enabled");
+        text.Should().Contain("ScopeIdentityBindingMiddleware");
+        text.Should().Contain("Authentication:ApiKey:TenantId");
     }
 
     private static void AssertSchemeForMode(string mode, string expectedScheme)

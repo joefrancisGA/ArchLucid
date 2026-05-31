@@ -78,6 +78,8 @@ export type RunDetailPageHeaderProps = {
   /** Buyer-polished: one sentence beside the finalized pipeline pill. */
   buyerHeaderStatusCaption?: string | null;
   commitBlockedReason?: string | null;
+  /** Open governance alerts linked to this review (TB-107). */
+  hasGovernanceWarnings?: boolean;
 };
 
 /**
@@ -92,6 +94,7 @@ export function RunDetailPageHeader({
   buyerGovernanceApprovalLabel,
   buyerHeaderStatusCaption,
   commitBlockedReason,
+  hasGovernanceWarnings,
 }: RunDetailPageHeaderProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const finalizedBuyerChrome = buyerPolishedShell === true && hasGoldenManifest === true;
@@ -203,6 +206,15 @@ export function RunDetailPageHeader({
                 Finalize package
                 <ContextualHelp helpKey="commit-manifest" />
               </p>
+              {hasGovernanceWarnings === true ? (
+                <Badge
+                  variant="outline"
+                  className="w-fit font-normal text-amber-900 dark:text-amber-200"
+                  data-testid="run-detail-commit-governance-warning-badge"
+                >
+                  Governance warnings
+                </Badge>
+              ) : null}
               <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
               {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
               <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
@@ -217,6 +229,15 @@ export function RunDetailPageHeader({
               Finalize
               <ContextualHelp helpKey="commit-manifest" />
             </p>
+            {hasGovernanceWarnings === true ? (
+              <Badge
+                variant="outline"
+                className="w-fit font-normal text-amber-900 dark:text-amber-200"
+                data-testid="run-detail-commit-governance-warning-badge"
+              >
+                Governance warnings
+              </Badge>
+            ) : null}
             <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
             {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
             <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">

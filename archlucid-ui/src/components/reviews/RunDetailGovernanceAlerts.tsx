@@ -8,8 +8,8 @@ type RunDetailGovernanceAlertsProps = {
 /** Surfaces governance warnings and last failure before commit (TB-107). */
 export function RunDetailGovernanceAlerts(props: RunDetailGovernanceAlertsProps): React.JSX.Element | null {
   const { run } = props;
-  const hasGovernanceWarnings = (run as { hasGovernanceWarnings?: boolean }).hasGovernanceWarnings === true;
-  const lastFailureReason = (run as { lastFailureReason?: string | null }).lastFailureReason?.trim();
+  const hasGovernanceWarnings = run.hasGovernanceWarnings === true;
+  const lastFailureReason = run.lastFailureReason?.trim();
 
   if (!hasGovernanceWarnings && !lastFailureReason) {
     return null;
