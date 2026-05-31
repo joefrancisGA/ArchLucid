@@ -1,5 +1,5 @@
 {
-  "discoveredRouteCount": 195,
+  "discoveredRouteCount": 197,
   "formatVersion": "1.0",
   "routes": {
     "DELETE /scim/v2/Users/{id}": "naturally-idempotent",
@@ -130,7 +130,9 @@
     "POST /v1/governance/policy-packs/{id}/dry-run": "explicit-idempotency-key",
     "POST /v1/governance/pre-commit/simulate": "unclassified",
     "POST /v1/governance/promotions": "dry-run-no-persist",
+    "POST /v1/governance/recurrence-schedules": "unclassified",
     "POST /v1/governance/risk-exceptions": "unclassified",
+    "POST /v1/governance/risk-exceptions/{riskExceptionId}/renew": "unclassified",
     "POST /v1/governance/risk-exceptions/{riskExceptionId}/revoke": "unclassified",
     "POST /v1/governance/simulate": "unclassified",
     "POST /v1/integrations/itsm/correlations": "unclassified",
@@ -198,5 +200,5 @@
     "PUT /v1/tenant/core-pilot-checklist": "naturally-idempotent",
     "PUT /v1/tenant/cost-settings": "naturally-idempotent"
   },
-  "unclassifiedRouteCount": 114
+  "unclassifiedRouteCount": 116
 }

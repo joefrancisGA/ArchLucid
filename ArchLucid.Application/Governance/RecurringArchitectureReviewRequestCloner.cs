@@ -1,7 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Governance;
 
