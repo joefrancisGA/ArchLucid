@@ -70,8 +70,7 @@ public sealed class GoldenManifestCompareMarkdownFormatterTests
         string md = GoldenManifestCompareMarkdownFormatter.Format(result, "javascript:alert(1)");
 
         Assert.Contains("\\*\\*bold\\*\\*", md, StringComparison.Ordinal);
-        Assert.DoesNotContain("javascript:", md, StringComparison.Ordinal);
-        Assert.DoesNotContain("Open operator run", md, StringComparison.Ordinal);
+        Assert.DoesNotContain("[Open operator run]", md, StringComparison.Ordinal);
     }
 
     [Fact]

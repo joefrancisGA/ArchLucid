@@ -265,7 +265,12 @@ function RunIdQuickOpen({
  * Uses **`listNavGroupsVisibleInOperatorShell`** (tier → authority, omit empty groups) — same as sidebar and mobile drawer.
  * Optional run UUID quick-open is unchanged.
  */
-export function CommandPalette() {
+export type CommandPaletteProps = {
+  /** When false, only the dialog and keyboard shortcut are rendered (header uses GlobalSearchBar for the visible affordance). */
+  readonly showTrigger?: boolean;
+};
+
+export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -371,46 +376,48 @@ export function CommandPalette() {
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className={
-              buyerPolishedShell
-                ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-                : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
-            }
-            aria-label={
-              buyerPolishedShell
-                ? commandPaletteOpenAriaLabel(polishedPaletteLabel)
-                : commandPaletteOpenAriaLabel("Open command palette")
-            }
-            aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
-            onClick={() => {
-              setOpen(true);
-            }}
-          >
-            {buyerPolishedShell ? (
-              <>
-                <span className="truncate">{polishedPaletteLabel}</span>
-                <KeyboardShortcutBadge className="shrink-0" />
-              </>
-            ) : (
-              <>
-                <KeyboardShortcutBadge />
-                <span>Search</span>
-              </>
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent sideOffset={6}>
-          {buyerPolishedShell
-            ? commandPaletteTooltipLine(`${polishedPaletteLabel} to jump destinations and documentation`)
-            : commandPaletteTooltipLine("Search pages")}
-        </TooltipContent>
-      </Tooltip>
+      {showTrigger ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className={
+                buyerPolishedShell
+                  ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                  : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
+              }
+              aria-label={
+                buyerPolishedShell
+                  ? commandPaletteOpenAriaLabel(polishedPaletteLabel)
+                  : commandPaletteOpenAriaLabel("Open command palette")
+              }
+              aria-keyshortcuts={COMMAND_PALETTE_ARIA_KEYSHORTCUTS}
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              {buyerPolishedShell ? (
+                <>
+                  <span className="truncate">{polishedPaletteLabel}</span>
+                  <KeyboardShortcutBadge className="shrink-0" />
+                </>
+              ) : (
+                <>
+                  <KeyboardShortcutBadge />
+                  <span>Search</span>
+                </>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent sideOffset={6}>
+            {buyerPolishedShell
+              ? commandPaletteTooltipLine(`${polishedPaletteLabel} to jump destinations and documentation`)
+              : commandPaletteTooltipLine("Search pages")}
+          </TooltipContent>
+        </Tooltip>
+      ) : null}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
         <CommandList>

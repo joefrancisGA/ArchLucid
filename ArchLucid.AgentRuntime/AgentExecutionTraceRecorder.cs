@@ -95,10 +95,18 @@ public sealed class AgentExecutionTraceRecorder(
         string? modelVersion = null,
         bool isSimulatorExecution = false,
         string? failureReasonCode = null,
+        float? completionTemperature = null,
+        int? maxCompletionTokens = null,
+        float? completionTopP = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
+
+        AgentCompletionRequestParams.TryConsume(
+            out float? ambientTemperature,
+            out int? ambientMaxCompletionTokens,
+            out float? ambientTopP);
 
         int inTok = inputTokenCount ?? 0;
         int outTok = outputTokenCount ?? 0;
@@ -165,6 +173,10 @@ public sealed class AgentExecutionTraceRecorder(
             PromptReleaseLabel = promptRepro?.ReleaseLabel,
             InputTokenCount = inputTokenCount,
             OutputTokenCount = outputTokenCount,
+            ReasoningTokenCount = reasoningTokenCount is > 0 ? reasoningTokenCount : null,
+            CompletionTemperature = completionTemperature ?? ambientTemperature,
+            MaxCompletionTokens = maxCompletionTokens ?? ambientMaxCompletionTokens,
+            CompletionTopP = completionTopP ?? ambientTopP,
             EstimatedCostUsd = estimated,
             ModelDeploymentName = resolvedDeployment,
             ModelVersion = resolvedVersion,

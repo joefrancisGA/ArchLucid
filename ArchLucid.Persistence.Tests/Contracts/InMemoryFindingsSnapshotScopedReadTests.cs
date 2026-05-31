@@ -99,6 +99,6 @@ public sealed class InMemoryFindingsSnapshotScopedReadTests
             orderByPriority: false,
             CancellationToken.None);
 
-        page.Records.Should().BeEmpty();
+        page.Items.Should().BeEmpty();
     }
 }

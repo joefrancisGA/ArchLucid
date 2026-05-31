@@ -71,4 +71,25 @@ public sealed class GraphSnapshotDocument
         get;
         set;
     } = "[]";
+
+    [JsonPropertyName("tenantId")]
+    public string TenantId
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    [JsonPropertyName("workspaceId")]
+    public string WorkspaceId
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    [JsonPropertyName("projectId")]
+    public string ProjectId
+    {
+        get;
+        set;
+    } = string.Empty;
 }

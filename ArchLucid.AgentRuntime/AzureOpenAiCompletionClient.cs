@@ -232,6 +232,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
         LlmCompletionTokenUsageAmbient.Clear();
+        LlmCompletionRequestParamsAmbient.Clear();
         LastModelMetadata.Value = null;
 
         bool completionSucceededForTelemetry = false;
@@ -352,6 +353,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
         LlmCompletionTokenUsageAmbient.Clear();
+        LlmCompletionRequestParamsAmbient.Clear();
         LastModelMetadata.Value = null;
 
         bool completionSucceededForTelemetry = false;
@@ -525,10 +527,15 @@ public sealed class AzureOpenAiCompletionClient : IAgentStreamingCompletionClien
 
     private ChatCompletionOptions CreateCompletionOptions(ChatResponseFormat format, int? maxTokens, float? temperature)
     {
+        float resolvedTemperature = temperature ?? 0.1f;
+        int resolvedMaxOutputTokens = maxTokens ?? _maxOutputTokens;
+
+        LlmCompletionRequestParamsAmbient.Record(resolvedTemperature, resolvedMaxOutputTokens);
+
         return new ChatCompletionOptions
         {
-            Temperature = temperature ?? 0.1f,
-            MaxOutputTokenCount = maxTokens ?? _maxOutputTokens,
+            Temperature = resolvedTemperature,
+            MaxOutputTokenCount = resolvedMaxOutputTokens,
             ResponseFormat = format
         };
     }

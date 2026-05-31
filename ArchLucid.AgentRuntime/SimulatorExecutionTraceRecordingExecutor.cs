@@ -80,7 +80,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 AgentExecutionTraceModelMetadata.SimulatorModelVersion,
                 true,
                 null,
-                cancellationToken);
+                cancellationToken: cancellationToken);
         }
 
         return results;

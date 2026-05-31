@@ -163,6 +163,34 @@ public sealed class AgentExecutionTrace
         set;
     }
 
+    /// <summary>Reasoning token count from the provider when reported separately from completion tokens (TB-033).</summary>
+    public int? ReasoningTokenCount
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Temperature sent to the completion client for this call, when recorded (TB-033).</summary>
+    public float? CompletionTemperature
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Max output tokens sent to the completion client for this call, when recorded (TB-033).</summary>
+    public int? MaxCompletionTokens
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Top-p sent to the completion client when explicitly configured (TB-033).</summary>
+    public float? CompletionTopP
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optional estimated USD cost from input/output token counts when cost estimation is enabled in the recorder.</summary>
     public decimal? EstimatedCostUsd
     {

@@ -118,6 +118,14 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/library/CONFIGURATION_REFERENCE.md"],
   },
   {
+    slug: "accelerator-chooser",
+    title: "Accelerator chooser",
+    summary:
+      "Map buyer jobs to existing starter proof packs after Core Pilot first commit — inputs, outputs, and V1 scope labels.",
+    audience: "operator",
+    sourcePaths: ["docs/library/ACCELERATOR_CHOOSER.md"],
+  },
+  {
     slug: "specialty-walkthroughs",
     title: "Specialty walkthrough templates",
     summary: "Optional Azure SaaS, AI governance, and healthcare templates after first commit — not required for core pilot.",
