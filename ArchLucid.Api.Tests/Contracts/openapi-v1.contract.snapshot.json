@@ -1028,6 +1028,24 @@
               "array"
             ]
           },
+          "completionTemperature": {
+            "format": "float",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "completionTopP": {
+            "format": "float",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -1102,6 +1120,13 @@
               "integer"
             ]
           },
+          "maxCompletionTokens": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "modelDeploymentName": {
             "type": [
               "null",
@@ -1162,6 +1187,13 @@
           },
           "rawResponse": {
             "type": "string"
+          },
+          "reasoningTokenCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "runId": {
             "type": "string"
@@ -7364,6 +7396,19 @@
         },
         "type": "object"
       },
+      "ExecutiveBusinessImpactCategoryCounts": {
+        "properties": {
+          "reliabilityThemeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "securityComplianceThemeCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "ExecutiveOrphanCandidateSummary": {
         "properties": {
           "annualSavingsUsd": {
@@ -7624,6 +7669,16 @@
               },
               {
                 "$ref": "#/components/schemas/ExecutiveRoiBasisBreakdown"
+              }
+            ]
+          },
+          "businessImpactCategoryCounts": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExecutiveBusinessImpactCategoryCounts"
               }
             ]
           },

@@ -54793,6 +54793,14 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("citations")]
         public System.Collections.Generic.ICollection<Citation>? Citations { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("completionTemperature")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public float? CompletionTemperature { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("completionTopP")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public float? CompletionTopP { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
@@ -54830,6 +54838,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("inputTokenCount")]
         public int? InputTokenCount { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("maxCompletionTokens")]
+        public int? MaxCompletionTokens { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("modelDeploymentName")]
         public string? ModelDeploymentName { get; set; } = default!;
 
@@ -54865,6 +54876,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("rawResponse")]
         public string? RawResponse { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("reasoningTokenCount")]
+        public int? ReasoningTokenCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public string? RunId { get; set; } = default!;
@@ -61192,6 +61206,27 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ExecutiveBusinessImpactCategoryCounts
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("reliabilityThemeCount")]
+        public int? ReliabilityThemeCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("securityComplianceThemeCount")]
+        public int? SecurityComplianceThemeCount { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ExecutiveOrphanCandidateSummary
     {
 
@@ -61442,6 +61477,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("basisBreakdown")]
         public ExecutiveRoiBasisBreakdown? BasisBreakdown { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("businessImpactCategoryCounts")]
+        public ExecutiveBusinessImpactCategoryCounts? BusinessImpactCategoryCounts { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("costEvidenceFreshnessStatus")]
         public string? CostEvidenceFreshnessStatus { get; set; } = default!;
