@@ -100,7 +100,7 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
   if (commitBlockedReason !== null && commitBlockedReason.trim().length > 0) {
     return (
       <div
-        className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-950 dark:border-red-800 dark:bg-red-950/40 dark:text-red-50"
+        className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-4 text-sm"
         data-testid="commit-blocked-finding-coverage"
         role="alert"
       >
@@ -139,7 +139,7 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
           {error.problem?.blockExplanation !== undefined &&
           error.problem.blockExplanation.trim().length > 0 ? (
             <div
-              className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-50"
+              className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4 text-sm"
               data-testid="commit-governance-block-explanation"
             >
               <p className="m-0 font-semibold">Why governance blocked finalization</p>

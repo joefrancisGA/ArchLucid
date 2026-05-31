@@ -12,7 +12,7 @@ export function OperatorSecurityTrustPageView() {
 
       <section aria-label="Available now" className="space-y-3">
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+          <span className="inline-flex rounded-full border border-emerald-700/40 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-emerald-800/50">
             Available now
           </span>
           <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
@@ -42,14 +42,14 @@ export function OperatorSecurityTrustPageView() {
 
       <section aria-label="Under NDA" className="space-y-3">
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-semibold text-sky-800 dark:bg-sky-900/50 dark:text-sky-300">
+          <span className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600">
             Under NDA
           </span>
           <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
             Third-party security assessments
           </h2>
         </div>
-        <div className="rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40">
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3">
           <p className="m-0 text-sm text-sky-950/90 dark:text-sky-100/90">
             Pen-test redacted summaries are shared <strong>under NDA only</strong>. The public Trust Center records engagement
             existence and high-level posture. To request the most recent redacted summary, email{" "}

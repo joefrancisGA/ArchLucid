@@ -116,7 +116,7 @@ export function ArtifactListTable(props: {
       return (
         <tr
           key={artifact.artifactId}
-          className={`border-b border-neutral-100 dark:border-neutral-800 ${isCurrent ? "bg-blue-50 dark:bg-blue-950/30" : ""}`}
+          className={`border-b border-neutral-100 dark:border-neutral-800 ${isCurrent ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""}`}
           title={sponsorMode ? undefined : `Content hash: ${artifact.contentHash}`}
         >
           <td className="max-w-[280px] px-2 py-2.5">

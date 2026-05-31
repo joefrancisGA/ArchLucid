@@ -74,7 +74,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
     <aside
       aria-label="First-week guidance"
       data-testid={`first-week-route-guidance-${props.variant}`}
-      className="max-w-prose rounded-md border border-teal-200/90 bg-teal-50/60 px-3 py-2.5 text-sm leading-snug text-neutral-800 dark:border-teal-900/70 dark:bg-teal-950/25 dark:text-neutral-200"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 text-sm leading-snug"
     >
       <p className="m-0">
         <span className="font-semibold text-teal-900 dark:text-teal-200">Use this when:</span> {config.useWhen}

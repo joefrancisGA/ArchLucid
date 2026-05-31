@@ -24,7 +24,7 @@ export function SampleReviewPackageSummary({
   return (
     <section
       aria-labelledby="sample-review-package-summary-heading"
-      className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4"
     >
       <p className="m-0 text-xs font-semibold uppercase tracking-wide">Sample first-value summary</p>
       <h2 id="sample-review-package-summary-heading" className="m-0 mt-1 text-lg font-semibold">

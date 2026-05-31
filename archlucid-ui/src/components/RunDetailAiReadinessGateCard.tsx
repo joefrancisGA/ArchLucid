@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { operatorSemanticSurface } from "@/lib/design-tokens";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { cn } from "@/lib/utils";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   isAgentOutputPilotStrictSponsorSafe,
@@ -79,7 +81,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
   if (state === "error" || payload === null) {
     return (
       <div
-        className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-950/40"
+        className={cn("mb-4 px-4 py-3 text-sm", operatorSemanticSurface("warn"))}
         data-testid="run-detail-ai-readiness-gate-error"
       >
         AI readiness signals could not be loaded. Review the first-value Markdown report before sponsor send.
@@ -93,11 +95,10 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
 
   return (
     <div
-      className={`mb-4 rounded-lg border px-4 py-3 text-sm ${
-        pilotStrictOk
-          ? "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
-          : "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
-      }`}
+      className={cn(
+        "mb-4 px-4 py-3 text-sm",
+        pilotStrictOk ? operatorSemanticSurface("ready") : operatorSemanticSurface("warn"),
+      )}
       data-testid="run-detail-ai-readiness-gate"
     >
       <p className="m-0 font-semibold">

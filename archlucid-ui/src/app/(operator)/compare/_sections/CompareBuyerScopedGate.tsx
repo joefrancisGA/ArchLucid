@@ -14,7 +14,7 @@ export function CompareBuyerScopedGate(props: CompareBuyerScopedGateProps) {
 
   return (
     <section
-      className="mb-4 max-w-3xl rounded-lg border border-teal-200/80 bg-teal-50/55 p-4 dark:border-teal-900/50 dark:bg-teal-950/30"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 max-w-3xl p-4"
       data-testid="compare-buyer-scoped-gate"
       aria-labelledby="compare-buyer-scoped-gate-heading"
     >

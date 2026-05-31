@@ -504,7 +504,7 @@ export function GovernanceWorkflowPageContent() {
       {showBuyerApprovalStory ? (
         <>
           <p
-            className="mb-4 max-w-prose rounded-xl border-2 border-teal-600/70 bg-teal-50/70 px-4 py-3 text-sm font-semibold leading-snug text-neutral-950 shadow-sm dark:border-teal-500/50 dark:bg-teal-950/40 dark:text-neutral-50"
+            className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 max-w-prose px-4 py-3 text-sm font-semibold leading-snug shadow-sm"
             data-testid="governance-buyer-approval-record-lead"
           >
             {BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD}
@@ -548,8 +548,8 @@ export function GovernanceWorkflowPageContent() {
           className={cn(
             "fixed bottom-6 right-6 z-50 max-w-sm rounded-lg px-4 py-3 text-sm shadow-lg",
             toast.kind === "ok"
-              ? "border border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-100"
-              : "border border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/80 dark:text-red-100",
+              ? "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50 border"
+              : "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 border",
           )}
         >
           {toast.message}

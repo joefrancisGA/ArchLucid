@@ -366,7 +366,7 @@ export function AskPageContent() {
       />
       {buyerPolishedShell ? (
         <p
-          className="mb-2 rounded-md border border-teal-200/80 bg-teal-50/70 px-3 py-2 text-sm font-medium text-teal-950 dark:border-teal-900 dark:bg-teal-950/35 dark:text-teal-50"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-2 px-3 py-2 text-sm font-medium"
           data-testid="ask-buyer-scope-banner"
         >
           Scoped to {buyerFacingReviewLinkLabelFromRunId(runId.trim())}

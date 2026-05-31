@@ -365,7 +365,7 @@ export function AlertsInboxContent() {
 
       {buyerPolishedShell && shouldMergeOperatorDemoAlertSample() ? (
         <div
-          className="mb-4 max-w-prose rounded-md border border-teal-200 bg-teal-50/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 max-w-prose px-3 py-2 text-sm"
           role="status"
         >
           <strong className="font-semibold">Sample inbox.</strong> This alert ties drift detection to the PHI minimization
@@ -686,7 +686,7 @@ export function AlertsInboxContent() {
                             type="button"
                             size="sm"
                             variant="outline"
-                            className="w-full border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
+                            className="w-full border-rose-600/40 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-rose-800/50"
                             title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
                             onClick={() => {
                               setPendingAction({ alertId: alert.alertId, action: "Suppress" });

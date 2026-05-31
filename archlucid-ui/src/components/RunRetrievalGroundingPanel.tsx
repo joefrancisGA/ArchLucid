@@ -87,7 +87,7 @@ export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProp
         {!failure && degraded ? (
           <div
             role="status"
-            className="mb-3 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2.5 text-sm text-amber-800 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-300"
+            className="mb-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2.5 text-sm"
           >
             Some persisted retrieval metadata could not be parsed. Chunk ids and coverage remain available where recorded.
           </div>

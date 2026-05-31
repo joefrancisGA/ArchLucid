@@ -14,7 +14,7 @@ export function CompareDemoQuickPick(props: CompareDemoQuickPickProps) {
       <div className="mb-4 grid max-w-3xl gap-3 sm:grid-cols-2">
         <button
           type="button"
-          className="rounded-lg border border-teal-200 bg-teal-50/80 p-4 text-left text-sm shadow-sm transition hover:border-teal-400 hover:bg-teal-50 dark:border-teal-900 dark:bg-teal-950/40 dark:hover:border-teal-700"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 text-left text-sm shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-600"
           onClick={onPickClaimsIntake}
         >
           <span className="block font-semibold text-neutral-900 dark:text-neutral-100">

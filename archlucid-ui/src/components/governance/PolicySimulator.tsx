@@ -12,13 +12,13 @@ export type PolicySimulatorProps = {
 };
 
 const passedCardCls =
-  "rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-100";
+  "rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50 p-3 text-sm";
 
 const failedCardCls =
-  "rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-950 dark:border-red-700 dark:bg-red-950/40 dark:text-red-100";
+  "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-3 text-sm";
 
 const warningCardCls =
-  "rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100";
+  "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm";
 
 function checkList(title: string, checks: string[], tone: "passed" | "failed" | "warning"): ReactNode {
   if (checks.length === 0) {

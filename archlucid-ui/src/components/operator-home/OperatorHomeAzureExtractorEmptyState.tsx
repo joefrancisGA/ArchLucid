@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 export function OperatorHomeAzureExtractorEmptyState() {
   return (
     <div
-      className="space-y-4 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-4 dark:border-teal-900 dark:bg-teal-950/30"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-4 px-4 py-4"
       data-testid="operator-home-azure-extractor-empty-state"
     >
       <div className="flex items-start gap-3">

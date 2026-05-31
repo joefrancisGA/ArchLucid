@@ -152,7 +152,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
               className={cn(
                 "rounded border px-2 py-1 text-xs font-medium transition-colors",
                 auditDatePreset === "24h"
-                  ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
+                  ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
                   : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
               )}
               disabled={searching || loadingTypes}
@@ -167,7 +167,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
               className={cn(
                 "rounded border px-2 py-1 text-xs font-medium transition-colors",
                 auditDatePreset === "7d"
-                  ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
+                  ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
                   : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
               )}
               disabled={searching || loadingTypes}

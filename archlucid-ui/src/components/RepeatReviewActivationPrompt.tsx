@@ -51,7 +51,7 @@ export function RepeatReviewActivationPrompt(): ReactElement | null {
 
   return (
     <section aria-labelledby="repeat-review-activation-heading" data-testid="repeat-review-activation">
-      <Card className="border-teal-200/80 bg-teal-50/30 dark:border-teal-900 dark:bg-teal-950/20">
+      <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader className="pb-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2

@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { type LayerId } from "@/lib/getLayerForRoute";
+import { operatorSemanticBadge, OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const layerStripBase =
@@ -161,10 +162,10 @@ export function LayerContextStrip({
                   const current = cur !== null && idx === cur;
 
                   const chipClass = done
-                    ? "border-teal-300 bg-teal-50/90 text-teal-950 dark:border-teal-800 dark:bg-teal-950/45 dark:text-teal-100"
+                    ? operatorSemanticBadge("ready")
                     : current
-                      ? "border-teal-600 bg-white font-semibold text-teal-950 shadow-sm ring-2 ring-teal-500/40 dark:border-teal-500 dark:bg-neutral-950 dark:text-teal-50"
-                      : "border-neutral-200 bg-white/75 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/55 dark:text-neutral-400";
+                      ? cn(operatorSemanticBadge("current"), "font-semibold shadow-sm ring-2 ring-[var(--al-accent-border-focus)]/40")
+                      : cn(OPERATOR_SURFACE_CARD_CLASS, "text-al-text-secondary");
 
                   const chipInner = (
                     <>

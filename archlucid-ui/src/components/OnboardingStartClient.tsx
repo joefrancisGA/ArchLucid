@@ -143,7 +143,7 @@ export function OnboardingStartClient() {
       {error !== null && !loading && recovery !== null ? (
         <section
           aria-labelledby="onb-error-heading"
-          className="rounded-lg border border-red-200 bg-red-50/90 p-5 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-50"
+          className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-5"
           role="alert"
         >
           <h2 id="onb-error-heading" className="m-0 text-base font-semibold">
@@ -206,7 +206,7 @@ export function OnboardingStartClient() {
             </p>
           ) : null}
 
-          <div className="mt-4 rounded-md border border-teal-200 bg-teal-50/60 p-4 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-50">
+          <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-4 p-4 text-sm">
             <p className="m-0 font-medium">Optional: deploy a live sample in Azure</p>
             <p className="m-0 mt-2 leading-relaxed text-teal-900/90 dark:text-teal-100/90">
               Deploy an isolated App Service + storage footprint in your subscription, then run the Azure extractor or hosted

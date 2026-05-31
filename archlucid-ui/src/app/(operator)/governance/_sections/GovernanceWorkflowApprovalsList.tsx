@@ -236,7 +236,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                       type="button"
                       size="sm"
                       variant="outline"
-                      className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
+                      className="border-rose-600/40 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-rose-800/50"
                       disabled={!canMutateWorkflow}
                       title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                       onClick={() => {

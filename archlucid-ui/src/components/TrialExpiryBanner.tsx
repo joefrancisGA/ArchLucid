@@ -93,7 +93,7 @@ export function TrialExpiryBanner() {
       role="region"
       aria-label="Trial ending soon"
       data-testid="trial-expiry-banner"
-      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950 shadow-sm dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50"
+      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm shadow-sm"
     >
       <div className="min-w-0">
         <p className="m-0 font-semibold">

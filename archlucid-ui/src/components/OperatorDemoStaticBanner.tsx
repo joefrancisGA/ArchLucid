@@ -14,7 +14,7 @@ export function OperatorDemoStaticBanner(): ReactElement {
   if (!demoMode) {
     return (
       <div
-        className="rounded-md border border-amber-200/85 bg-amber-50/80 px-2.5 py-1 text-xs leading-snug text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+        className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-2.5 py-1 text-xs leading-snug"
         role="status"
         data-demo-static="true"
       >
@@ -31,7 +31,7 @@ export function OperatorDemoStaticBanner(): ReactElement {
       <Tooltip>
         <TooltipTrigger asChild>
           <div
-            className="rounded-md border border-teal-200/80 bg-teal-50/60 px-2.5 py-1 text-xs leading-snug text-teal-950 dark:border-teal-900/55 dark:bg-teal-950/30 dark:text-teal-50"
+            className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-2.5 py-1 text-xs leading-snug"
             role="status"
             data-demo-static="true"
           >

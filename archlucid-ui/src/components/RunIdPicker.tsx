@@ -304,7 +304,7 @@ export function RunIdPicker({
                     aria-selected={r.runId === value.trim()}
                     className={cn(
                       "flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                      r.runId === value.trim() && "bg-teal-50 dark:bg-teal-900/20",
+                      r.runId === value.trim() && "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80",
                     )}
                     onMouseDown={(e) => {
                       e.preventDefault();

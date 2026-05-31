@@ -53,7 +53,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
             >
               {formatUtc(ev.occurredUtc)}
             </time>
-            <span className="rounded-full border border-teal-300 bg-teal-50 px-2 py-0.5 text-[11px] font-medium text-teal-950 dark:border-teal-700 dark:bg-teal-950/55 dark:text-teal-100">
+            <span className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-[11px] font-medium text-al-text-primary dark:border-neutral-600">
               {pipelineEventTypeFriendlyLabel(ev.eventType)}
             </span>
           </div>
@@ -66,7 +66,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           >
             {formatUtc(ev.occurredUtc)}
           </time>
-          <span className="rounded-full border border-teal-300 bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-950 dark:border-teal-700 dark:bg-teal-950/55 dark:text-teal-100">
+          <span className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary dark:border-neutral-600">
             {pipelineEventTypeFriendlyLabel(ev.eventType)}
           </span>
         </div>

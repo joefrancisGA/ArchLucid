@@ -493,7 +493,7 @@ export function GraphViewer({
                     }
 
                     return (
-                      <p className="m-0 mt-2 rounded-md border border-amber-200/85 bg-amber-50/75 px-2.5 py-2 text-sm leading-snug text-neutral-800 dark:border-amber-900/55 dark:bg-amber-950/35 dark:text-neutral-200">
+                      <p className="m-0 mt-2 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-2.5 py-2 text-sm leading-snug">
                         <span className="font-semibold text-neutral-900 dark:text-neutral-100">Decision:</span>{" "}
                         {dispositionLine}
                       </p>
@@ -574,7 +574,7 @@ export function GraphViewer({
                   return (
                     <>
                       {summaryLines.length > 0 ? (
-                        <div className="rounded-lg border border-teal-200/70 bg-teal-50/40 p-3 dark:border-teal-800/50 dark:bg-teal-950/20">
+                        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
                           <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-400">
                             At a glance
                           </p>

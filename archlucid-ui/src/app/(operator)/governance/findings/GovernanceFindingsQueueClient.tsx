@@ -736,7 +736,7 @@ export default function GovernanceFindingsQueueClient() {
                       <td className="px-3 py-2 align-top">
                         {row.status}
                         {row.isStale ? (
-                          <span className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                          <span className="ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 text-[10px] font-semibold uppercase text-al-text-primary dark:border-amber-700/50">
                             Stale
                           </span>
                         ) : null}

@@ -68,7 +68,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
 
   if (problem !== null) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
+      <div className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4">
         <OperatorApiProblem
           problem={problem.problem}
           fallbackMessage={problem.message}

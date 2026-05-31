@@ -278,7 +278,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
 
         {comparisonNarrative !== null ? (
           <div
-            className="mb-6 rounded-lg border border-teal-300 bg-teal-50 px-4 py-3 text-sm leading-relaxed text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+            className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 text-sm leading-relaxed"
             role="status"
             data-testid="compare-ask-narrative-banner"
           >

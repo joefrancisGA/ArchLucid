@@ -33,7 +33,7 @@ export function PostCommitHabitLoopCard({
 
   return (
     <Card
-      className="border-teal-200 bg-teal-50/50 dark:border-teal-900 dark:bg-teal-950/20"
+      className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
       data-testid="post-commit-habit-loop-card"
     >
       <CardHeader className="pb-2">

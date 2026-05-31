@@ -142,7 +142,7 @@ export function RunsPageView(props: Props) {
       {loadFailure === null && !malformedMessage && m.totalCount === 0 ? (
         <>
           <div
-            className="mt-4 max-w-prose rounded-md border border-amber-200 bg-amber-50/70 px-3 py-2 text-sm leading-snug text-neutral-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-200"
+            className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-4 max-w-prose px-3 py-2 text-sm leading-snug"
             data-testid="runs-empty-core-pilot-hint"
           >
             <strong className="font-semibold">Start your first architecture review:</strong> use{" "}

@@ -282,7 +282,7 @@ export function EmailRunToSponsorBanner({
       data-testid="email-run-to-sponsor-banner"
       role="region"
       aria-label="Executive sponsor deliverables (downstream)"
-      className="mb-6 max-w-3xl rounded-md border border-teal-300 bg-teal-50 px-4 py-3 dark:border-teal-700 dark:bg-teal-950/40"
+      className="mb-6 max-w-3xl rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
     >
       <p className="m-0 flex flex-wrap items-center text-[11px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
         <span>{buyerPolishedShell ? "Downstream deliverable" : "Sponsor distribution"}</span>
@@ -353,7 +353,7 @@ export function EmailRunToSponsorBanner({
         <div
           role="alert"
           data-testid="email-run-to-sponsor-ai-readiness-gap"
-          className="mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-50"
+          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
         >
           <p className="m-0 font-semibold">AI readiness gate not satisfied</p>
           <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
@@ -367,7 +367,7 @@ export function EmailRunToSponsorBanner({
         <div
           role="alert"
           data-testid="email-run-to-sponsor-projected-dollar-gap"
-          className="mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-50"
+          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
         >
           <p className="m-0 font-semibold">Projected dollar claims not sponsor-safe</p>
           <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
@@ -384,7 +384,7 @@ export function EmailRunToSponsorBanner({
         <div
           role="alert"
           data-testid="email-run-to-sponsor-roi-baseline-gap"
-          className="mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-50"
+          className="mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
         >
           <p className="m-0 font-semibold">Missing tenant ROI baselines</p>
           <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
@@ -476,7 +476,7 @@ export function EmailRunToSponsorBanner({
           data-readiness-classification={readinessCopy.classification ?? ""}
           className={
             readinessCopy.variant === "blocked"
-              ? "mt-2 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50"
+              ? "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-2 px-3 py-2 text-sm"
               : readinessCopy.variant === "caveats"
                 ? "mt-2 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-2 text-sm text-yellow-950 dark:border-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-50"
                 : readinessCopy.variant === "ready"

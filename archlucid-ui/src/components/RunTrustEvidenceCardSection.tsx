@@ -254,7 +254,7 @@ export function RunTrustEvidenceCardSection(props: {
 
           {trimmedAskRun.length > 0 ? (
             <div
-              className="rounded-lg border border-blue-200/80 bg-blue-50/50 p-4 dark:border-blue-950/55 dark:bg-blue-950/25"
+              className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
               data-testid="trust-evidence-ask-promotion"
             >
               <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-50">

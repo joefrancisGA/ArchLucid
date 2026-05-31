@@ -100,7 +100,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
         </p>
         {buyerPolishedLayout && primaryFindingHref ? (
-          <div className="mt-3 space-y-3 rounded-lg border border-amber-200/90 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/25">
+          <div className="mt-3 space-y-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3">
             <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
               <div>
                 <dt className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
@@ -163,7 +163,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   ) : null;
 
   const diligenceAskCard = buyerPolishedLayout ? (
-    <Card id="manifest-ask" className="scroll-mt-24 border border-blue-200/80 bg-blue-50/50 shadow-sm dark:border-blue-950/60 dark:bg-blue-950/25">
+    <Card id="manifest-ask" className="scroll-mt-24 border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>
         <CardDescription>
@@ -274,7 +274,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       {showcaseBuyerManifestHeadline === true ? (
         <section
           aria-labelledby="manifest-authority-summary-heading"
-          className="rounded-xl border-2 border-teal-600/70 bg-teal-50/60 p-4 shadow-sm dark:border-teal-500/40 dark:bg-teal-950/35"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"
           data-testid="manifest-buyer-authority-summary"
         >
           <h2 id="manifest-authority-summary-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">

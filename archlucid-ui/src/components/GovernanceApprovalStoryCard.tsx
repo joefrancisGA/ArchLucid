@@ -64,7 +64,7 @@ export function GovernanceApprovalStoryCard(props: {
   return (
     <Card
       className={cn(
-        "mb-8 border-teal-200 bg-teal-50/40 dark:border-teal-900 dark:bg-teal-950/25",
+        "mb-8 border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
         emphasizeComplete && promoteReady
           ? "mb-8 border-2 border-teal-600 shadow-xl ring-1 ring-teal-500/25 dark:border-teal-500"
           : null,
@@ -117,7 +117,7 @@ export function GovernanceApprovalStoryCard(props: {
                 className={cn(
                   "min-w-0 flex-1 rounded-md border px-3 py-2 text-sm",
                   s.label === "Approved as architecture decision record" && promoteReady
-                    ? "border-teal-600 bg-teal-50/95 ring-2 ring-teal-500/30 dark:border-teal-500 dark:bg-teal-950/55"
+                    ? "border-neutral-400 bg-[var(--al-layer-hover)] ring-2 ring-[var(--al-accent-border-focus)]/30 dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-200 bg-white/90 dark:border-neutral-700 dark:bg-neutral-950/40",
                 )}
               >

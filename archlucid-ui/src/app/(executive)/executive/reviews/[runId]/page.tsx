@@ -149,7 +149,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
       </header>
 
       {failure !== null && summary === null ? (
-        <Card className="border-red-200 bg-red-50/40 dark:border-red-900 dark:bg-red-950/30">
+        <Card className="border-rose-600/40 bg-al-surface-raised dark:border-rose-800/50">
           <CardHeader className="pb-2">
             <CardDescription className="text-base font-medium text-neutral-900 dark:text-neutral-100">
               Could not load review summary

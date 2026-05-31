@@ -252,6 +252,46 @@ $replacements = [ordered]@{
     "inline-flex items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600"
   'isCurrent ? "bg-blue-50 dark:bg-blue-950/30" : ""' =
     'isCurrent ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""'
+  "rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-950/40" =
+    "$warnCallout px-4 py-3 text-sm"
+  "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100" =
+    "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700"
+  "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100" =
+    "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50"
+  "rounded-lg border border-amber-300/80 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100" =
+    "$warnCallout px-3 py-2 text-sm"
+  "rounded-xl border-2 border-teal-600/75 bg-teal-50/70 px-4 py-3 shadow-sm dark:border-teal-500/60 dark:bg-teal-950/35" =
+    "$neutralCard px-4 py-3 shadow-sm"
+  "m-0 rounded-lg border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm font-medium leading-snug text-neutral-900 dark:border-teal-900/55 dark:bg-teal-950/30 dark:text-neutral-100" =
+    "m-0 $neutralCard px-3 py-2 text-sm font-medium leading-snug"
+  "rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950 shadow-sm dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50" =
+    "$warnCallout p-3 text-sm shadow-sm"
+  "space-y-4 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-4 dark:border-teal-900 dark:bg-teal-950/30" =
+    "$neutralCard space-y-4 px-4 py-4"
+  "border-teal-600 bg-teal-50/70 dark:border-teal-500 dark:bg-teal-950/30" =
+    "border-neutral-400 bg-al-surface-raised dark:border-neutral-600"
+  "rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40" =
+    "$warnCallout p-4"
+  "rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-950 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-100" =
+    "$successCallout p-3 text-sm"
+  "rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-950 dark:border-red-700 dark:bg-red-950/40 dark:text-red-100" =
+    "$blockedCallout p-3 text-sm"
+  "rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100" =
+    "$warnCallout p-3 text-sm"
+  "rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100" =
+    "$warnCallout p-4"
+  "rounded-lg border border-red-200 bg-red-50/90 p-5 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-50" =
+    "$blockedCallout p-5"
+  "mt-4 rounded-md border border-teal-200 bg-teal-50/60 p-4 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-50" =
+    "$neutralCard mt-4 p-4 text-sm"
+  "mt-2 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50" =
+    "$warnCallout mt-2 px-3 py-2 text-sm"
+  "rounded-md border border-amber-200/85 bg-amber-50/75 px-2.5 py-2 text-sm leading-snug text-neutral-800 dark:border-amber-900/55 dark:bg-amber-950/35 dark:text-neutral-200" =
+    "$warnCallout px-2.5 py-2 text-sm leading-snug"
+  "rounded-lg border border-teal-200/70 bg-teal-50/40 p-3 dark:border-teal-800/50 dark:bg-teal-950/20" =
+    "$neutralCard p-3"
+  "bg-teal-50 dark:bg-teal-900/20" =
+    "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80"
 }
 
 $changed = 0

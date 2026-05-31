@@ -44,7 +44,7 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors",
           dragActive
-            ? "border-teal-600 bg-teal-50/70 dark:border-teal-500 dark:bg-teal-950/30"
+            ? "border-neutral-400 bg-al-surface-raised dark:border-neutral-600"
             : "border-neutral-300 bg-neutral-50/80 hover:border-neutral-400 dark:border-neutral-600 dark:bg-neutral-900/40 dark:hover:border-neutral-500",
           isDisabled && "cursor-not-allowed opacity-60",
         )}

@@ -31,8 +31,8 @@ export function SampleFirstReviewPackageCard() {
       aria-labelledby="sample-first-review-heading"
       className={
         buyerPolished === true
-          ? "rounded-xl border border-teal-200 bg-white p-4 shadow-sm dark:border-teal-900 dark:bg-neutral-950"
-          : "rounded-xl border-2 border-teal-300 bg-white p-4 shadow-md ring-1 ring-teal-100 dark:border-teal-800 dark:bg-neutral-950 dark:ring-teal-950/40"
+          ? "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"
+          : "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 border-2 p-4 shadow-md ring-1 ring-neutral-200 dark:ring-neutral-800"
       }
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -68,7 +68,7 @@ export function SampleFirstReviewPackageCard() {
           {buyerPolished === true ? (
             <>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300">
+                <span className="inline-flex items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600">
                   Approved with monitoring
                 </span>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">
@@ -83,7 +83,7 @@ export function SampleFirstReviewPackageCard() {
           ) : (
             <>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300">
+                <span className="inline-flex items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600">
                   Approved with monitoring
                 </span>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">

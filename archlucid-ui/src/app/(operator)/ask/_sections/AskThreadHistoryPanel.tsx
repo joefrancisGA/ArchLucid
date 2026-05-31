@@ -76,7 +76,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
                 className={cn(
                   "h-auto w-full justify-start whitespace-normal py-2 text-left text-sm",
                   selectedThreadId === thread.threadId &&
-                    "border border-teal-300 bg-teal-50/80 font-semibold dark:border-teal-700 dark:bg-teal-950/40",
+                    "border border-neutral-300 bg-[var(--al-layer-hover)] font-semibold dark:border-neutral-600 dark:bg-neutral-800/80",
                   selectedThreadId !== thread.threadId && "font-normal",
                 )}
                 onClick={() => void onSelectThread(thread.threadId)}

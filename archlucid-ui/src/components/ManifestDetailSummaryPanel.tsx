@@ -43,7 +43,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
 
   const operatorSummary =
     summary.operatorSummary ? (
-      <div className="rounded-lg border border-teal-100 bg-teal-50/60 px-4 py-3 dark:border-teal-900/40 dark:bg-teal-950/30">
+      <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3">
         <p className="m-0 text-sm font-medium leading-relaxed text-teal-900 dark:text-teal-100">
           {summary.operatorSummary}
         </p>
@@ -76,7 +76,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
       <section
         aria-labelledby="manifest-policy-pack-heading"
         data-testid="manifest-buyer-policy-pack-callout"
-        className="rounded-lg border border-teal-200/90 bg-teal-50/55 p-4 dark:border-teal-900/50 dark:bg-teal-950/35"
+        className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <h3 id="manifest-policy-pack-heading" className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
           Policy pack — governance guardrails
@@ -203,7 +203,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
     isCuratedDemo && !(buyerPolishedLayout ?? false) ? (
       <section
         aria-labelledby="manifest-related-finding-heading"
-        className="rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 dark:border-teal-900/50 dark:bg-teal-950/30"
+        className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <h3
           id="manifest-related-finding-heading"
@@ -361,7 +361,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Status</p>
         <p className="m-0 mt-2">
-          <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100">
+          <span className="inline-flex items-center rounded-full border border-emerald-700/40 bg-al-surface-raised px-2.5 py-0.5 text-xs font-medium text-al-text-primary dark:border-emerald-800/50">
             {manifestStatusForDisplay(summary.status)}
           </span>
         </p>

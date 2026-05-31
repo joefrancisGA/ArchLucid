@@ -118,7 +118,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
         {sameCanonicalRunIdsBlocked ? (
           <p
             role="alert"
-            className="m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+            className="m-0 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-xs"
           >
             These two selections resolve to the same review. Choose a different prior or later review to compare.
           </p>

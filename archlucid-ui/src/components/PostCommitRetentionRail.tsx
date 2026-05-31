@@ -37,7 +37,7 @@ export function PostCommitRetentionRail({
     buyerShowcaseQuickLinks && canonicalizeDemoRunId(runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
 
   return (
-    <Card className="border-teal-200 bg-teal-50/50 dark:border-teal-900 dark:bg-teal-950/20" data-testid="post-commit-retention-rail">
+    <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800" data-testid="post-commit-retention-rail">
       <CardHeader className="pb-2">
         <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Recommended next steps</h2>
         <CardDescription className="text-neutral-700 dark:text-neutral-300">

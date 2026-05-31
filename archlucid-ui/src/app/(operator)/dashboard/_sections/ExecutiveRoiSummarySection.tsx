@@ -223,7 +223,7 @@ export function ExecutiveRoiSummarySection() {
             ) : null}
           </div>
           {data.basisBreakdown ? (
-            <div className="rounded-md border border-teal-200 bg-teal-50/70 p-3 dark:border-teal-900 dark:bg-teal-950/30">
+            <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
               <div className="text-xs font-medium text-teal-800 dark:text-teal-200">Realized USD (remediated)</div>
               <div
                 className="mt-1 text-lg font-semibold tabular-nums text-teal-950 dark:text-teal-50"
@@ -239,7 +239,7 @@ export function ExecutiveRoiSummarySection() {
           ) : null}
           {shouldShowRoiCostEvidenceFreshnessWarning(data.costEvidenceFreshnessStatus) ? (
             <div
-              className="sm:col-span-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+              className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 sm:col-span-3 px-3 py-2 text-xs"
               role="alert"
               data-testid="exec-roi-cost-evidence-freshness-warning"
             >

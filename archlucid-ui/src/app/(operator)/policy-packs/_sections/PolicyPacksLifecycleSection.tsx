@@ -197,7 +197,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
         <section className="mb-8">
           <h4 className="mt-0 mb-2">Publish version</h4>
           {bundledPublishBlocked ? (
-            <p className="mb-2 max-w-prose rounded-md border border-amber-200 bg-amber-50/90 px-3 py-2 text-xs text-neutral-900 dark:border-amber-900/55 dark:bg-amber-950/40 dark:text-amber-100">
+            <p className="mb-2 max-w-prose rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-xs">
               Selected pack is <strong className="font-semibold">Bundled default (platform)</strong>: ArchLucid seeded it at tenant onboarding. Published versions upgrade with product releases —
               tenants cannot mint new SemVer revisions from Policy packs UI (API blocks republish too). Customize by copying JSON into a{" "}
               <strong className="font-semibold">Project custom</strong> pack.

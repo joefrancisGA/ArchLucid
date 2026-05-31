@@ -67,7 +67,7 @@ function renderMobileNavBlock(
                 className={cn(
                   "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                   active
-                    ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                    ? "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] font-semibold text-al-text-primary dark:bg-neutral-800/80"
                     : "text-neutral-900 dark:text-neutral-100",
                 )}
                 title={link.title}

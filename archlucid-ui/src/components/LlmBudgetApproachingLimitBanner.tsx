@@ -82,7 +82,7 @@ export function LlmBudgetApproachingLimitBanner() {
 
   return (
     <div
-      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-lg border border-amber-300/90 bg-amber-50/95 px-4 py-3 text-sm text-amber-950 shadow-sm dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50"
+      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-4 py-3 text-sm shadow-sm"
       role="alert"
       data-testid="llm-budget-approaching-limit-banner"
     >

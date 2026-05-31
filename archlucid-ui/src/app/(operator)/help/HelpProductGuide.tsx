@@ -22,7 +22,7 @@ export function HelpProductGuide() {
         Using ArchLucid
       </h2>
 
-      <Card className="border-2 border-teal-200/90 bg-teal-50/40 dark:border-teal-900/60 dark:bg-teal-950/30">
+      <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Your first review package</CardTitle>
         </CardHeader>

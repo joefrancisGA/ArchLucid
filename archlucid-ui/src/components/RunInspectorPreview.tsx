@@ -122,7 +122,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             {headline}
           </p>
           {showcaseStory && demoChrome ? (
-            <span className="inline-flex shrink-0 rounded border border-teal-200 bg-teal-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
+            <span className="inline-flex shrink-0 rounded border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-al-text-primary dark:border-neutral-600">
               Sample
             </span>
           ) : null}
@@ -165,7 +165,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       {buyerPolished && showcaseStory ? (
         <section
           aria-label="Review package outcome summary"
-          className="space-y-2 rounded-lg border border-teal-200 bg-teal-50/40 p-3 dark:border-teal-800 dark:bg-teal-950/30"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-2 p-3"
         >
           <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
           <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>

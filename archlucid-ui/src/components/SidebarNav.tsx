@@ -600,7 +600,7 @@ export function SidebarNav() {
             {buyerPolishedShell ? "Review journey" : "Quick actions"}
           </p>
           <nav
-            className="flex flex-col gap-0.5 border-l-2 border-teal-200 py-1 pl-2 dark:border-teal-900/60"
+            className="flex flex-col gap-0.5 border-l-2 border-neutral-200 py-1 pl-2 dark:border-neutral-800"
             aria-label="Quick action destinations"
           >
             {buyerPolishedShell

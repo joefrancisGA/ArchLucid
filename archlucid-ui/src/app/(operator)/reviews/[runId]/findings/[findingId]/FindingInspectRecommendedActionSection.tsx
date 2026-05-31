@@ -15,7 +15,7 @@ export type FindingInspectRecommendedActionSectionProps = {
 
 const toneSurfaces: Record<FindingInspectRecommendedActionSectionProps["tone"], string> = {
   detail:
-    "rounded-lg border border-teal-200/90 bg-teal-50/50 p-4 dark:border-teal-900 dark:bg-teal-950/30",
+    "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4",
   inspect:
     "rounded-lg border border-violet-200 bg-violet-50/70 p-4 dark:border-violet-900 dark:bg-violet-950/30",
 };

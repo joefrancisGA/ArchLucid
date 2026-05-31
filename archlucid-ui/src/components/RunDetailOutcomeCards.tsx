@@ -72,7 +72,7 @@ function DegradedFindingCoverageBanner({
 
   return (
     <div
-      className="rounded-lg border border-amber-300/80 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-100"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
       data-testid="degraded-finding-coverage-banner"
       role="status"
     >
@@ -442,7 +442,7 @@ export function RunDetailOutcomeCards({
       {dispositionPanel}
       {statusHeadline !== null ? (
         <div
-          className="rounded-xl border-2 border-teal-600/75 bg-teal-50/70 px-4 py-3 shadow-sm dark:border-teal-500/60 dark:bg-teal-950/35"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 shadow-sm"
           data-testid="buyer-review-status-headline"
           role="status"
         >
@@ -463,7 +463,7 @@ export function RunDetailOutcomeCards({
         </div>
       ) : null}
       <p
-        className="m-0 rounded-lg border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm font-medium leading-snug text-neutral-900 dark:border-teal-900/55 dark:bg-teal-950/30 dark:text-neutral-100"
+        className="m-0 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm font-medium leading-snug"
         role="status"
         data-testid="buyer-review-disposition-line"
       >

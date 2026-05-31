@@ -16,7 +16,7 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
     <>
       {buyerAuditTrailSummaryLine !== null ? (
         <div
-          className="mb-3 max-w-prose rounded-md border border-teal-200/70 bg-teal-50/50 px-3 py-3 text-sm text-neutral-800 dark:border-teal-900 dark:bg-teal-950/30 dark:text-neutral-100"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-3 max-w-prose px-3 py-3 text-sm"
           data-testid="audit-buyer-proof-narrative"
         >
           {buyerAuditTrailSummaryLine}

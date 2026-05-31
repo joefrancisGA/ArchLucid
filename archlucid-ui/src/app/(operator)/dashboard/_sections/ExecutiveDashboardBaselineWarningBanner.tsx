@@ -45,7 +45,7 @@ export function ExecutiveDashboardBaselineWarningBanner() {
 
   return (
     <div
-      className="flex flex-col gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-sm sm:flex-row sm:items-start sm:justify-between dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-100"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 flex flex-col gap-3 px-4 py-3 text-sm shadow-sm sm:flex-row sm:items-start sm:justify-between"
       role="alert"
       data-testid="executive-baseline-upload-warning-banner"
     >
@@ -72,7 +72,7 @@ export function ExecutiveDashboardBaselineWarningBanner() {
         variant="outline"
         aria-label="Dismiss baseline reminder for this session"
         data-testid="executive-baseline-upload-warning-dismiss"
-        className="shrink-0 self-end border-amber-400 bg-white text-amber-950 hover:bg-amber-100 sm:self-start dark:border-amber-700 dark:bg-transparent dark:text-amber-50 dark:hover:bg-amber-900/60"
+        className="shrink-0 self-end border-neutral-400 bg-al-surface-raised text-al-text-primary hover:bg-[var(--al-layer-hover)] sm:self-start dark:border-neutral-600"
         onClick={() => {
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem(EXECUTIVE_DASHBOARD_BASELINE_WARNING_DISMISSED_SESSION_KEY, "1");
