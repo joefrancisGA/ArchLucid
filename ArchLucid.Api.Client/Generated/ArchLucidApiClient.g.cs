@@ -70588,6 +70588,30 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RuleAuditTracePromptRef
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentType")]
+        public string? AgentType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("templateId")]
+        public string? TemplateId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("templateVersion")]
+        public string? TemplateVersion { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RuleCandidateComparisonRequest
     {
 
@@ -70895,6 +70919,48 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunAuthorityRuleAuditExplainabilitySection
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("acceptedFindingIds")]
+        public System.Collections.Generic.ICollection<string>? AcceptedFindingIds { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("appliedRuleIds")]
+        public System.Collections.Generic.ICollection<string>? AppliedRuleIds { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionTraceId")]
+        public System.Guid? DecisionTraceId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("notes")]
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("pipeline")]
+        public string? Pipeline { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("promptRefs")]
+        public System.Collections.Generic.ICollection<RuleAuditTracePromptRef>? PromptRefs { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("rejectedFindingIds")]
+        public System.Collections.Generic.ICollection<string>? RejectedFindingIds { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("ruleSetId")]
+        public string? RuleSetId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("ruleSetVersion")]
+        public string? RuleSetVersion { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunComparisonResponse
     {
 
@@ -70928,6 +70994,103 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunCoordinatorDecisionNodeExplainabilityRow
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("confidence")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? Confidence { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionId")]
+        public string? DecisionId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("opposingEvaluationIds")]
+        public System.Collections.Generic.ICollection<string>? OpposingEvaluationIds { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("pipeline")]
+        public string? Pipeline { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("rationale")]
+        public string? Rationale { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("selectedOptionId")]
+        public string? SelectedOptionId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("supportingEvaluationIds")]
+        public System.Collections.Generic.ICollection<string>? SupportingEvaluationIds { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("topic")]
+        public string? Topic { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunDecisionExplainabilityDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("authorityRuleAudit")]
+        public RunAuthorityRuleAuditExplainabilitySection? AuthorityRuleAudit { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("coordinatorDecisionNodes")]
+        public System.Collections.Generic.ICollection<RunCoordinatorDecisionNodeExplainabilityRow>? CoordinatorDecisionNodes { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingEngineFailures")]
+        public System.Collections.Generic.ICollection<RunFindingEngineFailureExplainabilityRow>? FindingEngineFailures { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifestDecisions")]
+        public System.Collections.Generic.ICollection<RunManifestDecisionExplainabilityRow>? ManifestDecisions { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifestHonestyWarnings")]
+        public System.Collections.Generic.ICollection<string>? ManifestHonestyWarnings { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("snapshotIds")]
+        public RunDecisionExplainabilitySnapshotIds? SnapshotIds { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunDecisionExplainabilitySnapshotIds
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
+        public System.Guid? ContextSnapshotId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
+        public System.Guid? FindingsSnapshotId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
+        public System.Guid? GraphSnapshotId { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunDetailDto
     {
 
@@ -70939,6 +71102,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshot")]
         public ContextSnapshot? ContextSnapshot { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionExplainability")]
+        public RunDecisionExplainabilityDto? DecisionExplainability { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTrace")]
         public DecisionTraceDto? DecisionTrace { get; set; } = default!;
@@ -71336,6 +71502,40 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunFindingEngineFailureExplainabilityRow
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("category")]
+        public string? Category { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("durationMs")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long? DurationMs { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("engineType")]
+        public string? EngineType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
+        public string? ErrorMessage { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("exceptionType")]
+        public string? ExceptionType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("occurredUtc")]
+        public System.DateTimeOffset? OccurredUtc { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunFindingListItem
     {
 
@@ -71480,6 +71680,52 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("prompt")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
         public long? Prompt { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunManifestDecisionExplainabilityRow
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("buyerConfidenceSource")]
+        public string? BuyerConfidenceSource { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("category")]
+        public string? Category { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("confidence")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? Confidence { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("confidenceSource")]
+        public string? ConfidenceSource { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionId")]
+        public string? DecisionId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("pipeline")]
+        public string? Pipeline { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("rationale")]
+        public string? Rationale { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("selectedOption")]
+        public string? SelectedOption { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("supportingFindingIds")]
+        public System.Collections.Generic.ICollection<string>? SupportingFindingIds { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("title")]
+        public string? Title { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
