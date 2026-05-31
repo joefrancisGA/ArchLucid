@@ -1,6 +1,5 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Explanation;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
 using ArchLucid.ArtifactSynthesis.Packaging;

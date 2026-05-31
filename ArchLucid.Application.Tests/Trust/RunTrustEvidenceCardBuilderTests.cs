@@ -1,5 +1,4 @@
 using ArchLucid.Application.Explanation;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
@@ -11,7 +10,6 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Trust;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;

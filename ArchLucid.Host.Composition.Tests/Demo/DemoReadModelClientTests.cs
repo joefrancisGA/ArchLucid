@@ -1,6 +1,5 @@
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Bootstrap;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Models;

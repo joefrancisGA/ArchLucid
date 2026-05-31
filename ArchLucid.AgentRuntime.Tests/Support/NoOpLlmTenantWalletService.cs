@@ -1,7 +1,6 @@
 namespace ArchLucid.AgentRuntime.Tests.Support;
 
 using ArchLucid.Core.Budgeting;
-using ArchLucid.Core.Budgeting;
 
 internal sealed class NoOpLlmTenantWalletService : ILlmTenantWalletService
 {
