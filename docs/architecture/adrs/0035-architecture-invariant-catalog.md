@@ -24,7 +24,7 @@ Separate decisions have already narrowed some areas (example: **`TB-001`** — a
 
 3. When an invariant graduates to enforced status, cite it in PR descriptions and tie tests or analyzers to the **INV** ID.
 
-4. **Concurrency with OpenAPI**: any INV that changes externally visible behaviour must follow the HTTP surface rule (canonical `GET /openapi/v1.json`, snapshot + client regen) — see [`docs/library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) and [`docs/library/OPENAPI_CONTRACT_DRIFT.md`](../library/OPENAPI_CONTRACT_DRIFT.md).
+4. **Concurrency with OpenAPI**: any INV that changes externally visible behaviour must follow the HTTP surface rule (canonical `GET /openapi/v1.json`, snapshot + client regen) — see [`docs/library/API_CONTRACTS.md`](../../library/API_CONTRACTS.md) and [`docs/library/OPENAPI_CONTRACT_DRIFT.md`](../../library/OPENAPI_CONTRACT_DRIFT.md).
 
 5. **`INV-003` default interpretation** honours **`TB-001`**: transactional vs informational audit paths remain distinct until a superseding backlog item merges.
 
