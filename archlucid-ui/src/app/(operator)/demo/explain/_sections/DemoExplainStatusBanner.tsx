@@ -10,7 +10,7 @@ export function DemoExplainStatusBanner(props: Props) {
   return (
     <div
       data-testid="demo-explain-status-banner"
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-xs"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-xs text-al-text-primary dark:border-amber-700/50"
     >
       <span className="font-semibold">{payload.demoStatusMessage}</span> · review{" "}
       <code>{payload.runId}</code>
