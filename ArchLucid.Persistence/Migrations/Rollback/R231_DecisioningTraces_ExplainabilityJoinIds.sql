@@ -1,5 +1,5 @@
 /*
-  R231: Rollback 231_DecisioningTraces_ExplainabilityJoinIds.sql — drop explainability join ids + prompt refs + warnings on authority traces.
+  R231: Rollback 231_DecisioningTraces_ExplainabilityJoinIds.sql — drop explainability join ids and JSON payloads on authority traces.
 */
 
 IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NULL
