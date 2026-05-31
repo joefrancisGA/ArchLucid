@@ -67,7 +67,7 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -96,7 +96,7 @@ jobs:
             --emit-annotations \
             ${ENFORCE_FLAG}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always() && steps.mode.outputs.mode == 'score'
         with:
           name: templates-pack-eval-summary
@@ -120,14 +120,14 @@ jobs:
             --base-url "${{ github.event.inputs.base_url }}" \
             ${REAL_MODE_FLAG}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always() && steps.mode.outputs.mode == 'score'
         with:
           name: templates-pack-eval
           path: ${{ runner.temp }}/templates-pack-eval.md
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always() && steps.mode.outputs.mode == 'capture'
         with:
           name: templates-pack-recordings
