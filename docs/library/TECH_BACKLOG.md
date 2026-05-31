@@ -5210,7 +5210,7 @@ The current UI inherits Tailwind's default palette and shadcn component defaults
 
 ## TB-115 — Surface and card audit: remove pastel cards; apply Carbon-style neutral surfaces
 
-**Status (2026-05-31):** **Done** — `operatorSemanticSurface` / `operatorSemanticBadge` / `operatorConfidenceSurface` in `design-tokens.ts`; shared proof/confidence cards migrated; `WelcomeBanner` compact enterprise banner; bulk pass via `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` (~95 files across operator, executive, marketing, `lib`, `global-error`). **Verified 2026-05-31:** `design-tokens.test.ts`, `PolicyPackDiffView.test.tsx`, demo-explain and `/why` snapshots green; decorative `bg-*-50` grep clear in app TS/TSX (remaining hits: primary CTAs `bg-teal-700`, chart/meter fills `bg-*-500`, 6px status dots). **TB-117** (operator `EnterpriseTable` migration) and **TB-118** (spacing) are follow-ups, not open pastel-card debt.
+**Status (2026-05-31):** **Done** — `operatorSemanticSurface` / `operatorSemanticBadge` / `operatorConfidenceSurface` in `design-tokens.ts`; shared proof/confidence cards migrated; `WelcomeBanner` compact enterprise banner; bulk pass via `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` (~95 files across operator, executive, marketing, `lib`, `global-error`). **Verified 2026-05-31:** `design-tokens.test.ts`, `PolicyPackDiffView.test.tsx`, demo-explain and `/why` snapshots green; decorative `bg-*-50` grep clear in app TS/TSX (remaining hits: primary CTAs `bg-teal-700`, chart/meter fills `bg-*-500`, 6px status dots). **TB-117–TB-120** completed in the same design-system wave (tables, spacing, Cursor rule).
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5288,7 +5288,7 @@ Run status, governance approval state, and finding severity are communicated thr
 
 ## TB-117 — Operator data tables: Carbon-style structured tables for runs, findings, and audit
 
-**Status (2026-05-31):** **Wave 2 landed** — governance findings desktop queue on `EnterpriseTable` + `SeverityTag`; reviews list already migrated. **Open:** audit timeline (card layout may remain).
+**Status (2026-05-31):** **Done** — `EnterpriseTable` on reviews list, governance findings desktop queue (`GovernanceFindingsQueueDesktopTable`), operator audit log (`AuditEventsOperatorTable`). Buyer-polished audit keeps milestone timeline cards; operator mode uses structured table + row payload disclosure.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5329,7 +5329,7 @@ The reviews list, findings list, and audit timeline use a mix of card-stacked ro
 
 ## TB-118 — Spacing audit: replace marketing-scale spacing with enterprise-compact spacing in operator views
 
-**Status (2026-05-31):** **Wave 2 partial** — operator home (`space-y-4` / `gap-4`), governance findings queue, finding detail/inspect shells (`p-4`); run detail and executive dashboard already compact. Residual `space-y-6` in nested cards/wizards tracked opportunistically.
+**Status (2026-05-31):** **Done (acceptance scope)** — operator home, run detail, executive dashboard (`py-4`), governance findings + decision register, finding detail/inspect, audit page (`space-y-4`). Admin/settings wizards may still use `space-y-6` where forms need breathing room; avoid new `space-y-8` / `py-8` on `(operator)/` routes.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5407,7 +5407,7 @@ Current type scale mixes marketing-scale headings (`text-2xl`, `text-3xl`) with 
 
 ## TB-120 — Add Carbon-standard Cursor rule so AI-generated UI code stays conformant
 
-**Status (2026-05-31):** **Done** — `.cursor/rules/UI-Enterprise-Design-Standard.mdc` + `archlucid-ui/AGENTS.md` cross-ref.
+**Status (2026-05-31):** **Done** — `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (globs `archlucid-ui/src/**`), wave completion table, migration script anchor; `archlucid-ui/AGENTS.md` + `UI_DESIGN_SYSTEM.md` cross-refs.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 

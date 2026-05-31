@@ -137,7 +137,7 @@ For checklist rows, proof disposition strips, and step rails, use `operatorSeman
 
 ---
 
-## Spacing convention (TB-118)
+## Spacing convention (TB-118) — done 2026-05-31
 
 Operator views (not marketing):
 
@@ -166,13 +166,15 @@ Do not use `text-2xl` / `text-3xl` on operator page titles without a documented 
 
 ---
 
-## Components (TB-116, TB-117)
+## Components (TB-116, TB-117) — done 2026-05-31
 
-| Component | Path |
-|-----------|------|
-| `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` |
-| `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` |
-| `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` |
+| Component | Path | Migrated surfaces |
+|-----------|------|-------------------|
+| `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` | Run/governance badges |
+| `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` | Findings, governance queue |
+| `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` | Reviews list, governance findings, operator audit |
+
+Cursor enforcement: `.cursor/rules/UI-Enterprise-Design-Standard.mdc` (**TB-120**).
 
 ---
 

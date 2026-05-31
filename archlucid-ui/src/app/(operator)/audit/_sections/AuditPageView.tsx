@@ -26,7 +26,7 @@ export function AuditPageView(props: AuditPageViewProps) {
     props.displayEvents.length <= 10;
 
   return (
-    <div className={buyerPolishedShell ? "max-w-6xl" : "max-w-4xl"}>
+    <div className={cn("space-y-4", buyerPolishedShell ? "max-w-6xl" : "max-w-4xl")}>
       <LayerHeader pageKey="audit" />
       <OperatorPageHeader
         title={

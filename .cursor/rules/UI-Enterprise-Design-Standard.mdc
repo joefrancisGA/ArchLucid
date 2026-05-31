@@ -1,5 +1,6 @@
 ---
 description: Carbon-inspired enterprise UI standard for archlucid-ui (TB-120)
+alwaysApply: false
 globs:
   - archlucid-ui/src/**/*.tsx
   - archlucid-ui/src/**/*.ts
@@ -38,3 +39,17 @@ Specific rules:
 
 - Tokens: `archlucid-ui/src/lib/design-tokens.ts`, `globals.css` (`--al-*`)
 - Components: `src/components/ui/status-tag.tsx`, `severity-tag.tsx`, `enterprise-table.tsx`
+- Bulk pastel migration (operator): `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` — extend patterns; do not reintroduce `bg-*-50` card fills.
+
+## Completed waves (do not regress)
+
+| ID | Scope |
+|----|--------|
+| TB-114 | Design tokens + `UI_DESIGN_SYSTEM.md` |
+| TB-115 | Neutral surfaces / semantic callouts (full repo pass) |
+| TB-116 | `StatusTag`, `SeverityTag`, pipeline `StatusPill` neutrals |
+| TB-117 | `EnterpriseTable` on reviews list, governance findings queue, operator audit log |
+| TB-118 | `space-y-4` / `p-4` on home, run detail, executive dashboard, findings, audit |
+| TB-120 | This rule + `archlucid-ui/AGENTS.md` |
+
+Buyer-polished audit **timeline cards** are intentional; operator audit uses **table** layout.

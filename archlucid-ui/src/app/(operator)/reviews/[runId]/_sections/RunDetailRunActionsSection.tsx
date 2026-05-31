@@ -33,7 +33,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
             </>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
           {manifestId ? <GenerateSponsorValueReportButton /> : null}
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" size="sm" asChild>

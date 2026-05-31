@@ -66,7 +66,7 @@ export default function DecisionRegisterClient() {
   }, [filters]);
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 p-4">
       <OperatorPageHeader
         title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
         subtitle={BUYER_GOVERNANCE_DECISION_REGISTER_LEAD}

@@ -24,8 +24,10 @@ import { BUYER_AUDIT_DOWNLOAD_CTA, BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION, BUYER_
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
+import { AuditEventsOperatorTable } from "./AuditEventsOperatorTable";
 import { AuditTimelineEventCard } from "./AuditTimelineEventCard";
 import { BuyerAuditEventsTechnicalAppendix } from "./BuyerAuditEventsTechnicalAppendix";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 
 type AuditEventGroup = { stage: string; events: AuditEvent[] };
 
@@ -118,40 +120,42 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
             {displayEventGroups !== null ? (
               <div className="space-y-4">
                 {displayEventGroups.map((group) => (
-                  <div
-                    key={group.stage}
-                    className="rounded-xl border border-neutral-200/95 bg-neutral-50/50 p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/30"
-                  >
-                    <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-neutral-200/90 pb-2 dark:border-neutral-700">
-                      <h3 className="m-0 border-l-[3px] border-teal-600/70 pl-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:border-teal-500/80 dark:text-neutral-400">
+                  <div key={group.stage} className={cn(DESIGN_TOKENS.surface.card, "p-4 shadow-sm")}>
+                    <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b border-neutral-200 pb-2 dark:border-neutral-800">
+                      <h3 className="m-0 border-l-2 border-l-[var(--al-accent-interactive)] pl-2.5 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
                         {group.stage}
                       </h3>
-                      <p className="m-0 text-[11px] font-medium tabular-nums text-neutral-500 dark:text-neutral-400">
+                      <p className="m-0 text-[11px] font-medium tabular-nums text-al-text-secondary">
                         {group.events.length} event{group.events.length === 1 ? "" : "s"}
                       </p>
                     </div>
-                    <div className={cn("mt-3", buyerPolishedShell ? "relative pl-5" : "grid gap-3")}>
-                      {buyerPolishedShell ? (
+                    {buyerPolishedShell ? (
+                      <div className="relative pl-5">
                         <div
-                          className="pointer-events-none absolute left-1.5 top-2 bottom-2 w-0.5 rounded-full bg-teal-200 dark:bg-teal-800"
+                          className="pointer-events-none absolute left-1.5 top-2 bottom-2 w-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700"
                           aria-hidden="true"
                         />
-                      ) : null}
-                      <div className={cn(buyerPolishedShell ? "grid gap-2" : "grid gap-3")}>
-                        {group.events.map((ev) => (
-                          <AuditTimelineEventCard
-                            key={ev.eventId}
-                            ev={ev}
-                            buyerPolishedShell={buyerPolishedShell}
-                            uniformRunId={uniformRunIdForDisplay}
-                          />
-                        ))}
+                        <div className="grid gap-2">
+                          {group.events.map((ev) => (
+                            <AuditTimelineEventCard
+                              key={ev.eventId}
+                              ev={ev}
+                              buyerPolishedShell={buyerPolishedShell}
+                              uniformRunId={uniformRunIdForDisplay}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <AuditEventsOperatorTable
+                        events={group.events}
+                        ariaLabel={`Audit events — ${group.stage}`}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
-            ) : (
+            ) : buyerPolishedShell ? (
               <div className="grid gap-3">
                 {displayEvents.map((ev) => (
                   <AuditTimelineEventCard
@@ -162,6 +166,8 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                   />
                 ))}
               </div>
+            ) : (
+              <AuditEventsOperatorTable events={displayEvents} ariaLabel="Audit log search results" />
             )}
             {events.length > 0 && hasMoreResults ? (
               <div className="mt-4">
@@ -182,7 +188,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
             {buyerPolishedShell && events.length > 0 ? (
               <section
                 aria-labelledby="audit-buyer-completion-heading"
-                className="mt-8 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"
+                className="mt-4 rounded-md border border-neutral-200 bg-al-surface-raised p-4 shadow-sm dark:border-neutral-800"
                 data-testid="audit-buyer-completion-card"
               >
                 <h3 id="audit-buyer-completion-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
@@ -204,7 +210,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
             ) : null}
             {buyerPolishedShell && events.length > 0 ? (
               <details
-                className="mt-6 border-t border-neutral-200 pt-2 dark:border-neutral-700"
+                className="mt-4 border-t border-neutral-200 pt-2 dark:border-neutral-700"
                 data-testid="audit-buyer-utilities-details"
               >
                 <summary className="cursor-pointer pt-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">

@@ -18,7 +18,7 @@ Key rules for every component:
 - Technical details (IDs, CLI commands, model names) are hidden behind disclosure affordances on normal surfaces.
 - Product language: *review package*, *finding*, *evidence trail*, *governance approval*, *audit trail* — not *run*, *job*, *alert* (unless it is an alert), *log*.
 
-Wave 1 Carbon primitives (**TB-114 – TB-120**, 2026-05-31): design tokens (`design-tokens.ts`, `--al-*` CSS vars), `StatusTag`, `SeverityTag`, `EnterpriseTable`, operator spacing/typography on home/run detail/dashboard/audit, Cursor rule **`.cursor/rules/UI-Enterprise-Design-Standard.mdc`**. Remaining **TB-115** surface audit (full repo pastel pass) and **TB-117** migrations (governance findings table) are follow-ups in [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
+Carbon design system (**TB-114 – TB-120**, done 2026-05-31): tokens, neutral surfaces (**TB-115**), `StatusTag` / `SeverityTag` (**TB-116**), `EnterpriseTable` on reviews / governance findings / operator audit (**TB-117**), compact spacing on procurement landing pages (**TB-118**), Cursor rule **`.cursor/rules/UI-Enterprise-Design-Standard.mdc`** (**TB-120**). Pastel migration script: `scripts/migrate-tb115-operator-surfaces.ps1`. Canonical backlog: [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
 
 ## Before large UI refactors
 

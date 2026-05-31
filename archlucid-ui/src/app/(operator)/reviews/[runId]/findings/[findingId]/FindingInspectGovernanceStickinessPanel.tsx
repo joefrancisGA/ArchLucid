@@ -173,7 +173,7 @@ export function FindingInspectGovernanceStickinessPanel({
       <CardHeader>
         <CardTitle className="text-base">Governance disposition &amp; waiver</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6 text-sm">
+      <CardContent className="space-y-4 text-sm">
         {statusMessage ? <p className="m-0 text-teal-800 dark:text-teal-300">{statusMessage}</p> : null}
         {errorMessage ? <p className="m-0 text-red-700 dark:text-red-400">{errorMessage}</p> : null}
 
