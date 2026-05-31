@@ -163,16 +163,31 @@ public sealed class CriticAgentResultGoldenJsonTests
     }
 
     [SkippableFact]
-    public void Critic_severity_invalid_enum_string_fails_deserialization()
+    public void Critic_severity_legacy_medium_label_deserializes_to_warning()
     {
         string json = MinimalCriticWireJson(includeUnknownProperties: false, usePascalRunId: false, numericAgentType: false);
-        json = json.Replace("\"severity\": \"Warning\"", "\"severity\": \"medium\"", StringComparison.Ordinal);
+        json = json.Replace("\"severity\": \"Warning\"", "\"severity\": \"not-a-severity\"", StringComparison.Ordinal);
 
         AgentResultParser sut = CreateStrictSchemaParser();
 
-        Action act = () => sut.ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
+        AgentResult parsed = sut.ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*deserialize*");
+        parsed.Findings[0].Severity.Should().Be(FindingSeverity.Warning);
+
+        AssertStructuralValidationPassesAfterHydration(json);
+    }
+
+    [SkippableFact]
+    public void Critic_severity_unknown_string_coerces_to_info_under_architecture_finding_converter()
+    {
+        string json = MinimalCriticWireJson(includeUnknownProperties: false, usePascalRunId: false, numericAgentType: false);
+        json = json.Replace("\"severity\": \"Warning\"", "\"severity\": \"not-a-valid-severity\"", StringComparison.Ordinal);
+
+        AgentResultParser sut = CreateStrictSchemaParser();
+
+        AgentResult parsed = sut.ParseAndValidate(json, RunId, TaskId, AgentType.Critic);
+
+        parsed.Findings[0].Severity.Should().Be(FindingSeverity.Info);
     }
 
     [SkippableFact]
