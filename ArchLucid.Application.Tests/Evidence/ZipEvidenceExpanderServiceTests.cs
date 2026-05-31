@@ -1,7 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 
-using ArchLucid.Core.Evidence;
+using ArchLucid.Application.Evidence;
 
 using FluentAssertions;
 
