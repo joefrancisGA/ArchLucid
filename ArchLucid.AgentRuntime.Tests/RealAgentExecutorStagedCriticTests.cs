@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-using ArchLucid.Application.Evidence;
+using ArchLucid.Core.Evidence;
 using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;

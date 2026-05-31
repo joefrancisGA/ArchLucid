@@ -1,5 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Evidence;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Startup;
 using ArchLucid.Core.Configuration;

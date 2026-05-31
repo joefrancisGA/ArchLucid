@@ -1,4 +1,4 @@
-using ArchLucid.Application.Explanation;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.ArtifactSynthesis.Packaging;

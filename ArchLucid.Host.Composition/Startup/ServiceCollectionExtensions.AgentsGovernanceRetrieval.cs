@@ -16,7 +16,7 @@ using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Core.AgentSimulation;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Agents.Evidence;
-using ArchLucid.Application.Evidence;
+using ArchLucid.Core.Evidence;
 using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Findings;

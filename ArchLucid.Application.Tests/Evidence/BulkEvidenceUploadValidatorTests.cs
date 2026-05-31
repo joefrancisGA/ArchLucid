@@ -1,4 +1,4 @@
-using ArchLucid.Application.Evidence;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;

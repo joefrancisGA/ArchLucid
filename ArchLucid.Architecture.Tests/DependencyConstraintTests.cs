@@ -378,8 +378,8 @@ public sealed class DependencyConstraintTests
     public void AgentRuntime_must_not_depend_on_Application_outside_explanation_ports()
     {
         // AgentRuntime.Explanation implements Application.Explanation port interfaces
-        // (IExplanationService, IRunExplanationSummaryService) — that dependency is the
-        // correct adapter→port direction in hexagonal architecture and is therefore allowed.
+        // IExplanationService (Application.Explanation) and IRunExplanationSummaryService (Core.Explanation)
+        // are the allowed adapter→port edges in hexagonal architecture.
         // Every OTHER namespace in AgentRuntime must stay decoupled from Application.
         Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
 
@@ -387,10 +387,6 @@ public sealed class DependencyConstraintTests
             .InAssembly(agentRuntime)
             .That()
             .DoNotResideInNamespace("ArchLucid.AgentRuntime.Explanation")
-            .And()
-            .DoNotHaveName("LlmMonthlyTenantDollarBudgetTracker")
-            .And()
-            .DoNotHaveName("AgentEvidenceUntrustedInputSanitizer")
             .ShouldNot()
             .HaveDependencyOn("ArchLucid.Application")
             .GetResult();
@@ -640,6 +636,26 @@ public sealed class DependencyConstraintTests
         result.IsSuccessful.Should().BeTrue(
             because: "HTTP middleware is composed only in ArchLucid.Api (see INV-001 tenant/host boundary sketch); "
                      + "Application must not take a dependency on ArchLucid.Api.Middleware types. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_must_not_depend_on_Application_Evidence_or_Budgeting_namespaces()
+    {
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+
+        TestResult result = Types
+            .InAssembly(agentRuntime)
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "ArchLucid.Application.Evidence",
+                "ArchLucid.Application.Budgeting")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Evidence and budgeting ports live in ArchLucid.Core; Application orchestration must not leak into AgentRuntime. Offending types: {0}",
             FormatFailingTypeNames(result));
     }
 

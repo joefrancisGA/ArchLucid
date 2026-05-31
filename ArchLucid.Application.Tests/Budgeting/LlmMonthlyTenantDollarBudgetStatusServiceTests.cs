@@ -1,4 +1,4 @@
-using ArchLucid.Application.Budgeting;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;

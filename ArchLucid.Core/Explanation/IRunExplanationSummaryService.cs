@@ -1,7 +1,6 @@
-using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 
-namespace ArchLucid.Application.Explanation;
+namespace ArchLucid.Core.Explanation;
 
 /// <summary>
 ///     Builds an aggregated <see cref="RunExplanationSummary" /> for dashboard and executive views.

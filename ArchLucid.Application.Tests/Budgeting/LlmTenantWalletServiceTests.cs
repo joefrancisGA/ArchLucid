@@ -1,5 +1,5 @@
 using ArchLucid.Core.Billing;
-using ArchLucid.Application.Budgeting;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Persistence.Data.Repositories;

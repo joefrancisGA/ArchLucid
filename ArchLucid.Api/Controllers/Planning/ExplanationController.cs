@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
