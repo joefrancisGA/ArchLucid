@@ -1,24 +1,24 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-  dismissPilotRoiBaselineReadinessCardForSession,
-  isPilotRoiBaselineReadinessCardDismissedForSession,
-  PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_SESSION_KEY,
+  dismissPilotRoiBaselineReadinessCard,
+  isPilotRoiBaselineReadinessCardDismissed,
+  PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY,
 } from "@/lib/pilot-roi-baseline-readiness-card";
 
 describe("pilot-roi-baseline-readiness-card", () => {
   afterEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
-  it("starts undismissed for the session", () => {
-    expect(isPilotRoiBaselineReadinessCardDismissedForSession()).toBe(false);
+  it("starts undismissed", () => {
+    expect(isPilotRoiBaselineReadinessCardDismissed()).toBe(false);
   });
 
-  it("records skip-for-now in session storage", () => {
-    dismissPilotRoiBaselineReadinessCardForSession();
+  it("records skip-for-now in local storage", () => {
+    dismissPilotRoiBaselineReadinessCard();
 
-    expect(sessionStorage.getItem(PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_SESSION_KEY)).toBe("1");
-    expect(isPilotRoiBaselineReadinessCardDismissedForSession()).toBe(true);
+    expect(localStorage.getItem(PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY)).toBe("1");
+    expect(isPilotRoiBaselineReadinessCardDismissed()).toBe(true);
   });
 });

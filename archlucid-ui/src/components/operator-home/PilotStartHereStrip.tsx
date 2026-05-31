@@ -22,7 +22,7 @@ export function PilotStartHereStrip(): React.JSX.Element {
           id="pilot-start-here-heading"
           className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-200"
         >
-          First-pilot path (about 20 minutes)
+          Fast path to first review package
         </h2>
         <InAppHelpLink helpSlug="first-pilot-path" label="Open the canonical operator checklist" />
         <InAppHelpLink helpSlug="first-value-20-minutes" label="Open the 20-minute time-boxed runbook" />

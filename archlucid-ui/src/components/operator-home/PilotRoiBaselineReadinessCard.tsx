@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
-  dismissPilotRoiBaselineReadinessCardForSession,
-  isPilotRoiBaselineReadinessCardDismissedForSession,
+  dismissPilotRoiBaselineReadinessCard,
+  isPilotRoiBaselineReadinessCardDismissed,
 } from "@/lib/pilot-roi-baseline-readiness-card";
 import { suppressPilotRoiBaselineChrome } from "@/lib/pilot-roi-baseline-chrome";
 import {
@@ -25,11 +25,11 @@ function openPilotBaselineWizard(): void {
 export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
   const demoMode = isNextPublicDemoMode();
   const { loading, complete, reload } = usePilotRoiBaselineCompleteness();
-  const [dismissedForSession, setDismissedForSession] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [chromeSuppressed, setChromeSuppressed] = useState(false);
 
   useLayoutEffect(() => {
-    setDismissedForSession(isPilotRoiBaselineReadinessCardDismissedForSession());
+    setDismissed(isPilotRoiBaselineReadinessCardDismissed());
     setChromeSuppressed(suppressPilotRoiBaselineChrome());
   }, []);
 
@@ -46,11 +46,11 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
   }, [reload]);
 
   const skipForNow = useCallback(() => {
-    dismissPilotRoiBaselineReadinessCardForSession();
-    setDismissedForSession(true);
+    dismissPilotRoiBaselineReadinessCard();
+    setDismissed(true);
   }, []);
 
-  if (demoMode || chromeSuppressed || loading || complete !== false || dismissedForSession) {
+  if (demoMode || chromeSuppressed || loading || complete !== false || dismissed) {
     return null;
   }
 
@@ -68,8 +68,8 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
       </h2>
 
       <p className="m-0 mt-2 max-w-3xl text-sm leading-relaxed text-amber-950/90 dark:text-amber-100/90">
-        Set a review-cycle baseline to enable sponsor-facing ROI reporting. Enter a rough estimate now, or skip and add
-        it later in{" "}
+        Set a review-cycle baseline so ArchLucid can estimate time saved after your first review package. Enter a rough
+        estimate now, or skip and add it later in{" "}
         <Link href="/settings/baseline" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
           Settings → Baseline
         </Link>

@@ -25,7 +25,7 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
 
   it("summarizes the four-step flow with buyer concepts", () => {
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/create architecture review/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/pipeline runs/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/assessment runs/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/finalize/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review package/i);
   });
@@ -46,7 +46,7 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     }
 
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("finalize"))).toBe(true);
-    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("pipeline"))).toBe(true);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.toLowerCase().includes("assessment"))).toBe(true);
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.some((b) => b.includes("Proof sendability"))).toBe(false);
   });
 

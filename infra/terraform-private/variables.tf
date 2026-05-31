@@ -82,3 +82,9 @@ variable "key_vault_id" {
   description = "Full Azure resource ID of the Key Vault (Microsoft.KeyVault/vaults/...). Leave empty to skip the vault private endpoint and DNS zone."
   default     = ""
 }
+# TB-092 — Key Vault Secrets User for Container Apps / workload managed identities (when key_vault_id is set).
+variable "key_vault_workload_principal_ids" {
+  type        = list(string)
+  description = "Principal IDs (API, Worker, etc.) granted Key Vault Secrets User on var.key_vault_id when private data plane is enabled."
+  default     = []
+}

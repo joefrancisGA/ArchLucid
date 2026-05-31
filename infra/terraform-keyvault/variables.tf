@@ -51,3 +51,14 @@ variable "tags" {
   default     = {}
   description = "Tags applied to created resources."
 }
+variable "api_managed_identity_principal_id" {
+  type        = string
+  description = "Container App API system-assigned managed identity principal_id. Granted Key Vault Secrets User when enable_key_vault is true."
+  default     = ""
+}
+
+variable "worker_managed_identity_principal_id" {
+  type        = string
+  description = "Container App Worker system-assigned managed identity principal_id. Granted Key Vault Secrets User when enable_key_vault is true."
+  default     = ""
+}

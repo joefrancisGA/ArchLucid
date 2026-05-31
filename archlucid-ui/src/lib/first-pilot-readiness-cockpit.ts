@@ -194,7 +194,7 @@ export function buildFirstPilotReadinessRows(input: {
         healthLoadFailed: input.healthLoadFailed,
       }),
       summary:
-        "Pilot proof status has not been collected yet. Use diagnostics after finalize to refresh readiness — platform health is a coarse signal only.",
+        "Review-readiness status has not been collected yet. Use diagnostics after finalize to refresh readiness — platform health is a coarse signal only.",
       href: "/health",
       cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,    },
     {

@@ -13,7 +13,7 @@ export const OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING = "Sample package shortcu
 
 /** High-level flow; technical terms (manifest, run ID) stay in step bodies and tooltips. */
 export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
-  "Create architecture review → Pipeline runs → Finalize → Review package";
+  "Create architecture review → Assessment runs → Finalize → Review package";
 
 /**
  * Four plain steps for default first-session copy (no manifest / Operate jargon). Shown in collapsed diagnostics on Home
@@ -21,7 +21,7 @@ export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
  */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
   "Create an architecture review from New review (wizard) — capture goals, constraints, and what you want reviewed.",
-  "Let the pipeline finish — stay on review detail or the wizard until processing settles (no Graph, Compare, or Replay needed yet).",
+  "Let the assessment finish — stay on review detail or the wizard until processing settles (no Graph, Compare, or Replay needed yet).",
   "Finalize when the UI says the package is ready — this locks your review package and turns on exports and deeper tools.",
   "Open your review package on review detail — read the summary and findings, then use downloads when you are ready to share internally.",
 ];

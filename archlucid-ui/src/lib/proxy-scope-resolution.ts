@@ -38,15 +38,27 @@ export function isProxyClientScopeForwardingAllowed(): boolean {
   return process.env.NODE_ENV !== "production";
 }
 
-function readTrustedServerScopeHeaders(): Record<string, string> {
-  const tenantId = readEnvScopeId("ARCHLUCID_PROXY_TENANT_ID") ?? DEV_SCOPE_TENANT_ID;
-  const workspaceId = readEnvScopeId("ARCHLUCID_PROXY_WORKSPACE_ID") ?? DEV_SCOPE_WORKSPACE_ID;
-  const projectId = readEnvScopeId("ARCHLUCID_PROXY_PROJECT_ID") ?? DEV_SCOPE_PROJECT_ID;
+function readTrustedServerScopeHeaders(): Record<string, string> | null {
+  const tenantId = readEnvScopeId("ARCHLUCID_PROXY_TENANT_ID");
+  const workspaceId = readEnvScopeId("ARCHLUCID_PROXY_WORKSPACE_ID");
+  const projectId = readEnvScopeId("ARCHLUCID_PROXY_PROJECT_ID");
+
+  if (!isProxyClientScopeForwardingAllowed()) {
+    if (tenantId === null || workspaceId === null || projectId === null) {
+      return null;
+    }
+
+    return {
+      "x-tenant-id": tenantId,
+      "x-workspace-id": workspaceId,
+      "x-project-id": projectId,
+    };
+  }
 
   return {
-    "x-tenant-id": tenantId,
-    "x-workspace-id": workspaceId,
-    "x-project-id": projectId,
+    "x-tenant-id": tenantId ?? DEV_SCOPE_TENANT_ID,
+    "x-workspace-id": workspaceId ?? DEV_SCOPE_WORKSPACE_ID,
+    "x-project-id": projectId ?? DEV_SCOPE_PROJECT_ID,
   };
 }
 
@@ -70,10 +82,15 @@ export function resolveProxyUpstreamScopeHeaders(
 
   for (const key of SCOPE_HEADER_KEYS) {
     const incoming = incomingHeaders.get(key);
-    const fallback = trusted[key] ?? getScopeHeaders()[key];
 
     if (allowClientScope && incoming !== null && incoming.trim().length > 0) {
       resolved[key] = incoming.trim();
+      continue;
+    }
+
+    const fallback = trusted?.[key] ?? (allowClientScope ? getScopeHeaders()[key] : undefined);
+
+    if (fallback === undefined) {
       continue;
     }
 

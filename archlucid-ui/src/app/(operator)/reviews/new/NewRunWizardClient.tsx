@@ -26,8 +26,10 @@ import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accelerator-wizard-presets";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
+import { applyWizardPreset } from "@/lib/wizard-presets";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { getWizardStepFieldGroup } from "@/lib/wizard-step-fields";
 import {
@@ -151,6 +153,15 @@ export function NewRunWizardClient() {
     return tryParseSampleRunQuery(raw);
   }, [searchParams]);
   const baselineFirst = useMemo(() => searchParams?.get("baseline") === "1", [searchParams]);
+  const acceleratorPackId = useMemo(() => {
+    const raw = searchParams?.get("accelerator")?.trim() ?? "";
+
+    if (!isAcceleratorPackId(raw)) {
+      return null;
+    }
+
+    return raw;
+  }, [searchParams]);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
   const reviewStepIndex: number = baselineFirst ? 6 : 5;
@@ -194,7 +205,7 @@ export function NewRunWizardClient() {
     mode: "onBlur",
   });
 
-  const { trigger, getValues, setValue, control } = form;
+  const { trigger, getValues, setValue, reset, control } = form;
 
   const recapSystemName = useWatch({ control, name: "systemName" })?.trim() ?? "";
   const recapEnvironment = useWatch({ control, name: "environment" })?.trim() ?? "";
@@ -229,6 +240,31 @@ export function NewRunWizardClient() {
       /* ignore */
     }
   }, [baselineFirst]);
+
+  useEffect(() => {
+    if (acceleratorPackId === null) {
+      return;
+    }
+
+    const preset = resolveAcceleratorWizardPreset(acceleratorPackId);
+
+    if (preset === null) {
+      return;
+    }
+
+    reset(applyWizardPreset(buildDefaultWizardValues(), preset));
+    setStepIndex(1);
+
+    if (!baselineFirst) {
+      setWizardMode("full");
+
+      try {
+        window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [acceleratorPackId, baselineFirst, reset]);
 
   useEffect(() => {
     if (baselineFirst) {
