@@ -1,3 +1,4 @@
+using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
@@ -12,6 +13,7 @@ using ArchLucid.Core.Retrieval;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
 
@@ -108,12 +110,21 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
+        savingsResolver
+            .Setup(r => r.ResolveFromFindingsSnapshotIdAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((decimal?)null);
+
+        Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+
         AuthorityRunDetailOperatorEnricher sut = new(
             runDetailQuery.Object,
             traces.Object,
             estimator.Object,
             trustBuilder.Object,
-            groundingReader.Object);
+            groundingReader.Object,
+            savingsResolver.Object,
+            tenantCostSettings.Object);
 
         await sut.EnrichAsync(detail, "Real", CancellationToken.None);
 
@@ -167,12 +178,21 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
+        savingsResolver
+            .Setup(r => r.ResolveFromFindingsSnapshotIdAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((decimal?)null);
+
+        Mock<ITenantCostSettingsRepository> tenantCostSettings = new();
+
         AuthorityRunDetailOperatorEnricher sut = new(
             runDetailQuery.Object,
             traces.Object,
             estimator.Object,
             trustBuilder.Object,
-            groundingReader.Object);
+            groundingReader.Object,
+            savingsResolver.Object,
+            tenantCostSettings.Object);
 
         await sut.EnrichAsync(detail, "Simulator", CancellationToken.None);
 

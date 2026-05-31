@@ -193,6 +193,11 @@ type RunDetailOptionalWireExtras = {
     readonly failureClass?: string | null;
     readonly reasonCode?: string | null;
   } | null;
+  estimatedUsdSavingsSummary?: {
+    estimatedUsdSavings?: number | null;
+    savingsPricingBasis?: string | null;
+    savingsPricingBasisDescription?: string | null;
+  } | null;
 };
 
 export type RunRetrievalGroundingSummary = {

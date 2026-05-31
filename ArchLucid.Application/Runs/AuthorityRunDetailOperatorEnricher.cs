@@ -6,9 +6,11 @@ using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Application.Roi;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Roi;
 
 namespace ArchLucid.Application.Runs;
 
@@ -18,7 +20,9 @@ public sealed class AuthorityRunDetailOperatorEnricher(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     ILlmCostEstimator llmCostEstimator,
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
-    IRetrievalGroundingTraceReader retrievalGroundingTraceReader) : IAuthorityRunDetailOperatorEnricher
+    IRetrievalGroundingTraceReader retrievalGroundingTraceReader,
+    ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
+    ITenantCostSettingsRepository tenantCostSettingsRepository) : IAuthorityRunDetailOperatorEnricher
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -35,6 +39,12 @@ public sealed class AuthorityRunDetailOperatorEnricher(
     private readonly IRetrievalGroundingTraceReader _retrievalGroundingTraceReader =
         retrievalGroundingTraceReader ?? throw new ArgumentNullException(nameof(retrievalGroundingTraceReader));
 
+    private readonly ITenantEstimatedUsdSavingsResolver _tenantEstimatedUsdSavingsResolver =
+        tenantEstimatedUsdSavingsResolver ?? throw new ArgumentNullException(nameof(tenantEstimatedUsdSavingsResolver));
+
+    private readonly ITenantCostSettingsRepository _tenantCostSettingsRepository =
+        tenantCostSettingsRepository ?? throw new ArgumentNullException(nameof(tenantCostSettingsRepository));
+
     /// <inheritdoc />
     public async Task EnrichAsync(RunDetailDto detail, string? hostAgentExecutionMode, CancellationToken cancellationToken = default)
     {
@@ -46,6 +56,14 @@ public sealed class AuthorityRunDetailOperatorEnricher(
             AgentExecutionFailureSummaryJson.TryDeserialize(detail.Run.LastFailureReason);
 
         await AppendLlmCostEstimateAsync(detail, runHex, cancellationToken).ConfigureAwait(false);
+
+        detail.EstimatedUsdSavingsSummary = await RunDetailEstimatedUsdSavingsBuilder
+            .TryBuildAsync(
+                detail.Run,
+                _tenantEstimatedUsdSavingsResolver,
+                _tenantCostSettingsRepository,
+                cancellationToken)
+            .ConfigureAwait(false);
 
         ArchitectureRunDetail? architectureDetail =
             await _runDetailQueryService.GetRunDetailAsync(runHex, cancellationToken).ConfigureAwait(false);

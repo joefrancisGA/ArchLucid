@@ -156,5 +156,12 @@ public class RunDetailDto
         get;
         set;
     }
+
+    /// <summary>Server-authoritative estimated USD savings from the findings snapshot (executive ROI resolver).</summary>
+    public RunEstimatedUsdSavingsDto? EstimatedUsdSavingsSummary
+    {
+        get;
+        set;
+    }
 }
 
