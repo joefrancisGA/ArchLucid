@@ -4677,6 +4677,8 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 ## TB-153 — Recurring architecture review trigger — idempotency before execute
 
+**Status (2026-05-31):** **Done** — `RecurringArchitectureReviewTriggerService` persists `LastTriggeredRunId` + advanced `NextRunUtc` immediately after `CreateRunAsync`, before `ExecuteRunAsync`; failure before checkpoint still advances `NextRunUtc` in catch. Unit test asserts `create` → `update` → `execute` order.
+
 **Source:** Cross-layer data consistency audit (2026-05-31). Cross-ref **TB-062**, **TB-012** (**INV-009**).
 
 **Problem:**
@@ -4706,6 +4708,8 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 ---
 
 ## TB-154 — Waiver ↔ disposition state machine — bidirectional invariants
+
+**Status (2026-05-31):** **Done (V1 strict create/renew)** — `RiskExceptionDispositionGuard` blocks waivers when latest disposition is `Remediated`; `ArchitectureRiskRegisterStaleEvaluator` in Core suppresses stale signal under active waiver; register reader uses shared evaluator. Expiry disposition events remain V1.1 optional.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 

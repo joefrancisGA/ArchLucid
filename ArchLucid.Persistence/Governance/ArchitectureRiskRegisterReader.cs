@@ -1,3 +1,4 @@
+using ArchLucid.Core.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Connections;
@@ -79,12 +80,11 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                 ? null
                 : new DateTimeOffset(DateTime.SpecifyKind(row.WaiverExpiresAtUtc.Value, DateTimeKind.Utc));
 
-            bool isStale = disposition == FindingDisposition.Deferred
-                           && revisit.HasValue
-                           && revisit.Value <= now;
-
-            if (waiverExpires.HasValue && waiverExpires.Value <= now)
-                isStale = true;
+            bool isStale = ArchitectureRiskRegisterStaleEvaluator.IsStale(
+                disposition,
+                revisit,
+                waiverExpires,
+                now);
 
             string statusLabel = BuildStatusLabel(disposition, waiverExpires, isStale);
             string runHex = row.RunId?.ToString("N") ?? string.Empty;

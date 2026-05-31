@@ -20,7 +20,12 @@ public sealed class ExecutiveReportsSummaryServiceTests
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(provider => provider.GetCurrentScope()).Returns(
-            new ScopeContext(tenantId, Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")));
+            new ScopeContext
+            {
+                TenantId = tenantId,
+                WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            });
 
         Mock<IExecutiveRoiSummaryService> roi = new();
         roi.Setup(service => service.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
@@ -62,13 +63,19 @@ public sealed class GovernanceDigestDecisionNeededComposerTests
                 },
             ]);
 
+        Mock<IArchitectureDigestRepository> digests = new();
+        Mock<IExecutiveRoiSummaryService> roi = new();
+
         GovernanceDigestDecisionNeededComposer composer = new(
             approvals.Object,
             riskRegister.Object,
             waivers.Object,
-            trail.Object);
+            trail.Object,
+            digests.Object,
+            roi.Object);
 
-        string? markdown = await composer.BuildDecisionNeededMarkdownAsync(tenantId, null);
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        string? markdown = await composer.BuildDecisionNeededMarkdownAsync(tenantId, workspaceId, null);
 
         markdown.Should().NotBeNull();
         markdown.Should().Contain("## Decision needed");

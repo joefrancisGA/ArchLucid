@@ -52,7 +52,7 @@ public sealed class ExecDigestComposerTests
 
         Mock<IGovernanceDigestDecisionNeededComposer> decisionNeeded = new();
         decisionNeeded
-            .Setup(x => x.BuildDecisionNeededMarkdownAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.BuildDecisionNeededMarkdownAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 
         ExecDigestComposer composer = new(

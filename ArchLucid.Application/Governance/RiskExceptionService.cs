@@ -8,9 +8,15 @@ using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Governance;
 
-public sealed class RiskExceptionService(IRiskExceptionRepository repository, IAuditService auditService) : IRiskExceptionService
+public sealed class RiskExceptionService(
+    IRiskExceptionRepository repository,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IAuditService auditService) : IRiskExceptionService
 {
     private readonly IRiskExceptionRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -144,6 +150,17 @@ public sealed class RiskExceptionService(IRiskExceptionRepository repository, IA
 
         DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
         RiskExceptionValidation.ValidateRenew(request, now);
+
+        RiskExceptionRecord? existing = await _repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
+
+        if (existing is null)
+            throw new InvalidOperationException("Risk exception was not found.");
+
+        await RiskExceptionDispositionGuard.EnsureWaiverAllowedForFindingAsync(
+            _findingReviewTrailRepository,
+            tenantId,
+            existing.FindingId,
+            cancellationToken);
 
         await _repository.RenewAsync(
             tenantId,

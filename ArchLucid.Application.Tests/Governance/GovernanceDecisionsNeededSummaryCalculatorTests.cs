@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Governance;
@@ -32,7 +34,7 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
 
         IReadOnlyList<FindingReviewEventRecord> recent =
         [
-            TrailEvent("f-1", FindingDisposition.NeedsEvidence),
+            TrailEvent("f-1", Disposition.NeedsEvidence),
         ];
 
         int total = GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
@@ -43,6 +45,34 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
             Now);
 
         total.Should().Be(1);
+    }
+
+    [Fact]
+    public void ComputeTotalDecisionItems_ignores_stale_register_row_when_not_marked_stale()
+    {
+        ArchitectureRiskRegisterResponse register = new()
+        {
+            Entries =
+            [
+                new ArchitectureRiskRegisterEntry
+                {
+                    FindingId = "f-waiver-covered",
+                    Title = "Covered by waiver",
+                    Severity = "Low",
+                    OwnerUserId = "owner-1",
+                    IsStale = false,
+                },
+            ],
+        };
+
+        int total = GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
+            pendingApprovals: 0,
+            register,
+            [],
+            [],
+            Now);
+
+        total.Should().Be(0);
     }
 
     [Fact]
@@ -58,7 +88,7 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
         total.Should().Be(2);
     }
 
-    private static FindingReviewEventRecord TrailEvent(string findingId, FindingDisposition disposition) =>
+    private static FindingReviewEventRecord TrailEvent(string findingId, Disposition disposition) =>
         new()
         {
             EventId = Guid.NewGuid(),
