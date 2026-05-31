@@ -1,3 +1,5 @@
+using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -13,12 +15,16 @@ namespace ArchLucid.Application.Roi;
 /// </summary>
 public sealed class CachingExecutiveRoiSummaryService(
     ExecutiveRoiSummaryService inner,
+    IRiskExceptionService riskExceptionService,
     IHotPathReadCache cache,
     IScopeContextProvider scopeProvider,
     IOptionsMonitor<ExecutiveRoiCacheWarmupOptions> options) : IExecutiveRoiSummaryService
 {
     private readonly ExecutiveRoiSummaryService _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
+
+    private readonly IRiskExceptionService _riskExceptionService =
+        riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));
 
     private readonly IHotPathReadCache _cache =
         cache ?? throw new ArgumentNullException(nameof(cache));
@@ -45,7 +51,29 @@ public sealed class CachingExecutiveRoiSummaryService(
             cancellationToken,
             ttlSeconds).ConfigureAwait(false);
 
-        return cached ?? new ExecutiveRoiSummaryResponse();
+        ExecutiveRoiSummaryResponse response = cached ?? new ExecutiveRoiSummaryResponse();
+
+        return await RefreshExpiringWaiversCountAsync(response, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     TB-155: expiring-waiver count is not cached — always aligned with decisions-needed summary.
+    /// </summary>
+    private async Task<ExecutiveRoiSummaryResponse> RefreshExpiringWaiversCountAsync(
+        ExecutiveRoiSummaryResponse response,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IReadOnlyList<RiskExceptionRecord> activeWaivers = await _riskExceptionService
+            .ListActiveAsync(scope.TenantId, scope.ProjectId, cancellationToken)
+            .ConfigureAwait(false);
+
+        response.ExpiringWaiversCount14Days = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
+            activeWaivers,
+            TimeProvider.System.UtcNowDateTime(),
+            GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
+
+        return response;
     }
 
     /// <inheritdoc />

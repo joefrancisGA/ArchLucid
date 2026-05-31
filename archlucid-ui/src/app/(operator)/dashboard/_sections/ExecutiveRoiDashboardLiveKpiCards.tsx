@@ -91,7 +91,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           setState({
             summary,
             staleRiskCount: countStaleRisks(riskRegister.entries),
-            expiringWaiversCount: summary.expiringWaiversCount14Days ?? decisionsNeeded.waiversExpiringWithin14Days,
+            expiringWaiversCount: decisionsNeeded.waiversExpiringWithin14Days,
             decisionsNeededCount: decisionsNeeded.totalDecisionItems,
           });
         }
@@ -254,7 +254,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+          <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
             {costFreshness.display}
           </p>
           <KpiFootnote text={costFreshness.footnote} runbookHref={costFreshness.runbookHref} />

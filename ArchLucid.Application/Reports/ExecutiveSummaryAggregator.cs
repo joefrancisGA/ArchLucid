@@ -15,9 +15,10 @@ public sealed record ExecutiveSummaryResult(
     int TotalRiskReductionScore,
     int UniqueFindingCount,
     int RawFindingCount,
-    decimal CostWasteUsd,
+    decimal? CostWasteUsd,
     int SecurityRiskCount,
-    int ReliabilityGapCount);
+    int ReliabilityGapCount,
+    int PendingGovernanceDecisionCount = 0);
 
 public static class ExecutiveSummaryAggregator
 {

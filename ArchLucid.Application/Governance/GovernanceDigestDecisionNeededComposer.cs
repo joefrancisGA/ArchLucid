@@ -236,11 +236,17 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         IReadOnlyList<RiskExceptionRecord> activeWaivers =
             await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken);
 
-        DateTimeOffset waiverWindowEnd = now.AddDays(14);
-        int waiversExpiringCount = activeWaivers.Count(w =>
-            w.ExpiresAtUtc >= now && w.ExpiresAtUtc <= waiverWindowEnd);
+        int waiversExpiringCount = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
+            activeWaivers,
+            now,
+            GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
 
-        int total = pending.Count + staleCount + unownedHighCount + needsEvidenceCount + deferredDueCount + waiversExpiringCount;
+        int total = GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
+            pending.Count,
+            register,
+            recent,
+            activeWaivers,
+            now);
 
         return new GovernanceDecisionsNeededSummaryResponse
         {

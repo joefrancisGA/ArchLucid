@@ -39,6 +39,10 @@ public sealed class GovernanceDecisionsNeededSummaryResponse
         set;
     }
 
+    /// <summary>
+    ///     Distinct governance work items: pending approvals plus union of finding-linked buckets
+    ///     (stale/unowned register rows, evidence/disposition/deferred trail, expiring waivers). TB-150.
+    /// </summary>
     public int TotalDecisionItems
     {
         get;

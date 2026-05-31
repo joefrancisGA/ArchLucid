@@ -159,7 +159,10 @@ public sealed class ExecutiveRoiSummaryService(
         IReadOnlyList<RiskExceptionRecord> activeWaiversForExpiry =
             await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken).ConfigureAwait(false);
 
-        int expiringWaivers14Days = CountExpiringWaivers(activeWaiversForExpiry, windowDays: 14);
+        int expiringWaivers14Days = GovernanceWaiverExpiryWindow.CountExpiringWithinDays(
+            activeWaiversForExpiry,
+            TimeProvider.System.UtcNowDateTime(),
+            GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
         ExecutiveOrphanCandidateSummary orphanCandidates =
             ExecutiveOrphanCandidateKpiCalculator.BuildFromLatestDetails(latestDetails);
 
@@ -193,20 +196,6 @@ public sealed class ExecutiveRoiSummaryService(
         };
     }
 
-    private static int CountExpiringWaivers(IReadOnlyList<RiskExceptionRecord> activeWaivers, int windowDays)
-    {
-        DateTimeOffset cutoff = TimeProvider.System.UtcNowDateTime().AddDays(windowDays);
-
-        int count = 0;
-
-        foreach (RiskExceptionRecord waiver in activeWaivers)
-        {
-            if (waiver.ExpiresAtUtc <= cutoff)
-                count++;
-        }
-
-        return count;
-    }
 
     private async Task<ExecutiveRoiBasisBreakdown> BuildBasisBreakdownAsync(
         IReadOnlyList<ArchitectureRunDetail> latestDetails,

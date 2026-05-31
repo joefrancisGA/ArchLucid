@@ -25,15 +25,14 @@ public sealed class ExecutiveReportsSummaryService(
         int reliabilityCount = roi.TopSystemicIssues
             .Count(static i => string.Equals(i.Category, "Reliability", StringComparison.OrdinalIgnoreCase));
 
-        return new ExecutiveSummaryResult
-        {
-            TotalCostSavingsUsd = roi.TotalEstimatedUsdSavings,
-            TotalRiskReductionScore = decisions.TotalDecisionItems,
-            UniqueFindingCount = roi.TopSystemicIssues.Count,
-            RawFindingCount = roi.LatestRunCount,
-            CostWasteUsd = roi.TotalEstimatedUsdSavings,
-            SecurityRiskCount = securityCount,
-            ReliabilityGapCount = reliabilityCount,
-        };
+        return new ExecutiveSummaryResult(
+            TotalCostSavingsUsd: roi.TotalEstimatedUsdSavings,
+            TotalRiskReductionScore: roi.ResolvedFindingsCount30Days,
+            UniqueFindingCount: roi.TopSystemicIssues.Count,
+            RawFindingCount: roi.LatestRunCount,
+            CostWasteUsd: null,
+            SecurityRiskCount: securityCount,
+            ReliabilityGapCount: reliabilityCount,
+            PendingGovernanceDecisionCount: decisions.TotalDecisionItems);
     }
 }
