@@ -412,6 +412,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IFindingFeedbackRepository, SqlFindingFeedbackRepository>();
         services.AddScoped<IFindingReviewTrailRepository, SqlFindingReviewTrailRepository>();
         services.AddScoped<IRiskExceptionRepository, SqlRiskExceptionRepository>();
+        services.AddScoped<IArchitectureReviewRecurrenceScheduleRepository, DapperArchitectureReviewRecurrenceScheduleRepository>();
         services.AddScoped<IArchitectureRiskRegisterQuery, ArchitectureRiskRegisterReader>();
         services.AddScoped<IArchitectureDecisionRegisterQuery, ArchitectureDecisionRegisterReader>();
         services.AddScoped<IImportedArchitectureRequestRepository, SqlImportedArchitectureRequestRepository>();

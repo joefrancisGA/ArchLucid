@@ -269,6 +269,19 @@ public static partial class ServiceCollectionExtensions
 
             services.AddHostedService<AdvisoryScanHostedService>();
 
+        services.AddScoped<ArchitectureReviewRecurrenceDueScheduleProcessor>();
+        services
+            .AddOptions<ArchitectureReviewRecurrenceHostedServiceOptions>()
+            .BindConfiguration(ArchitectureReviewRecurrenceHostedServiceOptions.SectionName)
+            .PostConfigure(static o =>
+            {
+                if (o.PollInterval <= TimeSpan.Zero)
+                    o.PollInterval = TimeSpan.FromMinutes(10);
+            });
+
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+            services.AddHostedService<ArchitectureReviewRecurrenceHostedService>();
+
     }
 
     private static void RegisterDigestDelivery(IServiceCollection services, IConfiguration configuration)

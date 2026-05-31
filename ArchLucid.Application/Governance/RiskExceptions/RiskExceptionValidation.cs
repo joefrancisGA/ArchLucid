@@ -22,6 +22,9 @@ public static class RiskExceptionValidation
         if (string.IsNullOrWhiteSpace(request.Rationale))
             throw new ArgumentException("Rationale is required.", nameof(request));
 
+        if (string.IsNullOrWhiteSpace(request.EvidenceRef))
+            throw new ArgumentException("Evidence reference is required.", nameof(request));
+
         if (request.ExpiresAtUtc <= nowUtc)
             throw new ArgumentException("Expiration must be in the future.", nameof(request));
 
@@ -33,4 +36,17 @@ public static class RiskExceptionValidation
 
     public static DateTimeOffset DefaultExpiresAtUtc(DateTimeOffset nowUtc) =>
         nowUtc.AddDays(DefaultDurationDays);
+
+    public static void ValidateRenew(RenewRiskExceptionRequest request, DateTimeOffset nowUtc)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.ExpiresAtUtc <= nowUtc)
+            throw new ArgumentException("Expiration must be in the future.", nameof(request));
+
+        DateTimeOffset maxExpiry = nowUtc.AddDays(MaxDurationDays);
+
+        if (request.ExpiresAtUtc > maxExpiry)
+            throw new ArgumentException($"Waiver duration cannot exceed {MaxDurationDays} days.", nameof(request));
+    }
 }

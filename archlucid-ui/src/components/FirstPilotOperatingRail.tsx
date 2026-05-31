@@ -24,6 +24,7 @@ import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { operatorSemanticBadge } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const RAIL_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_first_pilot_operating_rail_minimized_v1";
@@ -51,13 +52,17 @@ function statusLabel(status: FirstPilotOperatingRailStepStatus): string {
 function statusBadgeClass(status: FirstPilotOperatingRailStepStatus): string {
   switch (status) {
     case "complete":
-      return "border-teal-200 bg-teal-50 text-teal-900 dark:border-teal-900 dark:bg-teal-950/50 dark:text-teal-100";
+      return operatorSemanticBadge("ready");
+
     case "current":
-      return "border-teal-500 bg-teal-50 text-teal-950 shadow-sm dark:border-teal-500 dark:bg-teal-950/70 dark:text-teal-50";
+      return operatorSemanticBadge("current");
+
     case "attention":
-      return "border-amber-400 bg-amber-50 text-amber-950 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-100";
+      return operatorSemanticBadge("warn");
+
     case "upcoming":
-      return "border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-400";
+      return operatorSemanticBadge("upcoming");
+
     default: {
       const exhaustive: never = status;
 
@@ -177,7 +182,7 @@ export function FirstPilotOperatingRail() {
           <OperatorHomeGuidanceLink helpSlug={shellCopy.headerHelpSlug} label={shellCopy.headerHelpLabel} />
         ) : null
       }
-      sectionClassName="border-teal-200/90 dark:border-teal-900/70"
+      sectionClassName="border-neutral-200 dark:border-neutral-800"
       sectionDataAttributes={{ "data-rail-variant": buyerPolishedShell ? "buyer" : "operator" }}
     >
       <ol className="m-0 list-none space-y-3 p-0">

@@ -53,6 +53,7 @@ public sealed class ExecDigestComposer(
         string sponsorUrl = string.IsNullOrWhiteSpace(latestRunHex) ? dashboardUrl : $"{baseUrl}/runs/{latestRunHex}";
         string? decisionNeededMarkdown = await governanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync(
             tenantId,
+            authorityScope.WorkspaceId,
             authorityScope.ProjectId,
             cancellationToken);
         return new ExecDigestComposition(

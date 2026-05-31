@@ -18,7 +18,7 @@ Key rules for every component:
 - Technical details (IDs, CLI commands, model names) are hidden behind disclosure affordances on normal surfaces.
 - Product language: *review package*, *finding*, *evidence trail*, *governance approval*, *audit trail* — not *run*, *job*, *alert* (unless it is an alert), *log*.
 
-Backlog items to reach full conformance: **TB-114 – TB-120** in [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
+Wave 1 Carbon primitives (**TB-114 – TB-120**, 2026-05-31): design tokens (`design-tokens.ts`, `--al-*` CSS vars), `StatusTag`, `SeverityTag`, `EnterpriseTable`, operator spacing/typography on home/run detail/dashboard/audit, Cursor rule **`.cursor/rules/UI-Enterprise-Design-Standard.mdc`**. Remaining **TB-115** surface audit (full repo pastel pass) and **TB-117** migrations (governance findings table) are follow-ups in [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
 
 ## Before large UI refactors
 
@@ -48,7 +48,7 @@ Open **`ArchLucid.UI.slnf`** at the repo root when you only need **Contracts + `
 
 See **`docs/engineering/AGENTS.md`** (repo-root **`AGENTS.md`** is a pointer) for monorepo layout, assessments read list, and other **`*.slnf`** filters.
 
-**Cursor rules for this folder:** `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Stable-Selectors-And-Snapshots.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc` (auto-applied when editing `archlucid-ui/**/*.ts` / `*.tsx`).
+**Cursor rules for this folder:** `.cursor/rules/UI-Enterprise-Design-Standard.mdc`, `.cursor/rules/UI-React-Next-Conventions.mdc`, `.cursor/rules/UI-Stable-Selectors-And-Snapshots.mdc`, `.cursor/rules/UI-Accessibility-Baseline.mdc` (auto-applied when editing `archlucid-ui/**/*.ts` / `*.tsx`).
 
 ## UI-local deep docs (`archlucid-ui/docs/`)
 

@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import {
   resolveExplanationEvidenceBasisBadges,
   type ResolveExplanationEvidenceBasisInput,
@@ -11,10 +12,10 @@ type ExplanationEvidenceBasisBadgesProps = ResolveExplanationEvidenceBasisInput 
 
 function badgeClass(warn: boolean): string {
   if (warn) {
-    return "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+    return enterpriseStatusTagClass("needs-attention");
   }
 
-  return "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100";
+  return enterpriseStatusTagClass("ready");
 }
 
 /** Shared explanation evidence labels for UI surfaces; these are not audit or legal attestations. */

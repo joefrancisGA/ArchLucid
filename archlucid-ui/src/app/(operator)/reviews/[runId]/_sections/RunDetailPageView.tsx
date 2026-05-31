@@ -5,6 +5,7 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
+import { RunDetailRecurrenceScheduleCard } from "@/components/RunDetailRecurrenceScheduleCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
@@ -136,7 +137,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
   return (
     <div
-      className={`mx-auto space-y-6 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
+      className={`mx-auto space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
     >
       <RunDetailBreadcrumb headline={m.headline} />
 
@@ -313,6 +314,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       {m.manifestId ? (
         <>
           <RunDetailWhatsNextSection runId={m.routeRunId} />
+          <RunDetailRecurrenceScheduleCard runId={m.routeRunId} />
           <PostCommitHabitLoopCard
             runId={m.routeRunId}
             showCompareCta={m.canShowCompareReviewButton}

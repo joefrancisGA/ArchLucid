@@ -20,7 +20,9 @@ import {
 import { findingSeverityAudienceCopy } from "@/lib/finding-explainability-summary";
 import { BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { graphEvidenceHrefFromInspect } from "@/lib/finding-inspect-graph-evidence";
+import { cn } from "@/lib/utils";
 
 import { FindingInspectFindingBody } from "../FindingInspectFindingBody";
 import {
@@ -96,7 +98,7 @@ export function FindingDetailPageView(props: Props) {
                 <p className="m-0 text-xs font-semibold uppercase tracking-[0.18em] text-teal-800 dark:text-teal-200">
                   {findingDetailPageEyebrow(inspectPayload, decodedFindingId)}
                 </p>
-                <h1 className="text-3xl font-semibold tracking-tight text-neutral-950 dark:text-neutral-50">
+                <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>
                   {pageTitle}
                 </h1>
                 <p className="m-0 max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300">
@@ -187,7 +189,7 @@ export function FindingDetailPageView(props: Props) {
           </div>
 
           <div className="grid gap-4 p-6 lg:grid-cols-3">
-            <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-900/60 dark:bg-amber-950/20">
+            <div className={cn("p-4", operatorSemanticSurface("warn"))}>
               <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Business impact</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {findingIsPhi
@@ -195,13 +197,13 @@ export function FindingDetailPageView(props: Props) {
                   : "This finding is recorded in the finalized governance package with evidence trail linkage."}
               </p>
             </div>
-            <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 dark:border-teal-900/60 dark:bg-teal-950/20">
+            <div className={cn("p-4", DESIGN_TOKENS.surface.card)}>
               <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Required monitoring</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {mitigationPosture(inspectPayload, decodedFindingId)}
               </p>
             </div>
-            <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/60 dark:bg-sky-950/20">
+            <div className={cn("p-4", operatorSemanticSurface("info"))}>
               <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Decision</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                 Accepted with monitoring — non-blocking for approval. See acceptance record below for recorded controls.

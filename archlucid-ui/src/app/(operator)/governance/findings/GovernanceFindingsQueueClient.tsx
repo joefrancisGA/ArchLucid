@@ -327,7 +327,7 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
     <Card
       className={
         rowIsDecision
-          ? "cursor-pointer border border-neutral-200 shadow-sm transition-colors hover:border-teal-300 hover:bg-teal-50/30 dark:border-neutral-800 dark:hover:border-teal-800 dark:hover:bg-teal-950/20"
+          ? "cursor-pointer border border-neutral-200 shadow-sm transition-colors hover:border-neutral-300 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-700 dark:hover:bg-neutral-800/80"
           : "border border-neutral-200 shadow-sm dark:border-neutral-800"
       }
       onClick={rowIsDecision ? () => navigateGovernanceRowDetail(router, row.runId, row.findingId) : undefined}

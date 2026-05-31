@@ -24,7 +24,20 @@ public sealed class NoOpRiskExceptionRepository : IRiskExceptionRepository
         CancellationToken cancellationToken = default) =>
         Task.CompletedTask;
 
-    public Task MarkExpiredAsync(Guid tenantId, DateTimeOffset asOfUtc, CancellationToken cancellationToken = default) =>
+    public Task<IReadOnlyList<RiskExceptionRecord>> MarkExpiredAsync(
+        Guid tenantId,
+        DateTimeOffset asOfUtc,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<RiskExceptionRecord>>([]);
+
+    public Task RenewAsync(
+        Guid tenantId,
+        Guid riskExceptionId,
+        DateTimeOffset expiresAtUtc,
+        string renewedByUserId,
+        string? rationale,
+        string? evidenceRef,
+        CancellationToken cancellationToken = default) =>
         Task.CompletedTask;
 
     public Task<IReadOnlyList<RiskExceptionRecord>> ListRetiredSinceUtcAsync(

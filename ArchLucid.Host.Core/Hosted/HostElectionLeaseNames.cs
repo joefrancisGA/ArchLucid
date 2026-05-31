@@ -7,6 +7,8 @@ public static class HostElectionLeaseNames
 {
     public const string AdvisoryScanPolling = "hosted:advisory-scan-polling";
 
+    public const string ArchitectureReviewRecurrencePolling = "hosted:architecture-review-recurrence-polling";
+
     public const string DataArchival = "hosted:data-archival";
 
     public const string RetrievalIndexingOutbox = "hosted:retrieval-indexing-outbox";

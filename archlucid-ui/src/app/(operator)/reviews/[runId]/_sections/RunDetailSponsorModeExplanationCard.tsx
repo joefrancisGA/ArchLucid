@@ -56,7 +56,7 @@ export function RunDetailSponsorModeExplanationCard(
 
   return (
     <section
-      className="rounded-lg border border-teal-200 bg-teal-50/70 p-4 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-50"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 text-sm"
       data-testid="sponsor-mode-explanation-card"
       aria-labelledby="sponsor-mode-explanation-heading"
     >
@@ -74,15 +74,15 @@ export function RunDetailSponsorModeExplanationCard(
       </p>
 
       <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
-        <div className="rounded-md border border-teal-200 bg-white/80 p-2 dark:border-teal-900 dark:bg-neutral-950/40">
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Evidence basis</dt>
           <dd className="m-0 mt-1">{basisLabel}</dd>
         </div>
-        <div className="rounded-md border border-teal-200 bg-white/80 p-2 dark:border-teal-900 dark:bg-neutral-950/40">
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Risk posture</dt>
           <dd className="m-0 mt-1">{explanationSummary?.riskPosture?.trim() || "Review required"}</dd>
         </div>
-        <div className="rounded-md border border-teal-200 bg-white/80 p-2 dark:border-teal-900 dark:bg-neutral-950/40">
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Trust label</dt>
           <dd className="m-0 mt-1">
             <ExplanationEvidenceBasisBadges

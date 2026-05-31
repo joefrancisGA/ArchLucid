@@ -41,6 +41,10 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     title: "Waivers expiring (14 days)",
     description: "Active risk exceptions nearing expiration",
   },
+  decisionsNeededMetric: {
+    title: "Decisions needed",
+    description: "Approvals, stale risks, due deferrals, and expiring waivers",
+  },
   sqlBackupRegionVerificationMetric: {
     title: "SQL backup region verification",
     description: "Terraform plan guard (CI/CD artifact)",

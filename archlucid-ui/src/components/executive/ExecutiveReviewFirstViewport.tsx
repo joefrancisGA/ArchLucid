@@ -116,7 +116,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
   return (
     <div className="space-y-3">
       <div className="grid gap-3 lg:grid-cols-2">
-        <Card className="border-teal-200/70 shadow-sm dark:border-teal-900/45 lg:col-span-2">
+        <Card className="border-neutral-200 shadow-sm dark:border-neutral-800 lg:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Final decision</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">

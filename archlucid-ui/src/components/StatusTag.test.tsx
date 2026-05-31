@@ -13,4 +13,15 @@ describe("StatusTag", () => {
     render(<StatusTag kind="neutral" label="Monitoring active" />);
     expect(screen.getByText("Monitoring active")).toBeInTheDocument();
   });
+
+  it("renders in-progress and draft labels", () => {
+    render(
+      <>
+        <StatusTag kind="in-progress" />
+        <StatusTag kind="draft" />
+      </>,
+    );
+    expect(screen.getByText("In progress")).toBeInTheDocument();
+    expect(screen.getByText("Draft")).toBeInTheDocument();
+  });
 });

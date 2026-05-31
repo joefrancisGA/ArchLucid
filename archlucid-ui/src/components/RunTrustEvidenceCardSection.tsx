@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { enterpriseStatusTagClass, operatorSemanticSurface } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunTrustEvidenceCard, RunTrustEvidenceRouteRef, TrustEvidenceFieldSnapshot } from "@/types/authority";
 
@@ -19,26 +20,26 @@ function statusClass(status: string): string {
   const key = status.trim().toLowerCase();
 
   if (key === "available") {
-    return "bg-emerald-100 text-emerald-950 dark:bg-emerald-900/35 dark:text-emerald-100";
+    return enterpriseStatusTagClass("ready");
   }
 
   if (key === "missing") {
-    return "bg-amber-100 text-amber-950 dark:bg-amber-900/35 dark:text-amber-100";
+    return enterpriseStatusTagClass("needs-attention");
   }
 
   if (key === "demo-only") {
-    return "bg-violet-100 text-violet-950 dark:bg-violet-900/35 dark:text-violet-100";
+    return enterpriseStatusTagClass("in-progress");
   }
 
   if (key === "low confidence") {
-    return "bg-orange-100 text-orange-950 dark:bg-orange-900/35 dark:text-orange-100";
+    return enterpriseStatusTagClass("needs-attention");
   }
 
   if (key === "not applicable") {
-    return "bg-neutral-200 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100";
+    return enterpriseStatusTagClass("neutral");
   }
 
-  return "bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100";
+  return enterpriseStatusTagClass("neutral");
 }
 
 function FieldRow(props: {
@@ -69,14 +70,14 @@ function proofStepTone(field: TrustEvidenceFieldSnapshot): string {
   const key = field.status.trim().toLowerCase();
 
   if (key === "available") {
-    return "border-teal-200 bg-teal-50/70 dark:border-teal-900 dark:bg-teal-950/30";
+    return operatorSemanticSurface("ready");
   }
 
   if (key === "demo-only") {
-    return "border-violet-200 bg-violet-50/70 dark:border-violet-900 dark:bg-violet-950/30";
+    return operatorSemanticSurface("info");
   }
 
-  return "border-amber-300 bg-amber-50/80 dark:border-amber-800 dark:bg-amber-950/35";
+  return operatorSemanticSurface("warn");
 }
 
 function ProofChainStep(props: {

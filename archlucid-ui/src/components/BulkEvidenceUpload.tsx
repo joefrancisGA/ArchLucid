@@ -216,7 +216,7 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
       {error ? (
         <div
           id="upload-error"
-          className="flex items-center rounded bg-red-50 p-2 text-sm text-red-600"
+          className="flex items-center rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-2"
           data-testid="bulk-evidence-upload-error"
         >
           <AlertCircle className="mr-2 h-4 w-4 shrink-0" />
@@ -228,8 +228,8 @@ export function BulkEvidenceUpload({ runId }: BulkEvidenceUploadProps) {
         <div
           className={
             uploadSummary.isPartial
-              ? "space-y-2 rounded bg-amber-50 p-2 text-sm text-amber-950"
-              : "flex items-start gap-2 rounded bg-green-50 p-2 text-sm text-green-800"
+              ? "space-y-2 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-2"
+              : "flex items-start gap-2 rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50 p-2"
           }
           data-testid="bulk-evidence-upload-summary"
         >

@@ -19,7 +19,6 @@ search_service_name = "srch-archlucid-prod-example"
 # Optional — wire Log Analytics + composed resource ids for platform diagnostics (TB-099).
 # log_analytics_workspace_id     = "/subscriptions/.../resourceGroups/.../providers/Microsoft.OperationalInsights/workspaces/..."
 # container_app_resource_ids     = ["/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-api"]
-# service_bus_namespace_id       = "/subscriptions/.../providers/Microsoft.ServiceBus/namespaces/..."
 # artifact_storage_account_id    = "/subscriptions/.../providers/Microsoft.Storage/storageAccounts/..."
 
 tags = {

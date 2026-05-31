@@ -1,4 +1,4 @@
-# Starts the ArchLucid Docker demo stack (SQL, Azurite, Redis, API, UI) with demo seed + simulator agents.
+# Starts the ArchLucid Docker demo stack (SQL, Azurite, API, UI) with demo seed + simulator agents.
 # Prerequisites: Docker Desktop or Docker Engine. No .NET SDK or Node.js required.
 # Repository root is the parent of the scripts/ directory.
 

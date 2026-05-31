@@ -36,6 +36,7 @@ import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-discl
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 type Phase = "loading" | "ready";
@@ -43,13 +44,17 @@ type Phase = "loading" | "ready";
 function statusClass(status: FirstPilotReadinessStatus): string {
   switch (status) {
     case "ready":
-      return "border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200";
+      return operatorSemanticBadge("ready");
+
     case "attention":
-      return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+      return operatorSemanticBadge("warn");
+
     case "blocked":
-      return "border-rose-200 bg-rose-50 text-rose-950 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100";
+      return operatorSemanticBadge("blocked");
+
     case "unknown":
-      return "border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-300";
+      return operatorSemanticBadge("neutral");
+
     default: {
       const exhaustive: never = status;
 
@@ -69,13 +74,15 @@ function firstBlockingRow(rows: readonly FirstPilotReadinessRow[]): FirstPilotRe
 function sponsorDispositionClass(disposition: FirstPilotCommandCenterPhaseSummary["sponsorDisposition"]): string {
   switch (disposition) {
     case "send":
-      return "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100";
+      return operatorSemanticSurface("ready");
+
     case "hold":
-      return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+      return operatorSemanticSurface("warn");
+
     case "readiness-only":
-      return "border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-200";
     case "deferred":
-      return "border-violet-200 bg-violet-50 text-violet-950 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-100";
+      return operatorSemanticSurface("neutral");
+
     default: {
       const exhaustive: never = disposition;
 

@@ -7,7 +7,7 @@
 #
 # Local:
 #   docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile demo-hosted up -d --build
-#   → API http://localhost:5000, UI http://localhost:3000, SQL + Azurite + Redis
+#   → API http://localhost:5000, UI http://localhost:3000, SQL + Azurite (add --profile local-with-sidecars for Redis)
 #
 # Seeded data: `Demo:Enabled` + `Demo:SeedOnStartup` on the API (see main compose) runs
 # `IDemoSeedService` once after DbUp — two committed Contoso Retail runs + governance fixtures

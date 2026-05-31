@@ -1,5 +1,6 @@
 "use client";
 
+import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type FindingTrustChipKind =
@@ -16,16 +17,11 @@ export type FindingTrustChipModel = {
 };
 
 const chipClassByKind: Record<FindingTrustChipKind, string> = {
-  "evidence-backed":
-    "border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100",
-  "citation-missing":
-    "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100",
-  "low-confidence":
-    "border-orange-300 bg-orange-50 text-orange-950 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-100",
-  "simulator-derived":
-    "border-sky-300 bg-sky-50 text-sky-950 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100",
-  heuristic:
-    "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+  "evidence-backed": enterpriseStatusTagClass("ready"),
+  "citation-missing": enterpriseStatusTagClass("needs-attention"),
+  "low-confidence": enterpriseStatusTagClass("needs-attention"),
+  "simulator-derived": enterpriseStatusTagClass("in-progress"),
+  heuristic: enterpriseStatusTagClass("neutral"),
 };
 
 /** Deterministic trust chip from existing wire fields — no invented confidence scores. */

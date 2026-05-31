@@ -187,6 +187,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IAdvisoryScanScheduleRepository, InMemoryAdvisoryScanScheduleRepository>();
         services.AddSingleton<IAdvisoryScanExecutionRepository, InMemoryAdvisoryScanExecutionRepository>();
         services.AddSingleton<IArchitectureDigestRepository, InMemoryArchitectureDigestRepository>();
+        services.AddSingleton<IArchitectureReviewRecurrenceScheduleRepository, InMemoryArchitectureReviewRecurrenceScheduleRepository>();
         services.AddSingleton<IDigestSubscriptionRepository, InMemoryDigestSubscriptionRepository>();
         services.AddSingleton<IDigestDeliveryAttemptRepository, InMemoryDigestDeliveryAttemptRepository>();
         services.AddSingleton<IAlertRuleRepository, InMemoryAlertRuleRepository>();

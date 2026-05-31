@@ -227,12 +227,6 @@ variable "container_app_resource_ids" {
   default     = []
 }
 
-variable "service_bus_namespace_id" {
-  type        = string
-  description = "Service Bus namespace resource id for diagnostic settings (TB-099)."
-  default     = null
-}
-
 variable "artifact_storage_account_id" {
   type        = string
   description = "Artifact storage account resource id for diagnostic settings (TB-099)."

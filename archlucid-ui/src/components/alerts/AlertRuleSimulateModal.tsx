@@ -192,4 +192,4 @@ export function AlertRuleSimulateModal({ rule, open, onOpenChange }: AlertRuleSi
 }
 
 const alertToneClass =
-  "rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/80 dark:text-red-100";
+  "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50";

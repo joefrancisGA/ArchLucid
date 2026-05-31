@@ -1,18 +1,22 @@
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { operatorConfidenceSurface, operatorSemanticSurface } from "@/lib/design-tokens";
 import type { RunRetrievalGroundingSummary } from "@/types/authority";
 
 function dispositionClass(disposition: string): string {
   switch (disposition.toUpperCase()) {
     case "PASS":
-      return "border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100";
+      return operatorConfidenceSurface("high");
+
     case "WARN":
-      return "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100";
+      return operatorConfidenceSurface("medium");
+
     case "HOLD":
-      return "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950/30 dark:text-red-100";
+      return operatorConfidenceSurface("low");
+
     default:
-      return "border-neutral-200 bg-neutral-50 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-950/30 dark:text-neutral-100";
+      return operatorSemanticSurface("neutral");
   }
 }
 

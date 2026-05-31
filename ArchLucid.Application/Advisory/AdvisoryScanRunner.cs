@@ -215,6 +215,7 @@ public sealed class AdvisoryScanRunner(
         List<AlertRecord> digestAlerts = alertOutcome.Evaluated.Concat(compositeOutcome.Created).ToList();
         string? decisionNeededMarkdown = await governanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync(
             schedule.TenantId,
+            schedule.WorkspaceId,
             schedule.ProjectId,
             ct);
         ArchitectureDigest digest = digestBuilder.Build(

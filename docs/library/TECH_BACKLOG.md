@@ -43,6 +43,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-143 – TB-148** were added 2026-05-30 from owner-ratified product documentation presentation guidance (decision date 2026-05-27). Customer-facing help must not dump buyers or operators into raw GitHub repository browsing. **TB-143** (in-app markdown renderer + `/help/{topic}` routes) and **TB-144** (documentation registry) are foundational; **TB-145** migrates existing GitHub blob links; **TB-146** bans redirect stubs; **TB-147** adds CI drift guard; **TB-148** adds role-gated optional source links. Canonical standard: [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md).
 
+**TB-149 – TB-155** were added 2026-05-31 from a cross-layer **data consistency** audit (executive KPIs, governance decisions-needed summary, waiver/disposition state, recurrence trigger idempotency). They extend **TB-103–105** and partially close **TB-104** (canonical 14-day waiver window). **TB-149** unifies two non-equivalent server implementations of the expiring-waiver window. **TB-150** fixes `TotalDecisionItems` double-counting overlapping finding categories. **TB-151** and **TB-152** correct inverted or aliased fields on `ExecutiveSummaryResult`. **TB-153** prevents duplicate recurring review runs on ACA restart. **TB-154** enforces waiver ↔ disposition invariants. **TB-155** stops cached ROI waiver counts from diverging from live decisions-needed. Cross-ref **TB-062**, **TB-012** (**INV-009**), **TB-089** (digest retry — different surface).
+
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 | ID | Title | Priority driver | Size |
@@ -83,6 +85,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — `OrphanedResourceClassifier` and `run-potential-savings-parser.ts` use different inputs; KPI can silently diverge | M |
 | TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — `countExpiringWaivers` filter in `ExecutiveRoiDashboardLiveKpiCards.tsx` uses a frontend-defined 14-day cutoff; not returned by any backend metric | S |
 | TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — `BusinessImpactSummaryWidget.sumIssueCounts` uses `category` substring matching; brittle and not validated against backend classification | S |
+| TB-149 | Canonical 14-day expiring-waiver window — single server implementation; delete `CountExpiringWaivers` duplicate | Customer-visible correctness — `ExecutiveRoiSummaryService` counts expired waivers; `BuildSummaryAsync` uses `[now, now+14d]`; dashboard prefers stale ROI field | S |
+| TB-150 | Decisions-needed `TotalDecisionItems` — union cardinality across buckets, not sum | Customer-visible correctness — same finding can increment stale + needs-evidence + deferred + waiver buckets; KPI overcounts | S |
+| TB-151 | `ExecutiveSummaryResult.TotalRiskReductionScore` — rename or map to pending-decision count | Customer-visible correctness — field maps to `TotalDecisionItems` (high = more work); semantic inversion for exports/consumers | XS |
+| TB-152 | `ExecutiveSummaryResult.CostWasteUsd` — stop aliasing `TotalEstimatedUsdSavings` | Semantic debt — waste vs recoverable savings conflated; silent break when ROI distinguishes them | XS |
+| TB-153 | Recurring architecture review trigger — idempotency before `ExecuteRunAsync` | Reliability / correctness — ACA restart after `CreateRunAsync` but before `UpdateAsync` can duplicate runs per schedule period | M |
+| TB-154 | Waiver ↔ disposition state machine — bidirectional invariants | Governance correctness — active waiver on remediated finding; expiry without disposition event; stale risk double-count with waiver | M |
+| TB-155 | ROI cache TTL vs live decisions-needed — canonical expiring-waiver source | Customer-visible correctness — `CachingExecutiveRoiSummaryService` can serve stale `ExpiringWaiversCount14Days` while decisions-needed is fresh | S |
 | TB-109 | RunDetailPageView — add retrieval-hit / RAG grounding panel | Operator visibility (P1) — no UI surface anywhere shows which chunks were retrieved, their scores, or whether any retrieval step was degraded; critical when `faithfulnessWarning` is true | M |
 | TB-110 | RunDetailPageView — add tool-call / function-invocation log panel | Operator visibility (P1) — no dedicated tool-call panel; agent forensics shows trace rows but not function-call lists; full prompt/response in blob storage is not rendered | M |
 | TB-111 | RunDetailPageView — inline provenance summary card (collapse from sibling route) | Operator visibility (P1) — provenance requires full-page navigation to a sibling route using a different API; operator loses run context while reviewing | S |
@@ -4463,7 +4472,7 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 - `ArchLucid.Api/Controllers/Roi/RoiController.cs`
 - `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx`
 
-**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-057** (governance stickiness review packet).
+**Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-057** (governance stickiness review packet); **TB-149** (canonical window — supersedes duplicate `CountExpiringWaivers` logic); **TB-155** (cached ROI vs live decisions-needed).
 
 **Size estimate:** **S** — ~4–6 h (backend field population + UI simplification + tests).
 
@@ -4519,6 +4528,237 @@ Problems with this approach:
 **Cross-ref:** **TB-062** (executive dashboard live KPI replacement); **TB-103** (orphan savings — same root cause pattern).
 
 **Size estimate:** **S** — ~4–8 h (backend aggregation + contract change + UI simplification + tests).
+
+---
+
+## TB-149 — Canonical 14-day expiring-waiver window — single server implementation
+
+**Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**.
+
+**Problem:**
+
+Two server paths compute “waivers expiring within 14 days” with **different predicates**:
+
+- `ExecutiveRoiSummaryService.CountExpiringWaivers` — `ExpiresAtUtc <= now.AddDays(14)` with **no lower bound** (includes already-expired rows that missed `MarkExpiredAsync`).
+- `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `ExpiresAtUtc >= now && ExpiresAtUtc <= now.AddDays(14)` (correct inclusive window).
+
+The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint when present (`??` only falls back when null), so the tile routinely shows the ROI count, not the decisions-needed count.
+
+**What to do:**
+
+1. Extract one shared helper (e.g. `GovernanceWaiverExpiryWindow.CountWithinDays(activeWaivers, nowUtc, days: 14)`) with documented UTC inclusive bounds `[now, now+14d]`.
+2. Delete `ExecutiveRoiSummaryService.CountExpiringWaivers`; populate `ExpiringWaiversCount14Days` from the shared helper (or delegate to `IGovernanceDigestDecisionNeededComposer` / shared service).
+3. Update `ExecutiveRoiDashboardLiveKpiCards.tsx` to read **only** `decisionsNeeded.waiversExpiringWithin14Days` or a single ROI field sourced from the same helper — remove dual-source `??` when both are populated.
+4. Unit tests: expired yesterday excluded; expires exactly at `now+14d` included; expires at `now+14d+1s` excluded.
+
+**Acceptance criteria:**
+
+- ROI summary, decisions-needed summary, digest markdown buckets, and dashboard tile agree for the same tenant snapshot.
+- No production code path uses `ExpiresAtUtc <= cutoff` without `>= now`.
+
+**Affected files:**
+
+- `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`
+- `ArchLucid.Application/Governance/GovernanceDigestDecisionNeededComposer.cs`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardLiveKpiCards.tsx`
+- `ArchLucid.Application.Tests/Governance/` or `ArchLucid.Application.Tests/Roi/`
+
+**Cross-ref:** **TB-104**, **TB-155**, **TB-062**.
+
+**Size estimate:** **S** (~4–6 h).
+
+---
+
+## TB-150 — Decisions-needed `TotalDecisionItems` — union cardinality, not sum
+
+**Source:** Cross-layer data consistency audit (2026-05-31).
+
+**Problem:**
+
+`GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` sets:
+
+```csharp
+int total = pending.Count + staleCount + unownedHighCount + needsEvidenceCount + deferredDueCount + waiversExpiringCount;
+```
+
+A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entry + `NeedsEvidence` disposition + expiring waiver). The **Decisions needed** dashboard KPI (`totalDecisionItems`) therefore **overcounts** distinct work items.
+
+**What to do:**
+
+1. Build a `HashSet<string>` (or `HashSet<Guid>` if finding IDs are normalized) of finding-linked identifiers per bucket; approvals pending may remain a separate non-finding count.
+2. Set `TotalDecisionItems = approvalPendingCount + distinctFindingUnion.Count` (document whether approvals without a finding id are always additive).
+3. Optionally expose per-bucket counts unchanged for drill-down; only fix the total.
+4. Add unit tests: one finding in two buckets → total increments by 1, not 2.
+
+**Acceptance criteria:**
+
+- `GET /v1/governance/decisions-needed-summary` total matches manual union count for fixture data.
+- Digest markdown section headings unchanged; only aggregate total semantics fixed.
+
+**Affected files:**
+
+- `ArchLucid.Application/Governance/GovernanceDigestDecisionNeededComposer.cs`
+- `ArchLucid.Contracts/Governance/GovernanceDecisionsNeededSummaryResponse.cs` (XML doc on `TotalDecisionItems`)
+- `ArchLucid.Application.Tests/Governance/`
+
+**Cross-ref:** **TB-062**, **TB-060** (decision register).
+
+**Size estimate:** **S** (~4–6 h).
+
+---
+
+## TB-151 — `ExecutiveSummaryResult.TotalRiskReductionScore` — semantic fix
+
+**Source:** Cross-layer data consistency audit (2026-05-31).
+
+**Problem:**
+
+`ExecutiveReportsSummaryService` maps `TotalRiskReductionScore = decisions.TotalDecisionItems`. Higher pending governance load **increases** a field named as if risk were **reduced**. PDF/export or partner integrations that consume `ExecutiveSummaryResult` may mis-rank tenants.
+
+**What to do (pick one, document in OpenAPI):**
+
+1. **Rename** to `PendingGovernanceDecisionCount` (breaking — coordinate OpenAPI snapshot + consumers), or
+2. **Repurpose** `TotalRiskReductionScore` to a metric that increases with risk reduced (e.g. `ResolvedFindingsCount30Days` from ROI), and add `PendingGovernanceDecisionCount` for the burden metric.
+
+**Acceptance criteria:**
+
+- No field name implies “reduction” while monotonically increasing with outstanding decisions.
+- `ExecutiveSummaryController` response documented in contract snapshot.
+
+**Affected files:**
+
+- `ArchLucid.Application/Reports/ExecutiveReportsSummaryService.cs`
+- `ArchLucid.Contracts` / reports DTOs
+- OpenAPI snapshot + `archlucid-ui` types if exposed
+
+**Cross-ref:** **TB-062**.
+
+**Size estimate:** **XS** (~2–3 h).
+
+---
+
+## TB-152 — `ExecutiveSummaryResult.CostWasteUsd` — stop aliasing savings
+
+**Source:** Cross-layer data consistency audit (2026-05-31).
+
+**Problem:**
+
+`ExecutiveReportsSummaryService` sets `CostWasteUsd = roi.TotalEstimatedUsdSavings`. Current monthly waste and estimated recoverable savings are related but not identical; a future ROI field split would silently desync exports.
+
+**What to do:**
+
+1. If no authoritative waste metric exists, **omit** `CostWasteUsd` from the live mapper (null) and document in contract, or remove the property from v1 export surface.
+2. When Azure cost extractor exposes monthly run-rate waste, map that field explicitly; keep `TotalEstimatedUsdSavings` separate.
+
+**Acceptance criteria:**
+
+- No two differently named properties return the same value without an explicit comment in the contract that they are intentionally equal for V1.
+
+**Affected files:**
+
+- `ArchLucid.Application/Reports/ExecutiveReportsSummaryService.cs`
+- Executive summary contract types
+
+**Cross-ref:** **TB-062**, FinOps ROI contracts.
+
+**Size estimate:** **XS** (~1–2 h).
+
+---
+
+## TB-153 — Recurring architecture review trigger — idempotency before execute
+
+**Source:** Cross-layer data consistency audit (2026-05-31). Cross-ref **TB-062**, **TB-012** (**INV-009**).
+
+**Problem:**
+
+`RecurringArchitectureReviewTriggerService.TriggerScheduleAsync` order: `CreateRunAsync` → `ExecuteRunAsync` → `scheduleRepository.UpdateAsync` (advance `NextRunUtc`). If the host process dies after create but before update, the next poll treats the schedule as still due and creates a **second run** for the same period. Explicit exceptions advance `NextRunUtc` in the catch block; **OOM / ACA eviction** does not.
+
+**What to do:**
+
+1. **Preferred:** Persist `LastTriggeredUtc`, `LastTriggeredRunId`, and advanced `NextRunUtc` in one transaction **immediately after** `CreateRunAsync` (status `Queued`), then call `ExecuteRunAsync` asynchronously or in-process.
+2. **Defense in depth:** At schedule entry, skip if `LastTriggeredUtc` is within the current cron window and `LastTriggeredRunId` is non-null.
+3. **Optional DDL:** Unique constraint on `(ScheduleId, TargetWindowUtc)` or provenance column on `RunRecord` for recurrence clone source + window.
+
+**Acceptance criteria:**
+
+- Simulated crash after create, before execute: second poll does not create another run for the same window.
+- Audit `ArchitectureReviewRecurrenceTriggered` still emitted once per successful window.
+
+**Affected files:**
+
+- `ArchLucid.Application/Governance/RecurringArchitectureReviewTriggerService.cs`
+- `ArchLucid.Persistence/Governance/DapperArchitectureReviewRecurrenceScheduleRepository.cs`
+- `ArchLucid.Host.Core/Hosted/ArchitectureReviewRecurrenceDueScheduleProcessor.cs`
+- Migration + `ArchLucid.Persistence/Scripts/ArchLucid.sql` if unique constraint added
+
+**Size estimate:** **M** (~1–2 days).
+
+---
+
+## TB-154 — Waiver ↔ disposition state machine — bidirectional invariants
+
+**Source:** Cross-layer data consistency audit (2026-05-31).
+
+**Problem:**
+
+`RiskExceptions` and `FindingReviewEvents` are independent tables. Observed gaps:
+
+- **A:** Active waiver on a finding with latest disposition `Remediated`.
+- **B:** Waiver expires via `MarkExpiredAsync` without a disposition event reopening governance narrative.
+- **C:** Risk register `IsStale` ignores active waiver — same finding contributes to stale-risk and expiring-waiver buckets (**TB-150** makes this worse).
+
+**What to do:**
+
+1. On waiver create/renew: reject or warn if latest disposition is `Remediated` (configurable strictness).
+2. On waiver expiry audit: optionally append informational `FindingReviewEvent` or register flag (product decision).
+3. In risk register staleness and decisions-needed stale bucket: exclude findings with non-expired active waiver.
+4. Integration tests for scenarios A–C.
+
+**Acceptance criteria:**
+
+- No finding appears as both “stale risk” and “covered by active waiver” in `BuildSummaryAsync` for the same snapshot.
+- Documented operator behavior when renewing waiver on remediated finding.
+
+**Affected files:**
+
+- `ArchLucid.Application/Governance/RiskExceptionService.cs`
+- `ArchLucid.Application/Governance/GovernanceDigestDecisionNeededComposer.cs`
+- Architecture risk register builder/service
+- `ArchLucid.Application.Tests/Governance/`
+
+**Cross-ref:** **TB-059**, **TB-150**, **TB-058**.
+
+**Size estimate:** **M** (~1–2 days).
+
+---
+
+## TB-155 — ROI cache vs live decisions-needed — canonical expiring-waiver source
+
+**Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**, **TB-149**.
+
+**Problem:**
+
+`CachingExecutiveRoiSummaryService` can serve `ExpiringWaiversCount14Days` up to the configured TTL (hours). `getGovernanceDecisionsNeededSummary()` is uncached. The dashboard parallel-fetch uses ROI value when non-null, so expiring-waiver tile can lag decisions-needed by TTL after waiver create/renew/revoke.
+
+**What to do:**
+
+1. After **TB-149**, stop populating `ExpiringWaiversCount14Days` on cached ROI responses (always compute at read time in decorator, or remove field from cached payload).
+2. Alternatively: invalidate ROI cache keys on `RiskExceptionCreated|Renewed|Revoked|Expired` audit events.
+3. Dashboard: single source — `waiversExpiringWithin14Days` only.
+
+**Acceptance criteria:**
+
+- Create waiver → refresh dashboard within one request cycle: expiring count matches decisions-needed without waiting for ROI TTL.
+
+**Affected files:**
+
+- `ArchLucid.Application/Roi/CachingExecutiveRoiSummaryService.cs` (if present)
+- `ExecutiveRoiDashboardLiveKpiCards.tsx`
+- Cache invalidation hook in governance mutating endpoints
+
+**Cross-ref:** **TB-149**, **TB-104**, **TB-062**.
+
+**Size estimate:** **S** (~4–6 h).
 
 ---
 
@@ -4840,6 +5080,8 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 
 ## TB-114 — Establish enterprise design-token layer (Carbon-aligned neutral palette and accent scale)
 
+**Status (2026-05-31):** **Done** — `design-tokens.ts`, `--al-*` in `globals.css`, Tailwind `al-*` colors, `UI_DESIGN_SYSTEM.md` §Tokens. Operator surface migration completed in **TB-115**.
+
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Problem:**
@@ -4878,6 +5120,8 @@ The current UI inherits Tailwind's default palette and shadcn component defaults
 
 ## TB-115 — Surface and card audit: remove pastel cards; apply Carbon-style neutral surfaces
 
+**Status (2026-05-31):** **Done** — `operatorSemanticSurface` / `operatorSemanticBadge` / `operatorConfidenceSurface` in `design-tokens.ts`; shared proof/confidence cards migrated; `WelcomeBanner` compact enterprise banner; bulk pass via `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` (56+ operator/component files). Residual pastel: chart bar fills (`bg-emerald-500`), nav active states, and a few gradient hero panels — tracked as **TB-117** table migration / spot fixes, not decorative card debt.
+
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
 **Problem:**
@@ -4912,6 +5156,8 @@ Operator surfaces contain large pastel cards with colored backgrounds (`bg-teal-
 ---
 
 ## TB-116 — Implement canonical status tag component and replace ad-hoc status badges
+
+**Status (2026-05-31):** **Wave 1 landed** — `StatusTag`, `SeverityTag`, `RunStatusBadge` monitoring chip. Follow-up: replace remaining `StatusPill` ad-hoc pipeline colors (**TB-115**).
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -4951,6 +5197,8 @@ Run status, governance approval state, and finding severity are communicated thr
 ---
 
 ## TB-117 — Operator data tables: Carbon-style structured tables for runs, findings, and audit
+
+**Status (2026-05-31):** **Partial** — `EnterpriseTable` primitives + reviews list migration. **Open:** governance findings queue, audit timeline (card layout may remain).
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5066,6 +5314,8 @@ Current type scale mixes marketing-scale headings (`text-2xl`, `text-3xl`) with 
 ---
 
 ## TB-120 — Add Carbon-standard Cursor rule so AI-generated UI code stays conformant
+
+**Status (2026-05-31):** **Done** — `.cursor/rules/UI-Enterprise-Design-Standard.mdc` + `archlucid-ui/AGENTS.md` cross-ref.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 

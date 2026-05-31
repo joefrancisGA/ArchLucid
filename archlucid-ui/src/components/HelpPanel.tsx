@@ -161,7 +161,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
     const corePilotGuideHref = getDocHref("docs/CORE_PILOT.md");
 
     return (
-      <div className="rounded-lg border border-teal-200/90 bg-teal-50/50 p-3 dark:border-teal-900 dark:bg-teal-950/25">
+      <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
         <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
           Core Pilot — suggested next step
         </h3>
@@ -274,7 +274,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
           {tab === "guides" ? (
             <div className="space-y-4">
               {corePilotPinnedHelp}
-              <div className="rounded-lg border border-neutral-200/90 bg-teal-50/40 p-3 dark:border-neutral-700 dark:bg-teal-950/20">
+              <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
                 <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
                   Key concepts
                 </h3>
@@ -322,7 +322,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
 
           {tab === "troubleshooting" ? (
             <div className="space-y-3">
-              <div className="rounded-md border border-teal-200/90 bg-teal-50/40 p-3 dark:border-teal-900/60 dark:bg-teal-950/30">
+              <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
                 <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">Support bundle</p>
                 <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
                   Download a redacted diagnostics ZIP for support tickets (same artefact as Admin → Support).

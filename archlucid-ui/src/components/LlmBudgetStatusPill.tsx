@@ -19,18 +19,21 @@ import {
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 function pillClassForTone(tone: LlmBudgetUtilizationTone): string {
+  const hover = "hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80";
+
   if (tone === "critical") {
-    return "border-rose-300 bg-rose-50 text-rose-900 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-100 dark:hover:bg-rose-950/70";
+    return cn(enterpriseStatusTagClass("blocked"), hover);
   }
 
   if (tone === "warn") {
-    return "border-amber-300 bg-amber-50 text-amber-950 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-50 dark:hover:bg-amber-950/60";
+    return cn(enterpriseStatusTagClass("needs-attention"), hover);
   }
 
-  return "border-teal-300 bg-teal-50 text-teal-900 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100 dark:hover:bg-teal-950/60";
+  return cn(enterpriseStatusTagClass("ready"), hover);
 }
 
 function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: number | null): string {

@@ -80,7 +80,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
       <div
         role="status"
         data-testid="run-cost-preview-error"
-        className="rounded-md border border-amber-200 bg-amber-50/90 p-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+        className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50"
       >
         {error}
       </div>
@@ -116,7 +116,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
   return (
     <div
       data-testid="run-cost-preview-card"
-      className="rounded-md border border-amber-300/90 bg-amber-50/95 p-4 text-sm text-amber-950 shadow-sm dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4 shadow-sm"
     >
       <p className="m-0 font-medium" data-testid="run-cost-preview-headline">
         Estimated Azure OpenAI cost for this review:{" "}

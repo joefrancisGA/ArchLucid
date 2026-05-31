@@ -118,6 +118,64 @@ Use precise product language throughout the UI — labels, headings, empty state
 
 ---
 
+## Design tokens (TB-114)
+
+Authoritative implementation: `archlucid-ui/src/lib/design-tokens.ts` and CSS variables in `archlucid-ui/src/app/globals.css` (prefix `--al-*`). Tailwind utilities use the `al-*` namespace (for example `bg-al-surface-raised`, `text-al-text-secondary`).
+
+| Token | Light-mode role |
+|-------|-----------------|
+| `--al-surface-base` | Page background (`$layer-00`) |
+| `--al-surface-raised` | Cards, tables, callouts (`$layer-01`) |
+| `--al-accent-interactive` | Links, selected row left border |
+| `--al-accent-border-focus` | Focus rings (interactive only) |
+| `--al-status-*` | Semantic fills for `StatusTag` / `SeverityTag` |
+| `--al-layer-hover` | Table row hover |
+
+Use `DESIGN_TOKENS.callout.*` for warn/blocked/info banners — not decorative `bg-*-50` pastels on neutral cards.
+
+For checklist rows, proof disposition strips, and step rails, use `operatorSemanticSurface`, `operatorSemanticBadge`, or `operatorConfidenceSurface` from `design-tokens.ts` (**TB-115**). Teal borders belong on focus rings, links, and the active nav accent — not full card fills.
+
+---
+
+## Spacing convention (TB-118)
+
+Operator views (not marketing):
+
+| Use | Tailwind |
+|-----|----------|
+| Page section stack | `space-y-4` |
+| Card padding | `p-4` |
+| Inline controls | `gap-2` |
+| Section heading → content | `mb-3` |
+
+Avoid `space-y-8`, `py-8`, and marketing-scale hero cards inside `(operator)/` routes.
+
+---
+
+## Typography convention (TB-119)
+
+| Role | Classes |
+|------|---------|
+| Page heading | `text-xl font-semibold text-al-text-primary` |
+| Section heading | `text-xs font-semibold uppercase tracking-wide text-al-text-secondary` |
+| Body | `text-sm text-al-text-primary` |
+| Meta / caption | `text-sm text-al-text-secondary` |
+| KPI numeric (exception) | `font-mono text-4xl font-semibold tabular-nums` — dashboard tiles only |
+
+Do not use `text-2xl` / `text-3xl` on operator page titles without a documented exception.
+
+---
+
+## Components (TB-116, TB-117)
+
+| Component | Path |
+|-----------|------|
+| `StatusTag` | `archlucid-ui/src/components/ui/status-tag.tsx` |
+| `SeverityTag` | `archlucid-ui/src/components/ui/severity-tag.tsx` |
+| `EnterpriseTable` | `archlucid-ui/src/components/ui/enterprise-table.tsx` |
+
+---
+
 ## Reference links
 
 - IBM Carbon Design System: https://carbondesignsystem.com/

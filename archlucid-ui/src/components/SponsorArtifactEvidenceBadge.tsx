@@ -10,22 +10,22 @@ export type SponsorArtifactEvidenceBadgeProps = ResolveSponsorArtifactEvidenceBa
 
 function badgeClass(warn: boolean): string {
   if (warn)
-    return "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+    return "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50";
 
-  return "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100";
+  return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
 }
 
 /** Compact sponsor-facing source and freshness badges for review exports and ROI surfaces. */
 function trustPostureClass(posture: string): string {
   if (posture === "evidence-backed") {
-    return "border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100";
+    return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
   }
 
   if (posture === "deferred") {
     return "border-violet-200 bg-violet-50 text-violet-950 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-100";
   }
 
-  return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+  return "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50";
 }
 
 export function SponsorArtifactEvidenceBadge(props: SponsorArtifactEvidenceBadgeProps): ReactElement {

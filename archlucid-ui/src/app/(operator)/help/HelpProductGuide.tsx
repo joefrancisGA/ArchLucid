@@ -60,7 +60,7 @@ export function HelpProductGuide() {
       </p>
 
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-        <Card className="border border-teal-200/80 bg-white/90 shadow-sm dark:border-teal-900/50 dark:bg-neutral-950/80">
+        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Review packages</CardTitle>
           </CardHeader>
@@ -70,7 +70,7 @@ export function HelpProductGuide() {
           </CardContent>
         </Card>
 
-        <Card className="border border-teal-200/80 bg-white/90 shadow-sm dark:border-teal-900/50 dark:bg-neutral-950/80">
+        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Signed manifests</CardTitle>
           </CardHeader>
@@ -80,7 +80,7 @@ export function HelpProductGuide() {
           </CardContent>
         </Card>
 
-        <Card className="border border-teal-200/80 bg-white/90 shadow-sm dark:border-teal-900/50 dark:bg-neutral-950/80">
+        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Findings</CardTitle>
           </CardHeader>
@@ -90,7 +90,7 @@ export function HelpProductGuide() {
           </CardContent>
         </Card>
 
-        <Card className="border border-teal-200/80 bg-white/90 shadow-sm dark:border-teal-900/50 dark:bg-neutral-950/80">
+        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Evidence and audit trail</CardTitle>
           </CardHeader>
@@ -100,7 +100,7 @@ export function HelpProductGuide() {
           </CardContent>
         </Card>
 
-        <Card className="border border-teal-200/80 bg-white/90 shadow-sm dark:border-teal-900/50 dark:bg-neutral-950/80">
+        <Card className="border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Troubleshooting</CardTitle>
           </CardHeader>

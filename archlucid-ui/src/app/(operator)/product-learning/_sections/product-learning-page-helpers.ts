@@ -1,3 +1,5 @@
+import { normalizeFindingSeverity, severityTagClass } from "@/lib/design-tokens";
+
 import type { ProductLearningTimeRangeKey } from "./product-learning-types";
 
 export function sinceIsoForRange(key: ProductLearningTimeRangeKey): string | null {
@@ -21,18 +23,7 @@ export function formatUtc(iso: string): string {
 }
 
 export function severityBadgeClass(severity: string): string {
-  const s = severity.toLowerCase();
-  const base = "px-2 py-0.5 rounded text-xs";
-
-  if (s === "high") {
-    return `${base} bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-400`;
-  }
-
-  if (s === "medium") {
-    return `${base} bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400`;
-  }
-
-  return `${base} bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400`;
+  return severityTagClass(normalizeFindingSeverity(severity));
 }
 
 export const productLearningTableClass = "w-full border-collapse text-sm mt-2";

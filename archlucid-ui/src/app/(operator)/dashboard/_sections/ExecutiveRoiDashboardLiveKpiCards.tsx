@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import {
   getArchitectureRiskRegister,
+  getGovernanceDecisionsNeededSummary,
   type ArchitectureRiskRegisterEntry,
 } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -23,6 +24,7 @@ type LiveKpiState = {
   summary: ExecutiveRoiSummary | null;
   staleRiskCount: number;
   expiringWaiversCount: number;
+  decisionsNeededCount: number;
 };
 
 function countStaleRisks(entries: ArchitectureRiskRegisterEntry[]): number {
@@ -52,7 +54,12 @@ function KpiFootnote(props: { readonly text: string | null; readonly runbookHref
 /** Live KPI tiles for `/dashboard` backed by ROI and governance stickiness APIs (TB-062). */
 export function ExecutiveRoiDashboardLiveKpiCards() {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
-  const [state, setState] = useState<LiveKpiState>({ summary: null, staleRiskCount: 0, expiringWaiversCount: 0 });
+  const [state, setState] = useState<LiveKpiState>({
+    summary: null,
+    staleRiskCount: 0,
+    expiringWaiversCount: 0,
+    decisionsNeededCount: 0,
+  });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,12 +68,13 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
 
     void (async () => {
       try {
-        const [summaryRes, riskRegister] = await Promise.all([
+        const [summaryRes, riskRegister, decisionsNeeded] = await Promise.all([
           fetch(
             EXECUTIVE_ROI_SUMMARY_PATH,
             mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
           ),
           getArchitectureRiskRegister(),
+          getGovernanceDecisionsNeededSummary(),
         ]);
 
         if (!summaryRes.ok) {
@@ -83,7 +91,8 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           setState({
             summary,
             staleRiskCount: countStaleRisks(riskRegister.entries),
-            expiringWaiversCount: summary.expiringWaiversCount14Days ?? 0,
+            expiringWaiversCount: summary.expiringWaiversCount14Days ?? decisionsNeeded.waiversExpiringWithin14Days,
+            decisionsNeededCount: decisionsNeeded.totalDecisionItems,
           });
         }
       } catch (e: unknown) {
@@ -117,6 +126,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
   });
   const staleRisks = presentExecutiveKpiCount(loading ? undefined : state.staleRiskCount, { loading });
   const expiringWaivers = presentExecutiveKpiCount(loading ? undefined : state.expiringWaiversCount, { loading });
+  const decisionsNeeded = presentExecutiveKpiCount(loading ? undefined : state.decisionsNeededCount, { loading });
   const costFreshness = presentCostEvidenceFreshness({
     loading,
     status: state.summary?.costEvidenceFreshnessStatus,
@@ -177,6 +187,26 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             {staleRisks.display}
           </p>
           <KpiFootnote text={staleRisks.footnote} />
+        </CardContent>
+      </Card>
+
+      <Card data-testid="exec-kpi-decisions-needed">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+            {v.decisionsNeededMetric.title}
+          </CardTitle>
+          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
+            {v.decisionsNeededMetric.description}{" "}
+            <Link href="/governance/findings" className="underline">
+              Risk register
+            </Link>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            {decisionsNeeded.display}
+          </p>
+          <KpiFootnote text={decisionsNeeded.footnote} />
         </CardContent>
       </Card>
 

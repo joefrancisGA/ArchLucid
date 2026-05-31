@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { operatorConfidenceSurface } from "@/lib/design-tokens";
 import {
   buildExplanationConfidenceSummary,
   type ExplanationConfidenceDisposition,
@@ -10,11 +11,14 @@ import type { RunExplanationSummary } from "@/types/explanation";
 function dispositionClass(disposition: ExplanationConfidenceDisposition): string {
   switch (disposition) {
     case "PASS":
-      return "border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100";
+      return operatorConfidenceSurface("high");
+
     case "WARN":
-      return "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100";
+      return operatorConfidenceSurface("medium");
+
     case "HOLD":
-      return "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950/30 dark:text-red-100";
+      return operatorConfidenceSurface("low");
+
     default: {
       const _exhaustive: never = disposition;
 

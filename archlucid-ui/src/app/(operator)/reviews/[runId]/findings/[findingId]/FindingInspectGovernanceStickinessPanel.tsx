@@ -10,6 +10,7 @@ import {
   listFindingDispositions,
   listRiskExceptions,
   recordFindingDisposition,
+  renewRiskException,
   revokeRiskException,
   type FindingDispositionEvent,
   type FindingDispositionKind,
@@ -43,6 +44,8 @@ export function FindingInspectGovernanceStickinessPanel({
   const [waiverRationale, setWaiverRationale] = useState("");
   const [waiverOwnerUserId, setWaiverOwnerUserId] = useState("");
   const [waiverExpiresAtUtc, setWaiverExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
+  const [waiverEvidenceRef, setWaiverEvidenceRef] = useState("");
+  const [renewExpiresAtUtc, setRenewExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -112,6 +115,7 @@ export function FindingInspectGovernanceStickinessPanel({
         runId,
         ownerUserId: waiverOwnerUserId.trim(),
         rationale: waiverRationale.trim(),
+        evidenceRef: waiverEvidenceRef.trim(),
         expiresAtUtc: waiverExpiresAtUtc,
       });
 
@@ -119,6 +123,28 @@ export function FindingInspectGovernanceStickinessPanel({
       await reload();
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : "Failed to create waiver.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function renewWaiver(): Promise<void> {
+    if (activeWaiver === null) return;
+
+    setBusy(true);
+    setErrorMessage(null);
+    setStatusMessage(null);
+
+    try {
+      await renewRiskException(activeWaiver.riskExceptionId, {
+        expiresAtUtc: renewExpiresAtUtc,
+        evidenceRef: waiverEvidenceRef.trim().length > 0 ? waiverEvidenceRef.trim() : activeWaiver.evidenceRef ?? undefined,
+      });
+
+      setStatusMessage("Waiver renewed.");
+      await reload();
+    } catch (error: unknown) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to renew waiver.");
     } finally {
       setBusy(false);
     }
@@ -143,7 +169,7 @@ export function FindingInspectGovernanceStickinessPanel({
   }
 
   return (
-    <Card className="border-teal-200 dark:border-teal-900">
+    <Card className="border-neutral-200 dark:border-neutral-800">
       <CardHeader>
         <CardTitle className="text-base">Governance disposition &amp; waiver</CardTitle>
       </CardHeader>
@@ -223,6 +249,15 @@ export function FindingInspectGovernanceStickinessPanel({
                   className="min-h-16 rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
                   value={waiverRationale}
                   onChange={(event) => setWaiverRationale(event.target.value)}
+                />
+              </label>
+              <label className="grid gap-1">
+                <span className="font-medium">Evidence reference (required)</span>
+                <input
+                  className="rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+                  value={waiverEvidenceRef}
+                  onChange={(event) => setWaiverEvidenceRef(event.target.value)}
+                  placeholder="Artifact URI, ticket id, or audit correlation"
                 />
               </label>
               <label className="grid gap-1">

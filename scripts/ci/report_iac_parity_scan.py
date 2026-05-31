@@ -27,27 +27,6 @@ _SERVICE_MAP: tuple[tuple[str, str, tuple[str, ...], bool, tuple[str, ...]], ...
         ("azurerm_search_service", "azure-search", "Retrieval__AzureSearch__Endpoint"),
     ),
     (
-        "HotPathCache:RedisConnectionString",
-        "Redis (hot path)",
-        ("infra/terraform/prod", "infra/terraform-redis"),
-        False,
-        ("azurerm_redis_cache", "redis"),
-    ),
-    (
-        "CosmosDb:ConnectionString",
-        "Cosmos DB",
-        ("infra/terraform/prod", "infra/terraform-cosmos"),
-        False,
-        ("azurerm_cosmosdb_account", "cosmos"),
-    ),
-    (
-        "IntegrationEvents:ServiceBusConnectionString",
-        "Service Bus",
-        ("infra/terraform/prod", "infra/terraform-servicebus"),
-        False,
-        ("azurerm_servicebus_namespace", "servicebus"),
-    ),
-    (
         "KeyVault:VaultUri",
         "Key Vault",
         ("infra/terraform/prod", "infra/terraform-keyvault", "infra/terraform-private"),
@@ -219,8 +198,8 @@ def build_report(root: Path) -> dict[str, object]:
         "notes": [
             "Configured means key appears in ArchLucid.Api appsettings*.json — not live deployment proof.",
             "Terraform support scans all *.tf files under each root for resource/module/output signals.",
-            "Authoritative hosted production root is infra/terraform/prod (owner 2026-05-30).",
-            "Optional V2 services (Redis, Cosmos, Service Bus) WARN when absent — not V1 blockers.",
+            "Authoritative hosted production root is deploy/hosted-prod-terraform (synced from infra/terraform/prod when present).",
+            "Redis, Cosmos DB polyglot persistence, and Azure Service Bus are optional V1.1/V2 paths — not scanned here (see REDIS_AND_MULTI_REGION.md, INTEGRATION_EVENTS_AND_WEBHOOKS.md).",
         ],
     }
 

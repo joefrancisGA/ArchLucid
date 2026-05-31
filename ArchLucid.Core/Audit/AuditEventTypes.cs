@@ -84,6 +84,18 @@ public static class AuditEventTypes
     /// <summary>Operator revoked a TB-059 risk exception (waiver).</summary>
     public const string RiskExceptionRevoked = "RiskExceptionRevoked";
 
+    /// <summary>Operator renewed a TB-059 risk exception (waiver) with a new expiration.</summary>
+    public const string RiskExceptionRenewed = "RiskExceptionRenewed";
+
+    /// <summary>System expired a TB-059 risk exception when listing active waivers past <c>ExpiresAtUtc</c>.</summary>
+    public const string RiskExceptionExpired = "RiskExceptionExpired";
+
+    /// <summary>Operator created a TB-062 architecture review recurrence schedule.</summary>
+    public const string ArchitectureReviewRecurrenceScheduleCreated = "ArchitectureReviewRecurrenceScheduleCreated";
+
+    /// <summary>Recurring architecture review schedule fired and started a follow-up run (TB-059–062).</summary>
+    public const string ArchitectureReviewRecurrenceTriggered = "ArchitectureReviewRecurrenceTriggered";
+
     /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
     public const string FindingMuted = "FindingMuted";
 

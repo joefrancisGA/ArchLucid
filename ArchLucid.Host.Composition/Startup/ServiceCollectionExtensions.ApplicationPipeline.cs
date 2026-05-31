@@ -246,6 +246,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<RoiCostEvidenceFreshnessOptions>(
             configuration.GetSection(RoiCostEvidenceFreshnessOptions.SectionPath));
         services.AddScoped<ResourceCoverageReportService>();
+        services.AddScoped<IExecutiveReportsSummaryService, ExecutiveReportsSummaryService>();
+        services.AddScoped<IRecurringArchitectureReviewTriggerService, RecurringArchitectureReviewTriggerService>();
         services
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
                 static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))

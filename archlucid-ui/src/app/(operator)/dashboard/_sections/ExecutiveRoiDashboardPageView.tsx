@@ -16,11 +16,11 @@ export function ExecutiveRoiDashboardPageView() {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+    <div className="mx-auto max-w-6xl space-y-4 px-4 py-4">
       <ExecutiveDashboardBaselineWarningBanner />
       <OperatorWelcomeOnboarding />
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
           {v.pageTitle}
         </h1>
         <p className="max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">{v.pageLead}</p>

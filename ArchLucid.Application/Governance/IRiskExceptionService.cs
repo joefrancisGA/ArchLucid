@@ -17,6 +17,13 @@ public interface IRiskExceptionService
         string revokedByUserId,
         CancellationToken cancellationToken = default);
 
+    Task<RiskExceptionRecord> RenewAsync(
+        Guid tenantId,
+        Guid riskExceptionId,
+        RenewRiskExceptionRequest request,
+        string renewedByUserId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<RiskExceptionRecord>> ListActiveAsync(
         Guid tenantId,
         Guid? projectId,

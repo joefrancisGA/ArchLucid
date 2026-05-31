@@ -17,6 +17,7 @@ import {
   fetchLlmMonthlyDollarBudgetStatusCached,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
+import { operatorSemanticSurface } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 function formatUsd(amount: number, currency: string): string {
@@ -34,14 +35,14 @@ function formatTokens(value: number): string {
 
 function budgetToneClass(disposition: LlmBudgetCommandCenterSummary["disposition"]): string {
   if (disposition === "HOLD") {
-    return "border-rose-200 bg-rose-50 text-rose-950 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100";
+    return operatorSemanticSurface("blocked");
   }
 
   if (disposition === "WARN") {
-    return "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100";
+    return operatorSemanticSurface("warn");
   }
 
-  return "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100";
+  return operatorSemanticSurface("ready");
 }
 
 function BudgetDispositionBanner(props: { readonly budget: LlmBudgetCommandCenterSummary }) {

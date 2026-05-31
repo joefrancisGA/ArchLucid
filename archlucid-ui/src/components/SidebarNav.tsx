@@ -21,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { NAV_GROUPS, flattenNavLinks } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
@@ -490,7 +491,7 @@ export function SidebarNav() {
                         className={cn(
                           "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                           active
-                            ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                            ? DESIGN_TOKENS.interactive.navActive
                             : "text-neutral-900 dark:text-neutral-100",
                         )}
                         title={
@@ -533,7 +534,7 @@ export function SidebarNav() {
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
-                          ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                          ? DESIGN_TOKENS.interactive.navActive
                           : "text-neutral-900 dark:text-neutral-100",
                         buyerPolishedShell && link.href === "/reviews/new"
                           ? "font-normal text-neutral-600 dark:text-neutral-300"
@@ -616,7 +617,7 @@ export function SidebarNav() {
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
-                          ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                          ? DESIGN_TOKENS.interactive.navActive
                           : "text-neutral-900 dark:text-neutral-100",
                       )}
                       title={advancedDemo ? `${stepLabel} (Advanced — optional)` : stepLabel}
@@ -646,7 +647,7 @@ export function SidebarNav() {
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
-                          ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                          ? DESIGN_TOKENS.interactive.navActive
                           : "text-neutral-900 dark:text-neutral-100",
                       )}
                       title={
@@ -687,7 +688,7 @@ export function SidebarNav() {
             className={cn(
               "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
               isNavLinkActive(pathname, "/help")
-                ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                ? DESIGN_TOKENS.interactive.navActive
                 : "text-neutral-900 dark:text-neutral-100",
             )}
             aria-current={isNavLinkActive(pathname, "/help") ? "page" : undefined}

@@ -1,7 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Application.Reports;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Scoping;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,32 +15,14 @@ namespace ArchLucid.Api.Controllers.Reports;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class ExecutiveSummaryController : ControllerBase
+public sealed class ExecutiveSummaryController(IExecutiveReportsSummaryService executiveReportsSummaryService) : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeContextProvider;
-
-    public ExecutiveSummaryController(IScopeContextProvider scopeContextProvider)
-    {
-        _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    }
-
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ExecutiveSummaryResult), StatusCodes.Status200OK)]
-    public ActionResult<ExecutiveSummaryResult> GetExecutiveSummary()
+    public async Task<ActionResult<ExecutiveSummaryResult>> GetExecutiveSummary(CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        // Mock data retrieval for the tenant's findings across runs
-        var mockFindings = new List<ExecutiveSummaryFinding>
-        {
-            new("finding-1", "run-1", "Cost", 100m, 5),
-            new("finding-1", "run-2", "Cost", 100m, 5),
-            new("finding-2", "run-1", "Security", 200m, 10),
-            new("finding-3", "run-2", "Reliability", 150m, 2)
-        };
-
-        ExecutiveSummaryResult result = ExecutiveSummaryAggregator.Aggregate(mockFindings);
+        ExecutiveSummaryResult result = await executiveReportsSummaryService.BuildAsync(cancellationToken);
 
         return Ok(result);
     }

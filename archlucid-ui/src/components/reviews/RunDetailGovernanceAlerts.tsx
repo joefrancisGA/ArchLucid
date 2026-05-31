@@ -1,3 +1,5 @@
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { RunDetail } from "@/types/authority";
 
 type RunDetailGovernanceAlertsProps = {
@@ -19,7 +21,7 @@ export function RunDetailGovernanceAlerts(props: RunDetailGovernanceAlertsProps)
     <div className="space-y-3" data-testid="run-detail-governance-alerts">
       {hasGovernanceWarnings ? (
         <div
-          className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+          className={cn(DESIGN_TOKENS.callout.warn, "px-4 py-3")}
           role="alert"
           data-testid="run-detail-governance-warning-banner"
         >
@@ -32,7 +34,7 @@ export function RunDetailGovernanceAlerts(props: RunDetailGovernanceAlertsProps)
 
       {lastFailureReason ? (
         <div
-          className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-950 dark:border-red-700 dark:bg-red-950/40 dark:text-red-100"
+          className={cn(DESIGN_TOKENS.callout.blocked, "px-4 py-3")}
           role="alert"
           data-testid="run-detail-last-failure-reason"
         >

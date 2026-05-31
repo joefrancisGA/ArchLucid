@@ -73,6 +73,27 @@ export type FindingDispositionEvent = {
   runId?: string | null;
 };
 
+export type GovernanceDecisionsNeededSummary = {
+  pendingApprovals: number;
+  staleRisks: number;
+  unownedHighSeverityRisks: number;
+  findingsAwaitingEvidence: number;
+  waiversExpiringWithin14Days: number;
+  deferredFindingsDue: number;
+  totalDecisionItems: number;
+};
+
+export type ArchitectureReviewRecurrenceSchedule = {
+  scheduleId: string;
+  sourceRunId: string;
+  name: string;
+  cronExpression: string;
+  isEnabled: boolean;
+  nextRunUtc?: string | null;
+  lastTriggeredUtc?: string | null;
+  lastTriggeredRunId?: string | null;
+};
+
 export type RealizedValueSummary = {
   findingsRemediatedCount30Days: number;
   medianTimeToRemediationDays?: number | null;
@@ -167,6 +188,38 @@ export async function listRiskExceptions(projectId?: string): Promise<RiskExcept
 
 export async function revokeRiskException(riskExceptionId: string): Promise<void> {
   await apiPostNoContent(`${governanceBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/revoke`, {});
+}
+
+export async function renewRiskException(
+  riskExceptionId: string,
+  body: { expiresAtUtc: string; rationale?: string; evidenceRef?: string },
+): Promise<RiskExceptionRecord> {
+  return apiPostJson<RiskExceptionRecord>(
+    `${governanceBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
+    body,
+  );
+}
+
+export async function getGovernanceDecisionsNeededSummary(
+  projectId?: string,
+): Promise<GovernanceDecisionsNeededSummary> {
+  const query = new URLSearchParams();
+  if (projectId) query.set("projectId", projectId);
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+  return apiGet<GovernanceDecisionsNeededSummary>(`${governanceBase()}/decisions-needed-summary${suffix}`);
+}
+
+export async function createArchitectureReviewRecurrenceSchedule(body: {
+  sourceRunId: string;
+  name?: string;
+  cronExpression?: string;
+  isEnabled?: boolean;
+}): Promise<ArchitectureReviewRecurrenceSchedule> {
+  return apiPostJson<ArchitectureReviewRecurrenceSchedule>(`${governanceBase()}/recurrence-schedules`, body);
+}
+
+export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {
+  return apiGet<ArchitectureReviewRecurrenceSchedule[]>(`${governanceBase()}/recurrence-schedules`);
 }
 
 export async function upsertRealizedValueAttestation(body: UpsertRealizedValueAttestationRequest): Promise<void> {

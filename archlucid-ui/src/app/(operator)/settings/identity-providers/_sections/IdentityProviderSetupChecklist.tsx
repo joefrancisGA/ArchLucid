@@ -31,11 +31,11 @@ const SAML_DOC = "/docs/runbooks/SAML_CERT_ROTATION.md";
 function statusClass(status: SetupStep["status"]): string {
   switch (status) {
     case "Ready":
-      return "border-teal-300 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100";
+      return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700";
     case "Action needed":
-      return "border-rose-300 bg-rose-50 text-rose-950 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100";
+      return "border-rose-700/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50";
     case "Unknown":
-      return "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100";
+      return "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50";
     default:
       return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200";
   }

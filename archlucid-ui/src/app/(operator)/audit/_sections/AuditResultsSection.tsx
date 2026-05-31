@@ -116,7 +116,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
         ) : (
           <>
             {displayEventGroups !== null ? (
-              <div className={buyerPolishedShell ? "space-y-5" : "space-y-8"}>
+              <div className="space-y-4">
                 {displayEventGroups.map((group) => (
                   <div
                     key={group.stage}
@@ -182,7 +182,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
             {buyerPolishedShell && events.length > 0 ? (
               <section
                 aria-labelledby="audit-buyer-completion-heading"
-                className="mt-8 rounded-xl border-2 border-teal-600/60 bg-teal-50/55 p-4 shadow-sm dark:border-teal-500/40 dark:bg-teal-950/30"
+                className="mt-8 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"
                 data-testid="audit-buyer-completion-card"
               >
                 <h3 id="audit-buyer-completion-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
@@ -234,7 +234,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                     className={cn(
                       !csvExportUiAllowed &&
                         isNextPublicDemoMode() &&
-                        "border-2 border-teal-700/80 text-neutral-900 shadow-sm hover:bg-teal-50 dark:border-teal-500/70 dark:text-neutral-50 dark:hover:bg-teal-950/40",
+                        "border-2 border-neutral-400 text-neutral-900 shadow-sm hover:bg-[var(--al-layer-hover)] dark:border-neutral-600 dark:text-neutral-50 dark:hover:bg-neutral-800/80",
                       !csvExportUiAllowed && !exporting && "disabled:opacity-80 dark:disabled:opacity-80",
                     )}
                     onClick={() => void onExportCsv()}

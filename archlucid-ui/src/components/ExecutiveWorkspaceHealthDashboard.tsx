@@ -241,7 +241,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       </header>
 
       <div
-        className="rounded-lg border border-teal-700/30 bg-teal-50/90 px-4 py-3 text-sm text-teal-950 shadow-sm dark:border-teal-500/30 dark:bg-teal-950/30 dark:text-teal-50"
+        className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 text-sm shadow-sm"
         role="status"
       >
         <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">Session scope</p>

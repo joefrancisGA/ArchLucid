@@ -25,9 +25,9 @@ function discoveryStatusLabel(payload: AdminOidcDiagnosticsResponse): string {
 function discoveryStatusClass(status: string): string {
   switch (status) {
     case "Healthy":
-      return "border-teal-300 bg-teal-50 text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100";
+      return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700";
     case "Unreachable":
-      return "border-rose-300 bg-rose-50 text-rose-950 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-100";
+      return "border-rose-700/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50";
     default:
       return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200";
   }

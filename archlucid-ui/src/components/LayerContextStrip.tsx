@@ -5,30 +5,33 @@ import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journe
 import { type LayerId } from "@/lib/getLayerForRoute";
 import { cn } from "@/lib/utils";
 
+const layerStripBase =
+  "border-b border-neutral-200 bg-al-surface-raised border-l-4 dark:border-neutral-800";
+
 const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: string; labelClass: string }> = {
   pilot: {
     label: "Review packages",
     question: "Finalized packages with findings, evidence, manifest, and audit trail.",
-    strip: "bg-blue-50/90 border-b border-blue-200/60 dark:border-blue-900/50 dark:bg-blue-950/30",
-    labelClass: "text-blue-900 dark:text-blue-200",
+    strip: `${layerStripBase} border-l-blue-600`,
+    labelClass: "text-al-text-primary",
   },
   "operate-analysis": {
     label: "Advanced operations",
     question: "What changed, why, and what does the architecture look like?",
-    strip: "bg-teal-50/80 border-b border-teal-200/60 dark:border-teal-900/40 dark:bg-teal-950/30",
-    labelClass: "text-teal-900 dark:text-teal-200",
+    strip: `${layerStripBase} border-l-[var(--al-accent-interactive)]`,
+    labelClass: "text-al-text-primary",
   },
   "operate-governance": {
     label: "Governance",
     question: "How do we govern, audit, and operationalize architecture decisions?",
-    strip: "bg-amber-50/80 border-b border-amber-200/60 dark:border-amber-900/40 dark:bg-amber-950/25",
-    labelClass: "text-amber-900 dark:text-amber-200",
+    strip: `${layerStripBase} border-l-amber-600`,
+    labelClass: "text-al-text-primary",
   },
   "operator-admin": {
     label: "Admin",
     question: "How do we configure the tenant, cost visibility, and access for this workspace?",
-    strip: "bg-violet-50/80 border-b border-violet-200/60 dark:border-violet-900/40 dark:bg-violet-950/25",
-    labelClass: "text-violet-900 dark:text-violet-200",
+    strip: `${layerStripBase} border-l-violet-600`,
+    labelClass: "text-al-text-primary",
   },
 };
 

@@ -1,0 +1,40 @@
+---
+description: Carbon-inspired enterprise UI standard for archlucid-ui (TB-120)
+globs:
+  - archlucid-ui/src/**/*.tsx
+  - archlucid-ui/src/**/*.ts
+---
+
+# Enterprise UI design standard (ArchLucid V1 GA)
+
+Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](docs/library/UI_DESIGN_SYSTEM.md).
+
+## Ratified instruction for AI coding agents
+
+Use IBM Carbon Design System as the primary visual and interaction reference for ArchLucid, with selective Microsoft Fluent 2 influence for shell/navigation polish. Do not copy IBM or Microsoft branding. Apply the design principles: restrained enterprise UI, strong information hierarchy, neutral surfaces, disciplined spacing, accessible typography, mature status tags, clear tables, clean side panels, and minimal decorative styling.
+
+ArchLucid must look like a serious enterprise governance product for regulated architecture review — not a startup dashboard, game UI, consumer SaaS page, or internal test harness.
+
+Specific rules:
+
+- Neutral grays and restrained teal accent only.
+- Reduce teal border overuse; teal borders on focus rings and interactive affordances only.
+- Avoid large pastel cards unless they communicate actionable status — use `DESIGN_TOKENS.callout.*` or `StatusTag`.
+- Prefer structured enterprise cards, `EnterpriseTable`, tabs, accordions, command bars, and side panels.
+- Use `StatusTag` / `SeverityTag` with canonical copy: Ready, Needs attention, Blocked, Approved, Approved with monitoring, In progress, Draft.
+- Make primary content visibly dominant; diagnostics and supporting content quieter (collapsed by default).
+- Operator views: `space-y-4`, `p-4`, `gap-2` — not `space-y-8` / `py-8`.
+- Hide CLI/script/API/model/runtime details from normal surfaces.
+- Product language: review package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
+
+## Do not
+
+- Use Tailwind/shadcn defaults as the visual north star.
+- Add decorative `bg-teal-50`, `bg-amber-50`, or `border-teal-200` on neutral operator cards.
+- Render status as ad-hoc colored `span` elements — use `StatusTag` or `SeverityTag`.
+- Link customer-facing help to GitHub `blob/` URLs (see `PRODUCT_DOCUMENTATION_PRESENTATION.md`).
+
+## Implementation anchors
+
+- Tokens: `archlucid-ui/src/lib/design-tokens.ts`, `globals.css` (`--al-*`)
+- Components: `src/components/ui/status-tag.tsx`, `severity-tag.tsx`, `enterprise-table.tsx`

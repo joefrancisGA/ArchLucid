@@ -113,6 +113,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   capture: "Evidence intake",
   onboarding: "Onboarding",
   findings: "Risk register",
+  decisionRegister: "Decision register",
   help: "Help",
   scorecard: "Scorecard",
   alerts: "Alerts",

@@ -17,6 +17,7 @@ import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
@@ -160,20 +161,18 @@ export function WelcomeBanner() {
     return (
       <div role="banner" aria-label="New here tour callout" className="mb-4 space-y-2">
         {trialActive ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm shadow-sm dark:border-amber-900 dark:bg-amber-950/40">
+          <div className={cn("flex flex-wrap items-center gap-2", operatorSemanticSurface("warn"))}>
             {typeof days === "number" ? (
-              <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+              <span className={operatorSemanticBadge("warn")}>
                 {days} day{days === 1 ? "" : "s"} left on trial
               </span>
             ) : (
-              <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-                Trial active
-              </span>
+              <span className={operatorSemanticBadge("warn")}>Trial active</span>
             )}
           </div>
         ) : null}
-        <div className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 dark:border-teal-900 dark:bg-teal-950/30">
-          <h2 className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">New here?</h2>
+        <div className={cn(DESIGN_TOKENS.surface.card, "px-4 py-3")}>
+          <h2 className={cn("mb-1", OPERATOR_TYPOGRAPHY.body, "font-semibold")}>New here?</h2>
           <p className="mb-3 text-sm text-neutral-700 dark:text-neutral-300">
             Take a quick 6-step tour to see how a review goes from upload to architecture snapshot.
           </p>
@@ -215,10 +214,8 @@ export function WelcomeBanner() {
       role="banner"
       aria-label={trialActive ? "Trial welcome" : "Welcome"}
       className={cn(
-        "isolate relative mb-4 overflow-hidden rounded-xl border border-l-4 bg-gradient-to-br px-5 py-4 shadow-sm",
-        trialActive
-          ? "border-amber-200 border-l-amber-500 from-amber-50/80 to-white dark:border-amber-900 dark:border-l-amber-500 dark:from-amber-950/30 dark:to-neutral-900"
-          : "border-teal-200 border-l-teal-600 from-teal-50/80 to-white dark:border-teal-900 dark:border-l-teal-500 dark:from-teal-950/30 dark:to-neutral-900",
+        "isolate relative mb-4 overflow-hidden",
+        trialActive ? DESIGN_TOKENS.banner.trial : DESIGN_TOKENS.banner.page,
       )}
     >
       <div
@@ -229,7 +226,7 @@ export function WelcomeBanner() {
         <svg className="absolute left-0 top-0 h-full w-full" width="100%" height="100%" aria-hidden>
           <defs>
             <pattern id={patternId} x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1" className="fill-teal-800 dark:fill-teal-100" />
+              <circle cx="2" cy="2" r="1" className="fill-neutral-400 dark:fill-neutral-600" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill={`url(#${patternId})`} />
@@ -239,13 +236,11 @@ export function WelcomeBanner() {
       <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="min-w-0 flex-1">
           {trialActive && typeof days === "number" ? (
-            <span className="mb-2 inline-block rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+            <span className={cn("mb-2", operatorSemanticBadge("warn"))}>
               {days} day{days === 1 ? "" : "s"} left on trial
             </span>
           ) : null}
-          <h2 className="mb-1 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
-            {headingText}
-          </h2>
+          <h2 className={cn("mb-1", OPERATOR_TYPOGRAPHY.pageTitle)}>{headingText}</h2>
           <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
 
           {buyerPolishedShell ? null : (
@@ -254,7 +249,7 @@ export function WelcomeBanner() {
               <Button
                 asChild
                 variant="outline"
-                className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+                className="h-10 px-5 text-sm font-semibold"
               >
                 <Link href="/showcase/claims-intake-modernization">See completed example</Link>
               </Button>
@@ -264,7 +259,7 @@ export function WelcomeBanner() {
 
         {!returningUser ? (
           <div
-            className="w-full shrink-0 rounded-lg border border-teal-200/90 bg-white/95 px-4 py-3.5 text-sm shadow-md ring-1 ring-teal-100/80 backdrop-blur-sm dark:border-teal-800/70 dark:bg-neutral-900/90 dark:ring-teal-950/40 lg:max-w-[18rem]"
+            className={cn(DESIGN_TOKENS.interactive.asidePanel, "w-full shrink-0 text-sm lg:max-w-[18rem]")}
             aria-label={
               returningUser ? "Resume architecture reviews — shortcuts" : "What one completed architecture review delivers"
             }

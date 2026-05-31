@@ -494,7 +494,7 @@ export function GovernanceWorkflowPageContent() {
       />
       {buyerPolishedShell && !showBuyerApprovalStory ? (
         <p
-          className="mb-4 max-w-prose rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
+          className="mb-4 max-w-prose rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
           data-testid="governance-buyer-why-matters"
         >
           This confirms the review package has passed the required approval sequence before being used for architecture

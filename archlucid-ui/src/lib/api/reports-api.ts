@@ -10,7 +10,7 @@ export type ExecutiveSummaryResult = {
   reliabilityGapCount: number;
 };
 
-/** Mock-backed until reports persistence lands — production executive routes must use `/v1/roi/executive-summary` instead. */
+/** Live rollup from executive ROI and governance decisions-needed summary (TB-062). */
 export async function getExecutiveSummary(): Promise<ExecutiveSummaryResult> {
   return apiGet<ExecutiveSummaryResult>('/v1/reports/executive-summary');
 }

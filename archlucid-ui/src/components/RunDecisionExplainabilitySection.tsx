@@ -1,6 +1,8 @@
 import type { ReactElement } from "react";
 
+import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import type { RunDecisionExplainabilityModel } from "@/lib/run-decision-explainability-from-detail";
+import { cn } from "@/lib/utils";
 
 function formatConfidence(confidence: number | null): string {
   if (confidence === null || !Number.isFinite(confidence)) {
@@ -67,7 +69,7 @@ export function RunDecisionExplainabilitySection(props: {
       ) : null}
 
       {model.findingEngineFailures.length > 0 ? (
-        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900 dark:bg-amber-950/30">
+        <div className={cn("mb-4", DESIGN_TOKENS.callout.warn, "p-3")}>
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
             Finding engine failures
           </p>

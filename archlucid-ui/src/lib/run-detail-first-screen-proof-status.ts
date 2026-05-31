@@ -1,3 +1,4 @@
+import { operatorSemanticSurface } from "@/lib/design-tokens";
 import { describeSponsorProofReadiness, isAgentOutputPilotStrictSponsorSafe, isProjectedDollarClaimsSponsorSafe, type PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
 
 export type RunDetailFirstScreenProofDisposition = "READY" | "WARN" | "HOLD";
@@ -179,13 +180,17 @@ export function buildRunDetailFirstScreenProofSummary(
 export function runDetailFirstScreenProofDispositionClass(disposition: RunDetailFirstScreenProofDisposition): string {
   switch (disposition) {
     case "READY":
-      return "border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100";
+      return operatorSemanticSurface("ready");
+
     case "WARN":
-      return "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100";
+      return operatorSemanticSurface("warn");
+
     case "HOLD":
-      return "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950/30 dark:text-red-100";
+      return operatorSemanticSurface("blocked");
+
     default: {
       const _exhaustive: never = disposition;
+
       return _exhaustive;
     }
   }

@@ -5,6 +5,8 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -15,6 +17,8 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+
+using System.Text.Json;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -31,7 +35,11 @@ public sealed class GovernanceStickinessController(
     IFindingDispositionService findingDispositionService,
     IRiskExceptionService riskExceptionService,
     IArchitectureRiskRegisterService riskRegisterService,
-    IArchitectureDecisionRegisterService decisionRegisterService) : ControllerBase
+    IArchitectureDecisionRegisterService decisionRegisterService,
+    IArchitectureReviewRecurrenceScheduleRepository recurrenceScheduleRepository,
+    IScanScheduleCalculator scheduleCalculator,
+    IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
+    IAuditService auditService) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -48,6 +56,21 @@ public sealed class GovernanceStickinessController(
             scope.TenantId,
             projectId ?? scope.ProjectId,
             Math.Clamp(maxRows, 1, 500),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("decisions-needed-summary")]
+    [ProducesResponseType(typeof(GovernanceDecisionsNeededSummaryResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDecisionsNeededSummary(
+        [FromQuery] Guid? projectId,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        GovernanceDecisionsNeededSummaryResponse response = await governanceDigestDecisionNeededComposer.BuildSummaryAsync(
+            scope.TenantId,
+            projectId ?? scope.ProjectId,
             cancellationToken);
 
         return Ok(response);
@@ -194,6 +217,111 @@ public sealed class GovernanceStickinessController(
         await riskExceptionService.RevokeAsync(scope.TenantId, riskExceptionId, actorContext.GetActorId(), cancellationToken);
 
         return NoContent();
+    }
+
+    [HttpPost("risk-exceptions/{riskExceptionId:guid}/renew")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(RiskExceptionRecord), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [MutatingAuditExcluded("Audit: IRiskExceptionService logs RiskExceptionRenewed via IAuditService.")]
+    public async Task<IActionResult> RenewRiskException(
+        Guid riskExceptionId,
+        [FromBody] RenewRiskExceptionRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RiskExceptionRecord record = await riskExceptionService.RenewAsync(
+                scope.TenantId,
+                riskExceptionId,
+                request,
+                actorContext.GetActorId(),
+                cancellationToken);
+
+            return Ok(record);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
+    [HttpPost("recurrence-schedules")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ArchitectureReviewRecurrenceSchedule), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateRecurrenceSchedule(
+        [FromBody] CreateArchitectureReviewRecurrenceScheduleRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (request.SourceRunId == Guid.Empty)
+            return this.BadRequestProblem("Source run id is required.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        DateTime now = TimeProvider.System.UtcNowDateTime();
+        ArchitectureReviewRecurrenceSchedule schedule = new()
+        {
+            ScheduleId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            SourceRunId = request.SourceRunId,
+            Name = string.IsNullOrWhiteSpace(request.Name) ? "Recurring architecture review" : request.Name.Trim(),
+            CronExpression = string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim(),
+            IsEnabled = request.IsEnabled,
+            CreatedUtc = now,
+            CreatedByUserId = actorContext.GetActorId(),
+            NextRunUtc = scheduleCalculator.ComputeNextRunUtc(
+                string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim(),
+                now),
+        };
+
+        await recurrenceScheduleRepository.CreateAsync(schedule, cancellationToken);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureReviewRecurrenceScheduleCreated,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    schedule.ScheduleId,
+                    schedule.TenantId,
+                    schedule.WorkspaceId,
+                    schedule.ProjectId,
+                    schedule.SourceRunId,
+                    schedule.CronExpression,
+                    schedule.IsEnabled,
+                }),
+            },
+            cancellationToken);
+
+        return Ok(schedule);
+    }
+
+    [HttpGet("recurrence-schedules")]
+    [ProducesResponseType(typeof(IReadOnlyList<ArchitectureReviewRecurrenceSchedule>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListRecurrenceSchedules(CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<ArchitectureReviewRecurrenceSchedule> schedules =
+            await recurrenceScheduleRepository.ListByScopeAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                cancellationToken);
+
+        return Ok(schedules);
     }
 
     [HttpGet("realized-value/attestation")]

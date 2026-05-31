@@ -1,7 +1,12 @@
 using System.Text;
 
+using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Advisory.Scheduling;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
@@ -12,7 +17,9 @@ public sealed class GovernanceDigestDecisionNeededComposer(
     IGovernanceApprovalRequestRepository approvalRepository,
     IArchitectureRiskRegisterService riskRegisterService,
     IRiskExceptionService riskExceptionService,
-    IFindingReviewTrailRepository findingReviewTrailRepository) : IGovernanceDigestDecisionNeededComposer
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IArchitectureDigestRepository digestRepository,
+    IExecutiveRoiSummaryService executiveRoiSummaryService) : IGovernanceDigestDecisionNeededComposer
 {
     private static readonly int[] WaiverExpiryAlertDays = [30, 14, 7, 0];
 
@@ -30,11 +37,15 @@ public sealed class GovernanceDigestDecisionNeededComposer(
 
     public async Task<string?> BuildDecisionNeededMarkdownAsync(
         Guid tenantId,
+        Guid workspaceId,
         Guid? projectId,
         CancellationToken cancellationToken = default)
     {
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (workspaceId == Guid.Empty)
+            throw new ArgumentException("Workspace id is required.", nameof(workspaceId));
 
         StringBuilder decisionNeeded = new();
         StringBuilder fyi = new();
@@ -162,7 +173,145 @@ public sealed class GovernanceDigestDecisionNeededComposer(
             output.Append(fyi);
         }
 
+        string? digestDelta = await TryBuildDigestDeltaMarkdownAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(digestDelta))
+        {
+            output.AppendLine();
+            output.AppendLine();
+            output.Append(digestDelta);
+        }
+
+        string? valueDelivered = await TryBuildValueDeliveredMarkdownAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(valueDelivered))
+        {
+            output.AppendLine();
+            output.AppendLine();
+            output.Append(valueDelivered);
+        }
+
         return output.ToString().TrimEnd();
+    }
+
+    public async Task<GovernanceDecisionsNeededSummaryResponse> BuildSummaryAsync(
+        Guid tenantId,
+        Guid? projectId,
+        CancellationToken cancellationToken = default)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        IReadOnlyList<GovernanceApprovalRequest> pending =
+            await _approvalRepository.GetPendingAsync(50, cancellationToken);
+
+        ArchitectureRiskRegisterResponse register =
+            await _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
+
+        int staleCount = register.Entries.Count(static e => e.IsStale);
+        int unownedHighCount = register.Entries
+            .Count(static e => string.IsNullOrWhiteSpace(e.OwnerUserId) && IsHighSeverity(e.Severity));
+
+        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
+        DateTimeOffset since = now.Subtract(TimeSpan.FromDays(30));
+        IReadOnlyList<FindingReviewEventRecord> recent =
+            await _findingReviewTrailRepository.ListSinceUtcAsync(tenantId, since, cancellationToken);
+
+        int needsEvidenceCount = recent
+            .Where(e => e.Disposition == Disposition.NeedsEvidence)
+            .GroupBy(static e => e.FindingId, StringComparer.OrdinalIgnoreCase)
+            .Count();
+
+        int deferredDueCount = recent
+            .Count(e => e.Disposition == Disposition.Deferred && e.RevisitDueUtc is not null && e.RevisitDueUtc <= now);
+
+        IReadOnlyList<RiskExceptionRecord> activeWaivers =
+            await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken);
+
+        DateTimeOffset waiverWindowEnd = now.AddDays(14);
+        int waiversExpiringCount = activeWaivers.Count(w =>
+            w.ExpiresAtUtc >= now && w.ExpiresAtUtc <= waiverWindowEnd);
+
+        int total = pending.Count + staleCount + unownedHighCount + needsEvidenceCount + deferredDueCount + waiversExpiringCount;
+
+        return new GovernanceDecisionsNeededSummaryResponse
+        {
+            PendingApprovals = pending.Count,
+            StaleRisks = staleCount,
+            UnownedHighSeverityRisks = unownedHighCount,
+            FindingsAwaitingEvidence = needsEvidenceCount,
+            WaiversExpiringWithin14Days = waiversExpiringCount,
+            DeferredFindingsDue = deferredDueCount,
+            TotalDecisionItems = total,
+        };
+    }
+
+    private async Task<string?> TryBuildDigestDeltaMarkdownAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid? projectId,
+        CancellationToken cancellationToken)
+    {
+        if (projectId is null || projectId == Guid.Empty)
+            return null;
+
+        IReadOnlyList<ArchitectureDigest> digests = await digestRepository.ListByScopeAsync(
+            tenantId,
+            workspaceId,
+            projectId.Value,
+            take: 2,
+            ct: cancellationToken);
+
+        if (digests.Count < 2)
+            return null;
+
+        ArchitectureDigest latest = digests[0];
+        ArchitectureDigest prior = digests[1];
+        StringBuilder delta = new();
+        delta.AppendLine("## What changed since last digest");
+        delta.AppendLine();
+        delta.AppendLine($"- Previous digest: {prior.GeneratedUtc:u} — {prior.Title}");
+        delta.AppendLine($"- Latest digest: {latest.GeneratedUtc:u} — {latest.Title}");
+
+        if (latest.RunId.HasValue && prior.RunId.HasValue && latest.RunId != prior.RunId)
+            delta.AppendLine($"- Target run changed: `{prior.RunId:N}` → `{latest.RunId:N}`.");
+
+        return delta.ToString().TrimEnd();
+    }
+
+    private async Task<string?> TryBuildValueDeliveredMarkdownAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid? projectId,
+        CancellationToken cancellationToken)
+    {
+        if (projectId is null || projectId == Guid.Empty)
+            return null;
+
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId.Value };
+        ExecutiveRoiSummaryResponse roi;
+
+        using (AmbientScopeContext.Push(scope))
+        {
+            roi = await executiveRoiSummaryService.BuildAsync(cancellationToken);
+        }
+
+        StringBuilder value = new();
+        value.AppendLine("## Value delivered (scope)");
+        value.AppendLine();
+        value.AppendLine($"- Estimated USD savings (latest runs): **{roi.TotalEstimatedUsdSavings:N0}**");
+        value.AppendLine($"- Systems with committed ROI signal: **{roi.SystemCount}**");
+        value.AppendLine($"- Findings resolved (30d, deduped): **{roi.ResolvedFindingsCount30Days}**");
+
+        return value.ToString().TrimEnd();
     }
 
     private static void AppendWaiverExpirySections(

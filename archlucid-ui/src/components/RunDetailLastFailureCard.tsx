@@ -41,7 +41,7 @@ export function RunDetailLastFailureCard(props: {
 
   return (
     <Card
-      className="rounded-lg border border-red-300 bg-red-50 shadow-sm dark:border-red-800 dark:bg-red-950/30"
+      className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 shadow-sm"
       data-testid="run-detail-last-failure-card"
     >
       <CardHeader className="pb-2">

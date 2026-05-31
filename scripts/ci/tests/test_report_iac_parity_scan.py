@@ -40,11 +40,12 @@ class ReportIacParityScanTests(unittest.TestCase):
         self.assertTrue(openai_supported, msg=f"expected OpenAI signals, got {openai_signals}")
         self.assertTrue(search_supported, msg=f"expected Search signals, got {search_signals}")
 
-    def test_optional_redis_warns_not_hold_when_unconfigured(self) -> None:
+    def test_v1_optional_services_not_in_parity_map(self) -> None:
         report = build_report(repo_root())
-        rows = report["rows"]
-        redis = next(row for row in rows if row["service"] == "Redis (hot path)")
-        self.assertIn(redis["disposition"], {"NOT_CONFIGURED", "WARN", "PASS"})
+        labels = {row["service"] for row in report["rows"]}
+        self.assertNotIn("Redis (hot path)", labels)
+        self.assertNotIn("Cosmos DB", labels)
+        self.assertNotIn("Service Bus", labels)
 
     def test_archlucid_sql_key_is_probed(self) -> None:
         config_text = (repo_root() / "ArchLucid.Api" / "appsettings.json").read_text(encoding="utf-8")

@@ -150,7 +150,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </div>
           {baselineFirst === true ? (
             <p
-              className="m-0 rounded-md border border-teal-200/80 bg-teal-50/70 px-3 py-2 text-sm text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-50"
+              className="m-0 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
               data-testid="wizard-baseline-path-active-notice"
             >
               Baseline-first path: upload the Azure extractor ZIP on the next step, then confirm system identity and
@@ -161,7 +161,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       }
     >
       {featuredSampleRunId !== null && featuredSampleRunId !== undefined && featuredSampleRunId.length > 0 ? (
-        <Card className="mb-6 border-teal-200 bg-teal-50/80 dark:border-teal-900 dark:bg-teal-950/40">
+        <Card className="mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader>
             <CardTitle className="text-base text-teal-950 dark:text-teal-50">
               Claims Intake Modernization (example)
@@ -181,7 +181,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
         </Card>
       ) : null}
 
-      <Card className="mb-6 border-teal-200/90 bg-white dark:border-teal-900/50 dark:bg-neutral-950/40">
+      <Card className="mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader>
           <CardTitle className="text-base">Start from scratch</CardTitle>
           <CardDescription>
@@ -221,7 +221,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                 <Button
                   type="button"
                   className={cn(
-                    "w-full border-teal-700 text-teal-900 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-100 dark:hover:bg-teal-950/50",
+                    "w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600",
                   )}
                   variant="outline"
                   onClick={() => selectPreset(preset.id, preset.values)}
@@ -250,7 +250,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                 <CardFooter>
                   <Button
                     type="button"
-                    className="w-full border-teal-700 text-teal-900 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-100 dark:hover:bg-teal-950/50"
+                    className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
                     variant="outline"
                     onClick={() => selectPreset(preset.id, preset.values)}
                   >
@@ -280,7 +280,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               <CardFooter>
                 <Button
                   type="button"
-                  className="w-full border-teal-700 text-teal-900 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-100 dark:hover:bg-teal-950/50"
+                  className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
                   variant="outline"
                   data-testid={`wizard-starter-${preset.id}`}
                   onClick={() => selectPreset(preset.id, preset.values)}
@@ -309,7 +309,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
               <CardFooter>
                 <Button
                   type="button"
-                  className="w-full border-teal-700 text-teal-900 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-100 dark:hover:bg-teal-950/50"
+                  className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
                   variant="outline"
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
@@ -349,7 +349,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-teal-700 text-teal-900 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-100 dark:hover:bg-teal-950/50"
+                  className="w-full border-neutral-400 text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
                   data-testid={index === 0 ? "wizard-docs-architecture-template-first" : undefined}
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >

@@ -20,7 +20,16 @@ public interface IRiskExceptionRepository
         DateTimeOffset revokedAtUtc,
         CancellationToken cancellationToken = default);
 
-    Task MarkExpiredAsync(Guid tenantId, DateTimeOffset asOfUtc, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RiskExceptionRecord>> MarkExpiredAsync(Guid tenantId, DateTimeOffset asOfUtc, CancellationToken cancellationToken = default);
+
+    Task RenewAsync(
+        Guid tenantId,
+        Guid riskExceptionId,
+        DateTimeOffset expiresAtUtc,
+        string renewedByUserId,
+        string? rationale,
+        string? evidenceRef,
+        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<RiskExceptionRecord>> ListRetiredSinceUtcAsync(
         Guid tenantId,

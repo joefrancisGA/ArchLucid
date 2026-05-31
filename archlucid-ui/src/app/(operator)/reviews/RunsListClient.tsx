@@ -11,6 +11,15 @@ import { RunsRowBaselineMenu } from "@/components/RunsRowBaselineMenu";
 import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeadRow,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -579,7 +588,7 @@ export function RunsListClient({
 
       <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
-          <div className="space-y-8">
+          <div className="space-y-4">
             {showBuyerPackageCards ? (
               <div className="space-y-2">
                 {filteredSorted.every((r) => r.hasGoldenManifest === true) ? (
@@ -596,30 +605,22 @@ export function RunsListClient({
             ) : null}
 
             {showBuyerPackageCards ? null : filteredSorted.length === 0 ? (
-              <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
-                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                        Review
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                        Created
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400" colSpan={3}>
-                        No reviews match this filter.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <EnterpriseTable ariaLabel="Architecture reviews (empty)">
+                <EnterpriseTableHead>
+                  <EnterpriseTableHeadRow>
+                    <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Created</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                  </EnterpriseTableHeadRow>
+                </EnterpriseTableHead>
+                <EnterpriseTableBody>
+                  <EnterpriseTableRow>
+                    <EnterpriseTableCell colSpan={3} className="text-al-text-secondary">
+                      No reviews match this filter.
+                    </EnterpriseTableCell>
+                  </EnterpriseTableRow>
+                </EnterpriseTableBody>
+              </EnterpriseTable>
             ) : null}
 
             {showBuyerPackageCards ? null : workQueueSections.map((section) => {
@@ -633,22 +634,15 @@ export function RunsListClient({
                   >
                     {workQueueSectionHeading(section.groupId, buyerPolished)}
                   </h3>
-                  <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
-                    <table className="w-full border-collapse text-sm">
-                      <thead>
-                        <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
-                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                            Review
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                            Created
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                  <EnterpriseTable ariaLabel={workQueueSectionHeading(section.groupId, buyerPolished)}>
+                    <EnterpriseTableHead>
+                      <EnterpriseTableHeadRow>
+                        <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>Created</EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+                      </EnterpriseTableHeadRow>
+                    </EnterpriseTableHead>
+                    <EnterpriseTableBody>
                         {section.runs.map((run) => {
                           const createdLabel = new Date(run.createdUtc).toLocaleString();
                           const isSelected = selectedRun?.runId === run.runId;
@@ -664,15 +658,13 @@ export function RunsListClient({
 
                           return (
                             <RunTableRowErrorBoundary key={run.runId} runId={run.runId}>
-                              <tr
+                              <EnterpriseTableRow
                                 data-testid={`runs-row-${run.runId}`}
                                 tabIndex={0}
                                 aria-label={describeRow}
+                                selected={isSelected}
                                 className={cn(
-                                  "cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
-                                  isSelected
-                                    ? "bg-teal-50/80 dark:bg-teal-950/30"
-                                    : "hover:bg-neutral-50 dark:hover:bg-neutral-800",
+                                  "cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
                                 )}
                                 onClick={(e) => {
                                   onRowActivate(run, e);
@@ -681,7 +673,7 @@ export function RunsListClient({
                                   activateRowKeyboard(e, run, setSelectedRun);
                                 }}
                               >
-                                <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
+                                <EnterpriseTableCell className="max-w-[min(100vw,28rem)]">
                                   <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                                     <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
                                       {title}
@@ -750,14 +742,14 @@ export function RunsListClient({
                                   >
                                     {buyerPolished ? runRowOutputReadinessLineBuyer(run) : runRowOutputReadinessLine(run)}
                                   </p>
-                                </td>
-                                <td
-                                  className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"
+                                </EnterpriseTableCell>
+                                <EnterpriseTableCell
+                                  className="whitespace-nowrap text-xs text-al-text-secondary"
                                   title={createdLabel}
                                 >
                                   {displayRelativeCreated(run)}
-                                </td>
-                                <td className="whitespace-nowrap px-3 py-2 align-top">
+                                </EnterpriseTableCell>
+                                <EnterpriseTableCell className="whitespace-nowrap">
                                   <div className="flex flex-col items-start gap-1.5">
                                     <Link
                                       href={primaryExplore.href}
@@ -784,14 +776,13 @@ export function RunsListClient({
                                       <RunsRowBaselineMenu runId={run.runId} />
                                     ) : null}
                                   </div>
-                                </td>
-                              </tr>
+                                </EnterpriseTableCell>
+                              </EnterpriseTableRow>
                             </RunTableRowErrorBoundary>
                           );
                         })}
-                      </tbody>
-                    </table>
-                  </div>
+                    </EnterpriseTableBody>
+                  </EnterpriseTable>
                 </section>
               );
             })}

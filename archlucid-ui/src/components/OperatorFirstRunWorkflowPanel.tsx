@@ -29,6 +29,7 @@ import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator-co-archit
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { getShowcaseManifestHref, getShowcaseWalkthroughHref } from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { DESIGN_TOKENS, operatorSemanticSurface } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
@@ -467,38 +468,38 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
       aria-labelledby="first-run-workflow-heading"
     >
       {hasAnyRun ? (
-        <div className="mb-3 rounded-md border border-teal-200 bg-teal-50/70 px-3 py-2.5 dark:border-teal-800 dark:bg-teal-950/40">
+        <div className="mb-3 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2.5">
           <h2 id="first-run-workflow-heading" className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">
             {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
           </h2>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Link
-              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
               href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
               Open sample review
             </Link>
             <Link
-              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
               href={getShowcaseManifestHref()}
             >
               Manifest summary
             </Link>
             <Link
-              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
               href={getShowcaseWalkthroughHref()}
             >
               Walkthrough
             </Link>
             <Link
-              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
               href="/compare"
             >
               Compare
             </Link>
             {commitCtx.firstCommittedRunId !== null ? (
               <Link
-                className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+                className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
                 href={`/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`}
               >
                 Open finalized review
@@ -598,7 +599,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           {doneCount} of {corePilotSteps.length} steps complete
         </p>
         {allDone ? (
-          <p className="m-0 mb-2 rounded border border-teal-200/80 bg-teal-50/80 px-2 py-1.5 text-xs text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
+          <p className="m-0 mb-2 rounded-md border border-emerald-700/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-emerald-800/50 px-2 py-1.5 text-xs">
             First review complete. You can hide this panel or revisit any step.
           </p>
         ) : null}
@@ -622,7 +623,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 "border-b border-neutral-200/80 pb-2.5 last:border-b-0 dark:border-neutral-800/80",
                 done ? "opacity-60" : "",
                 highlightNext
-                  ? "rounded-md border-l-2 border-l-teal-600 bg-teal-50/25 pl-2 dark:border-l-teal-400 dark:bg-teal-950/20"
+                  ? "rounded-md border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] pl-2 dark:bg-neutral-800/80"
                   : "",
               )}
             >

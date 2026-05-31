@@ -1,5 +1,6 @@
 "use client";
 
+import { operatorSemanticSurface } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const MILESTONE_SHORT: readonly string[] = ["Request", "Review process", "Finalize", "Package"];
@@ -32,10 +33,10 @@ export function CorePilotMilestoneRail(props: {
               className={cn(
                 "flex min-w-[5.25rem] flex-1 list-none flex-col items-center rounded-sm border px-1 py-1 text-center max-sm:min-w-[4.5rem]",
                 complete
-                  ? "border-teal-200 bg-white text-teal-900 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
+                  ? cn(operatorSemanticSurface("ready"), "flex flex-col items-center text-center")
                   : current
-                    ? "border-teal-500 bg-teal-50 shadow-sm dark:border-teal-500 dark:bg-teal-950/60"
-                    : "border-neutral-200 bg-white/70 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-950/60 dark:text-neutral-400",
+                    ? cn(operatorSemanticSurface("current"), "flex flex-col items-center text-center")
+                    : cn(operatorSemanticSurface("neutral"), "flex flex-col items-center text-center"),
               )}
               data-testid={`core-pilot-milestone-${index}`}
               aria-current={current ? "step" : undefined}

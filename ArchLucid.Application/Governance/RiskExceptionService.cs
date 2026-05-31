@@ -116,9 +116,66 @@ public sealed class RiskExceptionService(IRiskExceptionRepository repository, IA
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
-        await _repository.MarkExpiredAsync(tenantId, TimeProvider.System.UtcNowDateTime(), cancellationToken);
+        IReadOnlyList<RiskExceptionRecord> expired =
+            await _repository.MarkExpiredAsync(tenantId, TimeProvider.System.UtcNowDateTime(), cancellationToken);
+
+        await AuditExpiredAsync(expired, cancellationToken);
 
         return await _repository.ListActiveForTenantAsync(tenantId, projectId, cancellationToken);
+    }
+
+    public async Task<RiskExceptionRecord> RenewAsync(
+        Guid tenantId,
+        Guid riskExceptionId,
+        RenewRiskExceptionRequest request,
+        string renewedByUserId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+
+        if (riskExceptionId == Guid.Empty)
+            throw new ArgumentException("Risk exception id is required.", nameof(riskExceptionId));
+
+        if (string.IsNullOrWhiteSpace(renewedByUserId))
+            throw new ArgumentException("Renewed-by user id is required.", nameof(renewedByUserId));
+
+        DateTimeOffset now = TimeProvider.System.UtcNowDateTime();
+        RiskExceptionValidation.ValidateRenew(request, now);
+
+        await _repository.RenewAsync(
+            tenantId,
+            riskExceptionId,
+            request.ExpiresAtUtc,
+            renewedByUserId.Trim(),
+            request.Rationale,
+            request.EvidenceRef,
+            cancellationToken);
+
+        RiskExceptionRecord? record = await _repository.GetByIdAsync(tenantId, riskExceptionId, cancellationToken);
+
+        if (record is null)
+            throw new InvalidOperationException("Risk exception was not found after renewal.");
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RiskExceptionRenewed,
+                ActorUserId = renewedByUserId.Trim(),
+                ActorUserName = renewedByUserId.Trim(),
+                TenantId = tenantId,
+                WorkspaceId = record.WorkspaceId,
+                ProjectId = record.ProjectId,
+                RunId = record.RunId,
+                DataJson = JsonSerializer.Serialize(
+                    new { riskExceptionId, record.FindingId, record.ExpiresAtUtc },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
+        return record;
     }
 
     public async Task<IReadOnlyList<RiskExceptionRecord>> ListRetiredSinceAsync(
@@ -131,5 +188,28 @@ public sealed class RiskExceptionService(IRiskExceptionRepository repository, IA
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
         return await _repository.ListRetiredSinceUtcAsync(tenantId, projectId, sinceUtc, cancellationToken);
+    }
+
+    private async Task AuditExpiredAsync(
+        IReadOnlyList<RiskExceptionRecord> expired,
+        CancellationToken cancellationToken)
+    {
+        foreach (RiskExceptionRecord record in expired)
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RiskExceptionExpired,
+                    ActorUserId = "system",
+                    ActorUserName = "system",
+                    TenantId = record.TenantId,
+                    WorkspaceId = record.WorkspaceId,
+                    ProjectId = record.ProjectId,
+                    RunId = record.RunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { record.RiskExceptionId, record.FindingId, record.ExpiresAtUtc },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                cancellationToken);
     }
 }
