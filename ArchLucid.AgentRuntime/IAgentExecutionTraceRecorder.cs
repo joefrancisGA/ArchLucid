@@ -44,6 +44,9 @@ public interface IAgentExecutionTraceRecorder
     ///     Optional stable code (e.g. <see cref="AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected" />) for
     ///     operator alerting; persisted on <see cref="AgentExecutionTrace.FailureReasonCode" />.
     /// </param>
+    /// <param name="completionTemperature">Temperature sent to the provider for this call (TB-033).</param>
+    /// <param name="maxCompletionTokens">Max output tokens sent to the provider (TB-033).</param>
+    /// <param name="completionTopP">Top-p sent to the provider when configured (TB-033).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that completes when the trace is stored.</returns>
     Task RecordAsync(
@@ -64,5 +67,8 @@ public interface IAgentExecutionTraceRecorder
         string? modelVersion = null,
         bool isSimulatorExecution = false,
         string? failureReasonCode = null,
+        float? completionTemperature = null,
+        int? maxCompletionTokens = null,
+        float? completionTopP = null,
         CancellationToken cancellationToken = default);
 }
