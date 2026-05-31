@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="70a64eb3-0bf4-4711-bc21-18b997aa168f" name="@runnervm3jyl0 2026-05-30 14:23:34" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-05-30T14:23:34.0618261+00:00" queuing="2026-05-30T14:23:34.0618262+00:00" start="2026-05-30T14:21:25.5018072+00:00" finish="2026-05-30T14:23:34.0738575+00:00" />
+  <TestSettings name="default" id="58c6fc84-65b1-4025-adc0-7ad95723f44a">
+    <Deployment runDeploymentRoot="_runnervm3jyl0_2026-05-30_14_23_34" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="c1310073-ae0f-48e8-a782-8a398c28bb26" testId="2a4bb47f-872f-de5e-1190-87bf724645fa" testName="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorConfigurationServiceTests.ConfigureAsync_persists_without_client_secret_fields" computerName="runnervm3jyl0" duration="00:00:00.0197028" startTime="2026-05-30T14:23:30.8374630+00:00" endTime="2026-05-30T14:23:30.8374893+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c1310073-ae0f-48e8-a782-8a398c28bb26" />
+    <UnitTestResult executionId="7bc2050e-5bc0-4d77-bdcf-48eb967172fb" testId="964c99d2-a256-9d17-aa44-ef4058339ef1" testName="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorZipBuilderTests.BuildZip_manifest_is_schema_version_1" computerName="runnervm3jyl0" duration="00:00:00.0613122" startTime="2026-05-30T14:23:30.8747958+00:00" endTime="2026-05-30T14:23:30.8747958+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7bc2050e-5bc0-4d77-bdcf-48eb967172fb" />
+    <UnitTestResult executionId="6cdda63d-a8b4-4617-8cba-cd3d5d01e4c8" testId="d0ccd5c8-6f09-70bf-88b9-2dc1345850a6" testName="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorZipBuilderTests.BuildZip_contains_manifest_resources_and_policy_compliance_entries" computerName="runnervm3jyl0" duration="00:00:00.0194365" startTime="2026-05-30T14:23:30.8944445+00:00" endTime="2026-05-30T14:23:30.8944445+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6cdda63d-a8b4-4617-8cba-cd3d5d01e4c8" />
+    <UnitTestResult executionId="08136cf4-e212-4349-9e29-412b762e2a5c" testId="72db90d8-eab5-422d-f4d6-d1d848876743" testName="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorConfigurationServiceTests.ConfigureAsync_rejects_non_guid_app_id" computerName="runnervm3jyl0" duration="00:00:00.0031128" startTime="2026-05-30T14:23:30.8515601+00:00" endTime="2026-05-30T14:23:30.8515602+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="08136cf4-e212-4349-9e29-412b762e2a5c" />
+    <UnitTestResult executionId="867eba90-654b-4f4a-8953-edbfff0d7821" testId="203a6e49-6c24-8be3-1c5b-49c30239a83b" testName="ArchLucid.Integrations.AzureExtractor.Tests.GetOnlyHostedAzureArmReadClientTests.ListSubscriptionResourcesAsync_uses_get_only_against_management_azure_com" computerName="runnervm3jyl0" duration="00:00:00.0335759" startTime="2026-05-30T14:23:30.8527060+00:00" endTime="2026-05-30T14:23:30.8527060+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="867eba90-654b-4f4a-8953-edbfff0d7821" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorZipBuilderTests.BuildZip_contains_manifest_resources_and_policy_compliance_entries" storage="/home/runner/work/archlucid/archlucid/archlucid.integrations.azureextractor.tests/bin/release/net10.0/archlucid.integrations.azureextractor.tests.dll" id="d0ccd5c8-6f09-70bf-88b9-2dc1345850a6">
+      <Execution id="6cdda63d-a8b4-4617-8cba-cd3d5d01e4c8" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Integrations.AzureExtractor.Tests/bin/Release/net10.0/ArchLucid.Integrations.AzureExtractor.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorZipBuilderTests" name="BuildZip_contains_manifest_resources_and_policy_compliance_entries" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Integrations.AzureExtractor.Tests.GetOnlyHostedAzureArmReadClientTests.ListSubscriptionResourcesAsync_uses_get_only_against_management_azure_com" storage="/home/runner/work/archlucid/archlucid/archlucid.integrations.azureextractor.tests/bin/release/net10.0/archlucid.integrations.azureextractor.tests.dll" id="203a6e49-6c24-8be3-1c5b-49c30239a83b">
+      <Execution id="867eba90-654b-4f4a-8953-edbfff0d7821" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Integrations.AzureExtractor.Tests/bin/Release/net10.0/ArchLucid.Integrations.AzureExtractor.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Integrations.AzureExtractor.Tests.GetOnlyHostedAzureArmReadClientTests" name="ListSubscriptionResourcesAsync_uses_get_only_against_management_azure_com" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorZipBuilderTests.BuildZip_manifest_is_schema_version_1" storage="/home/runner/work/archlucid/archlucid/archlucid.integrations.azureextractor.tests/bin/release/net10.0/archlucid.integrations.azureextractor.tests.dll" id="964c99d2-a256-9d17-aa44-ef4058339ef1">
+      <Execution id="7bc2050e-5bc0-4d77-bdcf-48eb967172fb" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Integrations.AzureExtractor.Tests/bin/Release/net10.0/ArchLucid.Integrations.AzureExtractor.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorZipBuilderTests" name="BuildZip_manifest_is_schema_version_1" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorConfigurationServiceTests.ConfigureAsync_rejects_non_guid_app_id" storage="/home/runner/work/archlucid/archlucid/archlucid.integrations.azureextractor.tests/bin/release/net10.0/archlucid.integrations.azureextractor.tests.dll" id="72db90d8-eab5-422d-f4d6-d1d848876743">
+      <Execution id="08136cf4-e212-4349-9e29-412b762e2a5c" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Integrations.AzureExtractor.Tests/bin/Release/net10.0/ArchLucid.Integrations.AzureExtractor.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorConfigurationServiceTests" name="ConfigureAsync_rejects_non_guid_app_id" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorConfigurationServiceTests.ConfigureAsync_persists_without_client_secret_fields" storage="/home/runner/work/archlucid/archlucid/archlucid.integrations.azureextractor.tests/bin/release/net10.0/archlucid.integrations.azureextractor.tests.dll" id="2a4bb47f-872f-de5e-1190-87bf724645fa">
+      <Execution id="c1310073-ae0f-48e8-a782-8a398c28bb26" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Integrations.AzureExtractor.Tests/bin/Release/net10.0/ArchLucid.Integrations.AzureExtractor.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Integrations.AzureExtractor.Tests.HostedAzureExtractorConfigurationServiceTests" name="ConfigureAsync_persists_without_client_secret_fields" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="2a4bb47f-872f-de5e-1190-87bf724645fa" executionId="c1310073-ae0f-48e8-a782-8a398c28bb26" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="964c99d2-a256-9d17-aa44-ef4058339ef1" executionId="7bc2050e-5bc0-4d77-bdcf-48eb967172fb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d0ccd5c8-6f09-70bf-88b9-2dc1345850a6" executionId="6cdda63d-a8b4-4617-8cba-cd3d5d01e4c8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72db90d8-eab5-422d-f4d6-d1d848876743" executionId="08136cf4-e212-4349-9e29-412b762e2a5c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="203a6e49-6c24-8be3-1c5b-49c30239a83b" executionId="867eba90-654b-4f4a-8953-edbfff0d7821" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="5" executed="5" passed="5" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.8)
+[xUnit.net 00:00:00.07]   Discovering: ArchLucid.Integrations.AzureExtractor.Tests
+[xUnit.net 00:00:00.12]   Discovered:  ArchLucid.Integrations.AzureExtractor.Tests
+[xUnit.net 00:00:00.12]   Starting:    ArchLucid.Integrations.AzureExtractor.Tests
+[xUnit.net 00:00:00.26]   Finished:    ArchLucid.Integrations.AzureExtractor.Tests
+</StdOut>
+    </Output>
+    <CollectorDataEntries>
+      <Collector agentName="runnervm3jyl0" uri="datacollector://microsoft/CoverletCodeCoverage/1.0" collectorDisplayName="XPlat code coverage">
+        <UriAttachments>
+          <UriAttachment>
+            <A href="runnervm3jyl0/coverage.cobertura.xml"></A>
+          </UriAttachment>
+        </UriAttachments>
+      </Collector>
+    </CollectorDataEntries>
+  </ResultSummary>
+</TestRun>

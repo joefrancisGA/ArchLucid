@@ -53,6 +53,32 @@ describe("proxy-scope-resolution", () => {
     expect(isProxyClientScopeForwardingAllowed()).toBe(false);
   });
 
+  it("prefers bearer jwt scope over client headers in production", () => {
+    process.env.NODE_ENV = "production";
+    process.env.ARCHLUCID_PROXY_TENANT_ID = "11111111-1111-1111-1111-111111111111";
+
+    const payload = Buffer.from(
+      JSON.stringify({
+        tenant_id: "aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee",
+        workspace_id: "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb",
+        project_id: "cccccccc-cccc-4ccc-cccc-cccccccccccc",
+      }),
+      "utf8",
+    ).toString("base64url");
+    const token = `header.${payload}.sig`;
+
+    const headers = new Headers({
+      authorization: `Bearer ${token}`,
+      "x-tenant-id": "99999999-9999-4999-8999-999999999999",
+      "x-workspace-id": "88888888-8888-4888-8888-888888888888",
+      "x-project-id": "77777777-7777-4777-8777-777777777777",
+    });
+
+    const resolved = resolveProxyUpstreamScopeHeaders(headers);
+
+    expect(resolved["x-tenant-id"]).toBe("aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee");
+  });
+
   it("honors explicit dev escape hatch in production", () => {
     process.env.NODE_ENV = "production";
     process.env.ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS = "true";

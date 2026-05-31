@@ -57,6 +57,24 @@ public sealed class GoldenManifestCompareMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_escapes_highlight_markdown_and_rejects_unsafe_deep_links()
+    {
+        ComparisonResult result = new()
+        {
+            BaseRunId = Guid.NewGuid(),
+            TargetRunId = Guid.NewGuid(),
+            TotalDeltaCount = 1,
+            SummaryHighlights = ["**bold** [x](javascript:alert(1))"],
+        };
+
+        string md = GoldenManifestCompareMarkdownFormatter.Format(result, "javascript:alert(1)");
+
+        Assert.Contains("\\*\\*bold\\*\\*", md, StringComparison.Ordinal);
+        Assert.DoesNotContain("javascript:", md, StringComparison.Ordinal);
+        Assert.DoesNotContain("Open operator run", md, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Format_without_highlights_and_white_space_deep_link_behaves_like_no_link()
     {
         Guid baseRun = Guid.NewGuid();

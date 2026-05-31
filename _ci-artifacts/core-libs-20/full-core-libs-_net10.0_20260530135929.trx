@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="faeb30a3-4bd1-43fe-8768-282bb9e44f58" name="@runnervm3jyl0 2026-05-30 13:59:28" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-05-30T13:59:28.8445988+00:00" queuing="2026-05-30T13:59:28.8445988+00:00" start="2026-05-30T13:58:57.4602077+00:00" finish="2026-05-30T13:59:29.0727918+00:00" />
+  <TestSettings name="default" id="ff0dd6ce-15f4-4f4d-bf40-dfa5eb4057b1">
+    <Deployment runDeploymentRoot="_runnervm3jyl0_2026-05-30_13_59_28" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="97844160-0d1d-4735-b166-756a12338ab2" testId="803c93b3-8fa7-040b-ae15-7bacbf063f66" testName="ArchLucid.Api.Client.Tests.ArchLucidApiClientPackageTests.Package_marker_type_is_public_for_discovery" computerName="runnervm3jyl0" duration="00:00:00.0041756" startTime="2026-05-30T13:59:28.7097265+00:00" endTime="2026-05-30T13:59:28.7097555+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="97844160-0d1d-4735-b166-756a12338ab2" />
+    <UnitTestResult executionId="eea4c66f-ebee-48d8-8164-472b84f7032c" testId="9a4f7fda-021a-4918-8c93-a7fb46e7ec21" testName="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.Client_JsonSerializerSettings_deserializes_enum_from_json_string_for_CitationReference" computerName="runnervm3jyl0" duration="00:00:00.0153260" startTime="2026-05-30T13:59:28.7633744+00:00" endTime="2026-05-30T13:59:28.7633745+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eea4c66f-ebee-48d8-8164-472b84f7032c" />
+    <UnitTestResult executionId="f1444349-4e1a-4862-9f7e-1ad3e5f260be" testId="5699aef6-5424-cfb7-f4cf-fe3c801d8e9d" testName="ArchLucid.Api.Client.Tests.FileParameterTests.Constructor_with_fileName_and_contentType_sets_all_properties" computerName="runnervm3jyl0" duration="00:00:00.0001441" startTime="2026-05-30T13:59:28.7192051+00:00" endTime="2026-05-30T13:59:28.7192052+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f1444349-4e1a-4862-9f7e-1ad3e5f260be" />
+    <UnitTestResult executionId="61ef8aab-05fe-4513-9485-08f34c871a16" testId="ee656782-01e1-a489-531c-9b24076eee19" testName="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.VersionAsync_deserializes_BuildInfoResponse" computerName="runnervm3jyl0" duration="00:00:00.0463931" startTime="2026-05-30T13:59:28.7373104+00:00" endTime="2026-05-30T13:59:28.7373105+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="61ef8aab-05fe-4513-9485-08f34c871a16" />
+    <UnitTestResult executionId="cdf763bb-f01f-4f6b-bfb4-f076c3fb5bb7" testId="28c4021f-8824-5497-9038-bd7f1d926ce9" testName="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.BaseUrl_without_trailing_slash_is_normalized" computerName="runnervm3jyl0" duration="00:00:00.0001876" startTime="2026-05-30T13:59:28.8000986+00:00" endTime="2026-05-30T13:59:28.8000986+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cdf763bb-f01f-4f6b-bfb4-f076c3fb5bb7" />
+    <UnitTestResult executionId="e8d73f4e-f304-4e31-a4cf-c0959627a2d5" testId="96a2990c-6ac7-23f5-1863-416868c43d37" testName="ArchLucid.Api.Client.Tests.FileParameterTests.Empty_stream_is_accepted_for_optional_upload_shapes" computerName="runnervm3jyl0" duration="00:00:00.0044195" startTime="2026-05-30T13:59:28.7198918+00:00" endTime="2026-05-30T13:59:28.7198919+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e8d73f4e-f304-4e31-a4cf-c0959627a2d5" />
+    <UnitTestResult executionId="64659ea5-b499-4c3a-9514-33879a3490d2" testId="26db48fa-0443-f555-95b6-99765d17c35d" testName="ArchLucid.Api.Client.Tests.FileParameterTests.Constructor_stream_only_sets_defaults_for_name_and_content_type" computerName="runnervm3jyl0" duration="00:00:00.0041594" startTime="2026-05-30T13:59:28.7172914+00:00" endTime="2026-05-30T13:59:28.7172915+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="64659ea5-b499-4c3a-9514-33879a3490d2" />
+    <UnitTestResult executionId="2d3a0264-f3eb-4a90-8726-860e98f08737" testId="76fe7f9a-62aa-e18b-6434-58958203a9fa" testName="ArchLucid.Api.Client.Tests.FileParameterTests.Constructor_with_fileName_passes_through" computerName="runnervm3jyl0" duration="00:00:00.0001620" startTime="2026-05-30T13:59:28.7195342+00:00" endTime="2026-05-30T13:59:28.7195343+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2d3a0264-f3eb-4a90-8726-860e98f08737" />
+    <UnitTestResult executionId="7f0b1620-9a0f-4261-8ea0-fac389e9d7ad" testId="924d871f-3c02-9641-de54-8b5e4170a4e2" testName="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.ExecutiveSummaryAsync_401_throws_with_ProblemDetails_including_traceId" computerName="runnervm3jyl0" duration="00:00:00.0076691" startTime="2026-05-30T13:59:28.7994139+00:00" endTime="2026-05-30T13:59:28.7994139+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7f0b1620-9a0f-4261-8ea0-fac389e9d7ad" />
+    <UnitTestResult executionId="65da5248-b15e-4fcf-80a6-6672ad9c755d" testId="e8d5743a-e062-5060-ea5c-b6829fb55453" testName="ArchLucid.Api.Client.Tests.FileParameterTests.Properties_expose_live_stream_reference_without_disposing_it" computerName="runnervm3jyl0" duration="00:00:00.0009880" startTime="2026-05-30T13:59:28.7188578+00:00" endTime="2026-05-30T13:59:28.7188578+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="65da5248-b15e-4fcf-80a6-6672ad9c755d" />
+    <UnitTestResult executionId="786eea94-9212-4c14-8632-71e82703fc75" testId="a473e0d8-8a78-5e81-db7b-6eaa15df69e3" testName="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.MeAsync_deserializes_CallerIdentityResponse" computerName="runnervm3jyl0" duration="00:00:00.0087930" startTime="2026-05-30T13:59:28.8006230+00:00" endTime="2026-05-30T13:59:28.8006230+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="786eea94-9212-4c14-8632-71e82703fc75" />
+    <UnitTestResult executionId="00c6c40b-dbbe-4474-a8b7-15d4b6671171" testId="181f8b7a-da40-5795-bb01-84c5f764082d" testName="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.Client_JsonSerializerSettings_round_trips_ProblemDetails_traceId" computerName="runnervm3jyl0" duration="00:00:00.0105481" startTime="2026-05-30T13:59:28.7479423+00:00" endTime="2026-05-30T13:59:28.7479424+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="00c6c40b-dbbe-4474-a8b7-15d4b6671171" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.BaseUrl_without_trailing_slash_is_normalized" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="28c4021f-8824-5497-9038-bd7f1d926ce9">
+      <Execution id="cdf763bb-f01f-4f6b-bfb4-f076c3fb5bb7" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests" name="BaseUrl_without_trailing_slash_is_normalized" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.MeAsync_deserializes_CallerIdentityResponse" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="a473e0d8-8a78-5e81-db7b-6eaa15df69e3">
+      <Execution id="786eea94-9212-4c14-8632-71e82703fc75" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests" name="MeAsync_deserializes_CallerIdentityResponse" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.VersionAsync_deserializes_BuildInfoResponse" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="ee656782-01e1-a489-531c-9b24076eee19">
+      <Execution id="61ef8aab-05fe-4513-9485-08f34c871a16" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests" name="VersionAsync_deserializes_BuildInfoResponse" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.FileParameterTests.Constructor_with_fileName_and_contentType_sets_all_properties" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="5699aef6-5424-cfb7-f4cf-fe3c801d8e9d">
+      <Execution id="f1444349-4e1a-4862-9f7e-1ad3e5f260be" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.FileParameterTests" name="Constructor_with_fileName_and_contentType_sets_all_properties" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.FileParameterTests.Constructor_stream_only_sets_defaults_for_name_and_content_type" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="26db48fa-0443-f555-95b6-99765d17c35d">
+      <Execution id="64659ea5-b499-4c3a-9514-33879a3490d2" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.FileParameterTests" name="Constructor_stream_only_sets_defaults_for_name_and_content_type" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.FileParameterTests.Constructor_with_fileName_passes_through" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="76fe7f9a-62aa-e18b-6434-58958203a9fa">
+      <Execution id="2d3a0264-f3eb-4a90-8726-860e98f08737" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.FileParameterTests" name="Constructor_with_fileName_passes_through" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.Client_JsonSerializerSettings_round_trips_ProblemDetails_traceId" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="181f8b7a-da40-5795-bb01-84c5f764082d">
+      <Execution id="00c6c40b-dbbe-4474-a8b7-15d4b6671171" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests" name="Client_JsonSerializerSettings_round_trips_ProblemDetails_traceId" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.FileParameterTests.Properties_expose_live_stream_reference_without_disposing_it" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="e8d5743a-e062-5060-ea5c-b6829fb55453">
+      <Execution id="65da5248-b15e-4fcf-80a6-6672ad9c755d" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.FileParameterTests" name="Properties_expose_live_stream_reference_without_disposing_it" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.Client_JsonSerializerSettings_deserializes_enum_from_json_string_for_CitationReference" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="9a4f7fda-021a-4918-8c93-a7fb46e7ec21">
+      <Execution id="eea4c66f-ebee-48d8-8164-472b84f7032c" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests" name="Client_JsonSerializerSettings_deserializes_enum_from_json_string_for_CitationReference" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests.ExecutiveSummaryAsync_401_throws_with_ProblemDetails_including_traceId" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="924d871f-3c02-9641-de54-8b5e4170a4e2">
+      <Execution id="7f0b1620-9a0f-4261-8ea0-fac389e9d7ad" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.ArchLucidApiClientWireTests" name="ExecutiveSummaryAsync_401_throws_with_ProblemDetails_including_traceId" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.FileParameterTests.Empty_stream_is_accepted_for_optional_upload_shapes" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="96a2990c-6ac7-23f5-1863-416868c43d37">
+      <Execution id="e8d73f4e-f304-4e31-a4cf-c0959627a2d5" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.FileParameterTests" name="Empty_stream_is_accepted_for_optional_upload_shapes" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Api.Client.Tests.ArchLucidApiClientPackageTests.Package_marker_type_is_public_for_discovery" storage="/home/runner/work/archlucid/archlucid/archlucid.api.client.tests/bin/release/net10.0/archlucid.api.client.tests.dll" id="803c93b3-8fa7-040b-ae15-7bacbf063f66">
+      <Execution id="97844160-0d1d-4735-b166-756a12338ab2" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Api.Client.Tests/bin/Release/net10.0/ArchLucid.Api.Client.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Api.Client.Tests.ArchLucidApiClientPackageTests" name="Package_marker_type_is_public_for_discovery" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="803c93b3-8fa7-040b-ae15-7bacbf063f66" executionId="97844160-0d1d-4735-b166-756a12338ab2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9a4f7fda-021a-4918-8c93-a7fb46e7ec21" executionId="eea4c66f-ebee-48d8-8164-472b84f7032c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5699aef6-5424-cfb7-f4cf-fe3c801d8e9d" executionId="f1444349-4e1a-4862-9f7e-1ad3e5f260be" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ee656782-01e1-a489-531c-9b24076eee19" executionId="61ef8aab-05fe-4513-9485-08f34c871a16" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="28c4021f-8824-5497-9038-bd7f1d926ce9" executionId="cdf763bb-f01f-4f6b-bfb4-f076c3fb5bb7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="96a2990c-6ac7-23f5-1863-416868c43d37" executionId="e8d73f4e-f304-4e31-a4cf-c0959627a2d5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="26db48fa-0443-f555-95b6-99765d17c35d" executionId="64659ea5-b499-4c3a-9514-33879a3490d2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="76fe7f9a-62aa-e18b-6434-58958203a9fa" executionId="2d3a0264-f3eb-4a90-8726-860e98f08737" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="924d871f-3c02-9641-de54-8b5e4170a4e2" executionId="7f0b1620-9a0f-4261-8ea0-fac389e9d7ad" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e8d5743a-e062-5060-ea5c-b6829fb55453" executionId="65da5248-b15e-4fcf-80a6-6672ad9c755d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a473e0d8-8a78-5e81-db7b-6eaa15df69e3" executionId="786eea94-9212-4c14-8632-71e82703fc75" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="181f8b7a-da40-5795-bb01-84c5f764082d" executionId="00c6c40b-dbbe-4474-a8b7-15d4b6671171" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="12" executed="12" passed="12" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.8)
+[xUnit.net 00:00:00.07]   Discovering: ArchLucid.Api.Client.Tests
+[xUnit.net 00:00:00.12]   Discovered:  ArchLucid.Api.Client.Tests
+[xUnit.net 00:00:00.13]   Starting:    ArchLucid.Api.Client.Tests
+[xUnit.net 00:00:00.29]   Finished:    ArchLucid.Api.Client.Tests
+</StdOut>
+    </Output>
+    <CollectorDataEntries>
+      <Collector agentName="runnervm3jyl0" uri="datacollector://microsoft/CoverletCodeCoverage/1.0" collectorDisplayName="XPlat code coverage">
+        <UriAttachments>
+          <UriAttachment>
+            <A href="runnervm3jyl0/coverage.cobertura.xml"></A>
+          </UriAttachment>
+        </UriAttachments>
+      </Collector>
+    </CollectorDataEntries>
+  </ResultSummary>
+</TestRun>
