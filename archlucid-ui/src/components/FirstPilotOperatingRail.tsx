@@ -82,24 +82,6 @@ export function FirstPilotOperatingRail() {
   });
 
   useEffect(() => {
-    try {
-      if (typeof window === "undefined") {
-        return;
-      }
-
-      const raw = window.localStorage.getItem(RAIL_MINIMIZED_STORAGE_KEY);
-
-      if (raw === "0") {
-        setMinimized(false);
-      } else if (raw === "1") {
-        setMinimized(true);
-      }
-    } catch {
-      /* private mode */
-    }
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
 
     async function load(): Promise<void> {
