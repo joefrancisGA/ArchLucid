@@ -17,11 +17,14 @@ import type { ArtifactDescriptor } from "@/types/authority";
 
 const SAVINGS_JSON_FETCH_CAP_BYTES = 786_432;
 
-/** Headline KPI surfaced from extracted Azure-finops JSON blobs when present after commit. */
+export type RunSavingsSummarySourceKind = "server-findings" | "static-demo" | "extractor-heuristic";
+
+/** Headline KPI surfaced on run detail — server resolver, static demo, or demo-only extractor heuristics. */
 export type RunSavingsSummaryModel = Readonly<{
   annualizedUsd: number;
   /** Short methodology footnotes (never echoes raw payloads). */
   basisFootnotes: readonly string[];
+  sourceKind: RunSavingsSummarySourceKind;
 }>;
 
 /** Picks extractor-style artifacts deterministically regardless of synthesized `artifactType`. */
@@ -70,7 +73,7 @@ export async function loadRunSavingsSummaryModel(params: Readonly<{
     const amount = SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD;
 
     if (amount > 0) {
-      return { annualizedUsd: amount, basisFootnotes: footnotes };
+      return { annualizedUsd: amount, basisFootnotes: footnotes, sourceKind: "static-demo" };
     }
 
     return null;
@@ -141,6 +144,7 @@ export async function loadRunSavingsSummaryModel(params: Readonly<{
   return {
     annualizedUsd: sumRounded,
     basisFootnotes: dedupeFootnotesPreserveOrder(footnotesAccumulator),
+    sourceKind: "extractor-heuristic",
   };
 }
 

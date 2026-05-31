@@ -57,7 +57,8 @@ def test_summary_includes_sponsor_packet_disposition() -> None:
     disposition_text = DISPOSITION.read_text(encoding="utf-8-sig")
     assert "'READINESS_ONLY'" in disposition_text
     assert "'HOLD'" in text or "'HOLD'" in disposition_text
-    assert "'SEND'" in text or "'SEND'" in disposition_text
+    assert "'READY'" in disposition_text
+    assert "'WARN'" in disposition_text
     assert "'DEFERRED_SCOPE'" in disposition_text
     assert "## Sponsor Handoff Disposition" in text
 
@@ -337,6 +338,8 @@ def test_disposition_helpers_cover_send_hold_and_deferred_scope() -> None:
     text = DISPOSITION.read_text(encoding="utf-8-sig")
 
     assert "function Resolve-SponsorPacketDisposition" in text
+    assert "return 'READINESS_ONLY'" in text
+    assert "return 'READY'" in text
     assert "return 'DEFERRED_SCOPE'" in text
     assert "function Test-RoiBasisSponsorSafe" in text
     assert "function Resolve-DataConsistencyStatusFromCollector" in text

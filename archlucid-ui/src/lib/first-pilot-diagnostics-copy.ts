@@ -1,7 +1,7 @@
 /** Operator-safe proof/diagnostics messaging — CLI details stay behind disclosures. */
 
 export const FIRST_PILOT_PROOF_STATUS_UNAVAILABLE =
-  "Proof status unavailable. Open diagnostics to refresh proof readiness.";
+  "Review-readiness status unavailable. Open diagnostics to refresh readiness.";
 
 export const FIRST_PILOT_PROOF_NOT_RUN_COPY =
   "Pilot proof has not been collected yet. Finalize a review, then open diagnostics to refresh.";
