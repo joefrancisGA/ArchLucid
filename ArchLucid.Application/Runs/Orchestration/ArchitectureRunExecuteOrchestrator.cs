@@ -6,6 +6,7 @@ using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
