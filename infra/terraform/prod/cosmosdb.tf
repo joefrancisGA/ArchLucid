@@ -1,4 +1,4 @@
-﻿# Optional Cosmos DB account. Disabled by default per V1_DEFERRED optional services.
+# Optional Cosmos DB account. Disabled by default per V1_DEFERRED optional services.
 
 resource "azurerm_cosmosdb_account" "optional" {
   count = var.enable_cosmosdb ? 1 : 0

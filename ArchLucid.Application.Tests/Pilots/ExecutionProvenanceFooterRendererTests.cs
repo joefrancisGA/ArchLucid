@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
@@ -13,6 +14,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
     public void BuildFooterMarkdown_WhenSimulatorMode_usesSimulatorLabel()
     {
         ExecutionProvenanceFooterInput input = new(
+            PersistedStructuralExecutionMode: StructuralExecutionMode.Simulator,
             RealModeFellBackToSimulator: false,
             PilotAoaiDeploymentSnapshot: null,
             HostAgentExecutionMode: "Simulator",
@@ -29,6 +31,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
     public void BuildFooterMarkdown_WhenRealMode_usesRealLabelAndDeployment()
     {
         ExecutionProvenanceFooterInput input = new(
+            PersistedStructuralExecutionMode: StructuralExecutionMode.Real,
             RealModeFellBackToSimulator: false,
             PilotAoaiDeploymentSnapshot: null,
             HostAgentExecutionMode: "Real",
@@ -45,6 +48,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
     public void BuildFooterMarkdown_WhenFellBack_usesFallbackLabelAndSnapshotDeployment()
     {
         ExecutionProvenanceFooterInput input = new(
+            PersistedStructuralExecutionMode: StructuralExecutionMode.Fallback,
             RealModeFellBackToSimulator: true,
             PilotAoaiDeploymentSnapshot: "snap-dep",
             HostAgentExecutionMode: "Real",
@@ -53,6 +57,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
 
         string md = _sut.BuildFooterMarkdown(input);
 
+        md.Should().Contain("| Mode | Fallback |");
         md.Should().Contain("Real \u2192 Simulator (fallback)");
         md.Should().Contain("`snap-dep`");
     }
@@ -61,6 +66,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
     public void BuildFooterMarkdown_WhenFellBackAndNoSnapshot_showsUnknownPlaceholder()
     {
         ExecutionProvenanceFooterInput input = new(
+            PersistedStructuralExecutionMode: StructuralExecutionMode.Fallback,
             RealModeFellBackToSimulator: true,
             PilotAoaiDeploymentSnapshot: null,
             HostAgentExecutionMode: "Real",

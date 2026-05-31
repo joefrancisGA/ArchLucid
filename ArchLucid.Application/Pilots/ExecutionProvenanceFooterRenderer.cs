@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -22,7 +23,7 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
         ArgumentNullException.ThrowIfNull(input);
 
         string modeLabel = ResolveModeLabel(input);
-        string fallbackDetailRow = input.PersistedStructuralExecutionMode == Contracts.Common.StructuralExecutionMode.Fallback
+        string fallbackDetailRow = input.PersistedStructuralExecutionMode == StructuralExecutionMode.Fallback
             ? "| Fallback path | Real → Simulator (fallback) |\n"
             : string.Empty;
         string deployment = input.RealModeFellBackToSimulator

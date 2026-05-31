@@ -108,6 +108,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
 
         string footer = renderer.BuildFooterMarkdown(
             new ExecutionProvenanceFooterInput(
+                StructuralExecutionMode.Fallback,
                 RealModeFellBackToSimulator: true,
                 PilotAoaiDeploymentSnapshot: "gpt-4o-mini",
                 HostAgentExecutionMode: "Real",
@@ -115,6 +116,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
                 LlmCompletionTraceCount: 0));
 
         footer.Should().Contain("Real → Simulator (fallback)");
+        footer.Should().Contain("| Mode | Fallback |");
         footer.Should().NotContain("| Mode | Real |");
     }
 
