@@ -15,6 +15,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using AgentExecutionTraceRecorderImpl = ArchLucid.AgentRuntime.AgentExecutionTraceRecorder;
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class AgentExecutionTraceRecorderSamplingParamsTests
     public async Task RecordAsync_persists_reasoning_tokens_and_sampling_params_from_ambient()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateSut(repo);
+        AgentExecutionTraceRecorderImpl sut = CreateSut(repo);
 
         LlmCompletionRequestParamsAmbient.TestingSeed(temperature: 0.2f, maxOutputTokens: 4096, topP: 0.95f);
 
@@ -59,7 +61,7 @@ public sealed class AgentExecutionTraceRecorderSamplingParamsTests
         stored[0].CompletionTopP.Should().Be(0.95f);
     }
 
-    private static AgentExecutionTraceRecorder CreateSut(InMemoryAgentExecutionTraceRepository repo)
+    private static AgentExecutionTraceRecorderImpl CreateSut(InMemoryAgentExecutionTraceRepository repo)
     {
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(c => c.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
@@ -70,7 +72,7 @@ public sealed class AgentExecutionTraceRecorderSamplingParamsTests
 
         IPromptRedactor redactor = new PromptRedactor(redactionMonitor.Object, NullLogger<PromptRedactor>.Instance);
 
-        return new AgentExecutionTraceRecorder(
+        return new AgentExecutionTraceRecorderImpl(
             repo,
             cost.Object,
             Options.Create(new LlmCostEstimationOptions { Enabled = false }),
@@ -80,7 +82,7 @@ public sealed class AgentExecutionTraceRecorderSamplingParamsTests
             new FixedScopeProvider(),
             redactionMonitor.Object,
             redactor,
-            NullLogger<AgentExecutionTraceRecorder>.Instance);
+            NullLogger<AgentExecutionTraceRecorderImpl>.Instance);
     }
 
     private sealed class FixedScopeProvider : IScopeContextProvider
