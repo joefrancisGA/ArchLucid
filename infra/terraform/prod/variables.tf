@@ -238,3 +238,45 @@ variable "artifact_storage_account_id" {
   description = "Artifact storage account resource id for diagnostic settings (TB-099)."
   default     = null
 }
+
+variable "enable_redis" {
+  type        = bool
+  description = "When true, provisions optional Azure Cache for Redis (hot-path cache). Default false for V1 optional services."
+  default     = false
+}
+
+variable "redis_name" {
+  type        = string
+  description = "Redis cache name when enable_redis is true."
+  default     = null
+}
+
+variable "redis_capacity" {
+  type        = number
+  description = "Redis capacity when enable_redis is true (SKU-dependent)."
+  default     = 1
+}
+
+variable "redis_family" {
+  type        = string
+  description = "Redis family (C for Basic/Standard)."
+  default     = "C"
+}
+
+variable "redis_sku_name" {
+  type        = string
+  description = "Redis SKU (Basic, Standard, Premium)."
+  default     = "Standard"
+}
+
+variable "enable_cosmosdb" {
+  type        = bool
+  description = "When true, provisions optional Cosmos DB account. Default false for V1 optional services."
+  default     = false
+}
+
+variable "cosmosdb_account_name" {
+  type        = string
+  description = "Cosmos DB account name when enable_cosmosdb is true."
+  default     = null
+}

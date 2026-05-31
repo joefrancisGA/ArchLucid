@@ -162,6 +162,11 @@ export function NewRunWizardClient() {
 
     return raw;
   }, [searchParams]);
+  const followUpSourceRunId = useMemo(() => {
+    const raw = searchParams?.get("sourceRunId") ?? null;
+
+    return tryParseSampleRunQuery(raw);
+  }, [searchParams]);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
   const reviewStepIndex: number = baselineFirst ? 6 : 5;
@@ -446,6 +451,16 @@ export function NewRunWizardClient() {
       <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4 pb-36">
           {!wizardModeReady ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
+          ) : null}
+          {followUpSourceRunId !== null ? (
+            <p
+              className="rounded-md border border-teal-200/80 bg-teal-50/60 px-3 py-2 text-sm text-neutral-800 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-neutral-200"
+              data-testid="new-run-follow-up-source-run-id"
+            >
+              Follow-up review for prior run{" "}
+              <span className="font-mono text-xs">{followUpSourceRunId}</span>. Source context is stored for a
+              future wizard prefill.
+            </p>
           ) : null}
           {wizardModeReady ? (
             <div

@@ -5,6 +5,7 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
+import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
@@ -310,12 +311,15 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       />
 
       {m.manifestId ? (
-        <PostCommitHabitLoopCard
-          runId={m.routeRunId}
-          showCompareCta={m.canShowCompareReviewButton}
-          buyerShowcaseQuickLinks={m.usedStaticDemoRun}
-          goldenManifestId={m.manifestId}
-        />
+        <>
+          <RunDetailWhatsNextSection runId={m.routeRunId} />
+          <PostCommitHabitLoopCard
+            runId={m.routeRunId}
+            showCompareCta={m.canShowCompareReviewButton}
+            buyerShowcaseQuickLinks={m.usedStaticDemoRun}
+            goldenManifestId={m.manifestId}
+          />
+        </>
       ) : null}
 
       {m.manifestId ? (

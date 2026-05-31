@@ -27,6 +27,28 @@ That keeps the product easier to operate, keeps the first-value story clearer, a
 
 ---
 
+## 1a. Fast-path deployment presets (hosted vs self-hosted)
+
+Use this table when you need a working configuration without reading the full [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md). Keys are illustrative — confirm values in that reference before production apply.
+
+| Pattern | Auth mode | Storage topology | Execution mode | Retrieval provider |
+| --- | --- | --- | --- | --- |
+| **Hosted SaaS (standard)** | `JwtBearer` (Entra ID) | `SystemWithPerTenantCatalogs` | `real` (platform AOAI) | `AzureSearch` |
+| **Self-hosted enterprise** | `JwtBearer` (OIDC or SAML) | `SystemWithPerTenantCatalogs` | `real` (BYO AOAI endpoint) | `AzureSearch` |
+| **CI / developer local** | `DevBypass` | `SingleCatalog` | `simulator` | `InMemory` |
+
+### Which pattern should I use?
+
+1. **Production or hosted pilot?** → **Hosted SaaS (standard)** row.
+2. **Your own Azure subscription with Entra/OIDC/SAML?** → **Self-hosted enterprise** row.
+3. **Local compile/CI only?** → **CI / developer local** row (not tenant isolation for hosted workloads).
+
+`SingleCatalog` is for local and CI convenience only — do not treat it as substitute for per-tenant catalog isolation on hosted SaaS ([`V1_SCOPE.md`](V1_SCOPE.md) §2.4).
+
+Pilot onboarding spine: [`customer-facing/PILOT_GUIDE.md`](../customer-facing/PILOT_GUIDE.md).
+
+---
+
 ## 2. Which layer should I use?
 
 | Situation | Stay in Core Pilot | Move to Operate (analysis workloads) | Move to Operate (governance and trust) |
