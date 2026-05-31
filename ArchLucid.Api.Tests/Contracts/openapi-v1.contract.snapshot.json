@@ -16877,6 +16877,23 @@
         ],
         "type": "object"
       },
+      "RuleAuditTracePromptRef": {
+        "properties": {
+          "agentType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "templateId": {
+            "type": "string"
+          },
+          "templateVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RuleCandidateComparisonRequest": {
         "properties": {
           "candidateACompositeRule": {
@@ -17185,6 +17202,57 @@
         },
         "type": "object"
       },
+      "RunAuthorityRuleAuditExplainabilitySection": {
+        "properties": {
+          "acceptedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "appliedRuleIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "decisionTraceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "pipeline": {
+            "type": "string"
+          },
+          "promptRefs": {
+            "items": {
+              "$ref": "#/components/schemas/RuleAuditTracePromptRef"
+            },
+            "type": "array"
+          },
+          "rejectedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ruleSetId": {
+            "type": "string"
+          },
+          "ruleSetVersion": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunComparisonResponse": {
         "properties": {
           "hasManifestComparison": {
@@ -17221,6 +17289,117 @@
         },
         "type": "object"
       },
+      "RunCoordinatorDecisionNodeExplainabilityRow": {
+        "properties": {
+          "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "decisionId": {
+            "type": "string"
+          },
+          "opposingEvaluationIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "pipeline": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "selectedOptionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "supportingEvaluationIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "topic": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunDecisionExplainabilityDto": {
+        "properties": {
+          "authorityRuleAudit": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunAuthorityRuleAuditExplainabilitySection"
+              }
+            ]
+          },
+          "coordinatorDecisionNodes": {
+            "items": {
+              "$ref": "#/components/schemas/RunCoordinatorDecisionNodeExplainabilityRow"
+            },
+            "type": "array"
+          },
+          "findingEngineFailures": {
+            "items": {
+              "$ref": "#/components/schemas/RunFindingEngineFailureExplainabilityRow"
+            },
+            "type": "array"
+          },
+          "manifestDecisions": {
+            "items": {
+              "$ref": "#/components/schemas/RunManifestDecisionExplainabilityRow"
+            },
+            "type": "array"
+          },
+          "manifestHonestyWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "snapshotIds": {
+            "$ref": "#/components/schemas/RunDecisionExplainabilitySnapshotIds"
+          }
+        },
+        "type": "object"
+      },
+      "RunDecisionExplainabilitySnapshotIds": {
+        "properties": {
+          "contextSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingsSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "graphSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "RunDetailDto": {
         "properties": {
           "agentExecutionLlmCostEstimate": {
@@ -17253,16 +17432,6 @@
               }
             ]
           },
-          "decisionTrace": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/DecisionTraceDto"
-              }
-            ]
-          },
           "decisionExplainability": {
             "oneOf": [
               {
@@ -17270,6 +17439,16 @@
               },
               {
                 "$ref": "#/components/schemas/RunDecisionExplainabilityDto"
+              }
+            ]
+          },
+          "decisionTrace": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DecisionTraceDto"
               }
             ]
           },
@@ -17441,223 +17620,6 @@
                 "$ref": "#/components/schemas/RunTrustEvidenceCard"
               }
             ]
-          }
-        },
-        "type": "object"
-      },
-      "RuleAuditTracePromptRef": {
-        "properties": {
-          "agentType": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "templateId": {
-            "type": "string"
-          },
-          "templateVersion": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "RunAuthorityRuleAuditExplainabilitySection": {
-        "properties": {
-          "acceptedFindingIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "appliedRuleIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "decisionTraceId": {
-            "format": "uuid",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "notes": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "pipeline": {
-            "type": "string"
-          },
-          "promptRefs": {
-            "items": {
-              "$ref": "#/components/schemas/RuleAuditTracePromptRef"
-            },
-            "type": "array"
-          },
-          "rejectedFindingIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "ruleSetId": {
-            "type": "string"
-          },
-          "ruleSetVersion": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "RunCoordinatorDecisionNodeExplainabilityRow": {
-        "properties": {
-          "confidence": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "number",
-              "string"
-            ]
-          },
-          "decisionId": {
-            "type": "string"
-          },
-          "opposingEvaluationIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "pipeline": {
-            "type": "string"
-          },
-          "rationale": {
-            "type": "string"
-          },
-          "selectedOptionId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "supportingEvaluationIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "topic": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "RunDecisionExplainabilityDto": {
-        "properties": {
-          "authorityRuleAudit": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/RunAuthorityRuleAuditExplainabilitySection"
-              }
-            ]
-          },
-          "coordinatorDecisionNodes": {
-            "items": {
-              "$ref": "#/components/schemas/RunCoordinatorDecisionNodeExplainabilityRow"
-            },
-            "type": "array"
-          },
-          "manifestDecisions": {
-            "items": {
-              "$ref": "#/components/schemas/RunManifestDecisionExplainabilityRow"
-            },
-            "type": "array"
-          },
-          "snapshotIds": {
-            "$ref": "#/components/schemas/RunDecisionExplainabilitySnapshotIds"
-          }
-        },
-        "type": "object"
-      },
-      "RunDecisionExplainabilitySnapshotIds": {
-        "properties": {
-          "contextSnapshotId": {
-            "format": "uuid",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "findingsSnapshotId": {
-            "format": "uuid",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "graphSnapshotId": {
-            "format": "uuid",
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        },
-        "type": "object"
-      },
-      "RunManifestDecisionExplainabilityRow": {
-        "properties": {
-          "buyerConfidenceSource": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "category": {
-            "type": "string"
-          },
-          "confidence": {
-            "format": "double",
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
-            "type": [
-              "null",
-              "number",
-              "string"
-            ]
-          },
-          "confidenceSource": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "decisionId": {
-            "type": "string"
-          },
-          "pipeline": {
-            "type": "string"
-          },
-          "rationale": {
-            "type": "string"
-          },
-          "selectedOption": {
-            "type": "string"
-          },
-          "supportingFindingIds": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "title": {
-            "type": "string"
           }
         },
         "type": "object"
@@ -17989,6 +17951,35 @@
         },
         "type": "object"
       },
+      "RunFindingEngineFailureExplainabilityRow": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "durationMs": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "exceptionType": {
+            "type": "string"
+          },
+          "occurredUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunFindingListItem": {
         "properties": {
           "category": {
@@ -18137,6 +18128,56 @@
               "integer",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "RunManifestDecisionExplainabilityRow": {
+        "properties": {
+          "buyerConfidenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "confidence": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "confidenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionId": {
+            "type": "string"
+          },
+          "pipeline": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "selectedOption": {
+            "type": "string"
+          },
+          "supportingFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
           }
         },
         "type": "object"
