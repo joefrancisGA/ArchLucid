@@ -55,21 +55,24 @@ def _collect_certification_violations(text: str, rel_path: str) -> list[str]:
 
 def policy_pack_content_quality_violations(root: Path) -> list[str]:
     violations: list[str] = []
+    bundled_dir = root / "ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled"
+    manifest_path = bundled_dir / "bundled-policy-packs-v1.manifest.json"
+    doc_path = root / "docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md"
 
-    if not MANIFEST_PATH.is_file():
-        return [f"{MANIFEST_PATH.relative_to(root)}: missing manifest"]
+    if not manifest_path.is_file():
+        return [f"{manifest_path.relative_to(root)}: missing manifest"]
 
-    manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     content_files: list[str] = manifest.get("contentFiles") or []
 
     if not content_files:
-        violations.append(f"{MANIFEST_PATH.relative_to(root)}: contentFiles is empty")
+        violations.append(f"{manifest_path.relative_to(root)}: contentFiles is empty")
 
     seen_rule_keys: dict[str, str] = {}
     seen_display_names: dict[str, str] = {}
 
     for file_name in content_files:
-        pack_path = BUNDLED_DIR / file_name
+        pack_path = bundled_dir / file_name
 
         if not pack_path.is_file():
             violations.append(f"{pack_path.relative_to(root)}: missing bundled content file")
@@ -179,15 +182,15 @@ def policy_pack_content_quality_violations(root: Path) -> list[str]:
                     )
 
     manifest_count = len(content_files)
-    on_disk_count = len(list(BUNDLED_DIR.glob("*.json"))) - 1  # exclude manifest file
+    on_disk_count = len(list(bundled_dir.glob("*.json"))) - 1  # exclude manifest file
 
     if manifest_count != on_disk_count:
         violations.append(
             f"bundled manifest lists {manifest_count} content files but {on_disk_count} pack JSON files exist"
         )
 
-    if DOC_PATH.is_file():
-        doc_text = DOC_PATH.read_text(encoding="utf-8")
+    if doc_path.is_file():
+        doc_text = doc_path.read_text(encoding="utf-8")
         match = re.search(r"manifest still ships\s+\*\*(\d+)\*\*", doc_text, flags=re.IGNORECASE)
 
         if match is not None:
@@ -195,7 +198,7 @@ def policy_pack_content_quality_violations(root: Path) -> list[str]:
 
             if documented_count != manifest_count:
                 violations.append(
-                    f"{DOC_PATH.relative_to(root)}: documented bundled count {documented_count} "
+                    f"{doc_path.relative_to(root)}: documented bundled count {documented_count} "
                     f"!= manifest contentFiles {manifest_count}"
                 )
 
