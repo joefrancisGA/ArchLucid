@@ -29,8 +29,8 @@ internal sealed class TopologyAcceptanceDecisionStrategy : IDecisionStrategy
             .Where(e => e.TargetAgentTaskId == topologyTask.TaskId)
             .ToList();
 
-        // Accept prior comes from the topology agent’s own confidence (not a hardcoded base) so the proposal’s self-reported strength seeds the debate.
-        double baseConfidence = topologyResult.Confidence;
+        // Accept prior prefers calibrated confidence when present (TB-051); otherwise topology self-report.
+        double baseConfidence = DecisionStrategyAgentConfidenceResolver.ResolveAcceptPrior(topologyResult);
         // SupportScore: Support + Strengthen evaluations add max(0, ConfidenceDelta) — only reinforcing evidence increases accept’s FinalScore.
         double support = relevant
             .Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase) ||

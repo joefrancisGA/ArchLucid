@@ -56,14 +56,24 @@ describe("PilotRoiBaselineReadinessCard", () => {
     window.removeEventListener(PILOT_BASELINE_WIZARD_OPEN_EVENT, listener);
   });
 
-  it("hides after Skip for now", async () => {
+  it("shows compact row after Skip for now", async () => {
     render(<PilotRoiBaselineReadinessCard />);
     fireEvent.click(screen.getByTestId("pilot-roi-baseline-readiness-skip"));
 
     await waitFor(() => {
       expect(screen.queryByTestId("pilot-roi-baseline-readiness-card")).not.toBeInTheDocument();
+      expect(screen.getByTestId("pilot-roi-baseline-readiness-compact")).toBeInTheDocument();
     });
 
     expect(localStorage.getItem(PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY)).toBe("1");
+  });
+
+  it("shows compact row after X dismiss", async () => {
+    render(<PilotRoiBaselineReadinessCard />);
+    fireEvent.click(screen.getByTestId("pilot-roi-baseline-readiness-dismiss"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("pilot-roi-baseline-readiness-compact")).toBeInTheDocument();
+    });
   });
 });

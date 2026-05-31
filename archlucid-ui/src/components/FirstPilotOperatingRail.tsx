@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
@@ -20,11 +21,12 @@ import {
   resolveFirstPilotOperatingRailStepsForDisplay,
 } from "@/lib/first-pilot-operating-rail-copy";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 
-const RAIL_MINIMIZED_STORAGE_KEY = "archlucid_first_pilot_operating_rail_minimized_v1";
+const RAIL_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_first_pilot_operating_rail_minimized_v1";
 
 type LoadPhase = "loading" | "ready";
 
@@ -71,7 +73,6 @@ function statusBadgeClass(status: FirstPilotOperatingRailStepStatus): string {
 export function FirstPilotOperatingRail() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [phase, setPhase] = useState<LoadPhase>("loading");
-  const [minimized, setMinimized] = useState(!buyerPolishedShell);
   const [healthStatus, setHealthStatus] = useState<string | null>(null);
   const [runs, setRuns] = useState<Awaited<ReturnType<typeof loadProjectRunsMergedWithDemoFallback>>["items"]>([]);
   const [commitCtx, setCommitCtx] = useState({
@@ -179,54 +180,24 @@ export function FirstPilotOperatingRail() {
     );
   }
 
-  if (minimized) {
-    return (
-      <div
-        className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
-        data-testid="first-pilot-operating-rail-minimized"
-      >
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setMinimized(false);
-
-            try {
-              window.localStorage.setItem(RAIL_MINIMIZED_STORAGE_KEY, "0");
-            } catch {
-              /* ignore */
-            }
-          }}
-        >
-          {shellCopy.minimizedExpandLabel}
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <section
-      aria-labelledby="first-pilot-operating-rail-heading"
-      className="rounded-lg border border-teal-200/90 bg-white p-4 shadow-sm dark:border-teal-900/70 dark:bg-neutral-950"
-      data-testid="first-pilot-operating-rail"
-      data-rail-variant={buyerPolishedShell ? "buyer" : "operator"}
-    >
-      <div className="mb-3 flex flex-wrap items-start gap-2">
-        <div className="min-w-0 flex-1">
-          <h2
-            id="first-pilot-operating-rail-heading"
-            className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
-          >
-            {shellCopy.heading}
-          </h2>
-          <p className="m-0 mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">{shellCopy.intro}</p>
-        </div>
-        {shellCopy.showHeaderHelpLink ? (
+    <OperatorHomeDisclosureSection
+      title={shellCopy.heading}
+      titleId="first-pilot-operating-rail-heading"
+      sectionTestId="first-pilot-operating-rail"
+      storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.operatingRail}
+      legacyStorageKeys={[RAIL_LEGACY_MINIMIZED_STORAGE_KEY]}
+      defaultExpanded={buyerPolishedShell}
+      description={shellCopy.intro}
+      collapsedSummary="Six-step path from platform setup through sponsor proof packet."
+      headerAside={
+        shellCopy.showHeaderHelpLink ? (
           <InAppHelpLink helpSlug={shellCopy.headerHelpSlug} label={shellCopy.headerHelpLabel} />
-        ) : null}
-      </div>
-
+        ) : null
+      }
+      sectionClassName="border-teal-200/90 dark:border-teal-900/70"
+      sectionDataAttributes={{ "data-rail-variant": buyerPolishedShell ? "buyer" : "operator" }}
+    >
       <ol className="m-0 list-none space-y-3 p-0">
         {displaySteps.map((step, index) => {
           const { status, primaryHref } = resolved[index];
@@ -287,27 +258,8 @@ export function FirstPilotOperatingRail() {
       </ol>
 
       {allComplete ? (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <p className="m-0 text-sm font-medium text-teal-900 dark:text-teal-100">{shellCopy.completeMessage}</p>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            data-testid="first-pilot-operating-rail-hide"
-            onClick={() => {
-              setMinimized(true);
-
-              try {
-                window.localStorage.setItem(RAIL_MINIMIZED_STORAGE_KEY, "1");
-              } catch {
-                /* ignore */
-              }
-            }}
-          >
-            {shellCopy.hidePathLabel}
-          </Button>
-        </div>
+        <p className="m-0 mt-4 text-sm font-medium text-teal-900 dark:text-teal-100">{shellCopy.completeMessage}</p>
       ) : null}
-    </section>
+    </OperatorHomeDisclosureSection>
   );
 }

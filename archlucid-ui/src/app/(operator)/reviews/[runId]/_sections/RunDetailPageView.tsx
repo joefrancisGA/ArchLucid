@@ -22,6 +22,7 @@ import {
   buyerHeaderStatusTwinPillCaption,
 } from "@/lib/review-buyer-disposition-line";
 import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
+import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/run-decision-explainability-from-detail";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
@@ -59,6 +60,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     savingsSummaryAnnualizedUsd: m.savingsSummary?.annualizedUsd,
     goldenManifestJson: m.goldenManifestJsonForExport,
   });
+  const decisionExplainability = resolveRunDecisionExplainabilityFromDetail(m.resolvedDetail);
   const runSummaryForBadge = m.progressForPipelineUi;
 
   const sampleReviewPackageSummaryEl =
@@ -271,6 +273,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           explanationFailure={m.explanationFailure}
           baselineAnnualCostUsd={baselineAnnualCostUsd}
           isIllustrativePricing={isIllustrativePricing}
+          decisionExplainability={decisionExplainability}
         />
       ) : null}
 
@@ -346,6 +349,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           explanationFailure={m.explanationFailure}
           baselineAnnualCostUsd={baselineAnnualCostUsd}
           isIllustrativePricing={isIllustrativePricing}
+          decisionExplainability={decisionExplainability}
         />
       ) : null}
 

@@ -9,8 +9,8 @@ import {
 } from "./operator-co-architect-copy";
 
 describe("operator-co-architect-copy", () => {
-  it("leads with architecture review workspace value proposition", () => {
-    expect(OPERATOR_CO_ARCHITECT_BRAND_LINE).toBe("Architecture review workspace");
+  it("leads with review package action entry copy", () => {
+    expect(OPERATOR_CO_ARCHITECT_BRAND_LINE).toBe("Create or open a review package");
     expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toContain("audit-ready decision records");
     expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toContain("governance approval");
   });

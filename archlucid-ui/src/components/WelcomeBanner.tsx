@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ClipboardCheck, FileCheck2, Package, Target, X } from "lucide-react";
+import { ClipboardCheck, FileCheck2, Package, Target } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import type { CSSProperties } from "react";
@@ -13,9 +13,6 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
-import {
-  OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY,
-} from "@/lib/operator-co-architect-copy";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { writeHasExistingRunsCache } from "@/lib/operator-run-presence";
@@ -46,7 +43,6 @@ const dotMaskStyle: CSSProperties = {
 export function WelcomeBanner() {
   const patternId = useId().replaceAll(":", "");
   const [dismissed, setDismissed] = useState(true);
-  const [compact, setCompact] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [trial, setTrial] = useState<TrialStatusPayload | null>(null);
   const [trialStatusResolved, setTrialStatusResolved] = useState(false);
@@ -57,10 +53,8 @@ export function WelcomeBanner() {
     try {
       if (typeof window !== "undefined" && window.sessionStorage.getItem(SESSION_DISMISS_KEY) === "1") {
         setDismissed(true);
-        setCompact(false);
       } else {
         setDismissed(false);
-        setCompact(false);
       }
     } catch {
       setDismissed(false);
@@ -195,6 +189,8 @@ export function WelcomeBanner() {
       : buyerPolishedShell
         ? "Explore one governed Claims Intake review package"
         : "Your first architecture review — four steps";
+
+  // Core workspace hero — always expanded; do not add Minimize/X collapse here.
   const subheadingText = returningUser ? (
     <>
       Open in-progress architecture reviews, finish packages that still need attention, and review prioritized{" "}
@@ -214,55 +210,6 @@ export function WelcomeBanner() {
     </>
   );
 
-  const setWelcomeDismissed = (nextCompact: boolean) => {
-    if (nextCompact) {
-      setCompact(true);
-
-      return;
-    }
-
-    setDismissed(true);
-
-    try {
-      window.sessionStorage.setItem(SESSION_DISMISS_KEY, "1");
-    } catch {
-      /* private mode */
-    }
-  };
-
-  if (compact) {
-    return (
-      <div
-        role="banner"
-        aria-label={trialActive ? "Trial welcome (compact)" : "Welcome (compact)"}
-        className="mb-2 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-white/95 px-3 py-2 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-900/95"
-      >
-        {trialActive && typeof days === "number" ? (
-          <span className="inline-block rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-            {days} day{days === 1 ? "" : "s"} left on trial
-          </span>
-        ) : null}
-        {buyerPolishedShell ? null : (
-          <Button asChild size="sm" className="h-8" variant="primary">
-            <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
-          </Button>
-        )}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 px-1 text-neutral-500"
-          aria-label="Expand welcome banner"
-          onClick={() => {
-            setCompact(false);
-          }}
-        >
-          <ChevronDown className="h-4 w-4 rotate-180" aria-hidden />
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div
       role="banner"
@@ -274,34 +221,8 @@ export function WelcomeBanner() {
           : "border-teal-200 border-l-teal-600 from-teal-50/80 to-white dark:border-teal-900 dark:border-l-teal-500 dark:from-teal-950/30 dark:to-neutral-900",
       )}
     >
-      <div className="absolute right-10 top-3 z-10 flex items-center gap-0.5">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-7 text-xs text-neutral-500"
-          onClick={() => {
-            setWelcomeDismissed(true);
-          }}
-        >
-          Minimize
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
-          aria-label="Dismiss welcome for this session"
-          onClick={() => {
-            setWelcomeDismissed(false);
-          }}
-        >
-          <X className="h-4 w-4" aria-hidden />
-        </Button>
-      </div>
-
       <div
-        className="absolute inset-0 z-0 overflow-hidden rounded-xl opacity-20 mix-blend-multiply dark:opacity-15 dark:mix-blend-screen"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-xl opacity-20 mix-blend-multiply dark:opacity-15 dark:mix-blend-screen"
         style={dotMaskStyle}
         aria-hidden
       >
@@ -316,13 +237,13 @@ export function WelcomeBanner() {
       </div>
 
       <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
-        <div className="min-w-0 flex-1 pr-8">
+        <div className="min-w-0 flex-1">
           {trialActive && typeof days === "number" ? (
             <span className="mb-2 inline-block rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
               {days} day{days === 1 ? "" : "s"} left on trial
             </span>
           ) : null}
-          <h2 className="mb-1 pr-10 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
+          <h2 className="mb-1 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
             {headingText}
           </h2>
           <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>

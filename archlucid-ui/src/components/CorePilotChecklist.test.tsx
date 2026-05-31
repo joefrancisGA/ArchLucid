@@ -4,20 +4,20 @@ import { afterEach, describe, expect, it } from "vitest";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { PILOT_CHECKLIST_PANEL_STORAGE_KEY } from "@/lib/core-pilot-checklist-storage";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 
 describe("CorePilotChecklist", () => {
   afterEach(() => {
     localStorage.clear();
   });
 
-  it("renders one checkbox per CORE_PILOT_STEPS entry", async () => {
+  it("renders one checkbox per CORE_PILOT_STEPS entry when expanded", async () => {
+    localStorage.setItem(
+      OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist,
+      "0",
+    );
+
     render(<CorePilotChecklist />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("core-pilot-checklist-collapsed")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /show review workflow checklist/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("core-pilot-checklist")).toBeInTheDocument();
@@ -34,6 +34,10 @@ describe("CorePilotChecklist", () => {
     localStorage.setItem(
       PILOT_CHECKLIST_PANEL_STORAGE_KEY,
       JSON.stringify({ steps: [false, false, false, false, false], hidden: false }),
+    );
+    localStorage.setItem(
+      OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist,
+      "0",
     );
 
     render(<CorePilotChecklist />);
@@ -58,10 +62,14 @@ describe("CorePilotChecklist", () => {
     });
   });
 
-  it("shows congratulations when all steps are marked, hides panel, then shows again", async () => {
+  it("shows congratulations when all steps are marked, then collapses via chevron", async () => {
     localStorage.setItem(
       PILOT_CHECKLIST_PANEL_STORAGE_KEY,
       JSON.stringify({ steps: [true, true, true, true, false], hidden: false }),
+    );
+    localStorage.setItem(
+      OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist,
+      "0",
     );
 
     render(<CorePilotChecklist />);
@@ -76,21 +84,16 @@ describe("CorePilotChecklist", () => {
       expect(screen.getByTestId("core-pilot-checklist-complete")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId("core-pilot-checklist-hide"));
+    fireEvent.click(screen.getByRole("button", { name: "Collapse Review workflow checklist" }));
 
     await waitFor(() => {
-      expect(screen.queryByTestId("core-pilot-checklist")).toBeNull();
-      expect(screen.getByTestId("core-pilot-checklist-collapsed")).toBeInTheDocument();
+      expect(screen.queryByTestId("core-pilot-checklist-complete")).not.toBeInTheDocument();
     });
 
-    expect(JSON.parse(localStorage.getItem(PILOT_CHECKLIST_PANEL_STORAGE_KEY)!).hidden).toBe(true);
-
-    fireEvent.click(screen.getByRole("button", { name: /show review workflow checklist/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Expand Review workflow checklist" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("core-pilot-checklist")).toBeInTheDocument();
+      expect(screen.getByTestId("core-pilot-checklist-complete")).toBeInTheDocument();
     });
-
-    expect(JSON.parse(localStorage.getItem(PILOT_CHECKLIST_PANEL_STORAGE_KEY)!).hidden).toBe(false);
   });
 });

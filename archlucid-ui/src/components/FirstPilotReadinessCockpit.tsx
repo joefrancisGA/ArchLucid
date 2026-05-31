@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
 import { OperatorAiQualityProofCard } from "@/components/OperatorAiQualityProofCard";
+import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { getPilotScorecard } from "@/lib/api";
 import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
 import {
@@ -31,6 +32,7 @@ import {
 import { mapReadinessStatusToOperatorLabel } from "@/lib/first-pilot-operator-status-vocabulary";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -219,23 +221,15 @@ export function FirstPilotReadinessCockpit() {
   }
 
   return (
-    <section
-      aria-labelledby="first-pilot-readiness-cockpit-heading"
-      className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950"
-      data-testid="first-pilot-readiness-cockpit"
+    <OperatorHomeDisclosureSection
+      title="Workspace readiness"
+      titleId="first-pilot-readiness-cockpit-heading"
+      sectionTestId="first-pilot-readiness-cockpit"
+      storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.workspaceReadiness}
+      defaultExpanded={true}
+      description="Current readiness summary: platform connectivity, authority assignment, evidence ingestion, review posture, and executive evidence package status."
+      collapsedSummary="Platform connectivity, authority, evidence, review posture, and executive evidence package."
     >
-      <div className="mb-3 flex flex-wrap items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <h2 id="first-pilot-readiness-cockpit-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Workspace readiness
-          </h2>
-          <p className="m-0 mt-1 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-            Current readiness summary: platform connectivity, authority assignment, evidence ingestion, review posture,
-            and executive evidence package status.
-          </p>
-        </div>
-      </div>
-
       <div className="mb-4">
         <FirstPilotProofStatusStrip />
       </div>
@@ -290,14 +284,16 @@ export function FirstPilotReadinessCockpit() {
         ))}
       </div>
 
-      <details className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/40">
-        <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-          Assistant readiness diagnostics
-        </summary>
-        <div className="mt-3">
-          <OperatorAiQualityProofCard embedded />
-        </div>
-      </details>
-    </section>
+      <OperatorHomeDisclosureSection
+        title="Assistant readiness diagnostics"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.assistantDiagnostics}
+        defaultExpanded={false}
+        collapsedSummary="AI quality proof signals for assistant readiness."
+        sectionClassName="mt-4 border-neutral-200 bg-neutral-50/80 shadow-none dark:border-neutral-700 dark:bg-neutral-900/40"
+        bodyClassName="mt-0"
+      >
+        <OperatorAiQualityProofCard embedded />
+      </OperatorHomeDisclosureSection>
+    </OperatorHomeDisclosureSection>
   );
 }

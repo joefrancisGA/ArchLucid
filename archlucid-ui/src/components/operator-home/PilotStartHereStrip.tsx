@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 
 const STEPS = [
   { label: "Platform ready", href: "/health", testId: "pilot-start-platform" },
@@ -12,21 +16,21 @@ const STEPS = [
 /** First-pilot progressive disclosure strip on operator home (assessment #4). */
 export function PilotStartHereStrip(): React.JSX.Element {
   return (
-    <section
-      className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-4 dark:border-neutral-700 dark:bg-neutral-900/50"
-      aria-labelledby="pilot-start-here-heading"
-      data-testid="pilot-start-here-strip"
+    <OperatorHomeDisclosureSection
+      title="Fast path to first review package"
+      titleId="pilot-start-here-heading"
+      sectionTestId="pilot-start-here-strip"
+      storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.pilotStartHere}
+      defaultExpanded={false}
+      collapsedSummary="Four-step sequence from platform ready through sponsor proof."
+      headerAside={
+        <>
+          <InAppHelpLink helpSlug="first-pilot-path" label="Open the canonical operator checklist" />
+          <InAppHelpLink helpSlug="first-value-20-minutes" label="Open the 20-minute time-boxed runbook" />
+        </>
+      }
+      sectionClassName="border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/50"
     >
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <h2
-          id="pilot-start-here-heading"
-          className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-200"
-        >
-          Fast path to first review package
-        </h2>
-        <InAppHelpLink helpSlug="first-pilot-path" label="Open the canonical operator checklist" />
-        <InAppHelpLink helpSlug="first-value-20-minutes" label="Open the 20-minute time-boxed runbook" />
-      </div>
       <ol className="m-0 flex list-none flex-wrap gap-3 p-0">
         {STEPS.map((step, index) => (
           <li key={step.testId} className="flex items-center gap-2 text-sm">
@@ -52,6 +56,6 @@ export function PilotStartHereStrip(): React.JSX.Element {
         <code className="text-xs">archlucid pilot proof-packet &lt;runId&gt;</code> ·{" "}
         <code className="text-xs">collect-first-pilot-proof.ps1 -RunId …</code>
       </p>
-    </section>
+    </OperatorHomeDisclosureSection>
   );
 }

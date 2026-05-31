@@ -163,5 +163,12 @@ public class RunDetailDto
         get;
         set;
     }
+
+    /// <summary>Unified authority + coordinator decision explainability for operator run detail (TB-054).</summary>
+    public RunDecisionExplainabilityDto? DecisionExplainability
+    {
+        get;
+        set;
+    }
 }
 

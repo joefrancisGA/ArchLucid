@@ -17272,6 +17272,16 @@
           "degradedFindingCoverage": {
             "type": "boolean"
           },
+          "estimatedUsdSavingsSummary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunEstimatedUsdSavingsDto"
+              }
+            ]
+          },
           "executionFlavorBuyerSummary": {
             "type": [
               "null",
@@ -17421,6 +17431,26 @@
                 "$ref": "#/components/schemas/RunTrustEvidenceCard"
               }
             ]
+          }
+        },
+        "type": "object"
+      },
+      "RunEstimatedUsdSavingsDto": {
+        "properties": {
+          "estimatedUsdSavings": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "savingsPricingBasis": {
+            "type": "string"
+          },
+          "savingsPricingBasisDescription": {
+            "type": "string"
           }
         },
         "type": "object"
