@@ -53,6 +53,7 @@
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.Integrations.AzureDevOps\ArchLucid.Integrations.AzureDevOps.csproj" />
+    <ProjectReference Include="..\ArchLucid.Integrations.AzureExtractor\ArchLucid.Integrations.AzureExtractor.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchLucid.Notifications\ArchLucid.Notifications.csproj" />
     <ProjectReference Include="..\ArchLucid.Notifications.Email.RazorLight\ArchLucid.Notifications.Email.RazorLight.csproj" />

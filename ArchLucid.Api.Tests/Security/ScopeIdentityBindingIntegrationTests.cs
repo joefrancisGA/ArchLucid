@@ -29,6 +29,19 @@ public sealed class ScopeIdentityBindingIntegrationTests
     }
 
     [SkippableFact]
+    public async Task ApiKey_without_tenant_claim_rejects_tenant_header_escalation()
+    {
+        await using ApiKeyUnboundTenantScopeArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
+        client.DefaultRequestHeaders.Add("x-tenant-id", ScopeIds.DefaultTenant.ToString("D"));
+
+        HttpResponseMessage response = await client.GetAsync(RunsListPath);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
     public async Task ApiKey_with_matching_tenant_header_is_not_rejected_by_scope_binding()
     {
         await using ApiKeyReaderAndAdminArchLucidApiFactory factory = new();

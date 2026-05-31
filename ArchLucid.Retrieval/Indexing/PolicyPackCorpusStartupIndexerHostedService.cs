@@ -54,7 +54,7 @@ public sealed class PolicyPackCorpusStartupIndexerHostedService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            RetrievalCorpusStartupIndexerTelemetry.RecordFailure(nameof(Models.CorpusKind.PolicyPack));
+            RetrievalCorpusStartupIndexerTelemetry.RecordFailure(nameof(CorpusKind.PolicyPack));
 
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Policy pack corpus startup indexing failed; retrieval will continue fail-open.");

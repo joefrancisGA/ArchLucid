@@ -54,7 +54,7 @@ public sealed class PlatformDocCorpusStartupIndexerHostedService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            RetrievalCorpusStartupIndexerTelemetry.RecordFailure(nameof(Models.CorpusKind.PlatformDoc));
+            RetrievalCorpusStartupIndexerTelemetry.RecordFailure(nameof(CorpusKind.PlatformDoc));
 
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "Platform doc corpus startup indexing failed; retrieval will continue fail-open.");

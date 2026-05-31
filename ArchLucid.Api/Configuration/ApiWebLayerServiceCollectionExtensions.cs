@@ -12,10 +12,9 @@ using ArchLucid.Application.Analytics;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Mcp.Tools;
 using ArchLucid.Application.Import;
-using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Integrations.AzureExtractor;
+using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services.Governance;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -81,24 +80,10 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
-        services.AddScoped<IHostedAzureExtractorConfigurationService, HostedAzureExtractorConfigurationService>();
+        services.AddHostedAzureExtractorIntegrationServices(configuration);
         services.AddScoped<ITier2ConnectionService, Tier2ConnectionService>();
-        services.AddScoped<IHostedAzureExtractorRunService, HostedAzureExtractorRunService>();
-        services.AddScoped<IAzureExtractorAutoPullOrchestrator, AzureExtractorAutoPullOrchestrator>();
         services.AddScoped<IPatternInsightsService, PatternInsightsService>();
         services.AddScoped<RetrievalTools>();
-        services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
-        services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
-        services.AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
-        {
-            client.Timeout = TimeSpan.FromMinutes(5);
-        });
-        services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
-        services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
-        services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
-        services.Configure<AzureExtractorEnrichmentOptions>(
-            configuration.GetSection(AzureExtractorEnrichmentOptions.SectionPath));
-        services.AddScoped<AzureExtractorChunkedUploadService>();
         services.AddScoped<PolicyPackMarkdownExplainService>();
 
         services.AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>

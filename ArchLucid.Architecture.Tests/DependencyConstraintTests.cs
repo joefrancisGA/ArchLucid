@@ -789,6 +789,26 @@ public sealed class DependencyConstraintTests
         declaredReferences.Should().NotContain(
             "ArchLucid.Persistence",
             because: "Mcp must not take a direct ProjectReference to Persistence.");
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.Retrieval",
+            because: "TB-032: Mcp depends on Core retrieval ports, not the Retrieval implementation assembly.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Mcp_csproj_must_not_reference_Retrieval_assembly()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        string csprojPath = Path.Combine(root!, "ArchLucid.Mcp", "ArchLucid.Mcp.csproj");
+        string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
+
+        declaredReferences.Should().NotContain(
+            "ArchLucid.Retrieval",
+            because: "TB-032: Mcp must depend on Core retrieval ports only.");
     }
 
     [Fact]
@@ -836,19 +856,17 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
-    public void Api_csproj_references_Integrations_AzureExtractor_by_design_until_TB_028()
+    public void Api_csproj_must_not_reference_Integrations_AzureExtractor_assembly()
     {
-        // ApiWebLayerServiceCollectionExtensions still registers HostedAzureExtractorClient types directly.
-        // TB-028 moves that wiring to Host.Composition and deletes this direct ProjectReference.
         string? root = FindRepositoryRootContainingSolution();
         root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
 
         string csprojPath = Path.Combine(root!, "ArchLucid.Api", "ArchLucid.Api.csproj");
         string[] declaredReferences = ReadProjectReferenceAssemblyNames(csprojPath).ToArray();
 
-        declaredReferences.Should().Contain(
+        declaredReferences.Should().NotContain(
             "ArchLucid.Integrations.AzureExtractor",
-            because: "documented until TB-028 removes the Api → AzureExtractor direct reference.");
+            because: "TB-028: Api reaches AzureExtractor via Host.Composition only.");
     }
 
     [Fact]

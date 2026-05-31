@@ -1,5 +1,7 @@
 using System.Globalization;
 
+using ArchLucid.Application.Runs;
+
 namespace ArchLucid.Application.Pilots;
 
 /// <inheritdoc cref="IExecutionProvenanceFooterRenderer" />
@@ -20,6 +22,9 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
         ArgumentNullException.ThrowIfNull(input);
 
         string modeLabel = ResolveModeLabel(input);
+        string fallbackDetailRow = input.PersistedStructuralExecutionMode == Contracts.Common.StructuralExecutionMode.Fallback
+            ? "| Fallback path | Real → Simulator (fallback) |\n"
+            : string.Empty;
         string deployment = input.RealModeFellBackToSimulator
             ? string.IsNullOrWhiteSpace(input.PilotAoaiDeploymentSnapshot)
                 ? "(unknown at fallback)"
@@ -34,20 +39,13 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
                 | Field | Value |
                 | --- | --- |
                 | Mode | {modeLabel} |
-                | LLM completion traces (this run) | {input.LlmCompletionTraceCount.ToString(CultureInfo.InvariantCulture)} |
+                {fallbackDetailRow}| LLM completion traces (this run) | {input.LlmCompletionTraceCount.ToString(CultureInfo.InvariantCulture)} |
                 | Azure OpenAI deployment (when known) | `{deployment}` |
 
                 _Token totals per provider are not aggregated in this report; trace count reflects persisted completion attempts._
                 """;
     }
 
-    private static string ResolveModeLabel(ExecutionProvenanceFooterInput input)
-    {
-        if (input.RealModeFellBackToSimulator)
-            return "Real → Simulator (fallback)";
-
-        return string.Equals(input.HostAgentExecutionMode, "Real", StringComparison.OrdinalIgnoreCase)
-            ? "Real"
-            : "Simulator";
-    }
+    private static string ResolveModeLabel(ExecutionProvenanceFooterInput input) =>
+        StructuralExecutionModeLabels.ToDisplayLabel(input.PersistedStructuralExecutionMode);
 }

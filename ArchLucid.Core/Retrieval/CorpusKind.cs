@@ -1,5 +1,6 @@
-namespace ArchLucid.Retrieval.Models;
+namespace ArchLucid.Core.Retrieval;
 
+/// <summary>Typed corpus discriminator for retrieval indexing and MCP filters.</summary>
 public enum CorpusKind
 {
     Conversation,
@@ -11,6 +12,7 @@ public enum CorpusKind
     AzureRetailPrice
 }
 
+/// <summary>Platform-scoped corpus sentinel values.</summary>
 public static class CorpusKindSentinels
 {
     /// <summary>Platform-scoped corpora use TenantId = Guid.Empty.</summary>
