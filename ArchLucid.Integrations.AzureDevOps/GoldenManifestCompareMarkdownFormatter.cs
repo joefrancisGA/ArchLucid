@@ -33,7 +33,7 @@ public static class GoldenManifestCompareMarkdownFormatter
 
             foreach (string h in result.SummaryHighlights.Take(20))
 
-                lines.AppendLine($"- {h}");
+                lines.AppendLine($"- {AdoPullRequestMarkdownEscaper.EscapeBulletText(h)}");
 
             lines.AppendLine();
         }
@@ -49,10 +49,12 @@ public static class GoldenManifestCompareMarkdownFormatter
         lines.AppendLine($"| Cost changes | {result.CostChanges.Count} |");
         lines.AppendLine();
 
-        if (string.IsNullOrWhiteSpace(operatorRunDeepLink))
+        string? safeDeepLink = AdoPullRequestMarkdownEscaper.EscapeMarkdownLinkTarget(operatorRunDeepLink);
+
+        if (safeDeepLink is null)
             return lines.ToString();
 
-        lines.AppendLine($"[Open operator run]({operatorRunDeepLink.Trim()})");
+        lines.AppendLine($"[Open operator run]({safeDeepLink})");
         lines.AppendLine();
 
         return lines.ToString();

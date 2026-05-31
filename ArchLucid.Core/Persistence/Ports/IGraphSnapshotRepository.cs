@@ -34,9 +34,10 @@ public interface IGraphSnapshotRepository
     Task<GraphSnapshot?> GetByIdAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct);
 
     /// <summary>
-    ///     Returns the most recently persisted graph for the given context snapshot, or <see langword="null" />.
+    ///     Returns the most recently persisted graph for the given context snapshot within <paramref name="scope" />, or
+    ///     <see langword="null" /> when not found.
     ///     Used for incremental reuse when canonical objects are unchanged.
     /// </summary>
-    Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct);
+    Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(ScopeContext scope, Guid contextSnapshotId, CancellationToken ct);
 }
 

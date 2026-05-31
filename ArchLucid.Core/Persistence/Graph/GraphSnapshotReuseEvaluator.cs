@@ -1,6 +1,7 @@
 ﻿using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Core.Persistence.Graph;
 
@@ -15,6 +16,7 @@ public static class GraphSnapshotReuseEvaluator
     ///     <paramref name="contextSnapshot" /> and a graph exists for the prior context; otherwise builds fresh.
     /// </summary>
     public static async Task<GraphSnapshotResolutionResult> ResolveAsync(
+        ScopeContext scope,
         ContextSnapshot? priorCommittedContext,
         ContextSnapshot contextSnapshot,
         Guid runId,
@@ -22,6 +24,7 @@ public static class GraphSnapshotReuseEvaluator
         IGraphSnapshotRepository graphSnapshotRepository,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(contextSnapshot);
         ArgumentNullException.ThrowIfNull(knowledgeGraphService);
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
@@ -34,7 +37,7 @@ public static class GraphSnapshotReuseEvaluator
         }
 
         GraphSnapshot? priorGraph = await graphSnapshotRepository
-            .GetLatestByContextSnapshotIdAsync(priorCommittedContext!.SnapshotId, ct);
+            .GetLatestByContextSnapshotIdAsync(scope, priorCommittedContext!.SnapshotId, ct);
 
         if (priorGraph is null)
         {

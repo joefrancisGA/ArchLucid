@@ -42,7 +42,9 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         result.Should().NotBeNull();
         result!.ResolutionMode.Should().Be("reused_from_run_header");
         result.Snapshot.GraphSnapshotId.Should().Be(graphId);
-        repo.Verify(r => r.GetLatestByContextSnapshotIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        repo.Verify(
+            r => r.GetLatestByContextSnapshotIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -59,12 +61,12 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
         Mock<IGraphSnapshotRepository> repo = new();
         repo
-            .Setup(r => r.GetLatestByContextSnapshotIdAsync(contextId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetLatestByContextSnapshotIdAsync(scope, contextId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(orphan);
-
-        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
             scope,

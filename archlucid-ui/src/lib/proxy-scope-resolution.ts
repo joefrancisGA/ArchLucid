@@ -4,6 +4,7 @@ import {
   DEV_SCOPE_WORKSPACE_ID,
   getScopeHeaders,
 } from "@/lib/scope";
+import { readProxyScopeFromAuthorizationHeader } from "@/lib/proxy-bearer-scope";
 
 const SCOPE_HEADER_KEYS = ["x-tenant-id", "x-workspace-id", "x-project-id"] as const;
 
@@ -56,6 +57,14 @@ export function resolveProxyUpstreamScopeHeaders(
   incomingHeaders: Headers,
   allowClientScope: boolean = isProxyClientScopeForwardingAllowed(),
 ): Record<string, string> {
+  if (!allowClientScope) {
+    const fromBearer = readProxyScopeFromAuthorizationHeader(incomingHeaders.get("authorization"));
+
+    if (fromBearer !== null) {
+      return { ...fromBearer };
+    }
+  }
+
   const trusted = allowClientScope ? getScopeHeaders() : readTrustedServerScopeHeaders();
   const resolved: Record<string, string> = {};
 

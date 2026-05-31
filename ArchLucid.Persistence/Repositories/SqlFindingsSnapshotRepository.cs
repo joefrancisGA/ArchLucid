@@ -107,8 +107,11 @@ public sealed class SqlFindingsSnapshotRepository(
             int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
                 connection,
                 null,
-                "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
-                new { FindingsSnapshotId = findingsSnapshotId },
+                """
+                SELECT COUNT(1) FROM dbo.FindingRecords
+                WHERE FindingsSnapshotId = @FindingsSnapshotId
+                """ + RepositoryScopePredicate.AndTripleWhere(scope),
+                parameters,
                 ct);
 
             if (recordCount == 0)

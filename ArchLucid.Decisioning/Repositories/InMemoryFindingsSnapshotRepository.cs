@@ -110,7 +110,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         bool orderByPriority,
         CancellationToken ct)
     {
-        _ = scope;
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
 
         if (cursorSortOrder.HasValue ^ cursorFindingRecordId.HasValue)
@@ -120,15 +120,10 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         int cappedTake = Math.Clamp(take <= 0 ? FindingPagination.DefaultTake : take, 1, FindingPagination.MaxTake);
         int fetch = cappedTake + 1;
 
-        string? json;
-        lock (_lock)
-
-            _store.TryGetValue(findingsSnapshotId, out json);
-
-        if (json is null)
+        if (!TryGetScopedSnapshotJson(scope, findingsSnapshotId, out string? json))
             return Task.FromResult(new FindingRecordMetadataPage([], false));
 
-        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
+        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json!);
 
         IEnumerable<FindingEnvelope> envelopes =
             Enumerable.Range(0, snapshot.Findings.Count)
@@ -227,9 +222,15 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         IReadOnlyList<(string FindingId, int PriorityRank)> ranks,
         CancellationToken ct)
     {
-        _ = scope;
+        ArgumentNullException.ThrowIfNull(scope);
         _ = ct;
         ArgumentNullException.ThrowIfNull(ranks);
+
+        if (ranks.Count == 0)
+            return Task.CompletedTask;
+
+        if (!TryGetScopedSnapshotJson(scope, findingsSnapshotId, out _))
+            return Task.CompletedTask;
 
         lock (_lock)
         {
@@ -243,6 +244,28 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         }
 
         return Task.CompletedTask;
+    }
+
+    private bool TryGetScopedSnapshotJson(ScopeContext scope, Guid findingsSnapshotId, out string? json)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        json = null;
+        ScopeContext? savedScope;
+        lock (_lock)
+        {
+            if (!_store.TryGetValue(findingsSnapshotId, out json))
+                return false;
+
+            _scopeBySnapshotId.TryGetValue(findingsSnapshotId, out savedScope);
+        }
+
+        if (savedScope is not null && !ScopeMatches(savedScope, scope))
+        {
+            json = null;
+            return false;
+        }
+
+        return true;
     }
 
     private int? ResolvePriorityRank(Guid findingsSnapshotId, string findingId)

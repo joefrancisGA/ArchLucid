@@ -64,22 +64,32 @@ public sealed class SqlGraphSnapshotRepository(
         return await GetByIdAsync(scope, graphSnapshotId, connection, null, ct);
     }
 
-    public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
+    public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(
+        ScopeContext scope,
+        Guid contextSnapshotId,
+        CancellationToken ct)
     {
-        const string sql = """
-                           SELECT TOP 1
-                               GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
-                           FROM dbo.GraphSnapshots
-                           WHERE ContextSnapshotId = @ContextSnapshotId
-                           ORDER BY CreatedUtc DESC;
-                           """;
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string sql = """
+                     SELECT TOP 1
+                         GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
+                     FROM dbo.GraphSnapshots
+                     WHERE ContextSnapshotId = @ContextSnapshotId
+                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + """
+                     ORDER BY CreatedUtc DESC;
+                     """;
+
+        DynamicParameters parameters = new();
+        parameters.Add("ContextSnapshotId", contextSnapshotId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         GraphSnapshotRelationalRead.GraphSnapshotHeaderRow? header =
             await connection.QuerySingleOrDefaultAsync<GraphSnapshotRelationalRead.GraphSnapshotHeaderRow>(
                 new CommandDefinition(
                     sql,
-                    new { ContextSnapshotId = contextSnapshotId },
+                    parameters,
                     cancellationToken: ct));
 
         if (header is null)

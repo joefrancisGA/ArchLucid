@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="63dc0656-7643-4664-b54d-863f77a0d211" name="@runnervm3jyl0 2026-05-30 10:58:16" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-05-30T10:58:16.4638300+00:00" queuing="2026-05-30T10:58:16.4638301+00:00" start="2026-05-30T10:57:38.7517884+00:00" finish="2026-05-30T10:58:17.4369914+00:00" />
+  <TestSettings name="default" id="c5ff3107-9b2b-4ea5-8cf9-62b1ca95e9be">
+    <Deployment runDeploymentRoot="_runnervm3jyl0_2026-05-30_10_58_16" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="45f996ca-8e71-41b1-86cd-02e0f8d65b99" testId="3ec4c1b7-78df-3bd8-31d7-f80da6ca5417" testName="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_ReturnsDeterministicCostAgentResult" computerName="runnervm3jyl0" duration="00:00:00.0075623" startTime="2026-05-30T10:58:16.3666228+00:00" endTime="2026-05-30T10:58:16.3666229+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="45f996ca-8e71-41b1-86cd-02e0f8d65b99" />
+    <UnitTestResult executionId="0f2e10fe-f270-4e8c-a28c-c95ed800745d" testId="752f0365-1f6f-1e6a-60fd-70e97b617cbb" testName="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_TaskNull_Throws" computerName="runnervm3jyl0" duration="00:00:00.0016735" startTime="2026-05-30T10:58:16.3651621+00:00" endTime="2026-05-30T10:58:16.3651622+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0f2e10fe-f270-4e8c-a28c-c95ed800745d" />
+    <UnitTestResult executionId="080b80c1-8ac2-42d3-9ae3-54c5eca23bed" testId="b786a96c-a6b3-e0fa-c8be-f392c3d1d52c" testName="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_NonHighRisk_UsesInfoSeverity_And_RightSizeAlternatives" computerName="runnervm3jyl0" duration="00:00:00.0009793" startTime="2026-05-30T10:58:16.4152178+00:00" endTime="2026-05-30T10:58:16.4152178+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="080b80c1-8ac2-42d3-9ae3-54c5eca23bed" />
+    <UnitTestResult executionId="c821bf8f-0f9e-466a-90b4-9c5c10c9f7f7" testId="bd8ae76a-a287-3e1a-a345-29b7c9353129" testName="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_ReturnsEmpty_WhenNoCostNodes" computerName="runnervm3jyl0" duration="00:00:00.0012778" startTime="2026-05-30T10:58:16.4143147+00:00" endTime="2026-05-30T10:58:16.4143148+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c821bf8f-0f9e-466a-90b4-9c5c10c9f7f7" />
+    <UnitTestResult executionId="28441694-4bec-45c6-aa85-1bee8668eec2" testId="a1ab988f-794e-9af7-3693-e2c4c541f07c" testName="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_IgnoresUnparseableMaxMonthly_KeepsNoteWithoutCap" computerName="runnervm3jyl0" duration="00:00:00.0013370" startTime="2026-05-30T10:58:16.3776700+00:00" endTime="2026-05-30T10:58:16.3776701+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="28441694-4bec-45c6-aa85-1bee8668eec2" />
+    <UnitTestResult executionId="8a483a15-64d1-47ca-9e1b-16a06b5f3994" testId="12825774-fcb6-9c59-9f83-6303d1ab6dd1" testName="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_EvidenceNull_Throws" computerName="runnervm3jyl0" duration="00:00:00.0021492" startTime="2026-05-30T10:58:16.3636116+00:00" endTime="2026-05-30T10:58:16.3636117+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8a483a15-64d1-47ca-9e1b-16a06b5f3994" />
+    <UnitTestResult executionId="2ec08513-e412-4d19-9bab-efe6559deb9a" testId="b0591d2e-a1b3-20b3-4258-1115cbfb1f07" testName="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.EngineType_and_Category_are_fixed_values" computerName="runnervm3jyl0" duration="00:00:00.0001453" startTime="2026-05-30T10:58:16.4148314+00:00" endTime="2026-05-30T10:58:16.4148315+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2ec08513-e412-4d19-9bab-efe6559deb9a" />
+    <UnitTestResult executionId="970e1b7d-3662-4a3f-b152-e746a12226b8" testId="6d50cfbc-1a77-dacc-72c5-0dcae10d8026" testName="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.AgentType_and_AgentTypeKey_match_cost_agent" computerName="runnervm3jyl0" duration="00:00:00.0045028" startTime="2026-05-30T10:58:16.3658918+00:00" endTime="2026-05-30T10:58:16.3658919+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="970e1b7d-3662-4a3f-b152-e746a12226b8" />
+    <UnitTestResult executionId="58154f7f-9350-4be4-bb2a-37b8137a8271" testId="0a7884c2-5f43-3090-1fcf-901c86133313" testName="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_MapsHighCostRisk_ToWarningSeverity_WithHighSpendAlternatives" computerName="runnervm3jyl0" duration="00:00:00.0044693" startTime="2026-05-30T10:58:16.3821890+00:00" endTime="2026-05-30T10:58:16.3821891+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="58154f7f-9350-4be4-bb2a-37b8137a8271" />
+    <UnitTestResult executionId="c5172865-b68b-40f6-972d-b0018884d5b2" testId="7737a2b4-8778-de2e-a074-65390618ea4f" testName="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_FallsBackBudgetName_ToLabel_WhenBudgetNameAbsent" computerName="runnervm3jyl0" duration="00:00:00.0023368" startTime="2026-05-30T10:58:16.3762782+00:00" endTime="2026-05-30T10:58:16.3762783+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c5172865-b68b-40f6-972d-b0018884d5b2" />
+    <UnitTestResult executionId="d26b3446-fab0-41f6-984a-ae30bcc746a7" testId="914e93af-1cb6-9a9c-4869-d6cc3eef4435" testName="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_RequestNull_Throws" computerName="runnervm3jyl0" duration="00:00:00.0253666" startTime="2026-05-30T10:58:16.3507699+00:00" endTime="2026-05-30T10:58:16.3508277+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d26b3446-fab0-41f6-984a-ae30bcc746a7" />
+    <UnitTestResult executionId="1fc0a9fa-df21-45f1-9b84-91555abd0a59" testId="05686c78-2a26-dc81-021e-d873ac3ae85f" testName="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_ReturnsFindingPerCostNode" computerName="runnervm3jyl0" duration="00:00:00.0530829" startTime="2026-05-30T10:58:16.3738596+00:00" endTime="2026-05-30T10:58:16.3738597+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1fc0a9fa-df21-45f1-9b84-91555abd0a59" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_TaskNull_Throws" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="752f0365-1f6f-1e6a-60fd-70e97b617cbb">
+      <Execution id="0f2e10fe-f270-4e8c-a28c-c95ed800745d" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests" name="ExecuteAsync_TaskNull_Throws" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_RequestNull_Throws" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="914e93af-1cb6-9a9c-4869-d6cc3eef4435">
+      <Execution id="d26b3446-fab0-41f6-984a-ae30bcc746a7" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests" name="ExecuteAsync_RequestNull_Throws" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_ReturnsEmpty_WhenNoCostNodes" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="bd8ae76a-a287-3e1a-a345-29b7c9353129">
+      <Execution id="c821bf8f-0f9e-466a-90b4-9c5c10c9f7f7" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests" name="AnalyzeAsync_ReturnsEmpty_WhenNoCostNodes" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_ReturnsFindingPerCostNode" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="05686c78-2a26-dc81-021e-d873ac3ae85f">
+      <Execution id="1fc0a9fa-df21-45f1-9b84-91555abd0a59" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests" name="AnalyzeAsync_ReturnsFindingPerCostNode" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_IgnoresUnparseableMaxMonthly_KeepsNoteWithoutCap" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="a1ab988f-794e-9af7-3693-e2c4c541f07c">
+      <Execution id="28441694-4bec-45c6-aa85-1bee8668eec2" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests" name="AnalyzeAsync_IgnoresUnparseableMaxMonthly_KeepsNoteWithoutCap" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.EngineType_and_Category_are_fixed_values" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="b0591d2e-a1b3-20b3-4258-1115cbfb1f07">
+      <Execution id="2ec08513-e412-4d19-9bab-efe6559deb9a" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests" name="EngineType_and_Category_are_fixed_values" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_MapsHighCostRisk_ToWarningSeverity_WithHighSpendAlternatives" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="0a7884c2-5f43-3090-1fcf-901c86133313">
+      <Execution id="58154f7f-9350-4be4-bb2a-37b8137a8271" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests" name="AnalyzeAsync_MapsHighCostRisk_ToWarningSeverity_WithHighSpendAlternatives" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_FallsBackBudgetName_ToLabel_WhenBudgetNameAbsent" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="7737a2b4-8778-de2e-a074-65390618ea4f">
+      <Execution id="c5172865-b68b-40f6-972d-b0018884d5b2" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests" name="AnalyzeAsync_FallsBackBudgetName_ToLabel_WhenBudgetNameAbsent" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.AgentType_and_AgentTypeKey_match_cost_agent" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="6d50cfbc-1a77-dacc-72c5-0dcae10d8026">
+      <Execution id="970e1b7d-3662-4a3f-b152-e746a12226b8" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests" name="AgentType_and_AgentTypeKey_match_cost_agent" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_ReturnsDeterministicCostAgentResult" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="3ec4c1b7-78df-3bd8-31d7-f80da6ca5417">
+      <Execution id="45f996ca-8e71-41b1-86cd-02e0f8d65b99" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests" name="ExecuteAsync_ReturnsDeterministicCostAgentResult" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests.AnalyzeAsync_NonHighRisk_UsesInfoSeverity_And_RightSizeAlternatives" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="b786a96c-a6b3-e0fa-c8be-f392c3d1d52c">
+      <Execution id="080b80c1-8ac2-42d3-9ae3-54c5eca23bed" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostConstraintFindingEngineTests" name="AnalyzeAsync_NonHighRisk_UsesInfoSeverity_And_RightSizeAlternatives" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests.ExecuteAsync_EvidenceNull_Throws" storage="/home/runner/work/archlucid/archlucid/archlucid.capabilities.cost.tests/bin/release/net10.0/archlucid.capabilities.cost.tests.dll" id="12825774-fcb6-9c59-9f83-6303d1ab6dd1">
+      <Execution id="8a483a15-64d1-47ca-9e1b-16a06b5f3994" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Capabilities.Cost.Tests/bin/Release/net10.0/ArchLucid.Capabilities.Cost.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Capabilities.Cost.Tests.CostAgentHandlerTests" name="ExecuteAsync_EvidenceNull_Throws" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="3ec4c1b7-78df-3bd8-31d7-f80da6ca5417" executionId="45f996ca-8e71-41b1-86cd-02e0f8d65b99" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="752f0365-1f6f-1e6a-60fd-70e97b617cbb" executionId="0f2e10fe-f270-4e8c-a28c-c95ed800745d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b786a96c-a6b3-e0fa-c8be-f392c3d1d52c" executionId="080b80c1-8ac2-42d3-9ae3-54c5eca23bed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bd8ae76a-a287-3e1a-a345-29b7c9353129" executionId="c821bf8f-0f9e-466a-90b4-9c5c10c9f7f7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a1ab988f-794e-9af7-3693-e2c4c541f07c" executionId="28441694-4bec-45c6-aa85-1bee8668eec2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="12825774-fcb6-9c59-9f83-6303d1ab6dd1" executionId="8a483a15-64d1-47ca-9e1b-16a06b5f3994" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b0591d2e-a1b3-20b3-4258-1115cbfb1f07" executionId="2ec08513-e412-4d19-9bab-efe6559deb9a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6d50cfbc-1a77-dacc-72c5-0dcae10d8026" executionId="970e1b7d-3662-4a3f-b152-e746a12226b8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0a7884c2-5f43-3090-1fcf-901c86133313" executionId="58154f7f-9350-4be4-bb2a-37b8137a8271" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7737a2b4-8778-de2e-a074-65390618ea4f" executionId="c5172865-b68b-40f6-972d-b0018884d5b2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="914e93af-1cb6-9a9c-4869-d6cc3eef4435" executionId="d26b3446-fab0-41f6-984a-ae30bcc746a7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="05686c78-2a26-dc81-021e-d873ac3ae85f" executionId="1fc0a9fa-df21-45f1-9b84-91555abd0a59" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="12" executed="12" passed="12" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.8)
+[xUnit.net 00:00:00.07]   Discovering: ArchLucid.Capabilities.Cost.Tests
+[xUnit.net 00:00:00.11]   Discovered:  ArchLucid.Capabilities.Cost.Tests
+[xUnit.net 00:00:00.11]   Starting:    ArchLucid.Capabilities.Cost.Tests
+[xUnit.net 00:00:00.25]   Finished:    ArchLucid.Capabilities.Cost.Tests
+</StdOut>
+    </Output>
+    <CollectorDataEntries>
+      <Collector agentName="runnervm3jyl0" uri="datacollector://microsoft/CoverletCodeCoverage/1.0" collectorDisplayName="XPlat code coverage">
+        <UriAttachments>
+          <UriAttachment>
+            <A href="runnervm3jyl0/coverage.cobertura.xml"></A>
+          </UriAttachment>
+        </UriAttachments>
+      </Collector>
+    </CollectorDataEntries>
+  </ResultSummary>
+</TestRun>

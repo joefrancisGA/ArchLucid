@@ -45,8 +45,12 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         }
     }
 
-    public Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
+    public Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(
+        ScopeContext scope,
+        Guid contextSnapshotId,
+        CancellationToken ct)
     {
+        _ = scope;
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {

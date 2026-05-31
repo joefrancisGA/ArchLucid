@@ -134,6 +134,13 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     }
+
+    /// <summary>Pre-bucketed business-impact theme counts for the executive dashboard (TB-105).</summary>
+    public ExecutiveBusinessImpactCategoryCounts? BusinessImpactCategoryCounts
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>

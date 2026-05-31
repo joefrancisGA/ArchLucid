@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]: Architecture Review Detail · ArchLucid
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - banner [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]:
+            - heading "ArchLucid — go to operator home" [level=1] [ref=e9]:
+              - link "ArchLucid — go to operator home" [ref=e10] [cursor=pointer]:
+                - /url: /
+            - link "Reviews" [ref=e11] [cursor=pointer]:
+              - /url: /reviews?projectId=default
+            - link "Home" [ref=e12] [cursor=pointer]:
+              - /url: /
+          - generic [ref=e13]:
+            - button "Documentation and product help search" [ref=e14] [cursor=pointer]:
+              - img [ref=e15]
+            - 'button "Theme: system. Click to switch to light." [ref=e18] [cursor=pointer]':
+              - generic [ref=e19]: 💻
+      - region "Review packagesFinalized packages with findings, evidence, manifest, and audit trail." [ref=e20]:
+        - paragraph [ref=e22]:
+          - text: Review packages
+          - generic [ref=e23]: —
+          - text: Finalized packages with findings, evidence, manifest, and audit trail.
+    - generic [ref=e24]:
+      - region "Trial ending soon" [ref=e25]:
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: 7 days left on your trial
+          - paragraph [ref=e28]: Upgrade or talk to us before access changes.
+          - link "Talk to us" [ref=e30] [cursor=pointer]:
+            - /url: /pricing#pricing-quote-request
+        - button "Dismiss trial countdown for this session" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+      - main [ref=e35]:
+        - status [ref=e37]:
+          - strong [ref=e38]: We could not find that in ArchLucid
+          - generic [ref=e39]:
+            - paragraph [ref=e40]: The link may be mistyped, expired, or pointed at a resource that is not in this workspace. Use a fresh link from the product, or start from home.
+            - paragraph [ref=e41]: If you opened this link while a review was still running, wait a moment and retry — it may not be listed yet.
+            - paragraph [ref=e42]: If you pasted an id, confirm the full value copied — truncated identifiers are rejected.
+            - generic [ref=e43]:
+              - button "Retry loading review" [ref=e44] [cursor=pointer]
+              - link "Home" [ref=e45] [cursor=pointer]:
+                - /url: /
+              - link "Reviews" [ref=e46] [cursor=pointer]:
+                - /url: /reviews?projectId=default
+              - link "Risk register" [ref=e47] [cursor=pointer]:
+                - /url: /governance/findings
+            - paragraph [ref=e48]: ArchLucid · 404
+            - generic [ref=e49]: Page not found
+  - region "Notifications alt+T"
+  - status [ref=e50]
+```

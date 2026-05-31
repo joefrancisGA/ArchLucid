@@ -34,7 +34,7 @@ public static class GraphSnapshotCommittedReuseResolver
         }
 
         GraphSnapshot? latestForContext = await graphSnapshotRepository
-            .GetLatestByContextSnapshotIdAsync(contextSnapshotId, ct);
+            .GetLatestByContextSnapshotIdAsync(scope, contextSnapshotId, ct);
 
         if (latestForContext is not null && latestForContext.RunId == runId)
             return new GraphSnapshotResolutionResult(latestForContext, "reused_from_orphan_save");

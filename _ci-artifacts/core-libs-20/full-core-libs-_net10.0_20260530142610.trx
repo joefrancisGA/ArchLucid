@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="55194555-4632-41c9-9996-04b4ffd9be26" name="@runnervm3jyl0 2026-05-30 14:26:08" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-05-30T14:26:08.4719794+00:00" queuing="2026-05-30T14:26:08.4719795+00:00" start="2026-05-30T14:23:35.1735693+00:00" finish="2026-05-30T14:26:10.8960547+00:00" />
+  <TestSettings name="default" id="afac0dc4-de82-4d72-bc27-96e3beacec29">
+    <Deployment runDeploymentRoot="_runnervm3jyl0_2026-05-30_14_26_08" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="41ae3058-18b7-4277-ad32-aa64c2821a62" testId="cd2afdab-735a-f1cb-41f7-7520cfcf87c1" testName="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_true_when_job_preceded_by_other_tokens" computerName="runnervm3jyl0" duration="00:00:00.0003020" startTime="2026-05-30T14:26:08.3933070+00:00" endTime="2026-05-30T14:26:08.3933071+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="41ae3058-18b7-4277-ad32-aa64c2821a62" />
+    <UnitTestResult executionId="05cfcda0-8342-4f4e-9dfa-621674c03602" testId="99c14eae-d020-3abb-0b73-fd9160a7e833" testName="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_whitespace_job_name_returns_configuration_error" computerName="runnervm3jyl0" duration="00:00:00.0005331" startTime="2026-05-30T14:26:08.3926720+00:00" endTime="2026-05-30T14:26:08.3926721+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="05cfcda0-8342-4f4e-9dfa-621674c03602" />
+    <UnitTestResult executionId="cd1c7362-7917-4870-ae05-453a7238c82d" testId="6daa4b66-528f-504e-e0dd-dd9cdf248f74" testName="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_when_job_flag_without_value" computerName="runnervm3jyl0" duration="00:00:00.0004438" startTime="2026-05-30T14:26:08.3939720+00:00" endTime="2026-05-30T14:26:08.3939721+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cd1c7362-7917-4870-ae05-453a7238c82d" />
+    <UnitTestResult executionId="060cc2f0-15e9-429e-89ee-9a89bb9394de" testId="17086bbb-e81f-99ba-5af0-72a1e74919d6" testName="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_without_job_flag" computerName="runnervm3jyl0" duration="00:00:00.0001747" startTime="2026-05-30T14:26:08.4163271+00:00" endTime="2026-05-30T14:26:08.4163271+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="060cc2f0-15e9-429e-89ee-9a89bb9394de" />
+    <UnitTestResult executionId="72c14774-a64e-42e5-a002-d619a5e8d04b" testId="f36046c1-7406-facf-bf62-76dbefa950da" testName="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_job_flag_without_value_returns_configuration_error" computerName="runnervm3jyl0" duration="00:00:00.0201864" startTime="2026-05-30T14:26:08.3910148+00:00" endTime="2026-05-30T14:26:08.3910150+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="72c14774-a64e-42e5-a002-d619a5e8d04b" />
+    <UnitTestResult executionId="f9dfb79f-97d2-4974-8d66-3c2a52018b54" testId="5b4e2df4-3c93-1741-f147-2a5ad59d255a" testName="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_true_with_job_and_name" computerName="runnervm3jyl0" duration="00:00:00.0032942" startTime="2026-05-30T14:26:08.3928699+00:00" endTime="2026-05-30T14:26:08.3928700+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f9dfb79f-97d2-4974-8d66-3c2a52018b54" />
+    <UnitTestResult executionId="a3204bc2-f222-4196-ad7f-a0069fac4487" testId="4080e00b-0b26-c072-54b0-92a3f64e28f5" testName="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_when_args_empty" computerName="runnervm3jyl0" duration="00:00:00.0001686" startTime="2026-05-30T14:26:08.3936395+00:00" endTime="2026-05-30T14:26:08.3936395+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a3204bc2-f222-4196-ad7f-a0069fac4487" />
+    <UnitTestResult executionId="46062d11-4e2f-4059-8cde-cae073c8f921" testId="0c3c4fda-24d1-57a9-7844-63b4262dfdda" testName="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_empty_args_returns_configuration_error" computerName="runnervm3jyl0" duration="00:00:00.0005488" startTime="2026-05-30T14:26:08.3923170+00:00" endTime="2026-05-30T14:26:08.3923171+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="46062d11-4e2f-4059-8cde-cae073c8f921" />
+    <UnitTestResult executionId="71cfc606-69fc-425a-a8e8-426a528cfab7" testId="97eace13-9f47-0658-0c5d-350663af9177" testName="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_when_job_name_whitespace_only" computerName="runnervm3jyl0" duration="00:00:00.0167803" startTime="2026-05-30T14:26:08.3820368+00:00" endTime="2026-05-30T14:26:08.3820802+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="71cfc606-69fc-425a-a8e8-426a528cfab7" />
+    <UnitTestResult executionId="4e34bc8a-a4f6-46b6-8a77-7bcdb340fb81" testId="30178711-4384-d3da-9aed-7ac2f92dab97" testName="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_without_job_flag_returns_configuration_error" computerName="runnervm3jyl0" duration="00:00:00.0005994" startTime="2026-05-30T14:26:08.3919698+00:00" endTime="2026-05-30T14:26:08.3919699+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4e34bc8a-a4f6-46b6-8a77-7bcdb340fb81" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_true_when_job_preceded_by_other_tokens" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="cd2afdab-735a-f1cb-41f7-7520cfcf87c1">
+      <Execution id="41ae3058-18b7-4277-ad32-aa64c2821a62" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests" name="TryParseJobName_true_when_job_preceded_by_other_tokens" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_without_job_flag" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="17086bbb-e81f-99ba-5af0-72a1e74919d6">
+      <Execution id="060cc2f0-15e9-429e-89ee-9a89bb9394de" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests" name="TryParseJobName_false_without_job_flag" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_empty_args_returns_configuration_error" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="0c3c4fda-24d1-57a9-7844-63b4262dfdda">
+      <Execution id="46062d11-4e2f-4059-8cde-cae073c8f921" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests" name="RunAsync_empty_args_returns_configuration_error" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_when_job_name_whitespace_only" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="97eace13-9f47-0658-0c5d-350663af9177">
+      <Execution id="71cfc606-69fc-425a-a8e8-426a528cfab7" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests" name="TryParseJobName_false_when_job_name_whitespace_only" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_without_job_flag_returns_configuration_error" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="30178711-4384-d3da-9aed-7ac2f92dab97">
+      <Execution id="4e34bc8a-a4f6-46b6-8a77-7bcdb340fb81" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests" name="RunAsync_without_job_flag_returns_configuration_error" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_job_flag_without_value_returns_configuration_error" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="f36046c1-7406-facf-bf62-76dbefa950da">
+      <Execution id="72c14774-a64e-42e5-a002-d619a5e8d04b" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests" name="RunAsync_job_flag_without_value_returns_configuration_error" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_when_job_flag_without_value" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="6daa4b66-528f-504e-e0dd-dd9cdf248f74">
+      <Execution id="cd1c7362-7917-4870-ae05-453a7238c82d" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests" name="TryParseJobName_false_when_job_flag_without_value" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests.RunAsync_whitespace_job_name_returns_configuration_error" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="99c14eae-d020-3abb-0b73-fd9160a7e833">
+      <Execution id="05cfcda0-8342-4f4e-9dfa-621674c03602" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.ProgramRunAsyncEarlyExitTests" name="RunAsync_whitespace_job_name_returns_configuration_error" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_false_when_args_empty" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="4080e00b-0b26-c072-54b0-92a3f64e28f5">
+      <Execution id="a3204bc2-f222-4196-ad7f-a0069fac4487" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests" name="TryParseJobName_false_when_args_empty" />
+    </UnitTest>
+    <UnitTest name="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests.TryParseJobName_true_with_job_and_name" storage="/home/runner/work/archlucid/archlucid/archlucid.jobs.cli.tests/bin/release/net10.0/archlucid.jobs.cli.tests.dll" id="5b4e2df4-3c93-1741-f147-2a5ad59d255a">
+      <Execution id="f9dfb79f-97d2-4974-8d66-3c2a52018b54" />
+      <TestMethod codeBase="/home/runner/work/ArchLucid/ArchLucid/ArchLucid.Jobs.Cli.Tests/bin/Release/net10.0/ArchLucid.Jobs.Cli.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ArchLucid.Jobs.Cli.Tests.JobsCommandLineTests" name="TryParseJobName_true_with_job_and_name" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cd2afdab-735a-f1cb-41f7-7520cfcf87c1" executionId="41ae3058-18b7-4277-ad32-aa64c2821a62" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="99c14eae-d020-3abb-0b73-fd9160a7e833" executionId="05cfcda0-8342-4f4e-9dfa-621674c03602" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6daa4b66-528f-504e-e0dd-dd9cdf248f74" executionId="cd1c7362-7917-4870-ae05-453a7238c82d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="17086bbb-e81f-99ba-5af0-72a1e74919d6" executionId="060cc2f0-15e9-429e-89ee-9a89bb9394de" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f36046c1-7406-facf-bf62-76dbefa950da" executionId="72c14774-a64e-42e5-a002-d619a5e8d04b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b4e2df4-3c93-1741-f147-2a5ad59d255a" executionId="f9dfb79f-97d2-4974-8d66-3c2a52018b54" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4080e00b-0b26-c072-54b0-92a3f64e28f5" executionId="a3204bc2-f222-4196-ad7f-a0069fac4487" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0c3c4fda-24d1-57a9-7844-63b4262dfdda" executionId="46062d11-4e2f-4059-8cde-cae073c8f921" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="97eace13-9f47-0658-0c5d-350663af9177" executionId="71cfc606-69fc-425a-a8e8-426a528cfab7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="30178711-4384-d3da-9aed-7ac2f92dab97" executionId="4e34bc8a-a4f6-46b6-8a77-7bcdb340fb81" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="10" executed="10" passed="10" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.8)
+[xUnit.net 00:00:00.08]   Discovering: ArchLucid.Jobs.Cli.Tests
+[xUnit.net 00:00:00.12]   Discovered:  ArchLucid.Jobs.Cli.Tests
+[xUnit.net 00:00:00.13]   Starting:    ArchLucid.Jobs.Cli.Tests
+Expected a job name after --job.
+Required: --job &lt;name&gt;
+Required: --job &lt;name&gt;
+Job name must not be empty.
+[xUnit.net 00:00:00.23]   Finished:    ArchLucid.Jobs.Cli.Tests
+</StdOut>
+    </Output>
+    <CollectorDataEntries>
+      <Collector agentName="runnervm3jyl0" uri="datacollector://microsoft/CoverletCodeCoverage/1.0" collectorDisplayName="XPlat code coverage">
+        <UriAttachments>
+          <UriAttachment>
+            <A href="runnervm3jyl0/coverage.cobertura.xml"></A>
+          </UriAttachment>
+        </UriAttachments>
+      </Collector>
+    </CollectorDataEntries>
+  </ResultSummary>
+</TestRun>
