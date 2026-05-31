@@ -166,7 +166,7 @@ public sealed class CriticAgentResultGoldenJsonTests
     public void Critic_severity_legacy_medium_label_deserializes_to_warning()
     {
         string json = MinimalCriticWireJson(includeUnknownProperties: false, usePascalRunId: false, numericAgentType: false);
-        json = json.Replace("\"severity\": \"Warning\"", "\"severity\": \"not-a-severity\"", StringComparison.Ordinal);
+        json = json.Replace("\"severity\": \"Warning\"", "\"severity\": \"medium\"", StringComparison.Ordinal);
 
         AgentResultParser sut = CreateStrictSchemaParser();
 

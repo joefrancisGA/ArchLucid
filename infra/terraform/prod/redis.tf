@@ -1,4 +1,4 @@
-﻿# Optional Azure Cache for Redis (hot-path cache). Disabled by default per V1_DEFERRED optional services.
+# Optional Azure Cache for Redis (hot-path cache). Disabled by default per V1_DEFERRED optional services.
 
 resource "azurerm_redis_cache" "hot_path" {
   count = var.enable_redis ? 1 : 0
