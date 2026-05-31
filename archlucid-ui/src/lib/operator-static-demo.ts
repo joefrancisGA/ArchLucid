@@ -21,6 +21,7 @@ import type {
   PipelineTimelineItem,
   RunComparison,
   RunDetail,
+  RunDetailAgentResult,
   RunSummary,
 } from "@/types/authority";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
@@ -294,7 +295,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
   const chain = d.authorityChain;
 
   const quickDecisionFindings = (() => {
-    const findings: Array<Record<string, unknown>> = [
+    const findings: NonNullable<RunDetailAgentResult["findings"]> = [
       {
         findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
         message: "PHI minimization risk",
@@ -349,7 +350,20 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
     decisionTrace: { demo: true },
     goldenManifest: { demo: true },
     artifactBundle: { demo: true },
-    results: [{ findings: quickDecisionFindings }],
+    results: [
+      {
+        resultId: `${d.run.runId}-compliance-quick-decision`,
+        taskId: `${d.run.runId}-compliance`,
+        runId: d.run.runId,
+        agentType: 3,
+        claims: [
+          "PHI minimization requires monitored exception routing and sponsor review before the next release train.",
+        ],
+        evidenceRefs: [SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID],
+        findings: quickDecisionFindings,
+        confidence: 0.85,
+      },
+    ],
   };
 }
 
