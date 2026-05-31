@@ -10,6 +10,7 @@ import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
+import { AcceleratorChooserCard } from "@/components/operator-home/AcceleratorChooserCard";
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
 import { PilotRoiBaselineReadinessCard } from "@/components/operator-home/PilotRoiBaselineReadinessCard";
 import { PilotStartHereStrip } from "@/components/operator-home/PilotStartHereStrip";
@@ -56,6 +57,7 @@ function OperatorHomeReviewsGrid() {
         <AfterCorePilotChecklistHint />
 
         <OperationalMetricsGate>
+          <AcceleratorChooserCard />
           <div className="space-y-6" data-testid="operator-home-post-commit-surfaces">
             <RepeatReviewActivationPrompt />
             <ValueRealizationDashboard />

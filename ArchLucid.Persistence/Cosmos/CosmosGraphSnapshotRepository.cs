@@ -13,12 +13,17 @@ namespace ArchLucid.Persistence.Cosmos;
 
 /// <summary>Cosmos-backed <see cref="IGraphSnapshotRepository" /> (single document per snapshot).</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
-public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFactory) : IGraphSnapshotRepository
+public sealed class CosmosGraphSnapshotRepository(
+    CosmosClientFactory clientFactory,
+    IScopeContextProvider scopeContextProvider) : IGraphSnapshotRepository
 {
     private const string ContainerId = "graph-snapshots";
 
     private readonly CosmosClientFactory _clientFactory =
         clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
     public async Task SaveAsync(
@@ -35,8 +40,9 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
                 + "Ensure CosmosDb:GraphSnapshotsEnabled is coordinated with AuthorityPipelineStagesExecutor (non-transactional save), "
                 + "or disable Cosmos graph snapshots.");
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
-        GraphSnapshotDocument doc = ToDocument(snapshot);
+        GraphSnapshotDocument doc = ToDocument(snapshot, scope);
         await container.UpsertItemAsync(doc, new PartitionKey(doc.GraphSnapshotId), cancellationToken: ct);
     }
 
@@ -46,7 +52,7 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
 
     private async Task<GraphSnapshot?> GetByIdCoreAsync(ScopeContext scope, Guid graphSnapshotId, CancellationToken ct)
     {
-        _ = scope;
+        ArgumentNullException.ThrowIfNull(scope);
 
         string pk = graphSnapshotId.ToString("D");
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
@@ -57,6 +63,9 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
                 graphSnapshotId.ToString("D"),
                 new PartitionKey(pk),
                 cancellationToken: ct);
+
+            if (!CosmosGraphSnapshotScopeFilter.DocumentMatchesScope(scope, response.Resource))
+                return null;
 
             return FromDocument(response.Resource);
         }
@@ -72,17 +81,35 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
         Guid contextSnapshotId,
         CancellationToken ct)
     {
-        _ = scope;
+        ArgumentNullException.ThrowIfNull(scope);
 
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
         string ctx = contextSnapshotId.ToString("D");
-        QueryDefinition query = new QueryDefinition(
-                """
-                SELECT * FROM c
-                WHERE c.contextSnapshotId = @ctx
-                ORDER BY c.createdUtc DESC
-                """)
-            .WithParameter("@ctx", ctx);
+
+        string sql = scope.TenantId == Guid.Empty
+            ? """
+              SELECT * FROM c
+              WHERE c.contextSnapshotId = @ctx
+              ORDER BY c.createdUtc DESC
+              """
+            : """
+              SELECT * FROM c
+              WHERE c.contextSnapshotId = @ctx
+                AND c.tenantId = @tenantId
+                AND c.workspaceId = @workspaceId
+                AND c.projectId = @projectId
+              ORDER BY c.createdUtc DESC
+              """;
+
+        QueryDefinition query = new QueryDefinition(sql).WithParameter("@ctx", ctx);
+
+        if (scope.TenantId != Guid.Empty)
+        {
+            query = query
+                .WithParameter("@tenantId", scope.TenantId.ToString("D"))
+                .WithParameter("@workspaceId", scope.WorkspaceId.ToString("D"))
+                .WithParameter("@projectId", scope.ProjectId.ToString("D"));
+        }
 
         using FeedIterator<GraphSnapshotDocument> iterator = container.GetItemQueryIterator<GraphSnapshotDocument>(
             query,
@@ -100,10 +127,9 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId,
         CancellationToken ct)
     {
-        GraphSnapshot? snapshot = await GetByIdCoreAsync(
-            new ScopeContext { TenantId = Guid.Empty, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty },
-            graphSnapshotId,
-            ct);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        GraphSnapshot? snapshot = await GetByIdCoreAsync(scope, graphSnapshotId, ct);
 
         if (snapshot is null)
             return [];
@@ -114,8 +140,10 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
             .ToList();
     }
 
-    private static GraphSnapshotDocument ToDocument(GraphSnapshot snapshot)
+    private static GraphSnapshotDocument ToDocument(GraphSnapshot snapshot, ScopeContext scope)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         string gid = snapshot.GraphSnapshotId.ToString("D");
 
         return new GraphSnapshotDocument
@@ -128,7 +156,10 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
             CreatedUtc = snapshot.CreatedUtc.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture),
             NodesJson = JsonEntitySerializer.Serialize(snapshot.Nodes),
             EdgesJson = JsonEntitySerializer.Serialize(snapshot.Edges),
-            WarningsJson = JsonEntitySerializer.Serialize(snapshot.Warnings)
+            WarningsJson = JsonEntitySerializer.Serialize(snapshot.Warnings),
+            TenantId = scope.TenantId.ToString("D"),
+            WorkspaceId = scope.WorkspaceId.ToString("D"),
+            ProjectId = scope.ProjectId.ToString("D")
         };
     }
 
