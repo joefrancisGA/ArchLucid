@@ -45,10 +45,10 @@ describe("FirstPilotOperatingRail", () => {
     render(<FirstPilotOperatingRail />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-operating-rail-minimized")).toBeInTheDocument();
+      expect(screen.getByTestId("first-pilot-operating-rail")).toHaveAttribute("data-disclosure-expanded", "false");
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Show full pilot operating path" }));
+    fireEvent.click(screen.getByRole("button", { name: "Expand First-pilot operating path" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("first-pilot-operating-rail")).toHaveAttribute("data-rail-variant", "operator");

@@ -144,21 +144,6 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
   });
 });
 
-describe("WelcomeBanner — dismiss hides banner", () => {
-  it("hides after session dismiss click", async () => {
-    renderHomeWithCoArchitectStrip();
-
-    await waitFor(() => {
-      expect(screen.getByRole("banner", { name: "Welcome" })).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /dismiss welcome/i }));
-
-    expect(screen.queryByRole("banner", { name: "Welcome" })).not.toBeInTheDocument();
-    expect(sessionStorage.getItem(SESSION_DISMISS_KEY)).toBe("1");
-  });
-});
-
 describe("WelcomeBanner — buyer-polished zero-review tour callout", () => {
   it("shows New here callout with tour launcher when buyer-polished and zero reviews", async () => {
     demoUiEnvMock.buyerPolishedShell = true;

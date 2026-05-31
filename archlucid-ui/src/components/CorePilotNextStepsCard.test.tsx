@@ -13,21 +13,22 @@ const mockedFetchCorePilotCommitContext = vi.mocked(fetchCorePilotCommitContext)
 async function expandNextStepsCardIfMinimized(): Promise<void> {
   await waitFor(() => {
     const ready =
-      screen.queryByTestId("core-pilot-next-steps-minimized") !== null
-      || screen.queryByTestId("core-pilot-next-steps") !== null
+      screen.queryByTestId("core-pilot-next-steps") !== null
       || screen.queryByTestId("core-pilot-next-steps-complete") !== null;
 
     expect(ready).toBe(true);
   });
 
-  if (screen.queryByTestId("core-pilot-next-steps-minimized") === null) {
+  const expandButton = screen.queryByRole("button", { name: "Expand Recommended first-session path" });
+
+  if (expandButton === null) {
     return;
   }
 
-  fireEvent.click(screen.getByRole("button", { name: /show architecture review workflow/i }));
+  fireEvent.click(expandButton);
 
   await waitFor(() => {
-    expect(screen.queryByTestId("core-pilot-next-steps-minimized")).not.toBeInTheDocument();
+    expect(screen.getByTestId("pilot-active-step-link")).toBeInTheDocument();
   });
 }
 
@@ -50,7 +51,7 @@ describe("CorePilotNextStepsCard", () => {
       render(<CorePilotNextStepsCard />);
 
       await waitFor(() => {
-        expect(screen.getByTestId("core-pilot-next-steps-minimized")).toBeInTheDocument();
+        expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
       });
 
       expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 1 of 4");
@@ -58,10 +59,6 @@ describe("CorePilotNextStepsCard", () => {
 
     it("marks Evidence intake as the active step CTA when expanded", async () => {
       render(<CorePilotNextStepsCard />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId("core-pilot-next-steps-minimized")).toBeInTheDocument();
-      });
 
       await expandNextStepsCardIfMinimized();
 

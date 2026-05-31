@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
-import { Button } from "@/components/ui/button";
+import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import {
   CORE_PILOT_CHECKLIST_CHANGED_EVENT,
   CORE_PILOT_STEP_COUNT,
@@ -13,6 +13,7 @@ import {
   writePilotChecklistPanelState,
 } from "@/lib/core-pilot-checklist-storage";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 
 /** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
 const CORE_PILOT_HELP_HASH_FRAGMENTS = [
@@ -29,17 +30,17 @@ export function CorePilotChecklist() {
   const [stepsDone, setStepsDone] = useState<boolean[]>(() =>
     Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false),
   );
-  const [hidden, setHidden] = useState(false);
+  const [defaultExpanded, setDefaultExpanded] = useState(false);
 
-  const persist = useCallback((nextSteps: boolean[], nextHidden: boolean) => {
-    writePilotChecklistPanelState({ steps: nextSteps, hidden: nextHidden });
+  const persist = useCallback((nextSteps: boolean[]) => {
+    writePilotChecklistPanelState({ steps: nextSteps, hidden: false });
   }, []);
 
   useEffect(() => {
     const s = readPilotChecklistPanelState();
 
     setStepsDone(s.steps);
-    setHidden(s.hidden);
+    setDefaultExpanded(!s.hidden);
     setHydrated(true);
 
     try {
@@ -60,7 +61,6 @@ export function CorePilotChecklist() {
       const s = readPilotChecklistPanelState();
 
       setStepsDone(s.steps);
-      setHidden(s.hidden);
     }
 
     window.addEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, syncFromStorage);
@@ -74,46 +74,18 @@ export function CorePilotChecklist() {
     return null;
   }
 
-  if (hidden) {
-    return (
-      <div
-        className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
-        data-testid="core-pilot-checklist-collapsed"
-      >
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="w-full sm:w-auto"
-          onClick={() => {
-            setHidden(false);
-            persist(stepsDone, false);
-          }}
-        >
-          Show review workflow checklist
-        </Button>
-      </div>
-    );
-  }
-
   const allDone = stepsDone.every(Boolean);
 
   return (
-    <section
-      className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-950"
-      aria-labelledby="core-pilot-checklist-heading"
-      data-testid="core-pilot-checklist"
+    <OperatorHomeDisclosureSection
+      title="Review workflow checklist"
+      titleId="core-pilot-checklist-heading"
+      sectionTestId="core-pilot-checklist"
+      storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}
+      defaultExpanded={defaultExpanded}
+      collapsedSummary={`${CORE_PILOT_STEP_COUNT} manual steps from empty tenant to first architecture review package.`}
+      headerAside={<InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />}
     >
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <h2
-          id="core-pilot-checklist-heading"
-          className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
-        >
-          Review workflow checklist
-        </h2>
-        <InAppHelpLink helpSlug="core-pilot" label="Open Core Pilot guide" />
-      </div>
-
       <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
         Work through the {CORE_PILOT_STEP_COUNT} steps from an empty tenant to your first architecture review package
         — check each when you have done it.
@@ -154,7 +126,7 @@ export function CorePilotChecklist() {
                     const nextSteps = stepsDone.map((v, i) => (i === index ? checked : v));
 
                     setStepsDone(nextSteps);
-                    persist(nextSteps, hidden);
+                    persist(nextSteps);
                   }}
                 />
                 <label htmlFor={checkboxId} className="text-sm text-neutral-800 dark:text-neutral-200">
@@ -174,21 +146,8 @@ export function CorePilotChecklist() {
           <p className="m-0 text-sm font-medium text-teal-950 dark:text-teal-100">
             You have stepped through the Core Pilot path — open a finalized architecture review to explore the full review package.
           </p>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="mt-3"
-            data-testid="core-pilot-checklist-hide"
-            onClick={() => {
-              setHidden(true);
-              persist(stepsDone, true);
-            }}
-          >
-            Hide checklist
-          </Button>
         </div>
       ) : null}
-    </section>
+    </OperatorHomeDisclosureSection>
   );
 }

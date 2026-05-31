@@ -26,17 +26,76 @@ function readStoredPreference(): ColorModePreference {
   return "system";
 }
 
-function applyPreference(pref: ColorModePreference): void {
+function readSystemPrefersDark(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/** Whether the UI is currently showing dark styling for the stored preference. */
+export function resolveDarkAppearance(
+  preference: ColorModePreference,
+  systemPrefersDark: boolean,
+): boolean {
+  if (preference === "dark") {
+    return true;
+  }
+
+  if (preference === "light") {
+    return false;
+  }
+
+  return systemPrefersDark;
+}
+
+/** light → dark → system → opposite of current system appearance (not a redundant light click). */
+export function resolveNextColorModePreference(
+  preference: ColorModePreference,
+  systemPrefersDark: boolean,
+): ColorModePreference {
+  if (preference === "light") {
+    return "dark";
+  }
+
+  if (preference === "dark") {
+    return "system";
+  }
+
+  return resolveDarkAppearance("system", systemPrefersDark) ? "light" : "dark";
+}
+
+export function buildColorModeToggleLabel(
+  preference: ColorModePreference,
+  systemPrefersDark: boolean,
+): string {
+  const resolvedDark = resolveDarkAppearance(preference, systemPrefersDark);
+  const appearance = resolvedDark ? "dark" : "light";
+  const nextMode = resolveNextColorModePreference(preference, systemPrefersDark);
+
+  if (preference === "system") {
+    const nextAppearance = resolveDarkAppearance(nextMode, systemPrefersDark) ? "dark" : "light";
+
+    return `Color mode: system (${appearance}). Activate to switch to ${nextAppearance}.`;
+  }
+
+  if (nextMode === "system") {
+    const systemAppearance = systemPrefersDark ? "dark" : "light";
+
+    return `Color mode: ${preference}. Activate to match system (${systemAppearance}).`;
+  }
+
+  return `Color mode: ${preference}. Activate to switch to ${nextMode}.`;
+}
+
+function applyPreference(pref: ColorModePreference, systemPrefersDark: boolean): void {
   if (typeof document === "undefined") {
     return;
   }
 
   const root = document.documentElement.classList;
-  const prefersDark =
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const dark = pref === "dark" || (pref === "system" && prefersDark);
+  const dark = resolveDarkAppearance(pref, systemPrefersDark);
 
   if (dark) {
     root.add("dark");
@@ -51,29 +110,34 @@ function applyPreference(pref: ColorModePreference): void {
  */
 export function ColorModeToggle() {
   const [preference, setPreference] = useState<ColorModePreference>("system");
+  const [systemPrefersDark, setSystemPrefersDark] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const initial = readStoredPreference();
+    const prefersDark = readSystemPrefersDark();
 
+    setMounted(true);
+    setSystemPrefersDark(prefersDark);
     setPreference(initial);
-    applyPreference(initial);
+    applyPreference(initial, prefersDark);
   }, []);
 
   useEffect(() => {
-    if (!mounted || preference !== "system") {
-      return;
-    }
-
-    if (typeof window.matchMedia !== "function") {
+    if (!mounted || typeof window.matchMedia !== "function") {
       return;
     }
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
 
     const onChange = (): void => {
-      applyPreference("system");
+      const prefersDark = media.matches;
+
+      setSystemPrefersDark(prefersDark);
+
+      if (preference === "system") {
+        applyPreference("system", prefersDark);
+      }
     };
 
     media.addEventListener("change", onChange);
@@ -81,27 +145,30 @@ export function ColorModeToggle() {
     return (): void => media.removeEventListener("change", onChange);
   }, [mounted, preference]);
 
-  const setAndPersist = useCallback((next: ColorModePreference) => {
-    setPreference(next);
+  const setAndPersist = useCallback(
+    (next: ColorModePreference) => {
+      setPreference(next);
 
-    try {
-      window.localStorage.setItem(storageKey, next);
-    }
-    catch {
-      // ignore
-    }
+      try {
+        window.localStorage.setItem(storageKey, next);
+      }
+      catch {
+        // ignore
+      }
 
-    applyPreference(next);
-  }, []);
+      applyPreference(next, systemPrefersDark);
+    },
+    [systemPrefersDark],
+  );
 
   if (!mounted) {
     return <div aria-hidden="true" className="h-8 w-8" />;
   }
 
-  const nextMode: ColorModePreference =
-    preference === "light" ? "dark" : preference === "dark" ? "system" : "light";
-  const icon = preference === "light" ? "☀️" : preference === "dark" ? "🌙" : "💻";
-  const label = `Theme: ${preference}. Click to switch to ${nextMode}.`;
+  const resolvedDark = resolveDarkAppearance(preference, systemPrefersDark);
+  const nextMode = resolveNextColorModePreference(preference, systemPrefersDark);
+  const icon = resolvedDark ? "🌙" : "☀️";
+  const label = buildColorModeToggleLabel(preference, systemPrefersDark);
 
   return (
     <button
