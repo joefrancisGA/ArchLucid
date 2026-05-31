@@ -1,4 +1,4 @@
-using ArchLucid.Core.Budgeting;
+using ArchLucid.Application.Budgeting;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;

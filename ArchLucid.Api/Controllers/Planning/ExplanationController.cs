@@ -8,7 +8,6 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.Findings;
