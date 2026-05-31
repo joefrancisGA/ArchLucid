@@ -227,10 +227,9 @@ export function FirstPilotOperatingRail() {
                   </Button>
                 ) : null}
                 {shellCopy.showStepTroubleshootLinks && (status === "attention" || status === "current") ? (
-                  <InAppHelpLink
+                  <OperatorHomeGuidanceLink
                     helpSlug={step.troubleshootHelpSlug}
                     label={`Troubleshoot — ${step.title}`}
-                    variant="text"
                   />
                 ) : null}
               </div>
