@@ -35,7 +35,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
   return (
     <Card className="h-fit border-neutral-200 dark:border-neutral-700">
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <CardTitle className="text-sm font-semibold text-al-text-primary">
           {buyerPolishedShell ? "Saved review questions" : "Your conversation history"}
         </CardTitle>
         {buyerPolishedShell ? (

@@ -141,7 +141,7 @@ function FindingCoverageDispositionPanel({
         {rows.map(([label, value]) => (
           <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
             <dt className="text-[0.65rem] font-semibold uppercase tracking-wide opacity-70">{label}</dt>
-            <dd className="m-0 text-base font-semibold tabular-nums">{finiteCoverageCount(value)}</dd>
+            <dd className="m-0 text-sm font-semibold text-al-text-primary tabular-nums">{finiteCoverageCount(value)}</dd>
           </div>
         ))}
       </dl>
@@ -274,7 +274,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       : "—";
 
   const segmentInner = "min-w-0 flex-1 px-3 py-3 sm:px-4";
-  const valueClass = "m-0 text-base font-semibold tabular-nums text-neutral-900 dark:text-neutral-100";
+  const valueClass = "m-0 text-sm font-semibold text-al-text-primary tabular-nums text-neutral-900 dark:text-neutral-100";
   const detailClass = "m-0 mt-0.5 text-xs text-neutral-600 dark:text-neutral-400";
 
   const packageBody = (
@@ -563,7 +563,7 @@ export function RunDetailOutcomeCards({
         </CardHeader>
         <CardContent className="pt-0">
           <p
-            className={`m-0 text-base font-semibold ${
+            className={`m-0 text-sm font-semibold text-al-text-primary ${
               hasGoldenManifest ? "text-emerald-700 dark:text-emerald-400" : "text-amber-800 dark:text-amber-200"
             }`}
           >

@@ -10,7 +10,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     class="space-y-2"
   >
     <h1
-      class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+      class="text-xl font-semibold tracking-tight text-al-text-primary"
     >
       Why ArchLucid
     </h1>
@@ -26,7 +26,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     data-testid="why-archlucid-counters"
   >
     <h2
-      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      class="text-sm font-semibold text-al-text-primary"
       id="why-archlucid-counters-heading"
     >
       Process counters
@@ -54,7 +54,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           Architecture reviews created
         </p>
         <p
-          class="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
         >
           7
         </p>
@@ -77,7 +77,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           Est. manual hours saved
         </p>
         <p
-          class="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
         >
           0.00
         </p>
@@ -100,7 +100,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           Audit rows (demo scope)
         </p>
         <p
-          class="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
         >
           12
         </p>
@@ -123,7 +123,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
           Findings (all severities)
         </p>
         <p
-          class="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          class="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
         >
           6
         </p>
@@ -215,7 +215,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
   >
     <div>
       <h2
-        class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+        class="text-sm font-semibold text-al-text-primary"
         id="why-archlucid-sponsor-pack-heading"
       >
         Sponsor KPI evidence pack
@@ -261,7 +261,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
             Explainability trace
           </p>
           <p
-            class="mt-2 text-2xl font-semibold tabular-nums"
+            class="mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary"
           >
             42.0%
           </p>
@@ -434,7 +434,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     data-testid="why-archlucid-measured-context"
   >
     <h2
-      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      class="text-sm font-semibold text-al-text-primary"
       id="why-archlucid-measured-context-heading"
     >
       Measured context (cost + disclaimers)
@@ -488,7 +488,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     data-testid="why-archlucid-first-value-report"
   >
     <h2
-      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      class="text-sm font-semibold text-al-text-primary"
       id="why-archlucid-report-heading"
     >
       Sponsor first-value report
@@ -517,7 +517,7 @@ Demo body.
     data-testid="why-archlucid-run-explanation"
   >
     <h2
-      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      class="text-sm font-semibold text-al-text-primary"
       id="why-archlucid-explanation-heading"
     >
       Architecture review explanation and citations
@@ -542,7 +542,7 @@ Demo body.
             Findings
           </p>
           <p
-            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+            class="text-sm font-semibold tabular-nums text-al-text-primary"
           >
             6
           </p>
@@ -556,7 +556,7 @@ Demo body.
             Decisions
           </p>
           <p
-            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+            class="text-sm font-semibold tabular-nums text-al-text-primary"
           >
             4
           </p>
@@ -570,7 +570,7 @@ Demo body.
             Unresolved
           </p>
           <p
-            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+            class="text-sm font-semibold tabular-nums text-al-text-primary"
           >
             1
           </p>
@@ -584,7 +584,7 @@ Demo body.
             Compliance gaps
           </p>
           <p
-            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+            class="text-sm font-semibold tabular-nums text-al-text-primary"
           >
             0
           </p>

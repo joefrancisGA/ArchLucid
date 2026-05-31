@@ -233,7 +233,7 @@ export function FindingDetailPageView(props: Props) {
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             Finding detail
           </p>
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
+          <h1 className={OPERATOR_TYPOGRAPHY.pageTitle}>{pageTitle}</h1>
 
           {labels !== null ? (
             <div className="flex flex-wrap items-center gap-2">

@@ -60,7 +60,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
           </dt>
           <dd
             data-testid="delta-top-median-findings"
-            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
           >
             {formatFindings(data.medianTotalFindings)}
           </dd>
@@ -71,7 +71,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
           </dt>
           <dd
             data-testid="delta-top-median-time"
-            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
           >
             {formatHours(data.medianTimeToCommittedManifestTotalSeconds)}
           </dd>
@@ -82,7 +82,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
           </dt>
           <dd
             data-testid="delta-top-median-llm"
-            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
             title="Median count of persisted agent execution traces per run when all window rows have attested counts."
           >
             {formatMedianLlmCalls(data.medianLlmCallCount)}

@@ -64,7 +64,7 @@ export function RunDetailSponsorModeExplanationCard(
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-200">
           Sponsor-mode explanation
         </p>
-        <h3 id="sponsor-mode-explanation-heading" className="m-0 text-base font-semibold">
+        <h3 id="sponsor-mode-explanation-heading" className="m-0 text-sm font-semibold text-al-text-primary">
           Explain this review like I am the sponsor
         </h3>
       </header>

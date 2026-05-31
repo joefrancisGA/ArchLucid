@@ -23,7 +23,7 @@ export function WhyArchLucidMeasuredContextSection(props: WhyArchLucidMeasuredCo
     >
       <h2
         id="why-archlucid-measured-context-heading"
-        className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+        className="text-sm font-semibold text-al-text-primary"
       >
         Measured context (cost + disclaimers)
       </h2>

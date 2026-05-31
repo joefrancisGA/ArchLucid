@@ -20,7 +20,7 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-1 sm:px-0">
-      <h1 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+      <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
         Onboarding
       </h1>
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400 max-w-prose">

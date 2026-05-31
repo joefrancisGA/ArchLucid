@@ -10,7 +10,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
     class="space-y-2"
   >
     <h1
-      class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+      class="text-xl font-semibold tracking-tight text-al-text-primary"
     >
       Example analysis — provenance and explanation
     </h1>
@@ -58,7 +58,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         class="space-y-1"
       >
         <h2
-          class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          class="text-sm font-semibold text-al-text-primary"
           id="demo-explain-graph-heading"
         >
           Provenance graph
@@ -179,7 +179,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
         class="space-y-1"
       >
         <h2
-          class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          class="text-sm font-semibold text-al-text-primary"
           id="demo-explain-explanation-heading"
         >
           Aggregate explanation & citations

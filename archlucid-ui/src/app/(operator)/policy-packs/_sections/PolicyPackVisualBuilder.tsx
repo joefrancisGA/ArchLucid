@@ -240,7 +240,7 @@ export function PolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) {
 
   return (
     <section aria-labelledby="visual-builder-heading" className="space-y-4 rounded-lg border border-border p-4">
-      <h3 id="visual-builder-heading" className="text-base font-semibold">
+      <h3 id="visual-builder-heading" className="text-sm font-semibold text-al-text-primary">
         Visual policy pack builder
       </h3>
       <p className="text-sm text-muted-foreground">

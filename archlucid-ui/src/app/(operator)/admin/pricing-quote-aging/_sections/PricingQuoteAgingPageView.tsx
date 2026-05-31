@@ -6,7 +6,8 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { operatorSemanticSurface } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import { pricingQuoteAgingRowTone } from "@/lib/pricing-quote-aging";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
 
@@ -91,7 +92,7 @@ export function PricingQuoteAgingPageView(props: Props) {
             <CardTitle className="text-sm font-medium">Open requests</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-2xl font-semibold" data-testid="pricing-quote-aging-open-count">
+            <p className={`m-0 ${OPERATOR_TYPOGRAPHY.kpiValue}`} data-testid="pricing-quote-aging-open-count">
               {data?.rows.length ?? "—"}
             </p>
           </CardContent>
@@ -101,7 +102,10 @@ export function PricingQuoteAgingPageView(props: Props) {
             <CardTitle className="text-sm font-medium">Warn (≥18h)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-2xl font-semibold text-amber-800 dark:text-amber-200" data-testid="pricing-quote-aging-warn-count">
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue, "text-amber-800 dark:text-amber-200")}
+              data-testid="pricing-quote-aging-warn-count"
+            >
               {data?.warnCount ?? "—"}
             </p>
           </CardContent>
@@ -111,7 +115,10 @@ export function PricingQuoteAgingPageView(props: Props) {
             <CardTitle className="text-sm font-medium">Breach (≥24h)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-2xl font-semibold text-rose-800 dark:text-rose-200" data-testid="pricing-quote-aging-breach-count">
+            <p
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.kpiValue, "text-rose-800 dark:text-rose-200")}
+              data-testid="pricing-quote-aging-breach-count"
+            >
               {data?.breachCount ?? "—"}
             </p>
           </CardContent>

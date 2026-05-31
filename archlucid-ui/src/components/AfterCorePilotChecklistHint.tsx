@@ -99,7 +99,7 @@ export function AfterCorePilotChecklistHint() {
       <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader className="space-y-1 sm:flex sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
           <div>
-            <h3 id="after-core-pilot-card-title" className="m-0 text-base font-semibold tracking-tight text-teal-950 dark:text-teal-100">
+            <h3 id="after-core-pilot-card-title" className="m-0 text-sm font-semibold text-al-text-primary tracking-tight text-teal-950 dark:text-teal-100">
               Ready for more?
             </h3>
             <p className="m-0 mt-0.5 text-xs text-teal-800/90 dark:text-teal-200/90">Expand your pilot — optional next steps</p>

@@ -40,7 +40,7 @@ export function RunAgentResultsSummaryCard(props: {
       data-testid="run-agent-results-summary-card"
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <CardTitle className="text-sm font-semibold text-al-text-primary">
           Agent results
         </CardTitle>
       </CardHeader>

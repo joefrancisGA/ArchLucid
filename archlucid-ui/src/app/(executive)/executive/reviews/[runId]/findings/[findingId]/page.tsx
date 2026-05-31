@@ -128,7 +128,7 @@ export default async function ExecutiveFindingDetailPage({
         <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
           {findingDetailPageEyebrow(safePayload)}
         </p>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
           {findingDetailHeadingTitle(safePayload)}
         </h1>
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">

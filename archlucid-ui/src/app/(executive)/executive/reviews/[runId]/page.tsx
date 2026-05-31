@@ -139,7 +139,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
         <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
           Executive summary
         </p>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{headline}</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{headline}</h1>
         {summary !== null ? (
           <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             <span className="font-medium text-neutral-800 dark:text-neutral-200">Risk posture:</span>{" "}
@@ -171,7 +171,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
       {summary !== null ? (
         <div className="space-y-3">
           <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-start lg:justify-between">
-            <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Prioritized findings</h2>
+            <h2 className="m-0 text-sm font-semibold text-al-text-primary">Prioritized findings</h2>
             <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-2 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/50">
               <ExecutiveReviewHandoffActions
                 runId={runId}
@@ -234,7 +234,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                     <CardDescription className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                       {row.severity} · {row.confidence}
                     </CardDescription>
-                    <p className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                    <p className="m-0 text-sm font-semibold text-al-text-primary">
                       <Link
                         className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                         href={findingExecutiveHref(runId, row.findingId)}

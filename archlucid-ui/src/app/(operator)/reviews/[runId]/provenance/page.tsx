@@ -109,7 +109,7 @@ export default async function RunProvenancePage({
   return (
     <div className="mx-auto p-4 print:w-full">
       <DocumentLayout tocItems={tocItems}>
-        <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Provenance</h2>
+        <h2 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Provenance</h2>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
           Review{" "}
           <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{graph.runId}</code> —{" "}
@@ -125,7 +125,7 @@ export default async function RunProvenancePage({
             aria-labelledby="trace-gaps-heading"
             className="mb-5 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3"
           >
-            <h3 id="trace-gaps-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            <h3 id="trace-gaps-heading" className="m-0 text-sm font-semibold text-al-text-primary">
               Traceability gaps
             </h3>
             <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
@@ -145,7 +145,7 @@ export default async function RunProvenancePage({
         </p>
 
         <section id="prov-timeline" aria-labelledby="prov-timeline-heading" className="mt-6">
-          <h3 id="prov-timeline-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 id="prov-timeline-heading" className="m-0 text-sm font-semibold text-al-text-primary">
             Trace timeline
           </h3>
           <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
@@ -180,7 +180,7 @@ export default async function RunProvenancePage({
         </section>
 
         <section id="prov-nodes" aria-labelledby="prov-nodes-heading" className="mt-6">
-          <h3 id="prov-nodes-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 id="prov-nodes-heading" className="m-0 text-sm font-semibold text-al-text-primary">
             Nodes
           </h3>
           <div className="overflow-x-auto">
@@ -212,7 +212,7 @@ export default async function RunProvenancePage({
         </section>
 
         <section id="prov-edges" aria-labelledby="prov-edges-heading" className="mt-6">
-          <h3 id="prov-edges-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 id="prov-edges-heading" className="m-0 text-sm font-semibold text-al-text-primary">
             Edges
           </h3>
           <div className="overflow-x-auto">

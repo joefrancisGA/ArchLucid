@@ -157,7 +157,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     if (line.startsWith("### ")) {
       const title = line.slice(4).trim();
       blocks.push(
-        <h3 key={`h3-${key}`} className="mt-4 text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <h3 key={`h3-${key}`} className="mt-4 text-sm font-semibold text-al-text-primary">
           {renderInline(title, `h3-${key}`)}
         </h3>,
       );

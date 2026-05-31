@@ -121,7 +121,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
       >
         <CardHeader className="pb-2">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <CardTitle className="text-sm font-semibold text-al-text-primary">
               {buyerPolishedShell ? "Decision summary" : "Quick decision summary"}
             </CardTitle>
             {hasSourceFindings ? (

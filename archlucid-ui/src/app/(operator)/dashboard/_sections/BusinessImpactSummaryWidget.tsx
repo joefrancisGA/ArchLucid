@@ -134,7 +134,7 @@ export function BusinessImpactSummaryWidget() {
               <div className="h-8 w-24 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
             ) : (
               <>
-                <p className="font-mono text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+                <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
                   {formatUsd(data?.totalEstimatedUsdSavings)}
                 </p>
                 {data ? (
@@ -158,7 +158,7 @@ export function BusinessImpactSummaryWidget() {
             {isLoading ? (
               <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
             ) : (
-              <p className="font-mono text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
                 {hasCommittedRuns ? securityComplianceCount : "—"}
               </p>
             )}
@@ -176,7 +176,7 @@ export function BusinessImpactSummaryWidget() {
             {isLoading ? (
               <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
             ) : (
-              <p className="font-mono text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
                 {hasCommittedRuns ? reliabilityCount : "—"}
               </p>
             )}

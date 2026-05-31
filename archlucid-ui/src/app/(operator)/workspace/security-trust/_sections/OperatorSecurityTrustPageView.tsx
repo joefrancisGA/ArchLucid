@@ -15,7 +15,7 @@ export function OperatorSecurityTrustPageView() {
           <span className="inline-flex rounded-full border border-emerald-700/40 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-emerald-800/50">
             Available now
           </span>
-          <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="m-0 text-sm font-semibold text-al-text-primary">
             Trust Center &amp; governance posture
           </h2>
         </div>
@@ -45,7 +45,7 @@ export function OperatorSecurityTrustPageView() {
           <span className="inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600">
             Under NDA
           </span>
-          <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="m-0 text-sm font-semibold text-al-text-primary">
             Third-party security assessments
           </h2>
         </div>
@@ -69,7 +69,7 @@ export function OperatorSecurityTrustPageView() {
           <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-800 dark:bg-violet-900/50 dark:text-violet-300">
             Roadmap
           </span>
-          <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="m-0 text-sm font-semibold text-al-text-primary">
             Planned security maturity
           </h2>
         </div>
@@ -83,7 +83,7 @@ export function OperatorSecurityTrustPageView() {
       </section>
 
       <section aria-label="Badge legend" className="space-y-2">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Badge legend</h2>
+        <h2 className="text-sm font-semibold text-al-text-primary">Badge legend</h2>
         <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
           <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
             <thead className="bg-neutral-100 dark:bg-neutral-900/60">

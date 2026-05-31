@@ -108,7 +108,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
   return (
     <section aria-labelledby={props.sectionHeadingId} className="mb-10">
-      <h2 id={props.sectionHeadingId} className="mb-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id={props.sectionHeadingId} className="mb-2 text-xl font-semibold tracking-tight text-al-text-primary">
         {props.sectionTitle}
       </h2>
       {props.sectionIntro ? (
@@ -160,7 +160,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       : "flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm opacity-[0.97] dark:border-neutral-800 dark:bg-neutral-900"
                 }
               >
-                <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                <h3 className="text-sm font-semibold text-al-text-primary">
                   {pkg.title}
                   {pkg.id === "professional" ? (
                     <span className="ms-2 align-middle text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200">

@@ -39,7 +39,7 @@ export function PostCommitRetentionRail({
   return (
     <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800" data-testid="post-commit-retention-rail">
       <CardHeader className="pb-2">
-        <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Recommended next steps</h2>
+        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Recommended next steps</h2>
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           {buyerPolishedShell
             ? showcaseSpine

@@ -164,7 +164,7 @@ export function AdvisoryScansContent() {
             aria-label="Experimental advisory panels"
             className="mb-4 rounded-lg border border-dashed border-neutral-400 p-3 dark:border-neutral-500"
           >
-            <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Experimental</h3>
+            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Experimental</h3>
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
               Optional panels for in-development advisory UX. Enable with{" "}
               <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true</code>{" "}
@@ -175,7 +175,7 @@ export function AdvisoryScansContent() {
 
         {planSummary ? (
           <>
-            <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Summary</h3>
+            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Summary</h3>
             <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
               {planSummary.summaryNotes.map((note, index) => (
                 <li key={index}>{note}</li>
@@ -186,7 +186,7 @@ export function AdvisoryScansContent() {
 
         {recommendations.length > 0 ? (
           <>
-            <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Persisted recommendations</h3>
+            <h3 className="m-0 text-sm font-semibold text-al-text-primary">Persisted recommendations</h3>
             <p className="doc-meta m-0 text-sm">
               Status and reviewer fields are loaded from storage. Use actions below (elevated permissions required on the
               API).
@@ -197,7 +197,7 @@ export function AdvisoryScansContent() {
                   key={rec.recommendationId}
                   className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
                 >
-                  <h4 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">{rec.title}</h4>
+                  <h4 className="m-0 text-sm font-semibold text-al-text-primary">{rec.title}</h4>
                   <p className="m-0 mt-2 text-base leading-relaxed">
                     <strong>Status:</strong> {rec.status}
                   </p>

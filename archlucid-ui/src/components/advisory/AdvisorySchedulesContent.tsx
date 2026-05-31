@@ -145,7 +145,7 @@ export function AdvisorySchedulesContent() {
 
         <div className={cn("flex flex-col gap-6", !canMutateSchedules && "flex-col-reverse")}>
           <section className="mb-0 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
-            <h3 className="mt-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            <h3 className="mt-0 text-sm font-semibold text-al-text-primary">
               {canMutateSchedules
                 ? advisorySchedulesCreateSectionHeadingOperator
                 : advisorySchedulesCreateSectionHeadingReader}
@@ -205,7 +205,7 @@ export function AdvisorySchedulesContent() {
               </Button>
             </div>
 
-            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            <h3 className="text-sm font-semibold text-al-text-primary">
               {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
             </h3>
             {schedules.length === 0 ? (

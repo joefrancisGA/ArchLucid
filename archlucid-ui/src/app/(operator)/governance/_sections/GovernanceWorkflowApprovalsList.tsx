@@ -107,7 +107,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
             <Card key={row.approvalRequestId}>
               <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
                 <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base font-semibold">{governanceApprovalCardTitle(row)}</CardTitle>
+                  <CardTitle className="text-sm font-semibold text-al-text-primary">{governanceApprovalCardTitle(row)}</CardTitle>
                   <CardDescription>
                     {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)}
                   </CardDescription>

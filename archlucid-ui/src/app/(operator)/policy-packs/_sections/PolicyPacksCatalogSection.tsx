@@ -27,7 +27,7 @@ export function PolicyPacksCatalogSection(props: PolicyPacksCatalogSectionProps)
   return (
     <section className="flex flex-col gap-4" aria-label="Policy pack catalog">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-lg font-semibold">Catalog</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Catalog</h2>
         <button
           type="button"
           className={cn(

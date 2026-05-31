@@ -67,7 +67,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
 
   return (
     <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
-      <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Security &amp; trust</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Security &amp; trust</h1>
       <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         This public page summarizes assurance status. Detailed reports are shared during diligence. Consolidated questionnaires
         and public evidence summaries are available in the{" "}
@@ -214,8 +214,8 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                     id={meta.id}
                     className={
                       plannedTierMuted
-                        ? "m-0 text-base font-semibold text-neutral-700 dark:text-neutral-300"
-                        : "m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+                        ? "m-0 text-sm font-semibold text-al-text-primary text-neutral-700 dark:text-neutral-300"
+                        : "m-0 text-sm font-semibold text-al-text-primary"
                     }
                   >
                     {meta.title}
@@ -248,7 +248,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
                         className={
                           isPlanned
                             ? "m-0 text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-                            : "m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                            : "m-0 text-sm font-semibold text-al-text-primary"
                         }
                       >
                         {row.engagement}

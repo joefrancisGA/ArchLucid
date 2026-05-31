@@ -40,14 +40,18 @@ export const OPERATOR_TYPOGRAPHY = {
   pageTitle: "text-xl font-semibold tracking-tight text-al-text-primary",
   sectionTitle:
     "text-xs font-semibold uppercase tracking-wide text-al-text-secondary",
+  /** In-card or inline subsection headings (not uppercase section labels). */
+  cardTitle: "text-sm font-semibold text-al-text-primary",
   body: "text-sm leading-relaxed text-al-text-primary",
   meta: "text-sm text-al-text-secondary",
   label: "text-xs text-al-text-secondary",
   dataValue: "text-sm font-medium tabular-nums text-al-text-primary",
+  /** Dashboard / metric tiles only — not page titles. */
   kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",
 } as const;
 
 export const DESIGN_TOKENS = {
+  typography: OPERATOR_TYPOGRAPHY,
   surface: {
     page: OPERATOR_LAYOUT.page,
     card: "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800",

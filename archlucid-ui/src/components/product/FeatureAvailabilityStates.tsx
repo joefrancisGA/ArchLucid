@@ -13,7 +13,7 @@ export function FeatureNotAvailable() {
       data-testid="feature-not-available"
     >
       <CardContent className="px-6 py-8 text-center">
-        <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 className="m-0 text-sm font-semibold text-al-text-primary">
           This feature is not enabled in this workspace
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-400">
@@ -37,7 +37,7 @@ export function AvailableAfterFirstRun() {
       data-testid="available-after-first-run"
     >
       <CardContent className="px-6 py-8 text-center">
-        <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 className="m-0 text-sm font-semibold text-al-text-primary">
           Available after your first finalized review
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-400">

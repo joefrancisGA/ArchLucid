@@ -41,7 +41,7 @@ export function RunRetrievalGroundingSummaryCard(props: {
   return (
     <Card className={`rounded-lg border shadow-sm ${dispositionClass(disposition)}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-sm font-semibold text-al-text-primary">
           Retrieval grounding — {disposition}
         </CardTitle>
       </CardHeader>

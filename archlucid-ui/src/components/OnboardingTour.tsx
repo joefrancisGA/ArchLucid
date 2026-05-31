@@ -328,7 +328,7 @@ export function OnboardingTour() {
           <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             {stepIndex + 1} of {stepCount}
           </p>
-          <h2 id="onboarding-tour-title" className="m-0 mt-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 id="onboarding-tour-title" className="m-0 mt-1 text-sm font-semibold text-al-text-primary">
             {step.title}
           </h2>
           <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{step.body}</p>

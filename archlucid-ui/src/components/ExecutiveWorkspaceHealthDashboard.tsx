@@ -227,7 +227,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
       <header className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
             {buyerPolishedShell ? "Workspace overview" : "Executive Workspace Health"}
           </h1>
           <ContextualHelp helpKey="governance-dashboard" />
@@ -253,7 +253,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <h2 className="m-0 text-sm font-semibold text-al-text-primary">
               1. Pre-commit outcomes (30 days)
             </h2>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
@@ -289,14 +289,14 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <h2 className="m-0 text-sm font-semibold text-al-text-primary">
               2. High / Critical finding exposure (90 days)
             </h2>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
               Pilot-value report severity totals in the window — exposure in the report period, not the same as an open-backlog
               aging inventory.
             </p>
-            <p className={buyerPolishedShell ? "m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100" : "m-0 mt-2 font-mono text-2xl font-semibold tabular-nums dark:text-neutral-100"}>
+            <p className={buyerPolishedShell ? "m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary" : "m-0 mt-2 font-mono text-2xl font-semibold tabular-nums dark:text-neutral-100"}>
               {finiteIntegerCountDisplay(highCritical90)}
             </p>
             <p className="m-0 text-sm">
@@ -310,7 +310,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <Card className="border-neutral-200 dark:border-neutral-800 md:col-span-2">
           <CardContent className="space-y-2 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              <h2 className="m-0 text-sm font-semibold text-al-text-primary">
                 3. Compliance drift trend (30 days)
               </h2>
               <Link href="/governance" className="text-sm font-medium text-blue-700 underline dark:text-blue-400">
@@ -324,7 +324,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">4. Approval SLA posture</h2>
+            <h2 className="m-0 text-sm font-semibold text-al-text-primary">4. Approval SLA posture</h2>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
               Derived from governance dashboard pending approvals and recent terminal decisions.
             </p>
@@ -342,7 +342,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
             <div className="flex items-start gap-2">
-              <h2 className="m-0 flex-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              <h2 className="m-0 flex-1 text-sm font-semibold text-al-text-primary">
                 5. Pre-commit blocks as value proxy
               </h2>
               <Tooltip>

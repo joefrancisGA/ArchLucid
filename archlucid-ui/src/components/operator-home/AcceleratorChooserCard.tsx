@@ -12,7 +12,7 @@ export function AcceleratorChooserCard(): React.JSX.Element {
         <CardHeader className="space-y-1">
           <h2
             id="accelerator-chooser-heading"
-            className="m-0 text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
+            className="m-0 text-sm font-semibold text-al-text-primary tracking-tight text-neutral-900 dark:text-neutral-100"
           >
             Pick a starter proof pack
           </h2>

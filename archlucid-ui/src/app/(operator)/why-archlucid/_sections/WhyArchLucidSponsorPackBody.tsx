@@ -26,7 +26,7 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
         {trace ? (
           <div className="rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900/60">
             <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Explainability trace</p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums">{pct(trace.overallCompletenessRatio ?? Number.NaN)}</p>
+            <p className="mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{pct(trace.overallCompletenessRatio ?? Number.NaN)}</p>
             <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
               {typeof trace.totalFindings === "number" ? trace.totalFindings : 0} findings in persisted snapshot
             </p>

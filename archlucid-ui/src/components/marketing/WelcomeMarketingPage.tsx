@@ -105,7 +105,7 @@ export function WelcomeMarketingPage() {
         >
           {BRAND_CATEGORY}
         </p>
-        <h1 id="hero-heading" className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 sm:text-4xl">
+        <h1 id="hero-heading" className="mt-2 text-xl font-semibold tracking-tight text-al-text-primary sm:text-4xl">
           Defensible architecture, on demand.
         </h1>
         <p
@@ -209,7 +209,7 @@ export function WelcomeMarketingPage() {
         className="mb-12"
         data-testid="welcome-proof-at-a-glance"
       >
-        <h2 id="welcome-proof-heading" className="mb-4 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="welcome-proof-heading" className="mb-4 text-xl font-semibold tracking-tight text-al-text-primary">
           Proof at a glance
         </h2>
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-3">
@@ -287,7 +287,7 @@ export function WelcomeMarketingPage() {
       </section>
 
       <section aria-labelledby="pillars-heading" className="mb-14">
-        <h2 id="pillars-heading" className="mb-6 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="pillars-heading" className="mb-6 text-xl font-semibold tracking-tight text-al-text-primary">
           Three pillars
         </h2>
         <ul className="grid gap-6 md:grid-cols-3">
@@ -296,7 +296,7 @@ export function WelcomeMarketingPage() {
               key={pillar.title}
               className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             >
-              <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{pillar.title}</h3>
+              <h3 className="text-sm font-semibold text-al-text-primary">{pillar.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{pillar.body}</p>
               <WelcomePillarVerifyLinks links={pillar.verify} />
             </li>

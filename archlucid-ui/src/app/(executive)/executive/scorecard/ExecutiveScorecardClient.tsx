@@ -158,7 +158,7 @@ export function ExecutiveScorecardClient() {
           <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
             Executive view
           </p>
-          <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Executive scorecard</h1>
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
         </header>
         <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="pb-2">
@@ -189,7 +189,7 @@ export function ExecutiveScorecardClient() {
           <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
             Executive view
           </p>
-          <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Executive scorecard</h1>
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
         </header>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Checking access…</p>
       </div>
@@ -203,7 +203,7 @@ export function ExecutiveScorecardClient() {
           <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
             Executive view
           </p>
-          <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Executive scorecard</h1>
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
         </header>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading scorecard…</p>
       </div>
@@ -217,7 +217,7 @@ export function ExecutiveScorecardClient() {
           <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
             Executive view
           </p>
-          <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Executive scorecard</h1>
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
         </header>
         <OperatorApiProblem
           fallbackMessage={state.message}
@@ -251,7 +251,7 @@ export function ExecutiveScorecardClient() {
         <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
           Executive view
         </p>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Executive scorecard</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Executive scorecard</h1>
         <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           Key value metrics for the current tenant, workspace, and project scope — aligned with the pilot value report and
           governance drift endpoints.

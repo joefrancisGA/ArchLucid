@@ -21,7 +21,7 @@ function LayerCard({ icon, title, items, href }: LayerCardProps) {
     >
       <div className="mb-2 flex items-center gap-2">
         {icon}
-        <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">{title}</h2>
+        <h2 className="m-0 text-sm font-semibold text-al-text-primary">{title}</h2>
       </div>
       <ul className="m-0 list-disc space-y-1 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
         {items.map((item) => (

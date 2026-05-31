@@ -314,7 +314,7 @@ export function EmailRunToSponsorBanner({
         ) : null}
       </p>
 
-      <h2 className="m-0 mt-2 text-base font-semibold text-neutral-900 dark:text-neutral-50">
+      <h2 className="m-0 mt-2 text-sm font-semibold text-al-text-primary">
         {buyerPolishedShell ? "Create executive sponsor scorecard" : "Generate pilot scorecard package"}
       </h2>
 

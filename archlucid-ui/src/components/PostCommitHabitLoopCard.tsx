@@ -37,7 +37,7 @@ export function PostCommitHabitLoopCard({
       data-testid="post-commit-habit-loop-card"
     >
       <CardHeader className="pb-2">
-        <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Next after commit</h2>
+        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Next after commit</h2>
         <CardDescription className="text-neutral-700 dark:text-neutral-300">
           One primary action for sponsor handoff; optional loops stay secondary unless you have a concrete question.
         </CardDescription>

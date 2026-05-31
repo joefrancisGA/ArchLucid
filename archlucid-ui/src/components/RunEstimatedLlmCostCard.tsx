@@ -44,7 +44,7 @@ export function RunEstimatedLlmCostCard(props: {
   return (
     <Card className="rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950/30">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <CardTitle className="text-sm font-semibold text-al-text-primary">
           Estimated LLM cost
         </CardTitle>
       </CardHeader>

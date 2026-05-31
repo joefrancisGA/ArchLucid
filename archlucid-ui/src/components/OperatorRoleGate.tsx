@@ -69,7 +69,7 @@ export function OperatorUnauthorizedPageClient() {
 
   return (
     <div className="mx-auto max-w-lg space-y-4 py-16 text-center" data-testid="operator-unauthorized-page">
-      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Access not authorized</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Access not authorized</h1>
       {showJwtRoleMappingCallout ? (
         <div className="text-left">
           <OperatorJwtBearerRoleMappingCallout testId="operator-unauthorized-jwt-role-callout" />

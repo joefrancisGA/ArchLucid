@@ -23,7 +23,7 @@ export function PilotValueReportPageView(props: Props) {
     <div className="mx-auto space-y-4 p-4 print:w-full">
       <LayerHeader pageKey="value-report-pilot" />
       <DocumentLayout>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Pilot value report</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Pilot value report</h1>
         <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
           One-click proof-of-ROI snapshot: committed reviews, findings, pipeline timing, governance signals, and audit-backed
           recommendation counts for the selected UTC window (<code className="text-xs">toUtc</code> is exclusive, matching the audit
@@ -107,13 +107,13 @@ export function PilotValueReportPageView(props: Props) {
             </div>
 
             <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-              <h2 className="mt-0 text-lg font-medium text-neutral-900 dark:text-neutral-100">Severity distribution</h2>
+              <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Severity distribution</h2>
               <PilotValueReportSeverityBars counts={m.data.findingsBySeverity} />
             </section>
 
             <section className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 className="mt-0 text-lg font-medium text-neutral-900 dark:text-neutral-100">Governance &amp; policy</h2>
+                <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Governance &amp; policy</h2>
                 <ul className="m-0 list-none space-y-2 p-0 text-sm text-neutral-700 dark:text-neutral-300">
                   <li>Approvals: {m.data.governanceApprovals}</li>
                   <li>Rejections: {m.data.governanceRejections}</li>
@@ -123,7 +123,7 @@ export function PilotValueReportPageView(props: Props) {
                 </ul>
               </div>
               <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 className="mt-0 text-lg font-medium text-neutral-900 dark:text-neutral-100">Agent types</h2>
+                <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Agent types</h2>
                 <p className="m-0 font-mono text-sm text-neutral-800 dark:text-neutral-200">
                   {m.data.uniqueAgentTypes.length ? m.data.uniqueAgentTypes.join(", ") : "—"}
                 </p>
@@ -131,7 +131,7 @@ export function PilotValueReportPageView(props: Props) {
             </section>
 
             <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-              <h2 className="mt-0 text-lg font-medium text-neutral-900 dark:text-neutral-100">Review timeline (detail sample)</h2>
+              <h2 className="mt-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Review timeline (detail sample)</h2>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">

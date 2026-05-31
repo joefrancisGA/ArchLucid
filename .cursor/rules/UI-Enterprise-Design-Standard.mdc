@@ -25,6 +25,7 @@ Specific rules:
 - Use `StatusTag` / `SeverityTag` with canonical copy: Ready, Needs attention, Blocked, Approved, Approved with monitoring, In progress, Draft.
 - Make primary content visibly dominant; diagnostics and supporting content quieter (collapsed by default).
 - Operator views: `space-y-4`, `p-4`, `gap-2` — not `space-y-8` / `py-8`.
+- Typography: `OPERATOR_TYPOGRAPHY` from `design-tokens.ts` — page titles `text-xl` max; KPI tiles `kpiValue` only; no `text-2xl`/`text-3xl` on operator `h1`.
 - Hide CLI/script/API/model/runtime details from normal surfaces.
 - Product language: review package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
 
@@ -40,6 +41,7 @@ Specific rules:
 - Tokens: `archlucid-ui/src/lib/design-tokens.ts`, `globals.css` (`--al-*`)
 - Components: `src/components/ui/status-tag.tsx`, `severity-tag.tsx`, `enterprise-table.tsx`
 - Bulk pastel migration (operator): `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` — extend patterns; do not reintroduce `bg-*-50` card fills.
+- Bulk typography (operator): `archlucid-ui/scripts/migrate-tb119-operator-typography.ps1` — prefer `OPERATOR_TYPOGRAPHY.*` tokens for new headings.
 
 ## Completed waves (do not regress)
 
@@ -50,6 +52,7 @@ Specific rules:
 | TB-116 | `StatusTag`, `SeverityTag`, pipeline `StatusPill` neutrals |
 | TB-117 | `EnterpriseTable` on reviews list, governance findings queue, operator audit log |
 | TB-118 | `space-y-4` / `p-4` on home, run detail, executive dashboard, findings, audit |
+| TB-119 | `OPERATOR_TYPOGRAPHY` scale; migration script; no marketing-scale operator headings |
 | TB-120 | This rule + `archlucid-ui/AGENTS.md` |
 
 Buyer-polished audit **timeline cards** are intentional; operator audit uses **table** layout.

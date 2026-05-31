@@ -152,17 +152,22 @@ Avoid `space-y-8`, `py-8`, and marketing-scale hero cards inside `(operator)/` r
 
 ---
 
-## Typography convention (TB-119)
+## Typography convention (TB-119) — done 2026-05-31
 
-| Role | Classes |
-|------|---------|
-| Page heading | `text-xl font-semibold text-al-text-primary` |
-| Section heading | `text-xs font-semibold uppercase tracking-wide text-al-text-secondary` |
-| Body | `text-sm text-al-text-primary` |
-| Meta / caption | `text-sm text-al-text-secondary` |
-| KPI numeric (exception) | `font-mono text-4xl font-semibold tabular-nums` — dashboard tiles only |
+Canonical classes live in `archlucid-ui/src/lib/design-tokens.ts` as `OPERATOR_TYPOGRAPHY` (also `DESIGN_TOKENS.typography`). Bulk migration: `archlucid-ui/scripts/migrate-tb119-operator-typography.ps1`.
 
-Do not use `text-2xl` / `text-3xl` on operator page titles without a documented exception.
+| Role | Token | Classes |
+|------|-------|---------|
+| Page heading | `pageTitle` | `text-xl font-semibold tracking-tight text-al-text-primary` |
+| Section heading | `sectionTitle` | `text-xs font-semibold uppercase tracking-wide text-al-text-secondary` |
+| Card / subsection title | `cardTitle` | `text-sm font-semibold text-al-text-primary` |
+| Body | `body` | `text-sm leading-relaxed text-al-text-primary` |
+| Meta / caption | `meta` | `text-sm text-al-text-secondary` |
+| Label | `label` | `text-xs text-al-text-secondary` |
+| Inline data value | `dataValue` | `text-sm font-medium tabular-nums text-al-text-primary` |
+| KPI numeric (exception) | `kpiValue` | `font-mono text-4xl font-semibold tabular-nums text-al-text-primary` — dashboard/metric tiles only |
+
+Do not use `text-2xl` / `text-3xl` on operator page titles. Hierarchy must use **size + weight** (and case for section labels), not color alone.
 
 ---
 

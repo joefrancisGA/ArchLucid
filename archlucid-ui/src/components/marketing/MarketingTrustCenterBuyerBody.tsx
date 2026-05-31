@@ -15,7 +15,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
   return (
     <div className="space-y-10">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Trust Center</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Trust Center</h1>
         <p className="mt-3 text-sm font-medium leading-relaxed text-neutral-900 dark:text-neutral-100">
           Buyers can rely on published procurement artifacts today: control mapping and questionnaire-oriented summaries,
           architecture and security documentation, and audit-ready evidence packages backed by immutable lifecycle logging for

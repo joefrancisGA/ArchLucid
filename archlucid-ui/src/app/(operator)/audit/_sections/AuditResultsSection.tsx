@@ -191,7 +191,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 className="mt-4 rounded-md border border-neutral-200 bg-al-surface-raised p-4 shadow-sm dark:border-neutral-800"
                 data-testid="audit-buyer-completion-card"
               >
-                <h3 id="audit-buyer-completion-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                <h3 id="audit-buyer-completion-heading" className="m-0 text-sm font-semibold text-al-text-primary">
                   Audit trail complete — review package finalized
                 </h3>
                 <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">

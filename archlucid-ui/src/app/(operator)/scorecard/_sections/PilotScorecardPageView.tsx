@@ -25,7 +25,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
       <header>
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Pilot scorecard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Pilot scorecard</h1>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-300">
           Cumulative tenant metrics from committed runs, durable baselines for ROI modeling (
           <span className="font-mono">docs/go-to-market/ROI_MODEL.md</span>), and estimated review-time savings when
@@ -47,7 +47,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
       {data ? (
         <>
           <section aria-labelledby="scorecard-metrics">
-            <h2 id="scorecard-metrics" className="mb-3 text-lg font-medium text-neutral-900 dark:text-neutral-100">
+            <h2 id="scorecard-metrics" className="mb-3 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
               Operational metrics
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -89,7 +89,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             aria-labelledby="roi-baselines"
             className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
           >
-            <h2 id="roi-baselines" className="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+            <h2 id="roi-baselines" className="text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
               ROI baselines
             </h2>
             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
@@ -145,7 +145,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
           </section>
 
           <section aria-labelledby="roi-estimate">
-            <h2 id="roi-estimate" className="mb-3 text-lg font-medium text-neutral-900 dark:text-neutral-100">
+            <h2 id="roi-estimate" className="mb-3 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">
               ROI estimate (review time lever)
             </h2>
             {data.roiEstimate ? (

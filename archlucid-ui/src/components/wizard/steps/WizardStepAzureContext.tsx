@@ -21,7 +21,7 @@ export function WizardStepAzureContext() {
   return (
     <section className="space-y-4" aria-labelledby="wizard-azure-ingest-heading">
       <div>
-        <h2 id="wizard-azure-ingest-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="wizard-azure-ingest-heading" className="m-0 text-sm font-semibold text-al-text-primary">
           Ingest Azure context
         </h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">

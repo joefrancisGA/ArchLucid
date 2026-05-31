@@ -202,7 +202,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       </Card>
 
       <div className="mb-6">
-        <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Industry starters</h3>
+        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Industry starters</h3>
         <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           Pre-fill regulated-industry context. You can add matching <GlossaryTooltip termKey="policy_pack">policy packs</GlossaryTooltip> later.
         </p>
@@ -236,7 +236,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
 
       {otherVerticals.length > 0 ? (
         <div className="mb-6">
-          <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 className="mb-1 text-sm font-semibold text-al-text-primary">
             More industry templates
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -264,7 +264,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       ) : null}
 
       <div className="mb-6">
-        <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Reference starters</h3>
+        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Reference starters</h3>
         <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           Opinionated footprints (API platforms, internal portals, telemetry, payments-adjacent) you can refine in later
           steps.
@@ -294,7 +294,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       </div>
 
       <div className="mb-6">
-        <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Quick shapes</h3>
+        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Quick shapes</h3>
         <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           Opinionated starters for common delivery patterns (greenfield, modernization, data platform).
         </p>
@@ -322,7 +322,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       </div>
 
       <div className="mb-6">
-        <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Architecture request templates</h3>
+        <h3 className="mb-1 text-sm font-semibold text-al-text-primary">Architecture request templates</h3>
         <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           Opinionated payloads aligned with <code className="text-xs">POST /v1/architecture/request</code> (
           <code className="text-xs">ArchitectureRequest</code>). Same JSON bodies live under{" "}

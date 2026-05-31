@@ -16,7 +16,7 @@ export function WhyArchLucidCounter(props: WhyArchLucidCounterProps) {
       aria-label={label}
     >
       <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{shown}</p>
+      <p className="mt-1 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{shown}</p>
       <p className="mt-1 text-xs text-neutral-500">
         <code>{hint}</code>
       </p>

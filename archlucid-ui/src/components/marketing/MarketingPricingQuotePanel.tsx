@@ -140,7 +140,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       aria-labelledby="quote-request-heading"
       className="mb-10 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
-      <h2 id="quote-request-heading" className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="quote-request-heading" className="mb-2 text-sm font-semibold text-al-text-primary">
         Request a quote
       </h2>
       <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">

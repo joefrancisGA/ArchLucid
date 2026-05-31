@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  OPERATOR_TYPOGRAPHY,
   operatorConfidenceSurface,
   operatorSemanticBadge,
   operatorSemanticSurface,
@@ -22,5 +23,25 @@ describe("design-tokens TB-115 surfaces", () => {
   it("operatorConfidenceSurface maps proof disposition tones", () => {
     expect(operatorConfidenceSurface("high")).toBe(operatorSemanticSurface("ready"));
     expect(operatorConfidenceSurface("low")).toBe(operatorSemanticSurface("blocked"));
+  });
+});
+
+describe("design-tokens TB-119 typography", () => {
+  it("page titles cap at text-xl with weight + tracking", () => {
+    expect(OPERATOR_TYPOGRAPHY.pageTitle).toContain("text-xl");
+    expect(OPERATOR_TYPOGRAPHY.pageTitle).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.pageTitle).not.toContain("text-2xl");
+  });
+
+  it("section titles use size + weight + case, not color alone", () => {
+    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("text-xs");
+    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("uppercase");
+  });
+
+  it("KPI values use mono tabular scale separate from page titles", () => {
+    expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("text-4xl");
+    expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("font-mono");
+    expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("tabular-nums");
   });
 });

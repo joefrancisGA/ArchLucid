@@ -4537,6 +4537,8 @@ Problems with this approach:
 
 ## TB-149 — Canonical 14-day expiring-waiver window — single server implementation
 
+**Status (2026-05-31):** **Done** — `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` (`[now, now+14d]` UTC inclusive); `ExecutiveRoiSummaryService.CountExpiringWaivers` removed; composer + ROI share helper; unit tests in `GovernanceWaiverExpiryWindowTests`.
+
 **Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**.
 
 **Problem:**
@@ -4575,6 +4577,8 @@ The dashboard prefers `summary.expiringWaiversCount14Days` from the ROI endpoint
 
 ## TB-150 — Decisions-needed `TotalDecisionItems` — union cardinality, not sum
 
+**Status (2026-05-31):** **Done** — `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` (distinct finding union + pending approvals); contract XML on `TotalDecisionItems`; unit tests.
+
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
 **Problem:**
@@ -4612,6 +4616,8 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 ---
 
 ## TB-151 — `ExecutiveSummaryResult.TotalRiskReductionScore` — semantic fix
+
+**Status (2026-05-31):** **Done** — `TotalRiskReductionScore` maps to `ResolvedFindingsCount30Days`; added `PendingGovernanceDecisionCount` on `ExecutiveSummaryResult`; `ExecutiveReportsSummaryServiceTests`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 
@@ -4737,6 +4743,8 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 ---
 
 ## TB-155 — ROI cache vs live decisions-needed — canonical expiring-waiver source
+
+**Status (2026-05-31):** **Done** — `CachingExecutiveRoiSummaryService` refreshes `ExpiringWaiversCount14Days` on every read; dashboard tile uses `waiversExpiringWithin14Days` only (no ROI `??` fallback).
 
 **Source:** Cross-layer data consistency audit (2026-05-31). Extends **TB-104**, **TB-149**.
 
@@ -5210,7 +5218,7 @@ The current UI inherits Tailwind's default palette and shadcn component defaults
 
 ## TB-115 — Surface and card audit: remove pastel cards; apply Carbon-style neutral surfaces
 
-**Status (2026-05-31):** **Done** — `operatorSemanticSurface` / `operatorSemanticBadge` / `operatorConfidenceSurface` in `design-tokens.ts`; shared proof/confidence cards migrated; `WelcomeBanner` compact enterprise banner; bulk pass via `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` (~95 files across operator, executive, marketing, `lib`, `global-error`). **Verified 2026-05-31:** `design-tokens.test.ts`, `PolicyPackDiffView.test.tsx`, demo-explain and `/why` snapshots green; decorative `bg-*-50` grep clear in app TS/TSX (remaining hits: primary CTAs `bg-teal-700`, chart/meter fills `bg-*-500`, 6px status dots). **TB-117–TB-120** completed in the same design-system wave (tables, spacing, Cursor rule).
+**Status (2026-05-31):** **Done** — `operatorSemanticSurface` / `operatorSemanticBadge` / `operatorConfidenceSurface` in `design-tokens.ts`; shared proof/confidence cards migrated; `WelcomeBanner` compact enterprise banner; bulk pass via `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` (~95 files across operator, executive, marketing, `lib`, `global-error`). **Verified 2026-05-31:** `design-tokens.test.ts`, `PolicyPackDiffView.test.tsx`, demo-explain and `/why` snapshots green; decorative `bg-*-50` grep clear in app TS/TSX (remaining hits: primary CTAs `bg-teal-700`, chart/meter fills `bg-*-500`, 6px status dots). **TB-117–TB-120** design-system wave complete (tables, spacing, typography, Cursor rule).
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5368,6 +5376,8 @@ Operator page sections use `space-y-6`, `py-8`, `gap-6`, and similar spacing tha
 ---
 
 ## TB-119 — Typography audit: enforce accessible enterprise type hierarchy across operator surfaces
+
+**Status (2026-05-31):** **Done** — `OPERATOR_TYPOGRAPHY` + `DESIGN_TOKENS.typography`; `cardTitle` token; migration script `archlucid-ui/scripts/migrate-tb119-operator-typography.ps1` (~106 files). Operator `h1` capped at `text-xl`; KPI tiles use `kpiValue` (`text-4xl` mono); run-detail section labels use `sectionTitle`. Acceptance surfaces (home banner, run detail, executive dashboard, findings, audit) pass grep for `text-2xl`/`text-3xl` page titles.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 

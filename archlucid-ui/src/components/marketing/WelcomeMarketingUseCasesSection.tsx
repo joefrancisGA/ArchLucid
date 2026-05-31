@@ -14,7 +14,7 @@ export function WelcomeMarketingUseCasesSection() {
       className="mb-12"
       data-testid="welcome-use-cases"
     >
-      <h2 id="welcome-use-cases-heading" className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="welcome-use-cases-heading" className="text-xl font-semibold tracking-tight text-al-text-primary">
         Use cases — bundled policy packs
       </h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
@@ -28,7 +28,7 @@ export function WelcomeMarketingUseCasesSection() {
             className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
             data-testid={`welcome-use-case-${useCase.id}`}
           >
-            <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{useCase.title}</h3>
+            <h3 className="text-sm font-semibold text-al-text-primary">{useCase.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{useCase.body}</p>
           </li>
         ))}

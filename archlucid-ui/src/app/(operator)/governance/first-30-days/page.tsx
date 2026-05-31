@@ -25,7 +25,7 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Policy pack baseline</h2>
+              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Policy pack baseline</h2>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
               <p className="m-0">Assign a published pack and confirm effective thresholds for your workspace.</p>
@@ -38,7 +38,7 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Preview threshold impact (read-safe)</h2>
+              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Preview threshold impact (read-safe)</h2>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
               <p className="m-0">Run a dry-run from a pack detail page before changing production thresholds.</p>
@@ -49,7 +49,7 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Alert route &amp; owner loop</h2>
+              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Alert route &amp; owner loop</h2>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
               <p className="m-0">Wire one routing subscription per severity class your team actually answers.</p>
@@ -67,7 +67,7 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Approvals &amp; SLA narrative</h2>
+              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Approvals &amp; SLA narrative</h2>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
               <p className="m-0">Start with a single promotion path and document expected acknowledgement times for architects.</p>
@@ -80,7 +80,7 @@ export default function FirstThirtyDaysGovernancePage() {
         <li>
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Workspace overview anchor</h2>
+              <h2 className="m-0 text-sm font-semibold text-al-text-primary">Workspace overview anchor</h2>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
               <p className="m-0">

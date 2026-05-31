@@ -24,7 +24,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">
           Active policy pack
         </p>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{canonicalPackLabel}</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{canonicalPackLabel}</h1>
         <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated
           intake paths — matching the Claims Intake showcase review referenced from Governance and Manifest surfaces.
@@ -38,7 +38,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
       </header>
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
-        <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">What sponsors see first</h2>
+        <h2 className="m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">What sponsors see first</h2>
         <ul className="m-0 mt-3 list-disc space-y-2 ps-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           <li>Explicit minimization checks where identifiers cross trust boundaries (mirrors the PHI finding storyline).</li>
           <li>Required evidence artifacts for regulators — manifests, graph excerpts, and governance approvals stay linked.</li>
@@ -47,7 +47,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
       </section>
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
-        <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">Rule families inside this pack</h2>
+        <h2 className="m-0 text-xs font-semibold uppercase tracking-wide text-al-text-secondary">Rule families inside this pack</h2>
         <dl className="m-0 mt-4 grid gap-4 text-sm text-neutral-800 dark:text-neutral-200">
           <div>
             <dt className="font-semibold text-neutral-900 dark:text-neutral-50">Identity &amp; lineage</dt>

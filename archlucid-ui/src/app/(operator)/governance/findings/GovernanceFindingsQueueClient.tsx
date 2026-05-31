@@ -305,7 +305,7 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
       aria-label={rowIsDecision ? `Open decision: ${row.title}` : undefined}
     >
       <CardHeader className="space-y-1 pb-2">
-        <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <CardTitle className="text-sm font-semibold text-al-text-primary">
           <Link
             className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
             href={inspectHref(row.runId, row.findingId)}
@@ -593,7 +593,7 @@ export default function GovernanceFindingsQueueClient() {
                 <section className="space-y-3" aria-labelledby="governance-findings-risks">
                   <h2
                     id="governance-findings-risks"
-                    className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                    className="m-0 text-sm font-semibold text-al-text-primary"
                   >
                     {BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE}
                   </h2>
@@ -608,7 +608,7 @@ export default function GovernanceFindingsQueueClient() {
                 <section className="space-y-3" aria-labelledby="governance-findings-decisions">
                   <h2
                     id="governance-findings-decisions"
-                    className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+                    className="m-0 text-sm font-semibold text-al-text-primary"
                   >
                     Recorded decisions
                   </h2>
@@ -631,7 +631,7 @@ export default function GovernanceFindingsQueueClient() {
                 className="border border-neutral-200 shadow-sm dark:border-neutral-800"
               >
                 <CardHeader className="space-y-1 pb-2">
-                  <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                  <CardTitle className="text-sm font-semibold text-al-text-primary">
                     <Link
                       className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                       href={inspectHref(row.runId, row.findingId)}

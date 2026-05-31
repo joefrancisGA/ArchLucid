@@ -18,7 +18,7 @@ Key rules for every component:
 - Technical details (IDs, CLI commands, model names) are hidden behind disclosure affordances on normal surfaces.
 - Product language: *review package*, *finding*, *evidence trail*, *governance approval*, *audit trail* — not *run*, *job*, *alert* (unless it is an alert), *log*.
 
-Carbon design system (**TB-114 – TB-120**, done 2026-05-31): tokens, neutral surfaces (**TB-115**), `StatusTag` / `SeverityTag` (**TB-116**), `EnterpriseTable` on reviews / governance findings / operator audit (**TB-117**), compact spacing on procurement landing pages (**TB-118**), Cursor rule **`.cursor/rules/UI-Enterprise-Design-Standard.mdc`** (**TB-120**). Pastel migration script: `scripts/migrate-tb115-operator-surfaces.ps1`. Canonical backlog: [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
+Carbon design system (**TB-114 – TB-120**, done 2026-05-31): tokens, neutral surfaces (**TB-115**), `StatusTag` / `SeverityTag` (**TB-116**), `EnterpriseTable` on reviews / governance findings / operator audit (**TB-117**), compact spacing on procurement landing pages (**TB-118**), `OPERATOR_TYPOGRAPHY` scale (**TB-119**), Cursor rule **`.cursor/rules/UI-Enterprise-Design-Standard.mdc`** (**TB-120**). Migration scripts: `scripts/migrate-tb115-operator-surfaces.ps1`, `scripts/migrate-tb119-operator-typography.ps1`. Canonical backlog: [`docs/library/TECH_BACKLOG.md`](../docs/library/TECH_BACKLOG.md).
 
 ## Before large UI refactors
 

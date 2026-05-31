@@ -17,7 +17,7 @@ export function HelpProductGuide() {
     <div className="space-y-4" aria-labelledby="help-product-guide-heading">
       <h2
         id="help-product-guide-heading"
-        className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+        className="m-0 text-sm font-semibold text-al-text-primary"
       >
         Using ArchLucid
       </h2>
@@ -118,7 +118,7 @@ export function HelpProductGuide() {
       </div>
 
       <section aria-labelledby="help-in-app-topics" className="space-y-3">
-        <h3 id="help-in-app-topics" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <h3 id="help-in-app-topics" className="m-0 text-sm font-semibold text-al-text-primary">
           In-app guides
         </h3>
         <ul className="m-0 grid gap-2 sm:grid-cols-2">

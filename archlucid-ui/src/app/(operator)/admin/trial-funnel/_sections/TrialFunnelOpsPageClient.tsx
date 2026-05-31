@@ -85,7 +85,7 @@ export function TrialFunnelOpsPageClient() {
             <CardTitle className="text-sm font-medium">Active trials</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-2xl font-semibold">{data?.activeSelfServiceTrials ?? "—"}</p>
+            <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{data?.activeSelfServiceTrials ?? "—"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -93,7 +93,7 @@ export function TrialFunnelOpsPageClient() {
             <CardTitle className="text-sm font-medium">First commits (30d)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-2xl font-semibold">{data?.firstCommittedReviews30Days ?? "—"}</p>
+            <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{data?.firstCommittedReviews30Days ?? "—"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -101,7 +101,7 @@ export function TrialFunnelOpsPageClient() {
             <CardTitle className="text-sm font-medium">Conversions (30d)</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="m-0 text-2xl font-semibold">{data?.trialConversions30Days ?? "—"}</p>
+            <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{data?.trialConversions30Days ?? "—"}</p>
           </CardContent>
         </Card>
       </div>

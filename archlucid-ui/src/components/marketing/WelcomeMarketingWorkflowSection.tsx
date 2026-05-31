@@ -11,7 +11,7 @@ export function WelcomeMarketingWorkflowSection() {
       className="mb-12"
       data-testid="welcome-core-workflow"
     >
-      <h2 id="welcome-workflow-heading" className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="welcome-workflow-heading" className="text-xl font-semibold tracking-tight text-al-text-primary">
         Core workflow
       </h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">

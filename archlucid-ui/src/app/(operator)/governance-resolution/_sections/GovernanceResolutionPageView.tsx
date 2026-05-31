@@ -51,7 +51,7 @@ export function GovernanceResolutionPageView(props: Props) {
       ) : null}
 
       <section className="mb-7" aria-labelledby="governance-conflicts-heading">
-        <h3 id="governance-conflicts-heading" className="text-lg font-semibold">
+        <h3 id="governance-conflicts-heading" className="text-sm font-semibold text-al-text-primary">
           Policy pack conflicts ({m.data?.conflicts.length ?? 0})
         </h3>
         <p className="mt-1 mb-3 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
@@ -88,7 +88,7 @@ export function GovernanceResolutionPageView(props: Props) {
 
         <AdvancedOptionsAccordion className="mt-5">
           <div className="grid gap-4">
-            <h4 className="mt-0 mb-0 text-base font-semibold">Effective content</h4>
+            <h4 className="mt-0 mb-0 text-sm font-semibold text-al-text-primary">Effective content</h4>
             <pre className="bg-neutral-100 dark:bg-neutral-800 p-3 overflow-auto text-xs max-h-[400px] m-0">
               {m.data ? JSON.stringify(m.data.effectiveContent, null, 2) : "—"}
             </pre>
@@ -107,7 +107,7 @@ export function GovernanceResolutionPageView(props: Props) {
 
       <AdvancedOptionsAccordion className="mb-7">
         <section className="mb-0" aria-labelledby="governance-resolution-details-heading">
-          <h3 id="governance-resolution-details-heading" className="mt-0 text-lg font-semibold">
+          <h3 id="governance-resolution-details-heading" className="mt-0 text-sm font-semibold text-al-text-primary">
             {canMutateEnterprisePolicySurfaces
               ? governanceResolutionResolutionDetailsHeadingOperator
               : governanceResolutionResolutionDetailsHeadingReader}

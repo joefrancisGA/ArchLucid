@@ -40,7 +40,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">
+          <CardTitle className="text-sm font-semibold text-al-text-primary">
             {buyer ? "Decisions in this package" : "Architectural decisions"}
           </CardTitle>
           <CardDescription>
@@ -86,7 +86,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     return (
       <Card id="manifest-key-decisions">
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Key decisions</CardTitle>
+          <CardTitle className="text-sm font-semibold text-al-text-primary">Key decisions</CardTitle>
           <CardDescription>
             Grouped by control area — main architecture choices captured in this review package.
           </CardDescription>
@@ -125,7 +125,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
   return (
     <Card id="manifest-key-decisions">
       <CardHeader>
-        <CardTitle className="text-base font-semibold">{buyer ? "Key decisions" : "Top decisions"}</CardTitle>
+        <CardTitle className="text-sm font-semibold text-al-text-primary">{buyer ? "Key decisions" : "Top decisions"}</CardTitle>
         <CardDescription>
           {buyer
             ? "Main architecture choices captured in this review package."

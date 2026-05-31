@@ -101,7 +101,7 @@ export function DigestsBrowseContent() {
 
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-[minmax(16rem,20rem)_1fr]">
         <aside className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950">
-          <h3 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 className="m-0 text-sm font-semibold text-al-text-primary">
             {canMutateEnterpriseShell ? digestsHistoryHeadingOperator : digestsHistoryHeadingReader}
           </h3>
           {digests.length === 0 ? (
@@ -150,7 +150,7 @@ export function DigestsBrowseContent() {
               </pre>
 
               <div id="digest-delivery" className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-                <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Delivery attempts</h3>
+                <h3 className="m-0 text-sm font-semibold text-al-text-primary">Delivery attempts</h3>
                 {deliveryAttempts.length === 0 ? (
                   <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                     No attempts recorded (add subscriptions in the <strong>Subscriptions</strong> tab of this hub).

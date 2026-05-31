@@ -47,7 +47,7 @@ export function EmptyState({
           {Icon ? (
             <Icon className="h-12 w-12 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
           ) : null}
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{title}</h3>
+          <h3 className="text-sm font-semibold text-al-text-primary">{title}</h3>
           <p className="max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{description}</p>
           {gettingStarted !== undefined ? (
             <GettingStartedSteps

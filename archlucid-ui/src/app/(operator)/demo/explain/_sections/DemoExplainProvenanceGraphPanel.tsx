@@ -25,7 +25,7 @@ export function DemoExplainProvenanceGraphPanel(props: Props) {
       <header className="space-y-1">
         <h2
           id="demo-explain-graph-heading"
-          className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          className="text-sm font-semibold text-al-text-primary"
         >
           Provenance graph
         </h2>

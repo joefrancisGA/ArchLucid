@@ -127,7 +127,7 @@ export function ValueRealizationDashboard() {
             <span className="font-mono text-xs">{formatUsd(hourlyUsd)}</span>
             /h from this browser unless you changed it under Value report → ROI).
           </p>
-          <p className="m-0 mt-2 font-mono text-base font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+          <p className="m-0 mt-2 font-mono text-sm font-semibold text-al-text-primary tabular-nums text-neutral-900 dark:text-neutral-50">
             ~{formatUsd(impliedUsd)}{" "}
             <span className="text-sm font-normal text-neutral-500">estimated from hours × your loaded rate</span>
           </p>

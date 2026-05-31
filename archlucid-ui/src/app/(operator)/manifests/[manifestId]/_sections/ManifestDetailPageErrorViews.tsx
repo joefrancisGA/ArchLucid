@@ -28,7 +28,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
           Reviews
         </Link>
       </nav>
-      <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+      <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
         {props.buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
       </h1>
       {props.children}

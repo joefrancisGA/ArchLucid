@@ -61,7 +61,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
 
   return (
     <section className="mb-0">
-      <h3 className="mb-4 text-lg font-semibold">
+      <h3 className="mb-4 text-sm font-semibold text-al-text-primary">
         {canMutateWorkflow
           ? governanceWorkflowPromotionsActivationsHeadingOperator
           : governanceWorkflowPromotionsActivationsHeadingReader}
@@ -152,7 +152,7 @@ export function GovernanceWorkflowPromotionsActivationsSection(
         ))}
       </div>
 
-      <h4 className="mb-3 text-base font-semibold">
+      <h4 className="mb-3 text-sm font-semibold text-al-text-primary">
         {canMutateWorkflow
           ? governanceWorkflowActivationsSubheadingOperator
           : governanceWorkflowActivationsSubheadingReader}

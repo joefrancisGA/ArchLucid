@@ -207,7 +207,7 @@ export function ExecutiveRoiSummarySection() {
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings</div>
-            <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <div className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary">
               {formatUsd(data.totalEstimatedUsdSavings)}
             </div>
             <div className="mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="exec-roi-pricing-basis">
@@ -226,7 +226,7 @@ export function ExecutiveRoiSummarySection() {
             <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
               <div className="text-xs font-medium text-teal-800 dark:text-teal-200">Realized USD (remediated)</div>
               <div
-                className="mt-1 text-lg font-semibold tabular-nums text-teal-950 dark:text-teal-50"
+                className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary"
                 data-testid="exec-roi-realized-usd"
               >
                 {formatUsd(data.basisBreakdown.realizedUsd)}
@@ -252,13 +252,13 @@ export function ExecutiveRoiSummarySection() {
           ) : null}
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Systems reviewed</div>
-            <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <div className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary">
               {data.systemCount}
             </div>
           </div>
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Latest runs included</div>
-            <div className="mt-1 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <div className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary">
               {data.latestRunCount}
             </div>
           </div>

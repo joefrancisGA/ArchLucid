@@ -35,7 +35,7 @@ export function CollapsibleSection({
         }
       }}
     >
-      <summary className="cursor-pointer select-none text-base font-semibold text-neutral-900 dark:text-neutral-100">
+      <summary className="cursor-pointer select-none text-sm font-semibold text-al-text-primary">
         {title}
       </summary>
       <div className="mt-3">{children}</div>

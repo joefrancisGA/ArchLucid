@@ -423,7 +423,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-900/80"
         aria-labelledby="whats-next-heading"
       >
-        <h2 id="whats-next-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 id="whats-next-heading" className="m-0 text-sm font-semibold text-al-text-primary">
           What&apos;s next
         </h2>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">
@@ -513,7 +513,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         <div className="min-w-0">
           {exploreCompletedOutput ? (
             <>
-              <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              <h2 id="first-run-workflow-heading" className="m-0 text-sm font-semibold text-al-text-primary">
                 {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
               </h2>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
@@ -544,7 +544,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               </p>
             </>
           ) : !hasAnyRun ? (
-            <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <h2 id="first-run-workflow-heading" className="m-0 text-sm font-semibold text-al-text-primary">
               {CORE_PILOT_FIRST_REVIEW_HEADING}
             </h2>
           ) : (

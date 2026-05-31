@@ -19,7 +19,7 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
           <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Registered packs</CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <p className="m-0 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{packCount}</p>
+          <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">{packCount}</p>
           <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Visible in this workspace</p>
         </CardContent>
       </Card>
@@ -30,7 +30,7 @@ export function PolicyPacksMetricStrip(props: PolicyPacksMetricStripProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <p className="m-0 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+          <p className="m-0 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
             {effective?.packs.length ?? 0}
           </p>
           <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">

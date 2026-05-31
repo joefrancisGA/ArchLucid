@@ -59,7 +59,7 @@ export function SystemHealthPageView(props: Props) {
       </div>
 
       <section className="mb-6" aria-labelledby="system-health-probes-heading">
-        <h2 id="system-health-probes-heading" className="text-base font-semibold">
+        <h2 id="system-health-probes-heading" className="text-sm font-semibold text-al-text-primary">
           Probes
         </h2>
         <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
@@ -88,7 +88,7 @@ export function SystemHealthPageView(props: Props) {
       </section>
 
       <section className="mb-6" aria-labelledby="system-health-build-heading">
-        <h2 id="system-health-build-heading" className="text-base font-semibold">
+        <h2 id="system-health-build-heading" className="text-sm font-semibold text-al-text-primary">
           Build identity
         </h2>
         <div
@@ -111,7 +111,7 @@ export function SystemHealthPageView(props: Props) {
       </section>
 
       <section className="mb-6" aria-labelledby="system-health-dependencies-heading">
-        <h2 id="system-health-dependencies-heading" className="text-base font-semibold">
+        <h2 id="system-health-dependencies-heading" className="text-sm font-semibold text-al-text-primary">
           Critical dependencies
         </h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">

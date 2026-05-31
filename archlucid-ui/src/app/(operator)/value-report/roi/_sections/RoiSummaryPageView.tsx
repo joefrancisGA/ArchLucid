@@ -59,7 +59,7 @@ export function RoiSummaryPageView(props: Props) {
     <div className="mx-auto space-y-4 p-4">
       <LayerHeader pageKey="value-report-roi" />
       <DocumentLayout>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">ROI summary</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">ROI summary</h1>
         <div
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 text-sm shadow-sm"
           role="status"

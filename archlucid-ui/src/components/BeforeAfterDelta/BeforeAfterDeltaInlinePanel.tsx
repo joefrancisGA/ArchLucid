@@ -90,7 +90,7 @@ function BeforeAfterDeltaInlineComparisonRow({
         <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Findings</dt>
         <dd
           data-testid="delta-inline-findings"
-          className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+          className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
         >
           {formatFindings(current.totalFindings)}{" "}
           <span className="text-sm font-normal text-neutral-600 dark:text-neutral-400">
@@ -114,7 +114,7 @@ function BeforeAfterDeltaInlineComparisonRow({
         </dt>
         <dd
           data-testid="delta-inline-time"
-          className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+          className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
         >
           {formatHours(current.timeToCommittedManifestTotalSeconds)}{" "}
           <span className="text-sm font-normal text-neutral-600 dark:text-neutral-400">

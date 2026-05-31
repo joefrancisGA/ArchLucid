@@ -18,7 +18,7 @@ export function MarketingAccessibilityContentSection(props: MarketingAccessibili
   const HeadingTag = props.headingLevel === 3 ? "h3" : "h2";
   const headingClass =
     props.headingLevel === 3
-      ? "mt-6 text-base font-semibold text-neutral-900 dark:text-neutral-50"
+      ? "mt-6 text-sm font-semibold text-al-text-primary"
       : "mt-10 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50";
 
   return (

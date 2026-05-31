@@ -23,7 +23,7 @@ export function DemoExplainPageView(props: Props) {
       aria-busy={state.loading}
     >
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
           Example analysis — provenance and explanation
         </h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">

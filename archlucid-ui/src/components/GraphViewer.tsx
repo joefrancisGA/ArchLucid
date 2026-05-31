@@ -454,7 +454,7 @@ export function GraphViewer({
 
                   return (
                     <div className="space-y-0.5">
-                      <p className="m-0 text-base font-semibold leading-snug text-neutral-900 dark:text-neutral-100">
+                      <p className="m-0 text-sm font-semibold text-al-text-primary leading-snug text-neutral-900 dark:text-neutral-100">
                         {recordType.primary}
                       </p>
                       {recordType.secondary !== null ? (

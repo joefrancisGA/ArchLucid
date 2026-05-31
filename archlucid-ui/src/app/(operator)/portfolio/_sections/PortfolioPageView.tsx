@@ -72,7 +72,7 @@ export function PortfolioPageView() {
   if (error) {
     return (
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
@@ -90,7 +90,7 @@ export function PortfolioPageView() {
   if (data === null) {
     return (
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardContent className="pt-6">
             <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading portfolio data...</p>
@@ -103,7 +103,7 @@ export function PortfolioPageView() {
   if (!data.isKAnonymitySatisfied) {
     return (
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <Card>
           <CardHeader>
             <CardTitle>Insufficient Data</CardTitle>
@@ -119,7 +119,7 @@ export function PortfolioPageView() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Portfolio Dashboard</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Portfolio Dashboard</h1>
         <p className="text-neutral-500 dark:text-neutral-400">
           Aggregated ROI and risk metrics across all your accessible tenants.
         </p>
@@ -133,7 +133,7 @@ export function PortfolioPageView() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-mono text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {formatUsd(data.totalEstimatedUsdSavings)}
             </p>
           </CardContent>
@@ -146,7 +146,7 @@ export function PortfolioPageView() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-mono text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {data.totalSystemCount}
             </p>
           </CardContent>
@@ -159,7 +159,7 @@ export function PortfolioPageView() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-mono text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {data.totalCriticalFindings}
             </p>
           </CardContent>

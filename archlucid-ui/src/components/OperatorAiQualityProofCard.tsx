@@ -67,7 +67,7 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
   if (loadFailed || snapshot === null) {
     return (
       <section className={shellClassName} data-testid="operator-ai-quality-proof-card">
-        <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Assistant readiness</h2>
+        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Assistant readiness</h2>
         <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           Run <code className="font-mono text-xs">python scripts/ci/write_operator_ai_quality_snapshot.py</code> after
           retrieval evaluation to populate assistant readiness diagnostics.
@@ -92,7 +92,7 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
       data-testid="operator-ai-quality-proof-card"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-base font-semibold">Assistant readiness</h2>
+        <h2 className="m-0 text-sm font-semibold text-al-text-primary">Assistant readiness</h2>
         <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
           {dispositionLabel(disposition)}
         </span>

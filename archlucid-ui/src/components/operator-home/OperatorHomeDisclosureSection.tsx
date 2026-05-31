@@ -85,7 +85,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 id={titleId} className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <h2 id={titleId} className="m-0 text-sm font-semibold text-al-text-primary">
               {title}
             </h2>
             {headerAside}

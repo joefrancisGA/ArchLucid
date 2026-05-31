@@ -14,7 +14,7 @@ export function WhyArchLucidFirstValueReportSection(props: WhyArchLucidFirstValu
       data-testid="why-archlucid-first-value-report"
       className="space-y-3"
     >
-      <h2 id="why-archlucid-report-heading" className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="why-archlucid-report-heading" className="text-sm font-semibold text-al-text-primary">
         Sponsor first-value report
       </h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">

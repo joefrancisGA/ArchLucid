@@ -140,7 +140,7 @@ export function FindingExplainabilityDialog({
               <Badge variant="secondary">{data.severity}</Badge>
               <span className="text-neutral-500 dark:text-neutral-400">{data.engineType}</span>
             </div>
-            <p className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100" title={data.title}>
+            <p className="m-0 text-sm font-semibold text-al-text-primary" title={data.title}>
               {truncateForList(data.title, 280)}
             </p>
 

@@ -20,7 +20,7 @@ export function WhyArchLucidSponsorEvidencePackSection(props: WhyArchLucidSponso
       <div>
         <h2
           id="why-archlucid-sponsor-pack-heading"
-          className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          className="text-sm font-semibold text-al-text-primary"
         >
           Sponsor KPI evidence pack
         </h2>

@@ -36,7 +36,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Approval lineage</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Approval lineage</h1>
           <p className="text-sm text-muted-foreground">{displayApprovalTitle}</p>
         </div>
         <Button variant="outline" size="sm" asChild>

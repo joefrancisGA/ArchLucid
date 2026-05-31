@@ -98,7 +98,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       className="mb-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
       aria-labelledby="run-progress-tracker-title"
     >
-      <h3 id="run-progress-tracker-title" className="mt-0 text-base font-semibold">
+      <h3 id="run-progress-tracker-title" className="mt-0 text-sm font-semibold text-al-text-primary">
         Pipeline progress
       </h3>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">

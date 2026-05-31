@@ -65,7 +65,7 @@ export default async function ExecutiveReviewsPage() {
         <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
           Executive view
         </p>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
           Architecture risk reviews
         </h1>
         <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -114,7 +114,7 @@ export default async function ExecutiveReviewsPage() {
             <li key={run.runId}>
               <Card className="border border-neutral-200 shadow-sm dark:border-neutral-800">
                 <CardHeader className="space-y-1 pb-2">
-                  <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                  <CardTitle className="text-sm font-semibold text-al-text-primary">
                     {runHeadline(run)}
                   </CardTitle>
                   <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">

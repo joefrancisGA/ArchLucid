@@ -57,7 +57,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const overviewSummaryCard = (
     <Card id="manifest-overview" className="scroll-mt-24">
       <CardHeader>
-        <CardTitle className="text-base font-semibold">{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
+        <CardTitle className="text-sm font-semibold text-al-text-primary">{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
         <CardDescription>
           {buyerPolishedLayout
             ? "Status, policy posture, and what is included in this package."
@@ -84,7 +84,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
     >
       <CardHeader>
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-sm font-semibold text-al-text-primary">
           {buyerPolishedLayout ? "Related monitored risk" : "Related findings"}
         </CardTitle>
         <CardDescription>
@@ -165,7 +165,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const diligenceAskCard = buyerPolishedLayout ? (
     <Card id="manifest-ask" className="scroll-mt-24 border border-neutral-200 bg-al-surface-raised shadow-sm dark:border-neutral-800">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Questions during diligence?</CardTitle>
+        <CardTitle className="text-sm font-semibold text-al-text-primary">Questions during diligence?</CardTitle>
         <CardDescription>
           Two paths: ask the evidence directly in this package, or route procurement and security questionnaires to our
           Trust Center.
@@ -231,7 +231,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
-          <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
             {showcaseBuyerManifestHeadline === true
               ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — Claims Intake Modernization Review Package`
               : buyerPolishedLayout
@@ -277,7 +277,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm"
           data-testid="manifest-buyer-authority-summary"
         >
-          <h2 id="manifest-authority-summary-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 id="manifest-authority-summary-heading" className="m-0 text-sm font-semibold text-al-text-primary">
             What this signed decision record proves
           </h2>
           <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
@@ -332,7 +332,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       >
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1 space-y-1.5">
-            <CardTitle className="text-base font-semibold">
+            <CardTitle className="text-sm font-semibold text-al-text-primary">
               {buyerPolishedLayout ? "Deliverables" : "Generated artifacts"}
             </CardTitle>
             <CardDescription>

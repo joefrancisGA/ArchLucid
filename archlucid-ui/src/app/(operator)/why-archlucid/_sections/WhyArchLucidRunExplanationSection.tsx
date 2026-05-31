@@ -17,7 +17,7 @@ export function WhyArchLucidRunExplanationSection(props: WhyArchLucidRunExplanat
     >
       <h2
         id="why-archlucid-explanation-heading"
-        className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+        className="text-sm font-semibold text-al-text-primary"
       >
         Architecture review explanation and citations
       </h2>

@@ -118,7 +118,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
       <div className="grid gap-3 lg:grid-cols-2">
         <Card className="border-neutral-200 shadow-sm dark:border-neutral-800 lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Final decision</CardTitle>
+            <CardTitle className="text-sm font-semibold text-al-text-primary">Final decision</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               Approved with monitoring — one residual PHI risk under active oversight; no blocking findings.
             </CardDescription>
@@ -130,7 +130,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Remaining risk</CardTitle>
+            <CardTitle className="text-sm font-semibold text-al-text-primary">Remaining risk</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               What still needs executive or control-owner attention after this review.
             </CardDescription>
@@ -146,7 +146,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <CardTitle className="text-sm font-semibold text-al-text-primary">
               Recommended executive action
             </CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
@@ -162,7 +162,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
         <Card className="shadow-sm lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Evidence confidence</CardTitle>
+            <CardTitle className="text-sm font-semibold text-al-text-primary">Evidence confidence</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               How strongly the synthesized narrative aligns to persisted artifacts and deterministic checks.
             </CardDescription>
@@ -178,7 +178,7 @@ export function ExecutiveReviewFirstViewport(props: ExecutiveReviewFirstViewport
 
         <Card className="shadow-sm lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Review record</CardTitle>
+            <CardTitle className="text-sm font-semibold text-al-text-primary">Review record</CardTitle>
             <CardDescription className="text-neutral-600 dark:text-neutral-400">
               Jump to the finalized signed deliverables and governance checkpoints that anchor this narrative.
             </CardDescription>

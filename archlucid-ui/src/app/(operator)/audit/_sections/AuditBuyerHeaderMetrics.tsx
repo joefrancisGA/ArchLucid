@@ -31,7 +31,7 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               Recorded events
             </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {buyerAuditTrailMetrics.eventCount}
             </p>
           </div>
@@ -39,7 +39,7 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               Named reviewers
             </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {buyerAuditTrailMetrics.humanActorCount}
             </p>
           </div>
@@ -47,7 +47,7 @@ export function AuditBuyerHeaderMetrics(props: AuditBuyerHeaderMetricsProps) {
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               System-recorded events
             </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {buyerAuditTrailMetrics.systemRecordedCount}
             </p>
           </div>

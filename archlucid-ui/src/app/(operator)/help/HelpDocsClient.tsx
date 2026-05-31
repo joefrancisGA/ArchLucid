@@ -194,7 +194,7 @@ export function HelpDocsClient() {
           <section key={cat} aria-labelledby={`help-cat-${cat}`} className="space-y-2">
             <h2
               id={`help-cat-${cat}`}
-              className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+              className="text-sm font-semibold text-al-text-primary"
             >
               {cat}
             </h2>

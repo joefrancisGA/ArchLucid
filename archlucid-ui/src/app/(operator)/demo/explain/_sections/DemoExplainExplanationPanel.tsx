@@ -20,7 +20,7 @@ export function DemoExplainExplanationPanel(props: Props) {
       <header className="space-y-1">
         <h2
           id="demo-explain-explanation-heading"
-          className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          className="text-sm font-semibold text-al-text-primary"
         >
           Aggregate explanation &amp; citations
         </h2>

@@ -17,7 +17,7 @@ export function WhyArchLucidSnapshotSection(props: WhyArchLucidSnapshotSectionPr
     >
       <h2
         id="why-archlucid-counters-heading"
-        className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+        className="text-sm font-semibold text-al-text-primary"
       >
         Process counters
       </h2>

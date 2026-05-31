@@ -81,7 +81,7 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
     >
       <h2
         id={`roi-card-${domSuffix}`}
-        className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
+        className="m-0 text-sm font-semibold text-al-text-primary"
       >
         {title}
       </h2>
@@ -89,7 +89,7 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
       {props.rangeCaption ? (
         <p className="m-0 mt-1 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">{props.rangeCaption}</p>
       ) : null}
-      <p className="m-0 mt-3 font-mono text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+      <p className="m-0 mt-3 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
         {formatHours(hours)}
       </p>
       <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">

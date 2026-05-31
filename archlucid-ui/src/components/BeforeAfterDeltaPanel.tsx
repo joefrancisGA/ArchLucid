@@ -234,7 +234,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Baseline (before)</dt>
           <dd
             data-testid="before-after-delta-baseline-hours"
-            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
           >
             {formatHours(data.baselineHours)} h
           </dd>
@@ -250,7 +250,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Measured (this review)</dt>
           <dd
             data-testid="before-after-delta-measured-hours"
-            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
           >
             {formatHours(data.measuredHours)} h
           </dd>
@@ -264,7 +264,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Estimated USD savings</dt>
           <dd
             data-testid="before-after-delta-estimated-usd-savings"
-            className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+            className="mt-1 text-xl font-semibold tracking-tight text-al-text-primary"
           >
             {formatUsd(data.estimatedUsdSavings)}
           </dd>

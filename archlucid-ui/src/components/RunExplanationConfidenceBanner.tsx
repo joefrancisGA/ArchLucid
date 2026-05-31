@@ -42,7 +42,7 @@ export function RunExplanationConfidenceBanner(props: {
       data-testid="run-explanation-confidence-banner"
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-sm font-semibold text-al-text-primary">
           Explanation confidence — {confidence.disposition}
         </CardTitle>
       </CardHeader>

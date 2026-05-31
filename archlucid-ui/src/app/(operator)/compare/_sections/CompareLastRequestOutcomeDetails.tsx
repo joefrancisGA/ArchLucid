@@ -49,7 +49,7 @@ export function CompareLastRequestOutcomeDetails(props: CompareLastRequestOutcom
       aria-label="Comparison request outcome"
       open={buyerPolished ? false : showStaleInputsWarning}
     >
-      <summary className="cursor-pointer text-base font-semibold text-neutral-900 dark:text-neutral-100">
+      <summary className="cursor-pointer text-sm font-semibold text-al-text-primary">
         {buyerPolished ? "Comparison details (technical appendix)" : "Last compare request (technical)"}
       </summary>
       <div className="mt-3">

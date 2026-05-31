@@ -246,7 +246,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" data-testid="manifest-buyer-pack-summary-cards">
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Decisions recorded</p>
-              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.decisionCount}</p>
+              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">{summary.decisionCount}</p>
               <Link
                 className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
                 href={buyerPolishedLayout ? "#manifest-key-decisions" : "#manifest-buyer-recorded-details"}
@@ -256,16 +256,16 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Monitored risks</p>
-              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.warningCount}</p>
+              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">{summary.warningCount}</p>
               <p className="m-0 mt-2 text-[11px] text-neutral-600 dark:text-neutral-400">Tracked with governance cadence.</p>
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Unresolved blocking issues</p>
-              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{summary.unresolvedIssueCount}</p>
+              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">{summary.unresolvedIssueCount}</p>
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence trail anchors</p>
-              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}</p>
+              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">{SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}</p>
               <Link
                 href={`/graph?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
                 className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
@@ -275,7 +275,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Audit events</p>
-              <p className="m-0 mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-50">{SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}</p>
+              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">{SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}</p>
               <Link
                 href={`/audit?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
                 className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
@@ -368,7 +368,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Decisions</p>
-        <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+        <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
           {Number.isFinite(summary.decisionCount) ? summary.decisionCount : "—"}
         </p>
       </div>
@@ -376,13 +376,13 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
         <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           {options.buyerPolishedLayout && isCuratedDemo ? "Monitored risks" : "Warnings"}
         </p>
-        <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+        <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
           {Number.isFinite(summary.warningCount) ? summary.warningCount : "—"}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Unresolved</p>
-        <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+        <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
           {Number.isFinite(summary.unresolvedIssueCount) ? summary.unresolvedIssueCount : "—"}
         </p>
       </div>
@@ -392,7 +392,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               Evidence trail
             </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}
             </p>
             <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">Linked records in review trail layout</p>
@@ -406,7 +406,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
             <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               Audit trail
             </p>
-            <p className="m-0 mt-2 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+            <p className="m-0 mt-2 font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
               {SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}
             </p>
             <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">Lifecycle events in audit trail</p>

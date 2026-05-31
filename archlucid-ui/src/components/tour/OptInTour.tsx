@@ -104,7 +104,7 @@ export function OptInTour({ isOpen, onClose }: OptInTourProps) {
     >
       <div className="w-full max-w-md space-y-4 rounded-lg border border-neutral-200 bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Take tour</h2>
+          <h2 className="text-sm font-semibold text-al-text-primary">Take tour</h2>
           <button
             type="button"
             className="rounded p-1 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"

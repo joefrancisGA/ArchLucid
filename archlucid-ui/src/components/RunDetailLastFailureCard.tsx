@@ -45,7 +45,7 @@ export function RunDetailLastFailureCard(props: {
       data-testid="run-detail-last-failure-card"
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold text-red-950 dark:text-red-100">
+        <CardTitle className="text-sm font-semibold text-al-text-primary text-red-950 dark:text-red-100">
           Last execution failure — HOLD
         </CardTitle>
       </CardHeader>

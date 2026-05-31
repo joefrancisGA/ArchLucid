@@ -39,7 +39,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
 
   return (
     <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
-      <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Accessibility</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Accessibility</h1>
       <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
         WCAG 2.1 Level AA — public self-attestation for the ArchLucid marketing site and product posture (no formal VPAT).
       </p>

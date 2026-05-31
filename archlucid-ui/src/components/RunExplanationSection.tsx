@@ -294,7 +294,7 @@ export function RunExplanationSection({
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
         <div className="mb-4">
-          <h3 id="doc-explanation-traces" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          <h3 id="doc-explanation-traces" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
             Finding trace confidence
           </h3>
           <ul className="m-0 list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
@@ -341,7 +341,7 @@ export function RunExplanationSection({
       ) : null}
 
       <div className="mb-4">
-        <h3 id="doc-explanation-themes" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        <h3 id="doc-explanation-themes" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
           Themes
         </h3>
         <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
@@ -352,7 +352,7 @@ export function RunExplanationSection({
       </div>
 
       <div className="mb-4">
-        <h3 id="doc-explanation-drivers" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        <h3 id="doc-explanation-drivers" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
           Key drivers
         </h3>
         <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
@@ -363,7 +363,7 @@ export function RunExplanationSection({
       </div>
 
       <div className="mb-4">
-        <h3 id="doc-explanation-risks" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        <h3 id="doc-explanation-risks" className="m-0 mb-2 text-sm font-semibold text-al-text-primary">
           Risk implications
         </h3>
         <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">

@@ -29,7 +29,7 @@ export function ValueReportPageView({ model }: ValueReportPageViewProps) {
     <div className="mx-auto space-y-4 p-4 print:w-full">
       <LayerHeader pageKey="value-report" />
       <DocumentLayout>
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Value report</h1>
+        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Value report</h1>
         <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
           Generates a stakeholder-grade DOCX from finalized reviews, governance and drift audit counts, and ROI_MODEL-aligned
           estimates for the selected UTC window. Requires{" "}

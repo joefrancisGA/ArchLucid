@@ -109,7 +109,7 @@ export function OperatorBillingPlansClient() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8" data-testid="operator-billing-plans-page">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+        <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
           Billing & plans
         </h1>
         <p className="max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">

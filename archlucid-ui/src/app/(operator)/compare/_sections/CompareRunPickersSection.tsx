@@ -58,7 +58,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
 
   const pickerFields = (
     <>
-      <h2 id="compare-select-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 id="compare-select-heading" className="m-0 text-sm font-semibold text-al-text-primary">
         {useBuyerFacingRunLabels ? BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY : "Select reviews to compare"}
       </h2>
       {!useBuyerFacingRunLabels ? (
