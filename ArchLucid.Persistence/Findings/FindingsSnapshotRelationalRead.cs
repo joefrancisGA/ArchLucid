@@ -1,4 +1,6 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
@@ -15,26 +17,34 @@ internal static class FindingsSnapshotRelationalRead
     internal static async Task<FindingsSnapshot> LoadRelationalSnapshotAsync(
         SqlConnection connection,
         FindingsSnapshotStorageRow row,
+        ScopeContext scope,
         CancellationToken ct)
     {
-        const string recordsSql = """
-                                  SELECT
-                                      FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                                      Severity, Title, Rationale, PayloadType, PayloadJson,
-                                      RequestInputRef, RunIdRef, AgentExecutionTraceId,
-                                      ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
-                                      ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
-                                      HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
-                                      IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
-                                  FROM dbo.FindingRecords
-                                  WHERE FindingsSnapshotId = @FindingsSnapshotId
-                                  ORDER BY SortOrder;
-                                  """;
+        ArgumentNullException.ThrowIfNull(scope);
+
+        string recordsSql = """
+                              SELECT
+                                  FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                                  Severity, Title, Rationale, PayloadType, PayloadJson,
+                                  RequestInputRef, RunIdRef, AgentExecutionTraceId,
+                                  ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
+                                  ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
+                                  HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes,
+                                  IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
+                              FROM dbo.FindingRecords
+                              WHERE FindingsSnapshotId = @FindingsSnapshotId
+                              """ + RepositoryScopePredicate.AndTripleWhere(scope) + """
+                              ORDER BY SortOrder;
+                              """;
+
+        DynamicParameters parameters = new();
+        parameters.Add("FindingsSnapshotId", row.FindingsSnapshotId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(parameters, scope);
 
         List<FindingRecordRow> records = (await connection.QueryAsync<FindingRecordRow>(
             new CommandDefinition(
                 recordsSql,
-                new { row.FindingsSnapshotId },
+                parameters,
                 cancellationToken: ct))).ToList();
 
         if (records.Count == 0)

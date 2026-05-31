@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -151,7 +152,11 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
         };
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, CancellationToken.None);
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
+                connection,
+                row,
+                new ScopeContext(),
+                CancellationToken.None);
 
         loaded.FindingsSnapshotId.Should().Be(findingsId);
         loaded.RunId.Should().Be(runId);
@@ -338,7 +343,10 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                 cancellationToken: CancellationToken.None));
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow,
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
+                connection,
+                headerRow,
+                new ScopeContext(),
                 CancellationToken.None);
 
         loaded.Findings.Should().ContainSingle();

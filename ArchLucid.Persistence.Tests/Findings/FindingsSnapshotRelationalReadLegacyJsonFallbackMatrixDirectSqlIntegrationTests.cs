@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -146,7 +147,11 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
         };
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, CancellationToken.None);
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
+                connection,
+                row,
+                new ScopeContext(),
+                CancellationToken.None);
 
         loaded.Findings.Should().BeEmpty();
     }

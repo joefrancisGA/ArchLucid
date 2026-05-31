@@ -1,4 +1,5 @@
-﻿using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Tests.Support;
@@ -114,7 +115,10 @@ public sealed class FindingsSnapshotRelationalReadOrderedRecommendedActionsDirec
                 cancellationToken: CancellationToken.None));
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow,
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
+                connection,
+                headerRow,
+                new ScopeContext(),
                 CancellationToken.None);
 
         loaded.Findings.Should().ContainSingle();

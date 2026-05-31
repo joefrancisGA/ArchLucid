@@ -1,4 +1,5 @@
-﻿using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
@@ -168,7 +169,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
 
                 FindingsSnapshotStorageRow row = await RowAsync(connection, findingsId);
                 FindingsSnapshot snap =
-                    await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row,
+                    await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
+                        connection,
+                        row,
+                        new ScopeContext(),
                         CancellationToken.None);
 
                 if (branch == 0)
@@ -424,7 +428,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
 
             FindingsSnapshotStorageRow row2 = await RowAsync(connection, findingsId);
             FindingsSnapshot snap2 =
-                await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row2,
+                await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
+                    connection,
+                    row2,
+                    new ScopeContext(),
                     CancellationToken.None);
             Finding f = snap2.Findings.Should().ContainSingle().Subject;
 

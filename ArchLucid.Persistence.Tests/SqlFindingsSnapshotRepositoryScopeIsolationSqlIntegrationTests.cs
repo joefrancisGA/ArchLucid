@@ -16,7 +16,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-///     SQL integration coverage for <see cref="SqlFindingsSnapshotRepository.GetByIdAsync" /> scope isolation (TB-078).
+///     SQL integration coverage for <see cref="SqlFindingsSnapshotRepository.GetByIdAsync" /> scope isolation (TB-073).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

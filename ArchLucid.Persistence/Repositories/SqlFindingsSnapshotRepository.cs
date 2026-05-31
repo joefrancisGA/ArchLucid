@@ -143,7 +143,7 @@ public sealed class SqlFindingsSnapshotRepository(
             }
 
             FindingsSnapshot snapshot =
-                await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
+                await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, scope, ct);
             FindingsSnapshotMetadataMerger.MergeFromFindingsJson(snapshot, row.FindingsJson);
             FindingsSnapshotMigrator.Apply(snapshot);
             return snapshot;
