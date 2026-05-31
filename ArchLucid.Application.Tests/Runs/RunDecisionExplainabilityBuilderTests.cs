@@ -1,4 +1,5 @@
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Runs;
@@ -77,5 +78,39 @@ public sealed class RunDecisionExplainabilityBuilderTests
         built.CoordinatorDecisionNodes.Should().HaveCount(1);
         built.CoordinatorDecisionNodes[0].Pipeline.Should().Be("coordinator_v2");
         built.SnapshotIds.ContextSnapshotId.Should().Be(contextId);
+    }
+
+    [Fact]
+    public void Build_surfaces_finding_engine_failures_and_manifest_honesty_warnings()
+    {
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = Guid.Parse("11111111-1111-1111-1111-111111111111") },
+            FindingsSnapshot = new FindingsSnapshot
+            {
+                EngineFailures =
+                [
+                    new FindingEngineFailure
+                    {
+                        EngineType = "SecurityEngine",
+                        Category = "Security",
+                        ErrorMessage = "timeout",
+                        ExceptionType = "TimeoutException",
+                        DurationMs = 1200,
+                        OccurredUtc = DateTime.UtcNow,
+                    },
+                ],
+            },
+            GoldenManifest = new ManifestDocument
+            {
+                Warnings = ["Degraded finding coverage: one or more finding engines failed during snapshot generation."],
+            },
+        };
+
+        RunDecisionExplainabilityDto built = RunDecisionExplainabilityBuilder.Build(detail, []);
+
+        built.FindingEngineFailures.Should().ContainSingle();
+        built.FindingEngineFailures[0].EngineType.Should().Be("SecurityEngine");
+        built.ManifestHonestyWarnings.Should().ContainSingle();
     }
 }

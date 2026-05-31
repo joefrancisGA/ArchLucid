@@ -37,6 +37,16 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
             confidence: 0.74,
           },
         ],
+        findingEngineFailures: [
+          {
+            engineType: "SecurityEngine",
+            category: "Security",
+            exceptionType: "TimeoutException",
+            errorMessage: "timeout",
+            durationMs: 1200,
+          },
+        ],
+        manifestHonestyWarnings: ["Degraded finding coverage: one or more finding engines failed."],
       },
     } as RunDetail;
 
@@ -45,5 +55,7 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model).not.toBeNull();
     expect(model?.manifestDecisions).toHaveLength(1);
     expect(model?.coordinatorDecisionNodes[0]?.topic).toBe("TopologyAcceptance");
+    expect(model?.findingEngineFailures).toHaveLength(1);
+    expect(model?.manifestHonestyWarnings).toHaveLength(1);
   });
 });

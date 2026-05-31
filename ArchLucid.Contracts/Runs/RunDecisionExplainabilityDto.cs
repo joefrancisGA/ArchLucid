@@ -26,4 +26,16 @@ public sealed class RunDecisionExplainabilityDto
         get;
         set;
     } = [];
+
+    public IReadOnlyList<RunFindingEngineFailureExplainabilityRow> FindingEngineFailures
+    {
+        get;
+        set;
+    } = [];
+
+    public IReadOnlyList<string> ManifestHonestyWarnings
+    {
+        get;
+        set;
+    } = [];
 }

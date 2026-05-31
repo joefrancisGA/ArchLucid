@@ -21,7 +21,8 @@ class ReportIacParityScanTests(unittest.TestCase):
         report = build_report(repo_root())
         rows = report["rows"]
         openai = next(row for row in rows if row["service"] == "Azure OpenAI")
-        self.assertEqual(openai["terraformRootsChecked"][0], "infra/terraform/prod")
+        # Canonical hosted scaffold is authored under deploy/ and synced to infra/terraform/prod.
+        self.assertEqual(openai["terraformRootsChecked"][0], "deploy/hosted-prod-terraform")
         self.assertIn("terraformSupported", openai)
 
     def test_prod_root_signals_openai_and_search_when_present(self) -> None:

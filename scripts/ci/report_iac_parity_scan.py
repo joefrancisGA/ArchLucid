@@ -15,14 +15,14 @@ _SERVICE_MAP: tuple[tuple[str, str, tuple[str, ...], bool, tuple[str, ...]], ...
     (
         "AzureOpenAI:Endpoint",
         "Azure OpenAI",
-        ("infra/terraform/prod", "infra/terraform-openai"),
+        ("deploy/hosted-prod-terraform", "infra/terraform/prod", "infra/terraform-openai"),
         True,
         ("azurerm_cognitive_account", "azurerm_cognitive_deployment", "azure-openai", "openai"),
     ),
     (
         "Retrieval:AzureSearch",
         "Azure AI Search",
-        ("infra/terraform/prod", "infra/terraform-search"),
+        ("deploy/hosted-prod-terraform", "infra/terraform/prod", "infra/terraform-search"),
         False,
         ("azurerm_search_service", "azure-search", "Retrieval__AzureSearch__Endpoint"),
     ),

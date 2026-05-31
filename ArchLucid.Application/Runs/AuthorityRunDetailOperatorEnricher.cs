@@ -144,7 +144,9 @@ public sealed class AuthorityRunDetailOperatorEnricher(
 
         if (built.AuthorityRuleAudit is null
             && built.ManifestDecisions.Count == 0
-            && built.CoordinatorDecisionNodes.Count == 0)
+            && built.CoordinatorDecisionNodes.Count == 0
+            && built.FindingEngineFailures.Count == 0
+            && built.ManifestHonestyWarnings.Count == 0)
         {
             return;
         }

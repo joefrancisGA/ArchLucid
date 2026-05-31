@@ -130,3 +130,111 @@ variable "workload_identity_principal_id" {
   description = "Optional Entra object id for API/worker managed identity — grants Key Vault Secrets User when key_vault_name is set."
   default     = null
 }
+
+variable "openai_enable_chat_deployment" {
+  type        = bool
+  description = "When true and openai_compose_mode = create, provision the chat/completion deployment."
+  default     = true
+}
+
+variable "openai_chat_deployment_name" {
+  type        = string
+  description = "Azure OpenAI chat deployment name."
+  default     = "gpt-4o"
+}
+
+variable "openai_chat_model_name" {
+  type        = string
+  description = "OpenAI model name for chat deployment — confirm regional availability."
+  default     = "gpt-4o"
+}
+
+variable "openai_chat_model_version" {
+  type        = string
+  description = "OpenAI model version for chat deployment."
+  default     = "2024-08-06"
+}
+
+variable "openai_chat_capacity" {
+  type        = number
+  description = "TPM capacity units for chat deployment SKU."
+  default     = 10
+}
+
+variable "openai_enable_embedding_deployment" {
+  type        = bool
+  description = "When true and openai_compose_mode = create, provision the embedding deployment."
+  default     = true
+}
+
+variable "openai_embedding_deployment_name" {
+  type        = string
+  description = "Azure OpenAI embedding deployment name."
+  default     = "text-embedding-3-small"
+}
+
+variable "openai_embedding_model_name" {
+  type        = string
+  description = "OpenAI embedding model name."
+  default     = "text-embedding-3-small"
+}
+
+variable "openai_embedding_model_version" {
+  type        = string
+  description = "OpenAI embedding model version."
+  default     = "1"
+}
+
+variable "openai_embedding_capacity" {
+  type        = number
+  description = "TPM capacity units for embedding deployment SKU."
+  default     = 10
+}
+
+variable "enable_openai_consumption_budget" {
+  type        = bool
+  description = "Emit azurerm_consumption_budget_resource_group for the hosted prod resource group."
+  default     = false
+}
+
+variable "openai_consumption_budget_name" {
+  type        = string
+  description = "Budget resource name when enable_openai_consumption_budget is true."
+  default     = "archlucid-openai-monthly"
+}
+
+variable "openai_consumption_budget_amount" {
+  type        = number
+  description = "Monthly budget amount (USD) for OpenAI/Cognitive spend alerts."
+  default     = 500
+}
+
+variable "openai_consumption_budget_period_start" {
+  type        = string
+  description = "Budget period start date (YYYY-MM-DD)."
+  default     = "2026-01-01"
+}
+
+variable "openai_consumption_budget_contact_emails" {
+  type        = list(string)
+  description = "Notification recipients for OpenAI consumption budget thresholds."
+  default     = []
+}
+
+variable "container_app_resource_ids" {
+  type        = list(string)
+  description = "Container App resource ids for diagnostic settings (TB-099)."
+  default     = []
+}
+
+variable "service_bus_namespace_id" {
+  type        = string
+  description = "Service Bus namespace resource id for diagnostic settings (TB-099)."
+  default     = null
+}
+
+variable "artifact_storage_account_id" {
+  type        = string
+  description = "Artifact storage account resource id for diagnostic settings (TB-099)."
+  default     = null
+}

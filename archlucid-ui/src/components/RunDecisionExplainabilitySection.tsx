@@ -66,6 +66,34 @@ export function RunDecisionExplainabilitySection(props: {
         </div>
       ) : null}
 
+      {model.findingEngineFailures.length > 0 ? (
+        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900 dark:bg-amber-950/30">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+            Finding engine failures
+          </p>
+          <ul className="m-0 mt-2 list-disc space-y-1 pl-4 text-xs text-amber-950 dark:text-amber-100">
+            {model.findingEngineFailures.map((row) => (
+              <li key={`${row.engineType}-${row.category}-${row.exceptionType}`}>
+                {row.engineType}/{row.category}: {row.exceptionType} — {row.errorMessage}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {model.manifestHonestyWarnings.length > 0 ? (
+        <div className="mb-4 rounded-md border border-neutral-200 bg-white/70 p-3 dark:border-neutral-700 dark:bg-neutral-950/40">
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+            Manifest honesty warnings
+          </p>
+          <ul className="m-0 mt-2 list-disc space-y-1 pl-4 text-xs text-neutral-700 dark:text-neutral-300">
+            {model.manifestHonestyWarnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {model.manifestDecisions.length > 0 ? (
         <div className="mb-4 overflow-x-auto">
           <table className="min-w-full border-collapse text-left text-xs">

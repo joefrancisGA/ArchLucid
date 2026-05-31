@@ -43,6 +43,15 @@ export type RunDecisionExplainabilityModel = {
     readonly supportingEvaluationIds: readonly string[];
     readonly opposingEvaluationIds: readonly string[];
   }[];
+  readonly findingEngineFailures: readonly {
+    readonly engineType: string;
+    readonly category: string;
+    readonly exceptionType: string;
+    readonly errorMessage: string;
+    readonly durationMs: number | null;
+    readonly occurredUtc: string | null;
+  }[];
+  readonly manifestHonestyWarnings: readonly string[];
 };
 
 function readString(value: unknown): string | null {
@@ -98,6 +107,8 @@ export function resolveRunDecisionExplainabilityFromDetail(
   const authorityWire = root.authorityRuleAudit;
   const manifestWire = root.manifestDecisions;
   const coordinatorWire = root.coordinatorDecisionNodes;
+  const failureWire = root.findingEngineFailures;
+  const warningWire = root.manifestHonestyWarnings;
 
   const manifestDecisions = Array.isArray(manifestWire)
     ? manifestWire
@@ -152,6 +163,35 @@ export function resolveRunDecisionExplainabilityFromDetail(
         .filter((row): row is NonNullable<typeof row> => row !== null)
     : [];
 
+  const findingEngineFailures = Array.isArray(failureWire)
+    ? failureWire
+        .map((row) => {
+          if (row === null || typeof row !== "object") {
+            return null;
+          }
+
+          const record = row as Record<string, unknown>;
+          const engineType = readString(record.engineType);
+          const category = readString(record.category);
+
+          if (engineType === null || category === null) {
+            return null;
+          }
+
+          return {
+            engineType,
+            category,
+            exceptionType: readString(record.exceptionType) ?? "Unknown",
+            errorMessage: readString(record.errorMessage) ?? "",
+            durationMs: readFiniteNumber(record.durationMs),
+            occurredUtc: readString(record.occurredUtc),
+          };
+        })
+        .filter((row): row is NonNullable<typeof row> => row !== null)
+    : [];
+
+  const manifestHonestyWarnings = readStringArray(warningWire);
+
   let authorityRuleAudit: RunDecisionExplainabilityModel["authorityRuleAudit"] = null;
 
   if (authorityWire !== null && typeof authorityWire === "object") {
@@ -192,7 +232,13 @@ export function resolveRunDecisionExplainabilityFromDetail(
     };
   }
 
-  if (authorityRuleAudit === null && manifestDecisions.length === 0 && coordinatorDecisionNodes.length === 0) {
+  if (
+    authorityRuleAudit === null
+    && manifestDecisions.length === 0
+    && coordinatorDecisionNodes.length === 0
+    && findingEngineFailures.length === 0
+    && manifestHonestyWarnings.length === 0
+  ) {
     return null;
   }
 
@@ -205,5 +251,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
     authorityRuleAudit,
     manifestDecisions,
     coordinatorDecisionNodes,
+    findingEngineFailures,
+    manifestHonestyWarnings,
   };
 }

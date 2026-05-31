@@ -61,3 +61,17 @@ output "tenant_id" {
   value       = data.azurerm_client_config.current.tenant_id
   description = "Deployment tenant id for RBAC assignments."
 }
+
+output "openai_chat_deployment_name" {
+  value = var.openai_compose_mode == "create" && var.openai_enable_chat_deployment
+    ? azurerm_cognitive_deployment.chat[0].name
+    : null
+  description = "Azure OpenAI chat deployment name when created by this root."
+}
+
+output "openai_embedding_deployment_name" {
+  value = var.openai_compose_mode == "create" && var.openai_enable_embedding_deployment
+    ? azurerm_cognitive_deployment.embedding[0].name
+    : null
+  description = "Azure OpenAI embedding deployment name when created by this root."
+}
