@@ -1,7 +1,6 @@
 "use client";
 
 import { ClipboardList } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { PilotBaselineWizard } from "@/components/PilotBaselineWizard";
@@ -9,39 +8,22 @@ import { Button } from "@/components/ui/button";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
+import { suppressPilotRoiBaselineChrome } from "@/lib/pilot-roi-baseline-chrome";
 
-const SESSION_AUTOSHOW_KEY = "archlucid-pilot-baseline-wizard-autoShown-session";
-
-function suppressPilotBaselineWizardChrome(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  if (process.env.NEXT_PUBLIC_SUPPRESS_CORE_PILOT_WIZARD === "1") {
-    return true;
-  }
-
-  const navigatorLike = window.navigator as Navigator & { webdriver?: boolean };
-
-  if (navigatorLike.webdriver === true) {
-    return true;
-  }
-
-  return false;
-}
-
-/** First-run style ROI baseline wizard — FAB when incomplete + optional auto-open on operator home. */
+/** ROI baseline wizard — FAB when incomplete; opens only from explicit operator actions. */
 
 export function PilotBaselineWizardLauncher(): React.ReactElement | null {
-  const pathname = usePathname();
   const demoMode = isNextPublicDemoMode();
   const { loading, complete, reload } = usePilotRoiBaselineCompleteness();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [autoShown, setAutoShown] = useState(false);
+  const [chromeSuppressed, setChromeSuppressed] = useState(false);
+
+  useEffect(() => {
+    setChromeSuppressed(suppressPilotRoiBaselineChrome());
+  }, []);
 
   useEffect(() => {
     function onOpenRequested(): void {
-      setAutoShown(false);
       setDialogOpen(true);
     }
 
@@ -52,30 +34,11 @@ export function PilotBaselineWizardLauncher(): React.ReactElement | null {
     };
   }, []);
 
-  useEffect(() => {
-    if (demoMode || suppressPilotBaselineWizardChrome() || loading || complete !== false || pathname !== "/") {
-      return;
-    }
-
-    try {
-      if (sessionStorage.getItem(SESSION_AUTOSHOW_KEY) === "1") {
-        return;
-      }
-
-      sessionStorage.setItem(SESSION_AUTOSHOW_KEY, "1");
-      setAutoShown(true);
-      setDialogOpen(true);
-    } catch {
-      /* private mode quota */
-    }
-  }, [complete, demoMode, loading, pathname]);
-
   const openWizard = useCallback(() => {
-    setAutoShown(false);
     setDialogOpen(true);
   }, []);
 
-  if (demoMode || suppressPilotBaselineWizardChrome()) {
+  if (demoMode || chromeSuppressed) {
     return null;
   }
 
@@ -83,7 +46,7 @@ export function PilotBaselineWizardLauncher(): React.ReactElement | null {
 
   return (
     <>
-      <PilotBaselineWizard open={dialogOpen} onOpenChange={setDialogOpen} onSaved={() => void reload()} autoShown={autoShown} />
+      <PilotBaselineWizard open={dialogOpen} onOpenChange={setDialogOpen} onSaved={() => void reload()} />
 
       {showFab ? (
         <Button

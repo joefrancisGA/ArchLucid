@@ -11,6 +11,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
+import { PilotRoiBaselineReadinessCard } from "@/components/operator-home/PilotRoiBaselineReadinessCard";
 import { PilotStartHereStrip } from "@/components/operator-home/PilotStartHereStrip";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
 import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
@@ -133,6 +134,7 @@ function OperatorHomePageBody() {
       <OperatorCoArchitectHomeStrip />
       <WelcomeBanner />
       <SampleFirstReviewPackageCard />
+      <PilotRoiBaselineReadinessCard />
       <FirstPilotReadinessCockpit />
       <PilotStartHereStrip />
 

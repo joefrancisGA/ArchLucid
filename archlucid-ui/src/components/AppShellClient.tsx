@@ -54,7 +54,7 @@ type AppShellClientProps = {
 };
 
 /**
- * Operator shell: sticky header rail (logo, auth/environment, scope, command palette, help, theme) plus layer-context /
+ * Operator shell: sticky header rail (logo, auth/environment, scope, global search with Ctrl+K hint, help, theme) plus layer-context /
  * buyer journey strip pinned together under one sticky stack; breadcrumbs inside header; collapsible sidebar nav landmark (lg+),
  * collapsible sidebar nav landmark (lg+), mobile drawer, keyboard shortcuts, primary <main> landmark.
  */
@@ -159,7 +159,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            aria-label="Documentation and product help search"
+                            aria-label="Help and documentation"
                             onClick={() => {
                               setHelpDocSearchOpen(true);
                             }}
@@ -167,7 +167,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                             <HelpCircle className="h-4 w-4" aria-hidden />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
+                        <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
                       </Tooltip>
                       <ColorModeToggle />
                     </div>
@@ -229,48 +229,50 @@ function AppShellInner({ children }: AppShellClientProps) {
               data-testid="app-shell-topbar"
               className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
             >
-              <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-2.5 lg:px-6">
-                <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5 lg:flex-nowrap lg:px-6">
+                <div className="flex min-w-0 items-center gap-3">
                   <MobileNavDrawer />
                   <h1 className="m-0">
                     <Button variant="ghost" className="h-auto p-0" asChild>
                       <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
                     </Button>
                   </h1>
-                  <div className="hidden min-w-0 flex-1 items-center gap-1.5 pl-2 lg:flex">
-                    <Breadcrumbs />
-                  </div>
-                  <div className="hidden w-72 shrink-0 xl:w-80 lg:block">
-                    <GlobalSearchBar />
-                  </div>
                 </div>
-                <div className="flex max-w-[min(100%,42rem)] shrink-0 flex-wrap items-center justify-end gap-2">
+                <div className="hidden min-w-0 flex-1 items-center gap-1.5 lg:flex">
+                  <Breadcrumbs />
+                </div>
+                <div className="min-w-0 flex-1 basis-full sm:order-none sm:basis-auto sm:max-w-md lg:max-w-none lg:w-72 xl:w-80 lg:shrink-0">
+                  <GlobalSearchBar />
+                </div>
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:ml-auto">
                   {!isBuyerPolishedOperatorShellEnv() ? <LlmBudgetStatusPill /> : null}
                   <AuthPanel />
                   <ScopeSwitcher />
-                  <CommandPalette />
-                  {!isBuyerPolishedOperatorShellEnv() ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          aria-label="Documentation and product help search"
-                          onClick={() => {
-                            setHelpDocSearchOpen(true);
-                          }}
-                        >
-                          <HelpCircle className="h-4 w-4" aria-hidden />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent sideOffset={6}>Documentation and product help search</TooltipContent>
-                    </Tooltip>
-                  ) : null}
-                  <ColorModeToggle />
+                  <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
+                    {!isBuyerPolishedOperatorShellEnv() ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            aria-label="Help and documentation"
+                            onClick={() => {
+                              setHelpDocSearchOpen(true);
+                            }}
+                          >
+                            <HelpCircle className="h-4 w-4" aria-hidden />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
+                      </Tooltip>
+                    ) : null}
+                    <ColorModeToggle />
+                  </div>
                 </div>
               </div>
+              <CommandPalette />
             </header>
             <LayerContextFromRoute />
           </div>

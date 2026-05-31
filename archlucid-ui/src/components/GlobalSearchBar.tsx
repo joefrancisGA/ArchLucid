@@ -4,7 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
+import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { Input } from "@/components/ui/input";
+import {
+  COMMAND_PALETTE_HINT_ARIA_LABEL,
+  COMMAND_PALETTE_HINT_TITLE,
+  GLOBAL_SEARCH_ARIA_LABEL,
+} from "@/lib/keyboard-shortcut-display";
+import { OPEN_COMMAND_PALETTE_EVENT } from "@/lib/shortcut-registry";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";
@@ -19,6 +26,10 @@ type GlobalSearchResponse = {
 type GlobalSearchBarProps = {
   readonly className?: string;
 };
+
+function openCommandPalette(): void {
+  window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT));
+}
 
 export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const inputId = useId();
@@ -104,27 +115,45 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   return (
     <div ref={rootRef} className={props.className ?? "relative w-full"} data-testid="global-search">
       <label htmlFor={inputId} className="sr-only">
-        Global search
+        {GLOBAL_SEARCH_ARIA_LABEL}
       </label>
-      <Input
-        ref={inputRef}
-        id={inputId}
-        type="search"
-        placeholder="Search reviews, findings, and policies…"
-        value={query}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-        role="combobox"
-        aria-autocomplete="list"
-        aria-haspopup="listbox"
-        aria-expanded={resultsPanelOpen}
-        aria-controls={resultsPanelOpen ? `${inputId}-results` : undefined}
-        autoComplete="off"
-        className="h-8"
-      />
+
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          id={inputId}
+          type="search"
+          placeholder="Search reviews, findings, and evidence…"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+          aria-expanded={resultsPanelOpen}
+          aria-controls={resultsPanelOpen ? `${inputId}-results` : undefined}
+          aria-label={GLOBAL_SEARCH_ARIA_LABEL}
+          autoComplete="off"
+          className="h-8 pr-[4.75rem]"
+        />
+
+        <div className="pointer-events-none absolute inset-y-0 right-1.5 flex items-center">
+          <button
+            type="button"
+            className="pointer-events-auto rounded-sm outline-none ring-offset-2 hover:opacity-90 focus-visible:ring-2 focus-visible:ring-teal-500/60"
+            data-testid="global-search-command-palette-hint"
+            aria-label={COMMAND_PALETTE_HINT_ARIA_LABEL}
+            title={COMMAND_PALETTE_HINT_TITLE}
+            onClick={openCommandPalette}
+          >
+            <KeyboardShortcutBadge className="shrink-0" />
+          </button>
+        </div>
+      </div>
+
       {resultsPanelOpen ? (
         <div
           id={`${inputId}-results`}

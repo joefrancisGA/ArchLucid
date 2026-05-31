@@ -47,14 +47,14 @@ describe("CommandPalette", () => {
   });
 
   it("shows Ctrl+K on the trigger and never the macOS command symbol", () => {
-    render(<CommandPalette />);
+    render(<CommandPalette showTrigger />);
 
     expect(screen.getByText(COMMAND_PALETTE_DISPLAY_SHORTCUT)).toBeInTheDocument();
     expect(screen.queryByText(/⌘/)).toBeNull();
   });
 
   it("exposes Control+K via aria-keyshortcuts without embedding the combo in aria-label", () => {
-    render(<CommandPalette />);
+    render(<CommandPalette showTrigger />);
 
     const trigger = screen.getByRole("button", { name: "Open command palette" });
 
@@ -63,11 +63,17 @@ describe("CommandPalette", () => {
   });
 
   it("opens the dialog when the trigger is clicked", () => {
-    render(<CommandPalette />);
+    render(<CommandPalette showTrigger />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open command palette" }));
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("does not render a visible trigger by default", () => {
+    render(<CommandPalette />);
+
+    expect(screen.queryByRole("button", { name: "Open command palette" })).toBeNull();
   });
 
   it("toggles the dialog on Ctrl+K", () => {
