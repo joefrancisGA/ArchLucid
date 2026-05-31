@@ -45,6 +45,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-149 – TB-155** were added 2026-05-31 from a cross-layer **data consistency** audit (executive KPIs, governance decisions-needed summary, waiver/disposition state, recurrence trigger idempotency). They extend **TB-103–105** and partially close **TB-104** (canonical 14-day waiver window). **TB-149** unifies two non-equivalent server implementations of the expiring-waiver window. **TB-150** fixes `TotalDecisionItems` double-counting overlapping finding categories. **TB-151** and **TB-152** correct inverted or aliased fields on `ExecutiveSummaryResult`. **TB-153** prevents duplicate recurring review runs on ACA restart. **TB-154** enforces waiver ↔ disposition invariants. **TB-155** stops cached ROI waiver counts from diverging from live decisions-needed. Cross-ref **TB-062**, **TB-012** (**INV-009**), **TB-089** (digest retry — different surface).
 
+**TB-156 – TB-157** were added 2026-05-31 from local-dev triage: operators running `start-local-api-and-ui.ps1` (or UI-only) saw repeated Sonner warnings **“Review assistant unavailable / AI assistant service is not reachable”** while the root cause was **ArchLucid.Api not running** or **UI proxy → API misconfiguration** (502), not Azure OpenAI / Ask. **Both are P0 — pick up in the next available engineering thread** before other backlog polish. **TB-156** fail-closes the startup script on a full browser → UI → `/api/proxy` → API chain. **TB-157** reframes connectivity toasts so proxy/API outages say **API unreachable**, reserving assistant wording for Ask/SSE-only failures. Cross-ref [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`docs/library/customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md), `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`.
+
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 | ID | Title | Priority driver | Size |
@@ -79,6 +81,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | Ops observability — console-only output; no machine-readable report for CI/pipelines | XS |
 | TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
+| TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **P0** — local dev / operator diagnostics — script declares success when UI `/` loads but proxy returns 502; contributors misdiagnose as LLM outage | S |
+| TB-157 | API connectivity toasts — distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **P0** — operator diagnostics — `api-error-toast-policy.ts` maps all proxy 502/fetch failures to “AI assistant not reachable” | XS |
 | TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | Operator visibility (P0) — `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` are null on every live run; operator reviews cost as "unavailable" | M |
 | TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | Operator visibility (P0) — operator approves runs with suppressed governance warnings and hidden failure reasons; both fields fetched but never rendered | S |
 | TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | Operator visibility (P0) — commit-blocking failures silently hidden before `CommitRunButton`; `dispositionCoverage` computed in `GetRunDetailAsync` but dropped at render | S |
@@ -4759,6 +4763,92 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 **Cross-ref:** **TB-149**, **TB-104**, **TB-062**.
 
 **Size estimate:** **S** (~4–6 h).
+
+---
+
+## TB-156 — `start-local-api-and-ui.ps1` — strict preflight + UI proxy E2E gate
+
+**Priority:** **P0** — pick up in the next available thread (local dev blocker; misleads every contributor who starts UI without a healthy API chain).
+
+**Source:** Local dev triage (2026-05-31). Symptom: operator UI loads but repeated Sonner warnings; root cause was API not listening on configured port while script had already opened the browser.
+
+**Problem:**
+
+`scripts/start-local-api-and-ui.ps1` waits for `GET /health/ready` on ArchLucid.Api and for the UI root (`GET /`) to return 200. Neither proves **browser → Next.js → `/api/proxy/*` → API**. The homepage can load while every proxied API call returns **502 Upstream API unreachable**. The script exits success and opens the browser anyway.
+
+Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or **`archlucid-ui/.env.local`** `ARCHLUCID_API_BASE_URL` port alignment with `-ApiPort` (5128 native vs 5000 Docker demo).
+
+**What to do:**
+
+1. **Preflight (fail fast):** `dotnet` + `node` present; `archlucid-ui/node_modules` exists (hint `npm ci`); optional `-SkipPreflight` for warm repeats; ports `$ApiPort` / `$UiPort` free or already serving expected health URLs.
+2. **Config validation:** read `.env.local` (or `.env.example` fallback warning); assert `ARCHLUCID_API_BASE_URL` host/port matches `-ApiPort` (default 5128); do **not** auto-edit — print expected vs actual and exit non-zero.
+3. **API ready (keep + extend):** `GET /health/live` then `/health/ready`; on ready failure, optionally surface first unhealthy check name from JSON for IT audience.
+4. **UI ready (keep):** UI root responds.
+5. **End-to-end gate (new, blocking):** `GET http://127.0.0.1:$UiPort/api/proxy/health/live` must return **200** before opening browser. On failure, exit **non-zero** with structured output:
+   - direct API probe result
+   - proxy probe result + HTTP status
+   - resolved `ARCHLUCID_API_BASE_URL`
+   - next steps + doc links: [`TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md)
+   - optional hint: `dotnet run --project ArchLucid.Cli -- doctor`
+6. **Optional switches:** `-EnsureSql` → `dev up --sql-only` (default off); `-NoBrowser` unchanged.
+7. Reuse patterns from `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`, `scripts/v1-rc-drill.ps1` where practical — avoid duplicating probe logic.
+
+**Acceptance criteria:**
+
+- With API stopped: script exits non-zero; browser not opened; stderr names failed stage (`proxy-chain` or equivalent).
+- With API on 5128 and matching `.env.local`: script exits 0; proxy health check passes; browser opens (unless `-NoBrowser`).
+- With `.env.local` pointing at 5000 while `-ApiPort 5128`: script fails at config phase with clear port mismatch message.
+- Header comment documents native (5128) vs Docker demo (5000) port table.
+
+**Affected files:**
+
+- `scripts/start-local-api-and-ui.ps1`
+- Optional cross-link in `docs/library/customer-facing/OPERATOR_QUICKSTART.md` or `docs/runbooks/TROUBLESHOOTING.md` (one line only — no new doc file required)
+
+**Cross-ref:** **TB-157** (in-app toast copy); `archlucid-ui/src/app/api/proxy/[...path]/route.ts`; `archlucid-ui/.env.example`.
+
+**Size estimate:** **S** (~4–8 h).
+
+---
+
+## TB-157 — API connectivity toasts — accurate API-down vs assistant-stream messaging
+
+**Priority:** **P0** — pick up in the next available thread (same local-dev incident cluster as **TB-156**; can ship independently but pair for best UX).
+
+**Source:** Local dev triage (2026-05-31). `resolveApiRequestErrorToastPlan` treats any connectivity-shaped 5xx as “Review assistant unavailable / AI assistant service is not reachable”, including proxy **502 Upstream API unreachable** when ArchLucid.Api is down.
+
+**Problem:**
+
+`archlucid-ui/src/lib/api-error-toast-policy.ts` — `isConnectivityOrAssistantFailure` buckets UseStream, fetch failed, upstream unreachable, etc. into one assistant-focused toast. IT-savvy local operators misdiagnose API/proxy/config failures as Azure OpenAI / Ask outages. Local dev defaults to **Simulator**; conflating API down with LLM down is incorrect.
+
+**What to do:**
+
+1. Replace `isConnectivityOrAssistantFailure` with a classifier (e.g. `classifyApiConnectivityFailure(message, httpStatus, problem?)`) that returns distinct toast plans:
+   - **“Upstream API unreachable”** / proxy 502 → title **ArchLucid API unreachable**; detail: proxy could not reach backend; verify API process and `ARCHLUCID_API_BASE_URL`; link or cite `docs/runbooks/TROUBLESHOOTING.md`.
+   - **503 + invalid upstream config** → **API URL not configured**; set `ARCHLUCID_API_BASE_URL` in `.env.local`; restart `npm run dev`.
+   - **UseStream** / Ask SSE path only → keep **Review assistant unavailable** (stream endpoint failed; core navigation may still work).
+   - Generic fetch/network → **Cannot reach ArchLucid API** (include correlation id when present).
+2. Prefer `problem.supportHint` from proxy Problem Details when present (`route.ts` already emits hints).
+3. Severity: **warning** for 502/API down (degraded shell); **error** for 503 misconfiguration (optional — document choice in tests).
+4. **Buyer-polished / demo shell:** keep suppressing connectivity toasts (`buyerPolishedShell` path unchanged).
+5. Update `api-error-toast-policy.test.ts`; grep for stale “AI assistant service is not reachable” expectations.
+
+**Acceptance criteria:**
+
+- Simulated `ApiRequestError` with message `Upstream API unreachable: fetch failed` and status 502 → toast title mentions **API**, not assistant.
+- UseStream-only failure → assistant wording retained.
+- Buyer-polished shell still suppresses connectivity failures.
+- No change to non-connectivity 5xx (“Server error” + detail) behavior.
+
+**Affected files:**
+
+- `archlucid-ui/src/lib/api-error-toast-policy.ts`
+- `archlucid-ui/src/lib/api-error-toast-policy.test.ts`
+- Optional: `archlucid-ui/src/lib/api-load-failure.ts` (align transient messaging if duplicated)
+
+**Cross-ref:** **TB-156**; `archlucid-ui/src/lib/api/http.ts` (`throwApiRequestError`); proxy `supportHint` in `archlucid-ui/src/app/api/proxy/[...path]/route.ts`.
+
+**Size estimate:** **XS** (~2–4 h).
 
 ---
 

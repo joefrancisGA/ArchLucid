@@ -98,6 +98,12 @@ export const DESIGN_TOKENS = {
   },
 } as const;
 
+/** Shared class strings for bulk migration off pastel Tailwind fills (TB-115). */
+export const OPERATOR_CALLOUT_WARN_CLASS = DESIGN_TOKENS.callout.warn;
+export const OPERATOR_CALLOUT_BLOCKED_CLASS = DESIGN_TOKENS.callout.blocked;
+export const OPERATOR_CALLOUT_SUCCESS_CLASS = DESIGN_TOKENS.callout.success;
+export const OPERATOR_SURFACE_CARD_CLASS = DESIGN_TOKENS.surface.card;
+
 export type EnterpriseStatusKind =
   | "ready"
   | "needs-attention"

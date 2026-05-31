@@ -3,7 +3,9 @@
 import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { operatorSemanticSurface } from "@/lib/design-tokens";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { cn } from "@/lib/utils";
 import type { components } from "@/lib/openapi-schemas";
 
 type AdminAuthConfigurationDiagnosticsResponse =
@@ -222,7 +224,7 @@ export function IdentityProviderSetupChecklist(props: IdentityProviderSetupCheck
             ) : null}
           </p>
         ) : configDiagnostics ? (
-          <p className="m-0 rounded-md border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100">
+          <p className={cn("m-0", operatorSemanticSurface("info"))}>
             Core identity setup checks are ready for this auth mode.
           </p>
         ) : null}

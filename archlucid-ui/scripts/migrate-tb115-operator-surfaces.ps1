@@ -182,8 +182,6 @@ $replacements = [ordered]@{
     "$warnCallout px-3 py-2 text-xs"
   "rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-50" =
     "$warnCallout px-3 py-2 text-sm"
-  "rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100" =
-    "$warnCallout px-3 py-2 text-sm"
   "flex flex-col gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-sm sm:flex-row sm:items-start sm:justify-between dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-100" =
     "$warnCallout flex flex-col gap-3 px-4 py-3 text-sm shadow-sm sm:flex-row sm:items-start sm:justify-between"
   "shrink-0 self-end border-amber-400 bg-white text-amber-950 hover:bg-amber-100 sm:self-start dark:border-amber-700 dark:bg-transparent dark:text-amber-50 dark:hover:bg-amber-900/60" =
@@ -210,8 +208,8 @@ $replacements = [ordered]@{
     "border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
   "mb-8 border-teal-200 bg-teal-50/40 dark:border-teal-900 dark:bg-teal-950/25" =
     "mb-8 border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
-  "? `"border-teal-600 bg-teal-50/95 ring-2 ring-teal-500/30 dark:border-teal-500 dark:bg-teal-950/55`"" =
-    "? `"border-neutral-400 bg-[var(--al-layer-hover)] ring-2 ring-[var(--al-accent-border-focus)]/30 dark:border-neutral-500 dark:bg-neutral-800/80`""
+  "border-teal-600 bg-teal-50/95 ring-2 ring-teal-500/30 dark:border-teal-500 dark:bg-teal-950/55" =
+    "border-neutral-400 bg-[var(--al-layer-hover)] ring-2 ring-[var(--al-accent-border-focus)]/30 dark:border-neutral-500 dark:bg-neutral-800/80"
   "rounded-md border border-teal-300 bg-teal-50 px-4 py-3 dark:border-teal-700 dark:bg-teal-950/40" =
     "$neutralCard px-4 py-3"
   "rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-50" =
@@ -252,8 +250,6 @@ $replacements = [ordered]@{
     "$neutralCard border-2 p-4 shadow-md ring-1 ring-neutral-200 dark:ring-neutral-800"
   "inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300" =
     "inline-flex items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600"
-  "border-red-200 bg-red-50/40 dark:border-red-900 dark:bg-red-950/30" =
-    "border-rose-600/40 bg-al-surface-raised dark:border-rose-800/50"
   'isCurrent ? "bg-blue-50 dark:bg-blue-950/30" : ""' =
     'isCurrent ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""'
 }

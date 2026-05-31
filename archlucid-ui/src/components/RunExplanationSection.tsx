@@ -8,6 +8,7 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
+import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import { isDeterministicExplanationFallback, normalizeFiniteRatio, traceCompletenessPercent } from "@/types/explanation";
 
 export type RunExplanationSectionProps = {
@@ -24,19 +25,19 @@ const badgeShell = "inline-block rounded-md border px-2.5 py-1 text-[13px] font-
 /** Tailwind mapping for faithfulness support ratio (0–100). */
 export function faithfulnessBadgeClass(pct: number): string {
   if (pct >= 80 - 1e-9) {
-    return `${badgeShell} border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-100`;
+    return enterpriseStatusTagClass("ready");
   }
 
   if (pct >= 50 - 1e-9) {
-    return `${badgeShell} border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50`;
+    return enterpriseStatusTagClass("needs-attention");
   }
 
-  return `${badgeShell} border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-50`;
+  return enterpriseStatusTagClass("blocked");
 }
 
 /** Tailwind styles for aggregate explanation deterministic fallback (faithfulness substitution). */
 export function deterministicFallbackBadgeClass(): string {
-  return `${badgeShell} border-violet-300 bg-violet-100 text-violet-950 dark:border-violet-700 dark:bg-violet-950/50 dark:text-violet-100`;
+  return enterpriseStatusTagClass("in-progress");
 }
 
 /** Tailwind mapping for risk posture label (case-insensitive). */
@@ -44,18 +45,18 @@ export function riskPostureBadgeClass(posture: string): string {
   const key = posture.trim().toLowerCase();
 
   if (key === "critical") {
-    return `${badgeShell} border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-100`;
+    return enterpriseStatusTagClass("blocked");
   }
 
   if (key === "high") {
-    return `${badgeShell} border-orange-300 bg-orange-100 text-orange-950 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-50`;
+    return enterpriseStatusTagClass("needs-attention");
   }
 
   if (key === "medium") {
-    return `${badgeShell} border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50`;
+    return enterpriseStatusTagClass("needs-attention");
   }
 
-  return `${badgeShell} border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-50`;
+  return enterpriseStatusTagClass("ready");
 }
 
 /**

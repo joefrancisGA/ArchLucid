@@ -35,6 +35,7 @@ import {
   BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
+import { operatorSemanticSurface, OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -92,7 +93,7 @@ function RunGovernanceWarningIndicator() {
         <TooltipTrigger asChild>
           <Badge
             variant="outline"
-            className="shrink-0 border-amber-400 bg-amber-50 text-[0.6rem] font-semibold text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+            className="shrink-0 border-amber-600/40 bg-al-surface-raised text-[0.6rem] font-semibold text-al-text-primary dark:border-amber-700/50"
             data-testid="run-governance-warning-indicator"
           >
             {RUNS_DASHBOARD_LABELS.governanceWarningTitle}
@@ -375,7 +376,7 @@ export function RunsDashboardPanel() {
                   onClick={() => { setGovernanceWarningsOnly((v) => !v); }}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                     governanceWarningsOnly
-                      ? "border-amber-500 bg-amber-50 text-amber-800 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-300"
+                      ? "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50"
                       : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600"
                   }`}
                 >
@@ -451,7 +452,7 @@ export function RunsDashboardPanel() {
 
               {(phase === "ready" || phase === "error") && showcaseDemoRun && !buyerPolishedShell ? (
                 <div
-                  className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
+                  className={cn("space-y-3 px-3 py-3", operatorSemanticSurface("ready"))}
                   data-testid="operator-home-showcase-demo-banner"
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -524,7 +525,7 @@ export function RunsDashboardPanel() {
               {(phase === "ready" || phase === "error") && filteredItems.length === 0 && effectiveItems.length === 0 && !runListError ? (
                 buyerPolishedShell ? (
                   <div
-                    className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/60 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/30"
+                    className={cn("space-y-3 px-3 py-3", OPERATOR_SURFACE_CARD_CLASS)}
                     data-testid="operator-home-getting-started"
                   >
                     <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
@@ -547,7 +548,7 @@ export function RunsDashboardPanel() {
               {(phase === "ready" || phase === "error") && showcaseDemoRun && buyerPolishedShell ? (
                 <section
                   aria-label="Featured review package summary"
-                  className="space-y-2 rounded-lg border border-teal-200 bg-teal-50/40 p-3 dark:border-teal-800 dark:bg-teal-950/30"
+                  className={cn("space-y-2 p-3", OPERATOR_SURFACE_CARD_CLASS)}
                   data-testid="runs-dashboard-buyer-proof-summary"
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
@@ -675,7 +676,7 @@ export function RunsDashboardPanel() {
                   className="m-0 grid list-none gap-2 p-0 sm:grid-cols-3"
                   data-testid="runs-dashboard-buyer-outcome-cards"
                 >
-                  <li className="rounded-lg border border-emerald-200/90 bg-emerald-50/50 px-3 py-2 dark:border-emerald-900/60 dark:bg-emerald-950/20">
+                  <li className={cn("px-3 py-2", operatorSemanticSurface("ready"))}>
                     <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-300">
                       Outcome
                     </p>
@@ -686,7 +687,7 @@ export function RunsDashboardPanel() {
                       Signed manifest pinned with governance-approved posture for sponsor readout.
                     </p>
                   </li>
-                  <li className="rounded-lg border border-amber-200/90 bg-amber-50/50 px-3 py-2 dark:border-amber-900/55 dark:bg-amber-950/20">
+                  <li className={cn("px-3 py-2", operatorSemanticSurface("warn"))}>
                     <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-amber-950 dark:text-amber-200">
                       Monitored posture
                     </p>
@@ -698,7 +699,7 @@ export function RunsDashboardPanel() {
                       the package.
                     </p>
                   </li>
-                  <li className="rounded-lg border border-teal-200/90 bg-teal-50/50 px-3 py-2 dark:border-teal-900/60 dark:bg-teal-950/20">
+                  <li className={cn("px-3 py-2", OPERATOR_SURFACE_CARD_CLASS)}>
                     <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
                       Deliverables
                     </p>

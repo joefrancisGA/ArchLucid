@@ -6,6 +6,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { operatorSemanticSurface } from "@/lib/design-tokens";
 import { pricingQuoteAgingRowTone } from "@/lib/pricing-quote-aging";
 import { acknowledgePricingQuoteRequest, closePricingQuoteRequest } from "@/lib/trial-funnel-ops";
 
@@ -17,11 +18,11 @@ type Props = {
 
 function rowClassName(tone: ReturnType<typeof pricingQuoteAgingRowTone>): string {
   if (tone === "breach") {
-    return "bg-rose-50 text-rose-950 dark:bg-rose-950/40 dark:text-rose-50";
+    return operatorSemanticSurface("blocked");
   }
 
   if (tone === "warn") {
-    return "bg-amber-50 text-amber-950 dark:bg-amber-950/40 dark:text-amber-50";
+    return operatorSemanticSurface("warn");
   }
 
   return "";

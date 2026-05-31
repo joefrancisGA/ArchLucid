@@ -1,5 +1,6 @@
 import { Shield } from "lucide-react";
 
+import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 
 export type FindingConfidenceBadgeProps = {
@@ -18,22 +19,19 @@ export function FindingConfidenceBadge({ level }: FindingConfidenceBadgeProps) {
     level === "High"
       ? {
           label: "High confidence",
-          pillClass:
-            "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-50",
-          iconClass: "text-emerald-700 dark:text-emerald-400",
+          pillClass: enterpriseStatusTagClass("ready"),
+          iconClass: "text-al-text-primary",
         }
       : level === "Medium"
         ? {
             label: "Medium confidence",
-            pillClass:
-              "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/45 dark:text-amber-50",
-            iconClass: "text-amber-700 dark:text-amber-400",
+            pillClass: enterpriseStatusTagClass("needs-attention"),
+            iconClass: "text-al-text-primary",
           }
         : {
             label: "Low confidence",
-            pillClass:
-              "border-orange-200 bg-orange-50 text-orange-950 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-50",
-            iconClass: "text-orange-700 dark:text-orange-400",
+            pillClass: enterpriseStatusTagClass("blocked"),
+            iconClass: "text-al-text-primary",
           };
 
   return (
