@@ -1,4 +1,4 @@
-﻿locals {
+locals {
   key_vault_workload_principal_ids = distinct(compact([
     trimspace(var.api_managed_identity_principal_id),
     trimspace(var.worker_managed_identity_principal_id),

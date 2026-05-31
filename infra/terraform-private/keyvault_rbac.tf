@@ -1,4 +1,4 @@
-﻿# TB-092 — workload RBAC to read secrets from the vault referenced by var.key_vault_id.
+# TB-092 — workload RBAC to read secrets from the vault referenced by var.key_vault_id.
 resource "azurerm_role_assignment" "key_vault_secrets_user" {
   for_each = (
     local.pe_enabled &&
