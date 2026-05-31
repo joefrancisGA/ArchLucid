@@ -8,7 +8,6 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Persistence.Decisions;
-using ArchLucid.Contracts.Runs;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
