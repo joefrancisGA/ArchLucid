@@ -30,9 +30,11 @@ public sealed class RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiF
         created.StatusCode.Should().Be(HttpStatusCode.Created);
         using JsonDocument doc = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
         Guid tenantId = doc.RootElement.GetProperty("tenantId").GetGuid();
+        Guid workspaceId = doc.RootElement.GetProperty("defaultWorkspaceId").GetGuid();
+        Guid projectId = doc.RootElement.GetProperty("defaultProjectId").GetGuid();
 
         using HttpRequestMessage statusReq = new(HttpMethod.Get, "/v1/tenant/trial-status");
-        statusReq.Headers.Add("x-tenant-id", tenantId.ToString());
+        WireRegisteredTenantScopeHeaders(statusReq, tenantId, workspaceId, projectId);
         using HttpResponseMessage status = await client.SendAsync(statusReq);
 
         status.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -57,9 +59,11 @@ public sealed class RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiF
         created.StatusCode.Should().Be(HttpStatusCode.Created);
         using JsonDocument doc = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
         Guid tenantId = doc.RootElement.GetProperty("tenantId").GetGuid();
+        Guid workspaceId = doc.RootElement.GetProperty("defaultWorkspaceId").GetGuid();
+        Guid projectId = doc.RootElement.GetProperty("defaultProjectId").GetGuid();
 
         using HttpRequestMessage statusReq = new(HttpMethod.Get, "/v1/tenant/trial-status");
-        statusReq.Headers.Add("x-tenant-id", tenantId.ToString());
+        WireRegisteredTenantScopeHeaders(statusReq, tenantId, workspaceId, projectId);
         using HttpResponseMessage status = await client.SendAsync(statusReq);
 
         status.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -97,6 +101,17 @@ public sealed class RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiF
             new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"));
 
         bad.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    private static void WireRegisteredTenantScopeHeaders(
+        HttpRequestMessage request,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId)
+    {
+        request.Headers.Add("x-tenant-id", tenantId.ToString("D"));
+        request.Headers.Add("x-workspace-id", workspaceId.ToString("D"));
+        request.Headers.Add("x-project-id", projectId.ToString("D"));
     }
 
     private static StringContent JsonContent(

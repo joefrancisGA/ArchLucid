@@ -161,7 +161,8 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
         settings["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300";
         settings["AuthorityPipeline:PipelineTimeout"] = "00:05:00";
-        settings["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "600000";
+        // Keep lock wait below slow-shard hang guards; 3 min is enough for one winner + idempotent replays in CI.
+        settings["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "180000";
         settings["Demo:SeedDepth"] = "quickstart";
     }
 

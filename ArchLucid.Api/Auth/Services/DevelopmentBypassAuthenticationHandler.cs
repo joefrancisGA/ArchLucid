@@ -34,6 +34,9 @@ public class DevelopmentBypassAuthenticationHandler(
 
         string userId = opts.DevUserId.Trim();
         string userName = opts.DevUserName.Trim();
+        Guid tenantId = opts.DevTenantId ?? ScopeIds.DefaultTenant;
+        Guid workspaceId = opts.DevWorkspaceId ?? ScopeIds.DefaultWorkspace;
+        Guid projectId = opts.DevProjectId ?? ScopeIds.DefaultProject;
 
         if (opts.AllowTestActorHeaders)
         {
@@ -54,11 +57,17 @@ public class DevelopmentBypassAuthenticationHandler(
                 if (trimmed.Length > 0)
                     userId = trimmed;
             }
-        }
 
-        Guid tenantId = opts.DevTenantId ?? ScopeIds.DefaultTenant;
-        Guid workspaceId = opts.DevWorkspaceId ?? ScopeIds.DefaultWorkspace;
-        Guid projectId = opts.DevProjectId ?? ScopeIds.DefaultProject;
+            // TB-072 binds scope claims to x-* headers; honor headers in test hosts so post-registration flows can steer scope.
+            if (TryParseScopeHeader(req, "x-tenant-id", out Guid tenantFromHeader))
+                tenantId = tenantFromHeader;
+
+            if (TryParseScopeHeader(req, "x-workspace-id", out Guid workspaceFromHeader))
+                workspaceId = workspaceFromHeader;
+
+            if (TryParseScopeHeader(req, "x-project-id", out Guid projectFromHeader))
+                projectId = projectFromHeader;
+        }
 
         List<Claim> claims =
         [
@@ -76,5 +85,17 @@ public class DevelopmentBypassAuthenticationHandler(
         AuthenticationTicket ticket = new(principal, SchemeName);
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+
+    private static bool TryParseScopeHeader(HttpRequest request, string headerName, out Guid value)
+    {
+        value = Guid.Empty;
+
+        if (!request.Headers.TryGetValue(headerName, out StringValues headerRaw))
+            return false;
+
+        string text = headerRaw.ToString().Trim();
+
+        return text.Length > 0 && Guid.TryParse(text, out value);
     }
 }

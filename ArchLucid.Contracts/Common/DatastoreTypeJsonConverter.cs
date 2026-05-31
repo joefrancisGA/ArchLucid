@@ -26,7 +26,7 @@ public sealed class DatastoreTypeJsonConverter : JsonConverter<DatastoreType>
 
         return raw.Trim().ToLowerInvariant() switch
         {
-            "sql" or "relational" or "sql database" or "azure sql" or "azuresql" or "database" or "rdbms" => DatastoreType.Sql,
+            "sql" or "relational" or "sql database" or "azure sql" or "azure sql database" or "azuresql" or "database" or "rdbms" => DatastoreType.Sql,
             "nosql" or "document" or "cosmos" or "cosmosdb" or "mongodb" => DatastoreType.NoSql,
             "object" or "blob" or "blob storage" or "storage" => DatastoreType.Object,
             "cache" or "redis" or "in-memory" or "inmemory" => DatastoreType.Cache,
