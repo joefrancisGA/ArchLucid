@@ -53,6 +53,17 @@ python scripts/ci/assert_route_tier_policy_nav.py
 
 ---
 
+## Self-serve demo proof walkthroughs (no founder narration)
+
+Use when the buyer needs a labeled path from sample request → committed manifest → explainability without a live session:
+
+- [`demo-proof-packets/ai-governance-demo-proof.md`](demo-proof-packets/ai-governance-demo-proof.md)
+- [`demo-proof-packets/azure-saas-readiness-demo-proof.md`](demo-proof-packets/azure-saas-readiness-demo-proof.md)
+- [`demo-proof-packets/healthcare-claims-demo-proof.md`](demo-proof-packets/healthcare-claims-demo-proof.md)
+- [`DIFFERENTIATION_PROOF_PACKET.md`](DIFFERENTIATION_PROOF_PACKET.md) (decision explainability + trust posture)
+
+---
+
 ## Related
 
 - [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL_CONVERSION_CHECKLIST.md)

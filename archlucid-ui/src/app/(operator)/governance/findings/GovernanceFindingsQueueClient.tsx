@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type KeyboardEvent, type ReactElement } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
@@ -15,6 +15,7 @@ import {
   getArchitectureRiskRegister,
   type ArchitectureRiskRegisterEntry,
 } from "@/lib/api/governance-stickiness-api";
+import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
@@ -70,8 +71,44 @@ export type GovernanceFindingQueueRow = {
   ownerUserId?: string | null;
   agingDays?: number;
   waiverExpiresAtUtc?: string | null;
+  revisitDueUtc?: string | null;
+  isStale?: boolean;
   evidenceHref?: string;
 };
+
+type RiskRegisterFilter = "all" | "stale" | "waiver-expiring";
+
+const WAIVER_EXPIRING_WINDOW_DAYS = 14;
+
+function matchesRiskRegisterFilter(row: GovernanceFindingQueueRow, filter: RiskRegisterFilter): boolean {
+  if (filter === "all") {
+    return true;
+  }
+
+  if (row.recordKind !== "finding") {
+    return false;
+  }
+
+  if (filter === "stale") {
+    return row.isStale === true;
+  }
+
+  const expiresRaw = row.waiverExpiresAtUtc?.trim() ?? "";
+
+  if (expiresRaw.length === 0) {
+    return false;
+  }
+
+  const expiresMs = Date.parse(expiresRaw);
+
+  if (Number.isNaN(expiresMs)) {
+    return false;
+  }
+
+  const windowMs = WAIVER_EXPIRING_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+
+  return expiresMs <= Date.now() + windowMs;
+}
 
 function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind, buyerPolishedShell: boolean): string {
   if (kind === "decision") {
@@ -150,13 +187,15 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
       title: entry.title,
       severity: entry.severity,
       category: entry.category,
-      status: entry.statusLabel,
+      status: entry.isStale ? `${entry.statusLabel} · stale` : entry.statusLabel,
       recommended,
       recordKind: "finding",
       traceConfidenceLevel: null,
       ownerUserId: entry.ownerUserId ?? null,
       agingDays: entry.agingDays,
       waiverExpiresAtUtc: entry.waiverExpiresAtUtc ?? null,
+      revisitDueUtc: entry.revisitDueUtc ?? null,
+      isStale: entry.isStale,
       evidenceHref: entry.evidenceHref,
     };
   });
@@ -383,9 +422,14 @@ export default function GovernanceFindingsQueueClient() {
   const [rows, setRows] = useState<GovernanceFindingQueueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [registerFilter, setRegisterFilter] = useState<RiskRegisterFilter>("all");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const findingRows = rows.filter((row) => row.recordKind === "finding");
-  const decisionRows = rows.filter((row) => row.recordKind === "decision");
+  const displayedRows = useMemo(
+    () => rows.filter((row) => matchesRiskRegisterFilter(row, registerFilter)),
+    [rows, registerFilter],
+  );
+  const findingRows = displayedRows.filter((row) => row.recordKind === "finding");
+  const decisionRows = displayedRows.filter((row) => row.recordKind === "decision");
 
   useEffect(() => {
     let cancelled = false;
@@ -527,15 +571,58 @@ export default function GovernanceFindingsQueueClient() {
               .
             </>
           ) : (
-            "Findings from architecture reviews — severity, category, and links to inspect each item in context."
+            "Owned architecture risks across reviews — disposition, owner, aging, stale cadence, and evidence links."
           )}
         </p>
+
+        {!buyerPolishedShell && !loading && rows.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={registerFilter === "all" ? "default" : "outline"}
+              onClick={() => setRegisterFilter("all")}
+            >
+              All risks
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={registerFilter === "stale" ? "default" : "outline"}
+              onClick={() => setRegisterFilter("stale")}
+            >
+              Stale
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={registerFilter === "waiver-expiring" ? "default" : "outline"}
+              onClick={() => setRegisterFilter("waiver-expiring")}
+            >
+              Waiver expiring (14d)
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => downloadArchitectureRiskRegisterCsv(displayedRows)}
+            >
+              Export CSV
+            </Button>
+          </div>
+        ) : null}
 
         {loading ? (
           <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">Loading findings…</p>
         ) : null}
 
-        {!loading && rows.length > 0 ? (
+        {!loading && rows.length > 0 && displayedRows.length === 0 ? (
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            No risks match the selected filter. Try All risks or adjust waiver/stale criteria.
+          </p>
+        ) : null}
+
+        {!loading && displayedRows.length > 0 ? (
           buyerPolishedShell ? (
             <div className="space-y-10">
               {findingRows.length > 0 ? (
@@ -588,12 +675,14 @@ export default function GovernanceFindingsQueueClient() {
                     <th className="px-3 py-2">Review</th>
                     {buyerPolishedShell ? null : <th className="px-3 py-2">Manifest</th>}
                     <th className="px-3 py-2">Status</th>
+                    {buyerPolishedShell ? null : <th className="px-3 py-2">Owner</th>}
+                    {buyerPolishedShell ? null : <th className="px-3 py-2">Aging</th>}
                     <th className="px-3 py-2">Recommended action</th>
                     <th className="px-3 py-2">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((row) => (
+                  {displayedRows.map((row) => (
                     <tr
                       key={`${row.runId}:${row.findingId}:table`}
                       className="border-t border-neutral-200 dark:border-neutral-800"
@@ -644,7 +733,26 @@ export default function GovernanceFindingsQueueClient() {
                           </Link>
                         </td>
                       )}
-                      <td className="px-3 py-2 align-top">{row.status}</td>
+                      <td className="px-3 py-2 align-top">
+                        {row.status}
+                        {row.isStale ? (
+                          <span className="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                            Stale
+                          </span>
+                        ) : null}
+                      </td>
+                      {buyerPolishedShell ? null : (
+                        <td className="px-3 py-2 align-top text-xs text-neutral-700 dark:text-neutral-300">
+                          {row.recordKind === "finding" ? row.ownerUserId ?? "—" : "—"}
+                        </td>
+                      )}
+                      {buyerPolishedShell ? null : (
+                        <td className="px-3 py-2 align-top text-xs text-neutral-700 dark:text-neutral-300">
+                          {row.recordKind === "finding" && row.agingDays !== undefined
+                            ? `${row.agingDays}d`
+                            : "—"}
+                        </td>
+                      )}
                       <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
                         {row.recommended}
                       </td>
@@ -677,7 +785,7 @@ export default function GovernanceFindingsQueueClient() {
             </div>
 
             <div className="space-y-3 md:hidden">
-              {rows.map((row) => (
+              {displayedRows.map((row) => (
               <Card
                 key={`${row.runId}:${row.findingId}`}
                 className="border border-neutral-200 shadow-sm dark:border-neutral-800"
