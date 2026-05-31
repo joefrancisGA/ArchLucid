@@ -27,14 +27,14 @@ describe("proxy-scope-resolution", () => {
   it("forwards client scope in non-production by default", () => {
     process.env.NODE_ENV = "development";
     const headers = new Headers({
-      "x-tenant-id": "aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee",
+      "x-tenant-id": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
       "x-workspace-id": "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb",
-      "x-project-id": "cccccccc-cccc-4ccc-cccc-cccccccccccc",
+      "x-project-id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
     });
 
     const resolved = resolveProxyUpstreamScopeHeaders(headers);
 
-    expect(resolved["x-tenant-id"]).toBe("aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee");
+    expect(resolved["x-tenant-id"]).toBe("aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee");
   });
 
   it("ignores client scope in production unless explicitly allowed", () => {
@@ -42,9 +42,9 @@ describe("proxy-scope-resolution", () => {
     process.env.ARCHLUCID_PROXY_TENANT_ID = "11111111-1111-1111-1111-111111111111";
 
     const headers = new Headers({
-      "x-tenant-id": "aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee",
+      "x-tenant-id": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
       "x-workspace-id": "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb",
-      "x-project-id": "cccccccc-cccc-4ccc-cccc-cccccccccccc",
+      "x-project-id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
     });
 
     const resolved = resolveProxyUpstreamScopeHeaders(headers);
@@ -59,9 +59,9 @@ describe("proxy-scope-resolution", () => {
 
     const payload = Buffer.from(
       JSON.stringify({
-        tenant_id: "aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee",
+        tenant_id: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
         workspace_id: "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb",
-        project_id: "cccccccc-cccc-4ccc-cccc-cccccccccccc",
+        project_id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
       }),
       "utf8",
     ).toString("base64url");
@@ -76,7 +76,7 @@ describe("proxy-scope-resolution", () => {
 
     const resolved = resolveProxyUpstreamScopeHeaders(headers);
 
-    expect(resolved["x-tenant-id"]).toBe("aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee");
+    expect(resolved["x-tenant-id"]).toBe("aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee");
   });
 
   it("honors explicit dev escape hatch in production", () => {
