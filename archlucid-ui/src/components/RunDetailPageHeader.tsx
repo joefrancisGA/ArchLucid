@@ -202,10 +202,10 @@ export function RunDetailPageHeader({
             </div>
           ) : (
             <div className="flex shrink-0 flex-col gap-1.5">
-              <p className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+              <div className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
                 Finalize package
                 <ContextualHelp helpKey="commit-manifest" />
-              </p>
+              </div>
               {hasGovernanceWarnings === true ? (
                 <Badge
                   variant="outline"
@@ -217,18 +217,18 @@ export function RunDetailPageHeader({
               ) : null}
               <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
               {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
-              <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+              <div className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
                 <span className="whitespace-nowrap">Governance approval</span>
                 <ContextualHelp helpKey="governance-gate" placement="left" />
-              </p>
+              </div>
             </div>
           )
         ) : (
           <div className="flex shrink-0 flex-col gap-1.5">
-            <p className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <div className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
               Finalize
               <ContextualHelp helpKey="commit-manifest" />
-            </p>
+            </div>
             {hasGovernanceWarnings === true ? (
               <Badge
                 variant="outline"
@@ -240,10 +240,10 @@ export function RunDetailPageHeader({
             ) : null}
             <CommitRunButton runId={runId} disabled={hasGoldenManifest} commitBlockedReason={commitBlockedReason} />
             {hasGoldenManifest ? <RunPackageExportButtons runId={runId} /> : null}
-            <p className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+            <div className="m-0 flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
               <span className="whitespace-nowrap">Governance gate</span>
               <ContextualHelp helpKey="governance-gate" placement="left" />
-            </p>
+            </div>
           </div>
         )}
       </div>
