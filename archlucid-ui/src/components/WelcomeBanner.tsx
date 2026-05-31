@@ -352,7 +352,7 @@ export function WelcomeBanner() {
             <ul className="m-0 mb-2.5 list-none space-y-2 p-0">
               {(
                 [
-                  { id: "governed-manifest", label: "Governed manifest" as const, Icon: FileCheck2 },
+                  { id: "governed-manifest", label: "Governed decision record" as const, Icon: FileCheck2 },
                   { id: "actionable-findings", label: "Actionable findings" as const, Icon: Target },
                   {
                     id: "artifact-bundle",

@@ -11,7 +11,7 @@ describe("AcceleratorChooserCard", () => {
     expect(screen.getByTestId("accelerator-chooser-row-ai-llm-workload")).toBeInTheDocument();
     expect(screen.getByTestId("accelerator-chooser-start-regulated-saas-soc-procurement")).toHaveAttribute(
       "href",
-      "/reviews/new?baseline=1",
+      "/reviews/new?baseline=1&accelerator=regulated-saas-soc-procurement",
     );
   });
 });

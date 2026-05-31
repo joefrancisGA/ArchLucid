@@ -1,3 +1,5 @@
+import { buildAcceleratorReviewStartHref, type AcceleratorPackId } from "@/lib/accelerator-wizard-presets";
+
 export type AcceleratorChooserEntry = {
   readonly id: string;
   readonly buyerJob: string;
@@ -19,36 +21,36 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Governance findings + proof checklist",
     scopeLabel: "V1-ready",
-    startHref: "/reviews/new?baseline=1",
+    startHref: buildAcceleratorReviewStartHref("regulated-saas-soc-procurement"),
   },
   {
-    id: "ai-llm-workload",
+    id: "ai-llm-workload" satisfies AcceleratorPackId,
     buyerJob: "AI / LLM workload governance",
     packLabel: "AI governance pack",
     summary: "Responsible-AI and LLM architecture review with faithfulness-friendly citations.",
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "AI governance findings + checklist",
     scopeLabel: "V1-ready",
-    startHref: "/reviews/new?baseline=1",
+    startHref: buildAcceleratorReviewStartHref("ai-llm-workload"),
   },
   {
-    id: "azure-cost-governance",
+    id: "azure-cost-governance" satisfies AcceleratorPackId,
     buyerJob: "Azure cost & orphan review",
     packLabel: "Cost governance pack",
     summary: "Cost/orphan-oriented findings with ROI source labels for FinOps stakeholders.",
     requiredInputs: "second-run.json (optional extractor ZIP)",
     expectedOutputs: "Cost findings + ROI labels",
     scopeLabel: "V1-ready",
-    startHref: "/reviews/new?baseline=1",
+    startHref: buildAcceleratorReviewStartHref("azure-cost-governance"),
   },
   {
-    id: "healthcare-data-workflow",
+    id: "healthcare-data-workflow" satisfies AcceleratorPackId,
     buyerJob: "Healthcare data workflow",
     packLabel: "Healthcare workflow pack",
     summary: "PHI-minimization storyline for clinical platform reviews — not HIPAA certification.",
     requiredInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Healthcare pack findings + checklist",
     scopeLabel: "V1-ready",
-    startHref: "/reviews/new?baseline=1",
+    startHref: buildAcceleratorReviewStartHref("healthcare-data-workflow"),
   },
 ] as const;

@@ -153,7 +153,8 @@ describe("buildFirstPilotReadinessRows", () => {
     });
 
     expect(rows.find((r) => r.id === "data-consistency")?.status).toBe("attention");
-    expect(rows.find((r) => r.id === "data-consistency")?.summary).toContain("Pilot proof status");  });
+    expect(rows.find((r) => r.id === "data-consistency")?.summary).toContain("Review-readiness status");
+  });
 
   it("marks data consistency blocked when health is unhealthy", () => {
     const rows = buildFirstPilotReadinessRows({

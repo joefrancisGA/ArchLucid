@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PilotRoiBaselineReadinessCard } from "@/components/operator-home/PilotRoiBaselineReadinessCard";
-import { PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_SESSION_KEY } from "@/lib/pilot-roi-baseline-readiness-card";
+import { PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY } from "@/lib/pilot-roi-baseline-readiness-card";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 
 const reload = vi.fn();
@@ -25,12 +25,12 @@ vi.mock("@/lib/pilot-roi-baseline-chrome", () => ({
 
 describe("PilotRoiBaselineReadinessCard", () => {
   beforeEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
     reload.mockReset();
   });
 
   afterEach(() => {
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   it("renders when tenant ROI baselines are incomplete", () => {
@@ -38,6 +38,9 @@ describe("PilotRoiBaselineReadinessCard", () => {
 
     expect(screen.getByTestId("pilot-roi-baseline-readiness-card")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "ROI baseline not set" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/estimate time saved after your first review package/i),
+    ).toBeInTheDocument();
   });
 
   it("dispatches wizard open when Set baseline is clicked", () => {
@@ -61,6 +64,6 @@ describe("PilotRoiBaselineReadinessCard", () => {
       expect(screen.queryByTestId("pilot-roi-baseline-readiness-card")).not.toBeInTheDocument();
     });
 
-    expect(sessionStorage.getItem(PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_SESSION_KEY)).toBe("1");
+    expect(localStorage.getItem(PILOT_ROI_BASELINE_READINESS_CARD_DISMISSED_KEY)).toBe("1");
   });
 });
