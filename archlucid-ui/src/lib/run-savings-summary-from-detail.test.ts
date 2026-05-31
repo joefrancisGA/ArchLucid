@@ -18,6 +18,7 @@ describe("resolveRunSavingsSummaryFromRunDetail", () => {
 
     expect(model).not.toBeNull();
     expect(model?.annualizedUsd).toBe(12500);
+    expect(model?.sourceKind).toBe("server-findings");
     expect(model?.basisFootnotes.join(" ")).toContain("Tenant-adjusted");
   });
 

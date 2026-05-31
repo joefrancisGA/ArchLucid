@@ -43,8 +43,7 @@ import {
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
-import { resolveRunSavingsSummaryFromRunDetail } from "@/lib/run-savings-summary-from-detail";
-import { loadRunSavingsSummaryModel } from "@/lib/run-savings-summary-model";
+import { resolveRunDetailSavingsSummary } from "@/lib/run-detail-savings-summary-resolve";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -382,15 +381,13 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     severityLabelForFinding: severityBadgeLabel,
   });
 
-  const savingsSummaryFromServer = resolveRunSavingsSummaryFromRunDetail(resolvedDetail);
-  const savingsSummary =
-    savingsSummaryFromServer ??
-    (await loadRunSavingsSummaryModel({
-      artifacts,
-      manifestId,
-      routeRunId: runId,
-      usedStaticDemoRun,
-    }));
+  const savingsSummary = await resolveRunDetailSavingsSummary({
+    resolvedDetail,
+    usedStaticDemoRun,
+    artifacts,
+    manifestId,
+    routeRunId: runId,
+  });
 
   const model: RunDetailPageModel = {
     routeRunId: runId,

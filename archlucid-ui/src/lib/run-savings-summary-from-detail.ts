@@ -38,5 +38,6 @@ export function resolveRunSavingsSummaryFromRunDetail(
   return {
     annualizedUsd: Math.round(amount),
     basisFootnotes: footnotes,
+    sourceKind: "server-findings",
   };
 }
