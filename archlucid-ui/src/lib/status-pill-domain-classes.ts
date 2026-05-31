@@ -17,7 +17,7 @@ function pipelineSemanticClass(status: string): string {
     case "In flight":
       return "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
     case "Starting":
-      return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200";
+      return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
     default:
       return generalSemanticClass(status);
   }

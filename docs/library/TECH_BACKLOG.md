@@ -5288,7 +5288,7 @@ Run status, governance approval state, and finding severity are communicated thr
 
 ## TB-117 — Operator data tables: Carbon-style structured tables for runs, findings, and audit
 
-**Status (2026-05-31):** **Partial** — `EnterpriseTable` primitives + reviews list migration. **Open:** governance findings queue, audit timeline (card layout may remain).
+**Status (2026-05-31):** **Wave 2 landed** — governance findings desktop queue on `EnterpriseTable` + `SeverityTag`; reviews list already migrated. **Open:** audit timeline (card layout may remain).
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 
@@ -5328,6 +5328,8 @@ The reviews list, findings list, and audit timeline use a mix of card-stacked ro
 ---
 
 ## TB-118 — Spacing audit: replace marketing-scale spacing with enterprise-compact spacing in operator views
+
+**Status (2026-05-31):** **Wave 2 partial** — operator home (`space-y-4` / `gap-4`), governance findings queue, finding detail/inspect shells (`p-4`); run detail and executive dashboard already compact. Residual `space-y-6` in nested cards/wizards tracked opportunistically.
 
 **Source:** Owner-ratified UI design standard, 2026-05-27. Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md).
 

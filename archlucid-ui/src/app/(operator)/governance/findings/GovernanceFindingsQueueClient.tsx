@@ -9,6 +9,7 @@ import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
+import { GovernanceFindingsQueueDesktopTable } from "./GovernanceFindingsQueueDesktopTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import {
@@ -52,29 +53,13 @@ const SHOWCASE_GOVERNANCE_DECISION_RECOMMENDED: readonly string[] = [
   "Publish intake latency, queue depth, and exception-rate dashboards in the sponsor KPI pack.",
 ];
 
-/** Distinguishes explainability-backed findings from recorded architecture decisions in the mixed queue. */
-export type GovernanceFindingQueueRecordKind = "finding" | "decision";
+import {
+  formatGovernanceQueueRecordKind,
+  type GovernanceFindingQueueRecordKind,
+  type GovernanceFindingQueueRow,
+} from "./governance-finding-queue-row";
 
-export type GovernanceFindingQueueRow = {
-  runId: string;
-  runLabel: string;
-  /** Canonical manifest UUID when known, or "—". */
-  manifestId: string;
-  findingId: string;
-  title: string;
-  severity: string;
-  category: string;
-  status: string;
-  recommended: string;
-  recordKind: GovernanceFindingQueueRecordKind;
-  traceConfidenceLevel?: FindingConfidenceLevel | null;
-  ownerUserId?: string | null;
-  agingDays?: number;
-  waiverExpiresAtUtc?: string | null;
-  revisitDueUtc?: string | null;
-  isStale?: boolean;
-  evidenceHref?: string;
-};
+export type { GovernanceFindingQueueRecordKind, GovernanceFindingQueueRow } from "./governance-finding-queue-row";
 
 type RiskRegisterFilter = "all" | "stale" | "waiver-expiring";
 
@@ -108,14 +93,6 @@ function matchesRiskRegisterFilter(row: GovernanceFindingQueueRow, filter: RiskR
   const windowMs = WAIVER_EXPIRING_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
   return expiresMs <= Date.now() + windowMs;
-}
-
-function formatGovernanceQueueRecordKind(kind: GovernanceFindingQueueRecordKind, buyerPolishedShell: boolean): string {
-  if (kind === "decision") {
-    return buyerPolishedShell ? "Decision" : "Architecture decision";
-  }
-
-  return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.finding : "Finding";
 }
 
 function governanceBuyerRecordTypePrimary(row: GovernanceFindingQueueRow): string {
@@ -280,19 +257,6 @@ function manifestRecordHref(runId: string, manifestId: string): string {
   }
 
   return `/reviews/${encodeURIComponent(runId)}/manifest`;
-}
-
-function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolishedShell: boolean): ReactElement {
-  if (buyerPolishedShell && row.recordKind === "decision") {
-    return (
-      <span className="text-neutral-500 dark:text-neutral-400">
-        <span aria-hidden="true">—</span>
-        <span className="sr-only">Severity does not apply to recorded decision rows.</span>
-      </span>
-    );
-  }
-
-  return <span className="text-neutral-800 dark:text-neutral-200">{row.severity}</span>;
 }
 
 function navigateGovernanceRowDetail(
@@ -624,7 +588,7 @@ export default function GovernanceFindingsQueueClient() {
 
         {!loading && displayedRows.length > 0 ? (
           buyerPolishedShell ? (
-            <div className="space-y-10">
+            <div className="space-y-4">
               {findingRows.length > 0 ? (
                 <section className="space-y-3" aria-labelledby="governance-findings-risks">
                   <h2
@@ -658,131 +622,7 @@ export default function GovernanceFindingsQueueClient() {
             </div>
           ) : (
           <>
-            <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
-              <table
-                className={
-                  buyerPolishedShell
-                    ? "w-full min-w-[600px] border-collapse text-left text-sm"
-                    : "w-full min-w-[720px] border-collapse text-left text-sm"
-                }
-              >
-                <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-                  <tr>
-                    <th className="px-3 py-2">Severity</th>
-                    {buyerPolishedShell ? <th className="px-3 py-2">Confidence</th> : null}
-                    <th className="px-3 py-2">{buyerPolishedShell ? "Record" : "Record kind"}</th>
-                    <th className="px-3 py-2">{buyerPolishedShell ? "Record summary" : "Finding"}</th>
-                    <th className="px-3 py-2">Review</th>
-                    {buyerPolishedShell ? null : <th className="px-3 py-2">Manifest</th>}
-                    <th className="px-3 py-2">Status</th>
-                    {buyerPolishedShell ? null : <th className="px-3 py-2">Owner</th>}
-                    {buyerPolishedShell ? null : <th className="px-3 py-2">Aging</th>}
-                    <th className="px-3 py-2">Recommended action</th>
-                    <th className="px-3 py-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayedRows.map((row) => (
-                    <tr
-                      key={`${row.runId}:${row.findingId}:table`}
-                      className="border-t border-neutral-200 dark:border-neutral-800"
-                    >
-                      <td className="px-3 py-2 align-top">{governanceQueueSeverityCell(row, buyerPolishedShell)}</td>
-                      {buyerPolishedShell ? (
-                        <td className="px-3 py-2 align-top">
-                          {row.recordKind === "decision" ? (
-                            <span className="text-neutral-400 dark:text-neutral-500">—</span>
-                          ) : row.traceConfidenceLevel === "High" ||
-                            row.traceConfidenceLevel === "Medium" ||
-                            row.traceConfidenceLevel === "Low" ? (
-                            <FindingConfidenceBadge level={row.traceConfidenceLevel} />
-                          ) : (
-                            <span className="text-neutral-400 dark:text-neutral-500">—</span>
-                          )}
-                        </td>
-                      ) : null}
-                      <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">
-                        {formatGovernanceQueueRecordKind(row.recordKind, buyerPolishedShell)}
-                      </td>
-                      <td className="px-3 py-2 align-top font-medium text-neutral-900 dark:text-neutral-100">
-                        <Link
-                          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                          href={inspectHref(row.runId, row.findingId)}
-                        >
-                          {row.title}
-                        </Link>
-                        {buyerPolishedShell ? null : (
-                          <div className="mt-0.5 font-mono text-[11px] font-normal text-neutral-500">{row.findingId}</div>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 align-top">
-                        <Link
-                          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                          href={`/reviews/${encodeURIComponent(row.runId)}`}
-                        >
-                          {row.runLabel}
-                        </Link>
-                      </td>
-                      {buyerPolishedShell ? null : (
-                        <td className="px-3 py-2 align-top font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                          <Link
-                            className="font-sans text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                            href={manifestRecordHref(row.runId, row.manifestId)}
-                          >
-                            Open manifest
-                          </Link>
-                        </td>
-                      )}
-                      <td className="px-3 py-2 align-top">
-                        {row.status}
-                        {row.isStale ? (
-                          <span className="ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 text-[10px] font-semibold uppercase text-al-text-primary dark:border-amber-700/50">
-                            Stale
-                          </span>
-                        ) : null}
-                      </td>
-                      {buyerPolishedShell ? null : (
-                        <td className="px-3 py-2 align-top text-xs text-neutral-700 dark:text-neutral-300">
-                          {row.recordKind === "finding" ? row.ownerUserId ?? "—" : "—"}
-                        </td>
-                      )}
-                      {buyerPolishedShell ? null : (
-                        <td className="px-3 py-2 align-top text-xs text-neutral-700 dark:text-neutral-300">
-                          {row.recordKind === "finding" && row.agingDays !== undefined
-                            ? `${row.agingDays}d`
-                            : "—"}
-                        </td>
-                      )}
-                      <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
-                        {row.recommended}
-                      </td>
-                      <td className="px-3 py-2 align-top">
-                        <div className="flex flex-col gap-2">
-                          <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
-                            <Link href={inspectHref(row.runId, row.findingId)}>
-                              {buyerPolishedShell
-                                ? row.recordKind === "decision"
-                                  ? "View decision"
-                                  : BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA
-                                : "Open"}
-                            </Link>
-                          </Button>
-                          {(() => {
-                            const graphHref = governanceQueueGraphEvidenceHref(row);
-
-                            return graphHref !== null ? (
-                              <Button asChild variant="outline" size="sm" className="h-8 border-neutral-300 dark:border-neutral-600">
-                                <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
-                              </Button>
-                            ) : null;
-                          })()}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <GovernanceFindingsQueueDesktopTable rows={displayedRows} buyerPolishedShell={buyerPolishedShell} />
 
             <div className="space-y-3 md:hidden">
               {displayedRows.map((row) => (

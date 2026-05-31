@@ -71,7 +71,7 @@ export function FindingDetailPageView(props: Props) {
   const evaluationScore = inspectPayload?.evaluationConfidenceScore ?? null;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-4 p-4">
       <nav className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
         <Link
           href={`/reviews/${encodeURIComponent(runId)}`}

@@ -51,15 +51,15 @@ function BuyerHomeSectionHeading(props: { readonly id: string; readonly children
 
 function OperatorHomeReviewsGrid() {
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
-      <div className="min-w-0 space-y-6">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
+      <div className="min-w-0 space-y-4">
         <RunsDashboardPanel />
         <OperatorCorePilotDiagnosticsChecklist />
         <AfterCorePilotChecklistHint />
 
         <OperationalMetricsGate>
           <AcceleratorChooserCard />
-          <div className="space-y-6" data-testid="operator-home-post-commit-surfaces">
+          <div className="space-y-4" data-testid="operator-home-post-commit-surfaces">
             <RepeatReviewActivationPrompt />
             <ValueRealizationDashboard />
             <OperatorNextActionsCard />
@@ -104,7 +104,7 @@ function BuyerPolishedHomePageBody() {
     <>
       <section
         aria-label="Review package status and proof"
-        className="space-y-6"
+        className="space-y-4"
         data-testid="operator-home-proof-section"
       >
         <SampleFirstReviewPackageCard />
@@ -118,7 +118,7 @@ function BuyerPolishedHomePageBody() {
 
       <section
         aria-labelledby="buyer-home-setup-heading"
-        className="space-y-6"
+        className="space-y-4"
         data-testid="operator-home-setup-section"
       >
         <BuyerHomeSectionHeading id="buyer-home-setup-heading">{BUYER_HOME_SETUP_SECTION_HEADING}</BuyerHomeSectionHeading>
@@ -174,7 +174,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGate>
       <TrialWelcomeRunDeepLink />
       <OperatorWelcomeOnboarding />
-      <div className="space-y-6">
+      <div className="space-y-4">
         {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
       </div>
     </OperatorHomeGate>
