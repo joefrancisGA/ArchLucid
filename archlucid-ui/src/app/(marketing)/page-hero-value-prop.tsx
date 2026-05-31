@@ -72,7 +72,7 @@ export function PageHeroValueProp(): ReactNode {
           return (
             <div key={title} className="contents md:contents">
               <div className="flex flex-1 flex-col rounded-lg border border-neutral-200 bg-white/80 p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/40 sm:p-5">
-                <div className="mx-auto flex size-12 items-center justify-center rounded-full border border-teal-200 bg-teal-50 text-teal-800 dark:border-teal-800 dark:bg-teal-950/60 dark:text-teal-200 sm:size-14">
+                <div className="mx-auto flex size-12 items-center justify-center rounded-full border border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 sm:size-14">
                   <Icon className="size-6 sm:size-7" strokeWidth={1.75} aria-hidden />
                 </div>
                 <h3 className="mt-3 text-center text-sm font-semibold text-neutral-900 dark:text-neutral-50 sm:text-base">

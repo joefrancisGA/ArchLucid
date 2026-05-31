@@ -191,7 +191,7 @@ export function CuratedRulesAuthoringSection(props: CuratedRulesAuthoringSection
                     highlightRuleId !== undefined &&
                       highlightRuleId.trim().length > 0 &&
                       r.id.trim().toLowerCase() === highlightRuleId.trim().toLowerCase()
-                      ? "bg-amber-50 ring-2 ring-amber-400 ring-inset dark:bg-amber-950/30 dark:ring-amber-600"
+                      ? "bg-[var(--al-layer-hover)] ring-2 ring-amber-600/50 ring-inset dark:bg-neutral-800/80 dark:ring-amber-700/50"
                       : undefined,
                   )}
                 >

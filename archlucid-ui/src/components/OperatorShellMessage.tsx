@@ -14,7 +14,7 @@ export function OperatorErrorCallout({ children }: { children: ReactNode }) {
       role="alert"
       className={cn(
         calloutBase,
-        "border border-red-800 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/80 dark:text-red-100",
+        "border border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50",
       )}
     >
       {children}
@@ -89,7 +89,7 @@ export function OperatorMalformedCallout({ children }: { children: ReactNode }) 
       role="alert"
       className={cn(
         calloutBase,
-        "border border-violet-600 bg-violet-50 text-violet-950 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-100",
+        "border border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600",
       )}
     >
       {children}
@@ -106,7 +106,7 @@ export function OperatorWarningCallout({ children }: { children: ReactNode }) {
       role="status"
       className={cn(
         calloutBase,
-        "border border-amber-500 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-50",
+        "border border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50",
       )}
     >
       {children}

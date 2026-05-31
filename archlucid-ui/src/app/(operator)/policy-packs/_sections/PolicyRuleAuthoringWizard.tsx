@@ -354,7 +354,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
           </div>
 
           <div
-            className="rounded-lg border border-dashed border-violet-300 bg-violet-50/60 p-4 dark:border-violet-800 dark:bg-violet-950/30"
+            className="rounded-md border border-dashed border-neutral-300 bg-al-surface-raised p-4 dark:border-neutral-700"
             data-testid="policy-pack-ai-draft-panel"
           >
             <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
@@ -426,7 +426,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                     AI draft (review required)
                   </p>
                   <p className="mt-1 text-xs text-amber-900 dark:text-amber-100">{draftResponse.disclaimer}</p>
-                  <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-50">
+                  <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-xs">
                     {draftResponse.draftRuleJson}
                   </pre>
                 </div>
@@ -516,7 +516,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
                 highlightRuleId={highlightRuleId}
               />
               {authoringErrors.length > 0 ? (
-                <div role="alert" className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+                <div role="alert" className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-2 text-xs">
                   <p className="font-medium m-0 mb-1">Fix before merging</p>
                   <ul className="list-disc ml-4 m-0">
                     {authoringErrors.map((e) => (

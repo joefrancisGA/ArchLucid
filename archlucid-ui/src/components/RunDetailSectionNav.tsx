@@ -95,7 +95,7 @@ export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
                 href={`#${s.id}`}
                 className={
                   active
-                    ? "rounded-md bg-teal-50 px-2 py-1 font-semibold text-teal-900 underline decoration-teal-700 decoration-2 underline-offset-2 dark:bg-teal-900/30 dark:text-teal-200"
+                    ? "rounded-md bg-[var(--al-layer-hover)] px-2 py-1 font-semibold text-al-text-primary underline decoration-[var(--al-accent-interactive)] decoration-2 underline-offset-2 dark:bg-neutral-800/80"
                     : "rounded-md px-2 py-1 text-neutral-800 underline decoration-neutral-400 decoration-1 underline-offset-2 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
                 }
                 aria-current={active ? "page" : undefined}

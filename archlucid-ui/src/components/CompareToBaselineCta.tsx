@@ -50,7 +50,7 @@ export function CompareToBaselineCta(props: { currentRunId: string }) {
 
   return (
     <div
-      className="flex flex-wrap items-center gap-2 rounded-md border border-teal-200/80 bg-teal-50/50 px-3 py-2 text-sm dark:border-teal-900/60 dark:bg-teal-950/25"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 flex flex-wrap items-center gap-2 px-3 py-2 text-sm"
       data-testid="compare-to-baseline-banner"
     >
       <span className="text-neutral-700 dark:text-neutral-200">

@@ -101,7 +101,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                   <CommandItem
                     key={`${h.docPath}::${h.sectionSlug || "root"}::${h.sectionHeading}`}
                     value={`${h.docTitle} ${h.sectionHeading} ${h.excerpt}`}
-                    className="flex cursor-pointer flex-col items-start gap-1 rounded-md border border-transparent px-3 py-2.5 aria-selected:border-teal-200 aria-selected:bg-teal-50 dark:aria-selected:border-teal-900 dark:aria-selected:bg-teal-950/40"
+                    className="flex cursor-pointer flex-col items-start gap-1 rounded-md border border-transparent px-3 py-2.5 aria-selected:border-neutral-400 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
                     onSelect={() => {
                       window.open(href, "_blank", "noopener,noreferrer");
                     }}

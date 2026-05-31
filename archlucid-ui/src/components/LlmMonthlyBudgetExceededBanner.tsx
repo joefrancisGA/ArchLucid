@@ -16,7 +16,7 @@ export function LlmMonthlyBudgetExceededBanner(props: LlmMonthlyBudgetExceededBa
 
   return (
     <div
-      className="rounded-lg border border-amber-300/90 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800/80 dark:bg-amber-950/40 dark:text-amber-100"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-sm"
       role="alert"
       data-testid="llm-monthly-budget-exceeded-banner"
     >

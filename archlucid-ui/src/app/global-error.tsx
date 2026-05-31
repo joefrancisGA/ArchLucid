@@ -30,7 +30,7 @@ export default function GlobalError({
     <html lang="en">
       <body className="min-h-screen bg-neutral-50 p-8 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <h1 className="m-0 text-2xl font-semibold">ArchLucid</h1>
-        <div className="mt-4 max-w-lg rounded-lg border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900 dark:bg-red-950/40">
+        <div className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 mt-4 max-w-lg px-4 py-3">
           <strong className="text-red-950 dark:text-red-100">The app shell could not load</strong>
           <p className="mt-2 text-sm text-red-900 dark:text-red-100/95">
             {isDev ? error.message : "A critical error occurred. Try reloading, open Help, or return home."}

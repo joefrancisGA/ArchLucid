@@ -39,7 +39,7 @@ export function WizardStepper({ steps, currentStep, completedSteps }: WizardStep
                   isActive && "border-teal-700 bg-teal-700 text-white",
                   !isActive &&
                     isDone &&
-                    "border-teal-700 bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-100",
+                    "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:bg-neutral-800/80",
                   !isActive &&
                     !isDone &&
                     "border-neutral-300 bg-white text-neutral-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-300",

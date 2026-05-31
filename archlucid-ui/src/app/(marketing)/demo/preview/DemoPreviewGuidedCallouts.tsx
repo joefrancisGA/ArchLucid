@@ -7,7 +7,7 @@ import Link from "next/link";
 export function DemoPreviewGuidedCallouts() {
   return (
     <aside
-      className="rounded-lg border border-teal-200 bg-teal-50/80 p-4 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-50"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 text-sm"
       aria-label="What to notice in this sample review"
       data-testid="demo-preview-guided-callouts"
     >

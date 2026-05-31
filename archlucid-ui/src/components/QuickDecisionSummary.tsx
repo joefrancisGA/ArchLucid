@@ -247,7 +247,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                         Ask
                       </Button>
                       {f.iacStub !== null && f.iacStub !== undefined && f.iacStub.length > 0 ? (
-                        <span className={`${badgeBase} border-sky-300 bg-sky-50 text-sky-950 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100`}>
+                        <span className={`${badgeBase} border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700`}>
                           Bicep stub
                         </span>
                       ) : null}

@@ -25,7 +25,7 @@ export const SHOWCASE_ARCHLUCID_OUTPUT_BULLETS: readonly string[] = [
 
 const sectionBoxClass =
 
-  "rounded-lg border border-teal-200/80 bg-teal-50/60 p-4 shadow-sm dark:border-teal-900/40 dark:bg-teal-950/40";
+  "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 shadow-sm";
 
 
 

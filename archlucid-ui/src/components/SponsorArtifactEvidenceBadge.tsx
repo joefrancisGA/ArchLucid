@@ -22,7 +22,7 @@ function trustPostureClass(posture: string): string {
   }
 
   if (posture === "deferred") {
-    return "border-violet-200 bg-violet-50 text-violet-950 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-100";
+    return "border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700";
   }
 
   return "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50";

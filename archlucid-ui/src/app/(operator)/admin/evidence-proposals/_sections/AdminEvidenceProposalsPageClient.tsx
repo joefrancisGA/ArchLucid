@@ -79,7 +79,7 @@ export function AdminEvidenceProposalsPageClient() {
       </div>
 
       {error !== null ? (
-        <p role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-2 text-sm text-rose-900">
+        <p role="alert" className="rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-sm text-al-text-primary dark:border-rose-800/50">
           {error}
         </p>
       ) : null}

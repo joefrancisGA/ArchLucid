@@ -7,12 +7,12 @@ const cardBaseCls = "mb-2.5 rounded-lg border p-3 text-sm";
 
 function cardCls(changeType: "added" | "removed" | "changed"): string {
   if (changeType === "added")
-    return `${cardBaseCls} border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200`;
+    return `${cardBaseCls} border-emerald-700/40 bg-al-surface-raised text-al-text-primary dark:border-emerald-800/50`;
 
   if (changeType === "removed")
-    return `${cardBaseCls} border-red-300 bg-red-50 text-red-900 dark:border-red-700 dark:bg-red-950/40 dark:text-red-200`;
+    return `${cardBaseCls} border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50`;
 
-  return `${cardBaseCls} border-yellow-300 bg-yellow-50 text-yellow-900 dark:border-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-200`;
+  return `${cardBaseCls} border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50`;
 }
 
 function changeLabel(changeType: "added" | "removed" | "changed"): string {

@@ -54,7 +54,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             className={cn(
               "border",
               message.role === "User"
-                ? "border-sky-200/90 bg-sky-50/90 dark:border-sky-800/80 dark:bg-sky-950/35"
+                ? "border-neutral-200/90 bg-al-surface-raised dark:border-neutral-800/80"
                 : "border-neutral-200 bg-neutral-50/90 dark:border-neutral-700 dark:bg-neutral-800/50",
             )}
           >

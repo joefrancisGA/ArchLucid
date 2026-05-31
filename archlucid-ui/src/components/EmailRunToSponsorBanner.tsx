@@ -478,7 +478,7 @@ export function EmailRunToSponsorBanner({
             readinessCopy.variant === "blocked"
               ? "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-2 px-3 py-2 text-sm"
               : readinessCopy.variant === "caveats"
-                ? "mt-2 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-2 text-sm text-yellow-950 dark:border-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-50"
+                ? "rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-2 px-3 py-2 text-sm"
                 : readinessCopy.variant === "ready"
                   ? "mt-2 rounded-md border border-teal-500 bg-white/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-600 dark:bg-teal-950/30 dark:text-teal-50"
                   : "mt-2 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100"

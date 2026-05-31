@@ -393,7 +393,7 @@ export function Tier2ConnectionWizard({ onSaved }: Tier2ConnectionWizardProps) {
           </dl>
 
           {savedConnection !== null ? (
-            <div className="space-y-3 rounded-md border border-teal-200 bg-teal-50 p-4 dark:border-teal-900 dark:bg-teal-950/40">
+            <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 p-4">
               <p className="text-sm text-teal-900 dark:text-teal-100">
                 Connection saved. Run a hosted validation pull to confirm federated credentials and Reader access.
               </p>

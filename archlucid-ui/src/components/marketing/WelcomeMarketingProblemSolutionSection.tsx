@@ -17,11 +17,11 @@ export function WelcomeMarketingProblemSolutionSection() {
         Problem and solution
       </h2>
       <div className="grid gap-6 md:grid-cols-2">
-        <article className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-5 dark:border-amber-900/50 dark:bg-amber-950/20">
+        <article className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-5">
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{WELCOME_PROBLEM_HEADING}</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{WELCOME_PROBLEM_BODY}</p>
         </article>
-        <article className="rounded-lg border border-teal-200/80 bg-teal-50/40 p-5 dark:border-teal-900/50 dark:bg-teal-950/25">
+        <article className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-5">
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{WELCOME_SOLUTION_HEADING}</h3>
           <p className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{WELCOME_SOLUTION_BODY}</p>
         </article>

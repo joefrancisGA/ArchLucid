@@ -19,7 +19,7 @@ function primaryFindingIdForShowcase(payload: DemoCommitPagePreviewResponse): st
 }
 
 const btnClass =
-  "inline-flex items-center justify-center rounded-md border border-teal-700 bg-white px-3 py-2 text-sm font-medium text-teal-900 no-underline hover:bg-teal-50 dark:border-teal-500/70 dark:bg-neutral-900 dark:text-teal-100 dark:hover:bg-teal-950/60";
+  "inline-flex items-center justify-center rounded-md border border-neutral-400 bg-al-surface-raised px-3 py-2 text-sm font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600";
 
 /** Deep-links into the operator workspace for the loaded showcase example (auth may be required). */
 export function ShowcaseQuickNav({ payload }: { readonly payload: DemoCommitPagePreviewResponse }): ReactElement {

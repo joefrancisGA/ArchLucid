@@ -56,7 +56,7 @@ export function AlertRoutingCriteriaFields({
                 className={cn(
                   "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1 text-xs",
                   selected
-                    ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-100"
+                    ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-300 dark:border-neutral-600",
                 )}
                 title={disabled ? disabledTitle : undefined}
@@ -96,7 +96,7 @@ export function AlertRoutingCriteriaFields({
                 className={cn(
                   "inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-1 text-xs",
                   selected
-                    ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-100"
+                    ? "border-neutral-400 bg-[var(--al-layer-hover)] text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-300 dark:border-neutral-600",
                 )}
                 title={disabled ? disabledTitle : undefined}

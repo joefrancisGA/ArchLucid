@@ -11,7 +11,7 @@ export function GraphIdleLegend(props: { readonly buyerPolished?: boolean }) {
 
   return (
     <div
-      className="mb-6 max-w-4xl rounded-lg border-2 border-dashed border-teal-400/85 bg-teal-50/55 p-4 shadow-sm ring-1 ring-teal-300/40 dark:border-teal-600/70 dark:bg-teal-950/35 dark:ring-teal-800/45"
+      className="mb-6 max-w-4xl rounded-lg border-2 border-dashed border-neutral-400 bg-al-surface-raised p-4 shadow-sm ring-1 ring-neutral-300/40 dark:border-neutral-600 dark:bg-neutral-900/50 dark:ring-neutral-700/45"
       data-testid="graph-idle-legend"
     >
       <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">

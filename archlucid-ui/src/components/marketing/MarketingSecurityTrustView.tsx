@@ -79,7 +79,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
 
       <section
         aria-labelledby="security-trust-buyer-proof-strip"
-        className="mt-6 rounded-xl border-2 border-emerald-400 bg-emerald-50/90 px-5 py-5 shadow-md dark:border-emerald-700 dark:bg-emerald-950/50"
+        className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 border-2 px-5 py-5 shadow-md"
       >
         <h2 id="security-trust-buyer-proof-strip" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           Available for diligence today
@@ -177,7 +177,7 @@ export function MarketingSecurityTrustView(props: MarketingSecurityTrustViewProp
 
       <section
         aria-label="Third-party assurance and NDA"
-        className="mt-8 rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40"
+        className="mt-8 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
       >
         <p className="m-0 text-sm font-semibold text-sky-950 dark:text-sky-100">Sensitive reports under NDA</p>
         <p className="m-0 mt-2 text-sm text-sky-950/90 dark:text-sky-100/90">{SECURITY_TRUST_NDA_NOTICE}</p>

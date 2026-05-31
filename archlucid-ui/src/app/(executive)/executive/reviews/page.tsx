@@ -74,7 +74,7 @@ export default async function ExecutiveReviewsPage() {
       </header>
 
       {loadError !== null ? (
-        <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/30">
+        <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Could not load reviews</CardTitle>
           </CardHeader>

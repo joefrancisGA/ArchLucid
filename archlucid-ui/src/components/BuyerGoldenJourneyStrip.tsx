@@ -13,7 +13,7 @@ export function BuyerGoldenJourneyStrip() {
       role="region"
       id="buyer-review-journey"
       aria-label="Recommended review journey"
-      className="rounded-lg border border-teal-200/80 bg-teal-50/50 px-3 py-3 dark:border-teal-900/60 dark:bg-teal-950/25"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-3"
     >
       <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
         Review journey

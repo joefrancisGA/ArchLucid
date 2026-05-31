@@ -26,7 +26,7 @@ export function CompareDemoQuickPick(props: CompareDemoQuickPickProps) {
         </button>
         <button
           type="button"
-          className="rounded-lg border border-violet-200 bg-violet-50/80 p-4 text-left text-sm shadow-sm transition hover:border-violet-400 hover:bg-violet-50 dark:border-violet-900 dark:bg-violet-950/40 dark:hover:border-violet-700"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4 text-left text-sm shadow-sm transition hover:border-neutral-400 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-600"
           onClick={onPickClaimsIntake}
         >
           <span className="block font-semibold text-neutral-900 dark:text-neutral-100">Updated: Hardened PHI flow</span>

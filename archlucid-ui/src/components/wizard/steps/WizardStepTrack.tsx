@@ -83,7 +83,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
       ) : null}
 
       {manifest ? (
-        <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 p-4 dark:border-teal-900 dark:bg-teal-950/40">
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
           <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">Reviewed manifest is available.</p>
           <nav className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-sm">
             <Link className="text-teal-800 underline dark:text-teal-200" href={`/reviews/${runId}`}>

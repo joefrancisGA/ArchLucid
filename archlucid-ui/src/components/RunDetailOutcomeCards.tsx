@@ -115,7 +115,7 @@ function FindingCoverageDispositionPanel({
       className={cn(
         "rounded-lg border px-3 py-3 text-sm",
         summary.hasCommitBlockingFailures === true
-          ? "border-red-300 bg-red-50 text-red-950 dark:border-red-800 dark:bg-red-950/40 dark:text-red-50"
+          ? "border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50"
           : "border-neutral-200 bg-neutral-50/80 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-100",
       )}
       data-testid="finding-coverage-disposition-panel"

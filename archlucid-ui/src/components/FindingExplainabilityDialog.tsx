@@ -176,7 +176,7 @@ export function FindingExplainabilityDialog({
               </summary>
               <div className="space-y-4 border-t border-neutral-200 px-3 py-3 dark:border-neutral-700">
                 {data.evidence ? (
-                  <section aria-labelledby="finding-evidence-heading" className="rounded-md border border-sky-200 bg-sky-50/80 p-3 dark:border-sky-900 dark:bg-sky-950/30">
+                  <section aria-labelledby="finding-evidence-heading" className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
                     <h3 id="finding-evidence-heading" className="mb-2 text-sm font-semibold text-sky-950 dark:text-sky-100">
                       {buyerPolishedShell ? "Structured evidence" : "Structured evidence (deterministic)"}
                     </h3>
@@ -234,7 +234,7 @@ export function FindingExplainabilityDialog({
                 {missingFields.length > 0 ? (
                   <section
                     aria-label="Missing trace fields"
-                    className="rounded-md border border-amber-200 bg-amber-50/90 p-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-50"
+                    className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-xs"
                   >
                     <p className="m-0 font-semibold">Not populated in trace</p>
                     <ul className="m-0 mt-1 list-disc space-y-0.5 pl-5">
@@ -287,7 +287,7 @@ export function FindingExplainabilityDialog({
                   </section>
                 ) : null}
                 {data.alternativePathsConsidered.length > 0 ? (
-                  <section className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/40">
+                  <section className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3">
                     <h3 className="mb-1 text-sm font-semibold text-amber-900 dark:text-amber-100">Alternative paths considered</h3>
                     <ul className="m-0 list-disc space-y-0.5 pl-5 text-amber-950 dark:text-amber-50">
                       {data.alternativePathsConsidered.map((a, i) => (

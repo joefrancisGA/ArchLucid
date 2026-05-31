@@ -191,7 +191,7 @@ export function EvolutionReviewPageView(props: Props) {
 
           <h3 className="text-[17px] mb-2">Expected impact (plan snapshot)</h3>
           {m.planSnapshot !== null ? (
-            <div className="px-3.5 py-3 border border-indigo-200 bg-indigo-50 rounded-lg mb-[18px] text-sm leading-relaxed dark:border-indigo-900 dark:bg-indigo-950/40">
+            <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3.5 py-3 mb-[18px] text-sm leading-relaxed">
               <p className="mb-2">
                 <strong>Priority score:</strong> {m.planSnapshot.priorityScore}
               </p>
@@ -218,8 +218,8 @@ export function EvolutionReviewPageView(props: Props) {
           <h3 className="text-[17px] mb-2">Simulation results</h3>
           <p className="text-[13px] text-neutral-500 dark:text-neutral-400 mb-3 max-w-3xl">
             Each row is a <strong>before / after</strong> diff:{" "}
-            <span className="bg-amber-50 dark:bg-amber-950/40 px-1.5 py-px">before</span> is the plan-linked baseline
-            context; <span className="bg-green-50 dark:bg-green-950/40 px-1.5 py-px">after</span> is the read-only shadow
+            <span className="bg-al-surface-raised dark:bg-neutral-800/80 px-1.5 py-px">before</span> is the plan-linked baseline
+            context; <span className="bg-al-surface-raised dark:bg-neutral-900/50 px-1.5 py-px">after</span> is the read-only shadow
             re-analysis and any parsed evaluation scores.
           </p>
           {m.detailLoading ? (

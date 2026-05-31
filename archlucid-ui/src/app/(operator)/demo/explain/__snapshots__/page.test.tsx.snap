@@ -20,7 +20,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       Provenance graph and citations-bound explanation for the example architecture review.
     </p>
     <div
-      class="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
+      class="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-xs text-al-text-primary dark:border-amber-700/50"
       data-testid="demo-explain-status-banner"
     >
       <span
@@ -206,7 +206,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
             Demo-derived
           </span>
           <span
-            class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium border-teal-200 bg-teal-50 text-teal-950 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
+            class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium border-neutral-300 bg-al-surface-raised text-al-text-primary dark:border-neutral-700"
             title="2 persisted citations support this explanation."
           >
             Evidence-backed

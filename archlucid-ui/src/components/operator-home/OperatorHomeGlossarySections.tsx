@@ -162,7 +162,7 @@ function ActionCard({
       aria-label={linkAccessibleName}
       className={`group flex h-full flex-col gap-2 rounded-lg border p-4 no-underline transition-shadow ${
         pipelineStatus === "current"
-          ? "border-teal-300 bg-teal-50/30 shadow-md ring-1 ring-teal-500/20 hover:shadow-lg dark:border-teal-700/60 dark:bg-teal-900/20 dark:ring-teal-500/20"
+          ? "border-neutral-300 bg-al-surface-raised shadow-md ring-1 ring-[var(--al-accent-border-focus)]/20 hover:shadow-lg dark:border-neutral-600 dark:bg-neutral-800/80"
           : "border-neutral-200 bg-white shadow-sm hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
       }`}
     >

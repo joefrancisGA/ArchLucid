@@ -67,7 +67,7 @@ export function PolicyPackContentJsonEditor(props: PolicyPackContentJsonEditorPr
         <div
           id={`${id}-validation`}
           role="alert"
-          className="rounded-md border border-amber-200 bg-amber-50/90 px-3 py-2 text-xs text-amber-950 dark:border-amber-900/55 dark:bg-amber-950/40 dark:text-amber-100"
+          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-xs"
         >
           <p className="m-0 font-medium">Fix JSON before create or publish</p>
           <ul className="mt-1 mb-0 list-disc pl-4">

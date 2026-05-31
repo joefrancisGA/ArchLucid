@@ -12,10 +12,10 @@ function pipelineSemanticClass(status: string): string {
       return "border border-emerald-950/30 bg-emerald-900 text-white shadow-sm ring-1 ring-emerald-950/35 hover:bg-emerald-900/95 dark:border-emerald-700/80 dark:bg-emerald-950 dark:text-emerald-50 dark:ring-emerald-400/25 dark:hover:bg-emerald-950/90";
     case "Ready to finalize":
     case "Ready to seal":
-      return "border-amber-500/70 bg-amber-50 text-amber-950 shadow-sm dark:border-amber-600/60 dark:bg-amber-950/50 dark:text-amber-50";
+      return "border-amber-600/40 bg-al-surface-raised text-al-text-primary shadow-sm dark:border-amber-700/50";
     case "In pipeline":
     case "In flight":
-      return "border-blue-500/70 bg-blue-50 text-blue-950 dark:border-blue-600/60 dark:bg-blue-950/40 dark:text-blue-100";
+      return "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600";
     case "Starting":
       return "border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200";
     default:
@@ -50,15 +50,15 @@ function healthSemanticClass(status: string): string {
   const s = status.trim().toLowerCase();
 
   if (s === "healthy" || s === "closed") {
-    return "border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-100";
+    return "border-emerald-700/40 bg-al-surface-raised text-al-text-primary dark:border-emerald-800/50";
   }
 
   if (s === "degraded" || s === "halfopen") {
-    return "border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-100";
+    return "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50";
   }
 
   if (s === "unhealthy" || s === "open") {
-    return "border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-100";
+    return "border-rose-600/40 bg-al-surface-raised text-al-text-primary dark:border-rose-800/50";
   }
 
   return generalSemanticClass(status);

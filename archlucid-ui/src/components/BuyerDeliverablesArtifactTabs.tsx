@@ -60,7 +60,7 @@ export function BuyerDeliverablesArtifactTabs(props: {
             className={cn(
               "rounded-md border px-3 py-1.5 text-xs font-semibold transition",
               tab === id
-                ? "border-teal-700 bg-teal-50 text-teal-950 dark:border-teal-400 dark:bg-teal-950/40 dark:text-teal-50"
+                ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-500 dark:bg-neutral-800/80"
                 : "border-transparent bg-neutral-100 text-neutral-600 hover:border-neutral-300 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600",
             )}
             onClick={() => {

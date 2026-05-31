@@ -13,7 +13,7 @@ export function GettingStartedSteps({ heading, steps, className }: GettingStarte
   return (
     <div
       className={cn(
-        "rounded-lg border border-teal-200/90 bg-teal-50/50 px-4 py-3 text-left dark:border-teal-900/70 dark:bg-teal-950/35",
+        "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3 text-left",
         className,
       )}
     >

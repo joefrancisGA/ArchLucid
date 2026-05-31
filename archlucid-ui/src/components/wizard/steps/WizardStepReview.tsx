@@ -45,7 +45,7 @@ function ErrorList({ errors }: { errors: FieldErrors<WizardFormValues> }) {
   return (
     <div
       role="alert"
-      className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100"
+      className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-3 text-sm"
     >
       <p className="m-0 font-semibold">Fix validation errors before creating the architecture review:</p>
       <ul className="mt-2 mb-0 list-disc pl-5">

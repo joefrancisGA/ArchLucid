@@ -276,7 +276,7 @@ export function ArchitectureGraphViewer(props: ArchitectureGraphViewerProps) {
         </div>
       ) : null}
       {pagingNote !== null ? (
-        <p className="m-0 rounded-md border border-amber-200 bg-amber-50/90 p-2 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/35 dark:text-amber-100">
+        <p className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 m-0 p-2 text-sm">
           {pagingNote}
         </p>
       ) : null}

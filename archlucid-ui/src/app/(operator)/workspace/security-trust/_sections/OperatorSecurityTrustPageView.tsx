@@ -73,7 +73,7 @@ export function OperatorSecurityTrustPageView() {
             Planned security maturity
           </h2>
         </div>
-        <div className="rounded-lg border border-violet-200 bg-violet-50/60 px-4 py-3 dark:border-violet-900 dark:bg-violet-950/30">
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3">
           <ul className="m-0 list-disc space-y-1.5 pl-5 text-sm text-violet-950/90 dark:text-violet-100/90">
             <li>Formal SOC 2 Type II audit engagement (planned)</li>
             <li>ISO 27001 alignment documentation</li>

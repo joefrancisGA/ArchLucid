@@ -351,7 +351,7 @@ export function QuickStartClient(): ReactElement {
 
               className={
                 presetId === id
-                  ? "rounded-full border border-sky-600 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-900 dark:border-sky-500 dark:bg-sky-950/40 dark:text-sky-100"
+                  ? "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-3 py-1 text-xs font-medium text-al-text-primary dark:border-neutral-600"
                   : "rounded-full border border-neutral-300 bg-white px-3 py-1 text-xs font-medium text-neutral-800 hover:border-neutral-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
 
               }
@@ -387,7 +387,7 @@ export function QuickStartClient(): ReactElement {
 
       {error !== null && (
 
-        <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/50 dark:text-red-100">
+        <p className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-3 text-sm">
           {error}
         </p>
       )}

@@ -97,7 +97,7 @@ export function AlertsHubClient() {
     <div className="px-0">
       {hubOrientVisible && !buyerPolishedShell ? (
         <div
-          className="mb-4 flex flex-col gap-2 rounded-lg border border-teal-200 bg-teal-50/70 p-3 text-sm text-neutral-800 dark:border-teal-900 dark:bg-teal-950/30 dark:text-neutral-100 sm:flex-row sm:items-start sm:justify-between"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 flex flex-col gap-2 p-3 text-sm sm:flex-row sm:items-start sm:justify-between"
           role="region"
           aria-label="Alerts hub quick start"
         >

@@ -96,7 +96,7 @@ export function PlanningBridgePanel(props: Props) {
       </div>
 
       {errorText !== null ? (
-        <div className="mt-3 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100" role="alert">
+        <div className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 mt-3 p-3 text-sm" role="alert">
           {errorText}
         </div>
       ) : null}

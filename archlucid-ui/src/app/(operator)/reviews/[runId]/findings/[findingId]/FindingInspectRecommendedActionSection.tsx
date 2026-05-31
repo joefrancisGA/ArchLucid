@@ -17,7 +17,7 @@ const toneSurfaces: Record<FindingInspectRecommendedActionSectionProps["tone"], 
   detail:
     "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4",
   inspect:
-    "rounded-lg border border-violet-200 bg-violet-50/70 p-4 dark:border-violet-900 dark:bg-violet-950/30",
+    "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4",
 };
 
 /** Recommended remediation — teal framing on finding detail, violet on inspect (later in page flow). */

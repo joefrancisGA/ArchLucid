@@ -57,7 +57,7 @@ export function PatternLibraryPageClient() {
       {loading ? <p className="mt-6 text-sm text-neutral-500">Loading…</p> : null}
 
       {error ? (
-        <p className="mt-6 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+        <p className="mt-6 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 px-3 py-2 text-sm">
           {error}
         </p>
       ) : null}

@@ -68,8 +68,8 @@ describe("PolicyPackDiffView", () => {
 
     expect(added?.getAttribute("data-card-tone")).toBe("added");
     expect(removed?.getAttribute("data-card-tone")).toBe("removed");
-    expect(added).toHaveClass("bg-emerald-50", "border-emerald-300", "text-emerald-900");
-    expect(removed).toHaveClass("bg-red-50", "border-red-300", "text-red-900");
+    expect(added).toHaveClass("bg-al-surface-raised", "border-emerald-700/40", "text-al-text-primary");
+    expect(removed).toHaveClass("bg-al-surface-raised", "border-rose-600/40", "text-al-text-primary");
   });
 
   it("shows changed card with Before/After and yellow tone", () => {
@@ -89,7 +89,7 @@ describe("PolicyPackDiffView", () => {
 
     const changed = document.querySelector('[data-change-type="changed"]') as HTMLElement;
     expect(changed?.getAttribute("data-card-tone")).toBe("changed");
-    expect(changed).toHaveClass("bg-yellow-50", "border-yellow-300", "text-yellow-900");
+    expect(changed).toHaveClass("bg-al-surface-raised", "border-amber-600/40", "text-al-text-primary");
   });
 
   it("shows parse error for invalid JSON", () => {

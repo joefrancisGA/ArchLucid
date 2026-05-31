@@ -14,7 +14,7 @@ export function FindingInspectReasoningSummarySection({
 
   return (
     <section
-      className="rounded-lg border border-amber-200 bg-amber-50/90 p-4 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/35"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4 shadow-sm"
       aria-labelledby={headingId}
       role="region"
     >

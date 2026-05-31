@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export function FeatureNotAvailable() {
   return (
     <Card
-      className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
       data-testid="feature-not-available"
     >
       <CardContent className="px-6 py-8 text-center">
@@ -33,7 +33,7 @@ export function FeatureNotAvailable() {
 export function AvailableAfterFirstRun() {
   return (
     <Card
-      className="border-teal-200/80 bg-teal-50/40 dark:border-teal-900/50 dark:bg-teal-950/20"
+      className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800"
       data-testid="available-after-first-run"
     >
       <CardContent className="px-6 py-8 text-center">

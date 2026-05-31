@@ -104,7 +104,7 @@ export class RunsListAggregateErrorBoundary extends Component<
     if (demoPaged !== null && demoPaged.items.length > 0) {
       return (
         <div className="mt-4 space-y-4" role="alert">
-          <p className="m-0 max-w-prose rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 text-sm text-neutral-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-neutral-50">
+          <p className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 m-0 max-w-prose px-3 py-2 text-sm">
             <strong className="font-semibold">Showing sample run data.</strong> The live grid hit a client rendering
             issue; demo mode substitutes the Claims Intake row so navigation stays usable.
           </p>
@@ -127,7 +127,7 @@ export class RunsListAggregateErrorBoundary extends Component<
 
     return (
       <div
-        className="mt-6 max-w-xl space-y-3 rounded-lg border border-red-200 bg-red-50/90 p-4 text-sm text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100"
+        className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 mt-6 max-w-xl space-y-3 p-4 text-sm"
         role="alert"
       >
         <p className="m-0 font-semibold">Reviews could not render</p>

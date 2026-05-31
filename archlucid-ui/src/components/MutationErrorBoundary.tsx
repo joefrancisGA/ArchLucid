@@ -31,7 +31,7 @@ export class MutationErrorBoundary extends Component<
           : "Something went wrong while loading this view. Try again, or go back and reopen the page.";
 
       return (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/50 dark:text-red-100" role="alert">
+        <div className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-4 text-sm" role="alert">
           <p className="m-0 font-semibold">{this.props.title ?? "This view failed to render"}</p>
           <p className="m-0 mt-2 text-sm opacity-90">{detail}</p>
         </div>

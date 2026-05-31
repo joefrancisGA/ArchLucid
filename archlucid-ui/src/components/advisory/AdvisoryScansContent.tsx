@@ -98,7 +98,7 @@ export function AdvisoryScansContent() {
         </p>
 
         <section
-          className="mb-6 rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 dark:border-teal-900/50 dark:bg-teal-950/20"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 p-4"
           aria-label="Example recommendation shape"
         >
           <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">

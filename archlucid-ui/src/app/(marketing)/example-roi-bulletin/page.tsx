@@ -29,7 +29,7 @@ export default function ExampleRoiBulletinMarketingPage() {
       </p>
 
       <section
-        className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+        className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-6 p-4 text-sm"
         aria-label="Real publication gate"
       >
         <p className="m-0 font-medium">Real drafts (production SQL) are gated by the admin preview</p>

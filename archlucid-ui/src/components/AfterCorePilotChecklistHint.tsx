@@ -96,7 +96,7 @@ export function AfterCorePilotChecklistHint() {
       aria-labelledby="after-core-pilot-card-title"
       data-testid="after-core-pilot-whats-next"
     >
-      <Card className="border border-teal-200 bg-teal-50/60 dark:border-teal-900 dark:bg-teal-950/30">
+      <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
         <CardHeader className="space-y-1 sm:flex sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
           <div>
             <h3 id="after-core-pilot-card-title" className="m-0 text-base font-semibold tracking-tight text-teal-950 dark:text-teal-100">

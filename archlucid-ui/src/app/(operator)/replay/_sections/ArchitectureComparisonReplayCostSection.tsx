@@ -93,7 +93,7 @@ export function ArchitectureComparisonReplayCostSection() {
   }, [executeEstimate, trimmedId]);
 
   return (
-    <section className="mt-10 max-w-3xl rounded-lg border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+    <section className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-10 max-w-3xl p-4">
       <h3 className="mt-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
         Architecture comparison replay — estimated cost (warn-only)
       </h3>

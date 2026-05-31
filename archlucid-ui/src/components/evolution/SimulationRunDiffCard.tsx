@@ -6,8 +6,8 @@ import { parseEvolutionOutcomeJson } from "@/lib/evolution-outcome";
 const cardCls = "mb-3.5 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700";
 const headerCls = "flex flex-wrap items-baseline gap-2.5 border-b border-neutral-200 bg-neutral-50/90 px-3 py-2.5 text-[13px] dark:border-neutral-700 dark:bg-neutral-900/50";
 const colCls = "p-3.5 text-[13px] leading-normal align-top";
-const colBeforeCls = `${colCls} border-r-[3px] border-neutral-300 bg-amber-50 dark:border-neutral-600 dark:bg-amber-950/40`;
-const colAfterCls = `${colCls} bg-green-50 dark:bg-green-950/40`;
+const colBeforeCls = `${colCls} border-r-[3px] border-neutral-300 bg-al-surface-raised dark:border-neutral-600`;
+const colAfterCls = `${colCls} bg-al-surface-raised dark:bg-neutral-900/50`;
 const labelCls = "mb-1.5 text-[11px] font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400";
 const monoCls = "font-mono text-xs break-all";
 

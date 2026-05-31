@@ -534,7 +534,7 @@ export function GovernanceWorkflowPageContent() {
       )}
 
       {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) && !showBuyerApprovalStory ? (
-        <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 text-sm">
           <strong>Approval workflow reference</strong>
           {" — "}
           In production, authorized roles submit requests, complete approval, release approved packages to each environment,

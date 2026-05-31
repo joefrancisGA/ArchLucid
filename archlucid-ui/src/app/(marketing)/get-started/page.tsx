@@ -107,7 +107,7 @@ export default function GetStartedPage(): ReactNode {
 
       {liveDemoUrl ? (
         <div
-          className="mt-6 rounded-md border border-teal-200 bg-teal-50 p-4 text-sm text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4 text-sm"
           data-testid="get-started-live-demo-cta"
         >
           <p className="font-medium">Try the live demo</p>

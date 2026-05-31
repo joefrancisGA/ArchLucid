@@ -113,7 +113,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
           <CollapsibleTrigger
             type="button"
-            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-teal-800 hover:bg-teal-50 dark:border-neutral-600 dark:text-teal-200 dark:hover:bg-teal-950/30"
+            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
             aria-expanded={moreOpen}
           >
             {moreOpen ? "Hide" : "Show"} all navigation shortcuts
@@ -127,7 +127,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         <Collapsible open={alertsOpen} onOpenChange={setAlertsOpen}>
           <CollapsibleTrigger
             type="button"
-            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-teal-800 hover:bg-teal-50 dark:border-neutral-600 dark:text-teal-200 dark:hover:bg-teal-950/30"
+            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
             aria-expanded={alertsOpen}
           >
             {alertsOpen ? "Hide" : "Show"} alerts page shortcuts
@@ -141,7 +141,7 @@ export function KeyboardShortcutsTabContent(): React.ReactElement {
         <Collapsible open={helpOpen} onOpenChange={setHelpOpen}>
           <CollapsibleTrigger
             type="button"
-            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-teal-800 hover:bg-teal-50 dark:border-neutral-600 dark:text-teal-200 dark:hover:bg-teal-950/30"
+            className="w-full rounded-md border border-dashed border-neutral-200 py-1.5 text-left text-xs font-semibold text-al-text-primary hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
             aria-expanded={helpOpen}
           >
             {helpOpen ? "Hide" : "Show"} help overlay shortcut

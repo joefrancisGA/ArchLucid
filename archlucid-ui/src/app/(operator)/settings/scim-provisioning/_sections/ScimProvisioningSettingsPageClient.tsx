@@ -189,7 +189,7 @@ export function ScimProvisioningSettingsPageClient() {
             {issuing ? "Issuing…" : "Issue new SCIM token"}
           </Button>
           {issuedToken !== null ? (
-            <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-950/40">
+            <div className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 text-sm">
               <p className="m-0 font-medium text-amber-950 dark:text-amber-100">Copy this token now — it will not be shown again.</p>
               <code className="mt-2 block break-all rounded bg-white/80 p-2 font-mono text-xs dark:bg-neutral-900/80">
                 {issuedToken.plaintextToken}

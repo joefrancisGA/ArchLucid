@@ -211,7 +211,7 @@ function ShowcaseApiUnavailableBanner(): ReactElement | null {
 
   return (
     <div
-      className="mt-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-100"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mt-4 px-3 py-2 text-xs"
       role="status"
       data-testid="showcase-api-unavailable-banner"
     >
@@ -237,7 +237,7 @@ function ShowcaseStaticDemoBanner(): ReactElement | null {
 
   return (
     <div
-      className="mt-4 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-950 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-100"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-4 px-3 py-2 text-xs"
       role="status"
       data-testid="showcase-static-demo-banner"
     >

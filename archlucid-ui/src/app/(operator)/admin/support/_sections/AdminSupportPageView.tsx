@@ -52,7 +52,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
         {error !== null ? (
           <p
             role="alert"
-            className="rounded-md border border-rose-300 bg-rose-50 p-2 text-sm text-rose-900 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-100"
+            className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-2 text-sm"
             data-testid="admin-support-download-error"
           >
             {error}

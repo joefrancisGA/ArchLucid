@@ -137,7 +137,7 @@ export function TeamExpansionNudge() {
       aria-label="Team expansion nudge"
       data-testid="team-expansion-nudge"
       data-trigger={activeTrigger}
-      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-lg border border-sky-400 bg-sky-50 p-3 text-sm text-sky-950 shadow-sm dark:border-sky-600 dark:bg-sky-950/50 dark:text-sky-50"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-4 flex flex-wrap items-start justify-between gap-3 p-3 text-sm shadow-sm"
     >
       <div className="min-w-0">
         <p className="m-0 font-semibold">{copy.title}</p>

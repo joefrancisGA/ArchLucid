@@ -260,7 +260,7 @@ export function RunExplanationSection({
       {deterministicFallback && !buyerPolishedShell ? (
         <p
           role="status"
-          className="m-0 rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm leading-relaxed text-yellow-950 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-50"
+          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 leading-relaxed"
         >
           This explanation was generated from manifest structure because AI-generated text did not sufficiently match
           the underlying findings.
@@ -270,7 +270,7 @@ export function RunExplanationSection({
       {summary.faithfulnessWarning && !deterministicFallback ? (
         <p
           role="status"
-          className="m-0 rounded-md border border-orange-300 bg-orange-50 p-3 text-sm leading-relaxed text-orange-950 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-50"
+          className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-3 leading-relaxed"
         >
           {summary.faithfulnessWarning}
           {!buyerPolishedShell ? (

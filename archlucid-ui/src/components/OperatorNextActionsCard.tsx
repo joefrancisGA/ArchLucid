@@ -80,7 +80,7 @@ export function OperatorNextActionsCard() {
   return (
     <section
       aria-labelledby="operator-next-actions-heading"
-      className="rounded-lg border border-teal-200/80 bg-teal-50/40 p-3 dark:border-teal-900 dark:bg-teal-950/25"
+      className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3"
     >
       <h3
         id="operator-next-actions-heading"

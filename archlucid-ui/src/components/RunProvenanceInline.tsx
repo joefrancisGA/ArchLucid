@@ -174,7 +174,7 @@ export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = 
                   className={cn(
                     "inline-flex cursor-help items-center rounded-full border px-2 py-px text-[10px] font-semibold uppercase tracking-wide",
                     stage.present
-                      ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-50"
+                      ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
                       : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
                   )}
                 >

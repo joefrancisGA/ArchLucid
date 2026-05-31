@@ -32,7 +32,7 @@ export function GovernanceInteractiveQuickstartCard({
   return (
     <Card
       className={cn(
-        "mb-6 border-teal-200/80 bg-teal-50/35 dark:border-teal-900/55 dark:bg-teal-950/20",
+        "mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800",
         className,
       )}
       data-testid="governance-interactive-quickstart"

@@ -77,7 +77,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
   return (
     <section className="mb-10">
       {buyerPolishedShell && !canMutateWorkflow ? (
-        <Card className="border border-teal-200/80 bg-teal-50/50 dark:border-teal-900/55 dark:bg-teal-950/35">
+        <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="space-y-1">
             <CardTitle>Governance submissions</CardTitle>
             <CardDescription className="text-neutral-700 dark:text-neutral-300">

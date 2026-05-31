@@ -98,7 +98,7 @@ export function FindingExplainPanel({ runId, findingId, confidenceLevel }: Findi
       </p>
 
       {!loading && failure === null && evidenceChain !== null ? (
-        <section aria-labelledby="finding-evidence-chain-heading" className="space-y-2 rounded-md border border-violet-200 bg-violet-50/80 p-3 dark:border-violet-900 dark:bg-violet-950/30">
+        <section aria-labelledby="finding-evidence-chain-heading" className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-2 p-3">
           <h4
             id="finding-evidence-chain-heading"
             className="m-0 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-100"

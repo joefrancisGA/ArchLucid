@@ -110,7 +110,7 @@ function DemoStatusBanner({
   return (
     <div
       data-testid="demo-preview-status-banner"
-      className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-3 py-2 text-xs"
     >
       <span className="font-semibold">{payload.demoStatusMessage ?? "Demonstration preview"}</span> · review{" "}
       <code>{runIdLabel}</code> · generated{" "}
@@ -339,7 +339,7 @@ export function DemoPreviewMarketingBody({
       <section data-testid="demo-preview-aggregate-explanation">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Architecture review explanation</h2>
         <div
-          className="mt-3 rounded-lg border border-teal-200 bg-teal-50/80 p-4 text-sm text-teal-950 dark:border-teal-900 dark:bg-teal-950/30 dark:text-teal-50"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-3 p-4 text-sm"
           data-testid="demo-preview-sponsor-mode-summary"
         >
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-200">

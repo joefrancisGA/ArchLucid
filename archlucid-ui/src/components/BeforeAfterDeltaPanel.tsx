@@ -277,7 +277,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
       {delta !== null ? (
         <p
           data-testid="before-after-delta-summary"
-          className="mt-3 rounded bg-teal-50 px-3 py-2 text-sm font-medium text-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
+          className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-3 px-3 py-2 text-sm font-medium"
         >
           {delta.hours >= 0
             ? `Delta: ${delta.hours.toFixed(2)} h saved per finalized review (${delta.percent.toFixed(1)}% improvement)`

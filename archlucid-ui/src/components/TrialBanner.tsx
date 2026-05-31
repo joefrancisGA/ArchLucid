@@ -45,7 +45,7 @@ function TrialExportOnlyBanner({ daysRemaining }: TrialExportOnlyBannerProps) {
       role="alert"
       aria-label="Trial export-only — data purge warning"
       data-testid="trial-export-only-banner"
-      className="mb-4 rounded-lg border border-red-400 bg-red-50 p-3 text-sm text-red-950 shadow-sm dark:border-red-700 dark:bg-red-950/50 dark:text-red-50"
+      className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 mb-4 p-3 text-sm shadow-sm"
     >
       <p className="m-0 font-semibold">{formatTrialExportOnlyPurgeHeadline(daysRemaining)}</p>
       <p className="m-0 mt-1 text-xs text-red-900 dark:text-red-200">{TRIAL_EXPORT_ONLY_SUPPORTING_LINE}</p>
@@ -180,7 +180,7 @@ export function TrialBanner() {
     <div
       role="region"
       aria-label="Trial subscription"
-      className="mb-4 flex flex-wrap items-start justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-50"
+      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 mb-4 flex flex-wrap items-start justify-between gap-3 p-3 text-sm"
     >
       <div>
         <strong className="font-semibold">Trial workspace</strong>

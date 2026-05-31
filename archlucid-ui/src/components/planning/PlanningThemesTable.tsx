@@ -46,7 +46,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
             const isActive = selectedThemeId === t.themeId;
 
             return (
-              <tr key={t.themeId} className={isActive ? "bg-blue-50 dark:bg-blue-950/30" : ""}>
+              <tr key={t.themeId} className={isActive ? "bg-[var(--al-layer-hover)] dark:bg-neutral-800/80" : ""}>
                 <td className={planningThTdCls}>
                   <strong>{t.title}</strong>
                   <div className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{t.themeKey}</div>

@@ -97,7 +97,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 ) : null}
                 {showManifest ? (
                   <Link
-                    className="rounded-md border border-teal-200 bg-teal-50/80 px-2 py-1 font-medium text-teal-900 no-underline hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-200 dark:hover:bg-teal-950/80"
+                    className="rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
                     href={`/manifests/${encodeURIComponent(manifest)}`}
                   >
                     Manifest
@@ -105,7 +105,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                 ) : null}
                 {showFinding ? (
                   <Link
-                    className="rounded-md border border-amber-200 bg-amber-50/80 px-2 py-1 font-medium text-amber-950 no-underline hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/70"
+                    className="rounded-md border border-amber-600/40 bg-al-surface-raised px-2 py-1 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-amber-700/50"
                     href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(primaryFindingId.trim())}`}
                   >
                     Review finding

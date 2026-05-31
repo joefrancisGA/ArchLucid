@@ -127,7 +127,7 @@ export function PlanningPageView(props: Props) {
 
             {m.selectedThemeId !== null ? (
               <div
-                className="flex flex-wrap items-center gap-3 py-2.5 px-3 mb-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg text-sm"
+                className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 flex flex-wrap items-center gap-3 py-2.5 px-3 mb-3 text-sm"
                 role="status"
               >
                 <span>

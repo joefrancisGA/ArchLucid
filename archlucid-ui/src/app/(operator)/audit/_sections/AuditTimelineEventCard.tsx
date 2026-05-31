@@ -40,7 +40,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
               className={
                 systemRecorded
                   ? "rounded-full border border-neutral-300 bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300"
-                  : "rounded-full border border-violet-300 bg-violet-50 px-2 py-0.5 text-[11px] font-medium text-violet-950 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-100"
+                  : "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-[11px] font-medium text-al-text-primary dark:border-neutral-600"
               }
             >
               {systemRecorded ? "Automatic" : "Human"}

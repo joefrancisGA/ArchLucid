@@ -45,7 +45,7 @@ export default async function SeeItMarketingPage() {
         .
       </p>
 
-      <div className="mt-6 rounded-lg border border-neutral-200 bg-teal-50/60 p-4 dark:border-neutral-700 dark:bg-teal-950/30">
+      <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mt-6 p-4">
         <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-50">
           See a full sample review output — no sign-in
         </p>

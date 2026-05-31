@@ -126,7 +126,7 @@ export function FindingInspectView({
       <header
         className={
           buyerPolishedShell
-            ? "space-y-3 rounded-xl border-2 border-violet-400/40 bg-violet-50/40 p-5 dark:border-violet-800/40 dark:bg-violet-950/20"
+            ? "rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-3 border-2 p-5"
             : "space-y-3"
         }
       >

@@ -160,7 +160,7 @@ export function ExecutiveScorecardClient() {
           </p>
           <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Executive scorecard</h1>
         </header>
-        <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/30">
+        <Card className="border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Access required</CardTitle>
           </CardHeader>
