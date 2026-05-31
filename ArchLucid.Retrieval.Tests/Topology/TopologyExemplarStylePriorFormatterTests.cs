@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Retrieval.Topology;
