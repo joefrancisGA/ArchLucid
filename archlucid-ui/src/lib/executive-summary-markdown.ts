@@ -56,6 +56,12 @@ export type ExecutiveRoiSummary = {
     rejectedNotApplicableUsd: number;
     totalPotentialUsd: number;
   };
+  businessImpactCategoryCounts?: ExecutiveBusinessImpactCategoryCounts;
+};
+
+export type ExecutiveBusinessImpactCategoryCounts = {
+  securityComplianceThemeCount: number;
+  reliabilityThemeCount: number;
 };
 
 function formatUsd(value: number | null): string {

@@ -163,6 +163,12 @@ public sealed class ExecutiveRoiSummaryService(
         ExecutiveOrphanCandidateSummary orphanCandidates =
             ExecutiveOrphanCandidateKpiCalculator.BuildFromLatestDetails(latestDetails);
 
+        IReadOnlyList<ArchitectureFinding> dedupedFindings =
+            CollectDedupedActiveFindings(latestDetails, _logger);
+
+        ExecutiveBusinessImpactCategoryCounts businessImpactCategoryCounts =
+            ExecutiveBusinessImpactCategoryClassifier.Build(dedupedFindings);
+
         return new ExecutiveRoiSummaryResponse
         {
             TotalEstimatedUsdSavings = totalSavings,
@@ -183,6 +189,7 @@ public sealed class ExecutiveRoiSummaryService(
             BasisBreakdown = basisBreakdown,
             ExpiringWaiversCount14Days = expiringWaivers14Days,
             OrphanCandidates = orphanCandidates,
+            BusinessImpactCategoryCounts = businessImpactCategoryCounts,
         };
     }
 
@@ -611,19 +618,7 @@ public sealed class ExecutiveRoiSummaryService(
         IReadOnlyList<ArchitectureRunDetail> latestDetails,
         ILogger? logger = null)
     {
-        IEnumerable<ArchitectureFinding> allFindings = latestDetails
-            .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings));
-
-        IEnumerable<ArchitectureFinding> muted = allFindings.Where(static finding => finding.IsMuted);
-
-        if (logger is not null)
-            ExecutiveRoiFindingExclusionLogger.LogMutedFindings(logger, muted);
-
-        IEnumerable<ArchitectureFinding> activeFindings = allFindings.Where(static finding => !finding.IsMuted);
-
-        IEnumerable<ArchitectureFinding> deduped = logger is null
-            ? ExecutiveRoiFindingDeduplicator.DeduplicateByStableIdentity(activeFindings)
-            : ExecutiveRoiFindingExclusionLogger.DeduplicateWithLogging(logger, activeFindings);
+        IReadOnlyList<ArchitectureFinding> deduped = CollectDedupedActiveFindings(latestDetails, logger);
 
         return deduped
             .GroupBy(static finding => (Category: NormalizeCategory(finding.Category), Severity: finding.Severity.ToString()))
@@ -638,6 +633,27 @@ public sealed class ExecutiveRoiSummaryService(
             .ThenBy(static issue => issue.Severity, StringComparer.OrdinalIgnoreCase)
             .Take(5)
             .ToList();
+    }
+
+    private static IReadOnlyList<ArchitectureFinding> CollectDedupedActiveFindings(
+        IReadOnlyList<ArchitectureRunDetail> latestDetails,
+        ILogger? logger = null)
+    {
+        IEnumerable<ArchitectureFinding> allFindings = latestDetails
+            .SelectMany(static detail => detail.Results.SelectMany(static result => result.Findings));
+
+        IEnumerable<ArchitectureFinding> muted = allFindings.Where(static finding => finding.IsMuted);
+
+        if (logger is not null)
+            ExecutiveRoiFindingExclusionLogger.LogMutedFindings(logger, muted);
+
+        IEnumerable<ArchitectureFinding> activeFindings = allFindings.Where(static finding => !finding.IsMuted);
+
+        IEnumerable<ArchitectureFinding> deduped = logger is null
+            ? ExecutiveRoiFindingDeduplicator.DeduplicateByStableIdentity(activeFindings)
+            : ExecutiveRoiFindingExclusionLogger.DeduplicateWithLogging(logger, activeFindings);
+
+        return deduped.ToList();
     }
 
     private Task<decimal?> TryResolveEstimatedUsdSavingsAsync(Guid? findingsSnapshotId, CancellationToken cancellationToken) =>

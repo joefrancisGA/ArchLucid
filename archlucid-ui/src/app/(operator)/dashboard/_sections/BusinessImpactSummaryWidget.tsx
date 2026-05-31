@@ -27,12 +27,17 @@ function formatUsd(value: number | undefined): string {
   }).format(value);
 }
 
-function sumIssueCounts(summary: ExecutiveRoiSummary, categoryMatchers: readonly string[]): number {
-  return summary.topSystemicIssues
-    .filter((issue) =>
-      categoryMatchers.some((matcher) => issue.category.toLowerCase().includes(matcher.toLowerCase())),
-    )
-    .reduce((sum, issue) => sum + issue.count, 0);
+/** Server-authoritative business-impact theme counts (TB-105). */
+function readBusinessImpactCounts(data: ExecutiveRoiSummary | null): {
+  securityCompliance: number;
+  reliability: number;
+} {
+  const counts = data?.businessImpactCategoryCounts;
+
+  return {
+    securityCompliance: counts?.securityComplianceThemeCount ?? 0,
+    reliability: counts?.reliabilityThemeCount ?? 0,
+  };
 }
 
 /** Live business-impact tiles from `GET /v1/roi/executive-summary` (TB-062 / Batch C item 7). */
@@ -85,8 +90,9 @@ export function BusinessImpactSummaryWidget() {
   }
 
   const hasCommittedRuns = (data?.systemCount ?? 0) > 0;
-  const securityComplianceCount = data ? sumIssueCounts(data, ["security", "compliance", "privacy"]) : 0;
-  const reliabilityCount = data ? sumIssueCounts(data, ["reliability", "availability", "resilience"]) : 0;
+  const businessImpactCounts = readBusinessImpactCounts(data);
+  const securityComplianceCount = businessImpactCounts.securityCompliance;
+  const reliabilityCount = businessImpactCounts.reliability;
 
   return (
     <section aria-labelledby="business-impact-heading" className="space-y-4">

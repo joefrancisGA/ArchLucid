@@ -173,6 +173,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             }
 
             GraphSnapshotResolutionResult graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
+                ctx.Scope,
                 ctx.PriorCommittedContext,
                 ctx.ContextSnapshot!,
                 run.RunId,

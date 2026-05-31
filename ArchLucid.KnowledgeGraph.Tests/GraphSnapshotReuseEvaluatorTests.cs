@@ -1,4 +1,6 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Persistence.Graph;
+using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Repositories;
@@ -16,6 +18,9 @@ namespace ArchLucid.KnowledgeGraph.Tests;
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotReuseEvaluatorTests
 {
+    private static ScopeContext TestScope() =>
+        new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
     [Fact]
     public async Task ResolveAsync_WhenPriorNull_BuildsFresh()
     {
@@ -44,6 +49,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
         ]);
 
         GraphSnapshotResolutionResult result = await GraphSnapshotReuseEvaluator.ResolveAsync(
+            TestScope(),
             null,
             current,
             Guid.NewGuid(),
@@ -94,6 +100,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
         ]);
 
         GraphSnapshotResolutionResult diff = await GraphSnapshotReuseEvaluator.ResolveAsync(
+            TestScope(),
             prior,
             current,
             Guid.NewGuid(),
@@ -133,6 +140,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
         ContextSnapshot current = CreateSnapshot("p1", objects);
 
         GraphSnapshotResolutionResult noGraph = await GraphSnapshotReuseEvaluator.ResolveAsync(
+            TestScope(),
             prior,
             current,
             Guid.NewGuid(),
@@ -186,6 +194,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
 
         Guid runId = Guid.NewGuid();
         GraphSnapshotResolutionResult resolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
+            TestScope(),
             prior,
             current,
             runId,

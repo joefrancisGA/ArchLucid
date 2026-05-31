@@ -67,8 +67,13 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
     }
 
     /// <inheritdoc />
-    public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
+    public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(
+        ScopeContext scope,
+        Guid contextSnapshotId,
+        CancellationToken ct)
     {
+        _ = scope;
+
         Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
         string ctx = contextSnapshotId.ToString("D");
         QueryDefinition query = new QueryDefinition(

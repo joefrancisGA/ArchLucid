@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Repositories;
 
@@ -16,7 +17,10 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
     {
         InMemoryGraphSnapshotRepository sut = new();
 
-        GraphSnapshot? found = await sut.GetLatestByContextSnapshotIdAsync(Guid.NewGuid(), CancellationToken.None);
+        GraphSnapshot? found = await sut.GetLatestByContextSnapshotIdAsync(
+            new ScopeContext(),
+            Guid.NewGuid(),
+            CancellationToken.None);
 
         found.Should().BeNull();
     }
@@ -34,7 +38,10 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
         await sut.SaveAsync(oldSnap, CancellationToken.None);
         await sut.SaveAsync(newSnap, CancellationToken.None);
 
-        GraphSnapshot? found = await sut.GetLatestByContextSnapshotIdAsync(contextId, CancellationToken.None);
+        GraphSnapshot? found = await sut.GetLatestByContextSnapshotIdAsync(
+            new ScopeContext(),
+            contextId,
+            CancellationToken.None);
 
         found.Should().NotBeNull();
         found.GraphSnapshotId.Should().Be(newSnap.GraphSnapshotId);
