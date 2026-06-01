@@ -39,13 +39,15 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-119 – TB-134** were added 2026-05-29 from a Policy/Governance, Auditability, and Commercial Packaging review. The theme is proof discipline: make governance packs, audit trails, and sales-led packaging harder to misread, drift, or overclaim. **TB-119 – TB-123** cover policy/governance alignment; **TB-124 – TB-128** cover auditability; **TB-129 – TB-134** cover commercial packaging readiness. Owner-gated items such as live commerce and named customer references remain deferred outside this cluster.
 
-**TB-135 – TB-142** were added 2026-05-29 per owner decision: assessment improvements **#23** (SOC 2 CPA), **#25** (third-party pen test), **Real Pilot Proof Packet Cohort**, and **Market-Facing Demo Asset Production** are **V1.1 backlog** organizational / owner-output programs — **not** V1 assessment implementation prompts. **TB-137 – TB-140** capture follow-on real-LLM engineering after assessment improvement **#1** local evidence shipped. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c.
+**TB-135 – TB-142** were added 2026-05-29 per owner decision. **TB-135 – TB-136** (SOC 2 CPA and third-party pen test) remain V1.1 assurance backlog organizational / vendor programs per workspace rule. **TB-137 – TB-140** capture follow-on real-LLM engineering after assessment improvement **#1** local evidence shipped. **TB-141 – TB-142** were later promoted on 2026-06-01 to near-term GTM backlog priorities for real pilot proof packets and market-facing demo assets. See **`.cursor/rules/V1_1-assurance-backlog.mdc`**, `.cursor/rules/Assessment-Scope-V1_1.mdc`, and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6c.
 
 **TB-143 – TB-148** were added 2026-05-30 from owner-ratified product documentation presentation guidance (decision date 2026-05-27). Customer-facing help must not dump buyers or operators into raw GitHub repository browsing. **TB-143** (in-app markdown renderer + `/help/{topic}` routes) and **TB-144** (documentation registry) are foundational; **TB-145** migrates existing GitHub blob links; **TB-146** bans redirect stubs; **TB-147** adds CI drift guard; **TB-148** adds role-gated optional source links. Canonical standard: [`PRODUCT_DOCUMENTATION_PRESENTATION.md`](PRODUCT_DOCUMENTATION_PRESENTATION.md).
 
 **TB-149 – TB-155** were added 2026-05-31 from a cross-layer **data consistency** audit (executive KPIs, governance decisions-needed summary, waiver/disposition state, recurrence trigger idempotency). They extend **TB-103–105** and partially close **TB-104** (canonical 14-day waiver window). **TB-149** unifies two non-equivalent server implementations of the expiring-waiver window. **TB-150** fixes `TotalDecisionItems` double-counting overlapping finding categories. **TB-151** and **TB-152** correct inverted or aliased fields on `ExecutiveSummaryResult`. **TB-153** prevents duplicate recurring review runs on ACA restart. **TB-154** enforces waiver ↔ disposition invariants. **TB-155** stops cached ROI waiver counts from diverging from live decisions-needed. Cross-ref **TB-062**, **TB-012** (**INV-009**), **TB-089** (digest retry — different surface).
 
 **TB-156 – TB-157** were added 2026-05-31 from local-dev triage: operators running `start-local-api-and-ui.ps1` (or UI-only) saw repeated Sonner warnings **“Review assistant unavailable / AI assistant service is not reachable”** while the root cause was **ArchLucid.Api not running** or **UI proxy → API misconfiguration** (502), not Azure OpenAI / Ask. **Both are P0 — pick up in the next available engineering thread** before other backlog polish. **TB-156** fail-closes the startup script on a full browser → UI → `/api/proxy` → API chain. **TB-157** reframes connectivity toasts so proxy/API outages say **API unreachable**, reserving assistant wording for Ask/SSE-only failures. Cross-ref [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`docs/library/customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md), `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`.
+
+**TB-158 – TB-165** were added 2026-06-01 from `docs/assessments/LATEST_GPT55.md` human-input score-limiter triage and rescore. They avoid duplicating existing engineering tasks by extending **TB-131 – TB-134**, promoting existing **TB-141 – TB-142** to near-term GTM priority, and adding only missing owner-reviewable GTM/procurement/support work. Formal SOC 2 CPA and third-party pen-test programs remain parked in **TB-135 – TB-136** per the V1.1 assurance backlog rule; do not reclassify them from normal assessment passes.
 
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
@@ -68,17 +70,17 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** — `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
 | TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | Security --- KV has `public_network_access_enabled=false` but no private endpoint or DNS zone in `terraform-private`; portal-only configuration, unmanageable by TF | XS-S |
 | TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | Security --- container apps read KV secrets at runtime via managed identity; role assignment absent from all TF roots; portal-created, subject to drift | XS |
-| TB-093 | Compose Azure OpenAI into hosted Terraform stack --- provision account + model deployments | IaC coverage (HIGH) --- code comment says "out-of-band"; model deployments, content filters, CMK, and private endpoint are all unmanaged; aligns with TB-080. Separate `terraform-openai` work can remain a validation/module staging surface, but hosted examples should compose it into `infra/terraform/prod`. | M |
+| TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | IaC coverage (HIGH) --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure OpenAI resource/deployment IDs rather than creating the service; hosted examples must wire IDs, endpoints, MI/RBAC, diagnostics assumptions, and US East pilot defaults as code. | M |
 | TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | IaC coverage --- `HotPathCache.RedisConnectionString` present in `appsettings.Production.json`; no `azurerm_redis_cache`; SKU, eviction, private endpoint unmanaged | S |
 | TB-095 | Assess + codify Cosmos DB --- create `terraform-cosmos` if active in production | IaC coverage --- `CosmosDb.ConnectionString` in `appsettings.json`; `Microsoft.Azure.Cosmos` NuGet in `ArchLucid.Persistence`; consistency/throughput/backup unmanaged if live | S-M |
-| TB-096 | Compose Azure AI Search into hosted Terraform stack | IaC coverage --- private endpoint variable wired in `terraform-private` but service never created; cross-ref TB-071 (production search client gap). Separate Search root/module work can remain a validation surface, but hosted production-like examples should compose it into `infra/terraform/prod`. | S |
+| TB-096 | Compose Azure AI Search existing-resource consumption into hosted Terraform stack | IaC coverage --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure AI Search resource IDs rather than creating the service; hosted examples must wire IDs, endpoint/index variables, private endpoint/RBAC expectations, and US East pilot defaults as code. | S |
 | TB-097 | Create `terraform-acr` root --- Azure Container Registry | IaC coverage --- read via `data` source in `terraform-container-apps`; geo-replication, retention, and network rules are portal-only | S |
 | TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage --- `var.azure_monitor_workspace_id` referenced by P0+SLO Prometheus rule groups but resource never created; apply fails if workspace drifts | XS |
 | TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability --- consistent with pattern already in `terraform-logicapps/diagnostics.tf`; three resources, one Log Analytics workspace target | S |
 | TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene --- all 7 Logic Apps pass `primary_access_key` verbatim; key rotation in portal breaks apps until TF re-apply | M |
 | TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene --- `azurerm_app_service_virtual_network_swift_connection` references `var.linux_web_app_id`; system runs on Container Apps; verify state, decommission or document | XS |
 | TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene --- hardcoded to 100 (no sampling); expose as variable so operators can tune without editing .tf source | XS |
-| TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | Ops observability — console-only output; no machine-readable report for CI/pipelines | XS |
+| TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | **Done (2026-05-31)** — `--output-json [path]`, `stages[]` timings on report, `BackfillCliJsonReportSerializerTests` | XS |
 | TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
 | TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **P0** — local dev / operator diagnostics — script declares success when UI `/` loads but proxy returns 502; contributors misdiagnose as LLM outage | S |
@@ -120,8 +122,18 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-130 | Quote aging export and follow-up SLA report | Decision velocity — open quote requests need aging buckets, follow-up status, warn/breach counts, and AdminAuthority-only export | M |
 | TB-131 | Commercial closeout artifact hardening | Monetization — generated PASS/HOLD/DEFERRED_SCOPE, next ask, owner, and caveats should agree with proof JSON | S |
 | TB-132 | Tier fit validation matrix | Packaging correctness — tiers should map to buyer jobs, included evidence outputs, excluded capabilities, and deferred capabilities | S |
-| TB-133 | Service-led offer pack aligned to pricing | GTM execution — one-page offer, pilot scope, order-form path, proof outputs, exclusions, and buyer prerequisites | S |
-| TB-134 | Commercial copy overclaim guard | Trust / packaging safety — CI should catch copy implying live commerce, Marketplace transactability, SOC 2 CPA, public references, or unsupported ROI claims | S |
+| TB-133 | AI & Cloud Architecture Readiness Review offer pack aligned to pricing | GTM execution — one-page offer, pilot scope, pricing bands, week 1 / week 2 outcomes, proof outputs, exclusions, and buyer prerequisites | S |
+| TB-134 | Commercial copy overclaim guard + public claim-boundary guide | Trust / packaging safety — CI should catch copy implying live commerce, Marketplace transactability, SOC 2 CPA, public references, unsupported ROI, or unlabeled simulator/local-owner-dev/prototype claims | S |
+| TB-158 | Pilot success thresholds and acceptance criteria | Customer-success / ROI proof — model-assisted owner-reviewable PASS/HOLD thresholds for proof quality, ROI confidence, false positives, and time-to-first-value | S |
+| TB-141 | Near-term GTM backlog: real pilot proof packet cohort | GTM proof — owner-selected scenarios, approved data boundaries, and buyer-safe proof packets for Azure cost / orphan / governance review and adjacent starter cohorts | Owner/program |
+| TB-142 | Near-term GTM backlog: market-facing demo asset production | GTM proof — approved screenshots/video/copy and evidence-labeling rules for channel-specific demo assets | Owner/GTM |
+| TB-159 | Buyer security/procurement packet | Procurement readiness — approved security questionnaire answers, trust-center caveats, support/SLA posture, data-retention answers, and not-yet-certified language | S-M |
+| TB-160 | Legal/procurement terms packet | Procurement readiness — MSA/DPA posture, support/SLA language, data-retention commitments, liability boundaries, and redline approval path | M |
+| TB-161 | Design partner / pilot recruiting pipeline | GTM execution — target accounts, qualification criteria, founder-led outreach, pilot acceptance terms, and proof-capture permission path | S-M |
+| TB-162 | Support and pilot operating model | Operations — support hours, escalation path, response targets, incident communications, owner availability, and white-glove vs self-serve pilot posture | S |
+| TB-163 | Transactable procurement path | Commercial conversion — invoice/services SOW/private offer/Stripe/Marketplace decision tree, payment terms, legal/tax readiness, and claim boundaries | M |
+| TB-164 | V1.1 backlog: first named public reference customer | GTM proof — customer permission, logo/case-study approval, reference-call terms, and claim update process | Owner/GTM |
+| TB-165 | Assessment score consistency guard | Documentation quality — keep weighted tables, per-quality sections, and headline score synchronized after rescores | XS-S |
 | TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | Customer-visible UX — product help must render inside ArchLucid shell, not GitHub blob pages | M |
 | TB-144 | Customer-facing documentation registry | Correctness / maintainability — stable map from product topics to in-app routes and repo source paths | S |
 | TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | Customer-visible UX — HelpPanel, contextual help, doc index, hard-coded marketing/operator GitHub links | M |
@@ -602,19 +614,22 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-133 — Service-led offer pack aligned to pricing
+## TB-133 — AI & Cloud Architecture Readiness Review offer pack aligned to pricing
 
-**Objective:** Turn the current pricing and order-form materials into a sales-led package that can be reused in founder-led sales.
+**Objective:** Turn the selected first sales motion, **AI & Cloud Architecture Readiness Review**, into a reusable sales-led package that can be drafted by a frontier model and owner-reviewed before publication.
 
 **Scope:**
 
-- Produce a concise offer pack: one-page offer, pilot scope, expected proof artifacts, buyer prerequisites, exclusions, order-form path, and next step after proof.
+- Produce a concise offer pack: one-page offer, pilot scope, owner-reviewable pricing bands, expected proof artifacts, buyer prerequisites, exclusions, order-form path, and next step after proof.
+- Add "what the buyer gets in week 1 / week 2" language so the service is easy to understand before a platform sale.
 - Align with named SKUs in service-led GTM docs and pricing philosophy.
+- Include exact deliverables and acceptance criteria, but keep final wording and pricing as owner-reviewable draft output until explicitly approved.
 - Keep owner/customer/legal inputs out of committed placeholders unless explicitly approved.
 
 **Acceptance criteria:**
 
 - Offer pack can be sent internally to prepare a sales-led engagement.
+- AI & Cloud Architecture Readiness Review packaging names buyer outcomes, timeline, deliverables, exclusions, prerequisites, and acceptance criteria.
 - It does not claim live commerce, public references, or external attestations.
 - It links to proof readiness checklist and commercial closeout artifacts.
 
@@ -624,20 +639,24 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-134 — Commercial copy overclaim guard
+## TB-134 — Commercial copy overclaim guard + public claim-boundary guide
 
-**Objective:** Prevent buyer-facing commercial copy from implying unavailable capabilities or unsupported ROI.
+**Objective:** Prevent buyer-facing commercial copy from implying unavailable capabilities, unsupported ROI, or unlabeled prototype/simulator/local-owner-dev evidence.
 
 **Scope:**
 
 - Add CI checks for phrases implying live commerce, Azure Marketplace transactability, SOC 2 CPA, third-party pen-test completion, public customer references, or unsupported ROI/cost claims.
+- Add an owner-reviewable public claim-boundary guide covering what ArchLucid is, what it is not yet, which claims require proof, and what must be labeled simulator, local-owner-dev, prototype, V1.1, or V2.
+- Add a model-assisted drafting prompt or fixture that regenerates public positioning and claim boundaries from current GTM docs without inventing unsupported claims.
 - Reuse procurement claim-coherence scanners where possible.
 - Cover committed docs and selected UI marketing/operator copy that buyers may see.
 
 **Acceptance criteria:**
 
 - A fixture with a false SOC 2/live-commerce/public-reference/unsupported-ROI claim fails.
+- A fixture with unlabeled simulator/local-owner-dev/prototype evidence fails or receives a required caveat.
 - Approved deferred-scope language passes.
+- Public claim boundaries are explicit enough for a model to draft buyer-facing copy without implying unsupported maturity, certifications, procurement paths, customer references, or production evidence.
 - The check reports file path, matched phrase, and suggested caveat.
 
 **Refs:** `scripts/procurement_pack_validation.py`, `docs/go-to-market/`, `archlucid-ui/src/app/(marketing)/`, `archlucid-ui/src/app/(operator)/why-archlucid/`.
@@ -688,9 +707,11 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Status:** Shipped (2026-05-30). Merge-time schema validation now uses `AgentResultMergeSchemaSerializer` + `AgentResultMergeNormalizer` (wire subset, tolerant enum/finding coercion, proposal id backfill). Live test asserts `DecisionTraces` instead of empty coordinator `DecisionNodes`. Re-run `Invoke-RealLlmEvidenceGate.ps1` locally for PASS/HOLD confirmation.
 
-**Pick up when:** live gate still HOLD after owner re-run — capture `merge.Errors` from test output and extend normalizer/converters.
+**Owner decision (2026-06-01):** Canonical release-candidate real-mode evidence source is **local owner dev**. The gate is **release-candidate required**, but **not branch-protection required** for the next release. If the evidence gate is not attached and passing, the release must narrow its claim to simulator-only.
 
-**Refs:** `ArchLucid.Decisioning/Validation/AgentResultMergeSchemaSerializer.cs`, `ArchitectureFindingJsonConverter`, `RealAzureOpenAIEndToEndTests`.
+**Pick up when:** live gate still HOLD after owner re-run — capture `merge.Errors` from test output and extend normalizer/converters. Also update release checklist/proof docs if the RC evidence attachment rules drift from the owner decision above.
+
+**Refs:** `ArchLucid.Decisioning/Validation/AgentResultMergeSchemaSerializer.cs`, `ArchitectureFindingJsonConverter`, `RealAzureOpenAIEndToEndTests`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`, `docs/quality/REAL_LLM_SESSION_2026-05-29.md`.
 
 **Size estimate:** M (~4–8 h) — **closed**.
 
@@ -740,22 +761,23 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-141 — V1.1 backlog: real pilot proof packet cohort
+## TB-141 — Near-term GTM backlog: real pilot proof packet cohort
 
-**Window:** **V1.1 backlog** — owner-selected scenarios/environments required. Data policy resolved 2026-05-30: customer data, sanitized internal data, and demo-only data are all allowed input classes when the relevant authorization, redaction, source labeling, and buyer-safe caveats are satisfied. **Do not** re-prompt from V1 assessment batches unless the owner explicitly asks to pick up this V1.1 item.
+**Window:** **Near-term GTM backlog priority** — owner-selected scenarios/environments required. Data policy resolved 2026-05-30: customer data, sanitized internal data, and demo-only data are all allowed input classes when the relevant authorization, redaction, source labeling, and buyer-safe caveats are satisfied. Owner triage on 2026-06-01 promoted this from V1.1 to near-term GTM work.
 
-**Context:** V1 can improve proof-packet mechanics, source labeling, release rollups, skip semantics, and first-screen proof status. The first proof-density cohort scenarios were selected on 2026-05-30: AI / LLM workload governance, regulated SaaS procurement / SOC-style diligence, and Azure cost / orphan / governance review. A named cohort of real pilot proof packets still requires owner decisions on environments and credentials, so it is not a V1 scored defect. The threshold for moving from controlled pilots to broader claims is already defined in `docs/go-to-market/GTM_BACKLOG.md` § *Proof-gated rollout criteria*.
+**Context:** V1 can improve proof-packet mechanics, source labeling, release rollups, skip semantics, and first-screen proof status. The first proof-density cohort scenarios were selected on 2026-05-30: AI / LLM workload governance, regulated SaaS procurement / SOC-style diligence, and Azure cost / orphan / governance review. Owner triage on 2026-06-01 selected **Azure cost / orphan / governance review** as the canonical golden walkthrough starter pack once metadata and validation land. A named cohort of real pilot proof packets still requires owner decisions on environments and credentials, so it is not a V1 scored defect. The threshold for moving from controlled pilots to broader claims is already defined in `docs/go-to-market/GTM_BACKLOG.md` § *Proof-gated rollout criteria*.
 
-**Pick up when owner directs:**
+**Pick up now for near-term GTM planning:**
 
 1. Define environment boundaries for the selected first cohort scenarios:
    - AI / LLM workload governance (`templates/starter-proof-packs/ai-llm-workload/`)
    - Regulated SaaS procurement / SOC-style diligence (`templates/starter-proof-packs/regulated-saas-soc-procurement/`)
    - Azure cost / orphan / governance review (`templates/starter-proof-packs/azure-cost-governance/`)
-2. Apply the `GTM_BACKLOG.md` proof-gated rollout criteria when deciding whether the cohort unlocks broader sales claims.
-3. Run the cohort, archive buyer-safe packets, and update GTM materials only with claims supported by those packets.
+2. Confirm approved data boundaries, redaction rules, and source labels before running each packet.
+3. Apply the `GTM_BACKLOG.md` proof-gated rollout criteria when deciding whether the cohort unlocks broader sales claims.
+4. Run the cohort, archive buyer-safe packets, and update GTM materials only with claims supported by those packets.
 
-**Explicit limits:** Do not treat absence of this cohort as a current `(A)` headline readiness penalty. V1 assessment work should focus on the reusable evidence harnesses and proof semantics that make the later cohort credible.
+**Explicit limits:** Do not treat absence of this cohort as a current `(A)` headline readiness penalty. V1 assessment work should focus on the reusable evidence harnesses and proof semantics that make the cohort credible.
 
 **Refs:** `docs/assessments/LATEST.md` §9, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md`.
 
@@ -763,23 +785,203 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-142 — V1.1 backlog: market-facing demo asset production
+## TB-142 — Near-term GTM backlog: market-facing demo asset production
 
-**Window:** **V1.1 backlog** — brand, audience, and publication approval required. Channel resolved 2026-05-30: optimize **Upwork** first; website, sales email, LinkedIn, and live demo can reuse/adapt later. Evidence policy resolved 2026-05-30: real-mode output may be shown in public assets when authorized, redacted, source-labeled, and caveated; synthetic/demo-labeled assets remain allowed. **Do not** re-prompt from V1 assessment batches unless the owner explicitly asks to pick up this V1.1 item.
+**Window:** **Near-term GTM backlog priority** — brand, audience, and publication approval required. Channel resolved 2026-05-30: optimize **Upwork** first; website, sales email, LinkedIn, and live demo can reuse/adapt later. Evidence policy resolved 2026-05-30: real-mode output may be shown in public assets when authorized, redacted, source-labeled, and caveated; synthetic/demo-labeled assets remain allowed. Owner triage on 2026-06-01 promoted this from V1.1 to near-term GTM work.
 
 **Context:** V1 can harden proof artifacts, claim-language lint, starter proof packs, and operator first-value paths. Final market-facing screenshots, video, sales copy, and channel-specific demo assets are owner-approved GTM outputs and are not a V1 scored defect.
 
-**Pick up when owner directs:**
+**Pick up now for near-term GTM planning:**
 
 1. Select the primary Upwork audience and proposal/profile format.
 2. Choose the evidence source for each asset: authorized real-mode output when publishable, or synthetic/demo-labeled output when safer.
-3. Produce screenshots/video/copy and run promise-language checks before publication.
+3. Define channel-specific evidence-labeling rules before asset creation.
+4. Produce screenshots/video/copy and run promise-language checks before publication.
 
 **Explicit limits:** Do not claim public customer proof, live production SLA, SOC 2 CPA, third-party validation, or broad real-LLM validation unless separate evidence exists.
 
 **Refs:** `docs/go-to-market/WHAT_NOT_TO_PROMISE.md`, `docs/go-to-market/COMMERCIAL_DECISION_PACKET.md`, `templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`.
 
 **Size estimate:** Owner/GTM production work — depends on channel and approval path.
+
+---
+
+## TB-158 — Pilot success thresholds and acceptance criteria
+
+**Objective:** Define measurable PASS/HOLD criteria for founder-led pilots before results are interpreted or renegotiated after the fact.
+
+**Scope:**
+
+- Draft owner-reviewable thresholds for minimum proof packet quality, ROI/savings confidence, time-to-first-value, false-positive tolerance, and sponsor acceptance.
+- Align thresholds with `PILOT_SUCCESS_SCORECARD.md`, quote-to-proof closeout, first-pilot proof artifacts, and commercial SEND/HOLD/DEFERRED_SCOPE states.
+- Keep the first pass model-assisted and evidence-backed; final thresholds require owner review before use in customer-facing commitments.
+
+**Acceptance criteria:**
+
+- A pilot can be judged PASS/HOLD using documented thresholds without relying on ad hoc founder interpretation.
+- Unsafe ROI basis, weak proof quality, missing real-mode evidence, or excessive false positives produce HOLD or explicit caveats.
+- Thresholds are linked from the service-led offer pack and commercial closeout artifacts.
+
+**Refs:** `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md`, `docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`, `docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`, **TB-131**, **TB-133**.
+
+**Size estimate:** S.
+
+---
+
+## TB-159 — Buyer security/procurement packet
+
+**Objective:** Create a buyer-safe security/procurement packet that supports controlled pilots without implying formal external certification.
+
+**Scope:**
+
+- Draft approved security questionnaire answers using current Trust Center, SOC self-assessment, DPA, CAIQ/SIG, subprocessors, support posture, and data-retention materials.
+- Include explicit "not yet certified" language for SOC 2 CPA, third-party pen test, ISO, and any other unavailable external assurance.
+- Add a review checklist that catches stale dates, missing owners, unsupported assurance claims, and unanswered buyer-risk questions.
+- Reuse procurement pack validation helpers where practical.
+
+**Acceptance criteria:**
+
+- Packet clearly distinguishes shipped controls, self-assessment evidence, roadmap items, V1.1/V2 external programs, and buyer-specific answers.
+- No sentence implies SOC 2 CPA, third-party pen-test completion, public references, or live marketplace transactability unless separately evidenced.
+- The packet can be attached to a controlled-pilot procurement conversation with owner review.
+
+**Refs:** `docs/go-to-market/TRUST_CENTER.md`, `docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/SOC2_ROADMAP.md`, `docs/go-to-market/PROCUREMENT_EVIDENCE_PACKET.md`, **TB-134**, **TB-135**, **TB-136**.
+
+**Size estimate:** S-M.
+
+---
+
+## TB-160 — Legal/procurement terms packet
+
+**Objective:** Make the first legal/procurement conversation concrete enough for paid pilots without inventing legal commitments in product copy.
+
+**Scope:**
+
+- Draft a packet covering MSA/DPA posture, support/SLA language, data-retention commitments, liability boundaries, redline owner, and approval path.
+- Link each claim to the current source document or mark it owner/legal-review required.
+- Add an internal checklist for terms that must not be committed by the product or agent without owner approval.
+
+**Acceptance criteria:**
+
+- Founder/operator can answer common procurement questions from one packet.
+- Legal terms, data-retention promises, support/SLA claims, and liability boundaries are clearly marked as draft/approved/not available.
+- The packet does not override formal contract language or create hidden product commitments.
+
+**Refs:** `docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`, `docs/go-to-market/ORDER_FORM_TEMPLATE.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/legal/` if present.
+
+**Size estimate:** M.
+
+---
+
+## TB-161 — Design partner / pilot recruiting pipeline
+
+**Objective:** Turn founder-led pilot recruiting into a repeatable, evidence-aware pipeline instead of ad hoc outreach.
+
+**Scope:**
+
+- Define target account profile, buyer persona, qualification criteria, disqualifiers, and pilot acceptance terms.
+- Add outreach and intake artifacts that map prospects to the selected service-led offer and starter proof packs.
+- Require proof-capture permission, data boundary agreement, and public/private reference expectations to be settled before proof claims are reused.
+
+**Acceptance criteria:**
+
+- A prospect can be classified as qualified, nurture, or no-fit with documented reasons.
+- Pilot acceptance captures data/proof permissions and expected buyer outcomes.
+- Recruiting artifacts route public-reference asks to the V1.1 public-reference backlog, not the current release score.
+
+**Refs:** `docs/go-to-market/SERVICE_LED_OFFERS.md`, `docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md`, `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md`, **TB-141**, **TB-164**.
+
+**Size estimate:** S-M.
+
+---
+
+## TB-162 — Support and pilot operating model
+
+**Objective:** Define the operating posture for controlled pilots so buyers know how support, escalation, and incident communication work.
+
+**Scope:**
+
+- Document support hours, escalation path, response targets, incident communications, owner availability, and white-glove vs self-serve pilot posture.
+- Align with support bundle, audit triage, troubleshooting, and first-pilot operator path.
+- State which support/SLA promises are pilot-only, generally available, draft, or not offered.
+
+**Acceptance criteria:**
+
+- Pilot buyer materials and operator docs agree on support expectations.
+- Incident and escalation language is specific enough for procurement review but does not overstate production SLA maturity.
+- Support model links to support/audit triage and proof-bundle artifacts.
+
+**Refs:** `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/runbooks/TROUBLESHOOTING.md`, `docs/go-to-market/TRUST_CENTER.md`, **TB-128**, **TB-159**, **TB-160**.
+
+**Size estimate:** S.
+
+---
+
+## TB-163 — Transactable procurement path
+
+**Objective:** Define how a buyer can actually purchase a pilot or service-led engagement without implying unavailable checkout channels.
+
+**Scope:**
+
+- Create a decision tree for invoice, services SOW, private offer, Stripe, Azure Marketplace, or "not available yet."
+- Define payment terms, legal/tax readiness dependencies, approval owners, and claim boundaries for each path.
+- Add copy-guard coverage so buyer-facing materials cannot imply live Stripe or Marketplace transactability before configuration and approval exist.
+
+**Acceptance criteria:**
+
+- Commercial closeout can name the correct purchase path or HOLD reason.
+- Materials distinguish current invoice/SOW/private-offer readiness from future Stripe/Marketplace channels.
+- Unsupported transactability claims are caught by the overclaim guard.
+
+**Refs:** `docs/go-to-market/PRICING_PHILOSOPHY.md`, `docs/go-to-market/ORDER_FORM_TEMPLATE.md`, `docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`, **TB-131**, **TB-134**.
+
+**Size estimate:** M.
+
+---
+
+## TB-164 — V1.1 backlog: first named public reference customer
+
+**Objective:** Capture the owner-output work required before ArchLucid can use a named customer logo, public case study, or reference call as market proof.
+
+**Window:** **V1.1 GTM backlog** — not current release work and not a current `(A)` headline-readiness blocker.
+
+**Scope:**
+
+- Define permission requirements for logo use, public case-study language, anonymized proof, reference calls, and revocation.
+- Create a reference-readiness checklist tied to proof packet quality, buyer approval, legal approval, and claim-boundary review.
+- Link public-reference claims to the commercial copy overclaim guard.
+
+**Acceptance criteria:**
+
+- No public-reference claim can be added without an approved reference record or explicit anonymized-case-study caveat.
+- The checklist names who approved the claim, what can be said, where it can be used, and when it must be revalidated.
+- Current release materials can say "no named public reference yet" without treating that as a product defect.
+
+**Refs:** `docs/go-to-market/WHAT_NOT_TO_PROMISE.md`, `docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md`, **TB-134**, **TB-141**, **TB-142**.
+
+**Size estimate:** Owner/GTM.
+
+---
+
+## TB-165 — Assessment score consistency guard
+
+**Objective:** Prevent assessment rescoring from updating the headline/table while leaving detailed quality sections stale.
+
+**Scope:**
+
+- Add a lightweight script or documented checklist that parses `docs/assessments/LATEST_GPT55.md` for headline score, weighted table rows, and per-quality `Score:` lines.
+- Report mismatches in score, weight, weighted impact, or weighted deficiency signal.
+- Keep the guard docs-only or local-script friendly; do not require external services.
+
+**Acceptance criteria:**
+
+- Running the check reports any table/detail mismatch with quality name and expected values.
+- The check can be used after manual rescoring before committing an assessment update.
+- It does not alter assessment judgment; it only catches arithmetic/text drift.
+
+**Refs:** `docs/assessments/LATEST_GPT55.md`, `docs/library/ASSESSMENT_QUALITY_MODEL.md`.
+
+**Size estimate:** XS-S.
 
 ---
 
@@ -3989,6 +4191,8 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 
 ## TB-090 — Backfill.Cli — `--output-json` report + per-stage timing
 
+**Status (2026-05-31):** **Done** — `SqlRelationalBackfillStageRunner` records per-stage `ElapsedMilliseconds` and delta counts; `--output-json [path]` writes `archlucid.backfill.cli.report.v1` to stdout or file; documented in `SqlRelationalBackfill.md`; `BackfillCliJsonReportSerializerTests`, `SqlRelationalBackfillStageRunnerTests`.
+
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
 **Problem:**
@@ -4091,22 +4295,23 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 `terraform-openai/main.tf` explicitly states the Azure OpenAI resource "may be out-of-band" and only manages a consumption budget. The Cognitive Services account itself (`Microsoft.CognitiveServices/accounts`), model deployments (completion, embedding), content filter policies, CMK configuration, private endpoint, and diagnostic settings are all managed outside Terraform. `ArchLucid.AgentRuntime` and `ArchLucid.Retrieval` both depend on this service at runtime (`Azure.AI.OpenAI` NuGet, `AzureOpenAI` config section). Any quota change, model version bump, or capacity reconfiguration done in the portal cannot be reviewed as code or reproduced automatically. Cross-ref **TB-080** (migrate from API key to `DefaultAzureCredential` --- the hosted stack must emit the endpoint so the app can be switched to managed identity auth).
 
-**Owner decision (2026-05-30):** Hosted SaaS examples should compose Azure OpenAI into `infra/terraform/prod` by default. A separate `terraform-openai` root can remain as a validation or module-staging surface, but it should not be the default production-like operator path.
+**Owner decision (2026-06-01):** Production-like hosted Terraform should **consume pre-existing Azure OpenAI resource/deployment IDs**, not create Azure OpenAI in the hosted root. The first production-like pilot region is **US East**. A separate `terraform-openai` root can remain as a validation or module-staging surface, but it should not be required by the default production-like operator path.
 
 **What to do:**
 
-1. Move or wrap the `terraform-openai` resource definitions into `infra/terraform/prod`, using reusable module boundaries if helpful.
-2. Add `azurerm_cognitive_deployment` blocks for the completion and embedding model deployments, accepting model name and capacity as variables.
-3. Add optional `azurerm_private_endpoint` and `azurerm_private_dns_zone` for `privatelink.openai.azure.com`.
-4. Add `azurerm_monitor_diagnostic_setting` forwarding to Log Analytics.
-5. Expose `cognitive_account_endpoint` and `cognitive_account_id` as outputs so downstream roots can use managed identity instead of API key.
-6. Update `infra/terraform-pilot/main.tf` `nested_infrastructure_roots` to mark `openai` as `pilot_essential = true`.
+1. Add hosted-stack variables for pre-existing Azure OpenAI account ID, endpoint, completion deployment name, embedding deployment name, and expected region.
+2. Validate/document the **US East** default pilot region and fail or warn when the supplied account region does not match the selected production-like pilot region.
+3. Wire endpoint/deployment variables into API/worker app settings for managed identity auth.
+4. Add or document required RBAC assignments for API and Worker managed identities against the pre-existing account.
+5. Document how the platform subscription owns model deployment lifecycle, content filters, quota, CMK, and private endpoint when those are managed outside the hosted root.
+6. Update `infra/terraform-pilot/main.tf` `nested_infrastructure_roots` or equivalent pilot docs to mark Azure OpenAI as a required consumed dependency for real-mode pilots.
 
 **Acceptance criteria:**
 
-- Hosted-stack `terraform validate` and `terraform plan` include the Cognitive Services account and at least one model deployment when real LLM is enabled.
+- Hosted-stack `terraform validate` accepts the consumed Azure OpenAI resource/deployment variables and exposes them to app configuration.
 - Endpoint output is consumed by the API/worker app settings, replacing hard-coded API key config where managed identity is selected.
-- Existing consumption budget resource is preserved.
+- Docs distinguish consumed-resource responsibilities from anything still managed in `terraform-openai`.
+- No Terraform root creates a second production-like Azure OpenAI account by accident.
 
 **Affected files / projects:**
 
@@ -4116,7 +4321,7 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 **Cross-ref:** **TB-080** (Entra auth migration), **TB-091** (private endpoint pattern), **TB-092** (managed identity chain).
 
-**Size estimate:** **M** --- ~8--16 h (model deployment API is still evolving; validate azurerm provider version support).
+**Size estimate:** **M** --- ~8--16 h.
 
 ---
 
@@ -4189,7 +4394,7 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ---
 
-## TB-096 --- Compose Azure AI Search into hosted Terraform stack
+## TB-096 --- Compose Azure AI Search existing-resource consumption into hosted Terraform stack
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
@@ -4197,20 +4402,23 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 `ArchLucid.Retrieval` references `Azure.Search.Documents` (v11.6.0) and `appsettings.Advanced.json` sets `Retrieval.Reranking.Provider = "AzureAiSearchSemantic"`. `terraform-private/network.tf` already accepts `var.search_service_id` and will create a private endpoint and DNS zone for `privatelink.search.windows.net` if provided --- but the Azure AI Search service itself is never created by any Terraform root. SKU, replica count, semantic ranking configuration, and network rules are entirely portal-managed. Cross-ref **TB-071** (production search client registration gap).
 
+**Owner decision (2026-06-01):** Production-like hosted Terraform should **consume a pre-existing Azure AI Search resource ID**, not create Azure AI Search in the hosted root. The first production-like pilot region is **US East**.
+
 **What to do:**
 
-1. Add Azure AI Search resources to `infra/terraform/prod`, using a reusable module or temporary `infra/terraform-search/` validation surface if helpful.
-2. Provision `azurerm_search_service` with SKU as variable (minimum `basic` for staging, `standard` for production), replica and partition count, semantic search tier.
-3. Set `public_network_access_enabled = false` if VNet integration is enabled.
-4. Export `search_service_id` and `primary_key` (or use managed identity) for consumption by `terraform-private` and `terraform-container-apps`.
-5. Add `azurerm_monitor_diagnostic_setting`.
-6. Add root to `terraform-pilot/main.tf` as non-pilot-essential.
+1. Add hosted-stack variables for pre-existing Azure AI Search service ID, endpoint, index name, semantic configuration name, and expected region.
+2. Validate/document the **US East** default pilot region and fail or warn when the supplied Search service region does not match the selected production-like pilot region.
+3. Feed `search_service_id` directly into `terraform-private` private endpoint wiring when private networking is enabled.
+4. Wire endpoint/index variables into API/worker app settings and startup readiness checks.
+5. Add or document required RBAC/API-key posture and diagnostic-setting ownership for the pre-existing service.
+6. Update pilot docs to make Azure AI Search a required consumed dependency when production-like retrieval is enabled.
 
 **Acceptance criteria:**
 
-- `terraform apply` creates an AI Search service.
-- `var.search_service_id` output can be fed directly into `terraform-private` to create the private endpoint.
-- Semantic ranking is enabled for production SKU.
+- Hosted-stack `terraform validate` accepts the consumed Azure AI Search resource variables and feeds `var.search_service_id` into `terraform-private`.
+- Production-like app configuration has endpoint/index/semantic settings without manual portal-only copy steps.
+- Docs state what the platform-owned Search resource must already provide: SKU, semantic ranking, networking, diagnostics, and access policy.
+- No Terraform root creates a second production-like Azure AI Search service by accident.
 
 **Affected files / projects:**
 

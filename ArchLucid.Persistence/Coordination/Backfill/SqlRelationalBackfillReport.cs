@@ -27,6 +27,12 @@ public sealed class SqlRelationalBackfillReport
     {
         get;
     } = [];
+
+    /// <summary>Per-stage elapsed time and delta counts (TB-090).</summary>
+    public List<SqlRelationalBackfillStageTiming> StageTimings
+    {
+        get;
+    } = [];
 }
 
 [ExcludeFromCodeCoverage(Justification = "Backfill failure row DTO; no logic.")]

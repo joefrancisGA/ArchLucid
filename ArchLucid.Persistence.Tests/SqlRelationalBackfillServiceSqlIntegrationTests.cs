@@ -122,6 +122,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
             CancellationToken.None);
 
         report1.FailureCount.Should().Be(0);
+        report1.StageTimings.Should().ContainSingle(t => t.Stage == "ContextSnapshots" && t.ProcessedCount == 1);
 
         int afterFirst = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(

@@ -97,6 +97,15 @@ If `--only` is present, `--skip-*` is ignored.
 
 **Help:** `dotnet run --project ArchLucid.Backfill.Cli -- --help`
 
+**Machine-readable report (TB-090):**
+
+```powershell
+dotnet run --project ArchLucid.Backfill.Cli -- --output-json ./backfill-report.json
+dotnet run --project ArchLucid.Backfill.Cli -- --readiness --output-json ./readiness-report.json
+```
+
+`--output-json` without a path writes JSON to stdout. Reports use schema `archlucid.backfill.cli.report.v1` and include total `elapsedMs`, per-stage timings (`stages[]` with `ElapsedMilliseconds` and delta counts), and entity `failures` for backfill mode.
+
 Programmatically, construct `SqlRelationalBackfillOptions` with `init` properties set to `false` to skip stages when not using the CLI.
 
 ## Programmatic usage

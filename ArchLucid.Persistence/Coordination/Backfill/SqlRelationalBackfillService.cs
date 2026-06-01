@@ -35,19 +35,49 @@ public sealed class SqlRelationalBackfillService(
         SqlRelationalBackfillReport report = new();
 
         if (options.ContextSnapshots)
-            await BackfillContextSnapshotsAsync(report, ct);
+        {
+            await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
+                "ContextSnapshots",
+                report,
+                () => BackfillContextSnapshotsAsync(report, ct),
+                ct);
+        }
 
         if (options.GraphSnapshots)
-            await BackfillGraphSnapshotsAsync(report, ct);
+        {
+            await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
+                "GraphSnapshots",
+                report,
+                () => BackfillGraphSnapshotsAsync(report, ct),
+                ct);
+        }
 
         if (options.FindingsSnapshots)
-            await BackfillFindingsSnapshotsAsync(report, ct);
+        {
+            await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
+                "FindingsSnapshots",
+                report,
+                () => BackfillFindingsSnapshotsAsync(report, ct),
+                ct);
+        }
 
         if (options.GoldenManifestsPhase1)
-            await BackfillGoldenManifestsAsync(report, ct);
+        {
+            await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
+                "GoldenManifestsPhase1",
+                report,
+                () => BackfillGoldenManifestsAsync(report, ct),
+                ct);
+        }
 
         if (options.ArtifactBundles)
-            await BackfillArtifactBundlesAsync(report, ct);
+        {
+            await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
+                "ArtifactBundles",
+                report,
+                () => BackfillArtifactBundlesAsync(report, ct),
+                ct);
+        }
 
         return report;
     }

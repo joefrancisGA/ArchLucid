@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.Linq;
-using System.Text.Json;
 
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -72,15 +70,19 @@ internal static class Program
 
         await using ServiceProvider provider = services.BuildServiceProvider();
 
-        bool outputJson = args.Any(static a => a.Equals("--output-json", StringComparison.OrdinalIgnoreCase));
+        BackfillCliOutputJsonOptionsParser.TryParse(args, out bool outputJson, out string? outputJsonPath);
 
         if (readinessMode)
-            return await RunReadinessAsync(provider, outputJson);
+            return await RunReadinessAsync(provider, outputJson, outputJsonPath);
 
-        return await RunBackfillAsync(provider, args, outputJson);
+        return await RunBackfillAsync(provider, args, outputJson, outputJsonPath);
     }
 
-    private static async Task<int> RunBackfillAsync(ServiceProvider provider, string[] args, bool outputJson)
+    private static async Task<int> RunBackfillAsync(
+        ServiceProvider provider,
+        string[] args,
+        bool outputJson,
+        string? outputJsonPath)
     {
         SqlRelationalBackfillOptions options = ParseBackfillOptions(args);
         ISqlRelationalBackfillService backfill = provider.GetRequiredService<ISqlRelationalBackfillService>();
@@ -96,12 +98,18 @@ internal static class Program
             Console.WriteLine($"{failure.Stage} {failure.EntityKey}: {failure.Message}");
 
         if (outputJson)
-            WriteBackfillJson(report, stopwatch.ElapsedMilliseconds);
+        {
+            string json = BackfillCliJsonReportSerializer.SerializeBackfillReport(report, stopwatch.ElapsedMilliseconds);
+            await BackfillCliJsonReportWriter.WriteAsync(json, outputJsonPath, CancellationToken.None);
+        }
 
         return report.FailureCount > 0 ? 2 : 0;
     }
 
-    private static async Task<int> RunReadinessAsync(ServiceProvider provider, bool outputJson)
+    private static async Task<int> RunReadinessAsync(
+        ServiceProvider provider,
+        bool outputJson,
+        string? outputJsonPath)
     {
         ICutoverReadinessService readiness = provider.GetRequiredService<ICutoverReadinessService>();
         Stopwatch stopwatch = Stopwatch.StartNew();
@@ -131,49 +139,12 @@ internal static class Program
         Console.WriteLine();
 
         if (outputJson)
-            WriteReadinessJson(report, stopwatch.ElapsedMilliseconds);
+        {
+            string json = BackfillCliJsonReportSerializer.SerializeReadinessReport(report, stopwatch.ElapsedMilliseconds);
+            await BackfillCliJsonReportWriter.WriteAsync(json, outputJsonPath, CancellationToken.None);
+        }
 
         return report.IsFullyReady ? 0 : 3;
-    }
-
-    private static void WriteBackfillJson(SqlRelationalBackfillReport report, long elapsedMs)
-    {
-        object payload = new
-        {
-            schema = "archlucid.backfill.cli.report.v1",
-            mode = "backfill",
-            generatedUtc = DateTimeOffset.UtcNow.ToString("O"),
-            elapsedMs,
-            disposition = report.FailureCount > 0 ? "HOLD" : "PASS",
-            processedCount = report.ProcessedCount,
-            successCount = report.SuccessCount,
-            failureCount = report.FailureCount,
-            failures = report.Failures.Select(f => new { f.Stage, f.EntityKey, f.Message }).ToArray(),
-        };
-
-        Console.WriteLine(JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
-    }
-
-    private static void WriteReadinessJson(CutoverReadinessReport report, long elapsedMs)
-    {
-        object payload = new
-        {
-            schema = "archlucid.backfill.cli.report.v1",
-            mode = "readiness",
-            generatedUtc = DateTimeOffset.UtcNow.ToString("O"),
-            elapsedMs,
-            disposition = report.IsFullyReady ? "PASS" : "HOLD",
-            slices = report.Slices.Select(s => new
-            {
-                s.SliceName,
-                s.TotalHeaderRows,
-                s.HeadersWithRelationalRows,
-                s.HeadersMissingRelationalRows,
-                ready = s.IsReady,
-            }).ToArray(),
-        };
-
-        Console.WriteLine(JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
     }
 
     private static void PrintHelp()
@@ -202,7 +173,9 @@ internal static class Program
             If --only is present, --skip-* flags are ignored.
 
             Output:
-              --output-json   Emit a machine-readable JSON report on stdout after completion.
+              --output-json [path]
+                              Emit a machine-readable JSON report after completion.
+                              Without a path, writes to stdout; with a path, writes the file.
 
             Exit codes:
               0  Success (backfill clean, or readiness = all ready)
@@ -253,6 +226,14 @@ internal static class Program
             if (a.Equals("--only", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
             {
                 onlyList = args[++i];
+                continue;
+            }
+
+            if (a.Equals("--output-json", StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+                    i++;
+
                 continue;
             }
 
