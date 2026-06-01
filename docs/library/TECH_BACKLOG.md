@@ -861,7 +861,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-158 — Pilot success thresholds and acceptance criteria
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md`](../go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md); linked from [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md).
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md`](../go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md); linked from [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md); proof automation via `report_pilot_acceptance_thresholds.py`, `pilot-acceptance-thresholds.json/md` in `collect-first-pilot-proof.ps1`, CI `test_pilot_acceptance_batch.py`.
 
 **Objective:** Define measurable PASS/HOLD criteria for founder-led pilots before results are interpreted or renegotiated after the fact.
 

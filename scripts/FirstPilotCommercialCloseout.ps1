@@ -70,6 +70,7 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
     $lines.Add('| Command center | [`first-pilot-command-center.md`](first-pilot-command-center.md) |')
     $lines.Add('| Quote-to-proof index | [`quote-to-proof-packet.md`](quote-to-proof-packet.md) |')
     $lines.Add('| Quote-to-proof readiness | [`quote-to-proof-readiness.md`](quote-to-proof-readiness.md) |')
+    $lines.Add('| Pilot acceptance thresholds | [`pilot-acceptance-thresholds.md`](pilot-acceptance-thresholds.md) |')
     $lines.Add('| Commercial next step JSON | [`commercial-next-step.json`](commercial-next-step.json) |')
     $lines.Add('| Go/no-go summary | [`go-no-go-summary.json`](go-no-go-summary.json) |')
     $lines.Add('| LLM cost envelope (internal COGS labels) | [`llm-cost-envelope.md`](llm-cost-envelope.md) |')

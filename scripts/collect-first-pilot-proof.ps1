@@ -1193,6 +1193,7 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| Trial-to-paid test-mode evidence | $(Resolve-FindingDisposition -Name 'trial-to-paid-test-mode-evidence') | ``trial-to-paid-test-mode-evidence.md`` |")
     $lines.Add("| Accelerator handoff acceptance | $(Resolve-FindingDisposition -Name 'accelerator-handoff-acceptance') | ``accelerator-handoff-acceptance.md`` |")
     $lines.Add("| Quote-to-proof readiness | $(Resolve-FindingDisposition -Name 'quote-to-proof-readiness') | ``quote-to-proof-readiness.md`` |")
+    $lines.Add("| Pilot acceptance thresholds | $(Resolve-FindingDisposition -Name 'pilot-acceptance-thresholds') | ``pilot-acceptance-thresholds.md`` |")
     $lines.Add("| Commercial closeout | $(Resolve-FindingDisposition -Name 'commercial-closeout-consistency') | ``commercial-closeout.md`` |")
     $lines.Add("| Tier fit matrix | $(Resolve-FindingDisposition -Name 'tier-fit-validation') | ``tier-fit-validation-matrix.md`` |")
     $lines.Add("| Quote aging SLA | $(Resolve-FindingDisposition -Name 'pricing-quote-aging') | ``quote-aging-sla.md`` (when AdminAuthority API reachable) |")
@@ -2249,6 +2250,59 @@ function Add-QuoteToProofReadinessFinding {
     Add-ProofFinding -Disposition $proofDisposition -Name 'quote-to-proof-readiness' -Detail "Quote-to-proof readiness is HOLD ($disposition)." -Remediation 'Resolve blocking proof findings before annual conversion ask.' -TriageCard 'FP-T017'
 }
 
+function Add-PilotAcceptanceThresholdFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $summaryPath = Join-Path $ProofDirectory 'go-no-go-summary.json'
+    $quotePath = Join-Path $ProofDirectory 'quote-to-proof-readiness.json'
+    $firstValuePath = Join-Path $ProofDirectory 'first-pilot-evidence\first-value-report.md'
+    $jsonPath = Join-Path $ProofDirectory 'pilot-acceptance-thresholds.json'
+    $mdPath = Join-Path $ProofDirectory 'pilot-acceptance-thresholds.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_pilot_acceptance_thresholds.py'
+    $args = @(
+        $scriptPath,
+        '--go-no-go-summary', $summaryPath,
+        '--json-out', $jsonPath,
+        '--markdown-out', $mdPath
+    )
+
+    if (Test-Path -LiteralPath $quotePath) {
+        $args += @('--quote-to-proof-readiness', $quotePath)
+    }
+
+    if (Test-Path -LiteralPath $firstValuePath) {
+        $args += @('--first-value-report', $firstValuePath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'pilot-acceptance-thresholds.json' -Path 'pilot-acceptance-thresholds.json' -Purpose 'PASS/HOLD/DEFERRED_SCOPE pilot acceptance evaluation from proof artifacts.'
+    Add-ProofArtifact -Name 'pilot-acceptance-thresholds.md' -Path 'pilot-acceptance-thresholds.md' -Purpose 'Human-readable pilot acceptance threshold summary.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-acceptance-thresholds' -Detail 'Pilot acceptance threshold artifact was not generated.' -Remediation 'Repair report_pilot_acceptance_thresholds.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $outcome = [string]$payload.pilotOutcome
+    $quality = [string]$payload.proofQualityLevel
+
+    if ($outcome -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'pilot-acceptance-thresholds' -Detail "Pilot acceptance PASS ($quality proof quality)." -Remediation ''
+        return
+    }
+
+    if ($outcome -eq 'DEFERRED_SCOPE') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'pilot-acceptance-thresholds' -Detail 'Pilot acceptance DEFERRED_SCOPE — buyer ask outside V1; not a pilot failure.' -Remediation 'Record deferred items; do not treat as proof gap.'
+        return
+    }
+
+    $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $proofDisposition -Name 'pilot-acceptance-thresholds' -Detail "Pilot acceptance HOLD ($quality) — resolve gates before sponsor commercial close." -Remediation 'See pilot-acceptance-thresholds.md and PILOT_ACCEPTANCE_THRESHOLDS.md.' -TriageCard 'FP-T018'
+}
+
 function Add-CommercialCloseoutConsistencyFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -2831,6 +2885,7 @@ $summaryJsonPath = Join-Path $proofDir 'go-no-go-summary.json'
 $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryJsonPath -Encoding UTF8
 
 Add-QuoteToProofReadinessFinding -ProofDirectory $proofDir
+Add-PilotAcceptanceThresholdFinding -ProofDirectory $proofDir
 Add-CommercialCloseoutConsistencyFinding -ProofDirectory $proofDir
 Add-TierFitValidationFinding -ProofDirectory $proofDir
 

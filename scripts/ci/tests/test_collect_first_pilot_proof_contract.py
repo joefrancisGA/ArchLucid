@@ -250,6 +250,8 @@ def test_proof_includes_enterprise_operations_artifacts() -> None:
     assert "policy-pack-freshness.md" in text
     assert "audit-evidence-summary.md" in text
     assert "quote-to-proof-readiness.md" in text
+    assert "pilot-acceptance-thresholds.md" in text
+    assert "Add-PilotAcceptanceThresholdFinding" in text
     assert "commercial-closeout-consistency" in text
     assert "check_commercial_overclaim_guard.py" in text
 
