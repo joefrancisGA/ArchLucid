@@ -25,7 +25,9 @@ using ArchLucid.Core.Marketing;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Search;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Pilots;
+using ArchLucid.Persistence.Agents;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
@@ -414,6 +416,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IRiskExceptionRepository, SqlRiskExceptionRepository>();
         services.AddScoped<IArchitectureReviewRecurrenceScheduleRepository, DapperArchitectureReviewRecurrenceScheduleRepository>();
         services.AddScoped<IArchitectureRiskRegisterQuery, ArchitectureRiskRegisterReader>();
+        services.AddScoped<IAgentToolInvocationRecordRepository, SqlAgentToolInvocationRecordRepository>();
         services.AddScoped<IArchitectureDecisionRegisterQuery, ArchitectureDecisionRegisterReader>();
         services.AddScoped<IImportedArchitectureRequestRepository, SqlImportedArchitectureRequestRepository>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();

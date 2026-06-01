@@ -403,7 +403,12 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       {!m.buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={m.routeRunId} /> : null}
 
       {!m.buyerPolishedArtifactTable ? (
-        <RunDetailRunActionsSection runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
+        <RunDetailRunActionsSection
+          runId={m.resolvedDetail.run.runId}
+          manifestId={m.manifestId}
+          hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
+          operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
+        />
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (

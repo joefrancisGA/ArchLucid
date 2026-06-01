@@ -6,6 +6,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Application.Agents;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -148,6 +149,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
             new FixedScopeProvider(),
             redactionMonitor.Object,
             redactor,
+            new NoOpAgentToolInvocationRecordWriter(),
             NullLogger<AgentExecutionTraceRecorderImpl>.Instance);
     }
 

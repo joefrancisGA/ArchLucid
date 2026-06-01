@@ -5466,7 +5466,7 @@ There is no UI surface anywhere on the run detail page (or any sub-route) that s
 
 ## TB-110 — RunDetailPageView — add tool-call / function-invocation log panel
 
-**Status (2026-05-31):** **Partial** — `GET /v1/architecture/run/{runId}/tool-invocation-forensics`, `RunToolInvocationForensicsBuilder`, run-detail table UI (trace-derived redacted rows, blob completeness warning). Remaining: structured MCP/tool-call persistence, per-invocation raw blob expansion.
+**Status (2026-06-01):** **Partial** — structured `AgentToolInvocationRecords` ledger persisted at trace write time; forensics API prefers ledger rows when present. Remaining: per-invocation raw blob expansion in UI (operator role guard).
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
@@ -5543,6 +5543,8 @@ Additionally, the sibling provenance page uses the **architecture** provenance e
 ---
 
 ## TB-112 — RunDetailPageView — add run-level approve / reject / request-remediation actions
+
+**Status (2026-06-01):** **Done** — `POST /v1/authority/runs/{runId}/disposition`, `RunOperatorGovernanceDispositionService`, run columns on `dbo.Runs`, audit event, operator-only `RunDetailRunGovernanceDispositionActions` with approve gated on `hasCommitBlockingFailures`.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 

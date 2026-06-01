@@ -169,4 +169,14 @@ public interface IRunRepository
         DateTimeOffset? createdBeforeUtc,
         int batchSize,
         CancellationToken ct);
+
+    /// <summary>Sets TB-112 run-level operator governance disposition columns on <c>dbo.Runs</c>.</summary>
+    Task<bool> TrySetOperatorGovernanceDispositionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string decision,
+        string? rationale,
+        string actorUserId,
+        DateTime occurredUtc,
+        CancellationToken ct);
 }

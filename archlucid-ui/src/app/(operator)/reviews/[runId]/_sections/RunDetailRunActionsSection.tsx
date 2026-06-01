@@ -9,15 +9,19 @@ import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
+import { RunDetailRunGovernanceDispositionActions } from "@/components/RunDetailRunGovernanceDispositionActions";
+
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailRunActionsSectionProps = {
   readonly runId: string;
   readonly manifestId: string | null | undefined;
+  readonly hasCommitBlockingFailures: boolean;
+  readonly operatorGovernanceDecision?: string | null;
 };
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
-  const { runId, manifestId } = props;
+  const { runId, manifestId, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
@@ -34,6 +38,11 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <RunDetailRunGovernanceDispositionActions
+            runId={runId}
+            hasCommitBlockingFailures={hasCommitBlockingFailures}
+            existingDecision={operatorGovernanceDecision}
+          />
           {manifestId ? <GenerateSponsorValueReportButton /> : null}
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" size="sm" asChild>

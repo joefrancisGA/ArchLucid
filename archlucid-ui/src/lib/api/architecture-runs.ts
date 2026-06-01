@@ -173,6 +173,30 @@ export async function getRunDetail(runId: string): Promise<ApiResponseWithTrace<
   return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`);
 }
 
+export type RunOperatorGovernanceDispositionRequest = {
+  decision: "Approved" | "Rejected" | "RequestRemediation";
+  rationale?: string | null;
+};
+
+export type RunOperatorGovernanceDispositionResponse = {
+  runId: string;
+  decision: RunOperatorGovernanceDispositionRequest["decision"];
+  rationale?: string | null;
+  occurredAtUtc: string;
+  recordedByUserId: string;
+};
+
+/** TB-112: record run-level approve / reject / request-remediation. */
+export async function recordRunOperatorGovernanceDisposition(
+  runId: string,
+  body: RunOperatorGovernanceDispositionRequest,
+): Promise<RunOperatorGovernanceDispositionResponse> {
+  return apiPostJson<RunOperatorGovernanceDispositionResponse>(
+    `/v1/authority/runs/${encodeURIComponent(runId)}/disposition`,
+    body,
+  );
+}
+
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
   return apiGet<DecisionProvenanceGraph>(`/v1/authority/runs/${runId}/provenance`);

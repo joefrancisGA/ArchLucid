@@ -504,4 +504,26 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
         return BitConverter.GetBytes(v);
     }
+
+    public Task<bool> TrySetOperatorGovernanceDispositionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string decision,
+        string? rationale,
+        string actorUserId,
+        DateTime occurredUtc,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        if (!_store.TryGetValue(runId, out RunRecord? run) || !MatchesScope(run, scope) || run.ArchivedUtc.HasValue)
+            return Task.FromResult(false);
+
+        run.OperatorGovernanceDecision = decision.Trim();
+        run.OperatorGovernanceDecisionRationale = rationale;
+        run.OperatorGovernanceDecisionUtc = occurredUtc;
+        run.OperatorGovernanceDecisionByUserId = actorUserId.Trim();
+
+        return Task.FromResult(true);
+    }
 }

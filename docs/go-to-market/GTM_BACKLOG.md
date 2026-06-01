@@ -82,6 +82,19 @@ Treat each as **PASS / HOLD**. A single HOLD on G1–G4 blocks Stage 1; a HOLD o
 
 ---
 
+## Engineering-adjacent items requiring owner / human execution
+
+These cannot be completed by coding agents alone. Track here instead of `TECH_BACKLOG.md`.
+
+| ID | Task | Owner | Priority | Status | Notes |
+|----|------|-------|----------|--------|-------|
+| G-REAL-01 | Execute credentialed real-LLM evidence gate (`scripts/Invoke-RealLlmEvidenceGate.ps1`, 5–10 min unattended) | Owner | P0 | Not started | Requires live Azure OpenAI credentials; blocks assessment gate **G5** / **TB-166** release claim |
+| G-REAL-02 | Playwright smoke sign-off — Workspace A self-demo (**M-04**) | QA / owner | P0 | Not started | Human verification after engineering **#30** |
+| G-REAL-03 | Playwright smoke sign-off — Workspace B regulated scenario (**M-05**) | QA / owner | P0 | Not started | Human verification after engineering **#30** |
+| G-REAL-04 | Review sample architecture report from Workspace B (**M-06**) | Owner | P0 | Not started | Content review against landing-page claims |
+
+---
+
 ## V1 Marketing Backlog
 
 ### Phase 1 — Demo and messaging foundation (Days 1–15)

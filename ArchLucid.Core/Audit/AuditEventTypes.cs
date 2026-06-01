@@ -732,6 +732,9 @@ public static class AuditEventTypes
     /// <summary>Operator registered a finding ↔ ITSM external key correlation for inbound webhooks.</summary>
     public const string IntegrationItsmFindingCorrelationRegistered = "Integration.ItsmFindingCorrelationRegistered";
 
+    /// <summary>Operator recorded run-level approve / reject / request-remediation on <c>dbo.Runs</c> (TB-112).</summary>
+    public const string RunOperatorGovernanceDispositionRecorded = "RunOperatorGovernanceDispositionRecorded";
+
     /// <summary>Outbound Jira issue create succeeded (payload: finding id, issue key; never secrets or full external URLs).</summary>
     public const string IntegrationJiraIssueCreateSucceeded = "Integration.JiraIssueCreateSucceeded";
 

@@ -279,6 +279,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
         services.AddScoped<IFindingReviewTrailAppendService, FindingReviewTrailAppendService>();
         services.AddScoped<IFindingDispositionService, FindingDispositionService>();
+        services.AddScoped<IRunOperatorGovernanceDispositionService, RunOperatorGovernanceDispositionService>();
+        services.AddScoped<IAgentToolInvocationRecordWriter, AgentToolInvocationRecordWriter>();
         services.AddScoped<IRiskExceptionService, RiskExceptionService>();
         services.AddScoped<IRealizedValueAttestationService, RealizedValueAttestationService>();
         services.AddScoped<IBuyerProofPackBuilder, BuyerProofPackBuilder>();

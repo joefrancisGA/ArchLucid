@@ -28,6 +28,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
@@ -62,6 +63,7 @@ public sealed class RunQueryController(
     IDecisionNodeRepository decisionNodeRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAgentToolInvocationRecordRepository agentToolInvocationRecordRepository,
     IFindingEvidenceChainService findingEvidenceChainService,
     IFindingInspectReadRepository findingInspectReadRepository,
     IReasoningSummaryBuilder reasoningSummaryBuilder,
@@ -518,8 +520,18 @@ public sealed class RunQueryController(
         IReadOnlyList<AgentExecutionTrace> traces =
             await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentToolInvocationRecord> structured = [];
+
+        if (scope.TenantId != Guid.Empty && Guid.TryParse(runId, out Guid runGuid))
+        {
+            structured = await agentToolInvocationRecordRepository
+                .ListByRunAsync(scope.TenantId, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         RunToolInvocationForensicsResponse body =
-            RunToolInvocationForensicsBuilder.Build(runId, traces);
+            RunToolInvocationForensicsBuilder.Build(runId, traces, structured);
 
         return Ok(body);
     }

@@ -217,4 +217,32 @@ public sealed class RunRecord
         get;
         set;
     }
+
+    /// <summary>TB-112: latest run-level operator governance decision name when recorded.</summary>
+    public string? OperatorGovernanceDecision
+    {
+        get;
+        set;
+    }
+
+    /// <summary>TB-112: rationale captured with <see cref="OperatorGovernanceDecision" />.</summary>
+    public string? OperatorGovernanceDecisionRationale
+    {
+        get;
+        set;
+    }
+
+    /// <summary>TB-112: UTC timestamp when the operator disposition was recorded.</summary>
+    public DateTime? OperatorGovernanceDecisionUtc
+    {
+        get;
+        set;
+    }
+
+    /// <summary>TB-112: operator principal that recorded the disposition.</summary>
+    public string? OperatorGovernanceDecisionByUserId
+    {
+        get;
+        set;
+    }
 }

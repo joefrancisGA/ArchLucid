@@ -223,6 +223,10 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       hasGovernanceWarnings?: boolean;
       lastFailureReason?: string | null;
       retryCount?: number;
+      operatorGovernanceDecision?: string | null;
+      operatorGovernanceDecisionRationale?: string | null;
+      operatorGovernanceDecisionUtc?: string | null;
+      operatorGovernanceDecisionByUserId?: string | null;
     };
     contextSnapshot?: unknown;
     graphSnapshot?: unknown;

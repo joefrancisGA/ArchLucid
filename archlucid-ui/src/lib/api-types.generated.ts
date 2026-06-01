@@ -34039,6 +34039,11 @@ export interface components {
             lastFailureReason?: null | string;
             legacyRunStatus?: null | string;
             otelTraceId?: null | string;
+            operatorGovernanceDecision?: null | string;
+            operatorGovernanceDecisionByUserId?: null | string;
+            operatorGovernanceDecisionRationale?: null | string;
+            /** Format: date-time */
+            operatorGovernanceDecisionUtc?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
             projectId: string;
             realModeFellBackToSimulator?: boolean;

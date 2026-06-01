@@ -117,6 +117,8 @@ public sealed class SqlRunRepository(
                                    IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                    StructuralExecutionMode,
                                    RetryCount, LastFailureReason,
+                                   OperatorGovernanceDecision, OperatorGovernanceDecisionRationale,
+                                   OperatorGovernanceDecisionUtc, OperatorGovernanceDecisionByUserId,
                                    RowVersionStamp AS RowVersion,
                                    CASE WHEN EXISTS (SELECT 1 FROM dbo.FindingsSnapshots fs WITH (NOLOCK) WHERE fs.RunId = dbo.Runs.RunId AND fs.ArchivedUtc IS NULL AND fs.HasWarnings = 1) THEN 1 ELSE 0 END AS HasWarnings,
                                    CASE WHEN EXISTS (SELECT 1 FROM dbo.AlertRecords ar WITH (NOLOCK) WHERE ar.RunId = dbo.Runs.RunId AND ar.Status = 'Open') THEN 1 ELSE 0 END AS HasGovernanceWarnings
@@ -888,5 +890,61 @@ public sealed class SqlRunRepository(
         }
 
         run.RowVersion = newStamp;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TrySetOperatorGovernanceDispositionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string decision,
+        string? rationale,
+        string actorUserId,
+        DateTime occurredUtc,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ScopedRepositoryScopeValidation.RequireScopedTenant(scope);
+
+        if (runId == Guid.Empty)
+            throw new ArgumentException("Run id is required.", nameof(runId));
+
+        if (string.IsNullOrWhiteSpace(decision))
+            throw new ArgumentException("Decision is required.", nameof(decision));
+
+        if (string.IsNullOrWhiteSpace(actorUserId))
+            throw new ArgumentException("Actor user id is required.", nameof(actorUserId));
+
+        const string sql = """
+                           UPDATE dbo.Runs
+                           SET OperatorGovernanceDecision = @Decision,
+                               OperatorGovernanceDecisionRationale = @Rationale,
+                               OperatorGovernanceDecisionUtc = @OccurredUtc,
+                               OperatorGovernanceDecisionByUserId = @ActorUserId
+                           WHERE RunId = @RunId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchivedUtc IS NULL;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    RunId = runId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    Decision = decision.Trim(),
+                    Rationale = rationale,
+                    OccurredUtc = occurredUtc,
+                    ActorUserId = actorUserId.Trim(),
+                },
+                cancellationToken: ct));
+
+        return rows > 0;
     }
 }

@@ -9,6 +9,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Application.Agents;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -31,9 +32,13 @@ public sealed class AgentExecutionTraceRecorder(
     IScopeContextProvider scopeContextProvider,
     IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
     IPromptRedactor promptRedactor,
+    IAgentToolInvocationRecordWriter toolInvocationRecordWriter,
     ILogger<AgentExecutionTraceRecorder> logger)
     : IAgentExecutionTraceRecorder
 {
+    private string? _invocationLedgerRunKey;
+
+    private DateTime? _invocationLedgerPriorUtc;
     private const string BlobContainerName = "agent-traces";
 
     /// <summary>Maximum stored length for prompt/response fields to prevent unbounded PII retention.</summary>
@@ -69,6 +74,9 @@ public sealed class AgentExecutionTraceRecorder(
 
     private readonly IAgentExecutionTraceRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
+
+    private readonly IAgentToolInvocationRecordWriter _toolInvocationRecordWriter =
+        toolInvocationRecordWriter ?? throw new ArgumentNullException(nameof(toolInvocationRecordWriter));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -204,6 +212,21 @@ public sealed class AgentExecutionTraceRecorder(
         }
 
         await _repository.CreateAsync(trace, cancellationToken);
+
+        int? durationMs = null;
+
+        if (_invocationLedgerRunKey == runId && _invocationLedgerPriorUtc.HasValue)
+        {
+            double deltaMs = (trace.CreatedUtc - _invocationLedgerPriorUtc.Value).TotalMilliseconds;
+
+            if (deltaMs >= 0 && deltaMs <= int.MaxValue)
+                durationMs = (int)Math.Round(deltaMs);
+        }
+
+        await _toolInvocationRecordWriter.SaveFromTraceAsync(trace, sortOrder: 0, durationMs, cancellationToken);
+
+        _invocationLedgerRunKey = runId;
+        _invocationLedgerPriorUtc = trace.CreatedUtc;
 
         if (isSimulatorExecution)
             return;

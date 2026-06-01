@@ -29,7 +29,9 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Search;
 using ArchLucid.Persistence.Authorization;
 using ArchLucid.Persistence.Search;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Pilots;
+using ArchLucid.Persistence.Agents;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
@@ -153,6 +155,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
         services.AddSingleton<IRiskExceptionRepository, NoOpRiskExceptionRepository>();
         services.AddSingleton<IArchitectureRiskRegisterQuery, NoOpArchitectureRiskRegisterQuery>();
+        services.AddSingleton<IAgentToolInvocationRecordRepository, InMemoryAgentToolInvocationRecordRepository>();
         services.AddSingleton<IArchitectureDecisionRegisterQuery, NoOpArchitectureDecisionRegisterQuery>();
         services.AddSingleton<IImportedArchitectureRequestRepository, NoOpImportedArchitectureRequestRepository>();
         services.AddSingleton<IAzureExtractorPackageRepository, NoOpAzureExtractorPackageRepository>();
