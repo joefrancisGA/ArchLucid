@@ -20,8 +20,10 @@ import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationSummaryPayload,
   RunRetrievalGroundingPayload,
-  RunToolInvocationForensicsPayload,
 } from "@/types/agent-forensics";
+import type { components } from "@/lib/openapi-schemas";
+
+export type RunToolInvocationForensicsPayload = components["schemas"]["RunToolInvocationForensicsResponse"];
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
   type ApiResponseWithTrace,

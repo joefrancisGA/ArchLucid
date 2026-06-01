@@ -5586,7 +5586,7 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 
 ## TB-113 — Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types
 
-**Status (2026-06-01):** **Partial** — `authority.ts` uses `RunFindingCoverageSummary` from OpenAPI types; snapshot regen for new ITSM/tool-forensics routes pending CI/local `update_openapi_contract_snapshot.ps1` run.
+**Status (2026-06-01):** **Done** — OpenAPI snapshot includes ITSM correlations GET, tool-invocation-forensics, and `RunFindingCoverageSummary`; `api-types.generated.ts` regen; `authority.ts` uses schema types.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 

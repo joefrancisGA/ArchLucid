@@ -11179,6 +11179,47 @@
         },
         "type": "object"
       },
+      "ItsmFindingCorrelationListItem": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "externalKey": {
+            "type": "string"
+          },
+          "externalSysId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "externalUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ItsmFindingCorrelationsByFindingResponse": {
+        "properties": {
+          "correlations": {
+            "items": {
+              "$ref": "#/components/schemas/ItsmFindingCorrelationListItem"
+            },
+            "type": "array"
+          },
+          "findingId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ItsmIntegrationHealthProbeVm": {
         "properties": {
           "locallyConfigured": {
@@ -18880,6 +18921,72 @@
           "projectId",
           "runId"
         ],
+        "type": "object"
+      },
+      "RunToolInvocationForensicRow": {
+        "properties": {
+          "agentType": {
+            "type": "string"
+          },
+          "argsPreview": {
+            "type": "string"
+          },
+          "blobUploadFailed": {
+            "type": "boolean"
+          },
+          "completenessNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "durationMs": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "invokedAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunToolInvocationForensicsResponse": {
+        "properties": {
+          "completenessDisclaimer": {
+            "type": "string"
+          },
+          "hasStructuredToolCallLog": {
+            "type": "boolean"
+          },
+          "hasTraceBlobPersistenceFailure": {
+            "type": "boolean"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/RunToolInvocationForensicRow"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "RunTrustEvidenceCard": {
@@ -36824,6 +36931,125 @@
         ]
       }
     },
+    "/v1/architecture/run/{runId}/tool-invocation-forensics": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunToolInvocationForensicsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunToolInvocationForensicsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunToolInvocationForensicsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "RunQuery"
+        ]
+      }
+    },
     "/v1/architecture/run/{runId}/traceability-bundle.zip": {
       "get": {
         "parameters": [
@@ -49148,6 +49374,62 @@
       }
     },
     "/v1/integrations/itsm/correlations": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "findingId",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmFindingCorrelationsByFindingResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmFindingCorrelationsByFindingResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItsmFindingCorrelationsByFindingResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ItsmCorrelation"
+        ]
+      },
       "post": {
         "requestBody": {
           "content": {

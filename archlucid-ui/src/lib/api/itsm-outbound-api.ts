@@ -1,22 +1,10 @@
 import { apiGet, apiPostJson } from "@/lib/api-client";
+import type { components } from "@/lib/openapi-schemas";
 
-export type ItsmFindingCorrelationListItem = {
-  provider: string;
-  externalKey: string;
-  externalSysId?: string | null;
-  createdUtc: string;
-  externalUrl?: string | null;
-};
-
-export type ItsmFindingCorrelationsByFindingResponse = {
-  findingId: string;
-  correlations: ItsmFindingCorrelationListItem[];
-};
-
-export type CreateItsmOutboundIssueResponse = {
-  provider: string;
-  externalKey: string;
-};
+export type ItsmFindingCorrelationListItem = components["schemas"]["ItsmFindingCorrelationListItem"];
+export type ItsmFindingCorrelationsByFindingResponse =
+  components["schemas"]["ItsmFindingCorrelationsByFindingResponse"];
+export type CreateItsmOutboundIssueResponse = components["schemas"]["CreateItsmOutboundIssueResponse"];
 
 export async function listItsmFindingCorrelations(
   findingId: string,

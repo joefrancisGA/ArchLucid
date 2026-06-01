@@ -11008,6 +11008,89 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/run/{runId}/tool-invocation-forensics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RunToolInvocationForensicsResponse"];
+                        "text/json": components["schemas"]["RunToolInvocationForensicsResponse"];
+                        "text/plain": components["schemas"]["RunToolInvocationForensicsResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/architecture/run/{runId}/traceability-bundle.zip": {
         parameters: {
             query?: never;
@@ -18043,6 +18126,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/decisions-needed-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    projectId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GovernanceDecisionsNeededSummaryResponse"];
+                        "text/json": components["schemas"]["GovernanceDecisionsNeededSummaryResponse"];
+                        "text/plain": components["schemas"]["GovernanceDecisionsNeededSummaryResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/findings/{findingId}/dispositions": {
         parameters: {
             query?: never;
@@ -18725,6 +18847,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/recurrence-schedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureReviewRecurrenceSchedule"][];
+                        "text/json": components["schemas"]["ArchitectureReviewRecurrenceSchedule"][];
+                        "text/plain": components["schemas"]["ArchitectureReviewRecurrenceSchedule"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["CreateArchitectureReviewRecurrenceScheduleRequest"];
+                    "application/json": null | components["schemas"]["CreateArchitectureReviewRecurrenceScheduleRequest"];
+                    "text/json": null | components["schemas"]["CreateArchitectureReviewRecurrenceScheduleRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureReviewRecurrenceSchedule"];
+                        "text/json": components["schemas"]["ArchitectureReviewRecurrenceSchedule"];
+                        "text/plain": components["schemas"]["ArchitectureReviewRecurrenceSchedule"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/risk-exceptions": {
         parameters: {
             query?: never;
@@ -18769,6 +18966,62 @@ export interface paths {
                     "application/*+json": null | components["schemas"]["CreateRiskExceptionRequest"];
                     "application/json": null | components["schemas"]["CreateRiskExceptionRequest"];
                     "text/json": null | components["schemas"]["CreateRiskExceptionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RiskExceptionRecord"];
+                        "text/json": components["schemas"]["RiskExceptionRecord"];
+                        "text/plain": components["schemas"]["RiskExceptionRecord"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/governance/risk-exceptions/{riskExceptionId}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    riskExceptionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["RenewRiskExceptionRequest"];
+                    "application/json": null | components["schemas"]["RenewRiskExceptionRequest"];
+                    "text/json": null | components["schemas"]["RenewRiskExceptionRequest"];
                 };
             };
             responses: {
@@ -19487,7 +19740,41 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: {
+            parameters: {
+                query?: {
+                    findingId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ItsmFindingCorrelationsByFindingResponse"];
+                        "text/json": components["schemas"]["ItsmFindingCorrelationsByFindingResponse"];
+                        "text/plain": components["schemas"]["ItsmFindingCorrelationsByFindingResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         put?: never;
         post: {
             parameters: {
@@ -22722,6 +23009,15 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -28593,11 +28889,16 @@ export interface components {
             reasonCode?: null | string;
             /** Format: int32 */
             schemaVersion?: number;
+            triageScenarioId?: null | string;
         };
         AgentExecutionTrace: {
             agentType?: components["schemas"]["AgentType"];
             blobUploadFailed?: null | boolean;
             citations?: null | components["schemas"]["Citation"][];
+            /** Format: float */
+            completionTemperature?: null | number | string;
+            /** Format: float */
+            completionTopP?: null | number | string;
             /** Format: date-time */
             createdUtc?: string;
             errorMessage?: null | string;
@@ -28613,6 +28914,8 @@ export interface components {
             inlineFallbackFailed?: null | boolean;
             /** Format: int32 */
             inputTokenCount?: null | number;
+            /** Format: int32 */
+            maxCompletionTokens?: null | number;
             modelDeploymentName?: null | string;
             modelVersion?: null | string;
             /** Format: int32 */
@@ -28626,6 +28929,8 @@ export interface components {
             qualityRejected?: boolean;
             qualityWarning?: boolean;
             rawResponse?: string;
+            /** Format: int32 */
+            reasoningTokenCount?: null | number;
             runId?: string;
             systemPrompt?: string;
             systemPromptContentSha256?: null | string;
@@ -29125,6 +29430,30 @@ export interface components {
             description: string;
             id: string;
             name: string;
+        };
+        ArchitectureReviewRecurrenceSchedule: {
+            createdByUserId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            cronExpression?: string;
+            isEnabled?: boolean;
+            /** Format: uuid */
+            lastTriggeredRunId?: null | string;
+            /** Format: date-time */
+            lastTriggeredUtc?: null | string;
+            name?: string;
+            /** Format: date-time */
+            nextRunUtc?: null | string;
+            /** Format: uuid */
+            projectId?: string;
+            /** Format: uuid */
+            scheduleId?: string;
+            /** Format: uuid */
+            sourceRunId?: string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            workspaceId?: string;
         };
         ArchitectureRiskRegisterEntry: {
             /** Format: int32 */
@@ -29788,6 +30117,13 @@ export interface components {
             maxMonthlyCost?: null | number | string;
             notes?: string[];
         };
+        CreateArchitectureReviewRecurrenceScheduleRequest: {
+            cronExpression?: string;
+            isEnabled?: boolean;
+            name?: string;
+            /** Format: uuid */
+            sourceRunId?: string;
+        };
         CreateArchitectureRunResponse: {
             evidenceBundle?: components["schemas"]["EvidenceBundle"];
             run?: components["schemas"]["ArchitectureRun"];
@@ -30406,6 +30742,29 @@ export interface components {
             results?: components["schemas"]["AgentResult"][];
             runId?: string;
         };
+        ExecutiveBusinessImpactCategoryCounts: {
+            /** Format: int32 */
+            complianceThemeCount?: number;
+            /** Format: int32 */
+            costThemeCount?: number;
+            /** Format: int32 */
+            governanceThemeCount?: number;
+            /** Format: int32 */
+            otherThemeCount?: number;
+            /** Format: int32 */
+            reliabilityThemeCount?: number;
+            /** Format: int32 */
+            securityComplianceThemeCount?: number;
+            /** Format: int32 */
+            securityThemeCount?: number;
+        };
+        ExecutiveOrphanCandidateSummary: {
+            /** Format: double */
+            annualSavingsUsd?: null | number | string;
+            /** Format: int32 */
+            candidateCount?: number;
+            evidenceRunId?: null | string;
+        };
         ExecutiveRoiAggregatesResponse: {
             /** Format: int32 */
             complianceRisksMitigated?: number;
@@ -30475,11 +30834,14 @@ export interface components {
         };
         ExecutiveRoiSummaryResponse: {
             basisBreakdown?: null | components["schemas"]["ExecutiveRoiBasisBreakdown"];
+            businessImpactCategoryCounts?: null | components["schemas"]["ExecutiveBusinessImpactCategoryCounts"];
             costEvidenceFreshnessStatus?: string;
             /** Format: int32 */
             costEvidenceStaleAfterDays?: number;
             /** Format: double */
             eaDiscountMultiplier?: number | string;
+            /** Format: int32 */
+            expiringWaiversCount14Days?: number;
             historicalTrends?: components["schemas"]["ExecutiveRoiSystemicIssueTrendSeries"][];
             /** Format: date-time */
             latestCostEvidenceCollectionTimestampUtc?: null | string;
@@ -30487,11 +30849,14 @@ export interface components {
             latestRunCount?: number;
             /** Format: int32 */
             newlyDiscoveredFindingsCount30Days?: number;
+            orphanCandidates?: null | components["schemas"]["ExecutiveOrphanCandidateSummary"];
             realizedValue?: null | components["schemas"]["RealizedValueSummary"];
             /** Format: int32 */
             resolvedFindingsCount30Days?: number;
             savingsPricingBasis?: string;
             savingsPricingBasisDescription?: null | string;
+            /** Format: int32 */
+            staleArchitectureRiskCount?: number;
             /** Format: int32 */
             systemCount?: number;
             systems?: components["schemas"]["SystemLatestRunRoi"][];
@@ -30524,7 +30889,12 @@ export interface components {
         };
         ExecutiveSummaryResult: {
             /** Format: double */
-            costWasteUsd: number | string;
+            costWasteUsd: null | number | string;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            pendingGovernanceDecisionCount: number;
             /** Format: int32 */
             rawFindingCount: number;
             /** Format: int32 */
@@ -31007,6 +31377,22 @@ export interface components {
             /** Format: int64 */
             totalPromptTokens?: number | string;
         };
+        GovernanceDecisionsNeededSummaryResponse: {
+            /** Format: int32 */
+            deferredFindingsDue?: number;
+            /** Format: int32 */
+            findingsAwaitingEvidence?: number;
+            /** Format: int32 */
+            pendingApprovals?: number;
+            /** Format: int32 */
+            staleRisks?: number;
+            /** Format: int32 */
+            totalDecisionItems?: number;
+            /** Format: int32 */
+            unownedHighSeverityRisks?: number;
+            /** Format: int32 */
+            waiversExpiringWithin14Days?: number;
+        };
         GovernanceDiffItem: {
             changeType?: string;
             currentValue?: null | string;
@@ -31420,6 +31806,18 @@ export interface components {
             rollupDate?: string;
             rows?: components["schemas"]["InternalCrossTenantRollupDailyItemResponse"][];
         };
+        ItsmFindingCorrelationListItem: {
+            /** Format: date-time */
+            createdUtc?: string;
+            externalKey?: string;
+            externalSysId?: null | string;
+            externalUrl?: null | string;
+            provider?: string;
+        };
+        ItsmFindingCorrelationsByFindingResponse: {
+            correlations?: components["schemas"]["ItsmFindingCorrelationListItem"][];
+            findingId?: string;
+        };
         ItsmIntegrationHealthProbeVm: {
             locallyConfigured?: boolean;
             reachable?: null | boolean;
@@ -31616,6 +32014,18 @@ export interface components {
             costBasisLabel?: string;
             currency?: string;
             daily?: components["schemas"]["LlmCostDailyBucketResponse"][];
+            topRuns?: components["schemas"]["LlmCostTopRunRowResponse"][];
+        };
+        LlmCostTopRunRowResponse: {
+            /** Format: int64 */
+            completionTokens?: number | string;
+            /** Format: double */
+            estimatedCostUsd?: number | string;
+            /** Format: int32 */
+            llmCallCount?: number;
+            /** Format: int64 */
+            promptTokens?: number | string;
+            runId?: string;
         };
         LlmCostTuningRequest: {
             /** Format: double */
@@ -32181,6 +32591,15 @@ export interface components {
             count?: number;
             severity: string;
         };
+        PilotRoiBaselineInputBasis: number;
+        PilotRoiBaselineInputsStatusResponse: {
+            architectHourlyCostBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            architectPrepHoursPerReviewBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            evidenceAssemblyEffortBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            projectedDollarClaimsSponsorSafe?: boolean;
+            reviewCycleHoursBasis?: components["schemas"]["PilotRoiBaselineInputBasis"];
+            sponsorSafeFallbackCopy?: string;
+        };
         PilotRoiEvidenceConfidence: number;
         PilotRunDeltaSeverityCountResponse: {
             /** Format: int32 */
@@ -32203,6 +32622,8 @@ export interface components {
             /** Format: date-time */
             manifestCommittedUtc?: null | string;
             proofPackageCompleteness?: null | components["schemas"]["ProofPackageCompletenessResponse"];
+            roiMetricSources?: components["schemas"]["RoiMetricSourceRow"][];
+            roiSourceFreshnessDisposition?: string;
             /** Format: date-time */
             runCreatedUtc?: string;
             /** Format: double */
@@ -32784,6 +33205,7 @@ export interface components {
             llmCallCountResolved?: boolean;
             proofSendability?: string;
             publishingTier?: string;
+            roiBaselineInputs?: null | components["schemas"]["PilotRoiBaselineInputsStatusResponse"];
             roiConfidenceLabel?: string;
             roiEvidenceConfidence?: components["schemas"]["PilotRoiEvidenceConfidence"];
             runInCommittedStatus?: boolean;
@@ -32986,6 +33408,12 @@ export interface components {
             targetId?: string;
         };
         RelationshipType: number;
+        RenewRiskExceptionRequest: {
+            evidenceRef?: null | string;
+            /** Format: date-time */
+            expiresAtUtc: string;
+            rationale?: null | string;
+        };
         ReplayComparisonMetadataResponse: {
             comparisonRecordId?: string;
             comparisonType?: string;
@@ -33203,6 +33631,19 @@ export interface components {
             /** Format: int32 */
             tenantCount?: number;
         };
+        RoiMetricSourceKind: number;
+        RoiMetricSourceRow: {
+            citationDetail: string;
+            displayLabel: string;
+            metricKey: string;
+            sourceKind: components["schemas"]["RoiMetricSourceKind"];
+            valueSummary: string;
+        };
+        RuleAuditTracePromptRef: {
+            agentType?: null | string;
+            templateId?: string;
+            templateVersion?: string;
+        };
         RuleCandidateComparisonRequest: {
             candidateACompositeRule?: null | components["schemas"]["CompositeAlertRule"];
             candidateASimpleRule?: null | components["schemas"]["AlertRule"];
@@ -33246,7 +33687,15 @@ export interface components {
             /** Format: int32 */
             wouldSuppressCount?: number;
         };
+        RunAgentLlmCostEstimateDto: {
+            costEstimationBasis?: string;
+            /** Format: double */
+            estimatedCostUsd?: null | number | string;
+            model?: string;
+            tokenCounts?: components["schemas"]["RunLlmTokenCountsDto"];
+        };
         RunAgentLlmCostEstimateResponse: {
+            costEstimationBasis?: string;
             /** Format: double */
             estimatedCostUsd?: null | number | string;
             model?: string;
@@ -33287,6 +33736,18 @@ export interface components {
             /** Format: int32 */
             graphSnapshots?: number;
         };
+        RunAuthorityRuleAuditExplainabilitySection: {
+            acceptedFindingIds?: string[];
+            appliedRuleIds?: string[];
+            /** Format: uuid */
+            decisionTraceId?: null | string;
+            notes?: string[];
+            pipeline?: string;
+            promptRefs?: components["schemas"]["RuleAuditTracePromptRef"][];
+            rejectedFindingIds?: string[];
+            ruleSetId?: string;
+            ruleSetVersion?: string;
+        };
         RunComparisonResponse: {
             hasManifestComparison?: boolean;
             /** Format: uuid */
@@ -33298,19 +33759,53 @@ export interface components {
             runLevelDiffCount?: number;
             runLevelDiffs?: components["schemas"]["DiffItemResponse"][];
         };
+        RunCoordinatorDecisionNodeExplainabilityRow: {
+            /** Format: double */
+            confidence?: number | string;
+            decisionId?: string;
+            opposingEvaluationIds?: string[];
+            pipeline?: string;
+            rationale?: string;
+            selectedOptionId?: null | string;
+            supportingEvaluationIds?: string[];
+            topic?: string;
+        };
+        RunDecisionExplainabilityDto: {
+            authorityRuleAudit?: null | components["schemas"]["RunAuthorityRuleAuditExplainabilitySection"];
+            coordinatorDecisionNodes?: components["schemas"]["RunCoordinatorDecisionNodeExplainabilityRow"][];
+            findingEngineFailures?: components["schemas"]["RunFindingEngineFailureExplainabilityRow"][];
+            manifestDecisions?: components["schemas"]["RunManifestDecisionExplainabilityRow"][];
+            manifestHonestyWarnings?: string[];
+            snapshotIds?: components["schemas"]["RunDecisionExplainabilitySnapshotIds"];
+        };
+        RunDecisionExplainabilitySnapshotIds: {
+            /** Format: uuid */
+            contextSnapshotId?: null | string;
+            /** Format: uuid */
+            findingsSnapshotId?: null | string;
+            /** Format: uuid */
+            graphSnapshotId?: null | string;
+        };
         RunDetailDto: {
+            agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
             artifactBundle?: null | components["schemas"]["ArtifactBundle"];
             contextSnapshot?: null | components["schemas"]["ContextSnapshot"];
+            decisionExplainability?: null | components["schemas"]["RunDecisionExplainabilityDto"];
             decisionTrace?: null | components["schemas"]["DecisionTraceDto"];
             degradedExecutionAgents?: string[];
             degradedFindingCoverage?: boolean;
+            estimatedUsdSavingsSummary?: null | components["schemas"]["RunEstimatedUsdSavingsDto"];
             executionFlavorBuyerSummary?: null | string;
             findingCoverageSummary?: null | components["schemas"]["RunFindingCoverageSummary"];
             findingsSnapshot?: null | components["schemas"]["FindingsSnapshot"];
             goldenManifest?: null | components["schemas"]["ManifestDocument"];
             graphSnapshot?: null | components["schemas"]["GraphSnapshot"];
+            lastAgentExecutionFailure?: null | components["schemas"]["AgentExecutionFailureSummary"];
+            results?: null | components["schemas"]["AgentResult"][];
+            retrievalGroundingSummary?: null | components["schemas"]["RunRetrievalGroundingSummaryDto"];
             run?: components["schemas"]["RunRecord"];
             runDegradedExecution?: boolean;
+            trustEvidenceCard?: null | components["schemas"]["RunTrustEvidenceCard"];
         };
         RunDetailsResponse: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateResponse"];
@@ -33321,6 +33816,12 @@ export interface components {
             run?: components["schemas"]["ArchitectureRun"];
             tasks?: components["schemas"]["AgentTask"][];
             trustEvidenceCard?: null | components["schemas"]["RunTrustEvidenceCard"];
+        };
+        RunEstimatedUsdSavingsDto: {
+            /** Format: double */
+            estimatedUsdSavings?: null | number | string;
+            savingsPricingBasis?: string;
+            savingsPricingBasisDescription?: string;
         };
         RunExplanationSummary: {
             citations?: components["schemas"]["CitationReference"][];
@@ -33408,6 +33909,16 @@ export interface components {
             /** Format: int32 */
             waivedCount?: number;
         };
+        RunFindingEngineFailureExplainabilityRow: {
+            category?: string;
+            /** Format: int64 */
+            durationMs?: number | string;
+            engineType?: string;
+            errorMessage?: string;
+            exceptionType?: string;
+            /** Format: date-time */
+            occurredUtc?: string;
+        };
         RunFindingListItem: {
             category?: string;
             findingId?: string;
@@ -33444,11 +33955,30 @@ export interface components {
             status?: string;
             systemName?: string;
         };
+        RunLlmTokenCountsDto: {
+            /** Format: int64 */
+            completion?: number | string;
+            /** Format: int64 */
+            prompt?: number | string;
+        };
         RunLlmTokenCountsResponse: {
             /** Format: int64 */
             completion?: number | string;
             /** Format: int64 */
             prompt?: number | string;
+        };
+        RunManifestDecisionExplainabilityRow: {
+            buyerConfidenceSource?: null | string;
+            category?: string;
+            /** Format: double */
+            confidence?: null | number | string;
+            confidenceSource?: null | string;
+            decisionId?: string;
+            pipeline?: string;
+            rationale?: string;
+            selectedOption?: string;
+            supportingFindingIds?: string[];
+            title?: string;
         };
         RunMetadataDiffResult: {
             changedFields?: string[];
@@ -33559,6 +34089,18 @@ export interface components {
             /** Format: double */
             score?: null | number | string;
         };
+        RunRetrievalGroundingSummaryDto: {
+            agentsWithTraces?: string[];
+            /** Format: double */
+            averageCitationCoverage?: number | string;
+            disposition?: string;
+            expectedAgentsMissingTraces?: string[];
+            operatorDetail?: null | string;
+            /** Format: int32 */
+            totalRetrievedChunks?: number;
+            /** Format: int32 */
+            traceCount?: number;
+        };
         RunRoiScorecardDto: {
             /** Format: int32 */
             agentFindingTotalCount?: number;
@@ -33596,6 +34138,27 @@ export interface components {
             runDegradedExecution?: boolean;
             /** Format: uuid */
             runId: string;
+        };
+        RunToolInvocationForensicRow: {
+            agentType?: string;
+            argsPreview?: string;
+            blobUploadFailed?: boolean;
+            completenessNote?: null | string;
+            /** Format: int32 */
+            durationMs?: null | number;
+            /** Format: date-time */
+            invokedAtUtc?: string;
+            outcome?: string;
+            taskId?: string;
+            toolName?: string;
+            traceId?: string;
+        };
+        RunToolInvocationForensicsResponse: {
+            completenessDisclaimer?: string;
+            hasStructuredToolCallLog?: boolean;
+            hasTraceBlobPersistenceFailure?: boolean;
+            rows?: components["schemas"]["RunToolInvocationForensicRow"][];
+            runId?: string;
         };
         RunTrustEvidenceCard: {
             agentTraces?: components["schemas"]["TrustEvidenceFieldSnapshot"];
