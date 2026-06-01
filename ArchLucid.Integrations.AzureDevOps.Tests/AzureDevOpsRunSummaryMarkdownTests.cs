@@ -49,6 +49,18 @@ public sealed class AzureDevOpsRunSummaryMarkdownTests
     }
 
     [Fact]
+    public void Format_omits_operator_run_link_when_url_is_not_http_or_https()
+    {
+        string md = AzureDevOpsRunSummaryMarkdown.Format(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            findings: [],
+            operatorRunDeepLink: "javascript:alert(1)");
+
+        Assert.DoesNotContain("Open operator run", md, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Format_without_findings_omits_severity_heading()
     {
         string md = AzureDevOpsRunSummaryMarkdown.Format(

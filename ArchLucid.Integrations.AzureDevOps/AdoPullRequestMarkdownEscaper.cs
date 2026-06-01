@@ -7,13 +7,25 @@ namespace ArchLucid.Integrations.AzureDevOps;
 /// </summary>
 public static class AdoPullRequestMarkdownEscaper
 {
+    private const int MaxBulletTextLength = 500;
+
+    private static readonly string[] DangerousContentMarkers =
+    [
+        "<script",
+        "javascript:",
+        "data:",
+    ];
+
     /// <summary>Escapes inline Markdown metacharacters in bullet highlight text.</summary>
     public static string EscapeBulletText(string value)
     {
         if (string.IsNullOrEmpty(value))
             return string.Empty;
 
-        StringBuilder escaped = new(value.Length + 8);
+        if (ContainsDangerousContent(value))
+            return string.Empty;
+
+        StringBuilder escaped = new(Math.Min(value.Length + 8, MaxBulletTextLength + 8));
 
         foreach (char ch in value)
         {
@@ -46,7 +58,23 @@ public static class AdoPullRequestMarkdownEscaper
             }
         }
 
-        return escaped.ToString();
+        string result = escaped.ToString();
+
+        if (result.Length > MaxBulletTextLength)
+            return result[..MaxBulletTextLength];
+
+        return result;
+    }
+
+    private static bool ContainsDangerousContent(string value)
+    {
+        foreach (string marker in DangerousContentMarkers)
+        {
+            if (value.Contains(marker, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>

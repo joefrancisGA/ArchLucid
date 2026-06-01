@@ -31,9 +31,12 @@ public static class AzureDevOpsRunSummaryMarkdown
             sb.AppendLine();
         }
 
-        if (string.IsNullOrWhiteSpace(operatorRunDeepLink))
+        string? safeDeepLink = AdoPullRequestMarkdownEscaper.EscapeMarkdownLinkTarget(operatorRunDeepLink);
+
+        if (safeDeepLink is null)
             return sb.ToString();
-        sb.AppendLine($"[Open operator run]({operatorRunDeepLink.Trim()})");
+
+        sb.AppendLine($"[Open operator run]({safeDeepLink})");
         sb.AppendLine();
 
         return sb.ToString();
