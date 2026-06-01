@@ -296,6 +296,15 @@ jobs:
       - name: Starter proof pack offline dry-run entrypoint (TB-173)
         run: python -m unittest discover -s scripts/ci/tests -p "test_dry_run_starter_proof_packs.py"
 
+      - name: Vertical policy pack manifest validation (TB-175)
+        run: python scripts/ci/check_policy_pack_manifests.py
+
+      - name: Policy pack dry-run index freshness (TB-176)
+        run: python scripts/ci/generate_policy_pack_dry_run_index.py --check
+
+      - name: Policy pack manifest unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_manifests.py"
+
       - name: Hot-path performance budget registry (assessment #18)
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

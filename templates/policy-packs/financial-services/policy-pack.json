@@ -17,6 +17,30 @@
   },
   "metadata": {
     "vertical": "financial-services",
-    "regulatoryAnchor": "GLBA customer financial privacy; SOX IT general controls for material systems"
+    "regulatoryAnchor": "GLBA / SOX ITGC themes for architecture review — not statutory certification"
+  },
+  "packManifest": {
+    "id": "financial-services",
+    "title": "Financial services — GLBA and SOX ITGC architecture themes",
+    "targetBuyer": "Financial services security or risk lead",
+    "buyerJob": "GLBA privacy and SOX IT general controls review on material Azure systems",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on scope",
+      "Architecture request with material-system boundaries and logging evidence"
+    ],
+    "expectedOutputs": [
+      "Advisory findings on fs-ctrl-* compliance rules",
+      "Audit-friendly governance dry-run notes when simulated"
+    ],
+    "scopeLabel": "V1-ready",
+    "doNotUseWhen": [
+      "Buyer requires auditor-signed SOX or GLBA attestation from ArchLucid",
+      "Non-financial workload with no material-system narrative"
+    ],
+    "deferredScopeNotes": "Does not replace external audit, legal counsel, or regulator filings.",
+    "buyerSafeCaveat": "Architecture-review input only — not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: material system without segregated logging retention (fs-ctrl-004)."
   }
 }

@@ -17,6 +17,31 @@
   },
   "metadata": {
     "vertical": "ai-llm",
-    "regulatoryAnchor": "Responsible AI and model governance (NIST AI RMF style vocabulary for review sessions only — not a certification)"
+    "regulatoryAnchor": "Responsible AI and model governance (NIST AI RMF style vocabulary for review sessions only \u2014 not a certification)"
+  },
+  "packManifest": {
+    "id": "ai-llm",
+    "title": "AI / LLM \u2014 responsible AI and model governance",
+    "targetBuyer": "AI governance or ML platform lead",
+    "buyerJob": "Responsible AI, RAG grounding, and model-risk review for Azure LLM workloads",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on scope",
+      "Architecture request describing models, RAG, and tool-calling boundaries",
+      "Redacted prompts only in pilots"
+    ],
+    "expectedOutputs": [
+      "Advisory findings on aillm-ctrl-* compliance rules",
+      "Grounding and human-oversight gaps in committed review"
+    ],
+    "scopeLabel": "V1-ready",
+    "doNotUseWhen": [
+      "Buyer expects model safety certification or production legal clearance",
+      "No generative AI or LLM components in architecture scope"
+    ],
+    "deferredScopeNotes": "Does not certify responsible AI programs or replace legal review of models.",
+    "buyerSafeCaveat": "Architecture-review input only \u2014 not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: RAG corpus scope not bounded to tenant data (aillm-ctrl-003)."
   }
 }

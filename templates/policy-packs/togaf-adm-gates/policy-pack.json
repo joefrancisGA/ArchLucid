@@ -14,10 +14,34 @@
   },
   "metadata": {
     "vertical": "enterprise-architecture",
-    "regulatoryAnchor": "TOGAF ADM phased checkpoints (Architecture Development Method)",
+    "regulatoryAnchor": "TOGAF ADM phased checkpoints (Architecture Development Method) — review scaffold only",
     "notes": [
       "Sample mapping scaffold — tighten rule shapes to your authoring pipeline and evidence sources.",
       "ADM phases referenced: Preliminary / A Vision / B Business / F Migration / G Implementation Governance (subset)."
     ]
+  },
+  "packManifest": {
+    "id": "togaf-adm-gates",
+    "title": "Enterprise architecture — TOGAF ADM gate checkpoints",
+    "targetBuyer": "Enterprise architect or EA practice lead",
+    "buyerJob": "TOGAF ADM phase gate and migration contract review",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on scope",
+      "Architecture request with phase, capability, and migration narrative"
+    ],
+    "expectedOutputs": [
+      "Advisory findings on ADM gate compliance rule keys",
+      "Gap notes between baseline and target architecture states"
+    ],
+    "scopeLabel": "V1-ready",
+    "doNotUseWhen": [
+      "Buyer expects Open Group TOGAF certification or EA maturity audit",
+      "No ADM phase or migration story in the request"
+    ],
+    "deferredScopeNotes": "Does not certify TOGAF practitioner credentials or EA operating model maturity.",
+    "buyerSafeCaveat": "Architecture-review input only — not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: migration contract missing rollback criteria (togaf-adm-f-migration-contract)."
   }
 }

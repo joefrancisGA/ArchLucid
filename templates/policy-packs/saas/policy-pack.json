@@ -17,6 +17,31 @@
   },
   "metadata": {
     "vertical": "saas",
-    "regulatoryAnchor": "SOC 2 CC6/CC7 logical access and change management"
+    "regulatoryAnchor": "SOC 2 CC6/CC7 logical access and change management (architecture-review themes only — not certification)"
+  },
+  "packManifest": {
+    "id": "saas",
+    "title": "B2B SaaS — SOC-oriented architecture controls",
+    "targetBuyer": "SaaS security or platform engineering lead",
+    "buyerJob": "SOC-style logical access and change-management review on Azure SaaS",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on tenant/workspace/project scope",
+      "Architecture request with Azure topology and identity evidence",
+      "Optional committed run for governance dry-run simulation"
+    ],
+    "expectedOutputs": [
+      "Advisory findings mapped to saas-ctrl-* compliance rules",
+      "Governance dry-run delta summary when simulated against a run"
+    ],
+    "scopeLabel": "V1-ready",
+    "doNotUseWhen": [
+      "Buyer requires CPA-issued SOC 2 Type I/II attestation",
+      "No Azure or identity evidence in the architecture request"
+    ],
+    "deferredScopeNotes": "Does not issue SOC 2 certification, legal advice, or regulator attestation.",
+    "buyerSafeCaveat": "Architecture-review input only — not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: privileged access paths without PIM or break-glass controls (saas-ctrl-001)."
   }
 }

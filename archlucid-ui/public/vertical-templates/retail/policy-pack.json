@@ -17,6 +17,30 @@
   },
   "metadata": {
     "vertical": "retail",
-    "regulatoryAnchor": "PCI-DSS cardholder data environment segmentation and tokenization"
+    "regulatoryAnchor": "PCI-DSS segmentation themes for architecture review \u2014 not PCI certification"
+  },
+  "packManifest": {
+    "id": "retail",
+    "title": "Retail \u2014 PCI cardholder data environment architecture",
+    "targetBuyer": "Retail payments or platform security lead",
+    "buyerJob": "PCI-DSS segmentation and tokenization review for retail Azure workloads",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on scope",
+      "Architecture request showing CDE boundaries and payment flows"
+    ],
+    "expectedOutputs": [
+      "Advisory findings on rtl-ctrl-* compliance rules",
+      "CDE boundary warnings in committed review output"
+    ],
+    "scopeLabel": "V1-ready",
+    "doNotUseWhen": [
+      "Buyer requires QSA-signed PCI ROC from ArchLucid",
+      "No payment or cardholder data in scope"
+    ],
+    "deferredScopeNotes": "Does not certify PCI DSS compliance or perform QSA assessment.",
+    "buyerSafeCaveat": "Architecture-review input only \u2014 not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: CDE subnet shares resources with non-CDE tier (rtl-ctrl-002)."
   }
 }

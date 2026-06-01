@@ -13,12 +13,12 @@
 | Local dev diagnostics | **TB-156 – TB-157** |
 | Run detail operator fidelity | **TB-109 – TB-113** (incl. **TB-110** tool forensics) |
 | Starter proof packs | **TB-170 – TB-174** (chooser, metadata, CI validation, dry-run, golden walkthrough) |
+| Policy pack manifests | **TB-175 – TB-176** (packManifest, CI validation, dry-run index) |
 
 ## P1 — template / commercial (next engineering batch)
 
 | ID | Title |
 | --- | --- |
-| TB-175 – TB-176 | Policy pack metadata + dry-run index |
 | TB-121 – TB-134 | Parity gates, sponsor proof, audit/commercial packaging |
 
 ## Real-mode / eval (owner or credentialed CI)

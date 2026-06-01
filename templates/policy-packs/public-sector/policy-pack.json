@@ -17,6 +17,30 @@
   },
   "metadata": {
     "vertical": "public-sector",
-    "regulatoryAnchor": "GDPR Art. 32 security; DPIA-driven proportionality for EU agency workloads"
+    "regulatoryAnchor": "GDPR Art. 32 security themes for architecture review — not GDPR certification"
+  },
+  "packManifest": {
+    "id": "public-sector",
+    "title": "EU public sector — GDPR proportionality architecture",
+    "targetBuyer": "EU agency platform or DPO-aligned architect",
+    "buyerJob": "GDPR Art. 32 security and DPIA-driven proportionality on Azure agency workloads",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on scope",
+      "Architecture request with data categories and residency narrative"
+    ],
+    "expectedOutputs": [
+      "Advisory findings on ps-ctrl-* compliance rules",
+      "Proportionality and logging gaps surfaced in review"
+    ],
+    "scopeLabel": "V1-ready",
+    "doNotUseWhen": [
+      "Buyer requires formal GDPR compliance certification",
+      "US FedRAMP-only scope without EU data processing"
+    ],
+    "deferredScopeNotes": "Does not certify GDPR compliance or replace DPIA legal sign-off.",
+    "buyerSafeCaveat": "Architecture-review input only — not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: cross-border transfer without documented safeguards (ps-ctrl-005)."
   }
 }

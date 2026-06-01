@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 79.58%
+# ArchLucid Assessment – (A) Headline Readiness: 79.68%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Batch 0–1 (backlog ledger, TB-143–148 in-app docs), ledger sync for **TB-149–157**, Batch 2 **TB-109–113** run-detail fidelity, Batch 3 **TB-170–174** starter proof packs (chooser, metadata, CI validation, dry-run, golden walkthrough) → **79.58%**. G-REAL-01–04 remain owner-blocked; **TB-140** real-mode eval corpus still open. **TB-170 (docs)** markdown link integrity is a separate open item.
+Rescore note: Batches 0–3 through **79.58%**; Batch 4A **TB-175–176** policy-pack `packManifest` + dry-run index → **79.68%**. G-REAL-01–04 owner-blocked; **TB-140** real-mode eval open. **TB-170 (docs)** markdown link integrity is separate.
 
 ## Executive Summary
 
@@ -71,7 +71,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Commercial Packaging Readiness | 74 | 2 | 1.28% | 52 |
 | Reliability | 74 | 2 | 1.28% | 52 |
 | Auditability | 75 | 2 | 1.29% | 50 |
-| Policy and Governance Alignment | 79 | 2 | 1.36% | 42 |
+| Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |
 | Explainability | 80 | 2 | 1.38% | 40 |
 | Cognitive Load | 66 | 1 | 0.57% | 34 |
 | Customer Self-Sufficiency | 68 | 1 | 0.59% | 32 |
@@ -84,7 +84,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Cost-Effectiveness | 73 | 1 | 0.63% | 27 |
 | Testability | 75 | 1 | 0.65% | 25 |
 | Supportability | 76 | 1 | 0.66% | 24 |
-| Template and Accelerator Richness | 80 | 1 | 0.69% | 20 |
+| Template and Accelerator Richness | 82 | 1 | 0.71% | 18 |
 | Documentation | 78 | 1 | 0.67% | 22 |
 
 ### AI/Agent Readiness

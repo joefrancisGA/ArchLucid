@@ -114,8 +114,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-172 | Starter proof pack static validation gate | **Done (2026-06-01)** — `check_starter_proof_packs.py` + CI + unit tests | S |
 | TB-173 | Template-to-proof dry-run harness | **Done (2026-06-01)** — `dry_run_starter_proof_packs.py` + `StarterProofPack*` dotnet tests | M |
 | TB-174 | Golden accelerator walkthrough (one pack only) | **Done (2026-06-01)** — `walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` (regulated SaaS) | S |
-| TB-175 | Policy pack metadata and buyer-safe caveat validation | Governance alignment — every policy pack needs scope, owner, last reviewed, sample finding, and explicit "not certification" language | S |
-| TB-176 | Policy pack dry-run index | Time-to-value / governance usability — list packs by buyer job, required inputs, expected findings, and V1/V1.1/deferred scope | S |
+| TB-175 | Policy pack metadata and buyer-safe caveat validation | **Done (2026-06-01)** — `packManifest` on vertical packs; `check_policy_pack_manifests.py` + contract doc | S |
+| TB-176 | Policy pack dry-run index | **Done (2026-06-01)** — `POLICY_PACK_DRY_RUN_INDEX.md` generated from manifests; CI `--check` | S |
 | TB-121 | Route/tier/policy/nav parity release gate hardening | Governance drift prevention — changes to routes, tiers, policy surfaces, or nav must refresh parity proof before release | S |
 | TB-122 | Governance outcome summary in sponsor proof | Trust / buyer clarity — sponsor proof should summarize applied policies, approvals, waivers, unresolved governance items, and buyer-safe status | S |
 | TB-123 | Policy-pack freshness report in proof/procurement artifacts | Governance freshness — proof packets should show policy-pack last-reviewed posture and stale-pack warnings | S |
@@ -332,8 +332,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-175 — Policy pack metadata and buyer-safe caveat validation
-**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
 
+**Status:** **Done (2026-06-01)** — `packManifest` on all `templates/policy-packs/*`; [`POLICY_PACK_METADATA_CONTRACT.md`](POLICY_PACK_METADATA_CONTRACT.md); `scripts/ci/check_policy_pack_manifests.py`.
 
 **Objective:** Ensure every V1 policy pack is reviewable, scoped, and impossible to mistake for a compliance certification.
 
@@ -356,8 +356,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-176 — Policy pack dry-run index
-**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
 
+**Status:** **Done (2026-06-01)** — [`POLICY_PACK_DRY_RUN_INDEX.md`](POLICY_PACK_DRY_RUN_INDEX.md); `scripts/ci/generate_policy_pack_dry_run_index.py`; linked from [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md).
 
 **Objective:** Give operators and evaluators a compact map of available policy packs, what each one proves, and what inputs it expects.
 

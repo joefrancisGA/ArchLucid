@@ -17,6 +17,30 @@
   },
   "metadata": {
     "vertical": "public-sector-us",
-    "regulatoryAnchor": "FedRAMP Moderate / StateRAMP Moderate baseline (NIST SP 800-53 Rev. 5)"
+    "regulatoryAnchor": "FedRAMP Moderate / NIST SP 800-53 Rev. 5 themes — architecture review only, not ATO"
+  },
+  "packManifest": {
+    "id": "public-sector-us",
+    "title": "US public sector — FedRAMP Moderate architecture themes",
+    "targetBuyer": "US agency cloud architect or ISSO-aligned lead",
+    "buyerJob": "FedRAMP Moderate / NIST 800-53 control themes on Azure landing zones",
+    "owner": "ArchLucid Policy SME",
+    "lastReviewedUtc": "2026-06-01",
+    "requiredInputs": [
+      "Policy pack enabled on scope",
+      "Architecture request with boundary, logging, and IAM evidence"
+    ],
+    "expectedOutputs": [
+      "Advisory findings on psus-ctrl-* compliance rules",
+      "Control-gap narrative suitable for internal ATO prep (not ATO itself)"
+    ],
+    "scopeLabel": "V1-ready",
+    "doNotUseWhen": [
+      "Buyer requires issued FedRAMP ATO or agency authorization package from ArchLucid",
+      "Non-US public-sector scope without 800-53 mapping need"
+    ],
+    "deferredScopeNotes": "Does not grant FedRAMP ATO, CJIS certification, or agency authorization.",
+    "buyerSafeCaveat": "Architecture-review input only — not certification and not legal advice.",
+    "sampleFindingSummary": "Example warning: audit logging not centralized for security boundary (psus-ctrl-004)."
   }
 }

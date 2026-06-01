@@ -21,6 +21,15 @@ Each pack folder includes `starter-pack.json` with `scopeLabel`, `doNotUseWhen`,
 3. Open **New review** with baseline ZIP intake (`/reviews/new?baseline=1`) when the pack lists `second-run.json`, or use **Quick review** / **Detailed wizard** for greenfield presets.
 4. Attach pack JSON/ZIP from the pack folder as evidence; run the pipeline; commit; export the proof checklist in the pack folder.
 
+## Policy packs (governance templates)
+
+Vertical **policy-pack** templates (assign in governance, dry-run in operator shell) are indexed separately from starter proof ZIP packs:
+
+- [`POLICY_PACK_DRY_RUN_INDEX.md`](POLICY_PACK_DRY_RUN_INDEX.md) — buyer job → pack ID, inputs, caveats (TB-176)
+- Metadata contract: [`POLICY_PACK_METADATA_CONTRACT.md`](POLICY_PACK_METADATA_CONTRACT.md)
+
+Bundled **platform default** packs (23+ categories seeded per tenant) are listed in [`DEFAULT_POLICY_PACKS_V1.md`](../go-to-market/DEFAULT_POLICY_PACKS_V1.md).
+
 ## Canonical references
 
 - Pack chooser (templates tree): [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
