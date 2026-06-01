@@ -2,7 +2,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Data.Repositories;
 
-using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+using Disposition = global::ArchLucid.Contracts.Findings.FindingDisposition;
 
 using FluentAssertions;
 

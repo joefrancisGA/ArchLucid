@@ -1,9 +1,8 @@
-using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
-using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+using Disposition = global::ArchLucid.Contracts.Findings.FindingDisposition;
 
 using FluentAssertions;
 
@@ -37,7 +36,7 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
             TrailEvent("f-1", Disposition.NeedsEvidence),
         ];
 
-        int total = GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
+        int total = ArchLucid.Application.Governance.GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
             pendingApprovals: 0,
             register,
             recent,
@@ -65,7 +64,7 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
             ],
         };
 
-        int total = GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
+        int total = ArchLucid.Application.Governance.GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
             pendingApprovals: 0,
             register,
             [],
@@ -78,7 +77,7 @@ public sealed class GovernanceDecisionsNeededSummaryCalculatorTests
     [Fact]
     public void ComputeTotalDecisionItems_adds_pending_approvals_separately()
     {
-        int total = GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
+        int total = ArchLucid.Application.Governance.GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems(
             pendingApprovals: 2,
             new ArchitectureRiskRegisterResponse(),
             [],

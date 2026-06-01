@@ -1,5 +1,5 @@
 using ArchLucid.Core.Governance;
-using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+using Disposition = global::ArchLucid.Contracts.Findings.FindingDisposition;
 
 using FluentAssertions;
 
