@@ -17,16 +17,16 @@ export type FirstPilotOperatingRailShellCopy = {
 };
 
 const OPERATOR_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
-  heading: "First-pilot operating path",
+  heading: "Full operating path",
   intro:
-    "Six steps from setup verification to sponsor packet. Operate compare, governance dashboards, and V1.1 connectors stay secondary until you have a finalized review package.",
+    "Six steps from setup verification to a finalized review package. Operate compare, governance dashboards, and V1.1 connectors stay secondary until you have a finalized review package.",
   showHeaderHelpLink: true,
   headerHelpSlug: "first-pilot-path",
-  headerHelpLabel: "Full first-pilot operator path",
+  headerHelpLabel: "Full operator path",
   showStepTroubleshootLinks: true,
-  minimizedExpandLabel: "Show full pilot operating path",
+  minimizedExpandLabel: "Show full operating path",
   completeMessage:
-    "First-pilot path complete — share the sponsor packet, then open Operate surfaces only when you have a concrete follow-up question.",
+    "Review path complete — share the review package, then open Operate surfaces only when you have a concrete follow-up question.",
   hidePathLabel: "Hide path",
 };
 

@@ -48,13 +48,13 @@ describe("FirstPilotOperatingRail", () => {
       expect(screen.getByTestId("first-pilot-operating-rail")).toHaveAttribute("data-disclosure-expanded", "false");
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Expand First-pilot operating path" }));
+    fireEvent.click(screen.getByRole("button", { name: "Expand Full operating path" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("first-pilot-operating-rail")).toHaveAttribute("data-rail-variant", "operator");
     });
 
-    expect(screen.getByRole("heading", { name: "First-pilot operating path" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Full operating path" })).toBeInTheDocument();
     expect(screen.getByText(/V1\.1 connectors/i)).toBeInTheDocument();
     expect(screen.getByText(/Execute the review pipeline/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Extract and upload" })).toBeInTheDocument();

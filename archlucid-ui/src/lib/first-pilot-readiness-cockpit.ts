@@ -13,6 +13,9 @@ import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 export type FirstPilotReadinessStatus = "ready" | "attention" | "blocked" | "unknown";
 
+/** Logical section a readiness row belongs to, used to group cards in the cockpit UI. */
+export type FirstPilotReadinessGroup = "platform" | "execution" | "evidence" | "followup";
+
 export type FirstPilotReadinessRow = {
   id: string;
   label: string;
@@ -20,6 +23,7 @@ export type FirstPilotReadinessRow = {
   summary: string;
   href: string;
   cta: string;
+  group: FirstPilotReadinessGroup;
 };
 
 function statusFromHealth(healthStatus: string | null, healthLoadFailed: boolean): FirstPilotReadinessStatus {
@@ -85,23 +89,38 @@ export function buildFirstPilotReadinessRows(input: {
     {
       id: "api-ready",
       label: "API and platform readiness",
+      group: "platform" as const,
       status: statusFromHealth(input.healthStatus, input.healthLoadFailed),
       summary: input.healthLoadFailed
         ? "Readiness could not be loaded; open system status to inspect the environment."
         : `Health reports ${input.healthStatus ?? "unknown"}.`,
       href: "/health",
-      cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,    },
+      cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
+    },
     {
       id: "config-lint",
       label: "Production-like configuration",
+      group: "platform" as const,
       status: configLintCopy.status,
       summary: configLintCopy.summary,
       href: canAdmin ? "/admin/health" : inAppHelpHref("troubleshooting"),
       cta: canAdmin ? "Open config lint" : "Troubleshooting guide",
     },
     {
+      id: "storage-and-sql",
+      label: "SQL/storage configured",
+      group: "platform" as const,
+      status: input.signals.setupUnhealthy ? "blocked" : input.signals.setupReady ? "ready" : "attention",
+      summary: input.signals.setupReady
+        ? "Storage is ready enough for pilot work."
+        : "Confirm SQL/storage readiness before relying on persisted reviews.",
+      href: "/health",
+      cta: "Check readiness",
+    },
+    {
       id: "principal-authority",
       label: "Review authority",
+      group: "execution" as const,
       status: input.principal.provenance === "auth-me"
         ? canExecute
           ? "ready"
@@ -111,38 +130,12 @@ export function buildFirstPilotReadinessRows(input: {
         ? `${input.principal.maxAuthority} can create and execute the first architecture review.`
         : "Read-only principals can inspect the cockpit and should ask an operator/admin to execute reviews.",
       href: canAdmin ? "/settings/roles" : "/help",
-      cta: canAdmin ? "Open roles" : FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,    },
-    {
-      id: "storage-and-sql",
-      label: "SQL/storage configured",
-      status: input.signals.setupUnhealthy ? "blocked" : input.signals.setupReady ? "ready" : "attention",
-      summary: input.signals.setupReady
-        ? "Storage is ready enough for pilot work."
-        : "Confirm SQL/storage readiness before relying on persisted reviews.",
-      href: "/health",
-      cta: "Check readiness",
-    },
-    {
-      id: "sample-review",
-      label: "Sample review availability",
-      status: "ready",
-      summary: "The curated sample package remains available when real evidence is not ready yet.",
-      href: "/see-it",
-      cta: "Open sample",
-    },
-    {
-      id: "azure-extractor",
-      label: "Azure extractor evidence",
-      status: input.signals.evidenceReady ? "ready" : input.runsLoadFailed ? "unknown" : "attention",
-      summary: input.signals.evidenceReady
-        ? "Evidence is attached, acknowledged, or already committed for the pilot path."
-        : "Upload an extractor ZIP or use the sample package. No customer-tenant write role is required.",
-      href: "/settings/extract-upload",
-      cta: "Extract and upload",
+      cta: canAdmin ? "Open roles" : FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,
     },
     {
       id: "review-pipeline",
       label: "Create, execute, and finalize review",
+      group: "execution" as const,
       status: input.signals.hasCommittedManifest
         ? "ready"
         : input.signals.readyToFinalize
@@ -156,50 +149,56 @@ export function buildFirstPilotReadinessRows(input: {
           ? "A review appears ready to finalize on review detail."
           : canExecute
             ? "Create or continue the first architecture review."
-            : "Read-only role cannot execute or finalize. Ask an operator or admin.",      href: input.signals.latestRunId ? `/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/reviews/new",
+            : "Read-only role cannot execute or finalize. Ask an operator or admin.",
+      href: input.signals.latestRunId ? `/reviews/${encodeURIComponent(input.signals.latestRunId)}` : "/reviews/new",
       cta: input.signals.latestRunId ? "Open latest review" : "New review",
+    },
+    {
+      id: "sample-review",
+      label: "Sample review availability",
+      group: "execution" as const,
+      status: "ready",
+      summary: "The curated sample package remains available when real evidence is not ready yet.",
+      href: "/see-it",
+      cta: "Open sample",
+    },
+    {
+      id: "azure-extractor",
+      label: "Azure extractor evidence",
+      group: "execution" as const,
+      status: input.signals.evidenceReady ? "ready" : input.runsLoadFailed ? "unknown" : "attention",
+      summary: input.signals.evidenceReady
+        ? "Evidence is attached, acknowledged, or already committed for the pilot path."
+        : "Upload an extractor ZIP or use the sample package. No customer-tenant write role is required.",
+      href: "/settings/extract-upload",
+      cta: "Extract and upload",
     },
     {
       id: "roi-baselines",
       label: "ROI baseline readiness",
+      group: "evidence" as const,
       status: input.scorecardLoadFailed ? "unknown" : baselinesEntered ? "ready" : canExecute ? "attention" : "attention",
       summary: baselinesEntered
         ? "Sponsor/value outputs can label ROI lines as customer-entered baselines."
         : canExecute
           ? "Capture review hours, reviews per quarter, and loaded architect cost before sponsor export."
-          : "ROI baselines are available for review. Editing requires elevated access.",      href: "/scorecard#roi-baselines",
+          : "ROI baselines are available for review. Editing requires elevated access.",
+      href: "/scorecard#roi-baselines",
       cta: "Enter ROI baselines",
     },
     {
       id: "procurement-classification",
       label: "Procurement evidence readiness",
+      group: "evidence" as const,
       status: "attention",
       summary: "Procurement evidence package has not been generated yet.",
       href: "/trust",
-      cta: "Generate procurement package",    },
-    {
-      id: "proof-pipeline",
-      label: "Pilot evidence package",
-      status: input.signals.hasCommittedManifest ? "attention" : "unknown",
-      summary: input.signals.hasCommittedManifest
-        ? `${FIRST_PILOT_BUYER_COPY.proofPipelineAction} from diagnostics for go/no-go review.`
-        : "Finalize a review before collecting the pilot evidence package.",
-      href: inAppHelpHref("pilot-guide"),
-      cta: "Open pilot guide",    },
-    {
-      id: "data-consistency",
-      label: "Data consistency readiness",
-      status: mapDataConsistencyStatus({
-        healthStatus: input.healthStatus,
-        healthLoadFailed: input.healthLoadFailed,
-      }),
-      summary:
-        "Review-readiness status has not been collected yet. Use diagnostics after finalize to refresh readiness — platform health is a coarse signal only.",
-      href: "/health",
-      cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,    },
+      cta: "Generate procurement package",
+    },
     {
       id: "sponsor-packet",
       label: "Executive evidence package",
+      group: "evidence" as const,
       status: input.signals.hasCommittedManifest ? "ready" : "attention",
       summary: input.signals.hasCommittedManifest
         ? "Executive evidence package and export surfaces are available from finalized review detail."
@@ -208,8 +207,33 @@ export function buildFirstPilotReadinessRows(input: {
       cta: "Open evidence package",
     },
     {
+      id: "proof-pipeline",
+      label: "Pilot evidence package",
+      group: "followup" as const,
+      status: input.signals.hasCommittedManifest ? "attention" : "unknown",
+      summary: input.signals.hasCommittedManifest
+        ? `${FIRST_PILOT_BUYER_COPY.proofPipelineAction} from diagnostics for go/no-go review.`
+        : "Finalize a review before collecting the pilot evidence package.",
+      href: inAppHelpHref("pilot-guide"),
+      cta: "Open pilot guide",
+    },
+    {
+      id: "data-consistency",
+      label: "Data consistency readiness",
+      group: "followup" as const,
+      status: mapDataConsistencyStatus({
+        healthStatus: input.healthStatus,
+        healthLoadFailed: input.healthLoadFailed,
+      }),
+      summary:
+        "Review-readiness status has not been collected yet. Use diagnostics after finalize to refresh readiness — platform health is a coarse signal only.",
+      href: "/health",
+      cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
+    },
+    {
       id: "second-review",
       label: "Next review suggestion",
+      group: "followup" as const,
       status: input.signals.hasCommittedManifest ? "attention" : "unknown",
       summary: input.signals.hasCommittedManifest
         ? `Next: start a second architecture review with real inputs, compare reviews, try a ${FIRST_PILOT_BUYER_COPY.governanceDryRun}, or generate the sponsor packet.`

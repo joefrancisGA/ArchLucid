@@ -16,9 +16,9 @@ export type ProductDocumentationEntry = {
 export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[] = [
   {
     slug: "first-pilot-path",
-    title: "First-pilot operating path",
+    title: "Full operating path",
     summary:
-      "Six-step operator path from setup verification through sponsor packet — what to do, when to defer Operate surfaces, and how to recover.",
+      "Six-step operator path from setup verification to a finalized review package — what to do, when to defer Operate surfaces, and how to recover.",
     audience: "operator",
     sourcePaths: ["docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md"],
   },

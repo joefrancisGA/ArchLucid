@@ -20,6 +20,7 @@ import {
 } from "@/lib/first-pilot-diagnostics-copy";
 import {
   buildFirstPilotReadinessRows,
+  type FirstPilotReadinessGroup,
   type FirstPilotReadinessRow,
   type FirstPilotReadinessStatus,
 } from "@/lib/first-pilot-readiness-cockpit";
@@ -40,6 +41,25 @@ import { operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tok
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 type Phase = "loading" | "ready";
+
+type ReadinessStatusCounts = {
+  ready: number;
+  attention: number;
+  unknown: number;
+  blocked: number;
+};
+
+type ReadinessGroupDefinition = {
+  group: FirstPilotReadinessGroup;
+  label: string;
+};
+
+const READINESS_GROUPS: readonly ReadinessGroupDefinition[] = [
+  { group: "platform", label: "Platform readiness" },
+  { group: "execution", label: "Review execution" },
+  { group: "evidence", label: "Business evidence" },
+  { group: "followup", label: "Follow-up" },
+];
 
 function statusClass(status: FirstPilotReadinessStatus): string {
   switch (status) {
@@ -107,6 +127,110 @@ function sponsorDispositionLabel(disposition: FirstPilotCommandCenterPhaseSummar
       return exhaustive;
     }
   }
+}
+
+function buildReadinessStatusCounts(rows: readonly FirstPilotReadinessRow[]): ReadinessStatusCounts {
+  return rows.reduce<ReadinessStatusCounts>(
+    (acc, row) => {
+      acc[row.status] += 1;
+
+      return acc;
+    },
+    { ready: 0, attention: 0, unknown: 0, blocked: 0 },
+  );
+}
+
+function formatReadinessCountsSummary(rows: readonly FirstPilotReadinessRow[]): string {
+  const counts = buildReadinessStatusCounts(rows);
+  const parts: string[] = [];
+
+  if (counts.ready > 0)
+    parts.push(`${String(counts.ready)} ready`);
+
+  if (counts.attention > 0)
+    parts.push(`${String(counts.attention)} needs attention`);
+
+  if (counts.unknown > 0)
+    parts.push(`${String(counts.unknown)} pending`);
+
+  if (counts.blocked > 0)
+    parts.push(`${String(counts.blocked)} blocked`);
+
+  return parts.join(" · ") || "Workspace readiness loading…";
+}
+
+function ReadinessCard({ row }: { readonly row: FirstPilotReadinessRow }): React.JSX.Element {
+  return (
+    <article className={`rounded-lg border p-3 ${statusClass(row.status)}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+          {statusLabel(row.status)}
+        </span>
+        <h4 className="m-0 text-sm font-semibold">{row.label}</h4>
+      </div>
+      <p className="m-0 mt-2 text-xs leading-relaxed">{row.summary}</p>
+      <Link href={row.href} className="mt-2 inline-block text-xs font-medium underline underline-offset-2">
+        {row.cta}
+      </Link>
+    </article>
+  );
+}
+
+function ReadinessStatusCountsBar({ rows }: { readonly rows: readonly FirstPilotReadinessRow[] }): React.JSX.Element | null {
+  const counts = buildReadinessStatusCounts(rows);
+
+  type CountPart = { label: string; status: FirstPilotReadinessStatus; count: number };
+
+  const parts: CountPart[] = (
+    [
+      { label: "ready", status: "ready", count: counts.ready },
+      { label: "needs attention", status: "attention", count: counts.attention },
+      { label: "pending", status: "unknown", count: counts.unknown },
+      { label: "blocked", status: "blocked", count: counts.blocked },
+    ] satisfies CountPart[]
+  ).filter((p) => p.count > 0);
+
+  if (parts.length === 0)
+    return null;
+
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-2" aria-label="Readiness summary">
+      {parts.map(({ label, status, count }) => (
+        <span
+          key={status}
+          className={`rounded-full border border-current/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusClass(status)}`}
+        >
+          {String(count)} {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ReadinessGroupSection({ groupDef, rows }: {
+  readonly groupDef: ReadinessGroupDefinition;
+  readonly rows: readonly FirstPilotReadinessRow[];
+}): React.JSX.Element | null {
+  const groupRows = rows.filter((row) => row.group === groupDef.group);
+
+  if (groupRows.length === 0)
+    return null;
+
+  return (
+    <section aria-labelledby={`readiness-group-${groupDef.group}`}>
+      <h3
+        id={`readiness-group-${groupDef.group}`}
+        className="mb-2 text-xs font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+      >
+        {groupDef.label}
+      </h3>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {groupRows.map((row) => (
+          <ReadinessCard key={row.id} row={row} />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 /** Single first-pilot command center: phase, readiness rows, sponsor disposition, and next action in one place. */
@@ -217,6 +341,10 @@ export function FirstPilotReadinessCockpit() {
     [signals, baselinesEntered, canExecute, blocker],
   );
 
+  const collapsedSummary = phase === "loading"
+    ? "Loading workspace readiness…"
+    : formatReadinessCountsSummary(rows);
+
   if (phase === "loading") {
     return (
       <div
@@ -235,8 +363,10 @@ export function FirstPilotReadinessCockpit() {
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.workspaceReadiness}
       defaultExpanded={true}
       description="Current readiness summary: platform connectivity, authority assignment, evidence ingestion, review posture, and executive evidence package status."
-      collapsedSummary="Platform connectivity, authority, evidence, review posture, and executive evidence package."
+      collapsedSummary={collapsedSummary}
     >
+      <ReadinessStatusCountsBar rows={rows} />
+
       <div className="mb-4">
         <FirstPilotProofStatusStrip />
       </div>
@@ -274,20 +404,9 @@ export function FirstPilotReadinessCockpit() {
         ) : null}
       </article>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {rows.map((row) => (
-          <article key={row.id} className={`rounded-lg border p-3 ${statusClass(row.status)}`}>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-                {statusLabel(row.status)}
-              </span>
-              <h3 className="m-0 text-sm font-semibold">{row.label}</h3>
-            </div>
-            <p className="m-0 mt-2 text-xs leading-relaxed">{row.summary}</p>
-            <Link href={row.href} className="mt-2 inline-block text-xs font-medium underline underline-offset-2">
-              {row.cta}
-            </Link>
-          </article>
+      <div className="space-y-5">
+        {READINESS_GROUPS.map((groupDef) => (
+          <ReadinessGroupSection key={groupDef.group} groupDef={groupDef} rows={rows} />
         ))}
       </div>
 

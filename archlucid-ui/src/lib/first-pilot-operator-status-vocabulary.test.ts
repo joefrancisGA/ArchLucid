@@ -8,8 +8,8 @@ import {
 describe("first-pilot-operator-status-vocabulary", () => {
   it("maps readiness rows to canonical operator labels", () => {
     expect(mapReadinessStatusToOperatorLabel("ready")).toBe("READY");
-    expect(mapReadinessStatusToOperatorLabel("attention")).toBe("WARN");
-    expect(mapReadinessStatusToOperatorLabel("blocked")).toBe("HOLD");
+    expect(mapReadinessStatusToOperatorLabel("attention")).toBe("NEEDS ATTENTION");
+    expect(mapReadinessStatusToOperatorLabel("blocked")).toBe("BLOCKED");
     expect(mapReadinessStatusToOperatorLabel("unknown")).toBe("PENDING");
   });
 

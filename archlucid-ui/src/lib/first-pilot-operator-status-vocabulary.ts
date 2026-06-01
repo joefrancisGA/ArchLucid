@@ -1,7 +1,7 @@
 import type { FirstPilotReadinessStatus } from "@/lib/first-pilot-readiness-cockpit";
 
 /** Canonical first-pilot operator labels shared by cockpit rows and runbooks. */
-export type FirstPilotOperatorStatusLabel = "READY" | "WARN" | "HOLD" | "DEFERRED" | "PENDING";
+export type FirstPilotOperatorStatusLabel = "READY" | "NEEDS ATTENTION" | "BLOCKED" | "DEFERRED" | "PENDING";
 
 export function mapReadinessStatusToOperatorLabel(
   status: FirstPilotReadinessStatus,
@@ -10,9 +10,9 @@ export function mapReadinessStatusToOperatorLabel(
     case "ready":
       return "READY";
     case "attention":
-      return "WARN";
+      return "NEEDS ATTENTION";
     case "blocked":
-      return "HOLD";
+      return "BLOCKED";
     case "unknown":
       return "PENDING";
     default: {
@@ -25,8 +25,8 @@ export function mapReadinessStatusToOperatorLabel(
 
 export const FIRST_PILOT_OPERATOR_STATUS_VOCABULARY = {
   ready: "READY — no blocking action for this row.",
-  warn: "WARN — review before sponsor send or external circulation.",
-  hold: "HOLD — resolve before sponsor handoff or procurement follow-up.",
+  needsAttention: "NEEDS ATTENTION — review before sponsor send or external circulation.",
+  blocked: "BLOCKED — resolve before sponsor handoff or procurement follow-up.",
   deferred: "DEFERRED — explicitly out of V1 first-pilot scope; document in proof disposition.",
   nextAction: "NEXT ACTION — one primary link surfaced by the command center phase card.",
 } as const;
