@@ -1,0 +1,87 @@
+{
+  "schema": "archlucid.audit-event-catalog.v1",
+  "version": 1,
+  "events": [
+    {
+      "eventType": "ManifestFinalized",
+      "owner": "Authority pipeline",
+      "purpose": "Golden manifest committed with outbox",
+      "expectedActor": "system",
+      "buyerSafeSummary": "Committed review package finalized",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "GovernanceApprovalRequested",
+      "owner": "Governance workflow",
+      "purpose": "Approval request created for policy posture",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "Governance approval requested",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "GovernanceDryRunRequested",
+      "owner": "Governance workflow",
+      "purpose": "Policy-pack what-if dry-run evaluated",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "Policy-pack dry-run performed (not certification)",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "ExecutiveRoiBoardPackExported",
+      "owner": "Commercial / ROI",
+      "purpose": "Executive ROI board pack exported",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "ROI board pack exported with basis labels",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "SponsorProofPackGenerated",
+      "owner": "Commercial / proof",
+      "purpose": "Sponsor proof pack artifact generated",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "Sponsor proof pack generated",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "Marketing.PricingQuoteRequestAcknowledged",
+      "owner": "Commercial / GTM",
+      "purpose": "Pricing quote request acknowledged",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "Quote request acknowledged",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "SupportBundleDownloaded",
+      "owner": "Supportability",
+      "purpose": "Support bundle generated for investigation",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "Support bundle created (redacted)",
+      "sensitivity": "internal-preferred",
+      "exportPosture": "operator-only"
+    },
+    {
+      "eventType": "RunSubmitted",
+      "owner": "Authority pipeline",
+      "purpose": "Run submitted for agent execution",
+      "expectedActor": "operator",
+      "buyerSafeSummary": "Architecture review run submitted",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    },
+    {
+      "eventType": "RunCompleted",
+      "owner": "Authority pipeline",
+      "purpose": "Run reached terminal state",
+      "expectedActor": "system",
+      "buyerSafeSummary": "Review run completed",
+      "sensitivity": "tenant-scoped",
+      "exportPosture": "category-count-only"
+    }
+  ]
+}

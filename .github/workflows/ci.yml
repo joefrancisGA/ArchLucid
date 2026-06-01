@@ -305,6 +305,12 @@ jobs:
       - name: Policy pack manifest unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_manifests.py"
 
+      - name: Audit event catalog metadata (TB-126)
+        run: python scripts/ci/check_audit_event_catalog.py
+
+      - name: Commercial audit proof batch unit tests (TB-127)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_audit_proof_batch.py"
+
       - name: Hot-path performance budget registry (assessment #18)
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

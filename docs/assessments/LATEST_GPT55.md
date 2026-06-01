@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 79.68%
+# ArchLucid Assessment – (A) Headline Readiness: 79.83%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Batches 0–3 through **79.58%**; Batch 4A **TB-175–176** policy-pack `packManifest` + dry-run index → **79.68%**. G-REAL-01–04 owner-blocked; **TB-140** real-mode eval open. **TB-170 (docs)** markdown link integrity is separate.
+Rescore note: Batches 0–3 **79.58%**; 4A **TB-175–176** **79.68%**; 4B **TB-121–128** commercial/audit proof parity **79.83%**. G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
 
 ## Executive Summary
 
@@ -58,7 +58,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Executive Value Visibility | 78 | 4 | 2.69% | 88 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
-| Trustworthiness | 77 | 3 | 1.99% | 69 |
+| Trustworthiness | 78 | 3 | 2.02% | 66 |
 | Interoperability | 66 | 2 | 1.14% | 68 |
 | Architectural Integrity | 79 | 3 | 2.05% | 63 |
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
@@ -67,10 +67,10 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Maintainability | 72 | 2 | 1.24% | 56 |
 | Traceability | 84 | 3 | 2.17% | 48 |
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
-| Procurement Readiness | 74 | 2 | 1.28% | 52 |
-| Commercial Packaging Readiness | 74 | 2 | 1.28% | 52 |
+| Procurement Readiness | 75 | 2 | 1.29% | 50 |
+| Commercial Packaging Readiness | 76 | 2 | 1.31% | 48 |
 | Reliability | 74 | 2 | 1.28% | 52 |
-| Auditability | 75 | 2 | 1.29% | 50 |
+| Auditability | 77 | 2 | 1.32% | 46 |
 | Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |
 | Explainability | 80 | 2 | 1.38% | 40 |
 | Cognitive Load | 66 | 1 | 0.57% | 34 |

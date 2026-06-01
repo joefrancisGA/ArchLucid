@@ -14,12 +14,13 @@
 | Run detail operator fidelity | **TB-109 – TB-113** (incl. **TB-110** tool forensics) |
 | Starter proof packs | **TB-170 – TB-174** (chooser, metadata, CI validation, dry-run, golden walkthrough) |
 | Policy pack manifests | **TB-175 – TB-176** (packManifest, CI validation, dry-run index) |
+| Commercial / audit parity | **TB-121 – TB-128** (route parity, governance summary, freshness, audit matrix, buyer-safe audit, catalog, tests, triage one-pager) |
 
 ## P1 — template / commercial (next engineering batch)
 
 | ID | Title |
 | --- | --- |
-| TB-121 – TB-134 | Parity gates, sponsor proof, audit/commercial packaging |
+| TB-129 – TB-134 | Quote-to-proof, closeout, tier fit, offer pack, overclaim guard |
 
 ## Real-mode / eval (owner or credentialed CI)
 

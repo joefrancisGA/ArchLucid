@@ -160,6 +160,153 @@ function Get-LatestEvidenceBundleDirectory {
         Select-Object -First 1
 }
 
+function Get-PilotRunDeltasJsonPath {
+    param([string] $EvidenceRoot = '')
+
+    if ([string]::IsNullOrWhiteSpace($EvidenceRoot) -or -not (Test-Path -LiteralPath $EvidenceRoot)) {
+        return ''
+    }
+
+    $latestBundle = Get-LatestEvidenceBundleDirectory -EvidenceRoot $EvidenceRoot
+
+    if ($null -eq $latestBundle) {
+        return ''
+    }
+
+    $deltasPath = Join-Path $latestBundle.FullName 'pilot-run-deltas.json'
+
+    if (Test-Path -LiteralPath $deltasPath) {
+        return $deltasPath
+    }
+
+    return ''
+}
+
+function Add-GovernanceOutcomeSummaryFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $DeltasJsonPath = ''
+    )
+
+    $markdownPath = Join-Path $ProofDirectory 'governance-outcome-summary.md'
+    $jsonPath = Join-Path $ProofDirectory 'governance-outcome-summary.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_first_pilot_governance_outcome.py'
+    $args = @(
+        $scriptPath,
+        '--json-out', $jsonPath,
+        '--markdown-out', $markdownPath,
+        '--run-id', $(if ([string]::IsNullOrWhiteSpace($RunIdValue)) { 'not-supplied' } else { $RunIdValue.Trim() }),
+        '--pilot-strict-satisfied'
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($DeltasJsonPath) -and (Test-Path -LiteralPath $DeltasJsonPath)) {
+        $args += @('--deltas-json', $DeltasJsonPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'governance-outcome-summary.md' -Path 'governance-outcome-summary.md' -Purpose 'Buyer-safe governance PASS/WARN/HOLD summary for sponsor proof.'
+    Add-ProofArtifact -Name 'governance-outcome-summary.json' -Path 'governance-outcome-summary.json' -Purpose 'Machine-readable governance outcome summary.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'governance-outcome-summary' -Detail 'Governance outcome summary was not generated.' -Remediation 'Supply -RunId and committed-run evidence, or repair report_first_pilot_governance_outcome.py.' -TriageCard 'FP-T015'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$payload.proofDisposition
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'governance-outcome-summary' -Detail 'Governance outcome summary is PASS for sponsor handoff.' -Remediation ''
+        return
+    }
+
+    $proofFinding = if ($SponsorHandoff -and $disposition -eq 'HOLD') { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $proofFinding -Name 'governance-outcome-summary' -Detail "Governance outcome disposition is $disposition." -Remediation 'Resolve governance/proof completeness before sponsor send.' -TriageCard 'FP-T015'
+}
+
+function Add-PolicyPackFreshnessFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $markdownPath = Join-Path $ProofDirectory 'policy-pack-freshness.md'
+    $jsonPath = Join-Path $ProofDirectory 'policy-pack-freshness.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_policy_pack_freshness.py'
+    & python $scriptPath --json-out $jsonPath --markdown-out $markdownPath 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    Add-ProofArtifact -Name 'policy-pack-freshness.md' -Path 'policy-pack-freshness.md' -Purpose 'Vertical policy-pack lastReviewedUtc freshness for procurement/proof.'
+    Add-ProofArtifact -Name 'policy-pack-freshness.json' -Path 'policy-pack-freshness.json' -Purpose 'Machine-readable policy-pack freshness disposition.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'policy-pack-freshness' -Detail 'Policy-pack freshness report was not generated.' -Remediation 'Run python scripts/ci/report_policy_pack_freshness.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$payload.disposition
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'policy-pack-freshness' -Detail 'All vertical policy packs are within freshness thresholds.' -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'HOLD') {
+        $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+        Add-ProofFinding -Disposition $proofDisposition -Name 'policy-pack-freshness' -Detail 'One or more policy packs are stale (>180 days since lastReviewedUtc).' -Remediation 'Update packManifest.lastReviewedUtc after SME review.' -TriageCard 'FP-T015'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'policy-pack-freshness' -Detail 'Policy-pack freshness WARN — review lastReviewedUtc before procurement proof.' -Remediation 'See policy-pack-freshness.md.'
+}
+
+function Add-BuyerSafeAuditEvidenceSummaryFinding {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [string] $RunIdValue = '',
+        [string] $DeltasJsonPath = ''
+    )
+
+    $markdownPath = Join-Path $ProofDirectory 'audit-evidence-summary.md'
+    $jsonPath = Join-Path $ProofDirectory 'audit-evidence-summary.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_buyer_safe_audit_evidence_summary.py'
+    $args = @(
+        $scriptPath,
+        '--json-out', $jsonPath,
+        '--markdown-out', $markdownPath,
+        '--run-id', $(if ([string]::IsNullOrWhiteSpace($RunIdValue)) { 'not-supplied' } else { $RunIdValue.Trim() })
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($DeltasJsonPath) -and (Test-Path -LiteralPath $DeltasJsonPath)) {
+        $args += @('--deltas-json', $DeltasJsonPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'audit-evidence-summary.md' -Path 'audit-evidence-summary.md' -Purpose 'Buyer-safe audit category summary (no raw payloads).'
+    Add-ProofArtifact -Name 'audit-evidence-summary.json' -Path 'audit-evidence-summary.json' -Purpose 'Machine-readable audit evidence summary.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'audit-evidence-summary' -Detail 'Audit evidence summary was not generated.' -Remediation 'Repair report_buyer_safe_audit_evidence_summary.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$payload.disposition
+
+    if ($disposition -eq 'PASS') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'audit-evidence-summary' -Detail 'Audit evidence summary includes run-linked row counts.' -Remediation ''
+        return
+    }
+
+    $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $proofDisposition -Name 'audit-evidence-summary' -Detail 'No audit rows linked to run in deltas; attach committed-run evidence.' -Remediation 'Re-run with -RunId after committed review.' -TriageCard 'FP-T015'
+}
+
 function Add-AgentQualitySponsorGateFinding {
     param([Parameter(Mandatory = $true)][string] $EvidenceRoot)
 
@@ -1031,6 +1178,10 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| Environment reliability rollup | $(Resolve-FindingDisposition -Name 'environment-reliability-rollup') | ``environment-reliability-rollup.md`` |")
     $lines.Add("| Trace chain summary | $(Resolve-FindingDisposition -Name 'committed-review-trace-chain-summary') | ``committed-review-trace-chain-summary.md`` |")
     $lines.Add("| Route/tier/policy/nav parity | $routeTierStatus | ``route-tier-policy-nav-parity.md`` |")
+    $lines.Add("| Governance outcome summary | $(Resolve-FindingDisposition -Name 'governance-outcome-summary') | ``governance-outcome-summary.md`` |")
+    $lines.Add("| Policy-pack freshness | $(Resolve-FindingDisposition -Name 'policy-pack-freshness') | ``policy-pack-freshness.md`` |")
+    $lines.Add("| Audit evidence summary | $(Resolve-FindingDisposition -Name 'audit-evidence-summary') | ``audit-evidence-summary.md`` |")
+    $lines.Add("| Mutating route audit matrix | $(Resolve-FindingDisposition -Name 'mutating-route-audit-matrix') | ``mutating-route-audit-matrix.md`` |")
     $lines.Add("| Production-like config lint | $(Resolve-FindingDisposition -Name 'production-like-config-lint') | ``config-lint-production-like-hosted-pilot.md`` |")
     $lines.Add("| Data consistency readiness | $DataConsistencyStatus | ``data-consistency-readiness/`` |")
     $lines.Add("| AI quality proof | $aiQualityStatus | ``go-no-go-summary.json`` · ``aiQualityProof`` |")
@@ -2327,6 +2478,7 @@ else {
     Add-DemoWorkspaceValidationFinding -ProofDirectory $proofDir
     Add-ProductionLikeConfigLintFinding -ProofDirectory $proofDir
     Add-RouteTierPolicyNavFinding -ProofDirectory $proofDir
+    Add-PolicyPackFreshnessFinding -ProofDirectory $proofDir
     Add-ProcurementDealReadyFinding -ProofDirectory $proofDir
     Add-TrialToPaidTestModeEvidenceFinding -ProofDirectory $proofDir
     Add-AcceleratorHandoffFinding -ProofDirectory $proofDir
@@ -2402,6 +2554,18 @@ Add-EnvironmentReliabilityRollupFinding -ProofDirectory $proofDir
 Add-OptionalIntegrationCorrectnessDrillFinding -ProofDirectory $proofDir
 
 $evidenceRootForTrace = Join-Path $proofDir 'first-pilot-evidence'
+$pilotDeltasPath = Get-PilotRunDeltasJsonPath -EvidenceRoot $evidenceRootForTrace
+
+if ([string]::IsNullOrWhiteSpace($pilotDeltasPath)) {
+    $demoDeltasPath = Join-Path $root 'docs\go-to-market\reference-customers\samples\pilot-run-deltas.demo-tenant.json'
+
+    if (Test-Path -LiteralPath $demoDeltasPath) {
+        $pilotDeltasPath = $demoDeltasPath
+    }
+}
+
+Add-GovernanceOutcomeSummaryFinding -ProofDirectory $proofDir -RunIdValue $RunId -DeltasJsonPath $pilotDeltasPath
+Add-BuyerSafeAuditEvidenceSummaryFinding -ProofDirectory $proofDir -RunIdValue $RunId -DeltasJsonPath $pilotDeltasPath
 
 if (-not [string]::IsNullOrWhiteSpace($RunId) -and (Test-Path -LiteralPath $evidenceRootForTrace)) {
     Add-CommittedReviewTraceChainSummaryFinding `

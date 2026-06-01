@@ -243,6 +243,12 @@ def test_proof_includes_enterprise_operations_artifacts() -> None:
     assert "identity-preflight-scenarios.md" in text
     assert "mutating-route-audit-matrix.md" in text
     assert "governance-policy-pack-dry-run-proof.md" in text
+    assert "Add-GovernanceOutcomeSummaryFinding" in text
+    assert "Add-PolicyPackFreshnessFinding" in text
+    assert "Add-BuyerSafeAuditEvidenceSummaryFinding" in text
+    assert "governance-outcome-summary.md" in text
+    assert "policy-pack-freshness.md" in text
+    assert "audit-evidence-summary.md" in text
 
 
 def test_evidence_collector_tracks_llm_budget_fields() -> None:

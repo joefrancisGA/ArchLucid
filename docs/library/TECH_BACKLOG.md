@@ -116,14 +116,14 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-174 | Golden accelerator walkthrough (one pack only) | **Done (2026-06-01)** — `walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` (regulated SaaS) | S |
 | TB-175 | Policy pack metadata and buyer-safe caveat validation | **Done (2026-06-01)** — `packManifest` on vertical packs; `check_policy_pack_manifests.py` + contract doc | S |
 | TB-176 | Policy pack dry-run index | **Done (2026-06-01)** — `POLICY_PACK_DRY_RUN_INDEX.md` generated from manifests; CI `--check` | S |
-| TB-121 | Route/tier/policy/nav parity release gate hardening | Governance drift prevention — changes to routes, tiers, policy surfaces, or nav must refresh parity proof before release | S |
-| TB-122 | Governance outcome summary in sponsor proof | Trust / buyer clarity — sponsor proof should summarize applied policies, approvals, waivers, unresolved governance items, and buyer-safe status | S |
-| TB-123 | Policy-pack freshness report in proof/procurement artifacts | Governance freshness — proof packets should show policy-pack last-reviewed posture and stale-pack warnings | S |
-| TB-124 | Audit coverage drift gate for critical workflows | Auditability — mutating routes, governance actions, and proof actions must map to expected audit event types or explicit allowlist rationale | M |
-| TB-125 | Buyer-safe audit evidence summary in proof bundles | Auditability / trust — proof bundles need audit categories, correlation IDs, run/manifest traceability, and omitted sensitive-field notes | S |
-| TB-126 | Audit event catalog metadata | Supportability — event types need owner, purpose, actor, scope fields, retention sensitivity, and buyer-safe/export posture | M |
-| TB-127 | Audit tests for sponsor/procurement proof actions | Correctness — critical proof generation and commercial handoff actions should emit audit rows or document informational-only rationale | M |
-| TB-128 | Support/audit triage one-pager | Supportability — given runId/correlationId, operators need one artifact-open order for audit and support investigation | XS-S |
+| TB-121 | Route/tier/policy/nav parity release gate hardening | **Done (2026-06-01)** — sponsor/production BLOCK on drift; parity in first-pilot proof | S |
+| TB-122 | Governance outcome summary in sponsor proof | **Done (2026-06-01)** — `governance-outcome-summary` artifacts in proof | S |
+| TB-123 | Policy-pack freshness report in proof/procurement artifacts | **Done (2026-06-01)** — `policy-pack-freshness` v2 from `packManifest` | S |
+| TB-124 | Audit coverage drift gate for critical workflows | **Done (2026-06-01)** — `mutating-route-audit-matrix` + drift in proof/CI | M |
+| TB-125 | Buyer-safe audit evidence summary in proof bundles | **Done (2026-06-01)** — `audit-evidence-summary` + triage one-pager | S |
+| TB-126 | Audit event catalog metadata | **Done (2026-06-01)** — `audit_event_catalog.v1.json` + CI check | M |
+| TB-127 | Audit tests for sponsor/procurement proof actions | **Done (2026-06-01)** — `test_commercial_audit_proof_batch.py` | M |
+| TB-128 | Support/audit triage one-pager | **Done (2026-06-01)** — `SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md` | XS-S |
 | TB-129 | Quote-to-proof readiness checklist | Commercial packaging — quote, tier, proof status, ROI basis, deferred asks, and next commercial action should be one checklist | S |
 | TB-130 | Quote aging export and follow-up SLA report | Decision velocity — open quote requests need aging buckets, follow-up status, warn/breach counts, and AdminAuthority-only export | M |
 | TB-131 | Commercial closeout artifact hardening | Monetization — generated PASS/HOLD/DEFERRED_SCOPE, next ask, owner, and caveats should agree with proof JSON | S |
@@ -381,6 +381,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-121 — Route/tier/policy/nav parity release gate hardening
 
+**Status:** **Done (2026-06-01)** — `Add-RouteTierPolicyNavFinding` BLOCK on sponsor/production/drift; [`ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md`](ROUTE_TIER_POLICY_NAV_DRIFT_GATE.md).
+
 **Objective:** Prevent UI, packaging, authorization, and policy surfaces from drifting apart after route or tier changes.
 
 **Scope:**
@@ -402,6 +404,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-122 — Governance outcome summary in sponsor proof
+
+**Status:** **Done (2026-06-01)** — `governance-outcome-summary.md/json` in first-pilot proof via `report_first_pilot_governance_outcome.py`.
 
 **Objective:** Make governance status visible to sponsors without forcing them through internal governance screens.
 
@@ -425,6 +429,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-123 — Policy-pack freshness report in proof/procurement artifacts
 
+**Status:** **Done (2026-06-01)** — `policy-pack-freshness.md/json` from `packManifest.lastReviewedUtc` (v2 schema).
+
 **Objective:** Surface stale policy packs before they appear in buyer proof.
 
 **Scope:**
@@ -446,6 +452,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-124 — Audit coverage drift gate for critical workflows
+
+**Status:** **Done (2026-06-01)** — `Add-MutatingRouteAuditMatrixFinding` + `check_audit_matrix.py` in CI/proof.
 
 **Objective:** Keep audit coverage aligned with mutating routes, governance actions, and proof/commercial handoff operations.
 
@@ -469,6 +477,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-125 — Buyer-safe audit evidence summary in proof bundles
 
+**Status:** **Done (2026-06-01)** — `audit-evidence-summary.md/json`; links [`SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md`](../runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md).
+
 **Objective:** Let sponsors and support teams understand audit evidence without exposing raw audit payloads.
 
 **Scope:**
@@ -491,6 +501,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-126 — Audit event catalog metadata
 
+**Status:** **Done (2026-06-01)** — [`scripts/ci/data/audit_event_catalog.v1.json`](../scripts/ci/data/audit_event_catalog.v1.json) + `check_audit_event_catalog.py`.
+
 **Objective:** Make audit event types self-describing for support, compliance review, and drift checks.
 
 **Scope:**
@@ -512,6 +524,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-127 — Audit tests for sponsor/procurement proof actions
 
+**Status:** **Done (2026-06-01)** — `test_commercial_audit_proof_batch.py` + extended `test_collect_first_pilot_proof_contract.py`.
+
 **Objective:** Prove commercially sensitive proof actions are auditable or explicitly informational-only.
 
 **Scope:**
@@ -532,6 +546,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-128 — Support/audit triage one-pager
+
+**Status:** **Done (2026-06-01)** — [`docs/runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md`](../runbooks/SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md).
 
 **Objective:** Give operators a short, deterministic investigation path from `runId` or `correlationId`.
 
