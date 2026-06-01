@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { operatorSemanticSurface } from "@/lib/design-tokens";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { cn } from "@/lib/utils";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
@@ -124,7 +124,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
         </Link>
         {" · "}
         <Link
-          href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/library/AGENT_OUTPUT_EVALUATION.md`}
+          href={resolveInAppDocHref("docs/library/AGENT_OUTPUT_EVALUATION.md")}
           className="font-medium underline underline-offset-2"
           target="_blank"
           rel="noopener noreferrer"

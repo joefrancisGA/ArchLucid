@@ -20,7 +20,7 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import {
@@ -105,8 +105,8 @@ export function EmailRunToSponsorBanner({
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
   const executiveReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/executive-review-packet`;
   const sponsorProofPackHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-proof-pack.zip`;
-  const executiveBriefHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/EXECUTIVE_SPONSOR_BRIEF.md`;
-  const pilotRoiModelHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PILOT_ROI_MODEL.md`;
+  const executiveBriefHref = resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md");
+  const pilotRoiModelHref = resolveInAppDocHref("docs/library/PILOT_ROI_MODEL.md");
 
   useEffect(() => {
     let cancelled = false;

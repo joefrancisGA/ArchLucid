@@ -1,4 +1,4 @@
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export const CUSTOM_POLICY_PACK_QUOTE_INTEREST = "custom-policy-pack";
 
@@ -6,13 +6,18 @@ export const CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL =
   "Custom policy pack (professional services)";
 
 export const PRICING_PHILOSOPHY_CUSTOM_PACK_HREF =
-  `${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services`;
+  resolveInAppDocHref(
+    "docs/go-to-market/PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services",
+  );
 
-export const CUSTOM_POLICY_PACK_SOW_HREF =
-  `${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md`;
+export const CUSTOM_POLICY_PACK_SOW_HREF = resolveInAppDocHref(
+  "docs/go-to-market/CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md",
+);
 
 export const ORDER_FORM_ADDENDUM_C_HREF =
-  `${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/ORDER_FORM_TEMPLATE.md#addendum-c--custom-policy-pack-authoring-professional-services`;
+  resolveInAppDocHref(
+    "docs/go-to-market/ORDER_FORM_TEMPLATE.md#addendum-c--custom-policy-pack-authoring-professional-services",
+  );
 
 export type CustomPolicyPackAuthoringSku = {
   id: string;

@@ -1,5 +1,5 @@
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type PostCommitHabitActionKind = "primary" | "optional";
@@ -41,7 +41,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
   const sponsorHref = `#sponsor-deliverables`;
   const trustEvidenceHref = `#trust-evidence`;
   const governanceHref = `/governance?runId=${encodeURIComponent(runId)}`;
-  const quoteToProofHref = `${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/QUOTE_TO_PROOF_PACKET.md`;
+  const quoteToProofHref = resolveInAppDocHref("docs/go-to-market/QUOTE_TO_PROOF_PACKET.md");
 
   let primary: PostCommitHabitAction;
 

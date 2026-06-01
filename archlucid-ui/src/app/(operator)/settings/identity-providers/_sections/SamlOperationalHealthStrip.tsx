@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import type { components } from "@/lib/openapi-schemas";
 import {
   evaluateSamlSigningCertExpiryBanner,
@@ -19,7 +19,7 @@ const SAML_SIGNING_CERT_BANNER_DISMISS_SESSION_KEY = "archlucid.dismiss.samlSign
 
 const SAML_SIGNING_CERT_EXPIRY_BANNER_DISMISS_LABEL = "Dismiss SAML signing certificate reminder";
 
-const SAML_ROTATION_RUNBOOK_URL = `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`;
+const SAML_ROTATION_RUNBOOK_URL = resolveInAppDocHref("docs/library/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md");
 
 export type SamlOperationalHealthStripProps = {
   payload: AdminSamlOperationalHealthResponse | null;

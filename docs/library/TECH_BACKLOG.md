@@ -35,7 +35,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-106 – TB-113** were added 2026-05-27 from a `RunDetailPageView` operator fidelity audit (does the run detail page surface everything needed to approve, reject, or remediate a run?). Root cause is a split API contract: the operator loader calls `GET /v1/authority/runs/{runId}` but the UI reads `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` that exist only on the architecture endpoint — those fields are null on every live run. Additional gaps: retrieval hits and tool calls have no dedicated UI surface anywhere; `findingCoverageSummary.hasCommitBlockingFailures` and `dispositionCoverage` are computed in `GetRunDetailAsync` but dropped before render; `hasGovernanceWarnings` and `lastFailureReason` from `RunRecord` are never shown. **TB-106**–**TB-108** are correctness/operator-visibility P0s; **TB-109**–**TB-111** are P1 operator-visibility additions; **TB-112** is P2 workflow; **TB-113** is P2 schema hygiene. Canvas audit: `canvases/run-detail-operator-fidelity.canvas.tsx` (IDE-only).
 
-**TB-114 – TB-118** were added 2026-05-29 from a Template and Accelerator Richness review. The conclusion was **not** to add template volume for its own sake. The V1 opportunity is to make existing starter proof packs easier to choose, validate, trust, and dry-run. **TB-114** is the highest leverage because it maps buyer jobs to existing accelerators; **TB-115** prevents stale/unsafe pack metadata; **TB-116** and **TB-117** add deterministic validation and proof dry-run coverage; **TB-118** creates one golden walkthrough that sales/operators can use without multiplying templates.
+**TB-170 – TB-176** (formerly duplicated IDs TB-114–120 in this file) were added 2026-05-29 from a Template and Accelerator Richness review. The conclusion was **not** to add template volume for its own sake. The V1 opportunity is to make existing starter proof packs easier to choose, validate, trust, and dry-run. **TB-170** is the highest leverage because it maps buyer jobs to existing accelerators; **TB-171** prevents stale/unsafe pack metadata; **TB-172** and **TB-173** add deterministic validation and proof dry-run coverage; **TB-174** creates one golden walkthrough that sales/operators can use without multiplying templates.
 
 **TB-119 – TB-134** were added 2026-05-29 from a Policy/Governance, Auditability, and Commercial Packaging review. The theme is proof discipline: make governance packs, audit trails, and sales-led packaging harder to misread, drift, or overclaim. **TB-119 – TB-123** cover policy/governance alignment; **TB-124 – TB-128** cover auditability; **TB-129 – TB-134** cover commercial packaging readiness. Owner-gated items such as live commerce and named customer references remain deferred outside this cluster.
 
@@ -52,6 +52,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **TB-168** was added 2026-06-01 from the GPT-5.5 assessment correctness follow-up. It does not duplicate **TB-103 – TB-105** or **TB-149 – TB-155**; those fix known KPI/waiver/recurrence defects. **TB-168** adds a regression guard so future changes cannot silently reintroduce UI KPI heuristics, stale cache fallbacks, or duplicate business semantics.
 
 **TB-169** was added 2026-06-01 from the GPT-5.5 adoption-friction follow-up. It does not duplicate **TB-156 – TB-157** (API/proxy diagnostics) or **TB-143 – TB-148** (in-app docs). It targets first-run branching and progressive disclosure: Pilot-first onboarding should keep Operate surfaces out of the primary path until a committed review exists.
+
+**TB-170** was added 2026-06-01 from the **Docs: markdown link integrity** CI advisory output. It does not duplicate **TB-147** (GitHub blob URLs in product UI) or **TB-143 – TB-148** (in-app customer docs). It targets broken relative markdown link targets left after `docs/library/` consolidation and navigational moves; the check still reports **200+** stale paths while running warn-only in CI.
 
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
@@ -87,33 +89,33 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | **Done (2026-05-31)** — `--output-json [path]`, `stages[]` timings on report, `BackfillCliJsonReportSerializerTests` | XS |
 | TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
-| TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **P0** — local dev / operator diagnostics — script declares success when UI `/` loads but proxy returns 502; contributors misdiagnose as LLM outage | S |
-| TB-157 | API connectivity toasts — distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **P0** — operator diagnostics — `api-error-toast-policy.ts` maps all proxy 502/fetch failures to “AI assistant not reachable” | XS |
+| TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **Done (2026-05-31)** — `scripts/start-local-api-and-ui.ps1` E2E proxy gate | S |
+| TB-157 | API connectivity toasts — distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **Done (2026-05-31)** — `api-error-toast-policy.ts` + tests | XS |
 | TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | **Done (2026-05-31)** — `AuthorityRunDetailOperatorEnricher` on `GetRunDetail`; explanation-trace fallback label when `results[]` empty | M |
 | TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | **Done (2026-05-31)** — `RunDetailGovernanceAlerts` + metadata `retryCount` when &gt; 0 | S |
 | TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | **Done (2026-05-31)** — `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | S |
 | TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — **Done** 2026-05-31; reaffirmed 2026-06-01 | M |
 | TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — **Done**; dashboard uses `waiversExpiringWithin14Days` only (**TB-155**, **TB-168**) | S |
 | TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — **Done** 2026-05-31 | S |
-| TB-149 | Canonical 14-day expiring-waiver window — single server implementation; delete `CountExpiringWaivers` duplicate | Customer-visible correctness — `ExecutiveRoiSummaryService` counts expired waivers; `BuildSummaryAsync` uses `[now, now+14d]`; dashboard prefers stale ROI field | S |
-| TB-150 | Decisions-needed `TotalDecisionItems` — union cardinality across buckets, not sum | Customer-visible correctness — same finding can increment stale + needs-evidence + deferred + waiver buckets; KPI overcounts | S |
-| TB-151 | `ExecutiveSummaryResult.TotalRiskReductionScore` — rename or map to pending-decision count | Customer-visible correctness — field maps to `TotalDecisionItems` (high = more work); semantic inversion for exports/consumers | XS |
-| TB-152 | `ExecutiveSummaryResult.CostWasteUsd` — stop aliasing `TotalEstimatedUsdSavings` | Semantic debt — waste vs recoverable savings conflated; silent break when ROI distinguishes them | XS |
-| TB-153 | Recurring architecture review trigger — idempotency before `ExecuteRunAsync` | Reliability / correctness — ACA restart after `CreateRunAsync` but before `UpdateAsync` can duplicate runs per schedule period | M |
-| TB-154 | Waiver ↔ disposition state machine — bidirectional invariants | Governance correctness — active waiver on remediated finding; expiry without disposition event; stale risk double-count with waiver | M |
-| TB-155 | ROI cache TTL vs live decisions-needed — canonical expiring-waiver source | Customer-visible correctness — `CachingExecutiveRoiSummaryService` can serve stale `ExpiringWaiversCount14Days` while decisions-needed is fresh | S |
+| TB-149 | Canonical 14-day expiring-waiver window — single server implementation; delete `CountExpiringWaivers` duplicate | **Done (2026-05-31)** — `GovernanceWaiverExpiryWindow.CountExpiringWithinDays` | S |
+| TB-150 | Decisions-needed `TotalDecisionItems` — union cardinality across buckets, not sum | **Done (2026-05-31)** — `GovernanceDecisionsNeededSummaryCalculator` | S |
+| TB-151 | `ExecutiveSummaryResult.TotalRiskReductionScore` — rename or map to pending-decision count | **Done (2026-05-31)** — `ResolvedFindingsCount30Days` + `PendingGovernanceDecisionCount` | XS |
+| TB-152 | `ExecutiveSummaryResult.CostWasteUsd` — stop aliasing `TotalEstimatedUsdSavings` | **Done (2026-05-31)** — `CostWasteUsd: null` in live mapper | XS |
+| TB-153 | Recurring architecture review trigger — idempotency before `ExecuteRunAsync` | **Done (2026-05-31)** — checkpoint before `ExecuteRunAsync` | M |
+| TB-154 | Waiver ↔ disposition state machine — bidirectional invariants | **Done (2026-05-31)** — waiver/disposition guards | M |
+| TB-155 | ROI cache TTL vs live decisions-needed — canonical expiring-waiver source | **Done (2026-05-31)** — cache refresh + dashboard single source | S |
 | TB-109 | RunDetailPageView — add retrieval-hit / RAG grounding panel | Operator visibility (P1) — no UI surface anywhere shows which chunks were retrieved, their scores, or whether any retrieval step was degraded; critical when `faithfulnessWarning` is true | M |
 | TB-110 | RunDetailPageView — add tool-call / function-invocation log panel | **Done (2026-06-01)** — structured `AgentToolInvocationRecords` ledger + forensics API; execute-gated inline raw preview on run detail | M |
 | TB-111 | RunDetailPageView — inline provenance summary card (collapse from sibling route) | Operator visibility (P1) — provenance requires full-page navigation to a sibling route using a different API; operator loses run context while reviewing | S |
 | TB-112 | RunDetailPageView — add run-level approve / reject / request-remediation actions | Operator workflow (P2) — `CommitRunButton` (finalize manifest) is the only run-level action; all finding disposition lives on per-finding sub-routes with no run-level governance action | M |
 | TB-113 | Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types | Schema hygiene (P2) — C# `RunDetailDto` has both fields; generated `api-types.generated.ts` may omit them; silent type-level omission makes it impossible to add UI without bypassing type safety | XS |
-| TB-114 | Accelerator chooser — map buyer job → starter proof pack → expected proof output | Template richness / time-to-value — existing accelerators are useful but not easy enough to choose in the first 10 minutes | S |
-| TB-115 | Starter proof pack metadata contract | Template trust — packs need owner, last-reviewed, buyer persona, required inputs, expected outputs, V1/V1.1/deferred scope, and "do not use when" fields | S |
-| TB-116 | Starter proof pack static validation gate | Correctness / template safety — every pack should parse, include required files, avoid placeholders/secrets, and have valid scope labels before release | S |
-| TB-117 | Template-to-proof dry-run harness | Time-to-value / regression safety — dry-run each starter pack through minimal request + policy/context path without live cloud dependencies | M |
-| TB-118 | Golden accelerator walkthrough (one pack only) | Marketability / enablement — one canonical walkthrough with expected artifacts/screenshots improves trust without adding template sprawl | S |
-| TB-119 | Policy pack metadata and buyer-safe caveat validation | Governance alignment — every policy pack needs scope, owner, last reviewed, sample finding, and explicit "not certification" language | S |
-| TB-120 | Policy pack dry-run index | Time-to-value / governance usability — list packs by buyer job, required inputs, expected findings, and V1/V1.1/deferred scope | S |
+| TB-170 | Accelerator chooser — map buyer job → starter proof pack → expected proof output | Template richness / time-to-value — existing accelerators are useful but not easy enough to choose in the first 10 minutes | S |
+| TB-171 | Starter proof pack metadata contract | Template trust — packs need owner, last-reviewed, buyer persona, required inputs, expected outputs, V1/V1.1/deferred scope, and "do not use when" fields | S |
+| TB-172 | Starter proof pack static validation gate | Correctness / template safety — every pack should parse, include required files, avoid placeholders/secrets, and have valid scope labels before release | S |
+| TB-173 | Template-to-proof dry-run harness | Time-to-value / regression safety — dry-run each starter pack through minimal request + policy/context path without live cloud dependencies | M |
+| TB-174 | Golden accelerator walkthrough (one pack only) | Marketability / enablement — one canonical walkthrough with expected artifacts/screenshots improves trust without adding template sprawl | S |
+| TB-175 | Policy pack metadata and buyer-safe caveat validation | Governance alignment — every policy pack needs scope, owner, last reviewed, sample finding, and explicit "not certification" language | S |
+| TB-176 | Policy pack dry-run index | Time-to-value / governance usability — list packs by buyer job, required inputs, expected findings, and V1/V1.1/deferred scope | S |
 | TB-121 | Route/tier/policy/nav parity release gate hardening | Governance drift prevention — changes to routes, tiers, policy surfaces, or nav must refresh parity proof before release | S |
 | TB-122 | Governance outcome summary in sponsor proof | Trust / buyer clarity — sponsor proof should summarize applied policies, approvals, waivers, unresolved governance items, and buyer-safe status | S |
 | TB-123 | Policy-pack freshness report in proof/procurement artifacts | Governance freshness — proof packets should show policy-pack last-reviewed posture and stale-pack warnings | S |
@@ -142,12 +144,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-167 | Sponsor AI readiness posture artifact | Sponsor proof — one simple release/proof artifact showing execution mode, quality gate, retrieval grounding, and budget/cost posture for every sponsor packet | S-M |
 | TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness — **Done** (2026-06-01): `EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
 | TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction — **Done** (2026-06-01): committed-review nav gate + first-run workflow panel | M |
-| TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | Customer-visible UX — product help must render inside ArchLucid shell, not GitHub blob pages | M |
-| TB-144 | Customer-facing documentation registry | Correctness / maintainability — stable map from product topics to in-app routes and repo source paths | S |
-| TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | Customer-visible UX — HelpPanel, contextual help, doc index, hard-coded marketing/operator GitHub links | M |
-| TB-146 | Redirect-stub ban + canonical target resolution in registry | Trust — never link compatibility stubs such as `PILOT_GUIDE.md`; resolve final markdown internally | XS |
-| TB-147 | CI drift guard — no customer-facing GitHub blob links in product UI | Regression prevention — lint/CI fails on new `github.com/.../blob/` links in operator/marketing UI paths | S |
-| TB-148 | Role-gated optional “View source on GitHub” footer | Developer ergonomics — source link only in admin/developer/diagnostics mode, not buyer/operator primary UI | XS |
+| TB-170 | Remediate stale relative markdown links (docs/nav consolidation drift) | Documentation quality — `check_doc_links.py` still reports **200+** broken targets; CI step is advisory only | L |
+| TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | **Done (2026-06-01)** — registry-backed `/help/{topic}` renderer | M |
+| TB-144 | Customer-facing documentation registry | **Done (2026-06-01)** — `product-documentation-registry.ts` | S |
+| TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | **Done (2026-06-01)** — primary surfaces use `resolveInAppDocHref` | M |
+| TB-146 | Redirect-stub ban + canonical target resolution in registry | **Done (2026-06-01)** — registry + stub rejection test | XS |
+| TB-147 | CI drift guard — no customer-facing GitHub blob links in product UI | **Done (2026-06-01)** — `customer-facing-github-blob-guard.test.ts` | S |
+| TB-148 | Role-gated optional “View source on GitHub” footer | **Done (2026-06-01)** — `HelpTopicSourceFooter` | XS |
 | TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | Paid + organic honesty — **`SEO_AND_PAID_ACQUISITION.md`** data flow requires measurable **`TenantProvisioningService`** outcomes; avoids raw-UTM metric cardinality explosions | M |
 | TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | SERP + honest analytics posture | S–M |
 
@@ -202,7 +205,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-114 — Accelerator chooser — buyer job → starter proof pack → expected proof output
+## TB-170 — Accelerator chooser — buyer job → starter proof pack → expected proof output
+
+**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
 
 **Objective:** Give evaluators one obvious way to pick the right existing accelerator without browsing the whole `templates/` tree.
 
@@ -228,7 +233,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-115 — Starter proof pack metadata contract
+## TB-171 — Starter proof pack metadata contract
+**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
+
 
 **Objective:** Make every starter proof pack self-describing and reviewable as a V1 artifact, not a loose folder of examples.
 
@@ -250,7 +257,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-116 — Starter proof pack static validation gate
+## TB-172 — Starter proof pack static validation gate
+**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
+
 
 **Objective:** Prevent starter packs from drifting, breaking, or shipping buyer-unsafe placeholders.
 
@@ -272,7 +281,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-117 — Template-to-proof dry-run harness
+## TB-173 — Template-to-proof dry-run harness
+**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
+
 
 **Objective:** Prove each starter pack can flow through the minimal ArchLucid request/policy/context path without live cloud dependencies.
 
@@ -294,7 +305,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-118 — Golden accelerator walkthrough (one pack only)
+## TB-174 — Golden accelerator walkthrough (one pack only)
+**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
+
 
 **Objective:** Create one canonical accelerator walkthrough that demonstrates the end-to-end evaluator experience without expanding template count.
 
@@ -318,7 +331,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-119 — Policy pack metadata and buyer-safe caveat validation
+## TB-175 — Policy pack metadata and buyer-safe caveat validation
+**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
+
 
 **Objective:** Ensure every V1 policy pack is reviewable, scoped, and impossible to mistake for a compliance certification.
 
@@ -340,14 +355,16 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
-## TB-120 — Policy pack dry-run index
+## TB-176 — Policy pack dry-run index
+**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
+
 
 **Objective:** Give operators and evaluators a compact map of available policy packs, what each one proves, and what inputs it expects.
 
 **Scope:**
 
 - Generate or maintain an index listing policy pack ID, buyer job, target persona, required inputs, expected findings, caveats, and V1/V1.1/deferred scope.
-- Link from accelerator chooser work (**TB-114**) and first-pilot/procurement proof docs where relevant.
+- Link from accelerator chooser work (**TB-170**) and first-pilot/procurement proof docs where relevant.
 - Include "do not use when" guidance so packs are not selected as generic compliance rubber stamps.
 
 **Acceptance criteria:**
@@ -1130,9 +1147,36 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ---
 
+## TB-170 — Remediate stale relative markdown links (docs/nav consolidation drift)
+
+**Status:** Open. Partial triage during the 2026-06-01 CI loop (`docs/ARCHITECTURE_INDEX.md`, gitignored `LATEST.md` retargets to tracked assessment files); `python scripts/ci/check_doc_links.py` still reports **200+** broken relative targets.
+
+**Objective:** Restore repo-wide relative markdown link integrity so documentation cross-refs resolve after `docs/library/` consolidation and navigational moves.
+
+**Why this is not a duplicate:** **TB-147** blocks GitHub blob URLs in operator/marketing UI code. **TB-143 – TB-148** move customer help in-app. **TB-170** fixes broken relative `[text](path)` targets inside `docs/`, `archlucid-ui/docs/`, and root `README.md` surfaced by the CI advisory scanner.
+
+**Scope:**
+
+- Run `python scripts/ci/check_doc_links.py` (alias `scripts/ci/check_md_links.py`) and batch-fix broken targets.
+- Common drift patterns: wrong depth after `docs/library/` hub (`library/`, `runbooks/` missing `../`); ADR paths (`adr/` → `adrs/`, `../runbooks/` depth); code paths missing `../../../`; gitignored `docs/assessments/LATEST.md` → tracked `LATEST_GPT55.md` or dated archives; moved canonical files (`UI_DESIGN_SYSTEM.md`, runbooks under `docs/runbooks/`).
+- Extend [`ARCHITECTURE_INDEX.md`](../ARCHITECTURE_INDEX.md) where hub gaps remain.
+- After zero broken links (or a documented allowlist for intentional non-file targets), remove `continue-on-error: true` from the **Check relative markdown links** step in `.github/workflows/ci.yml` (`doc-markdown-links` job).
+
+**Acceptance criteria:**
+
+- `python scripts/ci/check_doc_links.py` exits 0 on a clean checkout.
+- CI **Check relative markdown links** is merge-blocking (no `continue-on-error`).
+- New broken relative links fail CI without a fix or documented allowlist entry.
+
+**Refs:** **TB-147**, `scripts/ci/check_doc_links.py`, `scripts/ci/check_md_links.py`, `.github/workflows/ci.yml` (`doc-markdown-links`), [`ARCHITECTURE_INDEX.md`](../ARCHITECTURE_INDEX.md).
+
+**Size estimate:** L (~2–4 days across many files).
+
+---
+
 ## TB-143 — In-app markdown documentation renderer + `/help/{topic}` routes
 
-**Status:** Open. Partial shell exists (`archlucid-ui/src/app/(operator)/help/`) but product users still land on GitHub blob pages for “Learn more” and documentation index links.
+**Status:** **Done (2026-06-01)** — `archlucid-ui/src/app/(operator)/help/[topic]/`, `HelpTopicMarkdownView`, API route `api/help/[slug]`; registry-backed markdown load.
 
 **Objective:** Render customer-facing Markdown inside the ArchLucid operator (and selected marketing) shell at stable routes such as `/help/pilot-guide`.
 
@@ -1157,7 +1201,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-144 — Customer-facing documentation registry
 
-**Status:** Open.
+**Status:** **Done (2026-06-01)** — `product-documentation-registry.ts` + unit/load tests.
 
 **Objective:** Single registry mapping product documentation topics to canonical in-app routes and repo source markdown paths.
 
@@ -1181,7 +1225,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-145 — Migrate operator/product help links from GitHub blob to in-app routes
 
-**Status:** Open.
+**Status:** **Done (2026-06-01)** — `resolveInAppDocHref` / `getDocHref` / `toDocsBlobUrl`; marketing and operator primary surfaces migrated off GitHub blob defaults.
 
 **Objective:** Replace customer-facing GitHub blob links with in-app documentation routes across operator and buyer-visible surfaces.
 
@@ -1206,7 +1250,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-146 — Redirect-stub ban + canonical target resolution in registry
 
-**Status:** Open.
+**Status:** **Done (2026-06-01)** — registry uses `customer-facing/PILOT_GUIDE.md` not stub; `product-documentation-registry.test.ts` rejects redirect-only primary sources.
 
 **Objective:** Ensure product UI never links compatibility redirect stubs; resolve final canonical markdown internally.
 
@@ -1229,7 +1273,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-147 — CI drift guard — no customer-facing GitHub blob links in product UI
 
-**Status:** Open.
+**Status:** **Done (2026-06-01)** — `customer-facing-github-blob-guard.test.ts` scans operator/marketing surfaces with explicit allowlist.
 
 **Objective:** Prevent regression of GitHub blob URLs into operator and marketing UI code paths.
 
@@ -1252,7 +1296,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-148 — Role-gated optional “View source on GitHub” footer
 
-**Status:** Open.
+**Status:** **Done (2026-06-01)** — `HelpTopicSourceFooter` on help topics (hidden in buyer-polished shell except developer audience).
 
 **Objective:** Provide optional source transparency for admins/developers without making GitHub the primary documentation experience.
 
@@ -3695,311 +3739,6 @@ No tests assert:
 
 ---
 
-## TB-071 — Azure Search production client — wire tenant OData filter on every search/delete
-
-**Status (2026-05-31):** **Done** — `AzureSearchSdkClient` applies `AzureSearchTenantScopeFilterBuilder` on search/delete; registered when `Retrieval:AzureSearch:Endpoint` is set; `AzureSearchTenantScopeFilterBuilderTests`.
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). **TB-048** / **RAG-V1-010** shipped the in-memory query filter and `AzureSearchTenantScopeFilterBuilder`, but production registration still uses `NotConfiguredAzureSearchClient`.
-
-**Problem:**
-
-`AzureSearchTenantScopeFilterBuilder.BuildScopeFilter` produces correct OData clauses (`tenantId`, `workspaceId`, `projectId`), yet no in-repo `IAzureSearchClient` implementation calls it during `SearchAsync`. Tenant isolation for Azure AI Search cannot be verified from the codebase. Additionally, `AzureAiSearchVectorIndex.RemoveChunksForDocumentAsync` is a no-op — deleted tenant data persists in the index indefinitely.
-
-**What to do:**
-
-1. Implement a production `IAzureSearchClient` (or complete `AzureAiSearchVectorIndex`) that attaches `BuildScopeFilter(query)` to **every** search request.
-2. Implement `RemoveChunksForDocumentAsync` with the same document-id filter used on upsert (or tenant-scoped delete when document metadata includes scope).
-3. Add integration test asserting the OData filter clause is present on search (mock or recorded HTTP).
-4. Update **RAG-V1-010** status and operator runbook for Azure Search deployment checklist.
-
-**Out of scope:** Per-tenant index partitioning (query-time filter is the chosen model).
-
-**Depends on:** none (closes remaining **TB-048** / **RAG-V1-010** P1 gap).
-
-**Affected files / projects:**
-
-- `ArchLucid.Retrieval/Indexing/AzureAiSearchVectorIndex.cs`
-- `ArchLucid.Retrieval/Indexing/AzureSearchTenantScopeFilterBuilder.cs`
-- `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`
-- `ArchLucid.Retrieval.Tests/` (Azure filter integration test)
-
-**Size estimate:** **S–M** — ~1–2 eng days.
-
----
-
-## TB-072 — Scope-to-identity binding at API ingress
-
-**Status (2026-05-31):** **Done** — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingValidator`; ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` / `ScopeIdentityBindingValidatorTests`.
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `HttpScopeContextProvider` resolves tenant from JWT claims → `x-*` headers → dev defaults, but **no middleware validates that the authenticated principal may use the resolved tenant**.
-
-**Problem:**
-
-- **`ApiKeyAuthenticationHandler`** — roles/permissions only; zero scope claims. Valid key + arbitrary `x-tenant-id` ⇒ any tenant's data (especially in SingleCatalog mode).
-- **`DevelopmentBypassAuthenticationHandler`** — no `tenant_id` / `workspace_id` / `project_id` claims; headers fully control scope.
-- **SCIM bearer** — `tenant_id` only; workspace/project fall through to headers/defaults.
-- **`TenantOrProjectCapabilityAuthorizationHandler`** — augments project capabilities but does not prove caller ∈ `scope.TenantId` for tenant-wide JWT roles.
-
-Production safety currently depends on per-tenant catalog routing (`ScopedRoutingSqlConnectionFactory`) plus repository SQL filters — not on identity binding.
-
-**What to do:**
-
-1. **Production auth schemes:** Require `tenant_id` (and ideally `workspace_id` / `project_id`) claims on all non-anonymous schemes; reject requests where scope headers disagree with claims (extend existing claim-over-header precedence to **fail** rather than silently prefer claims only when present).
-2. **ApiKey:** Embed scope in key record or issue per-tenant keys; derive scope server-side from key metadata — never trust client headers alone.
-3. **DevBypass:** Document as break-glass only; add startup guard preventing DevBypass in production-like profiles (align with **INV-005** / **TB-010**).
-4. Optional middleware after auth: `scope.TenantId != Guid.Empty` for tenant APIs; SCIM user ∈ tenant for non-platform roles.
-5. Extend `TenantIsolationSmokeTests` to cover ApiKey/header mismatch rejection.
-
-**Out of scope:** Replacing database-per-tenant topology (**TB-018**); operator cross-tenant analytics (intentional, admin-gated).
-
-**Depends on:** none. Complements **TB-010** (**INV-001**).
-
-**Affected files / projects:**
-
-- `ArchLucid.Host.Core/Auth/Services/HttpScopeContextProvider.cs`
-- `ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs`
-- `ArchLucid.Api/Auth/Services/DevelopmentBypassAuthenticationHandler.cs`
-- `ArchLucid.Host.Core/Authorization/TenantOrProjectCapabilityAuthorizationHandler.cs`
-- `ArchLucid.Api/Middleware/` (optional scope-validation middleware)
-- `ArchLucid.Api.Tests/` (`HttpScopeContextProviderTests`, integration isolation tests)
-
-**Size estimate:** **M** — ~2–3 eng days.
-
----
-
-## TB-073 — Scoped snapshot repository reads (findings / graph / context)
-
-**Status (2026-05-31):** **Done** — scoped repository reads + relational filters; `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`; `ScopedSnapshotReadIdorIntegrationTests`.
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Findings inspect and mute paths enforce full scope via `Runs` joins; snapshot repositories use GUID-only reads.
-
-**Problem:**
-
-These methods query by snapshot/record ID **without** `TenantId` / `WorkspaceId` / `ProjectId` in SQL:
-
-| Repository | Method | Risk |
-|------------|--------|------|
-| `SqlFindingsSnapshotRepository` | `GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` | Leaked `FindingsSnapshotId` → read/mutate another tenant's findings |
-| `FindingsSnapshotRelationalRead` | Child loads by `FindingsSnapshotId` / `FindingRecordId` | Full finding payload without tenant gate |
-| `SqlGraphSnapshotRepository` | `GetByIdAsync` | Leaked `GraphSnapshotId` → entire knowledge graph |
-| `SqlContextSnapshotRepository` | `GetByIdAsync` | Leaked `ContextSnapshotId` → context snapshot |
-| `InMemoryFindingsSnapshotRepository` | `GetByIdAsync` | Global `Dictionary<Guid, string>` — no tenant key |
-
-Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev / test when a GUID is known. `DapperAuthorityQueryService` loads snapshots by bare GUID after a scoped run gate — indirect risk if run row is corrupt or repository called elsewhere.
-
-**What to do:**
-
-1. Add `ScopeContext` parameter to `IFindingsSnapshotRepository.GetByIdAsync`, `ListFindingRecordsKeysetAsync`, `UpdatePriorityRanksAsync` — mirror `SqlGoldenManifestRepository` (`WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId`).
-2. Same pattern for `IGraphSnapshotRepository`, `IContextSnapshotRepository`, and their relational read helpers.
-3. In `FindingsSnapshotRelationalRead`, join `FindingsSnapshots` / `Runs` or filter `FindingRecords.TenantId` when scope is available.
-4. Key `InMemoryFindingsSnapshotRepository` by `(TenantId, SnapshotId)` or validate snapshot's `RunId` against scoped run before return.
-5. Update all callers (including `DapperAuthorityQueryService`, `GraphSnapshotCommittedReuseResolver`) to pass scope.
-6. Integration tests: tenant A's snapshot GUID rejected under tenant B's scope in SingleCatalog mode.
-
-**Out of scope:** Intentional admin paths (`GetByRunIdAdminAsync`, worker dequeue).
-
-**Depends on:** none.
-
-**Affected files / projects:**
-
-- `ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs`
-- `ArchLucid.Persistence/Findings/FindingsSnapshotRelationalRead.cs`
-- `ArchLucid.Persistence/Repositories/SqlGraphSnapshotRepository.cs`
-- `ArchLucid.Persistence/Repositories/SqlContextSnapshotRepository.cs`
-- `ArchLucid.Decisioning/Repositories/InMemoryFindingsSnapshotRepository.cs`
-- `ArchLucid.Persistence/Queries/DapperAuthorityQueryService.cs`
-- `ArchLucid.Persistence.Tests/`
-
-**Size estimate:** **M** — ~2–3 eng days.
-
----
-
-## TB-074 — Retrieval indexing write-path tenant validation
-
-**Status (2026-05-31):** **Done** — `RetrievalIndexingScopeValidator.ValidateDocuments` in `RetrievalIndexingService`; `InMemoryVectorIndex.RemoveChunksForDocumentAsync` scopes delete by tenant/workspace/project; `RetrievalIndexingScopeValidatorTests`.
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Retrieval uses a shared global vector index with query-time metadata filtering.
-
-**Problem:**
-
-`RetrievalIndexingService` copies `TenantId` / `WorkspaceId` / `ProjectId` from each `RetrievalDocument` into chunks without validating against the caller's ambient `ScopeContext`. A miswired or malicious caller can index data into another tenant's retrieval namespace (data poisoning). `InMemoryVectorIndex.UpsertChunksAsync` and `RemoveChunksForDocumentAsync` perform no tenant validation on write/delete.
-
-**What to do:**
-
-1. In `RetrievalIndexingService`, reject documents whose scope fields disagree with `IScopeContextProvider.GetCurrentScope()` (or explicit `ScopeContext` parameter).
-2. In `InMemoryVectorIndex.UpsertChunksAsync`, optionally assert chunk scope matches query scope on upsert (defense in depth).
-3. Scope `RemoveChunksForDocumentAsync` by tenant metadata when deleting (mitigate document-id collision).
-4. Tests: document with mismatched `TenantId` → rejected; matching scope → indexed.
-
-**Out of scope:** Per-tenant index partitioning; platform corpora indexing (`PlatformSentinelTenantId` — by design).
-
-**Depends on:** none. Complements **TB-071** (query-side filter).
-
-**Affected files / projects:**
-
-- `ArchLucid.Retrieval/Indexing/RetrievalIndexingService.cs`
-- `ArchLucid.Retrieval/Indexing/InMemoryVectorIndex.cs`
-- `ArchLucid.Retrieval/Indexing/RetrievalRunCompletionIndexer.cs`
-- `ArchLucid.Retrieval.Tests/`
-
-**Size estimate:** **S** — ~1 eng day.
-
----
-
-## TB-075 — Operator UI server-side scope (proxy + SSR)
-
-**Status (2026-05-31):** **Done (V1 posture)** — `resolveProxyUpstreamScopeHeaders` strips client scope in production-like mode; env `ARCHLUCID_PROXY_*` trusted scope; `proxy-scope-resolution.test.ts`; sponsor value report resolves tenant from `/api/auth/me`. Full Entra cookie-bound SSR scope remains paired with **TB-072**.
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). The operator UI declares the API as the authoritative security boundary but forwards client-controlled scope headers.
-
-**Problem:**
-
-- **`proxy/[...path]/route.ts`** — forwards browser `x-tenant-id` / `x-workspace-id` / `x-project-id` when present; `localStorage` (`archlucid_operator_scope_v1`) is the authoritative tenant source in the browser.
-- **`scope.ts` `getScopeHeaders()`** — hardcoded `DEV_SCOPE_*` GUIDs for all SSR requests.
-- **`middleware.ts`** — no auth or tenant gate (demo alias redirects only).
-- **`downloadValueReportDocx`** — `tenantId` in URL path can disagree with scope headers.
-
-For Entra JWT with embedded `tenant_id`, the API ignores hostile headers. For DevBypass / API key / missing claims, the UI + proxy effectively choose the tenant.
-
-**What to do:**
-
-1. In the proxy route handler, **strip** incoming `x-tenant-id` / `x-workspace-id` / `x-project-id` from browser requests and set them server-side from authenticated session (`/api/auth/me` claims or secure cookie).
-2. Replace SSR `getScopeHeaders()` dev GUIDs with server-derived scope (cookie or server-side `/me` call).
-3. Remove client-chosen `tenantId` from value-report URL path; use scope-only or server-side generation.
-4. Document that scope switcher changes workspace/project only; tenant comes from identity.
-
-**Out of scope:** Backend enforcement (**TB-072**); UI post-load ownership checks (**TB-077**).
-
-**Depends on:** **TB-072** recommended for full end-to-end binding.
-
-**Affected files / projects:**
-
-- `archlucid-ui/src/app/api/proxy/[...path]/route.ts`
-- `archlucid-ui/src/lib/scope.ts`
-- `archlucid-ui/src/lib/operator-scope-storage.ts`
-- `archlucid-ui/src/lib/api/http.ts`
-- `archlucid-ui/src/lib/api/downloads-api.ts`
-- `archlucid-ui/src/components/GenerateSponsorValueReportButton.tsx`
-
-**Size estimate:** **S–M** — ~1–2 eng days.
-
----
-
-## TB-076 — Run-child SQL scope predicates + in-memory repository tenant keys
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). After a scoped run load, child data is often loaded by `RunId` only.
-
-**Problem:**
-
-| Repository | Pattern | Safe when |
-|------------|---------|-----------|
-| `AgentTaskRepository` | `WHERE RunId = @RunId` | Per-tenant catalog routing guaranteed |
-| `AgentExecutionTraceRepository` | `WHERE RunId = @RunId` | Same |
-| `EvidenceBundleRepository` | `WHERE EvidenceBundleId = @EvidenceBundleId` | Same |
-| `RunDetailQueryService` | Calls above after scoped run gate | Catalog routing + run gate |
-
-Residual risk in **SingleCatalog** / dev if run gate is skipped or connection targets wrong catalog. `TenantErasureQuarantineMiddleware` skips `/v1/admin` entirely — quarantined tenants with Admin credentials still reach admin routes.
-
-**What to do:**
-
-1. Add `TenantId` (or full `ScopeContext`) to run-child `GetByRunIdAsync` methods, or document and test that catalog routing is mandatory with an architecture test guard.
-2. Extend `TenantErasureQuarantineMiddleware` to cover `/v1/admin` (or document admin-while-quarantined as acceptable with platform-only credentials).
-3. Audit callers of `GetByRunIdAdminAsync` (`FindingPriorityReranker`, archival jobs) — ensure system/background context only.
-
-**Out of scope:** Snapshot repository scoping (**TB-073**); intentional admin cross-tenant analytics.
-
-**Depends on:** **TB-073** (related persistence hardening).
-
-**Affected files / projects:**
-
-- `ArchLucid.Persistence/Repositories/AgentTaskRepository.cs`
-- `ArchLucid.Persistence/Repositories/AgentExecutionTraceRepository.cs`
-- `ArchLucid.Persistence/Repositories/EvidenceBundleRepository.cs`
-- `ArchLucid.Application/RunDetailQueryService.cs`
-- `ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs`
-- `ArchLucid.Persistence/Repositories/SqlRunRepository.cs`
-
-**Size estimate:** **S–M** — ~1–2 eng days.
-
----
-
-## TB-077 — Operator UI resource ownership checks + governance mutation hardening
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). Dynamic operator routes use resource IDs only; no post-load tenant ownership validation.
-
-**Problem:**
-
-- Routes `[runId]`, `[manifestId]`, `[findingId]` call APIs with ID alone — URL manipulation is IDOR if API returns cross-scope data.
-- `recordFindingDisposition(findingId, …)` — `findingId` in URL; `runId` optional in body.
-- `getArchitectureDecisionRegister()` — no `projectId` from active scope.
-- `compareRuns(leftRunId, rightRunId)` — two run IDs, no scope validation in UI.
-- SSR `/reviews?projectId=…` can mismatch hardcoded `x-project-id` on server renders.
-
-**What to do:**
-
-1. After loading run/manifest/finding detail, compare resource `projectId` (and `tenantId` if API returns it) to effective scope; call `notFound()` on mismatch (defense in depth — API remains authoritative).
-2. Require `runId` in URL path for `recordFindingDisposition`; reject finding-only mutations.
-3. Pass active `projectId` from scope into `getArchitectureDecisionRegister(projectId)`.
-4. Align SSR list `projectId` query param with server-derived scope headers.
-
-**Out of scope:** Server-side scope binding (**TB-075**); backend IDOR fixes (**TB-072**, **TB-073**).
-
-**Depends on:** **TB-075** for consistent scope source.
-
-**Affected files / projects:**
-
-- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/load-run-detail-page-model.ts`
-- `archlucid-ui/src/lib/api/governance-stickiness-api.ts`
-- `archlucid-ui/src/app/(operator)/governance/decision-register/DecisionRegisterClient.tsx`
-- `archlucid-ui/src/lib/load-finding-inspect-for-route.ts`
-- `archlucid-ui/src/lib/api/architecture-runs.ts`
-- `archlucid-ui/src/app/(operator)/reviews/_sections/load-runs-page-model.ts`
-
-**Size estimate:** **S** — ~1 eng day.
-
----
-
-## TB-078 — Cross-tenant isolation integration test matrix
-
-**Status (2026-05-31):** **Done (V1 matrix)** — snapshot IDOR (`SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `ScopedSnapshotReadIdorIntegrationTests`); indexing scope (`RetrievalIndexingScopeValidatorTests`); ApiKey/header binding (`ScopeIdentityBindingIntegrationTests`); Azure Search OData filter unit tests (`AzureSearchTenantScopeFilterBuilderTests`).
-
-**Source:** Multi-tenancy and blast-radius audit (2026-05-27). `TenantIsolationSmokeTests` cover API + SQL under header-scoped isolation but not several audit-identified gaps.
-
-**Problem:**
-
-No tests assert:
-
-- `SqlFindingsSnapshotRepository.GetByIdAsync` rejects a GUID belonging to another tenant (SingleCatalog mode).
-- `RetrievalIndexingService` rejects documents whose `TenantId` disagrees with caller scope.
-- Azure Search client applies OData tenant filter on every `SearchAsync` (when **TB-071** ships).
-- In-memory snapshot/vector stores reject cross-tenant reads by leaked GUID.
-- ApiKey / DevBypass + mismatched scope headers are rejected (**TB-072**).
-
-**What to do:**
-
-1. Add `ArchLucid.Persistence.Tests` integration tests for snapshot IDOR under SingleCatalog (two tenants, one catalog).
-2. Add `ArchLucid.Retrieval.Tests` for indexing tenant mismatch rejection.
-3. Add API integration test for scope-header vs claim mismatch (when **TB-072** ships).
-4. Wire tests into CI Tier 1.5 or dedicated security job.
-5. Reference test matrix in owner pen-test runbook (**TB-005**).
-
-**Out of scope:** Implementing the fixes (each TB item owns its tests).
-
-**Depends on:** Ships alongside **TB-071**–**TB-077** (tests added per item; this item tracks the consolidated matrix and CI wiring).
-
-**Affected files / projects:**
-
-- `ArchLucid.Persistence.Tests/` (tenant isolation / SingleCatalog fixtures)
-- `ArchLucid.Retrieval.Tests/`
-- `ArchLucid.Api.Tests/` (`TenantIsolationSmokeTests.cs`)
-- `docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md` (coverage note)
-
-**Size estimate:** **S** — ~1 eng day (incremental; spread across sibling items).
-
----
-
-
-
 ## TB-079 — ADO PR markdown — sanitize `SummaryHighlights` and deep-link fields
 
 **Status (2026-05-31):** **Done** — `AdoPullRequestMarkdownEscaper` (bullet escape, dangerous-content rejection, length cap, https/http link targets) used by compare + run-summary formatters; `AdoPullRequestMarkdownEscaperTests` / `AzureDevOpsRunSummaryMarkdownTests`.
@@ -5071,6 +4810,8 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 ---
 
 ## TB-152 — `ExecutiveSummaryResult.CostWasteUsd` — stop aliasing savings
+
+**Status (2026-05-31):** **Done** — `ExecutiveReportsSummaryService` sets `CostWasteUsd: null`; `ExecutiveReportsSummaryServiceTests` asserts separation from `TotalEstimatedUsdSavings`.
 
 **Source:** Cross-layer data consistency audit (2026-05-31).
 

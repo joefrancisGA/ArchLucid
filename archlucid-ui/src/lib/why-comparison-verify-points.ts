@@ -1,4 +1,4 @@
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 /**
  * One row per front-door hard-comparison claim (same order as `WHY_COMPARISON_ROWS` / COMPETITIVE_LANDSCAPE.md).
@@ -15,27 +15,32 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
     { label: "Assurance evidence package (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
     {
       label: "Durable audit coverage matrix",
-      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/AUDIT_COVERAGE_MATRIX.md`,
+      href: resolveInAppDocHref("docs/library/AUDIT_COVERAGE_MATRIX.md"),
     },
   ],
   [
     {
       label: "Tenant isolation control summary",
-      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/security/MULTI_TENANT_RLS.md`,
+      href: resolveInAppDocHref("docs/security/MULTI_TENANT_RLS.md"),
     },
   ],
-  [{ label: "Authentication scope (published scope doc)", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md` }],
+  [
+    {
+      label: "Authentication scope (published scope doc)",
+      href: resolveInAppDocHref("docs/library/V1_SCOPE.md"),
+    },
+  ],
   [
     {
       label: "Comparison replay summary",
-      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/COMPARISON_REPLAY.md`,
+      href: resolveInAppDocHref("docs/library/COMPARISON_REPLAY.md"),
     },
   ],
   [{ label: "Evidence trail demo", href: "/demo/preview" }],
   [
     {
       label: "Governance gate control description",
-      href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md`,
+      href: resolveInAppDocHref("docs/library/PRE_COMMIT_GOVERNANCE_GATE.md"),
     },
   ],
 ];

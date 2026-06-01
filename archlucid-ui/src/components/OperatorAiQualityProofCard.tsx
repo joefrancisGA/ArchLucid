@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import {
   dispositionClass,
   dispositionLabel,
@@ -134,10 +134,8 @@ export function OperatorAiQualityProofCard(props: { readonly embedded?: boolean 
               </Link>
             ) : (
               <Link
-                href={`${DEFAULT_GITHUB_BLOB_BASE}/${link.path}`}
+                href={resolveInAppDocHref(link.path)}
                 className="font-medium underline underline-offset-2"
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 {link.label}
               </Link>

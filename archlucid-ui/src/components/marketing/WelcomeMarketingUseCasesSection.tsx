@@ -4,7 +4,7 @@ import {
   WELCOME_POLICY_PACK_DISCLAIMER,
   WELCOME_USE_CASE_CARDS,
 } from "@/components/marketing/welcome-marketing-copy";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 /** Bundled policy-pack use cases for Azure-first buyers (with framework disclaimer). */
 export function WelcomeMarketingUseCasesSection() {
@@ -40,7 +40,7 @@ export function WelcomeMarketingUseCasesSection() {
         {WELCOME_POLICY_PACK_DISCLAIMER}{" "}
         <Link
           className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-          href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md`}
+          href={resolveInAppDocHref("docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md")}
         >
           Default policy packs (V1)
         </Link>

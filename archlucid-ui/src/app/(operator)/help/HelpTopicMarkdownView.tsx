@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpTopicSourceFooter } from "@/components/help/HelpTopicSourceFooter";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -51,6 +52,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
         </div>
         <HelpTopicTableOfContents headings={headings} />
       </div>
+      <HelpTopicSourceFooter entry={entry} />
     </article>
   );
 }

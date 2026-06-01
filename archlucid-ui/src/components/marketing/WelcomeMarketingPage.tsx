@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BUYER_MARKETING_PRICING_PAGE_INTRO } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 type WelcomeVerifyLink = {
   readonly label: string;
@@ -71,7 +71,7 @@ const PILLARS: readonly WelcomePillar[] = [
       { label: "See it in 30 seconds", href: "/see-it" },
       { label: "Security & trust", href: "/security-trust" },
       { label: "Demo preview", href: "/demo/preview" },
-      { label: "Product scope overview", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md` },
+      { label: "Product scope overview", href: resolveInAppDocHref("docs/library/V1_SCOPE.md") },
     ],
   },
   {
@@ -79,7 +79,7 @@ const PILLARS: readonly WelcomePillar[] = [
     body: "Every recommendation ships with a chain of evidence: what was examined, which rules fired, what was decided, and why. Provenance and graph surfaces connect evidence to decisions for investigation — not an anonymous “AI said so” reply.",
     verify: [
       { label: "Evidence trail demo", href: "/demo/preview" },
-      { label: "Knowledge graph overview", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/KNOWLEDGE_GRAPH.md` },
+      { label: "Knowledge graph overview", href: resolveInAppDocHref("docs/library/KNOWLEDGE_GRAPH.md") },
     ],
   },
   {
@@ -88,8 +88,8 @@ const PILLARS: readonly WelcomePillar[] = [
     verify: [
       { label: "Trust center", href: "/trust" },
       { label: "Evidence pack (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
-      { label: "Audit event coverage", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/AUDIT_COVERAGE_MATRIX.md` },
-      { label: "Pre-commit governance", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` },
+      { label: "Audit event coverage", href: resolveInAppDocHref("docs/library/AUDIT_COVERAGE_MATRIX.md") },
+      { label: "Pre-commit governance", href: resolveInAppDocHref("docs/library/PRE_COMMIT_GOVERNANCE_GATE.md") },
     ],
   },
 ];

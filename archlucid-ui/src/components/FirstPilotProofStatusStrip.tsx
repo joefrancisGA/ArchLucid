@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import {
   FIRST_PILOT_PROOF_NOT_RUN_COPY,
   FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND,
@@ -123,10 +123,8 @@ export function FirstPilotProofStatusStrip() {
         {snapshot.remediationLinks.map((link) => (
           <li key={link.path}>
             <Link
-              href={`${DEFAULT_GITHUB_BLOB_BASE}/${link.path}`}
+              href={resolveInAppDocHref(link.path)}
               className="font-medium underline underline-offset-2"
-              target="_blank"
-              rel="noopener noreferrer"
             >
               {link.label}
             </Link>

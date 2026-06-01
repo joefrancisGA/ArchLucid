@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { BUYER_GET_STARTED_VERTICAL_SLUGS, VERTICAL_DISPLAY_NAMES } from "./get-started-verticals";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export const metadata: Metadata = {
   title: "Get started · ArchLucid",
@@ -178,13 +178,12 @@ export default function GetStartedPage(): ReactNode {
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
           <li>
             Ready for a real pilot with your own data? The{" "}
-            <a
+            <Link
               className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-              href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/CORE_PILOT.md`}
-              rel="noopener noreferrer"
+              href={resolveInAppDocHref("docs/CORE_PILOT.md")}
             >
               Core Pilot guide
-            </a>{" "}
+            </Link>{" "}
             walks through creating a request, committing a manifest, and reviewing real artifacts.
           </li>
           <li>
@@ -196,13 +195,12 @@ export default function GetStartedPage(): ReactNode {
           </li>
           <li>
             For the sponsor-facing narrative, see the{" "}
-            <a
+            <Link
               className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-              href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/EXECUTIVE_SPONSOR_BRIEF.md`}
-              rel="noopener noreferrer"
+              href={resolveInAppDocHref("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md")}
             >
               executive sponsor brief
-            </a>
+            </Link>
             .
           </li>
         </ul>

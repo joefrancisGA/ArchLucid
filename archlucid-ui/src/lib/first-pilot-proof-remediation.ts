@@ -2,6 +2,7 @@
  * Maps first-pilot proof finding names to remediation doc paths and in-app routes.
  * Keep aligned with scripts/FirstPilotSupportNextStep.ps1.
  */
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export type FirstPilotProofRemediation = {
   readonly docPath: string;
@@ -89,6 +90,6 @@ export function resolveFirstPilotProofRemediation(
   };
 }
 
-export function buildDocsBlobHref(docPath: string, githubBlobBase: string): string {
-  return `${githubBlobBase}/${docPath}`;
+export function buildDocsBlobHref(docPath: string, _githubBlobBase?: string): string {
+  return resolveInAppDocHref(docPath);
 }

@@ -1,10 +1,10 @@
-# ArchLucid Assessment – (A) Headline Readiness: 74.82%
+# ArchLucid Assessment – (A) Headline Readiness: 79.38%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
-This is a clean-slate, first-principles assessment based only on materials currently available in the repository. It does not reference or reuse previous assessment scores or conclusions.
+Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: updated on 2026-06-01 after TB-110 tool-invocation forensics + execute-gated raw preview shipped, TB-027 `IAgentExecutor` port confirmed Done, and owner decisions moved human-dependent items into GTM backlog (G-REAL-01–04).
+Rescore note: Batch 0–1 (backlog ledger, TB-143–148 in-app docs), ledger sync for shipped **TB-149–157** (KPI/waiver/cache + local dev diagnostics). G-REAL-01–04 remain owner-blocked; **TB-140** real-mode eval corpus still open.
 
 ## Executive Summary
 

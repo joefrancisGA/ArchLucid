@@ -8,3 +8,14 @@ const DEFAULT_DOCS_GITHUB_REPO = "ArchLucid";
 const DEFAULT_DOCS_GITHUB_BRANCH = "master";
 
 export const DEFAULT_GITHUB_BLOB_BASE = `https://github.com/${DEFAULT_DOCS_GITHUB_ORG}/${DEFAULT_DOCS_GITHUB_REPO}/blob/${DEFAULT_DOCS_GITHUB_BRANCH}`;
+
+/** GitHub blob URL for a repo-relative markdown path (developer/source footer only). */
+export function buildGithubBlobHref(repoRelativePath: string): string {
+  const normalized = repoRelativePath.replace(/^\//, "").trim();
+
+  if (normalized.length === 0) {
+    return DEFAULT_GITHUB_BLOB_BASE;
+  }
+
+  return `${DEFAULT_GITHUB_BLOB_BASE}/${normalized}`;
+}

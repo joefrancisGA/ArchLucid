@@ -60,6 +60,22 @@ const DOC_PATH_TO_SLUG: Readonly<Record<string, string>> = {
   "docs/go-to-market/procurement_faq.md": "executive-summary",
   "docs/deployment/per_tenant_cost_model.md": "executive-summary",
   "docs/library/per_tenant_cost_model.md": "executive-summary",
+  "docs/executive_sponsor_brief.md": "executive-summary",
+  "docs/go-to-market/executive_sponsor_brief.md": "executive-summary",
+  "docs/library/agent_output_evaluation.md": "observability",
+  "docs/library/saml_sp_certificate_rotation_runbook.md": "operator-auth-roles",
+  "docs/go-to-market/default_policy_packs_v1.md": "governance-approval",
+  "docs/go-to-market/quote_to_proof_packet.md": "path-chooser",
+  "docs/go-to-market/pricing_philosophy.md": "executive-summary",
+  "docs/go-to-market/custom_policy_pack_authoring_sow_template.md": "executive-summary",
+  "docs/go-to-market/order_form_template.md": "executive-summary",
+  "docs/security/multi_tenant_rls.md": "audit-trail",
+  "docs/security/caiq_lite_2026.md": "audit-trail",
+  "docs/security/sig_core_2026.md": "audit-trail",
+  "docs/security/compliance_matrix.md": "audit-trail",
+  "docs/go-to-market/dpa_template.md": "audit-trail",
+  "docs/go-to-market/subprocessors.md": "audit-trail",
+  "docs/go-to-market/trust_center.md": "audit-trail",
 };
 
 function normalizeDocPath(docPath: string): string {

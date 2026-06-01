@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export const metadata: Metadata = {
   title: "Compliance journey",
@@ -27,56 +27,46 @@ export default function ComplianceJourneyPage() {
         </li>
         <li>
           CAIQ Lite and SIG Core pre-fills:{" "}
-          <a
+          <Link
             className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/CAIQ_LITE_2026.md`}
-            rel="noopener noreferrer"
-            target="_blank"
+            href={resolveInAppDocHref("docs/security/CAIQ_LITE_2026.md")}
           >
             CAIQ Lite
-          </a>
+          </Link>
           ,{" "}
-          <a
+          <Link
             className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/SIG_CORE_2026.md`}
-            rel="noopener noreferrer"
-            target="_blank"
+            href={resolveInAppDocHref("docs/security/SIG_CORE_2026.md")}
           >
             SIG Core
-          </a>
+          </Link>
           .
         </li>
         <li>
           Control and evidence mapping:{" "}
-          <a
+          <Link
             className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/COMPLIANCE_MATRIX.md`}
-            rel="noopener noreferrer"
-            target="_blank"
+            href={resolveInAppDocHref("docs/security/COMPLIANCE_MATRIX.md")}
           >
             Compliance matrix
-          </a>
+          </Link>
           .
         </li>
         <li>
           Data processing terms:{" "}
-          <a
+          <Link
             className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/DPA_TEMPLATE.md`}
-            rel="noopener noreferrer"
-            target="_blank"
+            href={resolveInAppDocHref("docs/go-to-market/DPA_TEMPLATE.md")}
           >
             DPA template
-          </a>{" "}
+          </Link>{" "}
           and{" "}
-          <a
+          <Link
             className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/SUBPROCESSORS.md`}
-            rel="noopener noreferrer"
-            target="_blank"
+            href={resolveInAppDocHref("docs/go-to-market/SUBPROCESSORS.md")}
           >
             subprocessor list
-          </a>
+          </Link>
           .
         </li>
       </ul>
@@ -85,25 +75,21 @@ export default function ComplianceJourneyPage() {
         <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
           Trust Center
         </Link>
-        , or open the same materials on GitHub:{" "}
-        <a
+        , or open the{" "}
+        <Link
           className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-          href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/TRUST_CENTER.md`}
-          rel="noopener noreferrer"
-          target="_blank"
+          href={resolveInAppDocHref("docs/go-to-market/TRUST_CENTER.md")}
         >
           Trust Center pack
-        </a>
-        ,{" "}
-        <a
+        </Link>{" "}
+        and{" "}
+        <Link
           className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-          href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/COMPLIANCE_MATRIX.md`}
-          rel="noopener noreferrer"
-          target="_blank"
+          href={resolveInAppDocHref("docs/security/COMPLIANCE_MATRIX.md")}
         >
           compliance matrix
-        </a>
-        .
+        </Link>{" "}
+        in product help.
       </p>
     </main>
   );
