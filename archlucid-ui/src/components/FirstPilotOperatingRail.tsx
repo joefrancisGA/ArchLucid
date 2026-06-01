@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import {
@@ -13,7 +14,6 @@ import {
   readFirstPilotEvidenceAcknowledged,
   resolveFirstPilotOperatingRailSteps,
   writeFirstPilotEvidenceAcknowledged,
-  type FirstPilotOperatingRailStepStatus,
 } from "@/lib/first-pilot-operating-rail-status";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -24,52 +24,16 @@ import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { operatorSemanticBadge } from "@/lib/design-tokens";
+import {
+  mapOperatingRailStepToEnterpriseKind,
+  mapOperatingRailStepToStatusTagLabel,
+} from "@/lib/first-pilot-operator-status-vocabulary";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 const RAIL_LEGACY_MINIMIZED_STORAGE_KEY = "archlucid_first_pilot_operating_rail_minimized_v1";
 
 type LoadPhase = "loading" | "ready";
-
-function statusLabel(status: FirstPilotOperatingRailStepStatus): string {
-  switch (status) {
-    case "complete":
-      return "Complete";
-    case "current":
-      return "Current step";
-    case "attention":
-      return "Needs attention";
-    case "upcoming":
-      return "Upcoming";
-    default: {
-      const exhaustive: never = status;
-
-      return exhaustive;
-    }
-  }
-}
-
-function statusBadgeClass(status: FirstPilotOperatingRailStepStatus): string {
-  switch (status) {
-    case "complete":
-      return operatorSemanticBadge("ready");
-
-    case "current":
-      return operatorSemanticBadge("current");
-
-    case "attention":
-      return operatorSemanticBadge("warn");
-
-    case "upcoming":
-      return operatorSemanticBadge("upcoming");
-
-    default: {
-      const exhaustive: never = status;
-
-      return exhaustive;
-    }
-  }
-}
 
 /**
  * Single first-pilot operating rail: six visible steps from setup verification through sponsor packet.
@@ -176,13 +140,12 @@ export function FirstPilotOperatingRail() {
       legacyStorageKeys={[RAIL_LEGACY_MINIMIZED_STORAGE_KEY]}
       defaultExpanded={buyerPolishedShell}
       description={shellCopy.intro}
-      collapsedSummary="Six-step path from platform setup through sponsor proof packet."
+      collapsedSummary="Six-step path from platform setup to a finalized review package."
       headerAside={
         shellCopy.showHeaderHelpLink ? (
           <OperatorHomeGuidanceLink helpSlug={shellCopy.headerHelpSlug} label={shellCopy.headerHelpLabel} />
         ) : null
       }
-      sectionClassName="border-neutral-200 dark:border-neutral-800"
       sectionDataAttributes={{ "data-rail-variant": buyerPolishedShell ? "buyer" : "operator" }}
     >
       <ol className="m-0 list-none space-y-3 p-0">
@@ -193,27 +156,24 @@ export function FirstPilotOperatingRail() {
             <li
               key={step.id}
               className={cn(
-                "rounded-md border px-3 py-2.5",
-                status === "current" ? "ring-1 ring-teal-400/60" : "",
-                statusBadgeClass(status),
+                "px-3 py-2.5",
+                DESIGN_TOKENS.surface.card,
+                status === "current" ? "border-l-4 border-l-[var(--al-accent-interactive)]" : "",
               )}
               data-testid={`first-pilot-rail-step-${step.id}`}
               aria-current={status === "current" ? "step" : undefined}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wide tabular-nums text-neutral-500 dark:text-neutral-400">
+                <span className={cn("tabular-nums uppercase tracking-wide", OPERATOR_TYPOGRAPHY.label)}>
                   Step {index + 1}
                 </span>
-                <span className="sr-only">{statusLabel(status)}</span>
-                <span
-                  className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                  aria-hidden
-                >
-                  {statusLabel(status)}
-                </span>
+                <StatusTag
+                  kind={mapOperatingRailStepToEnterpriseKind(status)}
+                  label={mapOperatingRailStepToStatusTagLabel(status)}
+                />
               </div>
-              <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{step.title}</p>
-              <p className="m-0 mt-1 text-sm leading-snug text-neutral-700 dark:text-neutral-300">{step.shortBody}</p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.cardTitle)}>{step.title}</p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>{step.shortBody}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <Button variant="outline" size="sm" asChild>
                   <Link href={primaryHref}>{step.primaryLabel}</Link>
@@ -244,7 +204,7 @@ export function FirstPilotOperatingRail() {
       </ol>
 
       {allComplete ? (
-        <p className="m-0 mt-4 text-sm font-medium text-teal-900 dark:text-teal-100">{shellCopy.completeMessage}</p>
+        <p className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.body)}>{shellCopy.completeMessage}</p>
       ) : null}
     </OperatorHomeDisclosureSection>
   );

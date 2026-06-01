@@ -25,7 +25,7 @@ Specific rules:
 - Use `StatusTag` / `SeverityTag` with canonical copy: Ready, Needs attention, Blocked, Approved, Approved with monitoring, In progress, Draft.
 - Make primary content visibly dominant; diagnostics and supporting content quieter (collapsed by default).
 - Operator views: `space-y-4`, `p-4`, `gap-2` — not `space-y-8` / `py-8`.
-- Typography: `OPERATOR_TYPOGRAPHY` from `design-tokens.ts` — page titles `text-xl` max; KPI tiles `kpiValue` only; no `text-2xl`/`text-3xl` on operator `h1`.
+- Typography: `OPERATOR_TYPOGRAPHY` from `design-tokens.ts` — page titles `text-xl` max; KPI tiles `kpiValue` only; badges `OPERATOR_TYPOGRAPHY.badge` (`text-[11px]`); no `text-2xl`/`text-3xl` on operator `h1`; no arbitrary `text-[10px]` on operator surfaces.
 - Hide CLI/script/API/model/runtime details from normal surfaces.
 - Product language: review package, finding, residual risk, evidence trail, signed decision record, governance approval, audit trail.
 
@@ -34,6 +34,7 @@ Specific rules:
 - Use Tailwind/shadcn defaults as the visual north star.
 - Add decorative `bg-teal-50`, `bg-amber-50`, or `border-teal-200` on neutral operator cards.
 - Render status as ad-hoc colored `span` elements — use `StatusTag` or `SeverityTag`.
+- Tint entire neutral cards with semantic fills — color belongs on the status chip or a single left border accent for the current step.
 - Link customer-facing help to GitHub `blob/` URLs (see `PRODUCT_DOCUMENTATION_PRESENTATION.md`).
 
 ## Implementation anchors

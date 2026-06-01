@@ -7,6 +7,8 @@ import { OperatorHomeDisclosureSection } from "@/components/operator-home/Operat
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { OperatorHomeGuidanceLinks } from "@/components/operator-home/OperatorHomeGuidanceLinks";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 const STEPS = [
   { label: "Platform ready", href: "/health", testId: "pilot-start-platform" },
@@ -39,7 +41,7 @@ export function PilotStartHereStrip(): React.JSX.Element {
 
       <ol className="m-0 flex list-none flex-wrap gap-3 p-0">
         {STEPS.map((step, index) => (
-          <li key={step.testId} className="flex items-center gap-2 text-sm">
+          <li key={step.testId} className={cn("flex items-center gap-2", OPERATOR_TYPOGRAPHY.body)}>
             <span
               className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 text-xs font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900"
               aria-hidden
@@ -48,7 +50,7 @@ export function PilotStartHereStrip(): React.JSX.Element {
             </span>
             <Link
               href={step.href}
-              className="font-medium text-neutral-900 underline-offset-2 hover:underline dark:text-neutral-100"
+              className="font-medium text-al-text-primary underline-offset-2 hover:underline"
               data-testid={step.testId}
             >
               {step.label}
@@ -56,7 +58,7 @@ export function PilotStartHereStrip(): React.JSX.Element {
           </li>
         ))}
       </ol>
-      <p className="mt-3 mb-0 text-xs text-neutral-600 dark:text-neutral-400">
+      <p className={cn("mt-3 mb-0", OPERATOR_TYPOGRAPHY.label)}>
         Primary sequence: platform ready → evidence → create/execute/commit → finalize review package → commercial
         next step. Operate, V1.1 connectors, and MCP stay optional after first commit.
       </p>
@@ -64,4 +66,4 @@ export function PilotStartHereStrip(): React.JSX.Element {
     </OperatorHomeDisclosureSection>
   );
 }
-
+

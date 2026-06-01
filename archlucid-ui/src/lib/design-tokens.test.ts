@@ -44,4 +44,9 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("font-mono");
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("tabular-nums");
   });
+
+  it("badge typography uses 11px semibold scale for status chips", () => {
+    expect(OPERATOR_TYPOGRAPHY.badge).toContain("text-[11px]");
+    expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-semibold");
+  });
 });

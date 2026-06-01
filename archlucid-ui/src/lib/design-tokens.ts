@@ -45,6 +45,8 @@ export const OPERATOR_TYPOGRAPHY = {
   body: "text-sm leading-relaxed text-al-text-primary",
   meta: "text-sm text-al-text-secondary",
   label: "text-xs text-al-text-secondary",
+  /** Status chips and compact metadata badges (11–12px). Do not use arbitrary `text-[10px]` on operator surfaces. */
+  badge: "text-[11px] font-semibold leading-tight",
   dataValue: "text-sm font-medium tabular-nums text-al-text-primary",
   /** Dashboard / metric tiles only — not page titles. */
   kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",

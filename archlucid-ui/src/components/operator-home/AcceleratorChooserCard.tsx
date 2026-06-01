@@ -3,6 +3,8 @@ import Link from "next/link";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ACCELERATOR_CHOOSER_ENTRIES } from "@/lib/accelerator-chooser";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Surfaces buyer-job → starter proof pack picks after first commit (TB-114). */
 export function AcceleratorChooserCard(): React.JSX.Element {
@@ -33,7 +35,12 @@ export function AcceleratorChooserCard(): React.JSX.Element {
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{entry.buyerJob}</h3>
-                  <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                  <span
+                    className={cn(
+                      "rounded bg-neutral-100 px-1.5 py-0.5 uppercase tracking-wide text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
+                      OPERATOR_TYPOGRAPHY.badge,
+                    )}
+                  >
                     {entry.scopeLabel}
                   </span>
                 </div>

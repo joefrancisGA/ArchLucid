@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { FirstPilotProofStatusStrip } from "@/components/FirstPilotProofStatusStrip";
+import { FirstPilotReadinessGroupTable } from "@/components/FirstPilotReadinessGroupTable";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
 import { OperatorAiQualityProofCard } from "@/components/OperatorAiQualityProofCard";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
+import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { getPilotScorecard } from "@/lib/api";
 import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
 import {
@@ -30,15 +33,19 @@ import {
   readFirstPilotEvidenceAcknowledged,
   type FirstPilotOperatingRailSignals,
 } from "@/lib/first-pilot-operating-rail-status";
-import { mapReadinessStatusToOperatorLabel } from "@/lib/first-pilot-operator-status-vocabulary";
+import {
+  mapReadinessStatusToEnterpriseKind,
+  mapSponsorDispositionToEnterpriseKind,
+} from "@/lib/first-pilot-operator-status-vocabulary";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
+import { cn } from "@/lib/utils";
 
 type Phase = "loading" | "ready";
 
@@ -61,54 +68,8 @@ const READINESS_GROUPS: readonly ReadinessGroupDefinition[] = [
   { group: "followup", label: "Follow-up" },
 ];
 
-function statusClass(status: FirstPilotReadinessStatus): string {
-  switch (status) {
-    case "ready":
-      return operatorSemanticBadge("ready");
-
-    case "attention":
-      return operatorSemanticBadge("warn");
-
-    case "blocked":
-      return operatorSemanticBadge("blocked");
-
-    case "unknown":
-      return operatorSemanticBadge("neutral");
-
-    default: {
-      const exhaustive: never = status;
-
-      return exhaustive;
-    }
-  }
-}
-
-function statusLabel(status: FirstPilotReadinessStatus): string {
-  return mapReadinessStatusToOperatorLabel(status);
-}
-
 function firstBlockingRow(rows: readonly FirstPilotReadinessRow[]): FirstPilotReadinessRow | null {
   return rows.find((row) => row.status === "blocked" || row.status === "attention" || row.status === "unknown") ?? null;
-}
-
-function sponsorDispositionClass(disposition: FirstPilotCommandCenterPhaseSummary["sponsorDisposition"]): string {
-  switch (disposition) {
-    case "send":
-      return operatorSemanticSurface("ready");
-
-    case "hold":
-      return operatorSemanticSurface("warn");
-
-    case "readiness-only":
-    case "deferred":
-      return operatorSemanticSurface("neutral");
-
-    default: {
-      const exhaustive: never = disposition;
-
-      return exhaustive;
-    }
-  }
 }
 
 function sponsorDispositionLabel(disposition: FirstPilotCommandCenterPhaseSummary["sponsorDisposition"]): string {
@@ -159,23 +120,6 @@ function formatReadinessCountsSummary(rows: readonly FirstPilotReadinessRow[]): 
   return parts.join(" · ") || "Workspace readiness loading…";
 }
 
-function ReadinessCard({ row }: { readonly row: FirstPilotReadinessRow }): React.JSX.Element {
-  return (
-    <article className={`rounded-lg border p-3 ${statusClass(row.status)}`}>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-          {statusLabel(row.status)}
-        </span>
-        <h4 className="m-0 text-sm font-semibold">{row.label}</h4>
-      </div>
-      <p className="m-0 mt-2 text-xs leading-relaxed">{row.summary}</p>
-      <Link href={row.href} className="mt-2 inline-block text-xs font-medium underline underline-offset-2">
-        {row.cta}
-      </Link>
-    </article>
-  );
-}
-
 function ReadinessStatusCountsBar({ rows }: { readonly rows: readonly FirstPilotReadinessRow[] }): React.JSX.Element | null {
   const counts = buildReadinessStatusCounts(rows);
 
@@ -196,40 +140,13 @@ function ReadinessStatusCountsBar({ rows }: { readonly rows: readonly FirstPilot
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2" aria-label="Readiness summary">
       {parts.map(({ label, status, count }) => (
-        <span
+        <StatusTag
           key={status}
-          className={`rounded-full border border-current/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusClass(status)}`}
-        >
-          {String(count)} {label}
-        </span>
+          kind={mapReadinessStatusToEnterpriseKind(status)}
+          label={`${String(count)} ${label}`}
+        />
       ))}
     </div>
-  );
-}
-
-function ReadinessGroupSection({ groupDef, rows }: {
-  readonly groupDef: ReadinessGroupDefinition;
-  readonly rows: readonly FirstPilotReadinessRow[];
-}): React.JSX.Element | null {
-  const groupRows = rows.filter((row) => row.group === groupDef.group);
-
-  if (groupRows.length === 0)
-    return null;
-
-  return (
-    <section aria-labelledby={`readiness-group-${groupDef.group}`}>
-      <h3
-        id={`readiness-group-${groupDef.group}`}
-        className="mb-2 text-xs font-bold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-      >
-        {groupDef.label}
-      </h3>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {groupRows.map((row) => (
-          <ReadinessCard key={row.id} row={row} />
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -372,32 +289,30 @@ export function FirstPilotReadinessCockpit() {
       </div>
 
       <article
-        className={`mb-4 rounded-lg border p-3 ${sponsorDispositionClass(commandCenter.sponsorDisposition)}`}
+        className={cn("mb-4 rounded-lg border p-4", DESIGN_TOKENS.surface.card)}
         data-testid="first-pilot-command-center-phase"
         data-phase={commandCenter.phase}
       >
-        <p className="m-0 text-[10px] font-semibold uppercase tracking-wide opacity-80">NEXT ACTION</p>
+        <p className={cn("m-0 font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.label)}>Next action</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-            {FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE[commandCenter.phase]}
-          </span>
-          <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-            {commandCenter.headline}
-          </span>
-          <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-            {sponsorDispositionLabel(commandCenter.sponsorDisposition)}
-          </span>
+          <StatusTag
+            kind="neutral"
+            label={FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE[commandCenter.phase]}
+          />
+          <StatusTag kind="in-progress" label={commandCenter.headline} />
+          <StatusTag
+            kind={mapSponsorDispositionToEnterpriseKind(commandCenter.sponsorDisposition)}
+            label={sponsorDispositionLabel(commandCenter.sponsorDisposition)}
+          />
         </div>
-        <p className="m-0 mt-2 text-sm leading-relaxed">{commandCenter.summary}</p>
-        <Link
-          href={commandCenter.href}
-          className="mt-3 inline-flex rounded-md bg-teal-700 px-3 py-1.5 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-          data-testid="first-pilot-command-center-next-action"
-        >
-          {commandCenter.cta}
-        </Link>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{commandCenter.summary}</p>
+        <Button variant="primary" size="sm" className="mt-3" asChild>
+          <Link href={commandCenter.href} data-testid="first-pilot-command-center-next-action">
+            {commandCenter.cta}
+          </Link>
+        </Button>
         {commandCenter.phase === "sponsor-packet-send" || commandCenter.phase === "sponsor-packet-hold" ? (
-          <div className="m-0 mt-2 text-xs leading-relaxed opacity-90">
+          <div className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.label)}>
             <p className="m-0">{FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE}</p>
             <FirstPilotTechnicalCommandDisclosure commands={[FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND]} />
           </div>
@@ -406,7 +321,12 @@ export function FirstPilotReadinessCockpit() {
 
       <div className="space-y-5">
         {READINESS_GROUPS.map((groupDef) => (
-          <ReadinessGroupSection key={groupDef.group} groupDef={groupDef} rows={rows} />
+          <FirstPilotReadinessGroupTable
+            key={groupDef.group}
+            group={groupDef.group}
+            groupLabel={groupDef.label}
+            rows={rows}
+          />
         ))}
       </div>
 
@@ -415,7 +335,7 @@ export function FirstPilotReadinessCockpit() {
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.assistantDiagnostics}
         defaultExpanded={false}
         collapsedSummary="AI quality proof signals for assistant readiness."
-        sectionClassName="mt-4 border-neutral-200 bg-neutral-50/80 shadow-none dark:border-neutral-700 dark:bg-neutral-900/40"
+        sectionClassName="mt-4 shadow-none"
         bodyClassName="mt-0"
       >
         <OperatorAiQualityProofCard embedded />

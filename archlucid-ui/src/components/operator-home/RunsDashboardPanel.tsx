@@ -35,7 +35,8 @@ import {
   BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
-import { operatorSemanticSurface, OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -404,7 +405,7 @@ export function RunsDashboardPanel() {
                   <input
                     id="runs-dashboard-governance-warnings-only"
                     type="checkbox"
-                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
                     checked={governanceWarningsOnly}
                     onChange={(e) => {
                       setGovernanceWarningsOnly(e.target.checked);
@@ -419,7 +420,7 @@ export function RunsDashboardPanel() {
                   <input
                     id="runs-dashboard-show-archived"
                     type="checkbox"
-                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                    className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
                     checked={showArchived}
                     onChange={(e) => {
                       setShowArchived(e.target.checked);
@@ -452,7 +453,7 @@ export function RunsDashboardPanel() {
 
               {(phase === "ready" || phase === "error") && showcaseDemoRun && !buyerPolishedShell ? (
                 <div
-                  className={cn("space-y-3 px-3 py-3", operatorSemanticSurface("ready"))}
+                  className={cn("space-y-3 px-3 py-3", OPERATOR_SURFACE_CARD_CLASS)}
                   data-testid="operator-home-showcase-demo-banner"
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -676,37 +677,25 @@ export function RunsDashboardPanel() {
                   className="m-0 grid list-none gap-2 p-0 sm:grid-cols-3"
                   data-testid="runs-dashboard-buyer-outcome-cards"
                 >
-                  <li className={cn("px-3 py-2", operatorSemanticSurface("ready"))}>
-                    <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-300">
-                      Outcome
-                    </p>
-                    <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      Review finalized
-                    </p>
-                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <li className={cn("px-3 py-2", OPERATOR_SURFACE_CARD_CLASS)}>
+                    <StatusTag kind="ready" label="Outcome" />
+                    <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Review finalized</p>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.label)}>
                       Signed manifest pinned with governance-approved posture for sponsor readout.
                     </p>
                   </li>
-                  <li className={cn("px-3 py-2", operatorSemanticSurface("warn"))}>
-                    <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-amber-950 dark:text-amber-200">
-                      Monitored posture
-                    </p>
-                    <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      One non-blocking risk under monitoring
-                    </p>
-                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <li className={cn("px-3 py-2", OPERATOR_SURFACE_CARD_CLASS)}>
+                    <StatusTag kind="approved-with-monitoring" label="Monitored posture" />
+                    <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>One non-blocking risk under monitoring</p>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.label)}>
                       PHI minimization control accepted with recurring sampling — tracked in monitored risks elsewhere in
                       the package.
                     </p>
                   </li>
                   <li className={cn("px-3 py-2", OPERATOR_SURFACE_CARD_CLASS)}>
-                    <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
-                      Deliverables
-                    </p>
-                    <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      Evidence package ready
-                    </p>
-                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                    <StatusTag kind="neutral" label="Deliverables" />
+                    <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Evidence package ready</p>
+                    <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.label)}>
                       Executive summary through audit trail packaged for diligence and CAB-style review inquiries.
                     </p>
                   </li>
@@ -726,15 +715,13 @@ export function RunsDashboardPanel() {
                   {deltaStatus === "ready" && deltaData !== null && outcomesWindow !== null && outcomesWindow > 0 ? (
                     <dl className="m-0 grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Findings</dt>
+                        <dt className={OPERATOR_TYPOGRAPHY.label}>Findings</dt>
                         <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                           {formatFindings(deltaData.medianTotalFindings)}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">
-                          Time to finalize
-                        </dt>
+                        <dt className={OPERATOR_TYPOGRAPHY.label}>Time to finalize</dt>
                         <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                           {formatHours(deltaData.medianTimeToCommittedManifestTotalSeconds)}
                         </dd>

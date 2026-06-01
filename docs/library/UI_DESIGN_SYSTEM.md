@@ -58,6 +58,7 @@ These rules apply to all operator-facing and marketing surfaces. Agents and engi
 
 - **Accessible, disciplined typography.** Prefer size and weight to distinguish hierarchy over color alone.
 - Body copy should be readable at a glance — no decorative font choices.
+- Use `OPERATOR_TYPOGRAPHY` from `design-tokens.ts` (page title `text-xl`, section labels `text-xs` uppercase, body `text-sm`, badge `text-[11px]`). Do not add arbitrary `text-[10px]` on operator surfaces.
 
 ### Components
 
