@@ -2,7 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { MarketingCustomPolicyPackAuthoringSection } from "@/components/marketing/MarketingCustomPolicyPackAuthoringSection";
-import { CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL } from "@/lib/marketing-custom-policy-pack-authoring";
+import {
+  CUSTOM_POLICY_PACK_SOW_HREF,
+  CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
+  ORDER_FORM_ADDENDUM_C_HREF,
+  PRICING_PHILOSOPHY_CUSTOM_PACK_HREF,
+} from "@/lib/marketing-custom-policy-pack-authoring";
 
 describe("MarketingCustomPolicyPackAuthoringSection", () => {
   it("renders SKU rows and canonical doc links without hard-coded list prices", () => {
@@ -14,15 +19,12 @@ describe("MarketingCustomPolicyPackAuthoringSection", () => {
     expect(screen.getByTestId("custom-policy-pack-sku-program")).toBeInTheDocument();
     expect(screen.getByTestId("custom-policy-pack-pricing-philosophy-link")).toHaveAttribute(
       "href",
-      expect.stringContaining("PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring"),
+      PRICING_PHILOSOPHY_CUSTOM_PACK_HREF,
     );
-    expect(screen.getByTestId("custom-policy-pack-sow-link")).toHaveAttribute(
-      "href",
-      expect.stringContaining("CUSTOM_POLICY_PACK_AUTHORING_SOW_TEMPLATE.md"),
-    );
+    expect(screen.getByTestId("custom-policy-pack-sow-link")).toHaveAttribute("href", CUSTOM_POLICY_PACK_SOW_HREF);
     expect(screen.getByTestId("custom-policy-pack-order-form-link")).toHaveAttribute(
       "href",
-      expect.stringContaining("ORDER_FORM_TEMPLATE.md#addendum-c"),
+      ORDER_FORM_ADDENDUM_C_HREF,
     );
 
     const sectionText = screen.getByTestId("custom-policy-pack-authoring-section").textContent ?? "";

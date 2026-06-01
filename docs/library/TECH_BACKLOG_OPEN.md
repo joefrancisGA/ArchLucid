@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — verified open items extracted from the main tech backlog; not a buyer or operator document.
+
 # Tech backlog — verified open items
 
 > **Updated:** 2026-06-01. **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md).

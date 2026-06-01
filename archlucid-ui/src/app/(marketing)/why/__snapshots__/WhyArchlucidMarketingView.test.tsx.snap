@@ -511,9 +511,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 </a>
                 <a
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
-                  href="https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/AUDIT_COVERAGE_MATRIX.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  href="/help/audit-trail"
                 >
                   Durable audit coverage matrix
                 </a>
@@ -557,9 +555,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
-                  href="https://github.com/joefrancisGA/ArchLucid/blob/master/docs/security/MULTI_TENANT_RLS.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  href="/help/audit-trail"
                 >
                   Tenant isolation control summary
                 </a>
@@ -603,9 +599,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
-                  href="https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/V1_SCOPE.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  href="/help/getting-started"
                 >
                   Authentication scope (published scope doc)
                 </a>
@@ -649,9 +643,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
-                  href="https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/COMPARISON_REPLAY.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  href="/help/comparison-replay"
                 >
                   Comparison replay summary
                 </a>
@@ -739,9 +731,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               >
                 <a
                   class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
-                  href="https://github.com/joefrancisGA/ArchLucid/blob/master/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md"
-                  rel="noopener noreferrer"
-                  target="_blank"
+                  href="/help/governance-approval"
                 >
                   Governance gate control description
                 </a>

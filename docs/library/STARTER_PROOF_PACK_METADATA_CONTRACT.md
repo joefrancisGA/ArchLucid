@@ -1,7 +1,6 @@
-# Starter proof pack metadata contract (TB-171)
+> **Scope:** Contributor-reference — machine-readable metadata beside each `templates/starter-proof-packs/{pack-id}/` folder. **Enforced by:** `scripts/ci/check_starter_proof_packs.py` and `scripts/ci/dry_run_starter_proof_packs.py`.
 
-> **Scope:** Machine-readable metadata beside each `templates/starter-proof-packs/{pack-id}/` folder.  
-> **Enforced by:** `scripts/ci/check_starter_proof_packs.py` and `scripts/ci/dry_run_starter_proof_packs.py`.
+# Starter proof pack metadata contract (TB-171)
 
 ## File
 
