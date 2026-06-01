@@ -7,6 +7,19 @@ export type AgentExecutionTraceRow = {
   parseSucceeded: boolean;
   blobUploadFailed?: boolean | null;
   createdUtc: string;
+  /** Redacted inline fields; execute-tier UI may preview — full blobs when blob upload succeeded. */
+  userPrompt?: string | null;
+  rawResponse?: string | null;
+  systemPrompt?: string | null;
+  parsedResultJson?: string | null;
+};
+
+/** Inline prompt/response fields joined to tool-invocation forensics rows (TB-110). */
+export type AgentTraceRawSnapshot = {
+  userPrompt?: string | null;
+  rawResponse?: string | null;
+  systemPrompt?: string | null;
+  parsedResultJson?: string | null;
 };
 
 export type AgentExecutionTraceListPayload = {

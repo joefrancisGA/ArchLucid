@@ -103,7 +103,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-154 | Waiver ↔ disposition state machine — bidirectional invariants | Governance correctness — active waiver on remediated finding; expiry without disposition event; stale risk double-count with waiver | M |
 | TB-155 | ROI cache TTL vs live decisions-needed — canonical expiring-waiver source | Customer-visible correctness — `CachingExecutiveRoiSummaryService` can serve stale `ExpiringWaiversCount14Days` while decisions-needed is fresh | S |
 | TB-109 | RunDetailPageView — add retrieval-hit / RAG grounding panel | Operator visibility (P1) — no UI surface anywhere shows which chunks were retrieved, their scores, or whether any retrieval step was degraded; critical when `faithfulnessWarning` is true | M |
-| TB-110 | RunDetailPageView — add tool-call / function-invocation log panel | Operator visibility (P1) — no dedicated tool-call panel; agent forensics shows trace rows but not function-call lists; full prompt/response in blob storage is not rendered | M |
+| TB-110 | RunDetailPageView — add tool-call / function-invocation log panel | **Done (2026-06-01)** — structured `AgentToolInvocationRecords` ledger + forensics API; execute-gated inline raw preview on run detail | M |
 | TB-111 | RunDetailPageView — inline provenance summary card (collapse from sibling route) | Operator visibility (P1) — provenance requires full-page navigation to a sibling route using a different API; operator loses run context while reviewing | S |
 | TB-112 | RunDetailPageView — add run-level approve / reject / request-remediation actions | Operator workflow (P2) — `CommitRunButton` (finalize manifest) is the only run-level action; all finding disposition lives on per-finding sub-routes with no run-level governance action | M |
 | TB-113 | Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types | Schema hygiene (P2) — C# `RunDetailDto` has both fields; generated `api-types.generated.ts` may omit them; silent type-level omission makes it impossible to add UI without bypassing type safety | XS |
@@ -5466,7 +5466,7 @@ There is no UI surface anywhere on the run detail page (or any sub-route) that s
 
 ## TB-110 — RunDetailPageView — add tool-call / function-invocation log panel
 
-**Status (2026-06-01):** **Partial** — structured `AgentToolInvocationRecords` ledger persisted at trace write time; forensics API prefers ledger rows when present. Remaining: per-invocation raw blob expansion in UI (operator role guard).
+**Status (2026-06-01):** **Done** — structured `AgentToolInvocationRecords` ledger at trace write; `GET …/tool-invocation-forensics` prefers ledger rows; run-detail panel with execute-gated **View raw** inline preview from persisted trace rows (redacted, truncated). Blob-only full text remains in durable storage when inline persistence failed.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 

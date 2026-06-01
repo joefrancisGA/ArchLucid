@@ -3,6 +3,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunToolInvocationForensicsPanel } from "@/components/RunToolInvocationForensicsPanel";
 import { EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER } from "@/lib/agent-evidence-faithfulness-presenter";
+import { buildAgentTraceRawSnapshotByTraceId } from "@/lib/agent-trace-raw-snapshot";
 import { getRunAgentEvaluation, getRunTraces, getRunToolInvocationForensics } from "@/lib/api";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -194,6 +195,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
   );
   const blobPersistFailed = traces.some((t) => t.blobUploadFailed === true);
   const toolInvocationRows = toolInvocationPayload?.rows ?? [];
+  const traceRawByTraceId = buildAgentTraceRawSnapshotByTraceId(traces);
 
 
   return (
@@ -215,6 +217,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
           "Structured tool-call rows are not recorded for this review."
         }
         rows={toolInvocationRows}
+        traceRawByTraceId={traceRawByTraceId}
       />
 
       {blobPersistFailed ? (

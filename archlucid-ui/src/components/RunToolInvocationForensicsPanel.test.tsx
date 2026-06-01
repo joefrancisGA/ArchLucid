@@ -10,6 +10,7 @@ describe("RunToolInvocationForensicsPanel", () => {
         hasTraceBlobPersistenceFailure={false}
         completenessDisclaimer="No rows."
         rows={[]}
+        traceRawByTraceId={{}}
       />,
     );
 
@@ -34,6 +35,9 @@ describe("RunToolInvocationForensicsPanel", () => {
             invokedAtUtc: "2026-05-01T12:00:00Z",
           },
         ]}
+        traceRawByTraceId={{
+          t1: { userPrompt: "analyze topology", rawResponse: "{}" },
+        }}
       />,
     );
 

@@ -1,10 +1,12 @@
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import type { RunToolInvocationForensicRow } from "@/types/agent-forensics";
+import { RunToolInvocationForensicsRawCell } from "@/components/RunToolInvocationForensicsRawCell";
+import type { AgentTraceRawSnapshot, RunToolInvocationForensicRow } from "@/types/agent-forensics";
 
 export type RunToolInvocationForensicsPanelProps = {
   readonly hasTraceBlobPersistenceFailure: boolean;
   readonly completenessDisclaimer: string;
   readonly rows: readonly RunToolInvocationForensicRow[];
+  readonly traceRawByTraceId: Readonly<Record<string, AgentTraceRawSnapshot>>;
 };
 
 function formatDuration(durationMs: number | null | undefined): string {
@@ -28,9 +30,7 @@ function formatDuration(durationMs: number | null | undefined): string {
   return `${m}m ${s}s`;
 }
 
-/**
- * TB-110: trace-derived invocation table. Structured MCP/tool-call persistence is not available yet.
- */
+/** TB-110: structured ledger or trace-derived invocation table with execute-gated raw preview. */
 export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensicsPanelProps) {
   if (props.rows.length === 0) {
     return null;
@@ -80,6 +80,13 @@ export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensic
                     ) : null}
                   </td>
                   <td className="py-2 pr-3 align-top">{formatDuration(row.durationMs)}</td>
+                  <td className="py-2 pr-3 align-top">
+                    <RunToolInvocationForensicsRawCell
+                      snapshot={
+                        row.traceId ? props.traceRawByTraceId[row.traceId] : undefined
+                      }
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
