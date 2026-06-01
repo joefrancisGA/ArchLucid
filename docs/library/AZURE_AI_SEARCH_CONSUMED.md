@@ -1,4 +1,6 @@
-﻿# Consumed Azure AI Search (TB-096)
+> **Scope:** Contributor-reference — Consumed Azure AI Search (TB-096); engineering Terraform contract for platform-owned search, not operator runbook material.
+
+# Consumed Azure AI Search (TB-096)
 
 Production-like hosted Terraform **does not create** Azure AI Search. Platform subscription owns SKU, semantic ranking, networking, and diagnostics.
 

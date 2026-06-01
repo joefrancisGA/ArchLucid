@@ -1,4 +1,6 @@
-﻿# Cosmos DB IaC assessment (TB-095)
+> **Scope:** Contributor-reference — Cosmos DB IaC assessment (TB-095); engineering posture for optional hosted Cosmos, not buyer procurement material.
+
+# Cosmos DB IaC assessment (TB-095)
 
 **Date:** 2026-06-01  
 **Backlog:** TB-095  

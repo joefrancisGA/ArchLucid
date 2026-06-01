@@ -11,6 +11,7 @@ import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationScoreRow,
   AgentOutputEvaluationSummaryPayload,
+  RunToolInvocationForensicsPayload,
 } from "@/types/agent-forensics";
 
 function agentTypeLabel(agentType: number): string {
@@ -192,6 +193,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
     (a, b) => Date.parse(a.createdUtc) - Date.parse(b.createdUtc),
   );
   const blobPersistFailed = traces.some((t) => t.blobUploadFailed === true);
+  const toolInvocationRows = toolInvocationPayload?.rows ?? [];
 
 
   return (

@@ -8,6 +8,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { buildBuyerReviewPackageDispositionLine, buildBuyerReviewPackagePlainStatusHeadline } from "@/lib/review-buyer-disposition-line";
 import { cn } from "@/lib/utils";
+import type { components } from "@/lib/openapi-schemas";
 
 export type ShowcasePolicyPackStripLink = {
   readonly href: string;
@@ -31,22 +32,7 @@ type RunDetailOutcomeCardsProps = {
   readonly degradedFindingCoverage?: boolean;
   /** Sanitized engine labels from finding coverage summary (engine/category). */
   readonly failedEngineLabels?: readonly string[];
-  readonly findingCoverageSummary?: {
-    readonly enginesAttempted?: number | null;
-    readonly enginesSucceeded?: number | null;
-    readonly enginesFailed?: number | null;
-    readonly hasCommitBlockingFailures?: boolean;
-    readonly generationStatus?: string | null;
-    readonly dispositionCoverage?: {
-      readonly openCount?: number | null;
-      readonly acceptedCount?: number | null;
-      readonly deferredCount?: number | null;
-      readonly needsEvidenceCount?: number | null;
-      readonly remediatedCount?: number | null;
-      readonly rejectedNotApplicableCount?: number | null;
-      readonly waivedCount?: number | null;
-    } | null;
-  } | null;
+  readonly findingCoverageSummary?: components["schemas"]["RunFindingCoverageSummary"] | null;
   /** Buyer-polished strip only: prominent link to read-only pack detail (showcase demo). */
   readonly showcasePolicyPackStrip?: ShowcasePolicyPackStripLink | null;
 };
