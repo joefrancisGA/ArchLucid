@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { createHelpHeadingSlugAllocator, slugifyHelpHeading } from "@/lib/help-heading-slug";
 
 describe("help-heading-slug", () => {

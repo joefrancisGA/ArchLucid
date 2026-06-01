@@ -1,7 +1,17 @@
 /** Open panels via {@link contextualHelpTriggerAriaLabel} — never hardcode legacy `more information: {key}` labels. CI: `npm run test:axe-components` (`ui-axe-components` on full workflow_dispatch). */
 import { act, fireEvent, render } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),
+  usePathname: () => "/",
+  useSearchParams: () => ({
+    get: () => null,
+    toString: () => "",
+  }),
+  redirect: vi.fn(),
+}));
 
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";

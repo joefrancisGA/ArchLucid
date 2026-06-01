@@ -3,6 +3,7 @@
 import { ChevronsUpDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -184,24 +185,27 @@ export function ScopeSwitcher() {
 
   if (polishedShell && isDefaultDevScope) {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span className="inline-flex max-w-[min(22rem,46vw)] shrink cursor-default items-center gap-2">
-            <span
-              data-testid="operator-scope-switcher-trigger"
-              className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-              title={BUYER_EXAMPLE_WORKSPACE_TOOLTIP}
-              aria-label={`Active workspace — ${BUYER_EXAMPLE_WORKSPACE_TOOLTIP}`}
-            >
-              {workspaceLabel}
+      <span className="inline-flex max-w-[min(22rem,46vw)] shrink items-center gap-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex min-w-0 max-w-[min(22rem,46vw)] shrink cursor-default items-center gap-2">
+              <span
+                data-testid="operator-scope-switcher-trigger"
+                className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                title={BUYER_EXAMPLE_WORKSPACE_TOOLTIP}
+                aria-label={`Active workspace — ${BUYER_EXAMPLE_WORKSPACE_TOOLTIP}`}
+              >
+                {workspaceLabel}
+              </span>
+              <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
+                {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
+              </span>
             </span>
-            <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
-              {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
-            </span>
-          </span>
-        </TooltipTrigger>
-        <TooltipContent sideOffset={6}>{BUYER_EXAMPLE_WORKSPACE_TOOLTIP}</TooltipContent>
-      </Tooltip>
+          </TooltipTrigger>
+          <TooltipContent sideOffset={6}>{BUYER_EXAMPLE_WORKSPACE_TOOLTIP}</TooltipContent>
+        </Tooltip>
+        <ContextualHelp helpKey="operator-scope-switcher" placement="bottom" />
+      </span>
     );
   }
 
@@ -232,6 +236,7 @@ export function ScopeSwitcher() {
         </span>
         <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
       </Button>
+      <ContextualHelp helpKey="operator-scope-switcher" placement="bottom" />
       {open ? (
         <Card
           className="absolute right-0 top-full z-[60] mt-1 w-[min(22rem,calc(100vw-2rem))] space-y-3 p-3 shadow-lg"
