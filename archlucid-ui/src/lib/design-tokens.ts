@@ -30,7 +30,10 @@ export const AL_CSS_VAR_NAMES = {
 /** Tailwind class bundles for layout and surfaces (operator shell). */
 export const OPERATOR_LAYOUT = {
   page: "bg-al-surface-base text-al-text-primary",
+  /** Gap between items within a single functional zone (cards, rows). */
   sectionStack: "space-y-4",
+  /** Gap between major functional zones on the Home page (reviews, readiness, get started). */
+  majorSectionGap: "space-y-8",
   cardPadding: "p-4",
   inlineGap: "gap-2",
   sectionHeadingMargin: "mb-3",

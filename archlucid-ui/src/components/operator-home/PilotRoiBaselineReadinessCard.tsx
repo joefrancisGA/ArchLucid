@@ -54,21 +54,21 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
     return null;
   }
 
+  const bannerClass =
+    "flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3 py-2 text-sm";
+
   if (dismissed) {
     return (
       <section
         aria-label="ROI baseline readiness"
-        className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900/50"
+        className={`${bannerClass} border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/50`}
         data-testid="pilot-roi-baseline-readiness-compact"
       >
         <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">ROI baseline not set</p>
-        <Link
-          href="/settings/baseline"
-          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-        >
-          Settings → Baseline
-        </Link>
-        <Button type="button" size="sm" variant="outline" className="h-8" onClick={openPilotBaselineWizard}>
+        <p className="m-0 text-neutral-600 dark:text-neutral-400">
+          Set a baseline to estimate time saved after your first review.
+        </p>
+        <Button type="button" size="sm" variant="outline" className="h-7 shrink-0" onClick={openPilotBaselineWizard}>
           Set baseline
         </Button>
       </section>
@@ -77,58 +77,45 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
 
   return (
     <section
-      aria-labelledby="pilot-roi-baseline-readiness-heading"
-      className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4"
+      aria-label="ROI baseline readiness"
+      className={`${bannerClass} border-amber-600/30 bg-amber-50/60 dark:border-amber-700/40 dark:bg-amber-950/20`}
       data-testid="pilot-roi-baseline-readiness-card"
     >
-      <div className="flex items-start justify-between gap-3">
-        <h2
-          id="pilot-roi-baseline-readiness-heading"
-          className="m-0 text-sm font-semibold text-amber-950 dark:text-amber-100"
-        >
-          ROI baseline not set
-        </h2>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 shrink-0 text-amber-800/70 hover:text-amber-950 dark:text-amber-200/70 dark:hover:text-amber-100"
-          aria-label="Dismiss ROI baseline prompt"
-          data-testid="pilot-roi-baseline-readiness-dismiss"
-          onClick={dismissPrompt}
-        >
-          <X className="h-4 w-4" aria-hidden />
-        </Button>
-      </div>
-
-      <p className="m-0 mt-2 max-w-3xl text-sm leading-relaxed text-amber-950/90 dark:text-amber-100/90">
-        Set a review-cycle baseline so ArchLucid can estimate time saved after your first review package. Enter a rough
-        estimate now, or skip and add it later in{" "}
-        <Link href="/settings/baseline" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
-          Settings → Baseline
-        </Link>
-        .
+      <p className="m-0 font-medium text-amber-950 dark:text-amber-100">ROI baseline not set</p>
+      <p className="m-0 text-amber-900/80 dark:text-amber-200/80">
+        Set a baseline to estimate time saved after your first review.
       </p>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
         <Button
           type="button"
           size="sm"
           variant="primary"
+          className="h-7"
           data-testid="pilot-roi-baseline-readiness-set"
           onClick={openPilotBaselineWizard}
         >
           Set baseline
         </Button>
-
         <Button
           type="button"
           size="sm"
-          variant="outline"
+          variant="ghost"
+          className="h-7"
           data-testid="pilot-roi-baseline-readiness-skip"
           onClick={dismissPrompt}
         >
-          Skip for now
+          Skip
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 shrink-0 text-amber-800/60 hover:text-amber-950 dark:text-amber-200/60 dark:hover:text-amber-100"
+          aria-label="Dismiss ROI baseline prompt"
+          data-testid="pilot-roi-baseline-readiness-dismiss"
+          onClick={dismissPrompt}
+        >
+          <X className="h-3.5 w-3.5" aria-hidden />
         </Button>
       </div>
     </section>

@@ -38,7 +38,7 @@ type OperatorHomePageViewProps = {
   model: OperatorHomePageViewModel;
 };
 
-function BuyerHomeSectionHeading(props: { readonly id: string; readonly children: string }) {
+function HomeSectionHeading(props: { readonly id?: string; readonly children: string }) {
   return (
     <h2
       id={props.id}
@@ -121,7 +121,7 @@ function BuyerPolishedHomePageBody() {
         className="space-y-4"
         data-testid="operator-home-setup-section"
       >
-        <BuyerHomeSectionHeading id="buyer-home-setup-heading">{BUYER_HOME_SETUP_SECTION_HEADING}</BuyerHomeSectionHeading>
+        <HomeSectionHeading id="buyer-home-setup-heading">{BUYER_HOME_SETUP_SECTION_HEADING}</HomeSectionHeading>
         <CorePilotBuyerStepHint />
         <WelcomeBanner />
         <FirstPilotOperatingRail />
@@ -134,34 +134,40 @@ function BuyerPolishedHomePageBody() {
 function OperatorHomePageBody() {
   return (
     <>
-      <OperatorCoArchitectHomeStrip />
-      <WelcomeBanner />
-      <SampleFirstReviewPackageCard />
-      <PilotRoiBaselineReadinessCard />
-      <FirstPilotReadinessCockpit />
-      <PilotStartHereStrip />
-
-      <div className="max-w-prose space-y-3">
-        <FirstWeekRouteGuidance variant="home" />
-        <OperatorHomeGuidanceLinks>
-          <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
-        </OperatorHomeGuidanceLinks>
+      {/* Zone 1: primary actions */}
+      <div className="space-y-4">
+        <OperatorCoArchitectHomeStrip />
+        <WelcomeBanner />
+        <SampleFirstReviewPackageCard />
       </div>
 
-      <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
-        Your reviews
-      </h2>
+      {/* Zone 2: your reviews */}
+      <section aria-labelledby="operator-home-reviews-heading" className="space-y-4">
+        <HomeSectionHeading id="operator-home-reviews-heading">Your reviews</HomeSectionHeading>
+        <OperatorHomeReviewsGrid />
+      </section>
 
-      <OperatorHomeReviewsGrid />
+      {/* Zone 3: workspace readiness (collapsed by default) */}
+      <section aria-labelledby="operator-home-readiness-heading" className="space-y-3">
+        <HomeSectionHeading id="operator-home-readiness-heading">Workspace readiness</HomeSectionHeading>
+        <PilotRoiBaselineReadinessCard />
+        <FirstPilotReadinessCockpit />
+      </section>
 
-      <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
-        Get started
-      </h2>
-
-      <CorePilotNextStepsCard />
-      <CorePilotChecklist />
-
-      <FirstPilotOperatingRail />
+      {/* Zone 4: getting started and checklists */}
+      <section aria-labelledby="operator-home-started-heading" className="space-y-4">
+        <HomeSectionHeading id="operator-home-started-heading">Get started</HomeSectionHeading>
+        <PilotStartHereStrip />
+        <CorePilotNextStepsCard />
+        <CorePilotChecklist />
+        <FirstPilotOperatingRail />
+        <div className="max-w-prose space-y-3">
+          <FirstWeekRouteGuidance variant="home" />
+          <OperatorHomeGuidanceLinks>
+            <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
+          </OperatorHomeGuidanceLinks>
+        </div>
+      </section>
     </>
   );
 }
@@ -174,7 +180,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGate>
       <TrialWelcomeRunDeepLink />
       <OperatorWelcomeOnboarding />
-      <div className="space-y-4">
+      <div className="space-y-8">
         {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
       </div>
     </OperatorHomeGate>
