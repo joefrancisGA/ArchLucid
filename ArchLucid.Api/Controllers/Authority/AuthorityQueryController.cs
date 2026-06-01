@@ -189,6 +189,8 @@ public sealed class AuthorityQueryController(
     }
 
     /// <summary>Records run-level approve / reject / request-remediation (TB-112).</summary>
+    // idempotency-posture: explicit-idempotency-key
+    [IdempotencyFilter]
     [HttpPost("runs/{runId:guid}/disposition")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RunOperatorGovernanceDispositionDto), StatusCodes.Status200OK)]
