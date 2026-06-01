@@ -28,4 +28,6 @@ export type FindingInspectPayload = {
   reasoningTrace?: string | null;
   evaluationConfidenceScore?: number | null;
   confidenceLevel?: FindingConfidenceLevel | null;
+  /** Inbound ITSM sync / operator human review state when returned by inspect API. */
+  humanReviewStatus?: number | null;
 };

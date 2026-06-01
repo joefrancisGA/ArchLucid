@@ -94,4 +94,20 @@ public sealed class ArchitectureRiskRegisterEntry
         get;
         init;
     } = string.Empty;
+
+    /// <summary>Inbound ITSM sync / operator human review state from <c>dbo.FindingRecords.HumanReviewStatus</c>.</summary>
+    public FindingHumanReviewStatus HumanReviewStatus
+    {
+        get;
+        init;
+    } = FindingHumanReviewStatus.NotRequired;
+
+    /// <summary>
+    /// Aggregated external ticket keys when <c>dbo.ItsmFindingCorrelations</c> rows exist (e.g. <c>Jira:PROJ-1; ServiceNow:INC001</c>).
+    /// </summary>
+    public string? ItsmLinkedTicketsSummary
+    {
+        get;
+        init;
+    }
 }

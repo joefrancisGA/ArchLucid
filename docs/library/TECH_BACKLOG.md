@@ -3112,7 +3112,7 @@ Any executive card that mixes live ROI with mock or illustrative KPIs weakens tr
 
 ## TB-063 — ITSM one-click issue creation from findings — **V1.1**
 
-**Status (2026-06-01):** **Partial** — finding inspect + architecture risk register quick actions (`ItsmOutboundQuickActions`), `GET /v1/integrations/itsm/correlations?findingId=`, duplicate outbound guard, browse URLs. Remaining: inbound sync status column on register rows.
+**Status (2026-06-01):** **Done** — finding inspect + architecture risk register quick actions (`ItsmOutboundQuickActions`), correlation query API, duplicate outbound guard, browse URLs, risk-register `humanReviewStatus` + `itsmLinkedTicketsSummary` on `GET /v1/governance/architecture-risk-register`, and inbound sync label on finding inspect ITSM panel.
 
 **Source:** Commercial stickiness review (2026-05-27) plus owner scope: first-party Jira / ServiceNow productization is **V1.1**, not V1 GA. See [`V1_SCOPE.md`](V1_SCOPE.md) §2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6.
 

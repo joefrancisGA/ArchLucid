@@ -24,6 +24,8 @@ export type ArchitectureRiskRegisterEntry = {
   waiverExpiresAtUtc?: string | null;
   isStale: boolean;
   evidenceHref: string;
+  humanReviewStatus?: number | null;
+  itsmLinkedTicketsSummary?: string | null;
 };
 
 export type ArchitectureRiskRegisterResponse = {

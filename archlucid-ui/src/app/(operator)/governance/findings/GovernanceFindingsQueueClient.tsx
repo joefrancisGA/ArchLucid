@@ -16,6 +16,7 @@ import {
   getArchitectureRiskRegister,
   type ArchitectureRiskRegisterEntry,
 } from "@/lib/api/governance-stickiness-api";
+import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
 import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
@@ -175,6 +176,11 @@ function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceF
       revisitDueUtc: entry.revisitDueUtc ?? null,
       isStale: entry.isStale,
       evidenceHref: entry.evidenceHref,
+      humanReviewStatusLabel: formatFindingHumanReviewStatusLabel(entry.humanReviewStatus),
+      itsmLinkedTicketsSummary:
+        (entry.itsmLinkedTicketsSummary ?? "").trim().length > 0
+          ? (entry.itsmLinkedTicketsSummary ?? "").trim()
+          : null,
     };
   });
 }
@@ -331,6 +337,14 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
         <div>
           <div className="font-medium text-neutral-700 dark:text-neutral-300">Status</div>
           <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
+          {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
+            <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{row.humanReviewStatusLabel}</p>
+          ) : null}
+          {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
+            <p className="m-0 mt-0.5 font-mono text-xs text-neutral-500 dark:text-neutral-500">
+              ITSM: {row.itsmLinkedTicketsSummary}
+            </p>
+          ) : null}
         </div>
         <div>
           <div className="font-medium text-neutral-700 dark:text-neutral-300">Recommended action</div>
@@ -719,6 +733,16 @@ export default function GovernanceFindingsQueueClient() {
                   <div>
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Status</span>
                     <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
+                    {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
+                      <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+                        {row.humanReviewStatusLabel}
+                      </p>
+                    ) : null}
+                    {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
+                      <p className="m-0 mt-0.5 font-mono text-xs text-neutral-500 dark:text-neutral-500">
+                        ITSM: {row.itsmLinkedTicketsSummary}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex flex-col gap-2 sm:col-span-2">
                     {!buyerPolishedShell && row.recordKind === "finding" ? (

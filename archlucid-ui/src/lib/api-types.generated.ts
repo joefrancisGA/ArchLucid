@@ -29461,7 +29461,9 @@ export interface components {
             category?: string;
             evidenceHref?: string;
             findingId?: string;
+            humanReviewStatus?: components["schemas"]["FindingHumanReviewStatus"];
             isStale?: boolean;
+            itsmLinkedTicketsSummary?: null | string;
             /** Format: date-time */
             lastReviewedUtc?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];

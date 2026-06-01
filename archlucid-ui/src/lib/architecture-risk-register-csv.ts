@@ -13,6 +13,8 @@ export type ArchitectureRiskRegisterCsvRow = {
   revisitDueUtc?: string | null;
   evidenceHref?: string;
   isStale?: boolean;
+  humanReviewStatusLabel?: string | null;
+  itsmLinkedTicketsSummary?: string | null;
 };
 
 function escapeCsvCell(value: string): string {
@@ -37,6 +39,8 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
     "Next review",
     "Aging days",
     "Stale",
+    "Human review",
+    "ITSM linkage",
   ];
 
   const lines: string[] = [header.join(",")];
@@ -58,6 +62,8 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
       row.revisitDueUtc ?? "",
       row.agingDays !== undefined ? String(row.agingDays) : "",
       row.isStale ? "yes" : "no",
+      row.humanReviewStatusLabel ?? "",
+      row.itsmLinkedTicketsSummary ?? "",
     ].map((c) => escapeCsvCell(c));
 
     lines.push(cells.join(","));

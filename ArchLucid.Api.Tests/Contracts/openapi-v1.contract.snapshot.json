@@ -3110,8 +3110,17 @@
           "findingId": {
             "type": "string"
           },
+          "humanReviewStatus": {
+            "$ref": "#/components/schemas/FindingHumanReviewStatus"
+          },
           "isStale": {
             "type": "boolean"
+          },
+          "itsmLinkedTicketsSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "lastReviewedUtc": {
             "format": "date-time",

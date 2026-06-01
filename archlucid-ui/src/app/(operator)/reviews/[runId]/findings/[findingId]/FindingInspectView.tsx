@@ -11,6 +11,7 @@ import {
   findingDetailLeadSentence,
   findingInspectPageEyebrow,
 } from "@/lib/finding-display-from-inspect";
+import { formatFindingHumanReviewStatusLabel } from "@/lib/finding-human-review-display";
 import { findingIdsAlignForInspectRoute } from "@/lib/load-finding-inspect-for-route";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -169,7 +170,10 @@ export function FindingInspectView({
 
       <FindingInspectGovernanceStickinessPanel findingId={decodedFindingId} runId={runId} />
 
-      <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
+      <FindingInspectItsmWorkflowPanel
+        findingId={decodedFindingId}
+        humanReviewStatusLabel={formatFindingHumanReviewStatusLabel(payload.humanReviewStatus)}
+      />
 
       <OperatorEvidenceLimitsFooter
         runId={runId}

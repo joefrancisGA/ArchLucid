@@ -38,18 +38,26 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
                              fr.Title,
                              fr.Severity,
                              fr.Category,
+                             fr.HumanReviewStatus,
                              fs.CreatedUtc,
                              ld.Disposition,
                              ld.RevisitDueUtc,
                              ld.EvidenceRequestText,
                              ld.OccurredAtUtc AS LastReviewedUtc,
                              ld.ReviewerUserId AS OwnerUserId,
-                             re.ExpiresAtUtc AS WaiverExpiresAtUtc
+                             re.ExpiresAtUtc AS WaiverExpiresAtUtc,
+                             itsmAgg.LinkedTickets AS ItsmLinkedTicketsSummary
                       FROM dbo.FindingRecords AS fr
                       INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                       LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.rn = 1
                       LEFT JOIN dbo.RiskExceptions AS re
                           ON re.TenantId = fr.TenantId AND re.FindingId = fr.FindingId AND re.Status = N'Active'
+                      OUTER APPLY (
+                          SELECT STRING_AGG(CONCAT(itsm.Provider, N':', itsm.ExternalKey), N'; ')
+                              WITHIN GROUP (ORDER BY itsm.CreatedUtc) AS LinkedTickets
+                          FROM dbo.ItsmFindingCorrelations AS itsm
+                          WHERE itsm.TenantId = fr.TenantId AND itsm.FindingId = fr.FindingId
+                      ) AS itsmAgg
                       WHERE fr.TenantId = @TenantId{projectFilter}
                       ORDER BY fs.CreatedUtc DESC;
                       """;
@@ -209,6 +217,18 @@ public sealed class ArchitectureRiskRegisterReader(ISqlConnectionFactory connect
         }
 
         public DateTime? WaiverExpiresAtUtc
+        {
+            get;
+            init;
+        }
+
+        public string? HumanReviewStatus
+        {
+            get;
+            init;
+        }
+
+        public string? ItsmLinkedTicketsSummary
         {
             get;
             init;

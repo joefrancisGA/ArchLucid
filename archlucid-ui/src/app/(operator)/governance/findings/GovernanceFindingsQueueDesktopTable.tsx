@@ -165,7 +165,15 @@ export function GovernanceFindingsQueueDesktopTable(
                   </EnterpriseTableCell>
                 )}
                 <EnterpriseTableCell>
-                  {row.status}
+                  <div>{row.status}</div>
+                  {row.recordKind === "finding" && row.humanReviewStatusLabel ? (
+                    <div className="mt-0.5 text-[11px] text-al-text-secondary">{row.humanReviewStatusLabel}</div>
+                  ) : null}
+                  {row.recordKind === "finding" && row.itsmLinkedTicketsSummary ? (
+                    <div className="mt-0.5 font-mono text-[11px] text-al-text-secondary">
+                      ITSM: {row.itsmLinkedTicketsSummary}
+                    </div>
+                  ) : null}
                   {row.isStale ? (
                     <span className="ml-1 rounded border border-amber-600/40 bg-al-surface-raised px-1.5 py-0.5 text-[10px] font-semibold uppercase text-al-text-primary dark:border-amber-700/50">
                       Stale
