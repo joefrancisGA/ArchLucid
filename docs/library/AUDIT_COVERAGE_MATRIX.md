@@ -71,7 +71,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Authority run completed | `AuthorityRunOrchestrator` | `AuditEventTypes.RunCompleted` | RunId, ManifestId | `{ goldenManifestId, artifactBundleId, decisionTraceId }` |
 | Authority replay executed | `AuthorityReplayController` | `AuditEventTypes.ReplayExecuted` | RunId | `{ mode, rebuilt manifest id? }` |
 | Architecture run pin / unpin | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) | `AuditEventTypes.RunPinStateChanged` | RunId | `{ isPinned }` |
-| Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/architecture/run/{runId}/operator-governance-disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
+| Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/authority/runs/{runId}/disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
 | Architecture request soft-delete (DELETE alias of archive) | `RunsController` (`DELETE /v1/architecture/request/{requestId}`) | `ArchitectureRequestDeleted` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request draft (LLM field suggest, no persistence) | `RunsController` (`POST /v1/architecture/request/draft`); `ArchitectureRequestDraftService` | — | — | Read-auth + execute-auth gated LLM assist; returns suggested wizard chips only — **no** durable audit row (same class as `POST /v1/architecture/request/{requestId}/clone`) |
@@ -302,7 +302,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
 | `RunPinStateChanged` | `RunPinStateChanged` | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) |
-| `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionService` (`AuthorityQueryController` `POST …/operator-governance-disposition`) |
+| `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionService` (`AuthorityQueryController` `POST /v1/authority/runs/{runId}/disposition`) |
 | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
 | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/seed-fake-results`) |
 | `InternalCrossTenantRollupRefreshed` | `InternalCrossTenantRollupRefreshed` | `InternalCrossTenantAnalyticsController` (`POST /v1/internal/analytics/cross-tenant/daily/refresh`) |
