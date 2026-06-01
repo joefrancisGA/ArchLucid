@@ -27,9 +27,7 @@ public sealed class HostedAzureExtractorClient(
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.CustomerTenantId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.CustomerAppId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(request.SubscriptionId);
+        HostedAzureExtractorGuidValidator.RequireCollectionRequestGuids(request);
 
         TokenCredential credential = _credentialFactory.CreateCredential(
             request.CustomerTenantId,

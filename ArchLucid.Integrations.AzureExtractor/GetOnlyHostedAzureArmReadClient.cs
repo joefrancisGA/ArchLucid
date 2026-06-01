@@ -26,7 +26,7 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
-        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionId);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
         List<HostedAzureArmResourceRecord> resources = [];
         string? nextLink =
