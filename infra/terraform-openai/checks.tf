@@ -23,3 +23,14 @@ check "openai_consumption_budget_account_ids_nonempty_strings" {
     error_message = "openai_consumption_budget_account_resource_ids must not contain empty strings; omit the list or supply full Cognitive Services account ARM ids."
   }
 }
+
+check "consumed_openai_contract_complete" {
+  assert {
+    condition = length(trimspace(var.consumed_openai_account_resource_id)) == 0 || (
+      length(trimspace(var.consumed_openai_endpoint)) > 0 &&
+      length(trimspace(var.consumed_openai_chat_deployment_name)) > 0 &&
+      length(trimspace(var.consumed_openai_embedding_deployment_name)) > 0
+    )
+    error_message = "When consumed_openai_account_resource_id is set in terraform-openai, also set endpoint and both deployment names (validate-only contract)."
+  }
+}

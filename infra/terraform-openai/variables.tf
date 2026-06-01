@@ -55,3 +55,34 @@ variable "openai_consumption_budget_contact_roles" {
   description = "RBAC roles to notify when openai_consumption_budget_contact_emails is empty."
   default     = ["Owner"]
 }
+
+# TB-093 — consumed-resource contract (documentation / validate-only; does not create accounts).
+variable "consumed_openai_account_resource_id" {
+  type        = string
+  description = "Platform-owned Cognitive Services account ARM id passed to container-apps / hosted-prod roots."
+  default     = ""
+}
+
+variable "consumed_openai_endpoint" {
+  type        = string
+  description = "HTTPS endpoint for consumed Azure OpenAI."
+  default     = ""
+}
+
+variable "consumed_openai_chat_deployment_name" {
+  type        = string
+  default     = ""
+  description = "Chat deployment on the consumed account."
+}
+
+variable "consumed_openai_embedding_deployment_name" {
+  type        = string
+  default     = ""
+  description = "Embedding deployment on the consumed account."
+}
+
+variable "consumed_openai_expected_location" {
+  type        = string
+  description = "Production-like pilot region (US East = eastus)."
+  default     = "eastus"
+}

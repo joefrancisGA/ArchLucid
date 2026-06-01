@@ -73,3 +73,10 @@ tags = {
 # enable_container_apps_consumption_budget     = true
 # container_apps_consumption_budget_amount     = 500
 # container_apps_consumption_budget_contact_emails = ["finops@example.com"]
+
+# TB-093 — consumed Azure OpenAI (production-like pilot: eastus). Platform team owns the account and deployments.
+# azure_openai_account_resource_id = "/subscriptions/.../resourceGroups/.../providers/Microsoft.CognitiveServices/accounts/..."
+# azure_openai_endpoint                = "https://your-account.openai.azure.com/"
+# azure_openai_chat_deployment_name    = "gpt-4o"
+# azure_openai_embedding_deployment_name = "text-embedding-3-small"
+# azure_openai_expected_location       = "eastus"

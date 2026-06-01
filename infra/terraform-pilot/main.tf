@@ -1,15 +1,15 @@
-# Canonical pilot profile root: no Azure resources here — encodes opinionated defaults and the nested
+﻿# Canonical pilot profile root: no Azure resources here â€” encodes opinionated defaults and the nested
 # stack order for the opt-in multi-root (separate state per directory) workflow.
 
 locals {
-  # Authoritative ordering for the advanced path — keep in sync with docs when changing roots.
+  # Authoritative ordering for the advanced path â€” keep in sync with docs when changing roots.
   nested_infrastructure_roots = [
     {
       order           = 1
       id              = "private"
       path            = "infra/terraform-private"
       pilot_essential = true
-      notes           = "VNet, private endpoints, private DNS — foundation for data planes."
+      notes           = "VNet, private endpoints, private DNS â€” foundation for data planes."
       consumes_from   = ["storage"]
     },
     {
@@ -56,8 +56,8 @@ locals {
       order           = 7
       id              = "openai"
       path            = "infra/terraform-openai"
-      pilot_essential = false
-      notes           = "Optional OpenAI budget hooks; resource creation may be out-of-band."
+      pilot_essential = true
+      notes           = "TB-093: Consumed Azure OpenAI (platform-owned account in eastus); this root is budget-only — wire app settings/RBAC in terraform-container-apps or deploy/hosted-prod-terraform."
       consumes_from   = []
     },
     {
@@ -73,15 +73,15 @@ locals {
       id              = "container_apps"
       path            = "infra/terraform-container-apps"
       pilot_essential = true
-      notes           = "API, Worker, UI — cap maxReplicas for pilots; align with pilot_monthly_budget_usd."
-      consumes_from   = ["private", "storage", "keyvault", "entra", "servicebus"]
+      notes           = "API, Worker, UI â€” cap maxReplicas for pilots; align with pilot_monthly_budget_usd."
+      consumes_from   = ["private", "storage", "keyvault", "entra", "servicebus", "openai"]
     },
     {
       order           = 10
       id              = "edge"
       path            = "infra/terraform-edge"
       pilot_essential = false
-      notes           = "Front Door / WAF — usually omitted for internal pilots."
+      notes           = "Front Door / WAF â€” usually omitted for internal pilots."
       consumes_from   = ["container_apps"]
     },
     {
@@ -89,7 +89,7 @@ locals {
       id              = "apim_consumption"
       path            = "infra/terraform"
       pilot_essential = false
-      notes           = "Optional Consumption APIM — not a substitute for all private topologies."
+      notes           = "Optional Consumption APIM â€” not a substitute for all private topologies."
       consumes_from   = ["container_apps"]
     },
     {

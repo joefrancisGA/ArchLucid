@@ -537,3 +537,35 @@ variable "container_jobs" {
   description = "Container Apps Jobs: Schedule (cron) or Event (KEDA scale rules). Image defaults to worker_effective_image; entrypoint runs ArchLucid.Jobs.Cli.dll."
   default     = {}
 }
+
+# TB-093 — consumed Azure OpenAI app configuration + workload RBAC (multi-root path).
+
+variable "azure_openai_account_resource_id" {
+  type        = string
+  description = "Full ARM id of the platform-owned Cognitive Services OpenAI account. When set with enable_container_apps, grants Cognitive Services OpenAI User to API and Worker system-assigned identities."
+  default     = ""
+}
+
+variable "azure_openai_endpoint" {
+  type        = string
+  description = "HTTPS endpoint for consumed Azure OpenAI (AzureOpenAI__Endpoint)."
+  default     = ""
+}
+
+variable "azure_openai_chat_deployment_name" {
+  type        = string
+  description = "Chat/completion deployment name (AzureOpenAI__DeploymentName)."
+  default     = ""
+}
+
+variable "azure_openai_embedding_deployment_name" {
+  type        = string
+  description = "Embedding deployment name (AzureOpenAI__EmbeddingDeploymentName)."
+  default     = ""
+}
+
+variable "azure_openai_expected_location" {
+  type        = string
+  description = "Expected Azure region for consumed OpenAI (production-like pilot default eastus). Used in checks when account id is set."
+  default     = "eastus"
+}

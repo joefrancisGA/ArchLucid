@@ -8,7 +8,7 @@
 | --- | --- | --- | --- | --- |
 | Azure SQL | `ConnectionStrings:ArchLucid` | `infra/terraform/prod` | **Required** (hosted pilot) | — |
 | Azure Blob (artifacts) | `Storage:*` | `infra/terraform/prod` | **Required** when not InMemory | — |
-| Azure OpenAI | `AzureOpenAI:*`, `ArchLucid:Agents:*` | `deploy/hosted-prod-terraform` (canonical scaffold; mirror to `infra/terraform/prod` when infra tree is writable) | **Required** (hosted SaaS LLM) | TB-093, TB-080 |
+| Azure OpenAI | `AzureOpenAI:*`, `ArchLucid:Agents:*` | `deploy/hosted-prod-terraform` + `infra/terraform-container-apps` (consumed account; **TB-093**) | **Required** (hosted SaaS LLM) | **Done TB-093** (2026-06-01); TB-080 MI auth |
 | Azure AI Search | `Retrieval:VectorIndex=AzureSearch`, `Retrieval:AzureSearch:*` | `deploy/hosted-prod-terraform` (same) | **Required** on production-like profiles | TB-071, TB-096 |
 | Redis (cache) | `Redis:*` | — | Optional / deferred | TB-094 |
 | Cosmos (graph) | `Cosmos:*` | — | Optional (InMemory/SQL paths exist) | TB-095 |

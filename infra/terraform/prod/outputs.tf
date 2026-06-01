@@ -1,16 +1,6 @@
-output "resource_group_name" {
+﻿output "resource_group_name" {
   value       = azurerm_resource_group.prod.name
   description = "Hosted production resource group."
-}
-
-output "openai_endpoint" {
-  value       = var.openai_compose_mode == "create" ? azurerm_cognitive_account.openai[0].endpoint : null
-  description = "Maps to AzureOpenAI:Endpoint when created by this root."
-}
-
-output "openai_account_id" {
-  value       = var.openai_compose_mode == "create" ? azurerm_cognitive_account.openai[0].id : var.openai_existing_resource_id
-  description = "Azure OpenAI resource id (created or BYO)."
 }
 
 output "search_endpoint" {
@@ -46,14 +36,4 @@ output "key_vault_private_endpoint_id" {
 output "tenant_id" {
   value       = data.azurerm_client_config.current.tenant_id
   description = "Deployment tenant id for RBAC assignments."
-}
-
-output "openai_chat_deployment_name" {
-  value       = var.openai_compose_mode == "create" && var.openai_enable_chat_deployment ? azurerm_cognitive_deployment.chat[0].name : null
-  description = "Azure OpenAI chat deployment name when created by this root."
-}
-
-output "openai_embedding_deployment_name" {
-  value       = var.openai_compose_mode == "create" && var.openai_enable_embedding_deployment ? azurerm_cognitive_deployment.embedding[0].name : null
-  description = "Azure OpenAI embedding deployment name when created by this root."
 }

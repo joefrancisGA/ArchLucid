@@ -20,23 +20,6 @@ resource "azurerm_monitor_diagnostic_setting" "container_apps" {
   }
 }
 
-resource "azurerm_monitor_diagnostic_setting" "service_bus" {
-  count = var.log_analytics_workspace_id != null && var.service_bus_namespace_id != null ? 1 : 0
-
-  name                       = "archlucid-servicebus-diagnostics"
-  target_resource_id         = var.service_bus_namespace_id
-  log_analytics_workspace_id = var.log_analytics_workspace_id
-
-  enabled_log {
-    category = "OperationalLogs"
-  }
-
-  metric {
-    category = "AllMetrics"
-    enabled  = true
-  }
-}
-
 resource "azurerm_monitor_diagnostic_setting" "artifact_storage" {
   count = var.log_analytics_workspace_id != null && var.artifact_storage_account_id != null ? 1 : 0
 

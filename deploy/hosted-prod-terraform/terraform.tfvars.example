@@ -1,25 +1,19 @@
-resource_group_name = "rg-archlucid-prod-example"
-location            = "eastus2"
+﻿resource_group_name = "rg-archlucid-prod-example"
+location            = "eastus"
 
-openai_compose_mode          = "create"
-openai_account_name          = "aoai-archlucid-prod-example"
-openai_custom_subdomain_name = "aoai-archlucid-prod-example"
-openai_enable_chat_deployment      = true
-openai_chat_deployment_name        = "gpt-4o"
-openai_enable_embedding_deployment = true
-openai_embedding_deployment_name   = "text-embedding-3-small"
+# TB-093 — consume platform-owned Azure OpenAI (US East pilot). Do not set openai_compose_mode = create in production-like stacks.
+openai_compose_mode                     = "existing"
+openai_existing_resource_id             = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform-openai/providers/Microsoft.CognitiveServices/accounts/oai-archlucid-pilot"
+openai_existing_endpoint                = "https://oai-archlucid-pilot.openai.azure.com/"
+openai_existing_chat_deployment_name    = "gpt-4o"
+openai_existing_embedding_deployment_name = "text-embedding-3-small"
+openai_expected_location                = "eastus"
 
-# Optional — enable when alerting on Cognitive/OpenAI spend (TB-093).
-# enable_openai_consumption_budget         = true
-# openai_consumption_budget_contact_emails = ["platform-ops@example.com"]
+# After Container Apps exist, pass system-assigned principal_id outputs (second apply or hosted-prod re-apply).
+# openai_workload_principal_ids = ["<api-principal-id>", "<worker-principal-id>"]
 
 search_compose_mode = "create"
 search_service_name = "srch-archlucid-prod-example"
-
-# Optional — wire Log Analytics + composed resource ids for platform diagnostics (TB-099).
-# log_analytics_workspace_id     = "/subscriptions/.../resourceGroups/.../providers/Microsoft.OperationalInsights/workspaces/..."
-# container_app_resource_ids     = ["/subscriptions/.../providers/Microsoft.App/containerApps/archlucid-api"]
-# artifact_storage_account_id    = "/subscriptions/.../providers/Microsoft.Storage/storageAccounts/..."
 
 tags = {
   environment = "production"

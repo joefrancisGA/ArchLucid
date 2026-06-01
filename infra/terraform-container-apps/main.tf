@@ -1,6 +1,6 @@
-# Container Apps (API / Worker / UI) — Terraform resource labels use `archlucid` naming (greenfield IaC).
+﻿# Container Apps (API / Worker / UI) â€” Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/library/V1_DEFERRED.md §3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
+# Tracked in docs/library/V1_DEFERRED.md Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
 # count = local.enabled ? 1 : 0 creates exactly one Azure resource when enabled, zero when disabled.
 # data blocks read existing Azure objects; resource blocks declare infrastructure Terraform owns in state.
@@ -194,6 +194,38 @@ resource "azurerm_container_app" "api" {
           value = "Durable"
         }
       }
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__AuthenticationMode"
+          value = "ManagedIdentity"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__Endpoint"
+          value = trimspace(var.azure_openai_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__DeploymentName"
+          value = trimspace(var.azure_openai_chat_deployment_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__EmbeddingDeploymentName"
+          value = trimspace(var.azure_openai_embedding_deployment_name)
+        }
+      }
+
 
       dynamic "env" {
         for_each = local.background_jobs_durable ? [1] : []
@@ -355,6 +387,38 @@ resource "azurerm_container_app" "worker" {
         for_each = local.background_jobs_durable ? [1] : []
         content {
           name  = "BackgroundJobs__QueueName"
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__AuthenticationMode"
+          value = "ManagedIdentity"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__Endpoint"
+          value = trimspace(var.azure_openai_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__DeploymentName"
+          value = trimspace(var.azure_openai_chat_deployment_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_openai_app_configured ? [1] : []
+        content {
+          name  = "AzureOpenAI__EmbeddingDeploymentName"
+          value = trimspace(var.azure_openai_embedding_deployment_name)
+        }
+      }
+
           value = var.background_jobs_queue_name
         }
       }

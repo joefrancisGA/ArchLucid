@@ -1,4 +1,4 @@
-variable "resource_group_name" {
+﻿variable "resource_group_name" {
   type        = string
   description = "Hosted production resource group name."
 }
@@ -16,8 +16,8 @@ variable "tags" {
 
 variable "openai_compose_mode" {
   type        = string
-  description = "create | existing — whether this root creates Azure OpenAI or references BYO."
-  default     = "create"
+  description = "existing | create â€” production-like stacks consume a platform-owned account (existing). create is for dev/lab only."
+  default     = "existing"
 
   validation {
     condition     = contains(["create", "existing"], var.openai_compose_mode)
@@ -39,7 +39,7 @@ variable "openai_custom_subdomain_name" {
 
 variable "openai_sku_name" {
   type        = string
-  description = "Azure OpenAI SKU — confirm regional capacity before apply."
+  description = "Azure OpenAI SKU â€” confirm regional capacity before apply."
   default     = "S0"
 }
 
@@ -51,13 +51,43 @@ variable "openai_public_network_access_enabled" {
 
 variable "openai_existing_resource_id" {
   type        = string
-  description = "Resource id when openai_compose_mode = existing."
-  default     = null
+  description = "Full ARM id of the platform-owned Microsoft.CognitiveServices/accounts resource when openai_compose_mode = existing."
+  default     = ""
+}
+
+variable "openai_existing_endpoint" {
+  type        = string
+  description = "HTTPS endpoint for the consumed account (maps to AzureOpenAI:Endpoint). Example: https://{name}.openai.azure.com/"
+  default     = ""
+}
+
+variable "openai_existing_chat_deployment_name" {
+  type        = string
+  description = "Chat/completion deployment name on the consumed account (maps to AzureOpenAI:DeploymentName)."
+  default     = ""
+}
+
+variable "openai_existing_embedding_deployment_name" {
+  type        = string
+  description = "Embedding deployment name on the consumed account (maps to AzureOpenAI:EmbeddingDeploymentName)."
+  default     = ""
+}
+
+variable "openai_expected_location" {
+  type        = string
+  description = "Required Azure region for consumed OpenAI (production-like pilot default US East = eastus). Validated against the account when resource id is set."
+  default     = "eastus"
+}
+
+variable "openai_workload_principal_ids" {
+  type        = list(string)
+  description = "Entra principal IDs (API, Worker, etc.) granted Cognitive Services OpenAI User on the consumed account. Pass Container Apps system-assigned principal_id outputs after first apply."
+  default     = []
 }
 
 variable "search_compose_mode" {
   type        = string
-  description = "create | existing — whether this root creates Azure AI Search or references BYO."
+  description = "create | existing â€” whether this root creates Azure AI Search or references BYO."
   default     = "create"
 
   validation {
@@ -127,7 +157,7 @@ variable "private_endpoint_subnet_id" {
 
 variable "workload_identity_principal_id" {
   type        = string
-  description = "Optional Entra object id for API/worker managed identity — grants Key Vault Secrets User when key_vault_name is set."
+  description = "Optional Entra object id for API/worker managed identity â€” grants Key Vault Secrets User when key_vault_name is set."
   default     = null
 }
 
@@ -145,7 +175,7 @@ variable "openai_chat_deployment_name" {
 
 variable "openai_chat_model_name" {
   type        = string
-  description = "OpenAI model name for chat deployment — confirm regional availability."
+  description = "OpenAI model name for chat deployment â€” confirm regional availability."
   default     = "gpt-4o"
 }
 
@@ -227,56 +257,8 @@ variable "container_app_resource_ids" {
   default     = []
 }
 
-variable "service_bus_namespace_id" {
-  type        = string
-  description = "Service Bus namespace resource id for diagnostic settings (TB-099)."
-  default     = null
-}
-
 variable "artifact_storage_account_id" {
   type        = string
   description = "Artifact storage account resource id for diagnostic settings (TB-099)."
-  default     = null
-}
-
-variable "enable_redis" {
-  type        = bool
-  description = "When true, provisions optional Azure Cache for Redis (hot-path cache). Default false for V1 optional services."
-  default     = false
-}
-
-variable "redis_name" {
-  type        = string
-  description = "Redis cache name when enable_redis is true."
-  default     = null
-}
-
-variable "redis_capacity" {
-  type        = number
-  description = "Redis capacity when enable_redis is true (SKU-dependent)."
-  default     = 1
-}
-
-variable "redis_family" {
-  type        = string
-  description = "Redis family (C for Basic/Standard)."
-  default     = "C"
-}
-
-variable "redis_sku_name" {
-  type        = string
-  description = "Redis SKU (Basic, Standard, Premium)."
-  default     = "Standard"
-}
-
-variable "enable_cosmosdb" {
-  type        = bool
-  description = "When true, provisions optional Cosmos DB account. Default false for V1 optional services."
-  default     = false
-}
-
-variable "cosmosdb_account_name" {
-  type        = string
-  description = "Cosmos DB account name when enable_cosmosdb is true."
   default     = null
 }

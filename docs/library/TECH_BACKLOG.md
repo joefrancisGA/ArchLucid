@@ -49,6 +49,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-158 – TB-167** were added 2026-06-01 from `docs/assessments/LATEST_GPT55.md` human-input score-limiter triage and rescore. They avoid duplicating existing engineering tasks by extending **TB-131 – TB-134**, promoting existing **TB-141 – TB-142** to near-term GTM priority, and adding only missing owner-reviewable GTM/procurement/support/release-claim/sponsor-evidence work. Formal SOC 2 CPA and third-party pen-test programs remain parked in **TB-135 – TB-136** per the V1.1 assurance backlog rule; do not reclassify them from normal assessment passes.
 
+**TB-168** was added 2026-06-01 from the GPT-5.5 assessment correctness follow-up. It does not duplicate **TB-103 – TB-105** or **TB-149 – TB-155**; those fix known KPI/waiver/recurrence defects. **TB-168** adds a regression guard so future changes cannot silently reintroduce UI KPI heuristics, stale cache fallbacks, or duplicate business semantics.
+
+**TB-169** was added 2026-06-01 from the GPT-5.5 adoption-friction follow-up. It does not duplicate **TB-156 – TB-157** (API/proxy diagnostics) or **TB-143 – TB-148** (in-app docs). It targets first-run branching and progressive disclosure: Pilot-first onboarding should keep Operate surfaces out of the primary path until a committed review exists.
+
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 | ID | Title | Priority driver | Size |
@@ -70,7 +74,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** — `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
 | TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | **Done (2026-06-01)** — `terraform-private` KV DNS zone + PE when `key_vault_id` set; `key_vault_private_endpoint_id` output; `terraform validate` | XS-S |
 | TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | **Done (2026-06-01)** — `terraform-keyvault/workload_rbac.tf` + principal ID vars; `terraform-private/keyvault_rbac.tf`; `apply-saas.ps1` TB-092 second pass; `terraform.tfvars.example` | XS |
-| TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | IaC coverage (HIGH) --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure OpenAI resource/deployment IDs rather than creating the service; hosted examples must wire IDs, endpoints, MI/RBAC, diagnostics assumptions, and US East pilot defaults as code. | M |
+| TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | **Done (2026-06-01)** — `openai_compose_mode=existing` (eastus); hosted-prod + container-apps env/RBAC; `terraform-openai` consumed contract; pilot_essential | M |
 | TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | IaC coverage --- `HotPathCache.RedisConnectionString` present in `appsettings.Production.json`; no `azurerm_redis_cache`; SKU, eviction, private endpoint unmanaged | S |
 | TB-095 | Assess + codify Cosmos DB --- create `terraform-cosmos` if active in production | IaC coverage --- `CosmosDb.ConnectionString` in `appsettings.json`; `Microsoft.Azure.Cosmos` NuGet in `ArchLucid.Persistence`; consistency/throughput/backup unmanaged if live | S-M |
 | TB-096 | Compose Azure AI Search existing-resource consumption into hosted Terraform stack | IaC coverage --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure AI Search resource IDs rather than creating the service; hosted examples must wire IDs, endpoint/index variables, private endpoint/RBAC expectations, and US East pilot defaults as code. | S |
@@ -136,6 +140,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-165 | Assessment score consistency guard | Documentation quality — keep weighted tables, per-quality sections, and headline score synchronized after rescores | XS-S |
 | TB-166 | Release claim gate for full real-mode AI evidence | Release safety — RC packaging must attach passing Topology/Cost/Compliance/Critic evidence or automatically downgrade release copy and proof artifacts to simulator-only / partial-real-mode claims | S |
 | TB-167 | Sponsor AI readiness posture artifact | Sponsor proof — one simple release/proof artifact showing execution mode, quality gate, retrieval grounding, and budget/cost posture for every sponsor packet | S-M |
+| TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness — one machine-checkable contract for ROI/governance KPI fields plus a UI guard that blocks reintroduced substring/date/local fallback heuristics | S |
+| TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction — first-run UI should show one guided Pilot path and hide recurring/Operate surfaces until the first committed review/proof artifact exists | M |
 | TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | Customer-visible UX — product help must render inside ArchLucid shell, not GitHub blob pages | M |
 | TB-144 | Customer-facing documentation registry | Correctness / maintainability — stable map from product topics to in-app routes and repo source paths | S |
 | TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | Customer-visible UX — HelpPanel, contextual help, doc index, hard-coded marketing/operator GitHub links | M |
@@ -1041,6 +1047,62 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **Refs:** **TB-109**, **TB-122**, **TB-125**, **TB-131**, **TB-137**, **TB-139**, **TB-140**, **TB-166**, `scripts/collect-first-pilot-proof.ps1`, `scripts/Invoke-RealLlmEvidenceGate.ps1`, `docs/library/AGENT_OUTPUT_EVALUATION.md`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`.
 
 **Size estimate:** S-M.
+
+---
+
+## TB-168 — Executive KPI semantic contract and UI heuristic regression guard
+
+**Objective:** Prevent customer-visible executive KPI, ROI, waiver, and decision-count semantics from drifting back into duplicated UI/backend/cache implementations after the known fixes land.
+
+**Why this is not a duplicate:** **TB-103 – TB-105** and **TB-149 – TB-155** fix specific known defects: orphan savings, expiring-waiver windows, business-impact buckets, decision-count union semantics, confusing DTO fields, waiver/disposition invariants, cache freshness, and recurring-run idempotency. This item adds a durable contract and regression guard so the same class of issue is caught before future UI or cache changes ship.
+
+**Scope:**
+
+- Create a machine-readable KPI semantic contract for executive ROI/governance fields: source of truth, meaning, units, freshness semantics, allowed fallback behavior, and owning service/DTO.
+- Add a UI guard that fails on reintroduced substring matching, client-side date-window rules, local KPI summing, or fallback chains for fields that the contract marks server-authoritative.
+- Add contract fixtures covering orphan candidate count/savings, expiring-waiver count, decisions-needed total, business-impact buckets, cost waste, recoverable savings, and risk-reduction/pending-decision naming.
+- Add cache freshness contract checks so cached executive ROI values either match canonical live values or carry explicit stale/freshness labels.
+- Link the contract from API docs and dashboard component tests so generated clients and UI contributors know which values are display-only.
+
+**Acceptance criteria:**
+
+- A new UI-side heuristic for a server-authoritative KPI fails a focused test or lint guard.
+- Contract fixtures prove table/API/UI labels agree on meaning, units, and freshness for the highest-risk KPI fields.
+- Cache fallback behavior is explicit and tested; stale cached values cannot silently override fresher governance/decision values.
+- The guard is narrow enough not to ban harmless formatting, rounding, or display-only transformations.
+
+**Refs:** **TB-103**, **TB-104**, **TB-105**, **TB-149**, **TB-150**, **TB-151**, **TB-152**, **TB-153**, **TB-154**, **TB-155**, `ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs`, `ArchLucid.Application/Roi/CachingExecutiveRoiSummaryService.cs`, `archlucid-ui/src/lib/run-potential-savings-parser.ts`, `docs/library/PILOT_SCORECARD_API.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-169 — Pilot-first onboarding and Operate-surface progressive disclosure
+
+**Objective:** Reduce first-run branching by making the primary operator path a single guided Pilot flow, while keeping recurring/Operate surfaces out of the main navigation until there is a committed review or proof artifact to operate.
+
+**Why this is not a duplicate:** **TB-156 – TB-157** fix confusing API/proxy diagnostics. **TB-143 – TB-148** move customer-facing documentation into in-app help. This item changes first-run product flow and navigation disclosure so new evaluators are not asked to understand Pilot, Operate, governance, recurring reviews, audit, proof, and procurement all at once.
+
+**Scope:**
+
+- Add or refine a first-run state detector: no committed review, no sponsor proof, no selected starter pack, or first-pilot setup incomplete.
+- In first-run state, make the primary CTA path: choose starter proof pack, confirm evidence/source labels, create/execute review, commit review, collect proof.
+- Hide or de-emphasize recurring review, long-running Operate dashboards, advanced governance queues, and broad audit/procurement surfaces until the first committed review/proof exists.
+- Keep advanced surfaces reachable through an explicit "Advanced / Operate mode" affordance for admins, not as the default first-run path.
+- Add empty states that explain what unlocks after first commit, using in-app help routes from **TB-143 – TB-145**.
+- Add tests for zero-review, draft-run, executed-not-committed, committed-review, and admin-advanced states.
+
+**Acceptance criteria:**
+
+- A first-time evaluator sees one obvious Pilot next step instead of multiple equivalent routes into Operate workflows.
+- Operate surfaces are not presented as required setup before a first committed review/proof artifact exists.
+- Admins can still reach advanced surfaces intentionally.
+- Empty states and help links explain the unlock condition without sending users to raw GitHub docs.
+- Tests lock the visibility rules for first-run vs committed-review states.
+
+**Refs:** **TB-114**, **TB-143**, **TB-144**, **TB-145**, **TB-156**, **TB-157**, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/runbooks/FIRST_VALUE_20_MINUTES.md`, `archlucid-ui/src/app/(operator)/`, `archlucid-ui/src/components/OperatorNextActionsCard.tsx`, `archlucid-ui/src/components/CorePilotNextStepsCard.tsx`.
+
+**Size estimate:** M.
 
 ---
 
@@ -4351,6 +4413,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 ---
 
 ## TB-093 --- Compose Azure OpenAI into hosted Terraform stack
+
+**Status (2026-06-01):** **Done** — Default `openai_compose_mode = existing` in `deploy/hosted-prod-terraform` with consumed account/deployment variables, `eastus` region check, `azure_openai_container_app_env` output, workload **Cognitive Services OpenAI User** RBAC; `infra/terraform-container-apps/azure_openai.tf` wires `AzureOpenAI__*` env + API/Worker role assignments; `infra/terraform-openai` consumed contract outputs; `terraform-pilot` marks OpenAI `pilot_essential` for real-mode pilots. Platform subscription owns deployments, filters, quota, CMK, and private endpoint outside these roots.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
