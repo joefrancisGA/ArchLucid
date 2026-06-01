@@ -14,14 +14,14 @@ namespace ArchLucid.Application.Roi;
 ///     <see cref="IExecutiveRoiSummaryService.BuildAsync" />.
 /// </summary>
 public sealed class CachingExecutiveRoiSummaryService(
-    ExecutiveRoiSummaryService inner,
+    IExecutiveRoiSummaryService inner,
     IRiskExceptionService riskExceptionService,
     IArchitectureRiskRegisterService architectureRiskRegisterService,
     IHotPathReadCache cache,
     IScopeContextProvider scopeProvider,
     IOptionsMonitor<ExecutiveRoiCacheWarmupOptions> options) : IExecutiveRoiSummaryService
 {
-    private readonly ExecutiveRoiSummaryService _inner =
+    private readonly IExecutiveRoiSummaryService _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly IRiskExceptionService _riskExceptionService =

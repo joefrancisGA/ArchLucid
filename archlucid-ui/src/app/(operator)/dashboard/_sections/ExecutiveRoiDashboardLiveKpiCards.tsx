@@ -84,9 +84,8 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             summary,
             staleRiskCount:
               summary.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
-            // TB-104 / TB-155: prefer canonical ROI field; decisions-needed is fallback only.
-            expiringWaiversCount:
-              summary.expiringWaiversCount14Days ?? decisionsNeeded.waiversExpiringWithin14Days,
+            // TB-155 / EXECUTIVE_KPI_SEMANTIC_CONTRACT: live governance count only (not cached ROI).
+            expiringWaiversCount: decisionsNeeded.waiversExpiringWithin14Days,
             decisionsNeededCount: decisionsNeeded.totalDecisionItems,
           });
         }

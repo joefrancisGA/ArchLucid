@@ -93,7 +93,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | **Done (2026-05-31)** — `RunDetailGovernanceAlerts` + metadata `retryCount` when &gt; 0 | S |
 | TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | **Done (2026-05-31)** — `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | S |
 | TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — **Done** 2026-05-31; reaffirmed 2026-06-01 | M |
-| TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — **Done**; dashboard prefers `expiringWaiversCount14Days` from ROI (2026-06-01) | S |
+| TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — **Done**; dashboard uses `waiversExpiringWithin14Days` only (**TB-155**, **TB-168**) | S |
 | TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — **Done** 2026-05-31 | S |
 | TB-149 | Canonical 14-day expiring-waiver window — single server implementation; delete `CountExpiringWaivers` duplicate | Customer-visible correctness — `ExecutiveRoiSummaryService` counts expired waivers; `BuildSummaryAsync` uses `[now, now+14d]`; dashboard prefers stale ROI field | S |
 | TB-150 | Decisions-needed `TotalDecisionItems` — union cardinality across buckets, not sum | Customer-visible correctness — same finding can increment stale + needs-evidence + deferred + waiver buckets; KPI overcounts | S |
@@ -140,7 +140,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-165 | Assessment score consistency guard | Documentation quality — keep weighted tables, per-quality sections, and headline score synchronized after rescores | XS-S |
 | TB-166 | Release claim gate for full real-mode AI evidence | Release safety — RC packaging must attach passing Topology/Cost/Compliance/Critic evidence or automatically downgrade release copy and proof artifacts to simulator-only / partial-real-mode claims | S |
 | TB-167 | Sponsor AI readiness posture artifact | Sponsor proof — one simple release/proof artifact showing execution mode, quality gate, retrieval grounding, and budget/cost posture for every sponsor packet | S-M |
-| TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness — one machine-checkable contract for ROI/governance KPI fields plus a UI guard that blocks reintroduced substring/date/local fallback heuristics | S |
+| TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness — **Done** (2026-06-01): `EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
 | TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction — first-run UI should show one guided Pilot path and hide recurring/Operate surfaces until the first committed review/proof artifact exists | M |
 | TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | Customer-visible UX — product help must render inside ArchLucid shell, not GitHub blob pages | M |
 | TB-144 | Customer-facing documentation registry | Correctness / maintainability — stable map from product topics to in-app routes and repo source paths | S |
@@ -1051,6 +1051,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-168 — Executive KPI semantic contract and UI heuristic regression guard
+
+**Status (2026-06-01):** **Done** — `docs/library/EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`; UI guard tests (`executive-kpi-semantic-contract.test.ts`, live KPI cards ban `expiringWaiversCount14Days ??`); `CachingExecutiveRoiSummaryServiceTests` proves live governance refresh over stale cache; dashboard expiring-waiver tile uses `waiversExpiringWithin14Days` only (**TB-155**).
 
 **Objective:** Prevent customer-visible executive KPI, ROI, waiver, and decision-count semantics from drifting back into duplicated UI/backend/cache implementations after the known fixes land.
 

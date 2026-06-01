@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "lastReviewedUtc": "2026-06-01",
+  "purpose": "Machine-readable executive KPI semantics (TB-168). UI may format only; counts and windows are server-authoritative.",
+  "fields": [
+    {
+      "id": "expiringWaivers.dashboard",
+      "dtoField": "waiversExpiringWithin14Days",
+      "apiRoute": "GET /v1/governance/decisions-needed-summary",
+      "ownerService": "GovernanceDigestDecisionNeededComposer",
+      "calculator": "GovernanceWaiverExpiryWindow.CountExpiringWithinDays",
+      "meaning": "Active risk waivers whose ExpiresUtc falls in [nowUtc, nowUtc+14d] inclusive.",
+      "units": "count",
+      "freshness": "live",
+      "uiSource": "decisionsNeeded.waiversExpiringWithin14Days",
+      "forbiddenUiPatterns": [
+        "expiringWaiversCount14Days ??",
+        "addDays(14)",
+        "Date.now()",
+        "waivers.filter"
+      ]
+    },
+    {
+      "id": "expiringWaivers.roiResponse",
+      "dtoField": "expiringWaiversCount14Days",
+      "apiRoute": "GET /v1/roi/executive-summary",
+      "ownerService": "CachingExecutiveRoiSummaryService.RefreshLiveGovernanceKpisAsync",
+      "calculator": "GovernanceWaiverExpiryWindow.CountExpiringWithinDays",
+      "meaning": "Same window as dashboard field; refreshed on every ROI read (not ROI cache TTL).",
+      "units": "count",
+      "freshness": "live-on-read",
+      "uiSource": "display-only; do not use for dashboard tile",
+      "forbiddenUiPatterns": ["expiringWaiversCount14Days ?? decisionsNeeded"]
+    },
+    {
+      "id": "decisionsNeeded.total",
+      "dtoField": "totalDecisionItems",
+      "apiRoute": "GET /v1/governance/decisions-needed-summary",
+      "ownerService": "GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems",
+      "meaning": "Union cardinality of distinct finding-linked work items plus pending approvals (not sum of buckets).",
+      "units": "count",
+      "freshness": "live",
+      "uiSource": "decisionsNeeded.totalDecisionItems",
+      "forbiddenUiPatterns": [
+        "pendingApprovals + staleRisks",
+        "staleRisks + unownedHighSeverityRisks + findingsAwaitingEvidence"
+      ]
+    },
+    {
+      "id": "staleArchitectureRisk.dashboard",
+      "dtoField": "staleArchitectureRiskCount",
+      "apiRoute": "GET /v1/roi/executive-summary",
+      "ownerService": "CachingExecutiveRoiSummaryService.RefreshLiveGovernanceKpisAsync",
+      "calculator": "StaleArchitectureRiskCountCalculator.CountStale",
+      "meaning": "Architecture risk register rows marked stale excluding findings with active non-expired waivers.",
+      "units": "count",
+      "freshness": "live-on-read",
+      "uiSource": "summary.staleArchitectureRiskCount with decisionsNeeded.staleRisks fallback when null"
+    },
+    {
+      "id": "orphanCandidates.summary",
+      "dtoField": "orphanCandidates",
+      "apiRoute": "GET /v1/roi/executive-summary",
+      "ownerService": "ExecutiveRoiSummaryService",
+      "meaning": "Server-derived orphan candidate count and savings; no client multiplication of counts.",
+      "units": "count and USD",
+      "freshness": "cached-with-roi-summary",
+      "forbiddenUiPatterns": ["orphanCandidates.candidateCount *", "annualizedUsd *"]
+    },
+    {
+      "id": "businessImpact.buckets",
+      "dtoField": "businessImpactCategoryCounts",
+      "apiRoute": "GET /v1/roi/executive-summary",
+      "ownerService": "ExecutiveRoiSummaryService",
+      "meaning": "Per-category finding counts for executive business-impact widget.",
+      "units": "count per category",
+      "freshness": "cached-with-roi-summary",
+      "forbiddenUiPatterns": ["substring", "includes('cost')", "includes('security')"]
+    },
+    {
+      "id": "reports.costWaste",
+      "dtoField": "costWasteUsd",
+      "apiRoute": "GET /v1/reports/executive-summary",
+      "ownerService": "ExecutiveReportsSummaryService",
+      "meaning": "Monthly cost waste; null in V1 until Azure cost extractor exposes authoritative waste (not savings alias).",
+      "units": "USD",
+      "freshness": "live",
+      "allowedNull": true
+    },
+    {
+      "id": "reports.riskReduction",
+      "dtoField": "totalRiskReductionScore",
+      "apiRoute": "GET /v1/reports/executive-summary",
+      "ownerService": "ExecutiveReportsSummaryService",
+      "meaning": "Resolved findings in trailing 30 days (not pending governance load).",
+      "units": "count",
+      "freshness": "live"
+    },
+    {
+      "id": "reports.pendingGovernance",
+      "dtoField": "pendingGovernanceDecisionCount",
+      "apiRoute": "GET /v1/reports/executive-summary",
+      "ownerService": "ExecutiveReportsSummaryService",
+      "meaning": "Distinct governance decisions still open (TotalDecisionItems from decisions-needed composer).",
+      "units": "count",
+      "freshness": "live"
+    }
+  ]
+}

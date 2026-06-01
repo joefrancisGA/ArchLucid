@@ -26,6 +26,7 @@ using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.FindingReview;
+using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Configuration;
@@ -236,7 +237,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ExecutiveRoiTenantPricingContextResolver>();
         services.AddScoped<RoiCostEvidenceFreshnessEvaluator>();
         services.AddScoped<ExecutiveRoiSummaryService>();
-        services.AddScoped<IExecutiveRoiSummaryService, CachingExecutiveRoiSummaryService>();
+        services.AddScoped<IExecutiveRoiSummaryService>(static sp =>
+            new CachingExecutiveRoiSummaryService(
+                sp.GetRequiredService<ExecutiveRoiSummaryService>(),
+                sp.GetRequiredService<IRiskExceptionService>(),
+                sp.GetRequiredService<IArchitectureRiskRegisterService>(),
+                sp.GetRequiredService<IHotPathReadCache>(),
+                sp.GetRequiredService<IScopeContextProvider>(),
+                sp.GetRequiredService<IOptionsMonitor<ExecutiveRoiCacheWarmupOptions>>()));
         services.AddScoped<ExecutiveRoiBoardPackPdfBuilder>();
         services.AddScoped<IExecutiveRoiBoardPackExporter, ExecutiveRoiBoardPackExporter>();
         services.Configure<ExecutiveRoiCacheWarmupOptions>(
