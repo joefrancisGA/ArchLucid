@@ -101,7 +101,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByRole("link", { name: "Describe architecture scope" })).toHaveAttribute("href", "/reviews/new?intent=describe");
+    expect(screen.getByRole("link", { name: "Describe the architecture" })).toHaveAttribute("href", "/reviews/new?intent=describe");
     expect(screen.getByText("Governed decision record")).toBeInTheDocument();
     expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();

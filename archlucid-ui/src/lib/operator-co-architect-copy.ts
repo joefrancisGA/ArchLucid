@@ -11,14 +11,14 @@ export const OPERATOR_CO_ARCHITECT_INTENT_STORAGE_KEY = "archlucid.operatorInten
 export type OperatorCoArchitectIntentFocus = "review" | "describe";
 
 export const OPERATOR_CO_ARCHITECT_HOME_STRIP_ARIA_LABEL =
-  "Create or open a review package — create from evidence or describe architecture scope";
+  "Create or open a review package — create from evidence or describe the architecture";
 
 export const OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY =
   "Create, finalize, and review architecture packages with evidence, findings, governance approval, and audit-ready decision records.";
 
 export const OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY = "Create from evidence";
 
-export const OPERATOR_CO_ARCHITECT_CTA_DESCRIBE_SECONDARY = "Describe architecture scope";
+export const OPERATOR_CO_ARCHITECT_CTA_DESCRIBE_SECONDARY = "Describe the architecture";
 
 export const OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER =
   "Guided questions refine scope and evidence until your first review package is ready to finalize.";
