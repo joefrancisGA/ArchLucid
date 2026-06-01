@@ -13,13 +13,6 @@ export type HelpDocSearchRecord = {
 
 export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
-    "docPath": "docs/library/PILOT_GUIDE.md",
-    "docTitle": "Moved — pilot guide",
-    "sectionSlug": "",
-    "sectionHeading": "Moved — pilot guide — overview",
-    "excerpt": "Canonical pilot onboarding material now lives here:"
-  },
-  {
     "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
     "docTitle": "Operator troubleshooting",
     "sectionSlug": "",
