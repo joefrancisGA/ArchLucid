@@ -152,6 +152,15 @@ resource "azurerm_container_app" "api" {
     }
   }
 
+
+  dynamic "secret" {
+    for_each = local.hot_path_cache_redis_configured ? [1] : []
+    content {
+      name  = "hot-path-redis-connection"
+      value = var.hot_path_cache_redis_connection_string
+    }
+  }
+
   template {
     min_replicas = var.api_min_replicas
     max_replicas = var.api_max_replicas
@@ -225,6 +234,15 @@ resource "azurerm_container_app" "api" {
           value = trimspace(var.azure_openai_embedding_deployment_name)
         }
       }
+
+      dynamic "env" {
+        for_each = local.hot_path_cache_redis_configured ? [1] : []
+        content {
+          name        = "HotPathCache__RedisConnectionString"
+          secret_name = "hot-path-redis-connection"
+        }
+      }
+
 
 
       dynamic "env" {
@@ -339,6 +357,15 @@ resource "azurerm_container_app" "worker" {
     }
   }
 
+
+  dynamic "secret" {
+    for_each = local.hot_path_cache_redis_configured ? [1] : []
+    content {
+      name  = "hot-path-redis-connection"
+      value = var.hot_path_cache_redis_connection_string
+    }
+  }
+
   template {
     min_replicas = var.worker_min_replicas
     max_replicas = var.worker_max_replicas
@@ -418,6 +445,15 @@ resource "azurerm_container_app" "worker" {
           value = trimspace(var.azure_openai_embedding_deployment_name)
         }
       }
+
+      dynamic "env" {
+        for_each = local.hot_path_cache_redis_configured ? [1] : []
+        content {
+          name        = "HotPathCache__RedisConnectionString"
+          secret_name = "hot-path-redis-connection"
+        }
+      }
+
 
           value = var.background_jobs_queue_name
         }
