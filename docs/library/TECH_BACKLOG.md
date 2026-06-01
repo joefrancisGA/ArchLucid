@@ -64,7 +64,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-079 | ADO PR markdown — sanitize `SummaryHighlights` + deep-link fields before writing PR comment body | **Done (2026-05-31)** — `AdoPullRequestMarkdownEscaper` + safe links in compare + run-summary Markdown | XS |
 | TB-083 | Service Bus — production safety rule: require namespace FQDN, disallow raw connection string | **Done (2026-05-31)** — `CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
 | TB-081 | `ArchLucidApiKey` — production safety rule: require Key Vault reference | **Done (2026-05-31)** — `CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
-| TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | Security hardening — symmetric key in config; Entra/MI reduces credential-rotation burden; aligns with blob/KV/ACS posture | S |
+| TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | **Done (2026-05-31)** — `AuthenticationMode=ManagedIdentity` for completion, embeddings, judge; `AzureOpenAiConfigurationProbe`; KV sample + startup lint | S |
 | TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** — `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
 | TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | Security --- KV has `public_network_access_enabled=false` but no private endpoint or DNS zone in `terraform-private`; portal-only configuration, unmanageable by TF | XS-S |
 | TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | Security --- container apps read KV secrets at runtime via managed identity; role assignment absent from all TF roots; portal-created, subject to drift | XS |
@@ -3682,6 +3682,8 @@ This is not a WIQL or API-injection path (no ADO query APIs are used in C#), but
 ---
 
 ## TB-080 — Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential`
+
+**Status (2026-05-31):** **Done** — `AzureOpenAI:AuthenticationMode=ManagedIdentity` registers completion, embedding, and semantic-judge clients via `DefaultAzureCredential`; `AzureOpenAiConfigurationProbe` + `CriticalConfigurationValidator` skip ApiKey when MI is set; `ProductionLikeSecretTransportConfigurationLint` advises on plaintext keys; `appsettings.KeyVault.sample.json` documents MI-first posture. Content Safety remains ApiKey/KV until a managed-identity guard ships.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 

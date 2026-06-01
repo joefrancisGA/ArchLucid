@@ -77,6 +77,25 @@ public sealed class CriticalConfigurationValidatorTests
     }
 
     [Fact]
+    public void CollectErrors_skips_api_key_when_real_mode_uses_managed_identity()
+    {
+        IConfiguration configuration = BuildConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ArchLucid"] =
+                    "Server=.;Database=CriticalConfigurationValidatorTests;Trusted_Connection=True;TrustServerCertificate=True",
+                ["AgentExecution:Mode"] = "Real",
+                ["AzureOpenAI:Endpoint"] = "https://resource.openai.azure.com/",
+                ["AzureOpenAI:DeploymentName"] = "gpt",
+                ["AzureOpenAI:AuthenticationMode"] = "ManagedIdentity",
+            });
+
+        IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(configuration);
+
+        errors.Should().BeEmpty();
+    }
+
+    [Fact]
     public void CollectErrors_skips_azure_openai_when_real_mode_uses_echo_client()
     {
         IConfiguration configuration = BuildConfiguration(

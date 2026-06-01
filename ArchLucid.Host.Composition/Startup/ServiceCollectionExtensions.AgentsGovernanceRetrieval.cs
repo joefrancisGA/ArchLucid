@@ -328,10 +328,7 @@ public static partial class ServiceCollectionExtensions
                               && string.Equals(completionClientRaw, "Echo", StringComparison.OrdinalIgnoreCase);
 
         bool completionIsExplicitAzure = string.Equals(completionClientRaw, "AzureOpenAi", StringComparison.OrdinalIgnoreCase);
-        bool azureKeysPresent =
-            !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:Endpoint"])
-            && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:ApiKey"])
-            && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:DeploymentName"]);
+        bool azureKeysPresent = AzureOpenAiConfigurationProbe.IsCompletionStackConfigured(configuration);
 
         bool useAzureOpenAi = !string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
                               && !useEchoClient
@@ -920,10 +917,9 @@ public static partial class ServiceCollectionExtensions
 
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
+        bool useManagedIdentityEmbeddings = AzureOpenAiConfigurationProbe.UsesManagedIdentity(configuration);
         string? apiKey = configuration["AzureOpenAI:ApiKey"];
-        bool useAzureEmbeddings = !string.IsNullOrWhiteSpace(embedDeployment)
-                                  && !string.IsNullOrWhiteSpace(endpoint)
-                                  && !string.IsNullOrWhiteSpace(apiKey);
+        bool useAzureEmbeddings = AzureOpenAiConfigurationProbe.IsEmbeddingsStackConfigured(configuration);
 
         if (useAzureEmbeddings)
         {
@@ -943,7 +939,12 @@ public static partial class ServiceCollectionExtensions
             {
                 IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
                     sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
-                AzureOpenAiEmbeddingClient inner = new(endpoint!, apiKey!, embedDeployment!, llmTelemetryOptions);
+                AzureOpenAiEmbeddingClient inner = useManagedIdentityEmbeddings
+                    ? AzureOpenAiEmbeddingClient.CreateWithManagedIdentity(
+                        endpoint!,
+                        embedDeployment!,
+                        llmTelemetryOptions)
+                    : new AzureOpenAiEmbeddingClient(endpoint!, apiKey!, embedDeployment!, llmTelemetryOptions);
                 CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Embedding);
                 ILogger<CircuitBreakingOpenAiEmbeddingClient> logger =
                     sp.GetRequiredService<ILogger<CircuitBreakingOpenAiEmbeddingClient>>();
@@ -1111,32 +1112,49 @@ public static partial class ServiceCollectionExtensions
 
         string endpoint = config["AzureOpenAI:Endpoint"]?.Trim() ?? string.Empty;
         string apiKey = config["AzureOpenAI:ApiKey"]?.Trim() ?? string.Empty;
+        string authenticationMode = config["AzureOpenAI:AuthenticationMode"]?.Trim() ?? "ApiKey";
         string deployment = string.IsNullOrWhiteSpace(judgeOpts.DeploymentName)
             ? config["AzureOpenAI:DeploymentName"]?.Trim() ?? string.Empty
             : judgeOpts.DeploymentName.Trim();
 
         int maxTok = Math.Clamp(judgeOpts.MaxCompletionTokens, 64, 4096);
+        bool useManagedIdentity =
+            string.Equals(authenticationMode, "ManagedIdentity", StringComparison.OrdinalIgnoreCase);
 
-        if (string.IsNullOrWhiteSpace(endpoint) ||
-            string.IsNullOrWhiteSpace(apiKey) ||
-            string.IsNullOrWhiteSpace(deployment))
+        if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(deployment))
+        {
             throw new InvalidOperationException(
-                "Azure OpenAI endpoint, API key, and deployment must be configured when using ArchLucid:Agents:LlmJudge "
+                "Azure OpenAI endpoint and deployment must be configured when using ArchLucid:Agents:LlmJudge "
                 + "(empty DeploymentName falls back to AzureOpenAI:DeploymentName).");
+        }
+
+        if (!useManagedIdentity && string.IsNullOrWhiteSpace(apiKey))
+        {
+            throw new InvalidOperationException(
+                "Azure OpenAI API key is missing while AuthenticationMode is ApiKey for ArchLucid:Agents:LlmJudge.");
+        }
 
         ILogger<AzureOpenAiCompletionClient> completionLogger =
             sp.GetRequiredService<ILogger<AzureOpenAiCompletionClient>>();
         IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions =
             sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
 
-        AzureOpenAiCompletionClient inner = new(
-            endpoint,
-            apiKey,
-            deployment,
-            maxTok,
-            structuredOutputAgentResultSchema: null,
-            completionLogger,
-            llmTelemetryOptions);
+        AzureOpenAiCompletionClient inner = useManagedIdentity
+            ? AzureOpenAiCompletionClient.CreateWithManagedIdentity(
+                endpoint,
+                deployment,
+                maxTok,
+                structuredOutputAgentResultSchema: null,
+                completionLogger,
+                llmTelemetryOptions)
+            : new AzureOpenAiCompletionClient(
+                endpoint,
+                apiKey,
+                deployment,
+                maxTok,
+                structuredOutputAgentResultSchema: null,
+                completionLogger,
+                llmTelemetryOptions);
 
         IContentSafetyGuard contentSafetyGuard = sp.GetRequiredService<IContentSafetyGuard>();
         IOptionsMonitor<ContentSafetyOptions> contentSafetyOpts =

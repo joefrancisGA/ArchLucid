@@ -1,3 +1,5 @@
+using ArchLucid.Core.Configuration;
+
 using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation;
@@ -61,8 +63,12 @@ public static class CriticalConfigurationValidator
         if (string.IsNullOrWhiteSpace(configuration["AzureOpenAI:Endpoint"]))
             missingAzureOpenAiKeys.Add("AzureOpenAI:Endpoint (or AZURE_OPENAI_ENDPOINT)");
 
-        if (string.IsNullOrWhiteSpace(configuration["AzureOpenAI:ApiKey"]))
-            missingAzureOpenAiKeys.Add("AzureOpenAI:ApiKey (or AZURE_OPENAI_API_KEY)");
+        if (!AzureOpenAiConfigurationProbe.UsesManagedIdentity(configuration)
+            && string.IsNullOrWhiteSpace(configuration["AzureOpenAI:ApiKey"]))
+        {
+            missingAzureOpenAiKeys.Add(
+                "AzureOpenAI:ApiKey (or AZURE_OPENAI_API_KEY), or set AzureOpenAI:AuthenticationMode=ManagedIdentity");
+        }
 
         if (string.IsNullOrWhiteSpace(configuration["AzureOpenAI:DeploymentName"]))
             missingAzureOpenAiKeys.Add("AzureOpenAI:DeploymentName (or AZURE_OPENAI_DEPLOYMENT_NAME)");

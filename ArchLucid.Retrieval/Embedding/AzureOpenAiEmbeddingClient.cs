@@ -6,6 +6,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 
 using Azure.AI.OpenAI;
+using Azure.Identity;
 
 using Microsoft.Extensions.Options;
 
@@ -41,6 +42,41 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 
         Uri endpointUri = new(endpoint.Trim());
         AzureOpenAIClient azureClient = new(endpointUri, new ApiKeyCredential(apiKey.Trim()));
+        string deployment = embeddingDeploymentName.Trim();
+        _embeddingDeploymentName = deployment;
+        _embeddingClient = azureClient.GetEmbeddingClient(deployment);
+        _llmTelemetryOptions = llmTelemetryOptions;
+    }
+
+    /// <summary>
+    ///     Creates an embedding client using Azure AD (<see cref="DefaultAzureCredential" />) (TB-080).
+    /// </summary>
+    public static AzureOpenAiEmbeddingClient CreateWithManagedIdentity(
+        string endpoint,
+        string embeddingDeploymentName,
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
+        ArgumentException.ThrowIfNullOrWhiteSpace(embeddingDeploymentName);
+
+        Uri endpointUri = new(endpoint.Trim());
+        AzureOpenAIClient azureClient = new(endpointUri, new DefaultAzureCredential());
+        string deployment = embeddingDeploymentName.Trim();
+
+        AzureOpenAiEmbeddingClient client = new(azureClient, deployment, llmTelemetryOptions, endpointUri);
+
+        return client;
+    }
+
+    private AzureOpenAiEmbeddingClient(
+        AzureOpenAIClient azureClient,
+        string embeddingDeploymentName,
+        IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions,
+        Uri endpointUri)
+    {
+        ArgumentNullException.ThrowIfNull(azureClient);
+        ArgumentException.ThrowIfNullOrWhiteSpace(embeddingDeploymentName);
+
         string deployment = embeddingDeploymentName.Trim();
         _embeddingDeploymentName = deployment;
         _embeddingClient = azureClient.GetEmbeddingClient(deployment);
