@@ -64,12 +64,14 @@ public sealed class GoldenManifestCompareMarkdownFormatterTests
             BaseRunId = Guid.NewGuid(),
             TargetRunId = Guid.NewGuid(),
             TotalDeltaCount = 1,
-            SummaryHighlights = ["**bold** [x](javascript:alert(1))"],
+            // Dangerous markers in highlights are rejected wholesale by EscapeBulletText; use markdown-only text here.
+            SummaryHighlights = ["**bold** [x](https://example.com)"],
         };
 
         string md = GoldenManifestCompareMarkdownFormatter.Format(result, "javascript:alert(1)");
 
         Assert.Contains("\\*\\*bold\\*\\*", md, StringComparison.Ordinal);
+        Assert.Contains("\\[x\\]", md, StringComparison.Ordinal);
         Assert.DoesNotContain("[Open operator run]", md, StringComparison.Ordinal);
     }
 

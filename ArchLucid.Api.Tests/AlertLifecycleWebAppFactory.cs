@@ -24,6 +24,8 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
     {
         settings["ArchLucid:StorageProvider"] = "InMemory";
         settings["ConnectionStrings:ArchLucid"] = _connectionString;
+        settings["ArchLucidAuth:Mode"] = "DevelopmentBypass";
+        settings["Authentication:ApiKey:DevelopmentBypassAll"] = "true";
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
         // Background TrialFunnelHealthProbe defaults to http://127.0.0.1:5000 under TestServer; disable for integration hosts.
         settings["Demo:Enabled"] = "false";

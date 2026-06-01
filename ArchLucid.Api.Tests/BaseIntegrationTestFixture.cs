@@ -45,7 +45,10 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 ["RateLimiting:EvidenceBulkUpload:WindowMinutes"] = "1",
                 ["Billing:Provider"] = "Noop",
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
-                ["ArtifactLargePayload:BlobProvider"] = "Local"
+                ["ArtifactLargePayload:BlobProvider"] = "Local",
+                // Each integration host indexes platform ADR + policy-pack corpora by default; skip in tests (CI memory/time).
+                ["Retrieval:PlatformDocs:IndexOnStartup"] = "false",
+                ["Retrieval:PolicyPackCorpus:IndexOnStartup"] = "false",
             };
 
             AddCustomSettings(settings);

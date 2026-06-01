@@ -22,6 +22,14 @@ public sealed class AskThreadIntegrationTests
         PropertyNameCaseInsensitive = true
     };
 
+    private static HttpClient CreateScopedClient(AlertLifecycleWebAppFactory factory)
+    {
+        HttpClient client = CreateScopedClient(factory);
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        return client;
+    }
+
     [SkippableFact]
     public async Task Ask_with_seeded_run_returns_answer_and_creates_thread()
     {
@@ -29,7 +37,7 @@ public sealed class AskThreadIntegrationTests
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
             factory.Services, CancellationToken.None);
 
-        HttpClient client = factory.CreateClient();
+        HttpClient client = CreateScopedClient(factory);
 
         HttpResponseMessage askResponse = await client.PostAsJsonAsync(
             "v1/ask",
@@ -64,7 +72,7 @@ public sealed class AskThreadIntegrationTests
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
             factory.Services, CancellationToken.None);
 
-        HttpClient client = factory.CreateClient();
+        HttpClient client = CreateScopedClient(factory);
 
         HttpResponseMessage firstResponse = await client.PostAsJsonAsync(
             "v1/ask",
@@ -108,7 +116,7 @@ public sealed class AskThreadIntegrationTests
     public async Task Ask_without_question_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = CreateScopedClient(factory);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "v1/ask",
@@ -123,7 +131,7 @@ public sealed class AskThreadIntegrationTests
     public async Task Ask_without_runId_or_threadId_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = CreateScopedClient(factory);
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "v1/ask",
@@ -141,7 +149,7 @@ public sealed class AskThreadIntegrationTests
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
             factory.Services, CancellationToken.None);
 
-        HttpClient client = factory.CreateClient();
+        HttpClient client = CreateScopedClient(factory);
 
         using HttpRequestMessage request = new(HttpMethod.Post, "v1/ask/stream")
         {
