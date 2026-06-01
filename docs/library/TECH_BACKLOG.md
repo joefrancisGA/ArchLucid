@@ -54,18 +54,18 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Partial (Batch H, 2026-05-26) — **INV-002** persisted mode + trust card + operator UI badge; INV-004/012/013 remain | L |
-| TB-033 | Agent execution trace — persist LLM sampling params + reasoning token count | Forensic replay completeness — temperature / maxTokens / top_p and reasoning tokens are not on `AgentExecutionTrace` | XS |
-| TB-071 | Azure Search production client — wire tenant OData filter on every search/delete | Security (P0) — `AzureSearchTenantScopeFilterBuilder` exists but only `NotConfiguredAzureSearchClient` is registered; cross-tenant retrieval unverifiable in production | S–M |
-| TB-072 | Scope-to-identity binding at API ingress (ApiKey, DevBypass, header/claim reconciliation) | Security (P0) — ApiKey and DevBypass carry zero tenant claims; `x-tenant-id` alone resolves scope | M |
-| TB-073 | Scoped snapshot repository reads (findings / graph / context + relational child loads) | Security (P1) — `GetByIdAsync(Guid)` and child queries filter by snapshot/record ID only; IDOR in SingleCatalog mode | M |
+| TB-033 | Agent execution trace — persist LLM sampling params + reasoning token count | **Done (2026-05-31)** — `AgentExecutionTraceRecorder` persists sampling params + `ReasoningTokenCount`; `AgentExecutionTraceRecorderSamplingParamsTests` | XS |
+| TB-071 | Azure Search production client — wire tenant OData filter on every search/delete | **Done (2026-05-31)** — `AzureSearchSdkClient` + scoped delete; `AzureSearchTenantScopeFilterBuilderTests` | S–M |
+| TB-072 | Scope-to-identity binding at API ingress (ApiKey, DevBypass, header/claim reconciliation) | **Done (2026-05-31)** — `ScopeIdentityBindingMiddleware` + ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` | M |
+| TB-073 | Scoped snapshot repository reads (findings / graph / context + relational child loads) | **Done (2026-05-31)** — scoped `GetByIdAsync(ScopeContext)` + `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests` | M |
 | TB-074 | Retrieval indexing write-path tenant validation | **Done (2026-05-31)** — `RetrievalIndexingScopeValidator` on index writes; scoped in-memory delete; tests | S |
 | TB-075 | Operator UI server-side scope (proxy strips client headers; SSR from session) | **Done (2026-05-31)** — `resolveProxyUpstreamScopeHeaders` + production-like proxy posture; value-report tenant from `/api/auth/me` | S–M |
-| TB-082 | Agent `AllowedTools` — runtime enforcement at handler dispatch | Security (P2) — advisory/prompt-only allowlist; empty = unrestricted; no enforcer at `RealAgentExecutor` dispatch | S |
-| TB-079 | ADO PR markdown — sanitize `SummaryHighlights` + deep-link fields before writing PR comment body | Security (P2) — unescaped compare data echoed verbatim into ADO PR bodies; markdown/HTML injection risk | XS |
-| TB-083 | Service Bus — production safety rule: require namespace FQDN, disallow raw connection string | Security hardening — `IntegrationEvents:ServiceBusConnectionString` permitted in production with no Key Vault enforcement | XS |
-| TB-081 | `ArchLucidApiKey` — production safety rule: require Key Vault reference | Security hardening — long-lived API key in config with no enforcement rule analogous to ADO PAT guard | XS |
+| TB-082 | Agent `AllowedTools` — runtime enforcement at handler dispatch | **Done (2026-05-31)** — `AgentTaskAllowedToolsDispatchGuard` at dispatch; `AgentTaskAllowedToolsDispatchGuardTests` | S |
+| TB-079 | ADO PR markdown — sanitize `SummaryHighlights` + deep-link fields before writing PR comment body | **Done (2026-05-31)** — `AdoPullRequestMarkdownEscaper` + safe links in compare + run-summary Markdown | XS |
+| TB-083 | Service Bus — production safety rule: require namespace FQDN, disallow raw connection string | **Done (2026-05-31)** — `CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
+| TB-081 | `ArchLucidApiKey` — production safety rule: require Key Vault reference | **Done (2026-05-31)** — `CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
 | TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | Security hardening — symmetric key in config; Entra/MI reduces credential-rotation burden; aligns with blob/KV/ACS posture | S |
-| TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | Defense-in-depth — whitespace rejected but malformed IDs pass through to ARM without format guard | XS |
+| TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** — `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
 | TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | Security --- KV has `public_network_access_enabled=false` but no private endpoint or DNS zone in `terraform-private`; portal-only configuration, unmanageable by TF | XS-S |
 | TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | Security --- container apps read KV secrets at runtime via managed identity; role assignment absent from all TF roots; portal-created, subject to drift | XS |
 | TB-093 | Compose Azure OpenAI into hosted Terraform stack --- provision account + model deployments | IaC coverage (HIGH) --- code comment says "out-of-band"; model deployments, content filters, CMK, and private endpoint are all unmanaged; aligns with TB-080. Separate `terraform-openai` work can remain a validation/module staging surface, but hosted examples should compose it into `infra/terraform/prod`. | M |
@@ -3045,6 +3045,8 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 
 ## TB-071 — Azure Search production client — wire tenant OData filter on every search/delete
 
+**Status (2026-05-31):** **Done** — `AzureSearchSdkClient` applies `AzureSearchTenantScopeFilterBuilder` on search/delete; registered when `Retrieval:AzureSearch:Endpoint` is set; `AzureSearchTenantScopeFilterBuilderTests`.
+
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). **TB-048** / **RAG-V1-010** shipped the in-memory query filter and `AzureSearchTenantScopeFilterBuilder`, but production registration still uses `NotConfiguredAzureSearchClient`.
 
 **Problem:**
@@ -3074,6 +3076,8 @@ There is no CI lint forbidding these patterns in new migrations and no operator 
 ---
 
 ## TB-072 — Scope-to-identity binding at API ingress
+
+**Status (2026-05-31):** **Done** — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingValidator`; ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` / `ScopeIdentityBindingValidatorTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). `HttpScopeContextProvider` resolves tenant from JWT claims → `x-*` headers → dev defaults, but **no middleware validates that the authenticated principal may use the resolved tenant**.
 
@@ -3112,6 +3116,8 @@ Production safety currently depends on per-tenant catalog routing (`ScopedRoutin
 ---
 
 ## TB-073 — Scoped snapshot repository reads (findings / graph / context)
+
+**Status (2026-05-31):** **Done** — scoped repository reads + relational filters; `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`; `ScopedSnapshotReadIdorIntegrationTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Findings inspect and mute paths enforce full scope via `Runs` joins; snapshot repositories use GUID-only reads.
 
@@ -3302,6 +3308,8 @@ Residual risk in **SingleCatalog** / dev if run gate is skipped or connection ta
 ---
 
 ## TB-078 — Cross-tenant isolation integration test matrix
+
+**Status (2026-05-31):** **Done (V1 matrix)** — snapshot IDOR (`SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `ScopedSnapshotReadIdorIntegrationTests`); indexing scope (`RetrievalIndexingScopeValidatorTests`); ApiKey/header binding (`ScopeIdentityBindingIntegrationTests`); Azure Search OData filter unit tests (`AzureSearchTenantScopeFilterBuilderTests`).
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). `TenantIsolationSmokeTests` cover API + SQL under header-scoped isolation but not several audit-identified gaps.
 
@@ -3340,6 +3348,8 @@ No tests assert:
 
 ## TB-071 — Azure Search production client — wire tenant OData filter on every search/delete
 
+**Status (2026-05-31):** **Done** — `AzureSearchSdkClient` applies `AzureSearchTenantScopeFilterBuilder` on search/delete; registered when `Retrieval:AzureSearch:Endpoint` is set; `AzureSearchTenantScopeFilterBuilderTests`.
+
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). **TB-048** / **RAG-V1-010** shipped the in-memory query filter and `AzureSearchTenantScopeFilterBuilder`, but production registration still uses `NotConfiguredAzureSearchClient`.
 
 **Problem:**
@@ -3369,6 +3379,8 @@ No tests assert:
 ---
 
 ## TB-072 — Scope-to-identity binding at API ingress
+
+**Status (2026-05-31):** **Done** — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingValidator`; ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` / `ScopeIdentityBindingValidatorTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). `HttpScopeContextProvider` resolves tenant from JWT claims → `x-*` headers → dev defaults, but **no middleware validates that the authenticated principal may use the resolved tenant**.
 
@@ -3407,6 +3419,8 @@ Production safety currently depends on per-tenant catalog routing (`ScopedRoutin
 ---
 
 ## TB-073 — Scoped snapshot repository reads (findings / graph / context)
+
+**Status (2026-05-31):** **Done** — scoped repository reads + relational filters; `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`; `ScopedSnapshotReadIdorIntegrationTests`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Findings inspect and mute paths enforce full scope via `Runs` joins; snapshot repositories use GUID-only reads.
 
@@ -3597,6 +3611,8 @@ Residual risk in **SingleCatalog** / dev if run gate is skipped or connection ta
 ---
 
 ## TB-078 — Cross-tenant isolation integration test matrix
+
+**Status (2026-05-31):** **Done (V1 matrix)** — snapshot IDOR (`SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `ScopedSnapshotReadIdorIntegrationTests`); indexing scope (`RetrievalIndexingScopeValidatorTests`); ApiKey/header binding (`ScopeIdentityBindingIntegrationTests`); Azure Search OData filter unit tests (`AzureSearchTenantScopeFilterBuilderTests`).
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). `TenantIsolationSmokeTests` cover API + SQL under header-scoped isolation but not several audit-identified gaps.
 
@@ -3636,6 +3652,8 @@ No tests assert:
 
 
 ## TB-079 — ADO PR markdown — sanitize `SummaryHighlights` and deep-link fields
+
+**Status (2026-05-31):** **Done** — `AdoPullRequestMarkdownEscaper` (bullet escape, dangerous-content rejection, length cap, https/http link targets) used by compare + run-summary formatters; `AdoPullRequestMarkdownEscaperTests` / `AzureDevOpsRunSummaryMarkdownTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
@@ -3693,6 +3711,8 @@ Azure OpenAI supports Entra ID (AAD) token-based authentication via `DefaultAzur
 
 ## TB-081 — `ArchLucidApiKey` — production safety rule: require Key Vault reference
 
+**Status (2026-05-31):** **Done** — `ProductionSafetyRules.CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests`.
+
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
 **Problem:**
@@ -3716,6 +3736,8 @@ Azure OpenAI supports Entra ID (AAD) token-based authentication via `DefaultAzur
 ---
 
 ## TB-082 — Agent `AllowedTools` — runtime enforcement at handler dispatch
+
+**Status (2026-05-31):** **Done** — `AgentTaskAllowedToolsDispatchGuard` in `RealAgentExecutorSingleHandlerExecution`; `AgentToolNotAllowedException`; `AgentTaskAllowedToolsDispatchGuardTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
@@ -3746,6 +3768,8 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 
 ## TB-083 — Service Bus — production safety rule: require namespace FQDN, disallow raw connection string
 
+**Status (2026-05-31):** **Done** — `ProductionSafetyRules.CollectIntegrationEventsServiceBusConnectionStringKeyVaultReference`; `ProductionSecretSourceRulesTests`.
+
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
 **Problem:**
@@ -3770,6 +3794,8 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 ---
 
 ## TB-084 — AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction
+
+**Status (2026-05-31):** **Done** — `HostedAzureExtractorGuidValidator` on collection request + ARM list path; `HostedAzureExtractorGuidValidatorTests`.
 
 **Source:** Secrets, identity, and tool-sandboxing audit (2026-05-27).
 
