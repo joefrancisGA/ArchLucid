@@ -40,6 +40,7 @@ Set-Location $repoRoot
     "infra/terraform-keyvault",
     "infra/terraform-sql-failover",
     "infra/terraform-storage",
+    "infra/terraform-redis",
     "infra/terraform-servicebus",
     "infra/terraform-logicapps",
     "infra/terraform-openai",

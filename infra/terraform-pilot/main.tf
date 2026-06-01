@@ -38,6 +38,14 @@ locals {
     },
     {
       order           = 5
+      id              = "redis"
+      path            = "infra/terraform-redis"
+      pilot_essential = false
+      notes           = "TB-094: Azure Cache for Redis for HotPathCache; optional for single-replica pilots."
+      consumes_from   = ["private", "keyvault"]
+    },
+    {
+      order           = 6
       id              = "servicebus"
       path            = "infra/terraform-servicebus"
       pilot_essential = false
@@ -45,7 +53,7 @@ locals {
       consumes_from   = ["private"]
     },
     {
-      order           = 6
+      order           = 7
       id              = "logicapps"
       path            = "infra/terraform-logicapps"
       pilot_essential = false
@@ -53,7 +61,7 @@ locals {
       consumes_from   = ["servicebus", "private"]
     },
     {
-      order           = 7
+      order           = 8
       id              = "openai"
       path            = "infra/terraform-openai"
       pilot_essential = true
@@ -61,7 +69,7 @@ locals {
       consumes_from   = []
     },
     {
-      order           = 8
+      order           = 9
       id              = "entra"
       path            = "infra/terraform-entra"
       pilot_essential = true
@@ -69,15 +77,15 @@ locals {
       consumes_from   = []
     },
     {
-      order           = 9
+      order           = 10
       id              = "container_apps"
       path            = "infra/terraform-container-apps"
       pilot_essential = true
       notes           = "API, Worker, UI â€” cap maxReplicas for pilots; align with pilot_monthly_budget_usd."
-      consumes_from   = ["private", "storage", "keyvault", "entra", "servicebus", "openai"]
+      consumes_from   = ["private", "storage", "keyvault", "entra", "servicebus", "openai", "redis"]
     },
     {
-      order           = 10
+      order           = 11
       id              = "edge"
       path            = "infra/terraform-edge"
       pilot_essential = false
@@ -85,7 +93,7 @@ locals {
       consumes_from   = ["container_apps"]
     },
     {
-      order           = 11
+      order           = 12
       id              = "apim_consumption"
       path            = "infra/terraform"
       pilot_essential = false
@@ -93,7 +101,7 @@ locals {
       consumes_from   = ["container_apps"]
     },
     {
-      order           = 12
+      order           = 13
       id              = "monitoring"
       path            = "infra/terraform-monitoring"
       pilot_essential = false
@@ -101,7 +109,7 @@ locals {
       consumes_from   = ["container_apps"]
     },
     {
-      order           = 13
+      order           = 14
       id              = "orchestrator"
       path            = "infra/terraform-orchestrator"
       pilot_essential = false
@@ -110,3 +118,4 @@ locals {
     },
   ]
 }
+

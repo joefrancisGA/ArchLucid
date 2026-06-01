@@ -10,7 +10,7 @@
 | Azure Blob (artifacts) | `Storage:*` | `infra/terraform/prod` | **Required** when not InMemory | — |
 | Azure OpenAI | `AzureOpenAI:*`, `ArchLucid:Agents:*` | `deploy/hosted-prod-terraform` + `infra/terraform-container-apps` (consumed account; **TB-093**) | **Required** (hosted SaaS LLM) | **Done TB-093** (2026-06-01); TB-080 MI auth |
 | Azure AI Search | `Retrieval:VectorIndex=AzureSearch`, `Retrieval:AzureSearch:*` | `deploy/hosted-prod-terraform` (same) | **Required** on production-like profiles | TB-071, TB-096 |
-| Redis (cache) | `Redis:*` | — | Optional / deferred | TB-094 |
+| Redis (cache) | `HotPathCache:RedisConnectionString` | `infra/terraform-redis` | Optional (multi-replica / Redis provider) | **Done TB-094** (2026-06-01) |
 | Cosmos (graph) | `Cosmos:*` | — | Optional (InMemory/SQL paths exist) | TB-095 |
 | Service Bus | `ServiceBus:*` | — | Optional (outbox) | TB-099 |
 | ACR | Deploy scripts | `infra/terraform-acr` (partial) | **Required** for image pull in Azure | TB-097 |

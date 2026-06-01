@@ -51,6 +51,7 @@ flowchart LR
 | `infra/terraform-pilot` | **Default operator profile:** FinOps / sampling variables + **`nested_infrastructure_roots`** output (no Azure resources in this root). Entry point for the collapsed footprint; multi-root applies are **opt-in** ([`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md)). |
 | `infra/terraform-container-apps` | Primary **workload** pattern: Container Apps, identity, env wiring (parameters vary by fork/branch). |
 | `infra/terraform-storage` | Storage accounts, blobs, queues used by artifacts and durable jobs. |
+| `infra/terraform-redis` | **TB-094** optional Azure Cache for Redis for `HotPathCache` (connection string output / Key Vault secret). |
 | `infra/terraform-private` | Networking baseline: VNet segments, private endpoints, alignment with SQL/storage. |
 | `infra/terraform-edge` | Front Door (or edge) entry, TLS termination, routing to backends. |
 | `infra/terraform-monitoring` | Log Analytics, diagnostics, Grafana/Prometheus hooks as defined in that root. |

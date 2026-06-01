@@ -75,7 +75,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | **Done (2026-06-01)** — `terraform-private` KV DNS zone + PE when `key_vault_id` set; `key_vault_private_endpoint_id` output; `terraform validate` | XS-S |
 | TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | **Done (2026-06-01)** — `terraform-keyvault/workload_rbac.tf` + principal ID vars; `terraform-private/keyvault_rbac.tf`; `apply-saas.ps1` TB-092 second pass; `terraform.tfvars.example` | XS |
 | TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | **Done (2026-06-01)** — `openai_compose_mode=existing` (eastus); hosted-prod + container-apps env/RBAC; `terraform-openai` consumed contract; pilot_essential | M |
-| TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | IaC coverage --- `HotPathCache.RedisConnectionString` present in `appsettings.Production.json`; no `azurerm_redis_cache`; SKU, eviction, private endpoint unmanaged | S |
+| TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | **Done (2026-06-01)** — `infra/terraform-redis` + container-apps `hot_path_cache_redis_connection_string`; PE/DNS optional; `terraform validate` | S |
 | TB-095 | Assess + codify Cosmos DB --- create `terraform-cosmos` if active in production | IaC coverage --- `CosmosDb.ConnectionString` in `appsettings.json`; `Microsoft.Azure.Cosmos` NuGet in `ArchLucid.Persistence`; consistency/throughput/backup unmanaged if live | S-M |
 | TB-096 | Compose Azure AI Search existing-resource consumption into hosted Terraform stack | IaC coverage --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure AI Search resource IDs rather than creating the service; hosted examples must wire IDs, endpoint/index variables, private endpoint/RBAC expectations, and US East pilot defaults as code. | S |
 | TB-097 | Create `terraform-acr` root --- Azure Container Registry | IaC coverage --- read via `data` source in `terraform-container-apps`; geo-replication, retention, and network rules are portal-only | S |
@@ -4453,6 +4453,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 ---
 
 ## TB-094 --- Create `terraform-redis` root --- Azure Cache for Redis hot-path cache
+
+**Status (2026-06-01):** **Done** — New root `infra/terraform-redis` (`azurerm_redis_cache`, TLS 1.2, `non_ssl_port_enabled = false`, optional PE/DNS/diagnostics/Key Vault secret); outputs `redis_primary_connection_string` and `hot_path_cache_container_app_secret_env`; `infra/terraform-container-apps` wires `HotPathCache__RedisConnectionString` via secret; pilot + `apply-saas.ps1` order updated.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 

@@ -569,3 +569,12 @@ variable "azure_openai_expected_location" {
   description = "Expected Azure region for consumed OpenAI (production-like pilot default eastus). Used in checks when account id is set."
   default     = "eastus"
 }
+
+# TB-094 — HotPathCache Redis connection (from terraform-redis output or Key Vault).
+
+variable "hot_path_cache_redis_connection_string" {
+  type        = string
+  description = "Primary Redis connection string for HotPathCache__RedisConnectionString (sensitive; from terraform-redis output)."
+  default     = ""
+  sensitive   = true
+}
