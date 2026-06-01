@@ -20,6 +20,188 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "excerpt": "Canonical pilot onboarding material now lives here:"
   },
   {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "",
+    "sectionHeading": "Operator troubleshooting — overview",
+    "excerpt": "Start with the symptom that matches what you see. Each entry lists a first check inside ArchLucid, then where to go next."
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "most-common-issues",
+    "sectionHeading": "Most common issues",
+    "excerpt": "Most common issues"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "home-page-or-workspace-readiness-looks-empty",
+    "sectionHeading": "Home page or workspace readiness looks empty",
+    "excerpt": "Home page or workspace readiness looks empty"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "sample-review-package-missing",
+    "sectionHeading": "Sample review package missing",
+    "excerpt": "Sample review package missing"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "review-package-does-not-open",
+    "sectionHeading": "Review package does not open",
+    "excerpt": "Review package does not open"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "findings-count-looks-wrong",
+    "sectionHeading": "Findings count looks wrong",
+    "excerpt": "Findings count looks wrong"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "export-or-deliverable-download-unavailable",
+    "sectionHeading": "Export or deliverable download unavailable",
+    "excerpt": "Export or deliverable download unavailable"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "ask-or-compare-unavailable",
+    "sectionHeading": "Ask or compare unavailable",
+    "excerpt": "Ask or compare unavailable"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "evidence-upload-failed",
+    "sectionHeading": "Evidence upload failed",
+    "excerpt": "Evidence upload failed"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "permissions-or-sign-in-issue",
+    "sectionHeading": "Permissions or sign-in issue",
+    "excerpt": "Permissions or sign-in issue"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+    "docTitle": "Operator troubleshooting",
+    "sectionSlug": "decision-tree-deeper-triage",
+    "sectionHeading": "Decision tree (deeper triage)",
+    "excerpt": "The sections below walk API, SQL, auth, execute stalls, and commit conflicts step by step. Use them when the quick fixes above are not enough."
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "",
+    "sectionHeading": "First-pilot troubleshooting decision tree — overview",
+    "excerpt": "Canonical pilot path: [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · Stuck mid-pilot index: [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · Full detail: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "1-api-not-ready-connection-refused",
+    "sectionHeading": "1. API not ready / connection refused",
+    "excerpt": "→ [`COMMON_ERRORS.md`](COMMON_ERRORS.md) · [`DEPLOYMENT_RUNBOOK.md`](../library/DEPLOYMENT_RUNBOOK.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "2-sql-migration-failure-dbup-errors-at-startup",
+    "sectionHeading": "2. SQL migration failure / DbUp errors at startup",
+    "excerpt": "→ [`SQL_SCRIPTS.md`](../library/SQL_SCRIPTS.md) · [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (API startup)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "3-auth-401-403",
+    "sectionHeading": "3. Auth 401 / 403",
+    "excerpt": "→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](../library/API_KEY_ROTATION.md) · Settings → Identity providers (OIDC discovery strip)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "4-trial-402-entitlement",
+    "sectionHeading": "4. Trial 402 (entitlement)",
+    "excerpt": "→ [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "5-azure-extractor-upload-422",
+    "sectionHeading": "5. Azure extractor upload 422",
+    "excerpt": "→ [`AZURE_EXTRACTOR.md`](../library/AZURE_EXTRACTOR.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "6-execute-stalls-run-not-ready-for-commit",
+    "sectionHeading": "6. Execute stalls / run not Ready for commit",
+    "excerpt": "→ [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · [`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "7-commit-409-governance-pre-commit-blocked",
+    "sectionHeading": "7. Commit 409 / governance pre-commit blocked",
+    "excerpt": "→ [`PRE_COMMIT_GOVERNANCE_GATE.md`](../library/PRE_COMMIT_GOVERNANCE_GATE.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "8-missing-artifact-bundle-after-commit",
+    "sectionHeading": "8. Missing artifact bundle after commit",
+    "excerpt": "→ [`CORE_PILOT.md`](../CORE_PILOT.md) (step 4)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "9-low-confidence-ai-output-disputed-finding",
+    "sectionHeading": "9. Low-confidence AI output / disputed finding",
+    "excerpt": "→ [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) · [`AGENT_TRACE_FORENSICS.md`](../library/AGENT_TRACE_FORENSICS.md)"
+  },
+  {
+    "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    "docTitle": "First-pilot troubleshooting decision tree",
+    "sectionSlug": "support-bundle-any-symptom",
+    "sectionHeading": "Support bundle (any symptom)",
+    "excerpt": "Review `README.txt` and `next-steps.json` before external send — see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) (support bundle checklist)."
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
+    "docTitle": "Admin diagnostics",
+    "sectionSlug": "",
+    "sectionHeading": "Admin diagnostics — overview",
+    "excerpt": "Use these checks when an operator symptom points to platform health rather than a single review package."
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
+    "docTitle": "Admin diagnostics",
+    "sectionSlug": "start-here",
+    "sectionHeading": "Start here",
+    "excerpt": "1. Open System status (`/health`) in the operator shell — live/ready checks and version identity. 2. On Home, expand Workspace readiness — per-area status and next actions. 3. Open Assistant readiness diagnostics on Home when LLM or assistant features fail."
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
+    "docTitle": "Admin diagnostics",
+    "sectionSlug": "what-each-signal-means",
+    "sectionHeading": "What each signal means",
+    "excerpt": "What each signal means"
+  },
+  {
+    "docPath": "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
+    "docTitle": "Admin diagnostics",
+    "sectionSlug": "related-help-topics",
+    "sectionHeading": "Related Help topics",
+    "excerpt": "- Observability — metrics and export paths when your role includes them. - Projection cache and API replicas — multi-replica and Redis footguns (advanced). - Engineering troubleshooting runbook — CLI, logs, environment variables, and support bundles."
+  },
+  {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
     "docTitle": "Troubleshooting for pilots and operators (56R)",
     "sectionSlug": "",
@@ -192,7 +374,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Procurement FAQ (Enterprise)",
     "sectionSlug": "2-can-we-see-the-latest-penetration-test-report",
     "sectionHeading": "2. Can we see the latest penetration-test report?",
-    "excerpt": "Answer: V1 uses owner-conducted penetration-style testing and internal assessments (see [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). Third-party vendor engagements are V2 — when funded, they follow an SoW shaped like [2026-Q2-SOW.md](../security/pen-test-summaries/2026-…"
+    "excerpt": "Answer: V1 uses owner-conducted penetration-style testing and internal assessments (see [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). A third-party vendor engagement is planned, not yet scheduled; when funded, it follows an SoW shaped like [2026-Q2-SOW.md](../security/pe…"
   },
   {
     "docPath": "docs/go-to-market/PROCUREMENT_FAQ.md",

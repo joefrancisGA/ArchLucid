@@ -19,5 +19,8 @@ describe("resolveInAppDocHref", () => {
 
   it("falls back to /help for unmapped contributor docs", () => {
     expect(resolveInAppDocHref("docs/BUILD.md")).toBe("/help");
+
+    expect(resolveInAppDocHref("docs/runbooks/TROUBLESHOOTING.md")).toBe("/help/developer-troubleshooting");
+    expect(resolveInAppDocHref("docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md")).toBe("/help/troubleshooting");
   });
 });

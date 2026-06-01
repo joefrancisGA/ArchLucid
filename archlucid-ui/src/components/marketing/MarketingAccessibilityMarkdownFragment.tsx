@@ -1,7 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { createHelpHeadingSlugAllocator } from "@/lib/help-heading-slug";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
@@ -11,42 +14,64 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
   while (remaining.length > 0) {
     const linkOpen = remaining.indexOf("[");
     const boldOpen = remaining.indexOf("**");
+    const codeOpen = remaining.indexOf("`");
 
-    const pickLink = linkOpen >= 0;
-    const pickBold = boldOpen >= 0;
-    let nextKind: "link" | "bold" | "none" = "none";
-    let nextAt = -1;
+    const candidates: Array<{ kind: "link" | "bold" | "code"; at: number }> = [];
 
-    if (pickLink && pickBold) {
-      nextKind = linkOpen <= boldOpen ? "link" : "bold";
-      nextAt = nextKind === "link" ? linkOpen : boldOpen;
-    }
-    else if (pickLink) {
-      nextKind = "link";
-      nextAt = linkOpen;
-    }
-    else if (pickBold) {
-      nextKind = "bold";
-      nextAt = boldOpen;
+    if (linkOpen >= 0) {
+      candidates.push({ kind: "link", at: linkOpen });
     }
 
-    if (nextKind === "none" || nextAt < 0) {
+    if (boldOpen >= 0) {
+      candidates.push({ kind: "bold", at: boldOpen });
+    }
+
+    if (codeOpen >= 0) {
+      candidates.push({ kind: "code", at: codeOpen });
+    }
+
+    candidates.sort((a, b) => a.at - b.at);
+    const next = candidates[0];
+
+    if (next === undefined) {
       nodes.push(<span key={`${keyPrefix}-t-${i}`}>{remaining}</span>);
       break;
     }
 
-    if (nextAt > 0) {
-      nodes.push(<span key={`${keyPrefix}-p-${i}`}>{remaining.slice(0, nextAt)}</span>);
+    if (next.at > 0) {
+      nodes.push(<span key={`${keyPrefix}-p-${i}`}>{remaining.slice(0, next.at)}</span>);
     }
 
-    if (nextKind === "bold") {
-      const close = remaining.indexOf("**", nextAt + 2);
+    if (next.kind === "code") {
+      const close = remaining.indexOf("`", next.at + 1);
+
       if (close < 0) {
-        nodes.push(<span key={`${keyPrefix}-b-${i}`}>{remaining.slice(nextAt)}</span>);
+        nodes.push(<span key={`${keyPrefix}-c-${i}`}>{remaining.slice(next.at)}</span>);
         break;
       }
 
-      const inner = remaining.slice(nextAt + 2, close);
+      const inner = remaining.slice(next.at + 1, close);
+      nodes.push(
+        <code
+          key={`${keyPrefix}-ic-${i}`}
+          className="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[0.9em] text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
+        >
+          {inner}
+        </code>,
+      );
+      remaining = remaining.slice(close + 1);
+      i++;
+      continue;
+    }
+
+    if (next.kind === "bold") {
+      const close = remaining.indexOf("**", next.at + 2);
+      if (close < 0) {
+        nodes.push(<span key={`${keyPrefix}-b-${i}`}>{remaining.slice(next.at)}</span>);
+        break;
+      }
+
+      const inner = remaining.slice(next.at + 2, close);
       nodes.push(
         <strong key={`${keyPrefix}-s-${i}`} className="font-semibold">
           {renderInline(inner, `${keyPrefix}-bi-${i}`)}
@@ -57,21 +82,21 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
       continue;
     }
 
-    const closeBracket = remaining.indexOf("]", nextAt);
+    const closeBracket = remaining.indexOf("]", next.at);
     const openParen = closeBracket >= 0 ? remaining.indexOf("(", closeBracket) : -1;
     const closeParen = openParen >= 0 ? remaining.indexOf(")", openParen) : -1;
 
     if (closeBracket < 0 || openParen !== closeBracket + 1 || closeParen < 0) {
-      nodes.push(<span key={`${keyPrefix}-lbroken-${i}`}>{remaining.slice(nextAt)}</span>);
+      nodes.push(<span key={`${keyPrefix}-lbroken-${i}`}>{remaining.slice(next.at)}</span>);
       break;
     }
 
-    const label = remaining.slice(nextAt + 1, closeBracket);
+    const label = remaining.slice(next.at + 1, closeBracket);
     const href = remaining.slice(openParen + 1, closeParen);
     const safe = href.startsWith("https://") || href.startsWith("http://") || href.startsWith("mailto:");
 
     if (!safe) {
-      nodes.push(<span key={`${keyPrefix}-unsafe-${i}`}>{remaining.slice(nextAt, closeParen + 1)}</span>);
+      nodes.push(<span key={`${keyPrefix}-unsafe-${i}`}>{remaining.slice(next.at, closeParen + 1)}</span>);
       remaining = remaining.slice(closeParen + 1);
       i++;
       continue;
@@ -108,16 +133,25 @@ function isTableDivider(line: string): boolean {
 type MarketingAccessibilityMarkdownFragmentProps = {
   markdownBody: string;
   tableCaption: string;
+  /** Help topics use operator typography and readable code blocks. */
+  presentation?: "marketing" | "help";
 };
 
 /**
  * Minimal Markdown → HTML for trusted repo policy fragments (no `dangerouslySetInnerHTML`).
- * Supports paragraphs, `###` headings, `-` lists, ordered lists, GitHub-style tables, **bold**, and `[text](url)` links.
+ * Supports paragraphs, headings, lists, tables, fenced code, inline code, **bold**, and `[text](url)` links.
  */
 export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibilityMarkdownFragmentProps): React.ReactNode {
   if (props.markdownBody.length === 0) {
     return null;
   }
+
+  const isHelp = props.presentation === "help";
+  const bodyTextClass = isHelp ? OPERATOR_TYPOGRAPHY.body : "text-neutral-800 dark:text-neutral-200";
+  const h3Class = isHelp
+    ? "scroll-mt-24 mt-6 text-base font-semibold text-al-text-primary"
+    : "scroll-mt-24 mt-4 text-sm font-semibold text-al-text-primary";
+  const tableTextClass = isHelp ? "text-sm" : "text-sm";
 
   const lines = props.markdownBody.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
@@ -130,6 +164,34 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
     if (line.trim().length === 0) {
       i++;
+      continue;
+    }
+
+    if (line.trimStart().startsWith("```")) {
+      const fence = line.trim();
+      const language = fence.length > 3 ? fence.slice(3).trim() : "";
+      const codeLines: string[] = [];
+      i++;
+
+      while (i < lines.length) {
+        const codeLine = lines[i] ?? "";
+
+        if (codeLine.trimStart().startsWith("```")) {
+          i++;
+          break;
+        }
+
+        codeLines.push(codeLine);
+        i++;
+      }
+
+      const code = codeLines.join("\n").replace(/\n$/, "");
+
+      if (code.length > 0) {
+        blocks.push(<HelpMarkdownCodeBlock key={`code-${key}`} code={code} language={language} />);
+        key++;
+      }
+
       continue;
     }
 
@@ -169,7 +231,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         <h3
           key={`h3-${key}`}
           id={sectionId}
-          className="scroll-mt-24 mt-4 text-sm font-semibold text-al-text-primary"
+          className={h3Class}
         >
           {renderInline(title, `h3-${key}`)}
         </h3>,
@@ -228,7 +290,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
       blocks.push(
         <div key={`tbl-${key}`} className="my-4 overflow-x-auto">
-          <table className="w-full border-collapse border border-neutral-200 text-sm dark:border-neutral-800">
+          <table className={cn("w-full border-collapse border border-neutral-200 dark:border-neutral-800", tableTextClass)}>
             <caption className="sr-only">{props.tableCaption}</caption>
             <thead className="bg-neutral-100 dark:bg-neutral-900">
               <tr>
@@ -285,7 +347,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       }
 
       blocks.push(
-        <ul key={`ul-${key}`} className="my-3 list-disc space-y-2 pl-6 text-neutral-800 dark:text-neutral-200">
+        <ul key={`ul-${key}`} className={cn("my-3 list-disc space-y-2 pl-6", bodyTextClass)}>
           {items.map((it, idx) => (
             <li key={`li-${key}-${idx}`}>{renderInline(it, `li-${key}-${idx}`)}</li>
           ))}
@@ -349,7 +411,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     const paragraph = paraLines.join(" ").trim();
     if (paragraph.length > 0) {
       blocks.push(
-        <p key={`p-${key}`} className="my-3 leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p key={`p-${key}`} className={cn("my-3 leading-relaxed", bodyTextClass)}>
           {renderInline(paragraph, `p-${key}`)}
         </p>,
       );

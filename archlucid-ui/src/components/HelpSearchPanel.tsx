@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -169,6 +170,13 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               Guides, shortcuts &amp; troubleshooting
             </Button>
           ) : null}
+          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+            <Link href="/help/developer-troubleshooting" className="font-medium underline-offset-2 hover:underline">
+              Engineering troubleshooting runbook
+            </Link>
+            {" "}
+            (CLI, logs, environment variables)
+          </p>
           <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
             Keyboard: arrows navigate · Enter opens Help topic · Escape closes · Shortcut Shift+?
           </p>

@@ -48,6 +48,18 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     category: "Operations",
     url: "/search",
   },
+  {
+    title: "Troubleshooting",
+    summary: "Symptom-first operator triage for Home, reviews, exports, and permissions.",
+    category: "Operations",
+    url: "/help/troubleshooting",
+  },
+  {
+    title: "Admin diagnostics",
+    summary: "System status, readiness rows, and observability signals.",
+    category: "Operations",
+    url: "/help/admin-diagnostics",
+  },
 ];
 
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {

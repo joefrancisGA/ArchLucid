@@ -10,16 +10,29 @@ describe("searchHelpDocumentation", () => {
     expect(hits.some((h) => h.docPath.includes("CORE_PILOT"))).toBe(true);
   });
 
-  it("returns configuration reference material for configuration queries", () => {
+  it("excludes developer-only docs from default shell search", () => {
     const hits = searchHelpDocumentation("configuration", 30);
+
+    expect(hits.some((h) => h.docPath.includes("CONFIGURATION_REFERENCE"))).toBe(false);
+  });
+
+  it("includes developer docs when explicitly requested", () => {
+    const hits = searchHelpDocumentation("configuration", 30, { includeDeveloperDocs: true });
 
     expect(hits.some((h) => h.docPath.includes("CONFIGURATION_REFERENCE"))).toBe(true);
   });
 
-  it("returns troubleshooting doc for troubleshooting queries", () => {
+  it("returns operator troubleshooting paths for troubleshooting queries", () => {
     const hits = searchHelpDocumentation("troubleshooting", 30);
 
-    expect(hits.some((h) => h.docPath.includes("TROUBLESHOOTING"))).toBe(true);
+    expect(
+      hits.some(
+        (h) =>
+          h.docPath.toLowerCase().includes("first_pilot_troubleshooting") ||
+          h.docPath.toLowerCase().includes("operator_troubleshooting"),
+      ),
+    ).toBe(true);
+    expect(hits.some((h) => h.docPath.toLowerCase() === "docs/runbooks/troubleshooting.md")).toBe(false);
   });
 
   it("returns procurement FAQ entries for procurement keywords", () => {

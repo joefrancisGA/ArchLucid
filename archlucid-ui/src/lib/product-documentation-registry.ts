@@ -142,8 +142,31 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
   {
     slug: "troubleshooting",
     title: "Troubleshooting",
-    summary: "First-line operator triage: health checks, correlation IDs, and support bundle collection.",
+    summary:
+      "Symptom-first operator triage: common Home and review-package issues, first checks, and the first-pilot decision tree.",
     audience: "operator",
+    sourcePaths: [
+      "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
+      "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
+    ],
+  },
+  {
+    slug: "admin-diagnostics",
+    title: "Admin diagnostics",
+    summary:
+      "System status, workspace readiness, assistant diagnostics, and observability signals for platform health.",
+    audience: "operator",
+    sourcePaths: [
+      "docs/library/customer-facing/OPERATOR_ADMIN_DIAGNOSTICS.md",
+      "docs/library/OBSERVABILITY.md",
+    ],
+  },
+  {
+    slug: "developer-troubleshooting",
+    title: "Engineering troubleshooting runbook",
+    summary:
+      "CLI commands, environment variables, log patterns, and deep failure signatures for engineering support.",
+    audience: "developer",
     sourcePaths: ["docs/runbooks/TROUBLESHOOTING.md", "docs/runbooks/COMMON_ERRORS.md"],
   },
   {
