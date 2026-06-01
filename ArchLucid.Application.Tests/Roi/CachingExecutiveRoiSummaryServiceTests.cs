@@ -35,7 +35,7 @@ public sealed class CachingExecutiveRoiSummaryServiceTests
         cache
             .Setup(c => c.GetOrCreateAsync(
                 It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, Task<ExecutiveRoiSummaryResponse>>>(),
+                It.IsAny<Func<CancellationToken, Task<ExecutiveRoiSummaryResponse?>>>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<int>()))
             .ReturnsAsync(staleCached);
