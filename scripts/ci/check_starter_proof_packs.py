@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate templates/starter-proof-packs/* metadata and required artifacts (TB-115/TB-116)."""
+"""Validate templates/starter-proof-packs/* metadata and required artifacts (TB-171/TB-172)."""
 
 from __future__ import annotations
 

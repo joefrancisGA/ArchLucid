@@ -109,11 +109,11 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-111 | RunDetailPageView — inline provenance summary card (collapse from sibling route) | **Done (2026-06-01)** — `RunDetailProvenanceSummaryCard` on run detail | S |
 | TB-112 | RunDetailPageView — add run-level approve / reject / request-remediation actions | **Done (2026-06-01)** — `POST …/disposition` + `RunDetailRunGovernanceDispositionActions` | M |
 | TB-113 | Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types | **Done (2026-06-01)** — OpenAPI + `api-types.generated.ts`; `RunDetailDtoOpenApiContractTests` | XS |
-| TB-170 | Accelerator chooser — map buyer job → starter proof pack → expected proof output | Template richness / time-to-value — existing accelerators are useful but not easy enough to choose in the first 10 minutes | S |
-| TB-171 | Starter proof pack metadata contract | Template trust — packs need owner, last-reviewed, buyer persona, required inputs, expected outputs, V1/V1.1/deferred scope, and "do not use when" fields | S |
-| TB-172 | Starter proof pack static validation gate | Correctness / template safety — every pack should parse, include required files, avoid placeholders/secrets, and have valid scope labels before release | S |
-| TB-173 | Template-to-proof dry-run harness | Time-to-value / regression safety — dry-run each starter pack through minimal request + policy/context path without live cloud dependencies | M |
-| TB-174 | Golden accelerator walkthrough (one pack only) | Marketability / enablement — one canonical walkthrough with expected artifacts/screenshots improves trust without adding template sprawl | S |
+| TB-170 | Accelerator chooser — map buyer job → starter proof pack → expected proof output | **Done (2026-06-01)** — `ACCELERATOR_CHOOSER.md`, UI `AcceleratorChooserCard`, `/help/accelerator-chooser` | S |
+| TB-171 | Starter proof pack metadata contract | **Done (2026-06-01)** — `starter-pack.json` on all packs; `STARTER_PROOF_PACK_METADATA_CONTRACT.md` | S |
+| TB-172 | Starter proof pack static validation gate | **Done (2026-06-01)** — `check_starter_proof_packs.py` + CI + unit tests | S |
+| TB-173 | Template-to-proof dry-run harness | **Done (2026-06-01)** — `dry_run_starter_proof_packs.py` + `StarterProofPack*` dotnet tests | M |
+| TB-174 | Golden accelerator walkthrough (one pack only) | **Done (2026-06-01)** — `walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md` (regulated SaaS) | S |
 | TB-175 | Policy pack metadata and buyer-safe caveat validation | Governance alignment — every policy pack needs scope, owner, last reviewed, sample finding, and explicit "not certification" language | S |
 | TB-176 | Policy pack dry-run index | Time-to-value / governance usability — list packs by buyer job, required inputs, expected findings, and V1/V1.1/deferred scope | S |
 | TB-121 | Route/tier/policy/nav parity release gate hardening | Governance drift prevention — changes to routes, tiers, policy surfaces, or nav must refresh parity proof before release | S |
@@ -207,7 +207,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-170 — Accelerator chooser — buyer job → starter proof pack → expected proof output
 
-**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
+**Status:** **Done (2026-06-01)** — [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md), [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md), `AcceleratorChooserCard`, registry slug `accelerator-chooser`.
 
 **Objective:** Give evaluators one obvious way to pick the right existing accelerator without browsing the whole `templates/` tree.
 
@@ -234,8 +234,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-171 — Starter proof pack metadata contract
-**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
 
+**Status:** **Done (2026-06-01)** — all four packs ship `starter-pack.json`; contract documented in [`STARTER_PROOF_PACK_METADATA_CONTRACT.md`](STARTER_PROOF_PACK_METADATA_CONTRACT.md).
 
 **Objective:** Make every starter proof pack self-describing and reviewable as a V1 artifact, not a loose folder of examples.
 
@@ -258,8 +258,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-172 — Starter proof pack static validation gate
-**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
 
+**Status:** **Done (2026-06-01)** — `scripts/ci/check_starter_proof_packs.py` in CI; `scripts/ci/tests/test_check_starter_proof_packs.py`.
 
 **Objective:** Prevent starter packs from drifting, breaking, or shipping buyer-unsafe placeholders.
 
@@ -282,8 +282,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-173 — Template-to-proof dry-run harness
-**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
 
+**Status:** **Done (2026-06-01)** — `scripts/ci/dry_run_starter_proof_packs.py` (Python gate; optional `--with-dotnet-tests`); `StarterProofPackArchitectureRequestDryRunTests`, `StarterProofPackPolicyContextTests`.
 
 **Objective:** Prove each starter pack can flow through the minimal ArchLucid request/policy/context path without live cloud dependencies.
 
@@ -306,8 +306,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-174 — Golden accelerator walkthrough (one pack only)
-**Status:** **Open** (renumbered from legacy TB-114–120 commercial cluster; design-system TB-114–120 remain **Done**).
 
+**Status:** **Done (2026-06-01)** — [`walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md) for `regulated-saas-soc-procurement`.
 
 **Objective:** Create one canonical accelerator walkthrough that demonstrates the end-to-end evaluator experience without expanding template count.
 

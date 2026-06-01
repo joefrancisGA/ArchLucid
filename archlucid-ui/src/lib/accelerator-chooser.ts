@@ -11,7 +11,7 @@ export type AcceleratorChooserEntry = {
   readonly startHref: string;
 };
 
-/** Top buyer-job → starter proof pack rows surfaced on operator home (TB-114). */
+/** Top buyer-job → starter proof pack rows surfaced on operator home (TB-170). */
 export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
   {
     id: "regulated-saas-soc-procurement",

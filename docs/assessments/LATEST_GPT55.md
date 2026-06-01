@@ -1,4 +1,4 @@
-# ArchLucid Assessment – (A) Headline Readiness: 79.48%
+# ArchLucid Assessment – (A) Headline Readiness: 79.58%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
@@ -49,7 +49,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Correctness | 76 | 8 | 5.24% | 192 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
-| Time-to-Value | 78 | 7 | 4.71% | 154 |
+| Time-to-Value | 80 | 7 | 4.83% | 140 |
 | Marketability | 84 | 8 | 5.79% | 128 |
 | Proof-of-ROI Readiness | 75 | 5 | 3.23% | 125 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
@@ -80,9 +80,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Availability | 72 | 1 | 0.62% | 28 |
 | Extensibility | 72 | 1 | 0.62% | 28 |
 | Cost-Effectiveness | 73 | 1 | 0.63% | 27 |
-| Testability | 74 | 1 | 0.64% | 26 |
+| Testability | 75 | 1 | 0.65% | 25 |
 | Supportability | 76 | 1 | 0.66% | 24 |
-| Template and Accelerator Richness | 76 | 1 | 0.66% | 24 |
+| Template and Accelerator Richness | 80 | 1 | 0.69% | 20 |
 | Documentation | 78 | 1 | 0.67% | 22 |
 
 ### AI/Agent Readiness

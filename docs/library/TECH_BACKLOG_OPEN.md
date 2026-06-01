@@ -10,16 +10,12 @@
 | Data consistency KPIs | **TB-149 – TB-155** |
 | Local dev diagnostics | **TB-156 – TB-157** |
 | Run detail operator fidelity | **TB-109 – TB-113** (incl. **TB-110** tool forensics) |
+| Starter proof packs | **TB-170 – TB-174** (chooser, metadata, CI validation, dry-run, golden walkthrough) |
 
 ## P1 — template / commercial (next engineering batch)
 
 | ID | Title |
 | --- | --- |
-| TB-170 | Accelerator chooser artifact (`ACCELERATOR_CHOOSER.md` + UI card partial) |
-| TB-171 | Starter proof pack metadata contract (`starter-pack.json`) |
-| TB-172 | Starter proof pack static validation CI |
-| TB-173 | Template-to-proof dry-run harness |
-| TB-174 | Golden accelerator walkthrough |
 | TB-175 – TB-176 | Policy pack metadata + dry-run index |
 | TB-121 – TB-134 | Parity gates, sponsor proof, audit/commercial packaging |
 
