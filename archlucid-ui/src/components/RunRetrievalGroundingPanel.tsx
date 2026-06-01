@@ -10,6 +10,8 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 type RunRetrievalGroundingPanelProps = {
   payload: RunRetrievalGroundingPayload | null;
   failure: ApiLoadFailureState | null;
+  sectionId?: string;
+  title?: string;
 };
 
 function pct(value: number): string {
@@ -54,12 +56,14 @@ function scoreText(row: RunRetrievalGroundingRow): string {
 /** Redaction-safe forensic panel: chunk ids and metadata only, never raw prompt or retrieved text. */
 export function RunRetrievalGroundingPanel(props: RunRetrievalGroundingPanelProps) {
   const { payload, failure } = props;
+  const sectionId = props.sectionId ?? "retrieval-grounding";
+  const sectionTitle = props.title ?? "Retrieval grounding (diagnostics)";
   const rows = payload?.rows ?? [];
   const degraded = payload?.hasDegradedMetadata === true || rows.some((r) => r.scoreMetadataMalformed || r.documentMetadataMalformed);
 
   return (
-    <div id="retrieval-grounding" className="scroll-mt-24">
-      <CollapsibleSection title="Retrieval grounding (diagnostics)" defaultOpen={false}>
+    <div id={sectionId} className="scroll-mt-24">
+      <CollapsibleSection title={sectionTitle} defaultOpen={false}>
         <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
           Retrieval traces show which chunks each agent retrieved, the corpus kind, citation coverage, and token counts.
           Raw prompts and retrieved content stay redacted at this edge.

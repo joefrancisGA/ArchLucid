@@ -25,7 +25,7 @@ public static class ExecutiveReviewPacketPortfolioSignalsFactory
         {
             ResolvedFindingsCount30Days = roiSummary.ResolvedFindingsCount30Days,
             NewlyDiscoveredFindingsCount30Days = roiSummary.NewlyDiscoveredFindingsCount30Days,
-            StaleRiskCount = 0,
+            StaleRiskCount = roiSummary.StaleArchitectureRiskCount,
             ExpiringWaiversCount14Days = roiSummary.ExpiringWaiversCount14Days,
             NextActions = nextActions,
         };

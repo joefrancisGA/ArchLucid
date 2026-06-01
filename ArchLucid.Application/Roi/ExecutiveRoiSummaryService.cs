@@ -33,6 +33,7 @@ public sealed class ExecutiveRoiSummaryService(
     IScopeContextProvider scopeContextProvider,
     IFindingReviewTrailRepository findingReviewTrailRepository,
     IRiskExceptionService riskExceptionService,
+    IArchitectureRiskRegisterService architectureRiskRegisterService,
     ITenantSettingsRepository tenantSettingsRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     ITenantCostSettingsRepository tenantCostSettingsRepository,
@@ -72,6 +73,9 @@ public sealed class ExecutiveRoiSummaryService(
 
     private readonly IRiskExceptionService _riskExceptionService =
         riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));
+
+    private readonly IArchitectureRiskRegisterService _architectureRiskRegisterService =
+        architectureRiskRegisterService ?? throw new ArgumentNullException(nameof(architectureRiskRegisterService));
 
     private readonly ITenantSettingsRepository _tenantSettingsRepository =
         tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
@@ -172,6 +176,12 @@ public sealed class ExecutiveRoiSummaryService(
         ExecutiveBusinessImpactCategoryCounts businessImpactCategoryCounts =
             ExecutiveBusinessImpactCategoryClassifier.Build(dedupedFindings);
 
+        ArchitectureRiskRegisterResponse riskRegister = await _architectureRiskRegisterService
+            .GetRegisterAsync(tenantId, projectId, maxRows: 100, cancellationToken)
+            .ConfigureAwait(false);
+
+        int staleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(riskRegister);
+
         return new ExecutiveRoiSummaryResponse
         {
             TotalEstimatedUsdSavings = totalSavings,
@@ -191,6 +201,7 @@ public sealed class ExecutiveRoiSummaryService(
             RealizedValue = realizedValue,
             BasisBreakdown = basisBreakdown,
             ExpiringWaiversCount14Days = expiringWaivers14Days,
+            StaleArchitectureRiskCount = staleArchitectureRiskCount,
             OrphanCandidates = orphanCandidates,
             BusinessImpactCategoryCounts = businessImpactCategoryCounts,
         };

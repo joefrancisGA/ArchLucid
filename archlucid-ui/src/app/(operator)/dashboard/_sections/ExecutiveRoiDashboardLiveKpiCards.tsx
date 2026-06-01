@@ -5,11 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import {
-  getArchitectureRiskRegister,
-  getGovernanceDecisionsNeededSummary,
-  type ArchitectureRiskRegisterEntry,
-} from "@/lib/api/governance-stickiness-api";
+import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import {
@@ -26,10 +22,6 @@ type LiveKpiState = {
   expiringWaiversCount: number;
   decisionsNeededCount: number;
 };
-
-function countStaleRisks(entries: ArchitectureRiskRegisterEntry[]): number {
-  return entries.filter((entry) => entry.isStale).length;
-}
 
 function KpiFootnote(props: { readonly text: string | null; readonly runbookHref?: string | null }) {
   if (!props.text) {
@@ -68,12 +60,11 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
 
     void (async () => {
       try {
-        const [summaryRes, riskRegister, decisionsNeeded] = await Promise.all([
+        const [summaryRes, decisionsNeeded] = await Promise.all([
           fetch(
             EXECUTIVE_ROI_SUMMARY_PATH,
             mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
           ),
-          getArchitectureRiskRegister(),
           getGovernanceDecisionsNeededSummary(),
         ]);
 
@@ -85,12 +76,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           resolvedFindingsCount30Days?: number;
           newlyDiscoveredFindingsCount30Days?: number;
           expiringWaiversCount14Days?: number;
+          staleArchitectureRiskCount?: number;
         };
 
         if (!cancelled) {
           setState({
             summary,
-            staleRiskCount: countStaleRisks(riskRegister.entries),
+            staleRiskCount:
+              summary.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
             expiringWaiversCount: decisionsNeeded.waiversExpiringWithin14Days,
             decisionsNeededCount: decisionsNeeded.totalDecisionItems,
           });

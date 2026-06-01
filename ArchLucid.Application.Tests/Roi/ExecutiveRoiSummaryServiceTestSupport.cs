@@ -111,6 +111,7 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             scopeProvider.Object,
             findingReviewTrailRepository ?? reviewTrail.Object,
             riskExceptions.Object,
+            Mock.Of<IArchitectureRiskRegisterService>(),
             tenantSettings.Object,
             findingsSnapshots.Object,
             tenantCostSettings.Object,

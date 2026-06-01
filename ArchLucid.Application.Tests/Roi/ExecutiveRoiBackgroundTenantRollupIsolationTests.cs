@@ -151,6 +151,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             ambientScopeProvider.Object,
             CreateEmptyFindingReviewTrailRepository(),
             CreateEmptyRiskExceptionService(),
+            Mock.Of<IArchitectureRiskRegisterService>(),
             CreateEmptyTenantSettingsRepository(),
             findingsSnapshots.Object,
             tenantCostSettings.Object,

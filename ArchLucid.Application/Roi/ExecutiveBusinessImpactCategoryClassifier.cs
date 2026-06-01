@@ -1,44 +1,89 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Roi;
 
 namespace ArchLucid.Application.Roi;
 
 /// <summary>
-///     Maps finding categories into executive dashboard business-impact buckets (TB-105).
+///     Maps finding categories into executive dashboard business-impact pillars (TB-105).
 /// </summary>
 public static class ExecutiveBusinessImpactCategoryClassifier
 {
-    private static readonly string[] SecurityComplianceMatchers = ["security", "compliance", "privacy"];
-
-    private static readonly string[] ReliabilityMatchers = ["reliability", "availability", "resilience"];
-
-    /// <summary>Counts deduplicated active findings into the two sponsor-facing theme buckets.</summary>
+    /// <summary>Counts deduplicated active findings into named sponsor-facing pillars.</summary>
     public static ExecutiveBusinessImpactCategoryCounts Build(IEnumerable<ArchitectureFinding> dedupedFindings)
     {
         ArgumentNullException.ThrowIfNull(dedupedFindings);
 
-        int securityCompliance = 0;
+        int security = 0;
+        int compliance = 0;
         int reliability = 0;
+        int cost = 0;
+        int governance = 0;
+        int other = 0;
 
         foreach (ArchitectureFinding finding in dedupedFindings)
         {
             string category = NormalizeCategory(finding.Category);
+            string? pillar = ResolvePillar(category);
 
-            if (MatchesAny(category, SecurityComplianceMatchers))
+            switch (pillar)
             {
-                securityCompliance++;
-                continue;
-            }
+                case "Security":
+                    security++;
+                    break;
 
-            if (MatchesAny(category, ReliabilityMatchers))
-                reliability++;
+                case "Compliance":
+                    compliance++;
+                    break;
+
+                case "Reliability":
+                    reliability++;
+                    break;
+
+                case "Cost":
+                    cost++;
+                    break;
+
+                case "Governance":
+                    governance++;
+                    break;
+
+                default:
+                    other++;
+                    break;
+            }
         }
 
         return new ExecutiveBusinessImpactCategoryCounts
         {
-            SecurityComplianceThemeCount = securityCompliance,
+            SecurityThemeCount = security,
+            ComplianceThemeCount = compliance,
             ReliabilityThemeCount = reliability,
+            CostThemeCount = cost,
+            GovernanceThemeCount = governance,
+            OtherThemeCount = other,
+            SecurityComplianceThemeCount = security + compliance,
         };
+    }
+
+    private static string? ResolvePillar(string category)
+    {
+        if (MatchesAny(category, ExecutiveBusinessImpactPillarMatchers.Security))
+            return "Security";
+
+        if (MatchesAny(category, ExecutiveBusinessImpactPillarMatchers.Compliance))
+            return "Compliance";
+
+        if (MatchesAny(category, ExecutiveBusinessImpactPillarMatchers.Reliability))
+            return "Reliability";
+
+        if (MatchesAny(category, ExecutiveBusinessImpactPillarMatchers.Cost))
+            return "Cost";
+
+        if (MatchesAny(category, ExecutiveBusinessImpactPillarMatchers.Governance))
+            return "Governance";
+
+        return null;
     }
 
     private static bool MatchesAny(string category, IReadOnlyList<string> matchers)

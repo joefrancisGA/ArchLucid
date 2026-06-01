@@ -16,6 +16,7 @@ namespace ArchLucid.Application.Roi;
 public sealed class CachingExecutiveRoiSummaryService(
     ExecutiveRoiSummaryService inner,
     IRiskExceptionService riskExceptionService,
+    IArchitectureRiskRegisterService architectureRiskRegisterService,
     IHotPathReadCache cache,
     IScopeContextProvider scopeProvider,
     IOptionsMonitor<ExecutiveRoiCacheWarmupOptions> options) : IExecutiveRoiSummaryService
@@ -25,6 +26,9 @@ public sealed class CachingExecutiveRoiSummaryService(
 
     private readonly IRiskExceptionService _riskExceptionService =
         riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));
+
+    private readonly IArchitectureRiskRegisterService _architectureRiskRegisterService =
+        architectureRiskRegisterService ?? throw new ArgumentNullException(nameof(architectureRiskRegisterService));
 
     private readonly IHotPathReadCache _cache =
         cache ?? throw new ArgumentNullException(nameof(cache));
@@ -53,13 +57,13 @@ public sealed class CachingExecutiveRoiSummaryService(
 
         ExecutiveRoiSummaryResponse response = cached ?? new ExecutiveRoiSummaryResponse();
 
-        return await RefreshExpiringWaiversCountAsync(response, cancellationToken).ConfigureAwait(false);
+        return await RefreshLiveGovernanceKpisAsync(response, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
-    ///     TB-155: expiring-waiver count is not cached — always aligned with decisions-needed summary.
+    ///     TB-155: governance KPI fields are not cached — always aligned with live register and waiver lists.
     /// </summary>
-    private async Task<ExecutiveRoiSummaryResponse> RefreshExpiringWaiversCountAsync(
+    private async Task<ExecutiveRoiSummaryResponse> RefreshLiveGovernanceKpisAsync(
         ExecutiveRoiSummaryResponse response,
         CancellationToken cancellationToken)
     {
@@ -72,6 +76,12 @@ public sealed class CachingExecutiveRoiSummaryService(
             activeWaivers,
             TimeProvider.System.UtcNowDateTime(),
             GovernanceWaiverExpiryWindow.DefaultExpiringWithinDays);
+
+        ArchitectureRiskRegisterResponse register = await _architectureRiskRegisterService
+            .GetRegisterAsync(scope.TenantId, scope.ProjectId, maxRows: 100, cancellationToken)
+            .ConfigureAwait(false);
+
+        response.StaleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(register);
 
         return response;
     }

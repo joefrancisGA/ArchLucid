@@ -276,8 +276,8 @@ export function RunExplanationSection({
           {!buyerPolishedShell ? (
             <>
               {" "}
-              <a className="font-semibold underline" href="#retrieval-grounding">
-                Review retrieval grounding diagnostics.
+              <a className="font-semibold underline" href="#run-retrieval-grounding">
+                View retrieval hits →
               </a>
             </>
           ) : null}

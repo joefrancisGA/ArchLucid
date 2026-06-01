@@ -15,6 +15,7 @@ public sealed class ExecutiveReviewPacketPortfolioSignalsFactoryTests
         ExecutiveRoiSummaryResponse roiSummary = new()
         {
             ExpiringWaiversCount14Days = 2,
+            StaleArchitectureRiskCount = 4,
             RealizedValue = new RealizedValueSummary
             {
                 ActiveWaiversCount = 9,
@@ -25,5 +26,6 @@ public sealed class ExecutiveReviewPacketPortfolioSignalsFactoryTests
             ExecutiveReviewPacketPortfolioSignalsFactory.Create(roiSummary);
 
         signals.ExpiringWaiversCount14Days.Should().Be(2);
+        signals.StaleRiskCount.Should().Be(4);
     }
 }

@@ -47,6 +47,7 @@ import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDeta
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
 import { RunDetailRunActionsSection } from "./RunDetailRunActionsSection";
 import { RunDetailRunExplanationCollapsible } from "./RunDetailRunExplanationCollapsible";
+import { RunDetailRetrievalGroundingSection } from "./RunDetailRetrievalGroundingSection";
 import { RunDetailRunMetadataSection } from "./RunDetailRunMetadataSection";
 import { RunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSection";
@@ -356,6 +357,16 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           baselineAnnualCostUsd={baselineAnnualCostUsd}
           isIllustrativePricing={isIllustrativePricing}
           decisionExplainability={decisionExplainability}
+        />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable && m.manifestId ? (
+        <RunDetailRetrievalGroundingSection
+          runId={m.routeRunId}
+          showWhenFaithfulnessWarning={
+            typeof m.explanationSummary?.faithfulnessWarning === "string"
+            && m.explanationSummary.faithfulnessWarning.trim().length > 0
+          }
         />
       ) : null}
 

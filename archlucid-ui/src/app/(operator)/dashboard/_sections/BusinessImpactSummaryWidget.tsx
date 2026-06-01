@@ -11,7 +11,7 @@ import {
   formatRoiCostEvidenceFreshnessWarning,
   shouldShowRoiCostEvidenceFreshnessWarning,
 } from "@/lib/roi-pricing-basis-label";
-import { Activity, DollarSign, ShieldAlert } from "lucide-react";
+import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
 
@@ -28,15 +28,17 @@ function formatUsd(value: number | undefined): string {
 }
 
 /** Server-authoritative business-impact theme counts (TB-105). */
-function readBusinessImpactCounts(data: ExecutiveRoiSummary | null): {
-  securityCompliance: number;
-  reliability: number;
-} {
+function readBusinessImpactCounts(data: ExecutiveRoiSummary | null) {
   const counts = data?.businessImpactCategoryCounts;
 
   return {
+    security: counts?.securityThemeCount ?? 0,
+    compliance: counts?.complianceThemeCount ?? 0,
     securityCompliance: counts?.securityComplianceThemeCount ?? 0,
     reliability: counts?.reliabilityThemeCount ?? 0,
+    cost: counts?.costThemeCount ?? 0,
+    governance: counts?.governanceThemeCount ?? 0,
+    other: counts?.otherThemeCount ?? 0,
   };
 }
 
@@ -91,8 +93,14 @@ export function BusinessImpactSummaryWidget() {
 
   const hasCommittedRuns = (data?.systemCount ?? 0) > 0;
   const businessImpactCounts = readBusinessImpactCounts(data);
-  const securityComplianceCount = businessImpactCounts.securityCompliance;
-  const reliabilityCount = businessImpactCounts.reliability;
+  const themeCards = [
+    { key: "security", label: "Security themes", value: businessImpactCounts.security, icon: ShieldAlert },
+    { key: "compliance", label: "Compliance themes", value: businessImpactCounts.compliance, icon: Scale },
+    { key: "reliability", label: "Reliability themes", value: businessImpactCounts.reliability, icon: Activity },
+    { key: "cost", label: "Cost themes", value: businessImpactCounts.cost, icon: DollarSign },
+    { key: "governance", label: "Governance themes", value: businessImpactCounts.governance, icon: Landmark },
+    { key: "other", label: "Other themes", value: businessImpactCounts.other, icon: Workflow },
+  ] as const;
 
   return (
     <section aria-labelledby="business-impact-heading" className="space-y-4">
@@ -121,8 +129,8 @@ export function BusinessImpactSummaryWidget() {
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="sm:col-span-2 lg:col-span-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
               Estimated savings
@@ -147,41 +155,29 @@ export function BusinessImpactSummaryWidget() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-              Security / compliance themes
-            </CardTitle>
-            <ShieldAlert className="h-4 w-4 text-neutral-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
-            ) : (
-              <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
-                {hasCommittedRuns ? securityComplianceCount : "—"}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        {themeCards.map((card) => {
+          const Icon = card.icon;
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-              Reliability themes
-            </CardTitle>
-            <Activity className="h-4 w-4 text-neutral-500" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
-            ) : (
-              <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
-                {hasCommittedRuns ? reliabilityCount : "—"}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+          return (
+            <Card key={card.key}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                  {card.label}
+                </CardTitle>
+                <Icon className="h-4 w-4 text-neutral-500" />
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
+                ) : (
+                  <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+                    {hasCommittedRuns ? card.value : "—"}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </section>
   );

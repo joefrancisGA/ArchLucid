@@ -128,6 +128,13 @@ public sealed class ExecutiveRoiSummaryResponse
         set;
     }
 
+    /// <summary>Stale rows on the architecture risk register (aligned with decisions-needed summary).</summary>
+    public int StaleArchitectureRiskCount
+    {
+        get;
+        set;
+    }
+
     /// <summary>Orphan-candidate count and savings from latest committed run (TB-103).</summary>
     public ExecutiveOrphanCandidateSummary? OrphanCandidates
     {

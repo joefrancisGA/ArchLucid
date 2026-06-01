@@ -1634,6 +1634,8 @@ EstimateUsd_per_deployment_reasoning_overrides_global()
 
 ## TB-027 — Introduce `IAgentExecutor` port — eliminate AgentSimulator coupling from production assemblies
 
+**Status (2026-05-31):** **Done** — `IAgentExecutor` in Core; `AgentRuntime`/`Capabilities.Cost`/`Host.Core` do not reference `AgentSimulator`; composition-root binding + `DependencyConstraintTests` positive-list (`Host.Composition`, `*.Tests` only).
+
 **Source:** Dependency graph audit (2026-05-26). Three production assemblies — `ArchLucid.AgentRuntime`, `ArchLucid.Capabilities.Cost`, and `ArchLucid.Host.Core` — directly reference `ArchLucid.AgentSimulator`. Because `Application` depends on `Capabilities.Cost`, the simulator is a transitive runtime dependency of every production code path through Application. The existing `AgentRuntime_references_AgentSimulator_by_design` test documents the coupling without resolving it.
 
 **Problem:**
@@ -4488,7 +4490,7 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 
 ## TB-105 — Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher
 
-**Status (2026-05-31):** **Done** — `ExecutiveBusinessImpactCategoryClassifier` + `BusinessImpactCategoryCounts` on ROI; `BusinessImpactSummaryWidget` reads API buckets (security/compliance + reliability themes for V1 widget).
+**Status (2026-05-31):** **Done** — six pillars (`Security`, `Compliance`, `Reliability`, `Cost`, `Governance`, `Other`) via `ExecutiveBusinessImpactPillarMatchers` + classifier; widget + `StaleArchitectureRiskCount` on ROI aligned with decisions-needed and review packet.
 
 **Source:** Cross-layer domain-term audit (2026-05-27).
 
@@ -4786,6 +4788,8 @@ A single `FindingId` can satisfy multiple buckets (e.g. stale risk register entr
 
 ## TB-156 — `start-local-api-and-ui.ps1` — strict preflight + UI proxy E2E gate
 
+**Status (2026-05-31):** **Done** — preflight (toolchain, node_modules, port/env alignment), `/health/live` + `/health/ready`, UI root, blocking `GET /api/proxy/health/live` before browser; `-SkipPreflight`, `-EnsureSql`.
+
 **Priority:** **P0** — pick up in the next available thread (local dev blocker; misleads every contributor who starts UI without a healthy API chain).
 
 **Source:** Local dev triage (2026-05-31). Symptom: operator UI loads but repeated Sonner warnings; root cause was API not listening on configured port while script had already opened the browser.
@@ -4830,6 +4834,8 @@ Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or 
 ---
 
 ## TB-157 — API connectivity toasts — accurate API-down vs assistant-stream messaging
+
+**Status (2026-05-31):** **Done** — `classifyApiConnectivityFailure` routes 502/upstream to **ArchLucid API unreachable**, 503 misconfig, UseStream to assistant; tests in `api-error-toast-policy.test.ts`.
 
 **Priority:** **P0** — pick up in the next available thread (same local-dev incident cluster as **TB-156**; can ship independently but pair for best UX).
 
@@ -4997,6 +5003,8 @@ An operator reviewing and committing a run sees neither. `HasGovernanceWarnings 
 ---
 
 ## TB-109 — RunDetailPageView — add retrieval-hit / RAG grounding panel
+
+**Status (2026-05-31):** **Done** — `GET /v1/authority/runs/{runId}/retrieval-grounding` + `RunDetailRetrievalGroundingSection` (collapsed) after explanation; faithfulness banner links `#run-retrieval-grounding`; forensics duplicate panel removed.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 

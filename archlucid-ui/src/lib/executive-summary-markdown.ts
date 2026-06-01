@@ -68,8 +68,13 @@ export type ExecutiveOrphanCandidateSummary = {
 };
 
 export type ExecutiveBusinessImpactCategoryCounts = {
+  securityThemeCount?: number;
+  complianceThemeCount?: number;
   securityComplianceThemeCount: number;
   reliabilityThemeCount: number;
+  costThemeCount?: number;
+  governanceThemeCount?: number;
+  otherThemeCount?: number;
 };
 
 function formatUsd(value: number | null): string {

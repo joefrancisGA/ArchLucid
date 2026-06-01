@@ -216,7 +216,7 @@ public sealed class GovernanceDigestDecisionNeededComposer(
         ArchitectureRiskRegisterResponse register =
             await _riskRegisterService.GetRegisterAsync(tenantId, projectId, 100, cancellationToken);
 
-        int staleCount = register.Entries.Count(static e => e.IsStale);
+        int staleCount = StaleArchitectureRiskCountCalculator.CountStale(register);
         int unownedHighCount = register.Entries
             .Count(static e => string.IsNullOrWhiteSpace(e.OwnerUserId) && IsHighSeverity(e.Severity));
 
