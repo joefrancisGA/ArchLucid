@@ -1,31 +1,26 @@
 # Tech backlog — verified open items
 
-> **Updated:** 2026-06-01. **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md).  
-> **ID hygiene:** Commercial cluster **TB-170–176** (design-system **TB-114–120** remain **Done** at file tail).
+> **Updated:** 2026-06-01. **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md).
 
 ## Recently closed (do not re-open)
 
 | Cluster | IDs |
 | --- | --- |
-| In-app docs | **TB-143 – TB-148** (2026-06-01) |
-| Data consistency KPIs | **TB-149 – TB-155** (2026-05-31) |
-| Local dev diagnostics | **TB-156 – TB-157** (2026-05-31) |
+| In-app docs | **TB-143 – TB-148** |
+| Data consistency KPIs | **TB-149 – TB-155** |
+| Local dev diagnostics | **TB-156 – TB-157** |
+| Run detail operator fidelity | **TB-109 – TB-113** (incl. **TB-110** tool forensics) |
 
-## P1 — operator run detail (next engineering batch)
-
-| ID | Title | Notes |
-| --- | --- | --- |
-| TB-111 | Inline provenance summary on run detail | Full-page sibling route today |
-| TB-112 | Run-level approve / reject / remediation | Only per-finding disposition |
-| TB-113 | OpenAPI drift on `RunDetailDto` coverage fields | TypeScript may omit fields |
-| TB-109 | Retrieval-hit / RAG grounding panel | Summary card exists; expand forensics panel if gaps remain |
-
-## Template / commercial (TB-170+)
+## P1 — template / commercial (next engineering batch)
 
 | ID | Title |
 | --- | --- |
-| TB-170 | Accelerator chooser artifact (`ACCELERATOR_CHOOSER.md` partial) |
-| TB-171 – TB-176 | Pack metadata, validation CI, dry-run harness, walkthrough, policy index |
+| TB-170 | Accelerator chooser artifact (`ACCELERATOR_CHOOSER.md` + UI card partial) |
+| TB-171 | Starter proof pack metadata contract (`starter-pack.json`) |
+| TB-172 | Starter proof pack static validation CI |
+| TB-173 | Template-to-proof dry-run harness |
+| TB-174 | Golden accelerator walkthrough |
+| TB-175 – TB-176 | Policy pack metadata + dry-run index |
 | TB-121 – TB-134 | Parity gates, sponsor proof, audit/commercial packaging |
 
 ## Real-mode / eval (owner or credentialed CI)
@@ -36,21 +31,21 @@
 | TB-139 | Token usage in gate metrics (partial) |
 | TB-137 | Quad-agent live pipeline (owner re-run evidence) |
 
-## Architecture / provenance stragglers
+## Architecture / provenance / determinism stragglers
 
 | ID | Title |
 | --- | --- |
 | TB-011 | Invariant Wave B remainder |
 | TB-012 | Invariant Wave C |
 | TB-030 | Architecture.Tests gap closure |
-| TB-034 – TB-038, TB-040, TB-044 – TB-056 | Provenance / determinism / explainability |
+| TB-034 – TB-038, TB-040, TB-044 – TB-056 | Provenance / determinism / explainability gaps |
 | TB-076 – TB-077 | Defense-in-depth tenancy |
 
 ## Docs hygiene
 
 | ID | Title |
 | --- | --- |
-| TB-170 (docs) | Markdown link integrity CI — 200+ stale relative links (warn-only) |
+| TB-170 (docs) | Markdown link integrity CI — stale relative links (warn-only) |
 
 ## GTM / owner-blocked
 
