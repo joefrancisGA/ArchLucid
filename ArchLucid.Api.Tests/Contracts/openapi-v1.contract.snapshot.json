@@ -3033,6 +3033,68 @@
         ],
         "type": "object"
       },
+      "ArchitectureReviewRecurrenceSchedule": {
+        "properties": {
+          "createdByUserId": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cronExpression": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "lastTriggeredRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastTriggeredUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "nextRunUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "scheduleId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceRunId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureRiskRegisterEntry": {
         "properties": {
           "agingDays": {
@@ -5288,6 +5350,24 @@
         },
         "type": "object"
       },
+      "CreateArchitectureReviewRecurrenceScheduleRequest": {
+        "properties": {
+          "cronExpression": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sourceRunId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CreateArchitectureRunResponse": {
         "properties": {
           "evidenceBundle": {
@@ -7398,11 +7478,31 @@
       },
       "ExecutiveBusinessImpactCategoryCounts": {
         "properties": {
+          "complianceThemeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "costThemeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "governanceThemeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "otherThemeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "reliabilityThemeCount": {
             "format": "int32",
             "type": "integer"
           },
           "securityComplianceThemeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "securityThemeCount": {
             "format": "int32",
             "type": "integer"
           }
@@ -7755,6 +7855,10 @@
               "string"
             ]
           },
+          "staleArchitectureRiskCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "systemCount": {
             "format": "int32",
             "type": "integer"
@@ -7853,9 +7957,15 @@
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
             "type": [
+              "null",
               "number",
               "string"
             ]
+          },
+          "pendingGovernanceDecisionCount": {
+            "default": 0,
+            "format": "int32",
+            "type": "integer"
           },
           "rawFindingCount": {
             "format": "int32",
@@ -9699,6 +9809,39 @@
               "integer",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "GovernanceDecisionsNeededSummaryResponse": {
+        "properties": {
+          "deferredFindingsDue": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "findingsAwaitingEvidence": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pendingApprovals": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "staleRisks": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalDecisionItems": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "unownedHighSeverityRisks": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "waiversExpiringWithin14Days": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -16097,6 +16240,30 @@
       },
       "RelationshipType": {
         "type": "integer"
+      },
+      "RenewRiskExceptionRequest": {
+        "properties": {
+          "evidenceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expiresAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "expiresAtUtc"
+        ],
+        "type": "object"
       },
       "ReplayComparisonMetadataResponse": {
         "properties": {
@@ -46548,6 +46715,45 @@
         ]
       }
     },
+    "/v1/governance/decisions-needed-summary": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceDecisionsNeededSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceDecisionsNeededSummaryResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceDecisionsNeededSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
     "/v1/governance/findings/{findingId}/dispositions": {
       "get": {
         "parameters": [
@@ -47631,6 +47837,131 @@
         ]
       }
     },
+    "/v1/governance/recurrence-schedules": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArchitectureReviewRecurrenceSchedule"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArchitectureReviewRecurrenceSchedule"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArchitectureReviewRecurrenceSchedule"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateArchitectureReviewRecurrenceScheduleRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateArchitectureReviewRecurrenceScheduleRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateArchitectureReviewRecurrenceScheduleRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureReviewRecurrenceSchedule"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureReviewRecurrenceSchedule"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureReviewRecurrenceSchedule"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
     "/v1/governance/risk-exceptions": {
       "get": {
         "parameters": [
@@ -47713,6 +48044,106 @@
                   },
                   {
                     "$ref": "#/components/schemas/CreateRiskExceptionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskExceptionRecord"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskExceptionRecord"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskExceptionRecord"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
+    "/v1/governance/risk-exceptions/{riskExceptionId}/renew": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "riskExceptionId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RenewRiskExceptionRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RenewRiskExceptionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RenewRiskExceptionRequest"
                   }
                 ]
               }

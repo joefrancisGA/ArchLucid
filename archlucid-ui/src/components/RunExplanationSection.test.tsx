@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { deterministicFallbackBadgeClass, riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/RunExplanationSection";
+import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 function mockSummary(overrides: Partial<RunExplanationSummary> = {}): RunExplanationSummary {
@@ -57,17 +58,17 @@ describe("riskPostureBadgeColors", () => {
 });
 
 describe("riskPostureBadgeClass", () => {
-  it("maps severities to Tailwind utility groups", () => {
-    expect(riskPostureBadgeClass("Low")).toContain("emerald");
-    expect(riskPostureBadgeClass("medium")).toContain("amber");
-    expect(riskPostureBadgeClass("HIGH")).toContain("orange");
-    expect(riskPostureBadgeClass("Critical")).toContain("rose");
+  it("maps severities to enterprise status tag classes", () => {
+    expect(riskPostureBadgeClass("Low")).toBe(enterpriseStatusTagClass("ready"));
+    expect(riskPostureBadgeClass("medium")).toBe(enterpriseStatusTagClass("needs-attention"));
+    expect(riskPostureBadgeClass("HIGH")).toBe(enterpriseStatusTagClass("needs-attention"));
+    expect(riskPostureBadgeClass("Critical")).toBe(enterpriseStatusTagClass("blocked"));
   });
 });
 
 describe("deterministicFallbackBadgeClass", () => {
-  it("uses a distinct violet palette", () => {
-    expect(deterministicFallbackBadgeClass()).toContain("violet");
+  it("uses in-progress enterprise status styling", () => {
+    expect(deterministicFallbackBadgeClass()).toBe(enterpriseStatusTagClass("in-progress"));
   });
 });
 
@@ -127,9 +128,9 @@ describe("RunExplanationSection", () => {
     );
 
     expect(screen.getByText("Grounding dropped below threshold.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /review retrieval grounding diagnostics/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /view retrieval hits/i })).toHaveAttribute(
       "href",
-      "#retrieval-grounding",
+      "#run-retrieval-grounding",
     );
   });
 
