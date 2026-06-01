@@ -1,6 +1,6 @@
 > **Scope:** ADR 0031 — Cross-tenant pattern library (anonymised industry guidance) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0031: Cross-tenant pattern library (anonymised vertical guidance)
@@ -31,7 +31,7 @@ Give opted-in operators **actionable, anonymised pattern guidance** (“peers in
 
 ## Assumptions
 
-- **Opt-in default is OFF.** No tenant participates until an **explicit** controller action (UI toggle + durable audit) and, for enterprise customers, language aligned to [`DPA_TEMPLATE.md`](../go-to-market/DPA_TEMPLATE.md) **Section 10 — Cross-tenant patterns opt-in** (legal completes the bracketed stubs).
+- **Opt-in default is OFF.** No tenant participates until an **explicit** controller action (UI toggle + durable audit) and, for enterprise customers, language aligned to [`DPA_TEMPLATE.md`](../../go-to-market/DPA_TEMPLATE.md) **Section 10 — Cross-tenant patterns opt-in** (legal completes the bracketed stubs).
 - **Vertical / industry preset** is already a stable product dimension (wizard presets, policy-pack families). Pattern buckets are keyed by **preset code + coarse pattern hash**, not by tenant id in the consumer-facing projection.
 - **Source signal** is **deterministic structural fingerprints** already present in committed manifests (e.g. normalised service graph motifs, policy-pack presence flags, **non-semantic** hashes of topology shape) — **not** raw LLM narrative, **not** user-typed titles, **not** URLs that often embed customer tokens.
 - **k = 5 is non-negotiable for v1.** Product may later propose **k > 5** for stricter tenants via a **new ADR** or per-tenant policy flag; **k < 5** is rejected for the public operator surface because re-identification risk rises quickly at small N.
@@ -144,8 +144,8 @@ sequenceDiagram
 ## Related
 
 - [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) — Resolved tables (**Cross-tenant pattern library**), item **14**
-- [`docs/go-to-market/DPA_TEMPLATE.md`](../go-to-market/DPA_TEMPLATE.md) — **Section 10 — Cross-tenant patterns opt-in**
+- [`docs/go-to-market/DPA_TEMPLATE.md`](../../go-to-market/DPA_TEMPLATE.md) — **Section 10 — Cross-tenant patterns opt-in**
 - [ADR 0003 — SQL RLS and SESSION_CONTEXT](0003-sql-rls-session-context.md)
 - [ADR 0018 — Background workloads (Container Apps Jobs)](0018-background-workloads-container-apps-jobs.md)
 - [`docs/security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md)
-- [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) (buyer-facing honesty on aggregates — update when GA)
+- [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md) (buyer-facing honesty on aggregates — update when GA)

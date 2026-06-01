@@ -1,6 +1,6 @@
 > **Scope:** ADR 0017 — Azure App Configuration: deferred for v1 on cost grounds - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0017 — Azure App Configuration: deferred for v1 on cost grounds

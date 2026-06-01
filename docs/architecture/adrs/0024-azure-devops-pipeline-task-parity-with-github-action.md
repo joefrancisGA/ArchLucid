@@ -1,6 +1,6 @@
 > **Scope:** ADR — Azure DevOps pipeline YAML parity with GitHub Actions for manifest-delta PR surfaces.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0024 — Azure DevOps pipeline task parity with GitHub Action (manifest delta)

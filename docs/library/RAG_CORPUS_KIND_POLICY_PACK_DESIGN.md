@@ -4,7 +4,7 @@
 
 **Date:** 2026-05-23  
 **Status:** Approved for implementation (engineering backlog **TB-021**, sub-IDs **RAG-V1-000** partial + **RAG-V1-001**)  
-**Backlog:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) · [`TECH_BACKLOG.md#tb-021--rag-quality-program--v1-foundation`](TECH_BACKLOG.md#tb-021--rag-quality-program--v1-foundation) · [`LATEST.md`](../assessments/LATEST.md) Improvement **#26**
+**Backlog:** [`RAG_QUALITY_TECHNICAL_BACKLOG.md`](RAG_QUALITY_TECHNICAL_BACKLOG.md) · [`TECH_BACKLOG.md#tb-021--rag-quality-program--v1-foundation`](TECH_BACKLOG.md#tb-021--rag-quality-program--v1-foundation) · [`LATEST.md`](../assessments/LATEST_GPT55.md) Improvement **#26**
 
 ---
 

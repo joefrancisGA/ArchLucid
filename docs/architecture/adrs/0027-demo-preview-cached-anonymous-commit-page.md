@@ -1,6 +1,6 @@
 > **Scope:** ADR — cached anonymous marketing `GET /v1/demo/preview` and `/demo/preview`; not operator auth design or SQL migrations.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0027 — Cached anonymous marketing commit-page preview

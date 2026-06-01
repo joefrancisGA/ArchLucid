@@ -24,7 +24,7 @@ function truncateForDisplay(value: string): { text: string; truncated: boolean }
 }
 
 function RawField(props: { readonly label: string; readonly value: string | null | undefined }) {
-  if (value === null || value === undefined || value.trim().length === 0) {
+  if (props.value === null || props.value === undefined || props.value.trim().length === 0) {
     return (
       <p className="text-xs text-neutral-500 dark:text-neutral-400">
         <span className="font-medium text-neutral-600 dark:text-neutral-300">{props.label}:</span> (empty)
@@ -32,7 +32,7 @@ function RawField(props: { readonly label: string; readonly value: string | null
     );
   }
 
-  const { text, truncated } = truncateForDisplay(value);
+  const { text, truncated } = truncateForDisplay(props.value);
 
   return (
     <div>

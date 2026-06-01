@@ -4,7 +4,7 @@
 
 **Authored:** 2026-05-20  
 **Audience:** product, engineering leads, and the assessment owner  
-**Purpose:** Canonical 25-item prioritised catalogue of opportunities to exploit AI more aggressively across the ArchLucid platform. Complements the existing improvement backlog in `docs/assessments/LATEST.md` which focuses on reliability, usability, and commercial packaging. This file focuses exclusively on AI depth.
+**Purpose:** Canonical 25-item prioritised catalogue of opportunities to exploit AI more aggressively across the ArchLucid platform. Complements the existing improvement backlog in `docs/assessments/LATEST_GPT55.md` which focuses on reliability, usability, and commercial packaging. This file focuses exclusively on AI depth.
 
 **Scope boundaries:**
 - V1 items reuse existing agent runtime, LLM client, and transport — no new infra contracts, feature-flaggable.
@@ -340,7 +340,7 @@ These are infrastructure investments. They make every future AI feature safer an
 
 ## Relationship to existing LATEST.md improvements
 
-The 25 items in this roadmap are additive to the 25 items in `docs/assessments/LATEST.md`. They overlap in intent with the following existing items (but go deeper):
+The 25 items in this roadmap are additive to the 25 items in `docs/assessments/LATEST_GPT55.md`. They overlap in intent with the following existing items (but go deeper):
 
 | This roadmap | LATEST.md item |
 |---|---|

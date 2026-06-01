@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:246 -->
+<!-- audit-core-const-count:247 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -71,6 +71,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Authority run completed | `AuthorityRunOrchestrator` | `AuditEventTypes.RunCompleted` | RunId, ManifestId | `{ goldenManifestId, artifactBundleId, decisionTraceId }` |
 | Authority replay executed | `AuthorityReplayController` | `AuditEventTypes.ReplayExecuted` | RunId | `{ mode, rebuilt manifest id? }` |
 | Architecture run pin / unpin | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) | `AuditEventTypes.RunPinStateChanged` | RunId | `{ isPinned }` |
+| Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/architecture/run/{runId}/operator-governance-disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
 | Architecture request soft-delete (DELETE alias of archive) | `RunsController` (`DELETE /v1/architecture/request/{requestId}`) | `ArchitectureRequestDeleted` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request draft (LLM field suggest, no persistence) | `RunsController` (`POST /v1/architecture/request/draft`); `ArchitectureRequestDraftService` | — | — | Read-auth + execute-auth gated LLM assist; returns suggested wizard chips only — **no** durable audit row (same class as `POST /v1/architecture/request/{requestId}/clone`) |
@@ -301,6 +302,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
 | `RunPinStateChanged` | `RunPinStateChanged` | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) |
+| `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionService` (`AuthorityQueryController` `POST …/operator-governance-disposition`) |
 | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
 | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/seed-fake-results`) |
 | `InternalCrossTenantRollupRefreshed` | `InternalCrossTenantRollupRefreshed` | `InternalCrossTenantAnalyticsController` (`POST /v1/internal/analytics/cross-tenant/daily/refresh`) |

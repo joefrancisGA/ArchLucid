@@ -238,6 +238,31 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
+    public async Task<bool> TrySetOperatorGovernanceDispositionAsync(
+        ScopeContext scope,
+        Guid runId,
+        string decision,
+        string? rationale,
+        string actorUserId,
+        DateTime occurredUtc,
+        CancellationToken ct)
+    {
+        bool updated = await _inner.TrySetOperatorGovernanceDispositionAsync(
+            scope,
+            runId,
+            decision,
+            rationale,
+            actorUserId,
+            occurredUtc,
+            ct);
+
+        if (updated)
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, runId, ct);
+
+        return updated;
+    }
+
+    /// <inheritdoc />
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc,
         CancellationToken ct)
     {

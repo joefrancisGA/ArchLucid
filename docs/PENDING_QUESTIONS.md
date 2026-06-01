@@ -56,7 +56,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Sub-decision | Decision | Affects |
 |---|---|---|
 | **Release window** | First-party **Jira**, **ServiceNow**, **Confluence**, **Slack** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15), **Microsoft Teams** / **CloudEvents webhooks** / **Service Bus** integration events (**§2.8**), and **customer-operated** recipe bridges (**§3**) are **V1.1** product obligations — **not** V1 GA gatekeepers. | [`V1_SCOPE.md`](library/V1_SCOPE.md), [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6–§6a, [`INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), readiness assessments |
-| **V1 integration posture** | **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, **Azure extractor ZIP** (**§2.16**), and other **§2** Pilot/Operate HTTP paths are the **V1 GA** contract. **Microsoft Teams**, **CloudEvents webhooks**, and **customer-operated** recipes under [`docs/integrations/recipes/`](../integrations/recipes/README.md) are **V1.1** buyer-contract surfaces (**§2.8**, **§2.14**, **§3**) — not V1 GA commitments. | Recipes hub, buyer-facing catalog, assessments |
+| **V1 integration posture** | **REST**, **CLI**, **operator UI**, **SCIM**, **Azure DevOps** / **GitHub** CI surfaces, **Azure extractor ZIP** (**§2.16**), and other **§2** Pilot/Operate HTTP paths are the **V1 GA** contract. **Microsoft Teams**, **CloudEvents webhooks**, and **customer-operated** recipes under [`docs/integrations/recipes/`](integrations/recipes/README.md) are **V1.1** buyer-contract surfaces (**§2.8**, **§2.14**, **§3**) — not V1 GA commitments. | Recipes hub, buyer-facing catalog, assessments |
 | **Supersedes (headline / calendar only)** | *Resolved 2026-05-05* “**Connectors V1 GA**” and *Resolved 2026-05-06* “**ITSM** … **V1 GA**” for **readiness scoring** and **release pinning**; technical substance (bidirectional sync, sequencing, mappings) remains in §2.13–§2.15. | Historical rows in this file |
 
 ---
@@ -250,14 +250,14 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Wave | Scope | Rationale |
 |---|---|---|
 | **0 — Primitives** | Design tokens (**TB-114** UI cluster), canonical status tags (**TB-116**), `EnterpriseTable` (**TB-117**), Carbon conformance Cursor rule (**TB-120** UI cluster) | Every page pass depends on shared semantics; avoids one-off palette/badge/table drift |
-| **1 — First-pilot + run detail** | Home first-pilot command-center rows, onboarding/new-review wizard, reviews list entry, **buyer-polished run detail** (proof disposition, deliverables, findings, exports) | Highest buyer/sponsor visibility; matches golden path in [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| **1 — First-pilot + run detail** | Home first-pilot command-center rows, onboarding/new-review wizard, reviews list entry, **buyer-polished run detail** (proof disposition, deliverables, findings, exports) | Highest buyer/sponsor visibility; matches golden path in [`FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
 | **2 — Home / dashboard** | Operator Home executive ROI summary, first-value CTAs, sample-review entry cards | Sponsor-facing value after wave 1 tables/tags exist |
 | **3 — Governance / Operate** | Governance dashboard, findings, audit log, policy packs, alerts inbox tables | Operate layer is post-commit; benefits from status tags + `EnterpriseTable` from wave 0 |
 | **4 — Polish** | Surface/card audit (**TB-115** UI cluster), spacing (**TB-118**), typography (**TB-119**), remaining shared cards | Cross-cutting cleanup after route priorities stabilize |
 
 **Explicitly not in scope for wave 0–1:** rewriting all `archlucid-ui/src/components/` in one PR, full marketing-site reskin, or business-logic/API contract changes.
 
-**Canonical standard:** [`UI_DESIGN_SYSTEM.md`](UI_DESIGN_SYSTEM.md). **Backlog IDs:** UI design-system cluster at end of [`TECH_BACKLOG.md`](TECH_BACKLOG.md) (same TB numbers as accelerator cluster — read section headings, not IDs alone).
+**Canonical standard:** [`UI_DESIGN_SYSTEM.md`](library/UI_DESIGN_SYSTEM.md). **Backlog IDs:** UI design-system cluster at end of [`TECH_BACKLOG.md`](library/TECH_BACKLOG.md) (same TB numbers as accelerator cluster — read section headings, not IDs alone).
 
 ---
 

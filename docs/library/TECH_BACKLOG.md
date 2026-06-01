@@ -787,7 +787,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **Explicit limits:** Do not treat absence of this cohort as a current `(A)` headline readiness penalty. V1 assessment work should focus on the reusable evidence harnesses and proof semantics that make the cohort credible.
 
-**Refs:** `docs/assessments/LATEST.md` §9, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md`.
+**Refs:** `docs/assessments/LATEST_GPT55.md` §9, `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`, `docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md`.
 
 **Size estimate:** Owner/program work — depends on selected scenarios and environment access.
 
@@ -1524,7 +1524,7 @@ Wallet config requires **`Admin`** (same as billing today). Webhook validates St
 - [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (**INV-004** budget coherence)
 - [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b (commerce un-hold sequencing)
 - [`docs/OPERATIONS_LLM_QUOTA.md`](../OPERATIONS_LLM_QUOTA.md)
-- [`docs/assessments/LATEST.md`](../assessments/LATEST.md) — Improvement **#27** (implementation prompt)
+- [`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) — Improvement **#27** (implementation prompt)
 
 **Size estimate:** **M** — ~1–2 days end-to-end (wallet tables + service + Stripe gateway + webhook + UI + metrics + tests + doc sync). Gating piece is **`LlmCompletionAccountingClient`** wallet fallback path.
 

@@ -1,6 +1,6 @@
 > **Scope:** ADR 0035 — Architecture invariant catalog and enforcement program — full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 # ADR 0035: Architecture invariant catalog and enforcement program
 
@@ -18,9 +18,9 @@ Separate decisions have already narrowed some areas (example: **`TB-001`** — a
 
 ## Decision
 
-1. Maintain a **single catalog** of invariant IDs **`INV-001` … `INV-015`** in [`docs/library/ARCHITECTURE_INVARIANTS.md`](../library/ARCHITECTURE_INVARIANTS.md).
+1. Maintain a **single catalog** of invariant IDs **`INV-001` … `INV-015`** in [`docs/library/ARCHITECTURE_INVARIANTS.md`](../../library/ARCHITECTURE_INVARIANTS.md).
 
-2. Route enforcement implementation through [`docs/library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) items **`TB-009` … `TB-012`**, prioritized in waves documented there.
+2. Route enforcement implementation through [`docs/library/TECH_BACKLOG.md`](../../library/TECH_BACKLOG.md) items **`TB-009` … `TB-012`**, prioritized in waves documented there.
 
 3. When an invariant graduates to enforced status, cite it in PR descriptions and tie tests or analyzers to the **INV** ID.
 
@@ -47,7 +47,7 @@ Concrete enum names and serialization may evolve; **absence of mode remains inva
 
 ## Links
 
-- [`docs/library/ARCHITECTURE_INVARIANTS.md`](../library/ARCHITECTURE_INVARIANTS.md)
-- [`docs/library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) — **`TB-009` … `TB-012`**
+- [`docs/library/ARCHITECTURE_INVARIANTS.md`](../../library/ARCHITECTURE_INVARIANTS.md)
+- [`docs/library/TECH_BACKLOG.md`](../../library/TECH_BACKLOG.md) — **`TB-009` … `TB-012`**
 - [`TEMPLATE.md`](TEMPLATE.md) — ADR authoring skeleton
 - [ADR README](README.md) — numbering and immutability

@@ -1,6 +1,6 @@
 > **Scope:** ADR 0007: Effective governance merge - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0007: Effective governance merge

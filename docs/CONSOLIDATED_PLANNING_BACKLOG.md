@@ -63,7 +63,7 @@
 
 ## §3 Assessment themes (`LATEST.md`)
 
-Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST.md`](assessments/LATEST.md) + [`library/AI_LEVERAGE_ROADMAP.md`](library/AI_LEVERAGE_ROADMAP.md) where noted.
+Ordered by weighted deficiency (highest first). Source: [`assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) + [`library/AI_LEVERAGE_ROADMAP.md`](library/AI_LEVERAGE_ROADMAP.md) where noted.
 
 | ID | Title | Source | Decision | Horizon | Notes |
 |----|-------|--------|----------|---------|-------|
@@ -171,7 +171,7 @@ Source: [`go-to-market/GTM_BACKLOG.md`](go-to-market/GTM_BACKLOG.md). **GTM-only
 | [`archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`](archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md) | Historical refactor log |
 | [`library/TECH_BACKLOG.md`](library/TECH_BACKLOG.md) | TB-* engineering deferred |
 | [`library/V1_DEFERRED.md`](library/V1_DEFERRED.md) | V1.1+ doc inventory |
-| [`assessments/LATEST.md`](assessments/LATEST.md) | `(A)` readiness + themes |
+| [`assessments/LATEST_GPT55.md`](assessments/LATEST_GPT55.md) | `(A)` readiness + themes |
 | [`library/AI_LEVERAGE_ROADMAP.md`](library/AI_LEVERAGE_ROADMAP.md) | 25 AI opportunities |
 | [`library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) | MCP ranked backlog |
 | [`library/POLICY_PACK_CONTENT_BACKLOG.md`](library/POLICY_PACK_CONTENT_BACKLOG.md) | Policy pack content |

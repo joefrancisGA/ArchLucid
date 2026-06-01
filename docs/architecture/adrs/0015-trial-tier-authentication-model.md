@@ -1,6 +1,6 @@
 > **Scope:** ADR 0015 — Trial-tier authentication model (External ID + local identity) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0015 — Trial-tier authentication model (External ID + local identity)

@@ -3,6 +3,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Agents;
 
@@ -36,7 +37,7 @@ public sealed class SqlAgentToolInvocationRecordRepository(ISqlConnectionFactory
                                  );
                                  """;
 
-        await using System.Data.IDbConnection conn =
+        await using SqlConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await conn.ExecuteAsync(
@@ -68,7 +69,7 @@ public sealed class SqlAgentToolInvocationRecordRepository(ISqlConnectionFactory
                            ORDER BY InvokedAtUtc ASC, SortOrder ASC, TraceId ASC;
                            """;
 
-        await using System.Data.IDbConnection conn =
+        await using SqlConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<AgentToolInvocationRecord> rows = await conn.QueryAsync<AgentToolInvocationRecord>(

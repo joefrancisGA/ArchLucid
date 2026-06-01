@@ -80,7 +80,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 ## Weighted readiness assessments (canonical vs archive)
 
 - **Evidence contract:** [`ASSESSMENT_INPUTS.md`](ASSESSMENT_INPUTS.md) — ordered reads before broad scans; **`@Assessment-Scope-V1_1`** for **`(A)` / `(B)`** rules.
-- **Current score + backlog:** [`../assessments/LATEST.md`](../assessments/LATEST.md) only — **one** standing weighted pass.
+- **Current score + backlog:** [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) only — **one** standing weighted pass.
 - **History:** [`../archive/assessments/`](../archive/assessments/) and archived quality narratives — **not** for quoting today's headline readiness (see **"One workflow"** in **`ASSESSMENT_INPUTS.md`**).
 
 ## HTTP / OpenAPI (refresh when changing wire shape)

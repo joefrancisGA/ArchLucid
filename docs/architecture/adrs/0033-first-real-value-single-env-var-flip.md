@@ -35,6 +35,6 @@ Ship **`archlucid try --real`** as an **opt-in** local path:
 
 ## References
 
-- [`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)
-- [`docs/library/CLI_USAGE.md`](../library/CLI_USAGE.md) — `try` row
+- [`docs/library/FIRST_REAL_VALUE.md`](../../library/FIRST_REAL_VALUE.md)
+- [`docs/library/CLI_USAGE.md`](../../library/CLI_USAGE.md) — `try` row
 - [`docs/runbooks/AGENT_EXECUTION_FAILURES.md`](../runbooks/AGENT_EXECUTION_FAILURES.md)

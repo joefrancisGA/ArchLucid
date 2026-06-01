@@ -106,7 +106,7 @@ Optional jobs invoke live Azure OpenAI — they are **opt-in** and **never run o
 .\scripts\ci\verify_real_mode_prereqs.ps1 -UseGitHubCli
 ```
 
-If a job is skipped, the script output plus [`docs/library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) § **TB-007** explain which variable/secret is missing. Do **not** enable merge-blocking real-mode gates without owner approval ([`docs/assessments/LATEST.md`](../assessments/LATEST.md) Pending Questions — TB-007).
+If a job is skipped, the script output plus [`docs/library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) § **TB-007** explain which variable/secret is missing. Do **not** enable merge-blocking real-mode gates without owner approval ([`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) Pending Questions — TB-007).
 
 **Local live evidence (owner machine):** copy **`secrets/local-real-aoai.env.example`** to **`secrets/local-real-aoai.env`** (gitignored), set classic **`https://{resource}.openai.azure.com/`** endpoint + key + deployment, then run **`.\scripts\Invoke-RealLlmEvidenceGate.ps1`**. Session template: [`docs/quality/REAL_LLM_SESSION_2026-05-29.md`](../quality/REAL_LLM_SESSION_2026-05-29.md).
 

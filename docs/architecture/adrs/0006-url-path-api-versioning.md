@@ -1,6 +1,6 @@
 > **Scope:** ADR 0006: URL-path API versioning (/v1) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0006: URL-path API versioning (`/v1`)

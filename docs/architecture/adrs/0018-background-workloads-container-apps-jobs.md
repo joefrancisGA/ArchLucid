@@ -1,6 +1,6 @@
 > **Scope:** ADR 0018 — Background workloads: Azure Container Apps Jobs (not Functions) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0018 — Background workloads: Azure Container Apps Jobs (not Functions)

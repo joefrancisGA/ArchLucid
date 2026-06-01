@@ -36,7 +36,7 @@
 
 ## Proof-gated rollout criteria
 
-**Captured 2026-05-29.** This section defines **when ArchLucid is safe to sell harder and broaden**, expanding on the service-led baseline's "demand signal before broader motion" stance and the **Most Important Truth** in **[`../assessments/LATEST.md`](../assessments/LATEST.md)**: *the product is pilot-ready, not oversell-ready.*
+**Captured 2026-05-29.** This section defines **when ArchLucid is safe to sell harder and broaden**, expanding on the service-led baseline's "demand signal before broader motion" stance and the **Most Important Truth** in **[`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md)**: *the product is pilot-ready, not oversell-ready.*
 
 ### What "oversell-ready" means (and what it does not)
 
@@ -78,7 +78,7 @@ Treat each as **PASS / HOLD**. A single HOLD on G1–G4 blocks Stage 1; a HOLD o
 3. Use early pilots **deliberately** to manufacture G1–G4 evidence — the pilots are the proof factory, not just revenue.
 4. Do **not** advance claims ahead of the gate; pace marketing copy to the highest fully-passed stage.
 
-**Cross-refs:** **[`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)** (claim guardrails), **[`COMMERCIAL_DECISION_PACKET.md`](COMMERCIAL_DECISION_PACKET.md)** (pilot deliverables), **[`../assessments/LATEST.md`](../assessments/LATEST.md)** (improvement IDs + impact), **`V1_DEFERRED.md` §6b–§6c** (deferred commerce/assurance).
+**Cross-refs:** **[`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)** (claim guardrails), **[`COMMERCIAL_DECISION_PACKET.md`](COMMERCIAL_DECISION_PACKET.md)** (pilot deliverables), **[`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md)** (improvement IDs + impact), **`V1_DEFERRED.md` §6b–§6c** (deferred commerce/assurance).
 
 ---
 

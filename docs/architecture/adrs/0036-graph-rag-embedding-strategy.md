@@ -1,6 +1,6 @@
 > **Scope:** ADR 0036 — Graph-RAG embedding strategy (V2 prerequisite) — full detail in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 # ADR 0036: Graph-RAG embedding strategy
 

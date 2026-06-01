@@ -39,4 +39,4 @@ Highest stage authorized:
 Next action:
 ```
 
-**Cross-refs:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout · [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) · assessment improvements in `docs/assessments/LATEST.md` §9 (reference only — not a shipping truth source).
+**Cross-refs:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout · [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md) · assessment improvements in `docs/assessments/LATEST_GPT55.md` §9 (reference only — not a shipping truth source).

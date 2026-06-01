@@ -1,6 +1,6 @@
 > **Scope:** ADR 0003: SQL RLS and SESSION_CONTEXT - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0003: SQL RLS and SESSION_CONTEXT

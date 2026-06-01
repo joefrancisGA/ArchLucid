@@ -33,7 +33,7 @@ Read these **before** grepping broadly or opening large code regions. For scorin
 |12 | [`../../.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc) | INV-* catalog pointer |
 |13 | [`../START_HERE.md`](../START_HERE.md) | Evaluator spine and doc routing |
 
-**Outputs:** Write the latest pass to the rolling file under **`docs/assessments/`** (**today:** overwrite **[`docs/assessments/LATEST.md`](../assessments/LATEST.md)** in place — if that filename changes, update this sentence only). **Do not** add new dated multi-thousand-line assessment files under `docs/library/` unless the team explicitly opts back in — archive prior snapshots under **`docs/archive/assessments/`** instead.
+**Outputs:** Write the latest pass to the rolling file under **`docs/assessments/`** (**today:** overwrite **[`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md)** in place — if that filename changes, update this sentence only). **Do not** add new dated multi-thousand-line assessment files under `docs/library/` unless the team explicitly opts back in — archive prior snapshots under **`docs/archive/assessments/`** instead.
 
 **Historical assessments and archived quality prompts:** **Not** canonical for today’s headline score; indexed out of default agent context via **`.cursorignore`** where applicable — open **only** when comparing scores over time or tracing narrative history.
 

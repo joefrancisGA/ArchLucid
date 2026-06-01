@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -59,14 +61,20 @@ public sealed class RunOperatorGovernanceDispositionService(
             throw new KeyNotFoundException($"Run '{runId}' was not found.");
 
         await _auditService.LogAsync(
-            AuditEventTypes.RunOperatorGovernanceDispositionRecorded,
-            new
+            new AuditEvent
             {
-                runId,
-                decision = decisionName,
-                rationale,
-                actorUserId = actorUserId.Trim(),
-                occurredUtc = occurredUtc.UtcDateTime,
+                OccurredUtc = occurredUtc.UtcDateTime,
+                EventType = AuditEventTypes.RunOperatorGovernanceDispositionRecorded,
+                RunId = runId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        runId,
+                        decision = decisionName,
+                        rationale,
+                        actorUserId = actorUserId.Trim(),
+                        occurredUtc = occurredUtc.UtcDateTime,
+                    }),
             },
             cancellationToken);
 

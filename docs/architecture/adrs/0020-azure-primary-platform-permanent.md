@@ -1,6 +1,6 @@
 > **Scope:** ADR 0020: Azure as the primary and permanent platform - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0020: Azure as the primary and permanent platform
@@ -27,10 +27,10 @@ Portability at the **application** layer (containers, standard protocols) remain
 
 ## Compliance
 
-- [EXECUTIVE_SPONSOR_BRIEF.md](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) and [go-to-market/POSITIONING.md](../go-to-market/POSITIONING.md) reference platform assumptions consistent with this ADR.
+- [EXECUTIVE_SPONSOR_BRIEF.md](../../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md) and [go-to-market/POSITIONING.md](../../go-to-market/POSITIONING.md) reference platform assumptions consistent with this ADR.
 - Terraform guardrails remain: no legacy `archiforge` tokens in `.tf` under `infra/` (contributor `rg` / review — dedicated CI grep retired).
 
 ## Related
 
-- [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md)
+- [REFERENCE_SAAS_STACK_ORDER.md](../../library/REFERENCE_SAAS_STACK_ORDER.md)
 - [ADR 0016](0016-billing-provider-abstraction.md) (billing channels include Marketplace; still Azure-centric operations)

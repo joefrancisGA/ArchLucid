@@ -1,6 +1,6 @@
 > **Scope:** ADR 0014 — Trial enforcement boundary (server-side, UoW run counter, idempotent seats) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # ADR 0014 — Trial enforcement boundary (server-side, UoW run counter, idempotent seats)
