@@ -1,4 +1,4 @@
-﻿resource "azurerm_private_dns_zone" "acr" {
+resource "azurerm_private_dns_zone" "acr" {
   count = local.private_endpoint_enabled ? 1 : 0
 
   name                = "privatelink.azurecr.io"

@@ -1,4 +1,4 @@
-﻿# TB-093 — wire consumed Azure OpenAI into API/Worker Container Apps (TB-080 managed identity).
+# TB-093 — wire consumed Azure OpenAI into API/Worker Container Apps (TB-080 managed identity).
 
 locals {
   azure_openai_app_configured = local.enabled && (

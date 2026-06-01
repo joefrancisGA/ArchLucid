@@ -22,9 +22,9 @@ locals {
   ]
 
   sql_containers = {
-    graph-snapshots = { partition_key = "/graphSnapshotId", default_ttl = -1 }
-    agent-traces    = { partition_key = "/runId", default_ttl = 7776000 }
-    audit-events    = { partition_key = "/tenantId", default_ttl = -1 }
+    graph-snapshots     = { partition_key = "/graphSnapshotId", default_ttl = -1 }
+    agent-traces        = { partition_key = "/runId", default_ttl = 7776000 }
+    audit-events        = { partition_key = "/tenantId", default_ttl = -1 }
     audit-events-leases = { partition_key = "/id", default_ttl = -1 }
   }
 }
@@ -50,8 +50,8 @@ resource "azurerm_cosmosdb_account" "polyglot" {
   offer_type          = var.cosmos_offer_type
   kind                = "GlobalDocumentDB"
 
-  free_tier_enabled              = var.cosmos_enable_free_tier
-  automatic_failover_enabled       = var.cosmos_enable_automatic_failover
+  free_tier_enabled             = var.cosmos_enable_free_tier
+  automatic_failover_enabled    = var.cosmos_enable_automatic_failover
   public_network_access_enabled = local.private_endpoint_enabled ? false : var.public_network_access_enabled
 
   consistency_policy {
@@ -88,12 +88,12 @@ resource "azurerm_cosmosdb_sql_database" "archlucid" {
 resource "azurerm_cosmosdb_sql_container" "polyglot" {
   for_each = local.enabled ? local.sql_containers : {}
 
-  name                  = each.key
-  resource_group_name   = local.resource_group_name
-  account_name          = azurerm_cosmosdb_account.polyglot[0].name
-  database_name         = azurerm_cosmosdb_sql_database.archlucid[0].name
-  partition_key_paths   = [each.value.partition_key]
-  default_ttl           = each.value.default_ttl
+  name                = each.key
+  resource_group_name = local.resource_group_name
+  account_name        = azurerm_cosmosdb_account.polyglot[0].name
+  database_name       = azurerm_cosmosdb_sql_database.archlucid[0].name
+  partition_key_paths = [each.value.partition_key]
+  default_ttl         = each.value.default_ttl
 
   throughput = var.cosmos_offer_type == "Standard" ? var.cosmos_sql_container_throughput : null
 }

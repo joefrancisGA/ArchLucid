@@ -445,78 +445,78 @@ resource "azurerm_container_app" "worker" {
       dynamic "env" {
         for_each = local.background_jobs_durable ? [1] : []
         content {
-          name  = "BackgroundJobs__QueueName"
-      dynamic "env" {
-        for_each = local.azure_openai_app_configured ? [1] : []
-        content {
-          name  = "AzureOpenAI__AuthenticationMode"
-          value = "ManagedIdentity"
-        }
-      }
+          name = "BackgroundJobs__QueueName"
+          dynamic "env" {
+            for_each = local.azure_openai_app_configured ? [1] : []
+            content {
+              name  = "AzureOpenAI__AuthenticationMode"
+              value = "ManagedIdentity"
+            }
+          }
 
-      dynamic "env" {
-        for_each = local.azure_openai_app_configured ? [1] : []
-        content {
-          name  = "AzureOpenAI__Endpoint"
-          value = trimspace(var.azure_openai_endpoint)
-        }
-      }
+          dynamic "env" {
+            for_each = local.azure_openai_app_configured ? [1] : []
+            content {
+              name  = "AzureOpenAI__Endpoint"
+              value = trimspace(var.azure_openai_endpoint)
+            }
+          }
 
-      dynamic "env" {
-        for_each = local.azure_openai_app_configured ? [1] : []
-        content {
-          name  = "AzureOpenAI__DeploymentName"
-          value = trimspace(var.azure_openai_chat_deployment_name)
-        }
-      }
+          dynamic "env" {
+            for_each = local.azure_openai_app_configured ? [1] : []
+            content {
+              name  = "AzureOpenAI__DeploymentName"
+              value = trimspace(var.azure_openai_chat_deployment_name)
+            }
+          }
 
-      dynamic "env" {
-        for_each = local.azure_openai_app_configured ? [1] : []
-        content {
-          name  = "AzureOpenAI__EmbeddingDeploymentName"
-          value = trimspace(var.azure_openai_embedding_deployment_name)
-        }
-      }
+          dynamic "env" {
+            for_each = local.azure_openai_app_configured ? [1] : []
+            content {
+              name  = "AzureOpenAI__EmbeddingDeploymentName"
+              value = trimspace(var.azure_openai_embedding_deployment_name)
+            }
+          }
 
 
-      dynamic "env" {
-        for_each = local.azure_search_app_configured ? [1] : []
-        content {
-          name  = "Retrieval__VectorIndex"
-          value = "AzureSearch"
-        }
-      }
+          dynamic "env" {
+            for_each = local.azure_search_app_configured ? [1] : []
+            content {
+              name  = "Retrieval__VectorIndex"
+              value = "AzureSearch"
+            }
+          }
 
-      dynamic "env" {
-        for_each = local.azure_search_app_configured ? [1] : []
-        content {
-          name  = "Retrieval__AzureSearch__Endpoint"
-          value = trimspace(var.azure_search_endpoint)
-        }
-      }
+          dynamic "env" {
+            for_each = local.azure_search_app_configured ? [1] : []
+            content {
+              name  = "Retrieval__AzureSearch__Endpoint"
+              value = trimspace(var.azure_search_endpoint)
+            }
+          }
 
-      dynamic "env" {
-        for_each = local.azure_search_app_configured ? [1] : []
-        content {
-          name  = "Retrieval__AzureSearch__IndexName"
-          value = trimspace(var.azure_search_index_name)
-        }
-      }
+          dynamic "env" {
+            for_each = local.azure_search_app_configured ? [1] : []
+            content {
+              name  = "Retrieval__AzureSearch__IndexName"
+              value = trimspace(var.azure_search_index_name)
+            }
+          }
 
-      dynamic "env" {
-        for_each = local.azure_search_app_configured ? [1] : []
-        content {
-          name  = "Retrieval__Reranking__Provider"
-          value = "AzureAiSearchSemantic"
-        }
-      }
-      dynamic "env" {
-        for_each = local.hot_path_cache_redis_configured ? [1] : []
-        content {
-          name        = "HotPathCache__RedisConnectionString"
-          secret_name = "hot-path-redis-connection"
-        }
-      }
+          dynamic "env" {
+            for_each = local.azure_search_app_configured ? [1] : []
+            content {
+              name  = "Retrieval__Reranking__Provider"
+              value = "AzureAiSearchSemantic"
+            }
+          }
+          dynamic "env" {
+            for_each = local.hot_path_cache_redis_configured ? [1] : []
+            content {
+              name        = "HotPathCache__RedisConnectionString"
+              secret_name = "hot-path-redis-connection"
+            }
+          }
 
 
           value = var.background_jobs_queue_name

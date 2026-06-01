@@ -1,4 +1,4 @@
-﻿locals {
+locals {
   application_insights_enabled = var.enable_application_insights && length(trimspace(var.resource_group_name)) > 0 && length(
     trimspace(var.application_insights_workspace_resource_id)
   ) > 0

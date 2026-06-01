@@ -1,4 +1,4 @@
-﻿variable "logic_app_storage_use_managed_identity" {
+variable "logic_app_storage_use_managed_identity" {
   type        = bool
   description = "TB-100: When true, grant Storage Blob/File RBAC on hosting storage accounts for Logic App system-assigned identities (TB-100; access key still required by platform for file share mount)."
   default     = true

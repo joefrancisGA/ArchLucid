@@ -1,4 +1,4 @@
-﻿output "cosmos_account_id" {
+output "cosmos_account_id" {
   value       = try(azurerm_cosmosdb_account.polyglot[0].id, null)
   description = "Cosmos DB account resource id."
 }
@@ -15,7 +15,7 @@ output "cosmos_endpoint" {
 }
 
 output "cosmos_database_name" {
-  value       = local.enabled ? var.cosmos_database_name : null
+  value = local.enabled ? var.cosmos_database_name : null
 }
 
 output "cosmos_private_endpoint_id" {

@@ -1,4 +1,4 @@
-﻿# TB-100 — Logic App Standard hosting storage RBAC (managed identity path).
+# TB-100 — Logic App Standard hosting storage RBAC (managed identity path).
 
 resource "azurerm_role_assignment" "logic_edge_storage_blob_owner" {
   count = var.enable_logic_apps && var.logic_app_storage_use_managed_identity ? 1 : 0

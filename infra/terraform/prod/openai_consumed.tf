@@ -1,4 +1,4 @@
-﻿# TB-093 — consume a platform-owned Azure OpenAI account (no second production account in this root).
+# TB-093 — consume a platform-owned Azure OpenAI account (no second production account in this root).
 
 data "azurerm_cognitive_account" "openai_existing" {
   count = local.openai_existing_mode && length(trimspace(var.openai_existing_resource_id)) > 0 ? 1 : 0

@@ -1,4 +1,4 @@
-﻿locals {
+locals {
   enabled = var.enable_redis_cache
 
   resource_group_name = local.enabled ? (
@@ -40,8 +40,8 @@ resource "azurerm_redis_cache" "hot_path" {
   family              = var.redis_family
   sku_name            = var.redis_sku_name
 
-  minimum_tls_version         = "1.2"
-  non_ssl_port_enabled        = false
+  minimum_tls_version  = "1.2"
+  non_ssl_port_enabled = false
 
   redis_configuration {
     maxmemory_policy = var.maxmemory_policy

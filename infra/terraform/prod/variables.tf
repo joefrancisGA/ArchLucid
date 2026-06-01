@@ -1,4 +1,4 @@
-﻿variable "resource_group_name" {
+variable "resource_group_name" {
   type        = string
   description = "Hosted production resource group name."
 }

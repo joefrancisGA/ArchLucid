@@ -1,4 +1,4 @@
-﻿resource "azurerm_private_dns_zone" "cosmos" {
+resource "azurerm_private_dns_zone" "cosmos" {
   count = local.private_endpoint_enabled ? 1 : 0
 
   name                = "privatelink.documents.azure.com"

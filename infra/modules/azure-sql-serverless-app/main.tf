@@ -47,7 +47,7 @@ resource "azurerm_mssql_database" "read_replica" {
   name                        = "${var.sql_database_name}-replica"
   server_id                   = azurerm_mssql_server.primary.id
   create_mode                 = "Secondary"
-  creation_source_database_id          = azurerm_mssql_database.app.id
+  creation_source_database_id = azurerm_mssql_database.app.id
   sku_name                    = var.read_replica_sku
   auto_pause_delay_in_minutes = var.auto_pause_delay_in_minutes
   min_capacity                = var.min_capacity

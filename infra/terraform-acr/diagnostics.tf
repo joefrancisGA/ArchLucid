@@ -1,4 +1,4 @@
-﻿resource "azurerm_monitor_diagnostic_setting" "acr" {
+resource "azurerm_monitor_diagnostic_setting" "acr" {
   count = local.enabled && length(trimspace(var.log_analytics_workspace_id)) > 0 ? 1 : 0
 
   name                       = "archlucid-acr-diagnostics"

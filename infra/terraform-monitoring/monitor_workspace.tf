@@ -1,4 +1,4 @@
-﻿# TB-098 — Azure Monitor workspace for managed Prometheus rule groups.
+# TB-098 — Azure Monitor workspace for managed Prometheus rule groups.
 
 locals {
   managed_prometheus_workspace_enabled = var.enable_monitoring_stack && var.enable_prometheus_slo_rule_group && var.enable_managed_monitor_workspace

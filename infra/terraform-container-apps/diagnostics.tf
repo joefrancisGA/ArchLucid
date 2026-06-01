@@ -1,4 +1,4 @@
-﻿# TB-099 — Container App diagnostics (console + system logs).
+# TB-099 — Container App diagnostics (console + system logs).
 
 locals {
   container_app_diagnostic_resource_ids = var.enable_container_app_diagnostics && local.enabled ? {

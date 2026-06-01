@@ -1,4 +1,4 @@
-﻿variable "enable_redis_cache" {
+variable "enable_redis_cache" {
   type        = bool
   description = "When true, create Azure Cache for Redis for HotPathCache (StackExchange.Redis)."
   default     = false

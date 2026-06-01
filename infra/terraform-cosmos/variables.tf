@@ -1,4 +1,4 @@
-﻿variable "enable_cosmos_account" {
+variable "enable_cosmos_account" {
   type        = bool
   description = "When true, create Azure Cosmos DB (SQL API) for optional polyglot persistence. Production-like pilots default false (SQL path)."
   default     = false
@@ -16,8 +16,8 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "cosmos_account_name" {
@@ -39,13 +39,13 @@ variable "cosmos_consistency_level" {
 }
 
 variable "cosmos_enable_free_tier" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "cosmos_enable_automatic_failover" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "cosmos_geo_locations" {
@@ -59,8 +59,8 @@ variable "cosmos_geo_locations" {
 }
 
 variable "cosmos_database_name" {
-  type        = string
-  default     = "ArchLucid"
+  type    = string
+  default = "ArchLucid"
 }
 
 variable "cosmos_sql_container_throughput" {
@@ -70,48 +70,48 @@ variable "cosmos_sql_container_throughput" {
 }
 
 variable "cosmos_enable_continuous_backup" {
-  type        = bool
-  default     = true
+  type    = bool
+  default = true
 }
 
 variable "public_network_access_enabled" {
-  type        = bool
-  default     = true
+  type    = bool
+  default = true
 }
 
 variable "enable_private_endpoint" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "private_endpoint_subnet_id" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "virtual_network_id" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "private_dns_zone_resource_group_name" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "log_analytics_workspace_id" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "key_vault_id" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "key_vault_secret_name" {
-  type        = string
-  default     = "archlucid-cosmos-connection-string"
+  type    = string
+  default = "archlucid-cosmos-connection-string"
 }
 
 variable "tags" {

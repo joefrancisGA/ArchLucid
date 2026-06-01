@@ -1,4 +1,4 @@
-﻿# TB-096 — wire consumed Azure AI Search into API/Worker Container Apps.
+# TB-096 — wire consumed Azure AI Search into API/Worker Container Apps.
 
 locals {
   azure_search_app_configured = local.enabled && (

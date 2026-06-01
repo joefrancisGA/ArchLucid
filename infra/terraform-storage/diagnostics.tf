@@ -1,4 +1,4 @@
-﻿resource "azurerm_monitor_diagnostic_setting" "artifacts" {
+resource "azurerm_monitor_diagnostic_setting" "artifacts" {
   count = local.enabled && var.enable_storage_diagnostics && length(trimspace(var.log_analytics_workspace_id)) > 0 ? 1 : 0
 
   name                       = "archlucid-artifact-storage-diagnostics"

@@ -1,4 +1,4 @@
-﻿locals {
+locals {
   enabled = var.enable_acr
 
   resource_group_name = local.enabled ? (

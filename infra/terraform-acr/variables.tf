@@ -1,4 +1,4 @@
-﻿variable "enable_acr" {
+variable "enable_acr" {
   type        = bool
   description = "When true, create Azure Container Registry for ArchLucid images."
   default     = false
@@ -10,13 +10,13 @@ variable "create_resource_group" {
 }
 
 variable "resource_group_name" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "location" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "acr_name" {
@@ -38,43 +38,43 @@ variable "admin_enabled" {
 }
 
 variable "public_network_access_enabled" {
-  type        = bool
-  default     = true
+  type    = bool
+  default = true
 }
 
 variable "enable_private_endpoint" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "private_endpoint_subnet_id" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "virtual_network_id" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "private_dns_zone_resource_group_name" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "enable_geo_replication" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "geo_replication_location" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "log_analytics_workspace_id" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "tags" {

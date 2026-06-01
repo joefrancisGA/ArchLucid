@@ -6,7 +6,7 @@ output "endpoint" {
 output "app_settings" {
   description = "Container Apps / App Service setting keys (no secrets)."
   value = {
-    "Retrieval__VectorIndex"             = "AzureSearch"
-    "Retrieval__AzureSearch__Endpoint"   = "https://${azurerm_search_service.search.name}.search.windows.net"
+    "Retrieval__VectorIndex"           = "AzureSearch"
+    "Retrieval__AzureSearch__Endpoint" = "https://${azurerm_search_service.search.name}.search.windows.net"
   }
 }

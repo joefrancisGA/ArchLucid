@@ -1,4 +1,4 @@
-﻿check "redis_cache_name_length" {
+check "redis_cache_name_length" {
   assert {
     condition     = !var.enable_redis_cache || (length(var.redis_cache_name) >= 1 && length(var.redis_cache_name) <= 63)
     error_message = "redis_cache_name must be 1-63 characters when enable_redis_cache is true."

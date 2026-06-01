@@ -1,4 +1,4 @@
-﻿# TB-094 — optional private endpoint + privatelink.redis.cache.windows.net DNS (TB-091 pattern).
+# TB-094 — optional private endpoint + privatelink.redis.cache.windows.net DNS (TB-091 pattern).
 
 resource "azurerm_private_dns_zone" "redis" {
   count = local.private_endpoint_enabled ? 1 : 0

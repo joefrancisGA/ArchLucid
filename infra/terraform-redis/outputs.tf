@@ -1,4 +1,4 @@
-﻿output "redis_cache_id" {
+output "redis_cache_id" {
   description = "Resource id for private endpoint / RBAC wiring."
   value       = try(azurerm_redis_cache.hot_path[0].id, null)
 }

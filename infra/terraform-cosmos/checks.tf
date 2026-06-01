@@ -1,4 +1,4 @@
-﻿check "cosmos_account_name_length" {
+check "cosmos_account_name_length" {
   assert {
     condition     = !var.enable_cosmos_account || (length(var.cosmos_account_name) >= 3 && length(var.cosmos_account_name) <= 44)
     error_message = "cosmos_account_name must be 3-44 characters when enable_cosmos_account is true."

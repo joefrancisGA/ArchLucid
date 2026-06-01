@@ -1,4 +1,4 @@
-﻿check "azure_openai_app_config_contract" {
+check "azure_openai_app_config_contract" {
   assert {
     condition = !local.enabled || length(trimspace(var.azure_openai_endpoint)) == 0 || (
       length(trimspace(var.azure_openai_chat_deployment_name)) > 0 &&
