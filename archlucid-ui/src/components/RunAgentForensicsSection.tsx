@@ -180,12 +180,6 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
     evaluationFailure = toApiLoadFailure(e);
   }
 
-  try {
-    retrievalGroundingPayload = (await getRunRetrievalGrounding(runId)).data;
-  } catch (e) {
-    retrievalGroundingFailure = toApiLoadFailure(e);
-  }
-
   const tracesRaw = tracesPayload?.traces ?? [];
   const traces = [...tracesRaw].sort(
     (a, b) => Date.parse(a.createdUtc) - Date.parse(b.createdUtc),
