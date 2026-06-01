@@ -4,7 +4,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Batch 0–1 (backlog ledger, TB-143–148 in-app docs), ledger sync for **TB-149–157**, Batch 2 **TB-109–113** run-detail fidelity on `master`. G-REAL-01–04 remain owner-blocked; **TB-140** real-mode eval corpus still open.
+Rescore note: Batch 0–1 (backlog ledger, TB-143–148 in-app docs), ledger sync for **TB-149–157**, Batch 2 **TB-109–113** run-detail fidelity, Batch 3 **TB-170–174** starter proof packs (chooser, metadata, CI validation, dry-run, golden walkthrough) → **79.58%**. G-REAL-01–04 remain owner-blocked; **TB-140** real-mode eval corpus still open. **TB-170 (docs)** markdown link integrity is a separate open item.
 
 ## Executive Summary
 
