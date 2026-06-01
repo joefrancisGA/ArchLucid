@@ -6,7 +6,6 @@ using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Persistence.Ports;
-using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -37,7 +36,7 @@ public sealed class GovernanceStickinessController(
     IArchitectureRiskRegisterService riskRegisterService,
     IArchitectureDecisionRegisterService decisionRegisterService,
     IArchitectureReviewRecurrenceScheduleRepository recurrenceScheduleRepository,
-    IScanScheduleCalculator scheduleCalculator,
+    IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator,
     IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
     IAuditService auditService) : ControllerBase
 {
@@ -282,7 +281,7 @@ public sealed class GovernanceStickinessController(
             IsEnabled = request.IsEnabled,
             CreatedUtc = now,
             CreatedByUserId = actorContext.GetActorId(),
-            NextRunUtc = scheduleCalculator.ComputeNextRunUtc(
+            NextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(
                 string.IsNullOrWhiteSpace(request.CronExpression) ? "0 8 * * 1" : request.CronExpression.Trim(),
                 now),
         };

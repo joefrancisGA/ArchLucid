@@ -151,7 +151,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             ambientScopeProvider.Object,
             CreateEmptyFindingReviewTrailRepository(),
             CreateEmptyRiskExceptionService(),
-            Mock.Of<IArchitectureRiskRegisterService>(),
+            CreateArchitectureRiskRegisterService(),
             CreateEmptyTenantSettingsRepository(),
             findingsSnapshots.Object,
             tenantCostSettings.Object,
@@ -363,6 +363,16 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
         service
             .Setup(s => s.ListRetiredSinceAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
+
+        return service.Object;
+    }
+
+    private static IArchitectureRiskRegisterService CreateArchitectureRiskRegisterService()
+    {
+        Mock<IArchitectureRiskRegisterService> service = new();
+        service
+            .Setup(s => s.GetRegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
 
         return service.Object;
     }

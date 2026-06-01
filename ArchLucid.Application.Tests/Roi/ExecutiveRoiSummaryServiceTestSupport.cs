@@ -69,6 +69,11 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             .Setup(service => service.ListRetiredSinceAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<RiskExceptionRecord>());
 
+        Mock<IArchitectureRiskRegisterService> architectureRiskRegister = new();
+        architectureRiskRegister
+            .Setup(service => service.GetRegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
         Mock<ITenantSettingsRepository> tenantSettings = new();
         tenantSettings
             .Setup(repo => repo.TryGetAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -111,7 +116,7 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             scopeProvider.Object,
             findingReviewTrailRepository ?? reviewTrail.Object,
             riskExceptions.Object,
-            Mock.Of<IArchitectureRiskRegisterService>(),
+            architectureRiskRegister.Object,
             tenantSettings.Object,
             findingsSnapshots.Object,
             tenantCostSettings.Object,

@@ -1,4 +1,5 @@
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Persistence.Ports;
@@ -250,6 +251,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.AddScoped<IScanScheduleCalculator, SimpleScanScheduleCalculator>();
+        services.AddScoped<IArchitectureReviewRecurrenceNextRunCalculator, ArchitectureReviewRecurrenceNextRunCalculator>();
         services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddScoped<AdvisoryDueScheduleProcessor>();
