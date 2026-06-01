@@ -1,9 +1,9 @@
-> **Scope:** Customer-facing — operator quickstart (commands only) (56R); full detail, tables, and links in the sections below.
+> **Scope:** Operator quickstart — getting started with ArchLucid reviews.
 
 > **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
-# Operator quickstart — ArchLucid (commands only) (56R)
+# Operator quickstart — ArchLucid
 
 **First pilot path (UI + phases):** [FIRST_PILOT_OPERATOR_PATH.md](../../runbooks/FIRST_PILOT_OPERATOR_PATH.md) · **Stuck:** [FIRST_PILOT_TROUBLESHOOTING.md](../../runbooks/FIRST_PILOT_TROUBLESHOOTING.md).
 

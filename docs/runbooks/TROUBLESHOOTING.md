@@ -1,9 +1,9 @@
-> **Scope:** Troubleshooting for pilots and operators (56R) - full detail, tables, and links in the sections below.
+> **Scope:** Engineering troubleshooting runbook — full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# Troubleshooting for pilots and operators (56R)
+# Engineering troubleshooting runbook
 
 **Goal:** Faster triage without reading the whole codebase.
 

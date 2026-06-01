@@ -35,7 +35,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     title: "Getting started",
     summary: "Concepts, scope, and the fastest path to a governed review package.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md", "docs/library/customer-facing/OPERATOR_QUICKSTART.md"],
+    sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
   },
   {
     slug: "evidence-intake",
@@ -49,7 +49,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     title: "Review packages",
     summary: "Browse, inspect, and export governed review packages in the operator shell.",
     audience: "operator",
-    sourcePaths: ["docs/library/customer-facing/OPERATOR_QUICKSTART.md"],
+    sourcePaths: ["docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md"],
   },
   {
     slug: "executive-summary",
@@ -147,7 +147,6 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     audience: "operator",
     sourcePaths: [
       "docs/library/customer-facing/OPERATOR_TROUBLESHOOTING.md",
-      "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
     ],
   },
   {
