@@ -44,6 +44,7 @@ export function buildRunDetailNavSections(
       available: Boolean(graphSnapshotId),
     },
     { id: "authority-chain", label: "Review trail", available: true },
+    { id: "provenance-summary", label: "Provenance", available: true },
     { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
     { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
     { id: "agent-forensics", label: "Diagnostics", available: true },

@@ -35,6 +35,7 @@ import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSec
 import { RunDetailArchitectureGraphSection } from "./RunDetailArchitectureGraphSection";
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
+import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
@@ -304,6 +305,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <RunDetailProvenanceSummaryCard runId={m.routeRunId} run={m.resolvedDetail.run} />
       ) : null}
 
       {!m.manifestId ? <RunDetailPreFinalizedEmptyState /> : null}

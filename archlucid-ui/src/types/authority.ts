@@ -168,24 +168,7 @@ type RunDetailOptionalWireExtras = {
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   agentExecutionLlmCostEstimate?: components["schemas"]["RunAgentLlmCostEstimateResponse"] | null;
   degradedFindingCoverage?: boolean;
-  findingCoverageSummary?: {
-    enginesAttempted?: number | null;
-    enginesSucceeded?: number | null;
-    enginesFailed?: number | null;
-    failedEngineLabels?: string[];
-    isDegraded?: boolean;
-    hasCommitBlockingFailures?: boolean;
-    generationStatus?: string | null;
-    dispositionCoverage?: {
-      openCount?: number | null;
-      acceptedCount?: number | null;
-      deferredCount?: number | null;
-      needsEvidenceCount?: number | null;
-      remediatedCount?: number | null;
-      rejectedNotApplicableCount?: number | null;
-      waivedCount?: number | null;
-    } | null;
-  } | null;
+  findingCoverageSummary?: components["schemas"]["RunFindingCoverageSummary"] | null;
   retrievalGroundingSummary?: RunRetrievalGroundingSummary | null;
   lastAgentExecutionFailure?: {
     readonly agentType?: string | null;

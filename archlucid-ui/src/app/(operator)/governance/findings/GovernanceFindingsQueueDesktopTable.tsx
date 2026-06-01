@@ -21,6 +21,7 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
+import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
 
 import {
@@ -201,6 +202,9 @@ export function GovernanceFindingsQueueDesktopTable(
                       <Button asChild variant="outline" size="sm" className="h-8">
                         <Link href={graphHref}>{BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA}</Link>
                       </Button>
+                    ) : null}
+                    {!buyerPolishedShell && row.recordKind === "finding" ? (
+                      <ItsmOutboundQuickActions findingId={row.findingId} compact />
                     ) : null}
                   </div>
                 </EnterpriseTableCell>

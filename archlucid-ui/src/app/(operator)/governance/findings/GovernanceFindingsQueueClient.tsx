@@ -16,6 +16,7 @@ import {
   getArchitectureRiskRegister,
   type ArchitectureRiskRegisterEntry,
 } from "@/lib/api/governance-stickiness-api";
+import { ItsmOutboundQuickActions } from "@/components/ItsmOutboundQuickActions";
 import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-register-csv";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
@@ -720,6 +721,9 @@ export default function GovernanceFindingsQueueClient() {
                     <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
                   </div>
                   <div className="flex flex-col gap-2 sm:col-span-2">
+                    {!buyerPolishedShell && row.recordKind === "finding" ? (
+                      <ItsmOutboundQuickActions findingId={row.findingId} compact />
+                    ) : null}
                     <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
                       <Link href={inspectHref(row.runId, row.findingId)}>
                         {buyerPolishedShell

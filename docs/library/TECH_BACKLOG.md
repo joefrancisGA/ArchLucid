@@ -3112,7 +3112,7 @@ Any executive card that mixes live ROI with mock or illustrative KPIs weakens tr
 
 ## TB-063 — ITSM one-click issue creation from findings — **V1.1**
 
-**Status (2026-05-31):** **Partial** — finding inspect panel (`FindingInspectItsmWorkflowPanel`), `GET /v1/integrations/itsm/correlations?findingId=`, duplicate outbound guard per provider, browse URLs when ITSM base URLs are configured. Remaining: risk-register row actions, inbound sync status on rows.
+**Status (2026-06-01):** **Partial** — finding inspect + architecture risk register quick actions (`ItsmOutboundQuickActions`), `GET /v1/integrations/itsm/correlations?findingId=`, duplicate outbound guard, browse URLs. Remaining: inbound sync status column on register rows.
 
 **Source:** Commercial stickiness review (2026-05-27) plus owner scope: first-party Jira / ServiceNow productization is **V1.1**, not V1 GA. See [`V1_SCOPE.md`](V1_SCOPE.md) §2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6.
 
@@ -5505,6 +5505,8 @@ The OTEL trace ID (`run.otelTraceId`) is already stored on `RunRecord` and shown
 
 ## TB-111 — RunDetailPageView — inline provenance summary card (collapse from sibling route)
 
+**Status (2026-06-01):** **Done** — `RunDetailProvenanceSummaryCard` on run detail (snapshot + architecture request IDs, link to full provenance route); no extra fetch.
+
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
 **Problem:**
@@ -5583,6 +5585,8 @@ The only run-level action on `RunDetailPageView` is `CommitRunButton` (finalize 
 ---
 
 ## TB-113 — Fix OpenAPI schema drift on `RunDetailDto` — expose `degradedFindingCoverage` + `findingCoverageSummary` in generated TypeScript types
+
+**Status (2026-06-01):** **Partial** — `authority.ts` uses `RunFindingCoverageSummary` from OpenAPI types; snapshot regen for new ITSM/tool-forensics routes pending CI/local `update_openapi_contract_snapshot.ps1` run.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
