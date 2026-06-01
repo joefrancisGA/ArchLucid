@@ -578,3 +578,34 @@ variable "hot_path_cache_redis_connection_string" {
   default     = ""
   sensitive   = true
 }
+
+# TB-096 — consumed Azure AI Search (production-like hosted / multi-root path).
+variable "azure_search_service_resource_id" {
+  type        = string
+  description = "Full ARM id of platform-owned Microsoft.Search/searchServices. Grants Search Index Data Contributor to API/Worker when set."
+  default     = ""
+}
+
+variable "azure_search_endpoint" {
+  type        = string
+  description = "HTTPS Search endpoint (Retrieval__AzureSearch__Endpoint)."
+  default     = ""
+}
+
+variable "azure_search_index_name" {
+  type        = string
+  description = "Search index name (Retrieval__AzureSearch__IndexName)."
+  default     = ""
+}
+
+variable "azure_search_expected_location" {
+  type        = string
+  description = "Expected Azure region for consumed Search (pilot default eastus)."
+  default     = "eastus"
+}
+
+variable "enable_container_app_diagnostics" {
+  type        = bool
+  description = "TB-099: forward Container App console/system logs to the stack Log Analytics workspace."
+  default     = false
+}

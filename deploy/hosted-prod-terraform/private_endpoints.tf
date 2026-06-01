@@ -16,9 +16,9 @@ resource "azurerm_private_endpoint" "openai" {
 }
 
 resource "azurerm_private_endpoint" "search" {
-  count = var.search_compose_mode == "create" && var.enable_private_endpoints ? 1 : 0
+  count = var.enable_private_endpoints && length(local.search_service_id_effective) > 0 ? 1 : 0
 
-  name                = "${var.search_service_name}-pe"
+  name                = "${coalesce(var.search_service_name, "search")}-pe"
   location            = var.location
   resource_group_name = azurerm_resource_group.prod.name
   subnet_id           = var.private_endpoint_subnet_id
@@ -26,7 +26,7 @@ resource "azurerm_private_endpoint" "search" {
 
   private_service_connection {
     name                           = "search-psc"
-    private_connection_resource_id = azurerm_search_service.search[0].id
+    private_connection_resource_id = local.search_service_id_effective
     subresource_names              = ["searchService"]
     is_manual_connection           = false
   }

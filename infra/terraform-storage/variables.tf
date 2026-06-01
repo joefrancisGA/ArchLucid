@@ -101,3 +101,14 @@ variable "agent_trace_blob_delete_after_days" {
     error_message = "agent_trace_blob_delete_after_days must be between 2 and 3650."
   }
 }
+variable "enable_storage_diagnostics" {
+  type        = bool
+  description = "TB-099: forward blob storage logs to Log Analytics."
+  default     = false
+}
+
+variable "log_analytics_workspace_id" {
+  type        = string
+  description = "Log Analytics workspace id when enable_storage_diagnostics is true."
+  default     = ""
+}

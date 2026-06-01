@@ -1,0 +1,17 @@
+﻿enable_redis_cache     = true
+create_resource_group  = true
+resource_group_name    = "rg-archlucid-redis-prod"
+location               = "centralus"
+redis_cache_name       = "redis-archlucid-prod-example"
+redis_sku_name         = "Standard"
+redis_family           = "C"
+redis_capacity         = 3
+public_network_access_enabled = false
+enable_private_endpoint       = true
+# private_endpoint_subnet_id = "..."
+# virtual_network_id         = "..."
+
+tags = {
+  environment = "production"
+  product     = "archlucid"
+}

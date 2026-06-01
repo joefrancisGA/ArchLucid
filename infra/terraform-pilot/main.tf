@@ -1,4 +1,4 @@
-﻿# Canonical pilot profile root: no Azure resources here â€” encodes opinionated defaults and the nested
+# Canonical pilot profile root: no Azure resources here â€” encodes opinionated defaults and the nested
 # stack order for the opt-in multi-root (separate state per directory) workflow.
 
 locals {
@@ -86,11 +86,19 @@ locals {
     },
     {
       order           = 11
+      id              = "acr"
+      path            = "infra/terraform-acr"
+      pilot_essential = true
+      notes           = "TB-097: Azure Container Registry for API/Worker/UI images; wire acr_id into container-apps."
+      consumes_from   = ["private", "keyvault"]
+    },
+    {
+      order           = 11
       id              = "container_apps"
       path            = "infra/terraform-container-apps"
       pilot_essential = true
       notes           = "API, Worker, UI â€” cap maxReplicas for pilots; align with pilot_monthly_budget_usd."
-      consumes_from   = ["private", "storage", "keyvault", "entra", "servicebus", "openai", "redis"]
+      consumes_from   = ["private", "storage", "keyvault", "entra", "servicebus", "openai", "redis", "acr"]
     },
     {
       order           = 12

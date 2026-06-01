@@ -8,7 +8,7 @@ resource "azurerm_monitor_alert_prometheus_rule_group" "archlucid_agent_output" 
   name                = "${var.name_prefix}-prom-agent-output"
   resource_group_name = var.resource_group_name
   location            = data.azurerm_resource_group.prometheus_slo[0].location
-  scopes              = [var.azure_monitor_workspace_id]
+  scopes              = [local.azure_monitor_workspace_id_effective]
   rule_group_enabled  = true
   interval            = "PT1M"
 

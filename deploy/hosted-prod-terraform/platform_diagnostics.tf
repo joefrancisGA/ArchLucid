@@ -44,3 +44,24 @@ resource "azurerm_monitor_diagnostic_setting" "artifact_storage" {
     enabled  = true
   }
 }
+
+resource "azurerm_monitor_diagnostic_setting" "servicebus" {
+  count = var.log_analytics_workspace_id != null && var.servicebus_namespace_id != null ? 1 : 0
+
+  name                       = "archlucid-servicebus-diagnostics"
+  target_resource_id         = var.servicebus_namespace_id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+
+  enabled_log {
+    category = "OperationalLogs"
+  }
+
+  enabled_log {
+    category = "DiagnosticErrorLogs"
+  }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = true
+  }
+}

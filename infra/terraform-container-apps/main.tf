@@ -1,4 +1,4 @@
-﻿# Container Apps (API / Worker / UI) â€” Terraform resource labels use `archlucid` naming (greenfield IaC).
+# Container Apps (API / Worker / UI) â€” Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
 # Tracked in docs/library/V1_DEFERRED.md Â§3 and docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md (Phase 7.5).
 
@@ -235,6 +235,38 @@ resource "azurerm_container_app" "api" {
         }
       }
 
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__VectorIndex"
+          value = "AzureSearch"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__AzureSearch__Endpoint"
+          value = trimspace(var.azure_search_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__AzureSearch__IndexName"
+          value = trimspace(var.azure_search_index_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__Reranking__Provider"
+          value = "AzureAiSearchSemantic"
+        }
+      }
       dynamic "env" {
         for_each = local.hot_path_cache_redis_configured ? [1] : []
         content {
@@ -446,6 +478,38 @@ resource "azurerm_container_app" "worker" {
         }
       }
 
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__VectorIndex"
+          value = "AzureSearch"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__AzureSearch__Endpoint"
+          value = trimspace(var.azure_search_endpoint)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__AzureSearch__IndexName"
+          value = trimspace(var.azure_search_index_name)
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.azure_search_app_configured ? [1] : []
+        content {
+          name  = "Retrieval__Reranking__Provider"
+          value = "AzureAiSearchSemantic"
+        }
+      }
       dynamic "env" {
         for_each = local.hot_path_cache_redis_configured ? [1] : []
         content {

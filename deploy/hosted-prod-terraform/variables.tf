@@ -1,4 +1,4 @@
-﻿variable "resource_group_name" {
+variable "resource_group_name" {
   type        = string
   description = "Hosted production resource group name."
 }
@@ -88,7 +88,7 @@ variable "openai_workload_principal_ids" {
 variable "search_compose_mode" {
   type        = string
   description = "create | existing â€” whether this root creates Azure AI Search or references BYO."
-  default     = "create"
+  default     = "existing"
 
   validation {
     condition     = contains(["create", "existing"], var.search_compose_mode)
@@ -117,6 +117,35 @@ variable "search_public_network_access_enabled" {
 variable "search_existing_resource_id" {
   type        = string
   description = "Resource id when search_compose_mode = existing."
+  default     = null
+}
+variable "search_existing_endpoint" {
+  type        = string
+  description = "HTTPS endpoint for consumed Search (maps to Retrieval:AzureSearch:Endpoint). Example: https://{name}.search.windows.net"
+  default     = ""
+}
+
+variable "search_index_name" {
+  type        = string
+  description = "Target index on consumed Search (maps to Retrieval:AzureSearch:IndexName)."
+  default     = ""
+}
+
+variable "search_semantic_configuration_name" {
+  type        = string
+  description = "Semantic configuration on the index when Retrieval:Reranking:Provider = AzureAiSearchSemantic."
+  default     = ""
+}
+
+variable "search_expected_location" {
+  type        = string
+  description = "Required Azure region for consumed Search (production-like pilot default US East = eastus)."
+  default     = "eastus"
+}
+
+variable "servicebus_namespace_id" {
+  type        = string
+  description = "Service Bus namespace resource id for TB-099 diagnostics in this root (optional)."
   default     = null
 }
 

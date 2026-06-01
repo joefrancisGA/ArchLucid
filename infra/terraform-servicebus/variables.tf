@@ -175,3 +175,14 @@ variable "marketplace_fulfillment_logic_app_managed_identity_principal_id" {
   description = "Optional Entra principal id for the Marketplace fulfillment Logic App — Azure Service Bus Data Receiver when the marketplace fulfillment subscription is enabled."
   default     = ""
 }
+variable "enable_servicebus_diagnostics" {
+  type        = bool
+  description = "TB-099: forward Service Bus operational logs to Log Analytics."
+  default     = false
+}
+
+variable "log_analytics_workspace_id" {
+  type        = string
+  description = "Log Analytics workspace id when enable_servicebus_diagnostics is true."
+  default     = ""
+}

@@ -1,7 +1,6 @@
 ﻿resource_group_name = "rg-archlucid-prod-example"
 location            = "eastus"
 
-# TB-093 — consume platform-owned Azure OpenAI (US East pilot). Do not set openai_compose_mode = create in production-like stacks.
 openai_compose_mode                     = "existing"
 openai_existing_resource_id             = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform-openai/providers/Microsoft.CognitiveServices/accounts/oai-archlucid-pilot"
 openai_existing_endpoint                = "https://oai-archlucid-pilot.openai.azure.com/"
@@ -9,11 +8,12 @@ openai_existing_chat_deployment_name    = "gpt-4o"
 openai_existing_embedding_deployment_name = "text-embedding-3-small"
 openai_expected_location                = "eastus"
 
-# After Container Apps exist, pass system-assigned principal_id outputs (second apply or hosted-prod re-apply).
-# openai_workload_principal_ids = ["<api-principal-id>", "<worker-principal-id>"]
-
-search_compose_mode = "create"
-search_service_name = "srch-archlucid-prod-example"
+search_compose_mode              = "existing"
+search_existing_resource_id      = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-platform-search/providers/Microsoft.Search/searchServices/srch-archlucid-pilot"
+search_existing_endpoint         = "https://srch-archlucid-pilot.search.windows.net"
+search_index_name                = "archlucid-vectors"
+search_semantic_configuration_name = "default"
+search_expected_location         = "eastus"
 
 tags = {
   environment = "production"

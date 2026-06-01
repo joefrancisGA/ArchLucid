@@ -1,4 +1,4 @@
-﻿> **Scope:** Contributor-reference â€” Honest mapping between application configuration keys and Terraform roots.
+> **Scope:** Contributor-reference â€” Honest mapping between application configuration keys and Terraform roots.
 
 # IaC runtime parity (code config â†’ Terraform roots)
 
@@ -9,11 +9,11 @@
 | Azure SQL | `ConnectionStrings:ArchLucid` | `infra/terraform/prod` | **Required** (hosted pilot) | â€” |
 | Azure Blob (artifacts) | `Storage:*` | `infra/terraform/prod` | **Required** when not InMemory | â€” |
 | Azure OpenAI | `AzureOpenAI:*`, `ArchLucid:Agents:*` | `deploy/hosted-prod-terraform` + `infra/terraform-container-apps` (consumed account; **TB-093**) | **Required** (hosted SaaS LLM) | **Done TB-093** (2026-06-01); TB-080 MI auth |
-| Azure AI Search | `Retrieval:VectorIndex=AzureSearch`, `Retrieval:AzureSearch:*` | `deploy/hosted-prod-terraform` (same) | **Required** on production-like profiles | TB-071, TB-096 |
+| Azure AI Search | `Retrieval:VectorIndex=AzureSearch`, `Retrieval:AzureSearch:*` | `deploy/hosted-prod-terraform` + `terraform-container-apps` `azure_search_*` (consumed service; **TB-096**) | **Required** on production-like profiles | **Done TB-096** (2026-06-01); TB-071 client |
 | Redis (cache) | `HotPathCache:RedisConnectionString` | `infra/terraform-redis` | Optional (multi-replica / Redis provider) | **Done TB-094** (2026-06-01) |
 | Cosmos (graph) | `Cosmos:*` | â€” | Optional (InMemory/SQL paths exist) | TB-095 |
-| Service Bus | `ServiceBus:*` | â€” | Optional (outbox) | TB-099 |
-| ACR | Deploy scripts | `infra/terraform-acr` (partial) | **Required** for image pull in Azure | TB-097 |
+| Service Bus | `ServiceBus:*` | `infra/terraform-servicebus` | Optional (outbox) | **Done TB-099** diagnostics (2026-06-01) |
+| ACR | Deploy scripts / CD | `infra/terraform-acr` | **Required** for image pull in Azure | **Done TB-097** (2026-06-01) |
 | Key Vault | `KeyVault:*` | `infra/terraform-private` + `infra/terraform-keyvault` | **Required** when KV public access disabled | TB-091 (PE/DNS), **TB-092** (API/Worker `Key Vault Secrets User`) |
 
 ## Apply order (operator)
@@ -32,3 +32,5 @@ Separate roots remain useful as temporary validation surfaces or reusable module
 ## Trust center cross-link
 
 Buyer-facing posture: [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) â€” interim self-assessment; CPA SOC 2 and third-party pen test are V1.1 backlog (TB-135, TB-136).
+
+| Azure Monitor Workspace | Prometheus rule scopes | infra/terraform-monitoring | When enable_prometheus_slo_rule_group | **Done TB-098** (2026-06-01) |

@@ -131,9 +131,15 @@ variable "enable_prometheus_slo_rule_group" {
   default     = false
 }
 
+variable "enable_managed_monitor_workspace" {
+  type        = bool
+  description = "TB-098: When true with Prometheus rule groups, create azurerm_monitor_workspace unless azure_monitor_workspace_id override is set."
+  default     = true
+}
+
 variable "azure_monitor_workspace_id" {
   type        = string
-  description = "Full resource ID of the Azure Monitor workspace used as Prometheus rule group scope (Microsoft.Monitor/accounts). Empty skips rule group."
+  description = "Optional override: full resource ID of an existing Azure Monitor workspace used as Prometheus rule group scope (Microsoft.Monitor/accounts). Empty skips rule group."
   default     = ""
 }
 

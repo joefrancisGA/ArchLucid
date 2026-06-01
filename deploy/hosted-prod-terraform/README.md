@@ -1,4 +1,4 @@
-﻿# Hosted production Terraform root
+# Hosted production Terraform root
 
 V1 composition scaffold for **consumed** Azure OpenAI, Azure AI Search, Key Vault references, private endpoints, and diagnostics.  
 Owner decision: `docs/library/IAC_RUNTIME_PARITY.md` (2026-05-30). **TB-093 (2026-06-01):** production-like stacks default to `openai_compose_mode = existing` (US East / `eastus`) — this root does **not** create a second OpenAI account.
@@ -28,3 +28,9 @@ terraform plan -var-file=terraform.tfvars
 ```
 
 Copy `terraform.tfvars.example` to `terraform.tfvars` and set your platform-owned OpenAI ARM id, endpoint, and deployment names.
+
+## Consumed Azure AI Search (TB-096)
+
+Default `search_compose_mode = existing` (US East / `eastus`). Set `search_existing_resource_id`, `search_existing_endpoint`, and `search_index_name`. Outputs `azure_search_container_app_env` and `search_service_id` for `terraform-private` private endpoints.
+
+See `docs/library/AZURE_AI_SEARCH_CONSUMED.md`.

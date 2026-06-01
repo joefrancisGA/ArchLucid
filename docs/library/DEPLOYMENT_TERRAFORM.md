@@ -1,4 +1,4 @@
-﻿> **Scope:** Contributor-reference â€” ArchLucid deployment â€” Terraform map (Azure) - full detail, tables, and links in the sections below.
+> **Scope:** Contributor-reference â€” ArchLucid deployment â€” Terraform map (Azure) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -53,9 +53,10 @@ flowchart LR
 | `infra/terraform-storage` | Storage accounts, blobs, queues used by artifacts and durable jobs. |
 | `infra/terraform-redis` | **TB-094** optional Azure Cache for Redis for `HotPathCache` (connection string output / Key Vault secret). |
 | `infra/terraform-cosmos` | **TB-095** optional Cosmos DB (SQL API) for polyglot persistence; default dormant. See `COSMOS_DB_IAC_ASSESSMENT.md`. |
+| `infra/terraform-acr` | **TB-097** optional Azure Container Registry (enable_acr). |
 | `infra/terraform-private` | Networking baseline: VNet segments, private endpoints, alignment with SQL/storage. |
 | `infra/terraform-edge` | Front Door (or edge) entry, TLS termination, routing to backends. |
-| `infra/terraform-monitoring` | Log Analytics, diagnostics, Grafana/Prometheus hooks as defined in that root. |
+| `infra/terraform-monitoring` | **TB-098** optional `azurerm_monitor_workspace` for Prometheus scopes;  Log Analytics, diagnostics, Grafana/Prometheus hooks as defined in that root. |
 | `infra/terraform-entra` | Entra app registrations / service principals **as code**, where used. |
 | `infra/terraform-sql-failover` | SQL geo **failover group** (listener FQDN); optional **server-level automatic tuning** (`enable_sql_automatic_tuning`, defaults **On** for force-last-good-plan / create-index / drop-index via **Azure/azapi**); optional **resource-group consumption budget** (`enable_sql_consumption_budget`). |
 | `infra/terraform-openai` | Optional **consumption budget** + **TB-093** `consumed_openai_*` contract outputs (validate-only). Does not create production-like OpenAI accounts. |

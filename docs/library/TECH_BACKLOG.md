@@ -77,10 +77,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | **Done (2026-06-01)** — `openai_compose_mode=existing` (eastus); hosted-prod + container-apps env/RBAC; `terraform-openai` consumed contract; pilot_essential | M |
 | TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | **Done (2026-06-01)** — `infra/terraform-redis` + container-apps `hot_path_cache_redis_connection_string`; PE/DNS optional; `terraform validate` | S |
 | TB-095 | Assess + codify Cosmos DB — `terraform-cosmos` (dormant assessment + optional root) | IaC coverage — **Done** 2026-06-01; see `COSMOS_DB_IAC_ASSESSMENT.md` | S-M |
-| TB-096 | Compose Azure AI Search existing-resource consumption into hosted Terraform stack | IaC coverage --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure AI Search resource IDs rather than creating the service; hosted examples must wire IDs, endpoint/index variables, private endpoint/RBAC expectations, and US East pilot defaults as code. | S |
-| TB-097 | Create `terraform-acr` root --- Azure Container Registry | IaC coverage --- read via `data` source in `terraform-container-apps`; geo-replication, retention, and network rules are portal-only | S |
-| TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage --- `var.azure_monitor_workspace_id` referenced by P0+SLO Prometheus rule groups but resource never created; apply fails if workspace drifts | XS |
-| TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability --- consistent with pattern already in `terraform-logicapps/diagnostics.tf`; three resources, one Log Analytics workspace target | S |
+| TB-096 | Compose Azure AI Search existing-resource consumption into hosted Terraform stack | IaC coverage — **Done** 2026-06-01; `deploy/hosted-prod-terraform` + `terraform-container-apps` `azure_search_*`; see `AZURE_AI_SEARCH_CONSUMED.md` | S |
+| TB-097 | Create `terraform-acr` root — Azure Container Registry | IaC coverage — **Done** 2026-06-01; `infra/terraform-acr/` (optional `enable_acr`) | S |
+| TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage — **Done** 2026-06-01; managed workspace + `azure_monitor_workspace_id_effective` | XS |
+| TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability — **Done** 2026-06-01; optional flags in container-apps, servicebus, storage (+ hosted platform diagnostics) | S |
 | TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene --- all 7 Logic Apps pass `primary_access_key` verbatim; key rotation in portal breaks apps until TF re-apply | M |
 | TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene --- `azurerm_app_service_virtual_network_swift_connection` references `var.linux_web_app_id`; system runs on Container Apps; verify state, decommission or document | XS |
 | TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene --- hardcoded to 100 (no sampling); expose as variable so operators can tune without editing .tf source | XS |
@@ -4527,6 +4527,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ## TB-096 --- Compose Azure AI Search existing-resource consumption into hosted Terraform stack
 
+**Status:** **Done** (2026-06-01). `search_compose_mode = existing` default; `search_consumed.tf` / outputs / `azure_search_*` in container-apps; `docs/library/AZURE_AI_SEARCH_CONSUMED.md`.
+
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
 **Problem:**
@@ -4566,6 +4568,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ## TB-097 --- Create `terraform-acr` root --- Azure Container Registry
 
+**Status:** **Done** (2026-06-01). `infra/terraform-acr/` with optional PE/diagnostics; pilot-essential ordering before container-apps.
+
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
 **Problem:**
@@ -4602,6 +4606,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ## TB-098 --- Add `azurerm_monitor_workspace` to `terraform-monitoring`
 
+**Status:** **Done** (2026-06-01). `azurerm_monitor_workspace.prometheus` + `azure_monitor_workspace_id_effective` for Prometheus rule scopes.
+
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
 **Problem:**
@@ -4632,6 +4638,8 @@ Both Prometheus rule group resources in `terraform-monitoring` (`azurerm_monitor
 ---
 
 ## TB-099 --- Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account
+
+**Status:** **Done** (2026-06-01). `diagnostics.tf` in container-apps, servicebus, storage (opt-in flags); hosted `platform_diagnostics.tf` for cross-root handoff.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 

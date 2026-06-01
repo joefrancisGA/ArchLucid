@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Opinionated Terraform plan/apply for the ArchLucid SaaS profile (see docs/REFERENCE_SAAS_STACK_ORDER.md).
 
@@ -46,6 +46,7 @@ Set-Location $repoRoot
     "infra/terraform-logicapps",
     "infra/terraform-openai",
     "infra/terraform-entra",
+    "infra/terraform-acr",
     "infra/terraform-container-apps",
     "infra/terraform-edge",
     "infra/terraform",

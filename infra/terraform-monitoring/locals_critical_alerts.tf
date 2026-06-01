@@ -13,6 +13,6 @@ locals {
     local.critical_action_group_enabled && var.read_alert_secrets_from_key_vault ? trimspace(data.azurerm_key_vault_secret.alert_voice_phone_number[0].value) : ""
   )
 
-  prometheus_p0_rule_group_enabled = local.critical_action_group_enabled && var.enable_prometheus_slo_rule_group && length(trimspace(var.azure_monitor_workspace_id)) > 0
+  prometheus_p0_rule_group_enabled = local.critical_action_group_enabled && var.enable_prometheus_slo_rule_group && length(trimspace(local.azure_monitor_workspace_id_effective)) > 0
 }
 

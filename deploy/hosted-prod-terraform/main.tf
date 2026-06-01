@@ -80,10 +80,10 @@ resource "azurerm_monitor_diagnostic_setting" "openai" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "search" {
-  count = var.search_compose_mode == "create" && var.log_analytics_workspace_id != null ? 1 : 0
+  count = var.log_analytics_workspace_id != null && length(local.search_service_id_effective) > 0 ? 1 : 0
 
   name                       = "archlucid-search-diagnostics"
-  target_resource_id         = azurerm_search_service.search[0].id
+  target_resource_id         = local.search_service_id_effective
   log_analytics_workspace_id = var.log_analytics_workspace_id
 
   metric {
