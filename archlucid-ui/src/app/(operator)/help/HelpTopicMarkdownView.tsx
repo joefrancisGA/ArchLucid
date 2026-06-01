@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -15,6 +16,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
   return (
     <article className="space-y-6">
+      <HelpTopicHashScroll />
       <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
         <p className="m-0">
           <Link href="/help" className={`text-sm underline-offset-2 hover:underline ${DESIGN_TOKENS.accent.link}`}>

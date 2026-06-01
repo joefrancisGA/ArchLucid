@@ -1,4 +1,4 @@
-> **Scope:** Buyer — Reference Azure SaaS stack order (Terraform) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Buyer â€” Reference Azure SaaS stack order (Terraform) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -13,7 +13,7 @@
 
 **Default primary region (2026-04-21):** **`centralus`** for new production Terraform applies (`infra/terraform-container-apps` and related roots) unless data-residency or latency requirements dictate otherwise. Document exceptions in the environment README.
 
-**Subscription mapping:** see [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) for the canonical **`dev`** (optional engineer CD) / `staging` / `production` / greenfield-CI subscription IDs and the GitHub Environment secret each one maps to. Do **not** hard-code subscription IDs in `infra/**/*.tf` or example tfvars — `azure/login@v2` exports `ARM_SUBSCRIPTION_ID` for every Terraform step in the CD pipeline.
+**Subscription mapping:** see [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) for the canonical **`dev`** (optional engineer CD) / `staging` / `production` / greenfield-CI subscription IDs and the GitHub Environment secret each one maps to. Do **not** hard-code subscription IDs in `infra/**/*.tf` or example tfvars â€” `azure/login@v2` exports `ARM_SUBSCRIPTION_ID` for every Terraform step in the CD pipeline.
 
 ---
 
@@ -21,8 +21,8 @@
 
 Use **[`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md)** as the **single default Terraform entry** in this repository:
 
-- **Opinionated FinOps knobs** (`pilot_monthly_budget_usd`, `app_insights_sampling_percent`, …) live in that root’s variables.
-- **`nested_infrastructure_roots`** (Terraform **output**) lists the **same nested order** as the advanced table below — use `terraform output` from `terraform-pilot` when you need machine-readable sequencing without reading docs.
+- **Opinionated FinOps knobs** (`pilot_monthly_budget_usd`, `app_insights_sampling_percent`, â€¦) live in that rootâ€™s variables.
+- **`nested_infrastructure_roots`** (Terraform **output**) lists the **same nested order** as the advanced table below â€” use `terraform output` from `terraform-pilot` when you need machine-readable sequencing without reading docs.
 - This root **does not create Azure resources**; it collapses operational guidance into one `terraform plan`/`apply` for profile validation and outputs.
 
 **Script default:** [`infra/apply-saas.ps1`(../../infra/apply-saas.ps1) runs **only** `terraform-pilot` unless you pass **`-MultiRoot`** (opt-in multi-root path).
@@ -33,32 +33,33 @@ Use **[`infra/terraform-pilot/`](../../infra/terraform-pilot/README.md)** as the
 
 ## Advanced (opt-in): multi-root separate state
 
-Apply each directory below **in order** with **its own backend key** when you need **separate state files** per stack (blast-radius isolation, team ownership). This is the **legacy** operator workflow — still fully supported.
+Apply each directory below **in order** with **its own backend key** when you need **separate state files** per stack (blast-radius isolation, team ownership). This is the **legacy** operator workflow â€” still fully supported.
 
 | Order | Root | Purpose |
 |------:|------|---------|
-| 1 | `infra/terraform-private` | VNet, private endpoints, DNS — **foundation** for data planes. |
+| 1 | `infra/terraform-private` | VNet, private endpoints, DNS â€” **foundation** for data planes. |
 | 2 | `infra/terraform-keyvault` | Secrets vault (references from later roots). |
 | 3 | `infra/terraform-sql-failover` | Azure SQL + optional **failover group** / consumption budget. |
 | 4 | `infra/terraform-storage` | Blob/queue accounts for artifacts and jobs. |
 | 5 | `infra/terraform-redis` | Optional **Azure Cache for Redis** for `HotPathCache` (TB-094); wire `hot_path_cache_redis_connection_string` into container-apps. |
-| 6 | `infra/terraform-servicebus` | Optional durable messaging for integration consumers; optional **Logic App–scoped** topic subscriptions (governance, trial email, ChatOps, prod promotion, **Marketplace fulfillment** via `enable_logic_app_marketplace_fulfillment_subscription`) for filtered triggers. |
+| 5b | `infra/terraform-cosmos` | Optional **Cosmos DB** polyglot path (TB-095); dormant unless feature flags enabled. |
+| 6 | `infra/terraform-servicebus` | Optional durable messaging for integration consumers; optional **Logic Appâ€“scoped** topic subscriptions (governance, trial email, ChatOps, prod promotion, **Marketplace fulfillment** via `enable_logic_app_marketplace_fulfillment_subscription`) for filtered triggers. |
 | 7 | `infra/terraform-logicapps` | Optional **Logic App (Standard)** hosts (ADR 0019): **edge**, optional dedicated sites for **governance**, **Marketplace fulfillment**, **trial lifecycle email**, **incident ChatOps**, **promotion customer notify**; apply after messaging + private DNS exist. |
 | 7 | `infra/terraform-openai` | Optional **budget** hooks for Azure OpenAI (resource creation may be out-of-band). |
 | 8 | `infra/terraform-entra` | App registrations / consent text for API + UI. |
 | 9 | `infra/terraform-container-apps` | **API + Worker + UI** workloads, managed identity wiring. |
 | 10 | `infra/terraform-edge` | Front Door / WAF / routing to Container Apps. |
-| 11 | `infra/terraform` | Optional **Consumption APIM** in front of public HTTPS backend — not a substitute for Premium VNet-injected APIM in all topologies. |
+| 11 | `infra/terraform` | Optional **Consumption APIM** in front of public HTTPS backend â€” not a substitute for Premium VNet-injected APIM in all topologies. |
 | 12 | `infra/terraform-monitoring` | Log Analytics, Grafana/Prometheus, alert rules, dashboards. |
 | 13 | `infra/terraform-orchestrator` | Optional orchestration / automation root (if used in your fork). |
 
 CI validates **`terraform validate`** + **Trivy config** across these roots (see `.github/workflows/ci.yml`) **and** `infra/terraform-pilot`.
 
-### TB-092 — Key Vault workload RBAC (second pass)
+### TB-092 â€” Key Vault workload RBAC (second pass)
 
 `terraform-keyvault` runs **before** `terraform-container-apps`, so API/Worker `principal_id` values are not known on the first Key Vault apply. After Container Apps exist, grant **`Key Vault Secrets User`** by either:
 
-1. **`infra/apply-saas.ps1 -MultiRoot -Apply`** — runs an extra apply on `terraform-keyvault` (and `terraform-private` when `key_vault_workload_principal_ids` / `key_vault_id` are configured) using Container Apps `terraform output` principal IDs; or
+1. **`infra/apply-saas.ps1 -MultiRoot -Apply`** â€” runs an extra apply on `terraform-keyvault` (and `terraform-private` when `key_vault_workload_principal_ids` / `key_vault_id` are configured) using Container Apps `terraform output` principal IDs; or
 2. Manual re-apply of `terraform-keyvault` with `api_managed_identity_principal_id` / `worker_managed_identity_principal_id` from `api_system_assigned_principal_id` / `worker_system_assigned_principal_id` outputs.
 
 See [`CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md) and [`TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md`](TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md).
@@ -69,7 +70,7 @@ See [`CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md) and [`TERRAFORM_C
 
 | Artifact | Purpose |
 |----------|---------|
-| [`ArchLucid.Api/appsettings.SaaS.json`(../../ArchLucid.Api/appsettings.SaaS.json) | Optional settings file chained from `Program.cs` after base `appsettings*.json` — **no secrets** in repo; API keys remain **off** until you wire keys + flip `Authentication:ApiKey:Enabled`. |
+| [`ArchLucid.Api/appsettings.SaaS.json`(../../ArchLucid.Api/appsettings.SaaS.json) | Optional settings file chained from `Program.cs` after base `appsettings*.json` â€” **no secrets** in repo; API keys remain **off** until you wire keys + flip `Authentication:ApiKey:Enabled`. |
 
 ---
 
@@ -91,13 +92,13 @@ After image rollout, run **`archlucid deployment-evidence`** (preferred; same ga
 
 ## Buyer CI integrations (GitHub + Azure DevOps)
 
-Manifest delta surfaces (`GET /v1/compare`) ship as **GitHub composite actions** and **Azure Pipelines templates** in-repo — see the navigator in **[`integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](../integrations/GITHUB_ACTION_MANIFEST_DELTA.md)** (links to GitHub + Azure DevOps + optional server-side Worker path).
+Manifest delta surfaces (`GET /v1/compare`) ship as **GitHub composite actions** and **Azure Pipelines templates** in-repo â€” see the navigator in **[`integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](../integrations/GITHUB_ACTION_MANIFEST_DELTA.md)** (links to GitHub + Azure DevOps + optional server-side Worker path).
 
 ## Related
 
-- [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md) — canonical multi-tenant SaaS Terraform posture (summary).
-- [TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md](TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md) — blast-radius matrix, safe-apply checklist, variable hand-offs (separate Terraform state roots).
-- [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md) — full root map and constraints.
-- [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) — recovery targets by tier.
-- [CUSTOMER_TRUST_AND_ACCESS.md](CUSTOMER_TRUST_AND_ACCESS.md) — private data plane narrative.
-- [AZURE_SUBSCRIPTIONS.md](AZURE_SUBSCRIPTIONS.md) — canonical subscription IDs, regions, and CD secret mapping.
+- [AZURE_PRODUCTION_PROFILE.md](AZURE_PRODUCTION_PROFILE.md) â€” canonical multi-tenant SaaS Terraform posture (summary).
+- [TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md](TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md) â€” blast-radius matrix, safe-apply checklist, variable hand-offs (separate Terraform state roots).
+- [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md) â€” full root map and constraints.
+- [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) â€” recovery targets by tier.
+- [CUSTOMER_TRUST_AND_ACCESS.md](CUSTOMER_TRUST_AND_ACCESS.md) â€” private data plane narrative.
+- [AZURE_SUBSCRIPTIONS.md](AZURE_SUBSCRIPTIONS.md) â€” canonical subscription IDs, regions, and CD secret mapping.

@@ -1,9 +1,9 @@
-> **Scope:** Contributor-reference — ArchLucid deployment — Terraform map (Azure) - full detail, tables, and links in the sections below.
+﻿> **Scope:** Contributor-reference â€” ArchLucid deployment â€” Terraform map (Azure) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# ArchLucid deployment — Terraform map (Azure)
+# ArchLucid deployment â€” Terraform map (Azure)
 
 ## Objective
 
@@ -19,7 +19,7 @@ Give operators a single map of **Terraform roots** under `infra/`, how they comp
 
 - **SMB / port 445** must not be exposed publicly; file shares use private connectivity and network boundaries aligned with `terraform-private`.
 - **Least privilege**: managed identities, Key Vault references, and private endpoints are preferred over connection strings in plain app settings where the platform supports it.
-- **Consumption APIM** (`infra/terraform`) cannot replace Premium VNet-injected APIM for all private-only topologies — see that root’s README.
+- **Consumption APIM** (`infra/terraform`) cannot replace Premium VNet-injected APIM for all private-only topologies â€” see that rootâ€™s README.
 
 ## Architecture overview
 
@@ -29,9 +29,9 @@ Give operators a single map of **Terraform roots** under `infra/`, how they comp
 
 **Flows:**
 
-1. **Build** → image artifact (digest-addressable).
-2. **Provision** → Terraform creates/changes Azure resources.
-3. **Release** → compute pulls image, runs migrations on startup, serves `/v1/...` behind edge or APIM.
+1. **Build** â†’ image artifact (digest-addressable).
+2. **Provision** â†’ Terraform creates/changes Azure resources.
+3. **Release** â†’ compute pulls image, runs migrations on startup, serves `/v1/...` behind edge or APIM.
 
 ```mermaid
 flowchart LR
@@ -52,6 +52,7 @@ flowchart LR
 | `infra/terraform-container-apps` | Primary **workload** pattern: Container Apps, identity, env wiring (parameters vary by fork/branch). |
 | `infra/terraform-storage` | Storage accounts, blobs, queues used by artifacts and durable jobs. |
 | `infra/terraform-redis` | **TB-094** optional Azure Cache for Redis for `HotPathCache` (connection string output / Key Vault secret). |
+| `infra/terraform-cosmos` | **TB-095** optional Cosmos DB (SQL API) for polyglot persistence; default dormant. See `COSMOS_DB_IAC_ASSESSMENT.md`. |
 | `infra/terraform-private` | Networking baseline: VNet segments, private endpoints, alignment with SQL/storage. |
 | `infra/terraform-edge` | Front Door (or edge) entry, TLS termination, routing to backends. |
 | `infra/terraform-monitoring` | Log Analytics, diagnostics, Grafana/Prometheus hooks as defined in that root. |
@@ -59,35 +60,35 @@ flowchart LR
 | `infra/terraform-sql-failover` | SQL geo **failover group** (listener FQDN); optional **server-level automatic tuning** (`enable_sql_automatic_tuning`, defaults **On** for force-last-good-plan / create-index / drop-index via **Azure/azapi**); optional **resource-group consumption budget** (`enable_sql_consumption_budget`). |
 | `infra/terraform-openai` | Optional **consumption budget** + **TB-093** `consumed_openai_*` contract outputs (validate-only). Does not create production-like OpenAI accounts. |
 | `deploy/hosted-prod-terraform` | **TB-093** hosted composition: default **consumed** Azure OpenAI (`openai_compose_mode = existing`, `eastus`), app env output, optional workload RBAC. Mirror: `infra/terraform/prod`. |
-| `infra/terraform` | Optional **API Management (Consumption)** in front of a public HTTPS backend — see `infra/terraform/README.md`. |
-| `infra/terraform-logicapps` | Optional **Logic App (Standard)** host for Service Bus–driven edge orchestration (Teams / ITSM fan-out); off by default — see `infra/terraform-logicapps/README.md` and ADR **0019**. |
+| `infra/terraform` | Optional **API Management (Consumption)** in front of a public HTTPS backend â€” see `infra/terraform/README.md`. |
+| `infra/terraform-logicapps` | Optional **Logic App (Standard)** host for Service Busâ€“driven edge orchestration (Teams / ITSM fan-out); off by default â€” see `infra/terraform-logicapps/README.md` and ADR **0019**. |
 
 ## Data flow
 
-- **North/south:** Clients → edge/APIM → API → SQL/storage.
+- **North/south:** Clients â†’ edge/APIM â†’ API â†’ SQL/storage.
 - **Observability:** API exposes Prometheus when `Observability:Prometheus:Enabled` is true; dashboards in `infra/grafana/` target metric and trace names produced by OpenTelemetry (verify exact series names on `/metrics` when wiring panels).
 
 ## Security model
 
-- **Identity:** Prefer **managed identity** from compute to SQL, Key Vault, and storage APIs; fall back to Key Vault–backed secrets only where required.
+- **Identity:** Prefer **managed identity** from compute to SQL, Key Vault, and storage APIs; fall back to Key Vaultâ€“backed secrets only where required.
 - **Network:** Private endpoints for data planes; no public SQL; align with workspace SMB rule for any file share access.
-- **RLS:** Production hosts with `ArchLucid:StorageProvider=Sql` must set `SqlServer:RowLevelSecurity:ApplySessionContext=true` (validated at startup — see `ArchLucidConfigurationRules`).
+- **RLS:** Production hosts with `ArchLucid:StorageProvider=Sql` must set `SqlServer:RowLevelSecurity:ApplySessionContext=true` (validated at startup â€” see `ArchLucidConfigurationRules`).
 
 ## Operational considerations
 
 - **RTO / RPO by tier:** Default recovery targets (development best-effort; production e.g. relational RPO under five minutes via SQL geo-replication) are documented in **`docs/RTO_RPO_TARGETS.md`**. Implement with auto-failover groups, listeners, and drills per **`docs/runbooks/DATABASE_FAILOVER.md`**.
 - **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchLucid`** label on created resources for Azure Cost Management filters.
 - **Consumption budgets:** Enable **`enable_container_apps_consumption_budget`** in `infra/terraform-container-apps`, **`enable_sql_consumption_budget`** in `infra/terraform-sql-failover`, and/or **`enable_openai_consumption_budget`** in `infra/terraform-openai` to emit **`azurerm_consumption_budget_resource_group`** resources with Cost Management notifications (amounts and `*_time_period_start` are variables per root).
-- **Plan/apply:** Default **`infra/terraform-pilot`** for profile validation and outputs; run `terraform init` / `plan` / `apply` per nested root only on the **opt-in multi-root** path. Compose order is usually **network → data → compute → edge → monitoring**.
+- **Plan/apply:** Default **`infra/terraform-pilot`** for profile validation and outputs; run `terraform init` / `plan` / `apply` per nested root only on the **opt-in multi-root** path. Compose order is usually **network â†’ data â†’ compute â†’ edge â†’ monitoring**.
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
 - **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchLucid.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.
-- **Image scanning:** CI runs **Trivy** on container images and Terraform directories — extend with registry gates and Defender for Containers per org policy.
+- **Image scanning:** CI runs **Trivy** on container images and Terraform directories â€” extend with registry gates and Defender for Containers per org policy.
 - **CD:** After the stack exists, routine image rollouts are described in **`docs/DEPLOYMENT_CD_PIPELINE.md`** (ACR push + Container App revision updates). Reconcile tfvars image pins when you run **`terraform apply`** so Terraform does not overwrite CLI-pushed tags unintentionally.
 
 ## Related docs
 
-- **`docs/REFERENCE_SAAS_STACK_ORDER.md`** — recommended **Terraform apply order** (private networking → data → compute → edge → monitoring).
-- `docs/RTO_RPO_TARGETS.md` — RTO/RPO targets by environment tier (SQL HA, drills).
-- `docs/CONTAINERIZATION.md` — Docker images and local compose.
-- `infra/terraform/README.md` — APIM-specific variables and OpenAPI import.
-- `docs/API_CONTRACTS.md` — versioning, deprecation, and contract artifacts.
+- **`docs/REFERENCE_SAAS_STACK_ORDER.md`** â€” recommended **Terraform apply order** (private networking â†’ data â†’ compute â†’ edge â†’ monitoring).
+- `docs/RTO_RPO_TARGETS.md` â€” RTO/RPO targets by environment tier (SQL HA, drills).
+- `docs/CONTAINERIZATION.md` â€” Docker images and local compose.
+- `infra/terraform/README.md` â€” APIM-specific variables and OpenAPI import.
+- `docs/API_CONTRACTS.md` â€” versioning, deprecation, and contract artifacts.

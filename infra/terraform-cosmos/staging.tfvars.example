@@ -1,0 +1,10 @@
+﻿# TB-095 assessment (2026-06-01): Cosmos polyglot is **dormant** on production-like hosted pilots.
+# SQL remains the default for graph snapshots, agent traces, and audit when feature flags are false.
+# Enable this root only when enabling GraphSnapshotsEnabled, AgentTracesEnabled, or AuditEventsEnabled.
+
+enable_cosmos_account = false
+# enable_cosmos_account = true
+# create_resource_group  = true
+# resource_group_name    = "rg-archlucid-cosmos-staging"
+# location               = "centralus"
+# cosmos_account_name    = "cosmos-archlucid-staging-example"

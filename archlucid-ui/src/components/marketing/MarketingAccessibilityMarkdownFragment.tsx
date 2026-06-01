@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { createHelpHeadingSlugAllocator } from "@/lib/help-heading-slug";
+
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
   const nodes: ReactNode[] = [];
   let remaining = text;
@@ -120,6 +122,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
   const lines = props.markdownBody.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
   let key = 0;
+  const allocateSectionSlug = createHelpHeadingSlugAllocator();
 
   let i = 0;
   while (i < lines.length) {
@@ -132,8 +135,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
     if (line.startsWith("## ") && !line.startsWith("###")) {
       const title = line.slice(3).trim();
+      const sectionId = allocateSectionSlug(title);
       blocks.push(
-        <h2 key={`h2-${key}`} className="mt-8 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+        <h2
+          key={`h2-${key}`}
+          id={sectionId}
+          className="scroll-mt-24 mt-8 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
+        >
           {renderInline(title, `h2-${key}`)}
         </h2>,
       );
@@ -156,8 +164,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
 
     if (line.startsWith("### ")) {
       const title = line.slice(4).trim();
+      const sectionId = allocateSectionSlug(title);
       blocks.push(
-        <h3 key={`h3-${key}`} className="mt-4 text-sm font-semibold text-al-text-primary">
+        <h3
+          key={`h3-${key}`}
+          id={sectionId}
+          className="scroll-mt-24 mt-4 text-sm font-semibold text-al-text-primary"
+        >
           {renderInline(title, `h3-${key}`)}
         </h3>,
       );

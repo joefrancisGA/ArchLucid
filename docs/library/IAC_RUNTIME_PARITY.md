@@ -1,25 +1,25 @@
-> **Scope:** Contributor-reference — Honest mapping between application configuration keys and Terraform roots.
+﻿> **Scope:** Contributor-reference â€” Honest mapping between application configuration keys and Terraform roots.
 
-# IaC runtime parity (code config → Terraform roots)
+# IaC runtime parity (code config â†’ Terraform roots)
 
 **Purpose:** Honest mapping between application configuration keys and Terraform roots. Advisory vs required follows hosting profile in [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md).
 
 | Runtime dependency | Appsettings / env keys | Terraform root (repo) | Status | Backlog |
 | --- | --- | --- | --- | --- |
-| Azure SQL | `ConnectionStrings:ArchLucid` | `infra/terraform/prod` | **Required** (hosted pilot) | — |
-| Azure Blob (artifacts) | `Storage:*` | `infra/terraform/prod` | **Required** when not InMemory | — |
+| Azure SQL | `ConnectionStrings:ArchLucid` | `infra/terraform/prod` | **Required** (hosted pilot) | â€” |
+| Azure Blob (artifacts) | `Storage:*` | `infra/terraform/prod` | **Required** when not InMemory | â€” |
 | Azure OpenAI | `AzureOpenAI:*`, `ArchLucid:Agents:*` | `deploy/hosted-prod-terraform` + `infra/terraform-container-apps` (consumed account; **TB-093**) | **Required** (hosted SaaS LLM) | **Done TB-093** (2026-06-01); TB-080 MI auth |
 | Azure AI Search | `Retrieval:VectorIndex=AzureSearch`, `Retrieval:AzureSearch:*` | `deploy/hosted-prod-terraform` (same) | **Required** on production-like profiles | TB-071, TB-096 |
 | Redis (cache) | `HotPathCache:RedisConnectionString` | `infra/terraform-redis` | Optional (multi-replica / Redis provider) | **Done TB-094** (2026-06-01) |
-| Cosmos (graph) | `Cosmos:*` | — | Optional (InMemory/SQL paths exist) | TB-095 |
-| Service Bus | `ServiceBus:*` | — | Optional (outbox) | TB-099 |
+| Cosmos (graph) | `Cosmos:*` | â€” | Optional (InMemory/SQL paths exist) | TB-095 |
+| Service Bus | `ServiceBus:*` | â€” | Optional (outbox) | TB-099 |
 | ACR | Deploy scripts | `infra/terraform-acr` (partial) | **Required** for image pull in Azure | TB-097 |
 | Key Vault | `KeyVault:*` | `infra/terraform-private` + `infra/terraform-keyvault` | **Required** when KV public access disabled | TB-091 (PE/DNS), **TB-092** (API/Worker `Key Vault Secrets User`) |
 
 ## Apply order (operator)
 
 1. `infra/terraform-private` (network + Key Vault private endpoint when enabled)
-2. `deploy/hosted-prod-terraform` (or `infra/terraform/prod` when present) — API host, worker, SQL, storage, ACR/image source, Azure OpenAI, and Azure AI Search for production-like profiles
+2. `deploy/hosted-prod-terraform` (or `infra/terraform/prod` when present) â€” API host, worker, SQL, storage, ACR/image source, Azure OpenAI, and Azure AI Search for production-like profiles
 3. Focused validation roots/modules, only when intentionally validating OpenAI/Search in isolation or using a customer-provided landing-zone dependency
 4. Configure appsettings / Container Apps env per [`CONTAINERIZATION.md`](CONTAINERIZATION.md)
 
@@ -31,4 +31,4 @@ Separate roots remain useful as temporary validation surfaces or reusable module
 
 ## Trust center cross-link
 
-Buyer-facing posture: [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) — interim self-assessment; CPA SOC 2 and third-party pen test are V1.1 backlog (TB-135, TB-136).
+Buyer-facing posture: [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) â€” interim self-assessment; CPA SOC 2 and third-party pen test are V1.1 backlog (TB-135, TB-136).

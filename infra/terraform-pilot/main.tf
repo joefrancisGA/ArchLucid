@@ -46,6 +46,14 @@ locals {
     },
     {
       order           = 6
+      id              = "cosmos"
+      path            = "infra/terraform-cosmos"
+      pilot_essential = false
+      notes           = "TB-095: Optional Cosmos DB (SQL API) for polyglot graph/traces/audit; dormant on production-like pilots."
+      consumes_from   = ["private", "keyvault"]
+    },
+    {
+      order           = 7
       id              = "servicebus"
       path            = "infra/terraform-servicebus"
       pilot_essential = false
@@ -53,7 +61,7 @@ locals {
       consumes_from   = ["private"]
     },
     {
-      order           = 7
+      order           = 8
       id              = "logicapps"
       path            = "infra/terraform-logicapps"
       pilot_essential = false
@@ -61,7 +69,7 @@ locals {
       consumes_from   = ["servicebus", "private"]
     },
     {
-      order           = 8
+      order           = 9
       id              = "openai"
       path            = "infra/terraform-openai"
       pilot_essential = true
@@ -69,7 +77,7 @@ locals {
       consumes_from   = []
     },
     {
-      order           = 9
+      order           = 10
       id              = "entra"
       path            = "infra/terraform-entra"
       pilot_essential = true
@@ -77,7 +85,7 @@ locals {
       consumes_from   = []
     },
     {
-      order           = 10
+      order           = 11
       id              = "container_apps"
       path            = "infra/terraform-container-apps"
       pilot_essential = true
@@ -85,7 +93,7 @@ locals {
       consumes_from   = ["private", "storage", "keyvault", "entra", "servicebus", "openai", "redis"]
     },
     {
-      order           = 11
+      order           = 12
       id              = "edge"
       path            = "infra/terraform-edge"
       pilot_essential = false
@@ -93,7 +101,7 @@ locals {
       consumes_from   = ["container_apps"]
     },
     {
-      order           = 12
+      order           = 13
       id              = "apim_consumption"
       path            = "infra/terraform"
       pilot_essential = false
@@ -101,7 +109,7 @@ locals {
       consumes_from   = ["container_apps"]
     },
     {
-      order           = 13
+      order           = 14
       id              = "monitoring"
       path            = "infra/terraform-monitoring"
       pilot_essential = false
@@ -109,7 +117,7 @@ locals {
       consumes_from   = ["container_apps"]
     },
     {
-      order           = 14
+      order           = 15
       id              = "orchestrator"
       path            = "infra/terraform-orchestrator"
       pilot_essential = false

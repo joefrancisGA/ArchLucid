@@ -41,6 +41,7 @@ Set-Location $repoRoot
     "infra/terraform-sql-failover",
     "infra/terraform-storage",
     "infra/terraform-redis",
+    "infra/terraform-cosmos",
     "infra/terraform-servicebus",
     "infra/terraform-logicapps",
     "infra/terraform-openai",

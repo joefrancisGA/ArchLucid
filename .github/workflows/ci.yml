@@ -1,21 +1,21 @@
-# Tiered CI (see docs/TEST_EXECUTION_MODEL.md):
-#   Tier 0 — Secret scan (gitleaks; full clone)
-#   Tier 0.x — OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
-#               Runs parallel with Terraform validate; dotnet-fast-core needs it → drift fails before corset guards.
-#   Tier 1 — .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
-#   Tier 1a — Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
+﻿# Tiered CI (see docs/TEST_EXECUTION_MODEL.md):
+#   Tier 0 â€” Secret scan (gitleaks; full clone)
+#   Tier 0.x â€” OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
+#               Runs parallel with Terraform validate; dotnet-fast-core needs it â†’ drift fails before corset guards.
+#   Tier 1 â€” .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
+#   Tier 1a â€” Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
 #             offline agent regression (eval corpus + prompt JSON baseline); parallel after gitleaks
-#   Tier 1.5 — DbUp migrations on empty catalog (Docker SQL) + greenfield SQL boot (API process + /health/ready); after Tier 1
-#   Tier 2 — .NET full regression + SQL (parallel shards: Category!=Slow split Api.Tests (Integration sharded 0..2 vs non-Integration)
+#   Tier 1.5 â€” DbUp migrations on empty catalog (Docker SQL) + greenfield SQL boot (API process + /health/ready); after Tier 1
+#   Tier 2 â€” .NET full regression + SQL (parallel shards: Category!=Slow split Api.Tests (Integration sharded 0..2 vs non-Integration)
 #           vs other test assemblies; Category=Slow split: Api.Tests vs AgentRuntime+Application+Decisioning; merged in `dotnet-coverage-merge`)
-#   Tier 2b — Simmy chaos (after Tier 2; no SQL)
-#   Tier 2d — Optional live Azure OpenAI (`RealAzureOpenAIEndToEndTests`) after OpenAPI snapshot + merged coverage gates + chaos;
-#           — opt-in repo var `ARCHLUCID_CI_REAL_AOAI_ENABLED`; secrets `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` / `ARCHLUCID_CI_REAL_AOAI_KEY` (same-repo PRs/push only).
-#   Tier 2c — k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
-#   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock journeys (`ui-playwright-mock-smoke`);
+#   Tier 2b â€” Simmy chaos (after Tier 2; no SQL)
+#   Tier 2d â€” Optional live Azure OpenAI (`RealAzureOpenAIEndToEndTests`) after OpenAPI snapshot + merged coverage gates + chaos;
+#           â€” opt-in repo var `ARCHLUCID_CI_REAL_AOAI_ENABLED`; secrets `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` / `ARCHLUCID_CI_REAL_AOAI_KEY` (same-repo PRs/push only).
+#   Tier 2c â€” k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
+#   Tier 3a â€” Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock journeys (`ui-playwright-mock-smoke`);
 #             axe WCAG 2.1 A/AA (`ui-playwright-accessibility`, mock-backed); optional full-page screenshot goldens via `npm run test:e2e:mock:visual` locally when updating baselines
-#   Tier 3b — Operator UI e2e (Playwright live API + SQL; extended live-a11y route matrix via workflow_dispatch input / nightly)
-#   Terraform advisory: mock manifest → emit comment-only snippets → terraform fmt -check / validate (`terraform-advisory-snippets-validate`)
+#   Tier 3b â€” Operator UI e2e (Playwright live API + SQL; extended live-a11y route matrix via workflow_dispatch input / nightly)
+#   Terraform advisory: mock manifest â†’ emit comment-only snippets â†’ terraform fmt -check / validate (`terraform-advisory-snippets-validate`)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
 # archlucid-ui: npm test / npm run test:axe-components / Playwright (default live config; mock via playwright.mock.config.ts).
@@ -28,9 +28,9 @@
 # NuGet cache on setup-dotnet, PR sticky coverage comment.
 name: CI
 
-# PR (main/master): Tier 0–1 pre-corset jobs + **trimmed** `dotnet-fast-core` (no SBOM, no coverlet/ReportGenerator,
+# PR (main/master): Tier 0â€“1 pre-corset jobs + **trimmed** `dotnet-fast-core` (no SBOM, no coverlet/ReportGenerator,
 # no finding-engine template test). All jobs after `dotnet-fast-core` run only on **workflow_dispatch** (full CI).
-# Full CI: Actions → CI → Run workflow (pick branch/ref).
+# Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
 on:
   pull_request:
     branches: [main, master]
@@ -43,13 +43,13 @@ on:
         type: boolean
 
 # Opt into Node 24 for JavaScript actions (GitHub default June 2026). Docker Buildx / build-push use
-# setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner ≥ v2.327.1). Prefer
+# setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner â‰¥ v2.327.1). Prefer
 # `actions/setup-python@v6` here (matches Node 24; v5 targeted Node 20). Other third-party actions may still
 # declare node20 until republished. Tier-0 secret scan uses gacts/gitleaks (node24-native) instead of
 # gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
 # Trivy: pin `aquasecurity/trivy-action` to a **commit** (org allow-lists). Do **not** rely on nested
-# `setup-trivy` — it sparse-checkouts `aquasecurity/trivy` for `contrib/install.sh`, which triggers partial-clone
-# promisor fetches that fail on GitHub-hosted runners (`fatal: could not fetch … from promisor remote`).
+# `setup-trivy` â€” it sparse-checkouts `aquasecurity/trivy` for `contrib/install.sh`, which triggers partial-clone
+# promisor fetches that fail on GitHub-hosted runners (`fatal: could not fetch â€¦ from promisor remote`).
 # Install the CLI via `.github/actions/install-trivy` (release tarball) and pass `skip-setup-trivy: true`.
 # Pin **v0.69.3** until Aqua restores reliable release/install paths (discussions #10265+). Set `cache: false`
 # where we skip nested cache noise.
@@ -74,7 +74,7 @@ jobs:
           config-path: .gitleaks.toml
 
   docs-root-size:
-    name: "Docs: root markdown count guard (≤32)"
+    name: "Docs: root markdown count guard (â‰¤32)"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -227,7 +227,7 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_md_links.py
 
-      - name: Contributor one-page doc line budget (≤80 lines)
+      - name: Contributor one-page doc line budget (â‰¤80 lines)
         run: python scripts/ci/assert_contributor_on_one_page_size.py
 
       - name: Contributor one-page line budget unit tests
@@ -275,7 +275,7 @@ jobs:
       - name: Integration recipe alignment guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_integration_recipes_link_alignment.py"
 
-      - name: READ_THIS_FIRST.md — relative targets exist
+      - name: READ_THIS_FIRST.md â€” relative targets exist
         run: python scripts/ci/check_read_this_first_links.py
 
       - name: Check trust center doc links
@@ -321,7 +321,7 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_procurement_doc_freshness.py
 
-      - name: ITSM bridge starter kit — Node contract tests (no npm install)
+      - name: ITSM bridge starter kit â€” Node contract tests (no npm install)
         run: node --test templates/integrations/bridge-recipe-contract-tests/mapping-contract.test.mjs
 
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
@@ -330,7 +330,7 @@ jobs:
       - name: Accessibility route evidence freshness (priority routes vs Playwright PAGES)
         run: python scripts/ci/assert_accessibility_route_evidence_freshness.py
 
-      - name: Buyer first-30-minutes path — vertical picker + q35 prose guard
+      - name: Buyer first-30-minutes path â€” vertical picker + q35 prose guard
         run: python scripts/ci/assert_buyer_first_30_minutes_in_sync.py
 
       - name: Buyer first-30-minutes guard self-test
@@ -350,20 +350,20 @@ jobs:
       - name: Real-mode LLM prerequisite checklist unit test
         run: python -m unittest discover -s scripts/ci/tests -p "test_verify_real_mode_prereqs.py"
 
-      - name: Customer WIF templates — validate (warn-only when CLI missing)
+      - name: Customer WIF templates â€” validate (warn-only when CLI missing)
         continue-on-error: true
         run: python scripts/ci/validate_customer_wif_templates.py
 
       - name: Customer WIF templates validation guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_validate_customer_wif_templates.py"
 
-      - name: BillingProductionSafetyRules — sk_live_ + Marketplace landing + GA offer-id checks shipped
+      - name: BillingProductionSafetyRules â€” sk_live_ + Marketplace landing + GA offer-id checks shipped
         run: python scripts/ci/assert_billing_safety_rules_shipped.py
 
       - name: BillingProductionSafetyRules guard self-test
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_billing_safety_rules_shipped.py"
 
-      - name: Golden cohort kill-switch shipped (Q15-conditional rule — warn 80% / kill 95%)
+      - name: Golden cohort kill-switch shipped (Q15-conditional rule â€” warn 80% / kill 95%)
         run: python scripts/ci/assert_golden_cohort_kill_switch_present.py
 
       - name: Golden cohort nightly job naming guard (preflight vs live)
@@ -377,7 +377,7 @@ jobs:
           cd scripts/ci
           python -m unittest test_golden_cohort_budget_probe
 
-      - name: "Brand-category seam — rebrand guard (FAIL if legacy phrases hardcoded)"
+      - name: "Brand-category seam â€” rebrand guard (FAIL if legacy phrases hardcoded)"
         run: python scripts/ci/assert_brand_category_seam.py --fail
 
       - name: Brand-category seam guard self-test
@@ -389,7 +389,7 @@ jobs:
       - name: ADR 0030 authority projection known-empty guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_authority_projection_known_empty.py"
 
-      - name: Golden cohort baseline locked — no placeholder SHAs
+      - name: Golden cohort baseline locked â€” no placeholder SHAs
         env:
           ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
         run: python scripts/ci/assert_golden_cohort_baseline_locked.py
@@ -408,7 +408,7 @@ jobs:
       - name: Procurement pack index guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_procurement_pack_index.py"
 
-      - name: "Advisory — game-day closing report vs calendar (strict after second logged run)"
+      - name: "Advisory â€” game-day closing report vs calendar (strict after second logged run)"
         continue-on-error: true
         # Today: warn-only. After two completed quarterly close-outs, remove continue-on-error
         # so a missed past calendar date fails merge (see docs/quality/game-day-log/README.md).
@@ -527,13 +527,13 @@ jobs:
         # five differentiation-row fields (claim, evidence, baseline, citation, narrative).
         run: python scripts/ci/check_why_archlucid_comparison_sync.py
 
-      - name: "/why front-door hard table — markdown vs why-comparison.ts row order"
+      - name: "/why front-door hard table â€” markdown vs why-comparison.ts row order"
         run: python scripts/ci/check_why_table_alignment.py
 
-      - name: "/why differentiation rows — non-empty evidence fields"
+      - name: "/why differentiation rows â€” non-empty evidence fields"
         run: python scripts/ci/assert_why_rows_have_evidence.py
 
-      - name: Mutating controller actions — audit LogAsync guard
+      - name: Mutating controller actions â€” audit LogAsync guard
         run: python scripts/ci/assert_controller_mutations_have_audit.py
 
       - name: Controller audit guard unit tests
@@ -541,17 +541,17 @@ jobs:
           cd scripts/ci
           python -m unittest test_assert_controller_mutations_have_audit -q
 
-      - name: Layered audit wiring — echo marker CI tripwire
+      - name: Layered audit wiring â€” echo marker CI tripwire
         run: python scripts/ci/assert_layered_audit_wiring_echo.py
 
-      - name: Layered audit wiring echo — unit tests
+      - name: Layered audit wiring echo â€” unit tests
         run: |
           cd scripts/ci
           python -m unittest test_assert_layered_audit_wiring_echo -q
 
-      - name: "PGP public key — validate armored key when present; warn when pending"
+      - name: "PGP public key â€” validate armored key when present; warn when pending"
         continue-on-error: true
-        # Missing key: script exits 0 (stderr notice). Invalid committed key: exits 1 — then fix or set merge-blocking.
+        # Missing key: script exits 0 (stderr notice). Invalid committed key: exits 1 â€” then fix or set merge-blocking.
         run: python scripts/ci/assert_pgp_key_present.py
 
       - name: PGP key presence + golden cohort budget probe unit tests
@@ -563,24 +563,24 @@ jobs:
           python -m unittest test_golden_cohort_budget_probe
           python -m unittest test_golden_cohort_usage_ledger
 
-      - name: Guard — concept vocabulary (docs/library/CONCEPT_VOCABULARY.md § 1)
+      - name: Guard â€” concept vocabulary (docs/library/CONCEPT_VOCABULARY.md Â§ 1)
         run: python scripts/ci/check_concept_vocabulary.py
 
-      - name: Guard — concept vocabulary check unit tests
+      - name: Guard â€” concept vocabulary check unit tests
         run: |
           cd scripts/ci
           python -m unittest test_check_concept_vocabulary
 
-      - name: Guard — reference-customer status (non-blocking until first Published row)
+      - name: Guard â€” reference-customer status (non-blocking until first Published row)
         # Surfaces as warn-only while no row has Status: Published. The auto-flip
         # step below makes regression (removing or downgrading a Published row)
-        # merge-blocking the moment the first row reaches Published — no manual
-        # CI edit required at re-rate time. See docs/go-to-market/PRICING_PHILOSOPHY.md § 5.4.
+        # merge-blocking the moment the first row reaches Published â€” no manual
+        # CI edit required at re-rate time. See docs/go-to-market/PRICING_PHILOSOPHY.md Â§ 5.4.
         id: refcust-warn
         continue-on-error: true
         run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
 
-      - name: "Guard — reference-customer status (auto-flip: strict once any Published row exists)"
+      - name: "Guard â€” reference-customer status (auto-flip: strict once any Published row exists)"
         # Auto-flip semantics:
         #   - refcust-warn outcome == 'success'  =>  at least one Status: Published row exists today.
         #   - From that day on, this step re-runs the same check WITHOUT continue-on-error,
@@ -590,12 +590,12 @@ jobs:
         if: steps.refcust-warn.outcome == 'success'
         run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
 
-      - name: Guard — reference-customer status check unit tests
+      - name: Guard â€” reference-customer status check unit tests
         run: |
           cd scripts/ci
           python -m unittest test_check_reference_customer_status
 
-      - name: AuditEvents read path — no NOLOCK hint
+      - name: AuditEvents read path â€” no NOLOCK hint
         run: python scripts/ci/assert_no_audit_events_nolock.py
 
   terraform-validate-private:
@@ -648,7 +648,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot]
+        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot]
     steps:
       - uses: actions/checkout@v5
 
@@ -957,47 +957,47 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: CLI — config lint (auth traps only; avoids production-like overlays)
+      - name: CLI â€” config lint (auth traps only; avoids production-like overlays)
         env:
           ASPNETCORE_ENVIRONMENT: Development
         run: dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --no-build -c Release -- config lint
 
-      - name: Guard — audit coverage matrix vs AuditEventTypes (names + marker)
+      - name: Guard â€” audit coverage matrix vs AuditEventTypes (names + marker)
         run: python scripts/ci/assert_audit_const_count.py
 
-      - name: Guard — audit matrix vs OpenAPI POST/PUT/DELETE paths
+      - name: Guard â€” audit matrix vs OpenAPI POST/PUT/DELETE paths
         run: python scripts/ci/assert_openapi_mutations_in_audit_matrix.py
 
-      - name: Guard — audit matrix vs controller HttpPost/Put/Delete routes
+      - name: Guard â€” audit matrix vs controller HttpPost/Put/Delete routes
         run: python scripts/ci/check_audit_matrix.py
 
-      - name: Guard — mutating route idempotency posture drift (INV-009)
+      - name: Guard â€” mutating route idempotency posture drift (INV-009)
         run: python scripts/ci/detect_mutating_route_idempotency_drift.py
 
-      - name: Guard — route tier policy nav registry vs controllers + matrix
+      - name: Guard â€” route tier policy nav registry vs controllers + matrix
         run: python scripts/ci/assert_route_tier_policy_nav.py
 
       - name: coordinator parity probe (Python unit tests)
         run: python3 scripts/ci/test_coordinator_parity_probe.py
 
-      - name: Guard — migration rollback scripts (latest ten)
+      - name: Guard â€” migration rollback scripts (latest ten)
         run: python3 scripts/ci/assert_rollback_scripts_exist.py
 
-      - name: Guard — forward DbUp migrations must touch ArchLucid.sql (PR)
+      - name: Guard â€” forward DbUp migrations must touch ArchLucid.sql (PR)
         if: github.event_name == 'pull_request'
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
           ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
         run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
 
-      - name: Guard — forward DbUp migrations must touch ArchLucid.sql (push)
+      - name: Guard â€” forward DbUp migrations must touch ArchLucid.sql (push)
         if: github.event_name == 'push'
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
           ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
         run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
 
-      - name: Guard — forward DbUp migrations must touch ArchLucid.sql (workflow_dispatch)
+      - name: Guard â€” forward DbUp migrations must touch ArchLucid.sql (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
@@ -1007,21 +1007,21 @@ jobs:
       - name: forward migration / ArchLucid.sql co-touch guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
 
-      - name: Guard — RLS residual-risk table classifications (PR)
+      - name: Guard â€” RLS residual-risk table classifications (PR)
         if: github.event_name == 'pull_request'
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
           ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
         run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
 
-      - name: Guard — RLS residual-risk table classifications (push)
+      - name: Guard â€” RLS residual-risk table classifications (push)
         if: github.event_name == 'push'
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
           ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
         run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
 
-      - name: Guard — RLS residual-risk table classifications (workflow_dispatch)
+      - name: Guard â€” RLS residual-risk table classifications (workflow_dispatch)
         if: github.event_name == 'workflow_dispatch'
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
@@ -1031,21 +1031,21 @@ jobs:
       - name: RLS residual-risk classification guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_rls_residual_risk_classifications.py"
 
-      - name: Guard — migration numbering (warn-only)
+      - name: Guard â€” migration numbering (warn-only)
         # Non-blocking: surfaces duplicate ###_ prefixes (DbUp orders lexically; ties are silent).
         # Flip to blocking after the historical 035_/096_ duplicates are renumbered (gated on
-        # confirming no production catalog has applied them — see
+        # confirming no production catalog has applied them â€” see
         # docs/archive/quality/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md, question 5.1).
         continue-on-error: true
         run: python3 scripts/ci/check_migration_numbering.py
 
-      - name: Guard — legacy configuration sunset date
+      - name: Guard â€” legacy configuration sunset date
         run: python3 scripts/ci/assert_legacy_config_sunset_not_passed.py
 
-      - name: Guard — golden agent reference JSON fixtures
+      - name: Guard â€” golden agent reference JSON fixtures
         run: python3 scripts/ci/assert_agent_reference_baselines.py
 
-      - name: Guard — unexpected archiforge string literals in C# (case-insensitive)
+      - name: Guard â€” unexpected archiforge string literals in C# (case-insensitive)
         run: |
           set +e
           grep -rni "archiforge" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/archiforge-cs-hits.txt"
@@ -1063,7 +1063,7 @@ jobs:
           cat "${RUNNER_TEMP}/archiforge-cs-hits.txt"
           exit 1
 
-      - name: Guard — unexpected archiforge string literals in TS/TSX
+      - name: Guard â€” unexpected archiforge string literals in TS/TSX
         run: |
           set +e
           grep -rni "archiforge" --include="*.ts" --include="*.tsx" \
@@ -1083,7 +1083,7 @@ jobs:
           cat "${RUNNER_TEMP}/archiforge-ts-hits.txt"
           exit 1
 
-      - name: Guard — archiforge in marketing UI and terraform-edge (narrow paths)
+      - name: Guard â€” archiforge in marketing UI and terraform-edge (narrow paths)
         run: |
           set +e
           grep -rni "archiforge" \
@@ -1104,7 +1104,7 @@ jobs:
           cat "${RUNNER_TEMP}/archiforge-marketing-edge.txt"
           exit 1
 
-      - name: Guard — no direct IIntegrationEventPublisher.PublishAsync bypasses
+      - name: Guard â€” no direct IIntegrationEventPublisher.PublishAsync bypasses
         run: |
           set +e
           grep -rn "\.PublishAsync(" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/pub-hits.txt"
@@ -1183,11 +1183,11 @@ jobs:
       # ArchLucid.Api.Client regenerates from that CI baseline snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).
-      - name: Test — fast core (with coverage)
+      - name: Test â€” fast core (with coverage)
         if: github.event_name != 'pull_request'
         run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
 
-      - name: Test — fast core (PR trimmed — no coverage collection)
+      - name: Test â€” fast core (PR trimmed â€” no coverage collection)
         if: github.event_name == 'pull_request'
         run: dotnet test ArchLucid.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
 
@@ -1236,7 +1236,7 @@ jobs:
           path: ${{ runner.temp }}/coverage-report-fast-core/**
           if-no-files-found: warn
 
-      - name: Test — finding-engine template (not in main solution)
+      - name: Test â€” finding-engine template (not in main solution)
         if: github.event_name != 'pull_request'
         run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
@@ -1273,7 +1273,7 @@ jobs:
 
   # Empty catalog only: invokes DatabaseMigrator.Run (embedded DbUp scripts) without starting ArchLucid.Api.
   sql-dbup-empty-catalog:
-    name: ".NET: Tier 1.5 — DbUp migrations on empty catalog (Docker SQL)"
+    name: ".NET: Tier 1.5 â€” DbUp migrations on empty catalog (Docker SQL)"
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -1446,7 +1446,7 @@ jobs:
   # parallel shards (scripts/ci/Invoke-ApiIntegrationTestShard.ps1) because the suite is sequential (xunit.runner.json)
   # and a monolithic job can run ~4h with minimal console output. Each shard uses normal logging + blame-hang.
   dotnet-full-regression-core-api-integration:
-    name: ".NET: full regression — Api.Tests integration shard ${{ matrix.shard_label }} (SQL)"
+    name: ".NET: full regression â€” Api.Tests integration shard ${{ matrix.shard_label }} (SQL)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1497,7 +1497,7 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Test — ArchLucid.Api.Tests (Integration shard, exclude Category=Slow)
+      - name: Test â€” ArchLucid.Api.Tests (Integration shard, exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: >
@@ -1542,7 +1542,7 @@ jobs:
           if-no-files-found: warn
 
   dotnet-full-regression-core-api-unit:
-    name: ".NET: full regression — Api.Tests non-integration (SQL, Category!=Slow&Category!=Integration)"
+    name: ".NET: full regression â€” Api.Tests non-integration (SQL, Category!=Slow&Category!=Integration)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1583,7 +1583,7 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Test — ArchLucid.Api.Tests (non-Integration, exclude Category=Slow)
+      - name: Test â€” ArchLucid.Api.Tests (non-Integration, exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: >
@@ -1607,7 +1607,7 @@ jobs:
           if-no-files-found: warn
 
   dotnet-full-regression-core-libs:
-    name: ".NET: full regression — core libraries shard (SQL, non-Api Category!=Slow)"
+    name: ".NET: full regression â€” core libraries shard (SQL, non-Api Category!=Slow)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1648,8 +1648,8 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      # Resolves test projects from ArchLucid.sln (excluding Api.Tests → dotnet-full-regression-core-api-* shards).
-      - name: Test — non-Api test assemblies (exclude Category=Slow)
+      # Resolves test projects from ArchLucid.sln (excluding Api.Tests â†’ dotnet-full-regression-core-api-* shards).
+      - name: Test â€” non-Api test assemblies (exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: |
@@ -1684,7 +1684,7 @@ jobs:
           if-no-files-found: warn
 
   dotnet-full-regression-core-complete:
-    name: ".NET: full regression — core shards complete (non-slow)"
+    name: ".NET: full regression â€” core shards complete (non-slow)"
     needs:
       - dotnet-full-regression-core-api-integration
       - dotnet-full-regression-core-api-unit
@@ -1697,7 +1697,7 @@ jobs:
 
   # Slow SQL-backed tests split by project set so the Api.Tests workload cannot monopolize one 3h timeout alone.
   dotnet-full-regression-slow-api:
-    name: ".NET: full regression — slow shard API (SQL, Api.Tests Category=Slow)"
+    name: ".NET: full regression â€” slow shard API (SQL, Api.Tests Category=Slow)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1738,7 +1738,7 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Test — ArchLucid.Api.Tests (Category=Slow only)
+      - name: Test â€” ArchLucid.Api.Tests (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         # Blame must exceed ParallelCreateRunHangGuard (~85m) + GreenfieldSqlHostBootstrapBudget (~35m) slack on cold CI SQL.
@@ -1787,7 +1787,7 @@ jobs:
           if-no-files-found: warn
 
   dotnet-full-regression-slow-domain:
-    name: ".NET: full regression — slow shard domain (SQL, AgentRuntime+Application+Decisioning Category=Slow)"
+    name: ".NET: full regression â€” slow shard domain (SQL, AgentRuntime+Application+Decisioning Category=Slow)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -1829,7 +1829,7 @@ jobs:
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
       # Same as dotnet-full-regression-core-libs: SDK 10+ MSBuild rejects multiple projects in one dotnet test (MSB1008).
-      - name: Test — domain test projects (Category=Slow only)
+      - name: Test â€” domain test projects (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         # Blame timeout aligned with slow API shard (must exceed worst-case HTTP waits used by SQL idempotency helpers).
@@ -2036,7 +2036,7 @@ jobs:
           path: ${{ runner.temp }}/coverage-badge-publish/badges/coverage.svg
           if-no-files-found: error
 
-      - name: Deploy coverage badge — gh-pages badges path
+      - name: Deploy coverage badge â€” gh-pages badges path
         if: >-
           success()
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
@@ -2108,7 +2108,7 @@ jobs:
       - openapi-contract-snapshot
       - dotnet-coverage-merge
       - chaos-tests
-    # Fork PR workflows do not receive repository secrets — full CI only (`workflow_dispatch`).
+    # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
     if: >-
       ${{ vars.ARCHLUCID_CI_REAL_AOAI_ENABLED == 'true'
           && github.event_name != 'pull_request' }}
@@ -2305,7 +2305,7 @@ jobs:
     permissions:
       contents: read
       # cache-from always (fork PRs may read base-branch cache). cache-to only on push to main/master
-      # — fork PR workflows get a read-only token and fail if we always pass cache-to.
+      # â€” fork PR workflows get a read-only token and fail if we always pass cache-to.
       actions: write
     steps:
       - uses: actions/checkout@v5
@@ -2525,7 +2525,7 @@ jobs:
     name: "Operator UI: Playwright mock functional (mock API)"
     needs: gitleaks
     if: github.event_name != 'pull_request'
-    # Mock journey specs (`e2e/`, `chromium` project). Accessibility scans: job `ui-playwright-accessibility`. Optional visual goldens: `npm run test:e2e:mock:visual` — see playwright.mock.config.ts.
+    # Mock journey specs (`e2e/`, `chromium` project). Accessibility scans: job `ui-playwright-accessibility`. Optional visual goldens: `npm run test:e2e:mock:visual` â€” see playwright.mock.config.ts.
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -2621,7 +2621,7 @@ jobs:
           path: archlucid-ui/blob-report
           if-no-files-found: warn
 
-  # Live API + Sql + Next.js (no mock). Gating — failures block merge.
+  # Live API + Sql + Next.js (no mock). Gating â€” failures block merge.
   # Runs playwright.config.ts (live-api-*, demo-workspace-*.smoke @release-gate, marketing targets). Demo GA anchors:
   # docs/go-to-market/DEMO_WORKSPACES.md
   ui-e2e-live:
@@ -2730,7 +2730,7 @@ jobs:
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
           ARCHLUCID_CI_FULL_LIVE_A11Y: ${{ github.event_name == 'workflow_dispatch' && inputs.run_extended_live_a11y_matrix }}
-          # Api host is DevelopmentBypass — prevent inherited env from sending JWT/API key the server rejects (401).
+          # Api host is DevelopmentBypass â€” prevent inherited env from sending JWT/API key the server rejects (401).
           LIVE_JWT_TOKEN: ""
           LIVE_API_KEY: ""
           LIVE_API_KEY_READONLY: ""
@@ -3083,7 +3083,7 @@ jobs:
           if-no-files-found: warn
 
   # k6 operator-path API smoke (health/ready + version + create run + authority list). Runs after full regression;
-  # merge-blocking. Native k6; 5 VUs × ~60s (ramp 10s / hold 40s / ramp 10s). Rate limits raised for synthetic traffic.
+  # merge-blocking. Native k6; 5 VUs Ã— ~60s (ramp 10s / hold 40s / ramp 10s). Rate limits raised for synthetic traffic.
   k6-smoke-api:
     name: "Performance: k6 API smoke (operator path)"
     needs:
@@ -3136,7 +3136,7 @@ jobs:
           ARCHLUCID_BASE_URL: http://127.0.0.1:5128
           K6_SCENARIO: smoke
           K6_SUMMARY_PATH: ${{ runner.temp }}/k6-api-smoke-summary.json
-          # Core Pilot operator-path smoke budgets (aligned with docs/library/API_SLOS.md tiers — informational for CI).
+          # Core Pilot operator-path smoke budgets (aligned with docs/library/API_SLOS.md tiers â€” informational for CI).
           ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
           ARCHLUCID_K6_P95_TIER2_MS: "928"
           ARCHLUCID_K6_P95_TIER3_MS: "6600"
@@ -3232,7 +3232,7 @@ jobs:
       - name: Run k6 CI smoke
         env:
           BASE_URL: http://127.0.0.1:5128
-          # Aligned with docs/library/API_SLOS.md Tier 1/2/3 p95; tests/load/ci-smoke.js + assert_k6_ci_smoke_summary.py — override in fork for noisy runners only.
+          # Aligned with docs/library/API_SLOS.md Tier 1/2/3 p95; tests/load/ci-smoke.js + assert_k6_ci_smoke_summary.py â€” override in fork for noisy runners only.
           ARCHLUCID_K6_P95_HEALTH_LIVE_MS: "300"
           ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
           ARCHLUCID_K6_P95_TIER2_MS: "928"
@@ -3343,7 +3343,7 @@ jobs:
           # zap-baseline.py writes /zap/wrk/zap.yaml; the image user often cannot write the image's /zap/wrk.
           ZAP_WRK="${RUNNER_TEMP:-/tmp}/zap-wrk-${ZNET}"
           mkdir -p "$ZAP_WRK"
-          # ZAP runs as uid 1000 (zap); RUNNER_TEMP is often owned by uid 1001 (runner) → Permission denied without this.
+          # ZAP runs as uid 1000 (zap); RUNNER_TEMP is often owned by uid 1001 (runner) â†’ Permission denied without this.
           chmod -R a+rwx "$ZAP_WRK"
           # Release-published image: force DAST-friendly config via env (do not rely on appsettings.Development.json
           # being present in /app; Sql + localhost connection string would hang or fail before Kestrel listens).
@@ -3379,7 +3379,7 @@ jobs:
           name: zap-scan-report
           path: ${{ runner.temp }}/zap-wrk-zapci-${{ github.run_id }}-${{ github.run_attempt }}/zap-report.html
 
-  # Lightweight per-PR API fuzz: Schemathesis examples-only phase (~1–2 min) to catch response
+  # Lightweight per-PR API fuzz: Schemathesis examples-only phase (~1â€“2 min) to catch response
   # schema violations before merge. Full fuzz (fuzzing + stateful) runs weekly in schemathesis-scheduled.yml.
   api-schemathesis-light:
     name: "Security: Schemathesis light fuzz (full CI)"

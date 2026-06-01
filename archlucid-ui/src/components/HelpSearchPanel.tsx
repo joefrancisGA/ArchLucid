@@ -20,8 +20,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help-index";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { cn } from "@/lib/utils";
 
 export type HelpSearchPanelProps = {
@@ -38,6 +38,10 @@ function helpRecordHref(record: HelpDocSearchRecord): string {
   return resolveInAppDocHref(`${path}${hash}`);
 }
 
+function helpRecordSelectionValue(record: HelpDocSearchRecord): string {
+  return `${record.docPath}::${record.sectionSlug || "root"}::${record.sectionHeading}`;
+}
+
 function stripMdLinks(text: string): string {
   return text.replace(/\[([^\]]+)\]\(([^)]*)\)/g, "$1");
 }
@@ -48,13 +52,31 @@ function stripMdLinks(text: string): string {
 export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpSearchPanelProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [activeValue, setActiveValue] = useState("");
   const hits = useMemo(() => searchHelpDocumentation(query), [query]);
 
   useEffect(() => {
     if (!open) {
       setQuery("");
+      setActiveValue("");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (hits.length === 0) {
+      setActiveValue("");
+
+      return;
+    }
+
+    const firstValue = helpRecordSelectionValue(hits[0]);
+    setActiveValue((current) => (hits.some((h) => helpRecordSelectionValue(h) === current) ? current : firstValue));
+  }, [hits]);
+
+  function openHit(record: HelpDocSearchRecord): void {
+    onOpenChange(false);
+    router.push(helpRecordHref(record));
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,8 +98,9 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
 
         <Command
           shouldFilter={false}
+          value={activeValue}
+          onValueChange={setActiveValue}
           className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-white dark:bg-neutral-950"
-          loop
         >
           <label htmlFor="help-doc-search-input" className="sr-only">
             Search documentation sections
@@ -98,16 +121,22 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
               className="px-1"
             >
               {hits.map((h) => {
-                const href = helpRecordHref(h);
+                const selectionValue = helpRecordSelectionValue(h);
 
                 return (
                   <CommandItem
-                    key={`${h.docPath}::${h.sectionSlug || "root"}::${h.sectionHeading}`}
-                    value={`${h.docTitle} ${h.sectionHeading} ${h.excerpt}`}
+                    key={selectionValue}
+                    value={selectionValue}
+                    keywords={[h.docTitle, h.sectionHeading, h.excerpt]}
                     className="flex cursor-pointer flex-col items-start gap-1 rounded-md border border-transparent px-3 py-2.5 aria-selected:border-neutral-400 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
+                    onPointerDown={() => {
+                      setActiveValue(selectionValue);
+                    }}
+                    onPointerEnter={() => {
+                      setActiveValue(selectionValue);
+                    }}
                     onSelect={() => {
-                      onOpenChange(false);
-                      router.push(href);
+                      openHit(h);
                     }}
                   >
                     <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
