@@ -123,6 +123,22 @@ else {
 $outDir = Split-Path -Parent $MarkdownOut
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
+$claimGateScript = Join-Path $PSScriptRoot 'Invoke-ReleaseRealModeClaimGate.ps1'
+$claimGateMd = Join-Path $root 'artifacts/release/real-mode-claim-gate.md'
+
+if (Test-Path -LiteralPath $claimGateScript) {
+    & $claimGateScript -MarkdownOut $claimGateMd
+    $claimExit = $LASTEXITCODE
+
+    if ($claimExit -ne 0) {
+        Add-Row $rows 'Release real-mode claim gate (TB-166)' 'Failed' "See $claimGateMd"
+        $blocking.Add('Resolve TB-166 claim gate — quad-agent fixtures and/or real-llm-evidence-gate.json.') | Out-Null
+    }
+    else {
+        Add-Row $rows 'Release real-mode claim gate (TB-166)' 'Passed' 'Quad-agent fixtures and gate posture OK (or simulator-only override)'
+    }
+}
+
 $disposition = if ($blocking.Count -gt 0) { 'HOLD' } else { 'PASS' }
 $utc = [DateTime]::UtcNow.ToString('o')
 

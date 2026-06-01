@@ -7,9 +7,11 @@
 
 **Audience:** Pilot champions, architecture team leads, and sales engineers who need to measure whether a pilot succeeded — and present the results to leadership for a purchase decision.
 
-**Last reviewed:** 2026-05-28
+**Last reviewed:** 2026-06-01
 
 **Grounding rule:** Metrics reference shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md) and existing data collection per [PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md).
+
+**PASS / HOLD thresholds:** Pre-agreed pilot acceptance gates live in [`PILOT_ACCEPTANCE_THRESHOLDS.md`](PILOT_ACCEPTANCE_THRESHOLDS.md) (TB-158).
 
 **Executive review packet (CI golden fixture):** Seeded demo run `claims-intake-modernization` packet composition (manifest summary, top findings, ROI basis labels) is regression-tested in `ArchLucid.Application.Tests/Exports/ExecutiveReviewPacketGoldenFixtureTests.cs` against `Exports/Golden/executive-review-packet-demo-run.md`. Healthcare vertical walkthrough: [`docs/library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md`](../library/walkthroughs/POLICY_PACK_HEALTHCARE_CLAIMS_PILOT.md).
 

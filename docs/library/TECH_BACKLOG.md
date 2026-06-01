@@ -138,10 +138,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-163 | Transactable procurement path | Commercial conversion — invoice/services SOW/private offer/Stripe/Marketplace decision tree, payment terms, legal/tax readiness, and claim boundaries | M |
 | TB-164 | V1.1 backlog: first named public reference customer | GTM proof — customer permission, logo/case-study approval, reference-call terms, and claim update process | Owner/GTM |
 | TB-165 | Assessment score consistency guard | Documentation quality — keep weighted tables, per-quality sections, and headline score synchronized after rescores | XS-S |
-| TB-166 | Release claim gate for full real-mode AI evidence | Release safety — RC packaging must attach passing Topology/Cost/Compliance/Critic evidence or automatically downgrade release copy and proof artifacts to simulator-only / partial-real-mode claims | S |
+| TB-166 | Release claim gate for full real-mode AI evidence | Release safety — **Done** (2026-06-01): `check_release_real_mode_claim.py` + `Invoke-ReleaseRealModeClaimGate.ps1` | S |
 | TB-167 | Sponsor AI readiness posture artifact | Sponsor proof — one simple release/proof artifact showing execution mode, quality gate, retrieval grounding, and budget/cost posture for every sponsor packet | S-M |
 | TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness — **Done** (2026-06-01): `EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
-| TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction — first-run UI should show one guided Pilot path and hide recurring/Operate surfaces until the first committed review/proof artifact exists | M |
+| TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction — **Done** (2026-06-01): committed-review nav gate + first-run workflow panel | M |
 | TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | Customer-visible UX — product help must render inside ArchLucid shell, not GitHub blob pages | M |
 | TB-144 | Customer-facing documentation registry | Correctness / maintainability — stable map from product topics to in-app routes and repo source paths | S |
 | TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | Customer-visible UX — HelpPanel, contextual help, doc index, hard-coded marketing/operator GitHub links | M |
@@ -816,6 +816,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-158 — Pilot success thresholds and acceptance criteria
 
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md`](../go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md); linked from [`PILOT_SUCCESS_SCORECARD.md`](../go-to-market/PILOT_SUCCESS_SCORECARD.md).
+
 **Objective:** Define measurable PASS/HOLD criteria for founder-led pilots before results are interpreted or renegotiated after the fact.
 
 **Scope:**
@@ -837,6 +839,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-159 — Buyer security/procurement packet
+
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md`](../go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md).
 
 **Objective:** Create a buyer-safe security/procurement packet that supports controlled pilots without implying formal external certification.
 
@@ -861,6 +865,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-160 — Legal/procurement terms packet
 
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md`](../go-to-market/LEGAL_PROCUREMENT_TERMS_PACKET.md).
+
 **Objective:** Make the first legal/procurement conversation concrete enough for paid pilots without inventing legal commitments in product copy.
 
 **Scope:**
@@ -882,6 +888,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-161 — Design partner / pilot recruiting pipeline
+
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/DESIGN_PARTNER_RECRUITING_PIPELINE.md`](../go-to-market/DESIGN_PARTNER_RECRUITING_PIPELINE.md).
 
 **Objective:** Turn founder-led pilot recruiting into a repeatable, evidence-aware pipeline instead of ad hoc outreach.
 
@@ -905,6 +913,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-162 — Support and pilot operating model
 
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_SUPPORT_OPERATING_MODEL.md`](../go-to-market/PILOT_SUPPORT_OPERATING_MODEL.md).
+
 **Objective:** Define the operating posture for controlled pilots so buyers know how support, escalation, and incident communication work.
 
 **Scope:**
@@ -927,6 +937,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-163 — Transactable procurement path
 
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md`](../go-to-market/TRANSACTABLE_PROCUREMENT_PATH.md).
+
 **Objective:** Define how a buyer can actually purchase a pilot or service-led engagement without implying unavailable checkout channels.
 
 **Scope:**
@@ -948,6 +960,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-164 — V1.1 backlog: first named public reference customer
+
+**Status (2026-06-01):** **Done (template)** — [`docs/go-to-market/V1_1_PUBLIC_REFERENCE_CUSTOMER_CHECKLIST.md`](../go-to-market/V1_1_PUBLIC_REFERENCE_CUSTOMER_CHECKLIST.md) (owner execution remains V1.1).
 
 **Objective:** Capture the owner-output work required before ArchLucid can use a named customer logo, public case study, or reference call as market proof.
 
@@ -973,6 +987,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-165 — Assessment score consistency guard
 
+**Status (2026-06-01):** **Done** — `scripts/ci/check_assessment_score_consistency.py` (+ pytest in `scripts/ci/tests/`).
+
 **Objective:** Prevent assessment rescoring from updating the headline/table while leaving detailed quality sections stale.
 
 **Scope:**
@@ -994,6 +1010,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-166 — Release claim gate for full real-mode AI evidence
+
+**Status (2026-06-01):** **Done** — `scripts/ci/check_release_real_mode_claim.py`, `scripts/Invoke-ReleaseRealModeClaimGate.ps1`, wired into `Invoke-ReleaseRealLlmEvidenceRequirement.ps1`; unit tests in `scripts/ci/tests/test_check_release_real_mode_claim.py`.
 
 **Objective:** Make release packaging fail safe when full Topology/Cost/Compliance/Critic real-mode evidence is missing, partial, stale, or HOLD.
 
@@ -1021,6 +1039,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-167 — Sponsor AI readiness posture artifact
+
+**Status (2026-06-01):** **Done (V1 alias)** — `scripts/collect-first-pilot-proof.ps1` emits `ai-readiness-gate.json` / `.md` (consolidated posture); TB-166 adds `real-mode-claim-gate` for release copy.
 
 **Objective:** Promote production-like retrieval, real-mode evidence, quality-gate results, and budget posture into one sponsor-safe artifact that every proof packet can include.
 
@@ -1080,6 +1100,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-169 — Pilot-first onboarding and Operate-surface progressive disclosure
+
+**Status (2026-06-01):** **Done (V1)** — `filterNavLinksByCommittedArchitectureReviewGate` + `nav-committed-architecture-review-gate.test.ts` (pilot path before commit; `operate-governance` empty until committed); `OperatorFirstRunWorkflowPanel` + `useNavProgressiveDisclosure` for extended/advanced tiers.
 
 **Objective:** Reduce first-run branching by making the primary operator path a single guided Pilot flow, while keeping recurring/Operate surfaces out of the main navigation until there is a committed review or proof artifact to operate.
 

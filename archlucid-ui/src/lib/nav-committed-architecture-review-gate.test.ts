@@ -47,4 +47,15 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
     );
     expect(hrefs).toEqual(["/", "/reviews/new", "/graph", "/reviews", "/dashboard", "/onboarding", "/help"]);
   });
+
+  it("hides operate-governance links until the first committed review", () => {
+    const governance = NAV_GROUPS.find((g) => g.id === "operate-governance");
+    if (governance === undefined) {
+      throw new Error("nav smoke: missing operate-governance group");
+    }
+
+    const thin = filterNavLinksByCommittedArchitectureReviewGate(governance.links, false);
+
+    expect(thin).toHaveLength(0);
+  });
 });
