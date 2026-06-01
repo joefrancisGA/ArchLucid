@@ -1,4 +1,4 @@
-locals {
+﻿locals {
   application_insights_enabled = var.enable_application_insights && length(trimspace(var.resource_group_name)) > 0 && length(
     trimspace(var.application_insights_workspace_resource_id)
   ) > 0
@@ -19,7 +19,7 @@ resource "azurerm_application_insights" "archlucid" {
   application_type    = "web"
   workspace_id        = var.application_insights_workspace_resource_id
   retention_in_days   = 90
-  sampling_percentage = 100
+  sampling_percentage = var.application_insights_sampling_percentage
 
   tags = var.tags
 }

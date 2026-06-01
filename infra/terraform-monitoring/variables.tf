@@ -219,3 +219,14 @@ variable "alert_pagerduty_webhook_uri_secret_name" {
   description = "Key Vault secret name for PagerDuty Events API v2 enqueue URL."
   default     = "alert-pagerduty-webhook-uri"
 }
+
+variable "application_insights_sampling_percentage" {
+  type        = number
+  description = "TB-102: Application Insights ingestion sampling (0-100). Lower to 10-20 for high-volume production to control Log Analytics cost."
+  default     = 100
+
+  validation {
+    condition     = var.application_insights_sampling_percentage >= 0 && var.application_insights_sampling_percentage <= 100
+    error_message = "application_insights_sampling_percentage must be between 0 and 100."
+  }
+}

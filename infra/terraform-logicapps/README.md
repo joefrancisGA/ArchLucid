@@ -67,3 +67,7 @@ Workflow JSON and in-app connections are **not** defined here; export from the d
 - `docs/architecture/adrs/0019-logic-apps-standard-edge-orchestration.md` — architecture decision.
 - `docs/runbooks/LOGIC_APPS_STANDARD.md` — operator notes.
 - `docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md` — alert fired/resolved Service Bus user properties and callback routes.
+
+## TB-100 storage authentication
+
+`azurerm_logic_app_standard` still requires `storage_account_access_key` for `WEBSITE_CONTENTAZUREFILECONNECTIONSTRING` on standard App Service plans (Azure platform limitation). TB-100 adds **Storage Blob Data Owner** and **Storage File Data SMB Share Contributor** RBAC on each hosting storage account for the Logic App system-assigned identity (`logic_app_storage_grant_storage_rbac`, default true) so workflow storage access can move toward managed identity without portal-only role drift.

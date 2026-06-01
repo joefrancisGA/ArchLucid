@@ -62,7 +62,7 @@ variable "search_service_id" {
 
 variable "linux_web_app_id" {
   type        = string
-  description = "Resource ID of the Linux Web App (azurerm_linux_web_app.this.id) for regional VNet integration. Leave empty to skip."
+  description = "Optional Linux Web App resource ID for regional VNet integration (legacy — Container Apps is the active compute layer). Leave empty in production-like pilots."
   default     = ""
 }
 

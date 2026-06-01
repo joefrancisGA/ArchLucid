@@ -1,3 +1,9 @@
+﻿variable "logic_app_storage_use_managed_identity" {
+  type        = bool
+  description = "TB-100: When true, grant Storage Blob/File RBAC on hosting storage accounts for Logic App system-assigned identities (TB-100; access key still required by platform for file share mount)."
+  default     = true
+}
+
 variable "enable_logic_apps" {
   type        = bool
   description = "When true, deploy a Logic App (Standard) host plus backing storage and WS1 plan. Keep false until VNet + Service Bus subscriptions are designed."
@@ -198,7 +204,7 @@ variable "promotion_customer_notify_logic_app_name" {
 
 variable "enable_teams_notifications_logic_app" {
   type        = bool
-  description = "When true, deploy a dedicated Logic App (Standard) host for Microsoft Teams adaptive-card fan-out (Service Bus → Incoming Webhook)."
+  description = "When true, deploy a dedicated Logic App (Standard) host for Microsoft Teams adaptive-card fan-out (Service Bus â†’ Incoming Webhook)."
   default     = false
 }
 

@@ -58,3 +58,6 @@ Private endpoints for **Key Vault** and **Storage**; least-privilege managed ide
 
 - [PER_TENANT_COST_MODEL.md](PER_TENANT_COST_MODEL.md) — line-item sketch.
 - [../FIRST_AZURE_DEPLOYMENT.md](../library/FIRST_AZURE_DEPLOYMENT.md) — first land.
+
+
+**TB-102:** Tune Application Insights cost via pplication_insights_sampling_percentage in infra/terraform-monitoring (default 100; use 10–20 for high-volume production).

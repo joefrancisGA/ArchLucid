@@ -81,9 +81,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-097 | Create `terraform-acr` root — Azure Container Registry | IaC coverage — **Done** 2026-06-01; `infra/terraform-acr/` (optional `enable_acr`) | S |
 | TB-098 | Add `azurerm_monitor_workspace` to `terraform-monitoring` | IaC coverage — **Done** 2026-06-01; managed workspace + `azure_monitor_workspace_id_effective` | XS |
 | TB-099 | Add diagnostic settings for Container Apps, Service Bus namespace, and artifact storage account | Ops / observability — **Done** 2026-06-01; optional flags in container-apps, servicebus, storage (+ hosted platform diagnostics) | S |
-| TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene --- all 7 Logic Apps pass `primary_access_key` verbatim; key rotation in portal breaks apps until TF re-apply | M |
-| TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene --- `azurerm_app_service_virtual_network_swift_connection` references `var.linux_web_app_id`; system runs on Container Apps; verify state, decommission or document | XS |
-| TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene --- hardcoded to 100 (no sampling); expose as variable so operators can tune without editing .tf source | XS |
+| TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene — **Done** 2026-06-01 (RBAC on hosting storage; access key still required by platform for file share mount) | M |
+| TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene — **Done** 2026-06-01 (documented legacy optional path; Container Apps is active compute) | XS |
+| TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene — **Done** 2026-06-01; `application_insights_sampling_percentage` variable (0–100, default 100) | XS |
 | TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | **Done (2026-05-31)** — `--output-json [path]`, `stages[]` timings on report, `BackfillCliJsonReportSerializerTests` | XS |
 | TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
@@ -92,9 +92,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | **Done (2026-05-31)** — `AuthorityRunDetailOperatorEnricher` on `GetRunDetail`; explanation-trace fallback label when `results[]` empty | M |
 | TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | **Done (2026-05-31)** — `RunDetailGovernanceAlerts` + metadata `retryCount` when &gt; 0 | S |
 | TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | **Done (2026-05-31)** — `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | S |
-| TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — `OrphanedResourceClassifier` and `run-potential-savings-parser.ts` use different inputs; KPI can silently diverge | M |
-| TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — `countExpiringWaivers` filter in `ExecutiveRoiDashboardLiveKpiCards.tsx` uses a frontend-defined 14-day cutoff; not returned by any backend metric | S |
-| TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — `BusinessImpactSummaryWidget.sumIssueCounts` uses `category` substring matching; brittle and not validated against backend classification | S |
+| TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — **Done** 2026-05-31; reaffirmed 2026-06-01 | M |
+| TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — **Done**; dashboard prefers `expiringWaiversCount14Days` from ROI (2026-06-01) | S |
+| TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — **Done** 2026-05-31 | S |
 | TB-149 | Canonical 14-day expiring-waiver window — single server implementation; delete `CountExpiringWaivers` duplicate | Customer-visible correctness — `ExecutiveRoiSummaryService` counts expired waivers; `BuildSummaryAsync` uses `[now, now+14d]`; dashboard prefers stale ROI field | S |
 | TB-150 | Decisions-needed `TotalDecisionItems` — union cardinality across buckets, not sum | Customer-visible correctness — same finding can increment stale + needs-evidence + deferred + waiver buckets; KPI overcounts | S |
 | TB-151 | `ExecutiveSummaryResult.TotalRiskReductionScore` — rename or map to pending-decision count | Customer-visible correctness — field maps to `TotalDecisionItems` (high = more work); semantic inversion for exports/consumers | XS |
@@ -4678,6 +4678,8 @@ If these were configured in the portal post-deploy, Terraform cannot manage or r
 
 ## TB-100 --- Migrate Logic App Standard storage from access-key to managed identity
 
+**Status:** **Done** (2026-06-01, platform-constrained). `logic_app_storage_rbac.tf` grants **Storage Blob Data Owner** + **Storage File Data SMB Share Contributor** per Logic App on its hosting storage (`logic_app_storage_use_managed_identity` default true). `storage_account_access_key` remains on `azurerm_logic_app_standard` because Azure still requires `WEBSITE_CONTENTAZUREFILECONNECTIONSTRING` on standard plans — see `infra/terraform-logicapps/README.md`.
+
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
 **Problem:**
@@ -4739,6 +4741,8 @@ All 7 Logic App Standard resources in `terraform-logicapps/main.tf` pass `storag
 ---
 
 ## TB-102 --- Parameterize `application_insights_sampling_percentage` in `terraform-monitoring`
+
+**Status:** **Done** (2026-06-01). Variable `application_insights_sampling_percentage` (default 100) replaces hardcoded literal in `application_insights.tf`.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
