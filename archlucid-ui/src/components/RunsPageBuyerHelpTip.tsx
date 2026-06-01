@@ -1,6 +1,6 @@
 "use client";
 
-import { Info } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -9,7 +9,7 @@ export type RunsPageBuyerHelpTipProps = {
 };
 
 /**
- * Compact info control so the reviews index body can stay one line wide with disclosure in a tooltip.
+ * Compact help control so the reviews index body can stay one line wide with disclosure in a tooltip.
  */
 export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
   const { variant } = props;
@@ -39,10 +39,10 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
         <TooltipTrigger asChild>
           <button
             type="button"
-            className="ms-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-900"
+            className="ms-1 inline-flex shrink-0 rounded p-0.5 text-neutral-500 hover:text-neutral-700 focus-visible:outline focus-visible:ring-2 dark:text-neutral-400 dark:hover:text-neutral-200"
             aria-label={label}
           >
-            <Info className="h-4 w-4" aria-hidden />
+            <CircleHelp className="h-3.5 w-3.5" aria-hidden />
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs text-left text-sm">

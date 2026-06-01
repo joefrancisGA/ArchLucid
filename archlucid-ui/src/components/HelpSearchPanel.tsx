@@ -1,6 +1,7 @@
 "use client";
 
-import { BookOpen, ExternalLink } from "lucide-react";
+import { BookOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ function helpRecordHref(record: HelpDocSearchRecord): string {
   const path = record.docPath.startsWith("/") ? record.docPath : `/${record.docPath}`;
   const hash = record.sectionSlug.length > 0 ? `#${record.sectionSlug}` : "";
 
-  return toDocsBlobUrl(`${path}${hash}`);
+  return resolveInAppDocHref(`${path}${hash}`);
 }
 
 function stripMdLinks(text: string): string {
@@ -45,6 +46,7 @@ function stripMdLinks(text: string): string {
  * Slide-over documentation search (build-time index). Shift+/ opens via shell shortcut provider.
  */
 export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpSearchPanelProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const hits = useMemo(() => searchHelpDocumentation(query), [query]);
 
@@ -67,7 +69,8 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
             Documentation search
           </DialogTitle>
           <DialogDescription className="text-left text-sm">
-            Search curated operator docs on GitHub (indexed at build time). Results open in a new tab.
+            Search curated operator documentation indexed at build time. Selecting a result opens the matching Help topic in
+            the app.
           </DialogDescription>
         </DialogHeader>
 
@@ -103,14 +106,12 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     value={`${h.docTitle} ${h.sectionHeading} ${h.excerpt}`}
                     className="flex cursor-pointer flex-col items-start gap-1 rounded-md border border-transparent px-3 py-2.5 aria-selected:border-neutral-400 aria-selected:bg-[var(--al-layer-hover)] dark:aria-selected:border-neutral-600 dark:aria-selected:bg-neutral-800/80"
                     onSelect={() => {
-                      window.open(href, "_blank", "noopener,noreferrer");
+                      onOpenChange(false);
+                      router.push(href);
                     }}
                   >
-                    <span className="flex w-full items-start justify-between gap-2 text-left">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                        {h.docTitle}
-                      </span>
-                      <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-60" aria-hidden />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {h.docTitle}
                     </span>
                     <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{h.sectionHeading}</span>
                     <span className="line-clamp-3 text-xs leading-snug text-neutral-600 dark:text-neutral-300">
@@ -140,7 +141,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
             </Button>
           ) : null}
           <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-            Keyboard: arrows navigate · Enter opens · Escape closes · Shortcut Shift+?
+            Keyboard: arrows navigate · Enter opens Help topic · Escape closes · Shortcut Shift+?
           </p>
         </div>
       </DialogContent>

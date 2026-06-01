@@ -11,7 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import { Info } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 
 import {
   contextualHelpByKey,
@@ -74,10 +74,9 @@ function computePanelStyle(trigger: HTMLElement, placement: ContextualHelpPlacem
 }
 
 /**
- * In-context info (not global Help). Pointer hover may preview the panel; click or Space/Enter toggles
+ * In-context help (not global Help). Pointer hover may preview the panel; click or Space/Enter toggles
  * a persistent open state until Escape or an outside pointer event. Keyboard users rely on the trigger
- * button only (no hover-only path). Uses an info icon so the header Help control stays the sole
- * question-mark affordance. Panel uses `role="region"` (not `tooltip`) because copy may include a
+ * button only (no hover-only path). Panel uses `role="region"` (not `tooltip`) because copy may include a
  * focusable Learn more link. Content from `contextualHelpByKey` in `src/lib/contextual-help-content.ts`;
  * trigger `aria-label` from {@link contextualHelpTriggerAriaLabel}.
  */
@@ -220,7 +219,7 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
             }
           }}
         >
-          <Info className="h-3 w-3" aria-hidden />
+          <CircleHelp className="h-3 w-3" aria-hidden />
         </button>
       </span>
       {panel != null && typeof document !== "undefined" ? createPortal(panel, document.body) : null}
