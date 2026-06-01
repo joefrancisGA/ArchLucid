@@ -239,6 +239,7 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       createdUtc: string;
       hasGovernanceWarnings?: boolean;
       lastFailureReason?: string | null;
+      retryCount?: number;
     };
     contextSnapshot?: unknown;
     graphSnapshot?: unknown;

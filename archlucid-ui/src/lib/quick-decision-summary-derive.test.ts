@@ -6,6 +6,7 @@ import {
   buildFindingWireSnapshotsForRunDetail,
   extractQuickDecisionFindingsFromRunDetail,
   firstRecommendationSentence,
+  isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   sortQuickDecisionFindings,
 } from "./quick-decision-summary-derive";
@@ -276,5 +277,26 @@ describe("quick-decision-summary-derive", () => {
 
     expect(snaps["f-a"]).toBeDefined();
     expect(snaps["f-a"]?.reasoningTrace).toBe("High");
+  });
+
+  it("isQuickDecisionDerivedFromExplanationTraces is true only when agent results are empty but traces exist", () => {
+    const detailWithResults = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [{ findings: [{ findingId: "x", message: "m", reasoningTrace: "t", severity: 1 }] }],
+    } as unknown as RunDetail;
+
+    expect(isQuickDecisionDerivedFromExplanationTraces(detailWithResults, null)).toBe(false);
+
+    const emptyResults = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      results: [{ findings: [] }],
+    } as unknown as RunDetail;
+
+    const summary = {
+      findingTraceConfidences: [{ findingId: "f-a", traceConfidenceLabel: "High" }],
+    } as RunExplanationSummary;
+
+    expect(isQuickDecisionDerivedFromExplanationTraces(emptyResults, summary)).toBe(true);
+    expect(isQuickDecisionDerivedFromExplanationTraces(emptyResults, null)).toBe(false);
   });
 });

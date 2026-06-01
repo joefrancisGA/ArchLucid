@@ -58,8 +58,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-071 | Azure Search production client — wire tenant OData filter on every search/delete | Security (P0) — `AzureSearchTenantScopeFilterBuilder` exists but only `NotConfiguredAzureSearchClient` is registered; cross-tenant retrieval unverifiable in production | S–M |
 | TB-072 | Scope-to-identity binding at API ingress (ApiKey, DevBypass, header/claim reconciliation) | Security (P0) — ApiKey and DevBypass carry zero tenant claims; `x-tenant-id` alone resolves scope | M |
 | TB-073 | Scoped snapshot repository reads (findings / graph / context + relational child loads) | Security (P1) — `GetByIdAsync(Guid)` and child queries filter by snapshot/record ID only; IDOR in SingleCatalog mode | M |
-| TB-074 | Retrieval indexing write-path tenant validation | Security (P1) — `RetrievalIndexingService` copies `TenantId` from document metadata without validating against ambient `ScopeContext` | S |
-| TB-075 | Operator UI server-side scope (proxy strips client headers; SSR from session) | Security (P1) — browser `localStorage` and forwarded `x-tenant-id` choose tenant; SSR hardcodes dev GUIDs | S–M |
+| TB-074 | Retrieval indexing write-path tenant validation | **Done (2026-05-31)** — `RetrievalIndexingScopeValidator` on index writes; scoped in-memory delete; tests | S |
+| TB-075 | Operator UI server-side scope (proxy strips client headers; SSR from session) | **Done (2026-05-31)** — `resolveProxyUpstreamScopeHeaders` + production-like proxy posture; value-report tenant from `/api/auth/me` | S–M |
 | TB-082 | Agent `AllowedTools` — runtime enforcement at handler dispatch | Security (P2) — advisory/prompt-only allowlist; empty = unrestricted; no enforcer at `RealAgentExecutor` dispatch | S |
 | TB-079 | ADO PR markdown — sanitize `SummaryHighlights` + deep-link fields before writing PR comment body | Security (P2) — unescaped compare data echoed verbatim into ADO PR bodies; markdown/HTML injection risk | XS |
 | TB-083 | Service Bus — production safety rule: require namespace FQDN, disallow raw connection string | Security hardening — `IntegrationEvents:ServiceBusConnectionString` permitted in production with no Key Vault enforcement | XS |
@@ -83,9 +83,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
 | TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **P0** — local dev / operator diagnostics — script declares success when UI `/` loads but proxy returns 502; contributors misdiagnose as LLM outage | S |
 | TB-157 | API connectivity toasts — distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **P0** — operator diagnostics — `api-error-toast-policy.ts` maps all proxy 502/fetch failures to “AI assistant not reachable” | XS |
-| TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | Operator visibility (P0) — `agentExecutionLlmCostEstimate`, `trustEvidenceCard`, and `results[]` are null on every live run; operator reviews cost as "unavailable" | M |
-| TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | Operator visibility (P0) — operator approves runs with suppressed governance warnings and hidden failure reasons; both fields fetched but never rendered | S |
-| TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | Operator visibility (P0) — commit-blocking failures silently hidden before `CommitRunButton`; `dispositionCoverage` computed in `GetRunDetailAsync` but dropped at render | S |
+| TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | **Done (2026-05-31)** — `AuthorityRunDetailOperatorEnricher` on `GetRunDetail`; explanation-trace fallback label when `results[]` empty | M |
+| TB-107 | RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord` | **Done (2026-05-31)** — `RunDetailGovernanceAlerts` + metadata `retryCount` when &gt; 0 | S |
+| TB-108 | RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures` | **Done (2026-05-31)** — `FindingCoverageDispositionPanel` + `commitBlockedReason` on `CommitRunButton` | S |
 | TB-103 | Orphan candidate count + savings — expose backend-computed values via API; remove heuristic parser from UI | Customer-visible correctness — `OrphanedResourceClassifier` and `run-potential-savings-parser.ts` use different inputs; KPI can silently diverge | M |
 | TB-104 | 14-day expiring waiver KPI — server-compute the window; remove client-side date rule | Customer-visible correctness — `countExpiringWaivers` filter in `ExecutiveRoiDashboardLiveKpiCards.tsx` uses a frontend-defined 14-day cutoff; not returned by any backend metric | S |
 | TB-105 | Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher | Customer-visible correctness — `BusinessImpactSummaryWidget.sumIssueCounts` uses `category` substring matching; brittle and not validated against backend classification | S |
@@ -1675,6 +1675,8 @@ EstimateUsd_per_deployment_reasoning_overrides_global()
 
 ## TB-028 — Move `Integrations.AzureExtractor` wiring out of `Api.csproj` into Host.Composition
 
+**Status (2026-05-31):** **Done** — `ArchLucid.Api.csproj` has no direct `Integrations.AzureExtractor` reference; wiring remains in `Host.Composition`; `Api_csproj_must_not_reference_Integrations_AzureExtractor_assembly` in `DependencyConstraintTests`.
+
 **Source:** Dependency graph audit (2026-05-26). `ArchLucid.Api.csproj` carries a direct `<ProjectReference>` to `ArchLucid.Integrations.AzureExtractor`. This violates the single-composition-root rule enforced by `SingleCompositionRootServiceCollectionExtensionsTests` — adapter wiring belongs exclusively in `Host.Composition`.
 
 **Problem:**
@@ -3156,6 +3158,8 @@ Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev 
 
 ## TB-074 — Retrieval indexing write-path tenant validation
 
+**Status (2026-05-31):** **Done** — `RetrievalIndexingScopeValidator.ValidateDocuments` in `RetrievalIndexingService`; `InMemoryVectorIndex.RemoveChunksForDocumentAsync` scopes delete by tenant/workspace/project; `RetrievalIndexingScopeValidatorTests`.
+
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Retrieval uses a shared global vector index with query-time metadata filtering.
 
 **Problem:**
@@ -3185,6 +3189,8 @@ Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev 
 ---
 
 ## TB-075 — Operator UI server-side scope (proxy + SSR)
+
+**Status (2026-05-31):** **Done (V1 posture)** — `resolveProxyUpstreamScopeHeaders` strips client scope in production-like mode; env `ARCHLUCID_PROXY_*` trusted scope; `proxy-scope-resolution.test.ts`; sponsor value report resolves tenant from `/api/auth/me`. Full Entra cookie-bound SSR scope remains paired with **TB-072**.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). The operator UI declares the API as the authoritative security boundary but forwards client-controlled scope headers.
 
@@ -3447,6 +3453,8 @@ Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev 
 
 ## TB-074 — Retrieval indexing write-path tenant validation
 
+**Status (2026-05-31):** **Done** — `RetrievalIndexingScopeValidator.ValidateDocuments` in `RetrievalIndexingService`; `InMemoryVectorIndex.RemoveChunksForDocumentAsync` scopes delete by tenant/workspace/project; `RetrievalIndexingScopeValidatorTests`.
+
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Retrieval uses a shared global vector index with query-time metadata filtering.
 
 **Problem:**
@@ -3476,6 +3484,8 @@ Safe in **per-tenant catalog** mode only. Vulnerable in **SingleCatalog** / dev 
 ---
 
 ## TB-075 — Operator UI server-side scope (proxy + SSR)
+
+**Status (2026-05-31):** **Done (V1 posture)** — `resolveProxyUpstreamScopeHeaders` strips client scope in production-like mode; env `ARCHLUCID_PROXY_*` trusted scope; `proxy-scope-resolution.test.ts`; sponsor value report resolves tenant from `/api/auth/me`. Full Entra cookie-bound SSR scope remains paired with **TB-072**.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). The operator UI declares the API as the authoritative security boundary but forwards client-controlled scope headers.
 
@@ -4878,6 +4888,8 @@ Additional gaps: no preflight for toolchain, `node_modules`, port conflicts, or 
 
 ## TB-106 — RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]`
 
+**Status (2026-05-31):** **Done** — `IAuthorityRunDetailOperatorEnricher` / `AuthorityRunDetailOperatorEnricher` invoked from `AuthorityQueryController.GetRunDetail`; `AuthorityRunDetailOperatorEnricherTests`; quick-decision shows explicit explanation-trace fallback when `results[]` empty.
+
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
 **Problem:**
@@ -4924,6 +4936,8 @@ If enriching the authority endpoint is blocked by service ownership, add a paral
 
 ## TB-107 — RunDetailPageView — surface `lastFailureReason` + `hasGovernanceWarnings` from `RunRecord`
 
+**Status (2026-05-31):** **Done** — `RunDetailGovernanceAlerts` (warnings + last failure); `RunDetailRunMetadataSection` shows `retryCount` when &gt; 0; `RunDetailGovernanceAlerts.test.tsx` + metadata section tests.
+
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 
 **Problem:**
@@ -4962,6 +4976,8 @@ An operator reviewing and committing a run sees neither. `HasGovernanceWarnings 
 ---
 
 ## TB-108 — RunDetailPageView — render `findingCoverageSummary.dispositionCoverage` + `hasCommitBlockingFailures`
+
+**Status (2026-05-31):** **Done** — `FindingCoverageDispositionPanel` in `RunDetailOutcomeCards`; `commitBlockedReason` blocks commit UX; `RunDetailOutcomeCards.test.tsx`.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 

@@ -59,6 +59,8 @@ export type QuickDecisionSummaryProps = {
   readonly buyerPolishedShell?: boolean;
   readonly headlineFindingCount?: number | null;
   readonly headlineWarningCount?: number | null;
+  /** When true, rows were derived from explanation traces because agent results were empty on the authority payload. */
+  readonly usingExplanationFallback?: boolean;
 };
 
 /** Top severity-ranked actionable findings from run detail agent results (no extra API calls). */
@@ -164,6 +166,16 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 text-sm text-neutral-700 dark:text-neutral-300">
+          {props.usingExplanationFallback === true ? (
+            <p
+              className="m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+              data-testid="quick-decision-explanation-fallback-notice"
+              role="status"
+            >
+              Confidence rows are derived from the aggregate explanation trace because per-finding agent results were not
+              on this review payload. Re-run execute or refresh after commit if you need agent-result grounding.
+            </p>
+          ) : null}
           {exportCsvError !== null ? (
             <p className="m-0 text-xs text-red-700 dark:text-red-300" role="alert">
               {exportCsvError}

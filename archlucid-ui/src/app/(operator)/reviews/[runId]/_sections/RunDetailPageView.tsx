@@ -269,6 +269,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           runId={m.routeRunId}
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
           quickDecisionFindings={m.quickDecisionFindings}
+          quickDecisionFromExplanationFallback={m.quickDecisionFromExplanationFallback}
           findingWireSnapshots={m.findingWireSnapshots}
           findingCountDisplay={m.findingCountDisplay}
           warningCountDisplay={m.warningCountDisplay}
@@ -349,6 +350,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           runId={m.routeRunId}
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
           quickDecisionFindings={m.quickDecisionFindings}
+          quickDecisionFromExplanationFallback={m.quickDecisionFromExplanationFallback}
           findingWireSnapshots={m.findingWireSnapshots}
           findingCountDisplay={m.findingCountDisplay}
           warningCountDisplay={m.warningCountDisplay}

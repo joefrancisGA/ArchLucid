@@ -45,6 +45,50 @@ Use this table when you need a working configuration without reading the full [`
 
 `SingleCatalog` is for local and CI convenience only — do not treat it as substitute for per-tenant catalog isolation on hosted SaaS ([`V1_SCOPE.md`](V1_SCOPE.md) §2.4).
 
+**Command-first companion:** [`customer-facing/OPERATOR_QUICKSTART.md`](../customer-facing/OPERATOR_QUICKSTART.md) (health probes, CLI pilot run, support bundle).
+
+### Copy-paste starter blocks (illustrative)
+
+**Hosted SaaS (standard)** — set in API `appsettings` or environment; operator UI uses Entra and server-trusted scope via the proxy (do not rely on browser `localStorage` for tenant in production-like posture):
+
+```json
+"Authentication": { "Mode": "JwtBearer" },
+"Storage": { "Topology": "SystemWithPerTenantCatalogs" },
+"AgentExecution": { "Mode": "real" },
+"Retrieval": { "Provider": "AzureSearch" }
+```
+
+**Self-hosted enterprise** — same topology; point `AzureOpenAI` / `AzureSearch` at your subscription endpoints and wire OIDC/SAML per [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md):
+
+```json
+"Authentication": { "Mode": "JwtBearer" },
+"Storage": { "Topology": "SystemWithPerTenantCatalogs" },
+"AgentExecution": { "Mode": "real" },
+"Retrieval": { "Provider": "AzureSearch" }
+```
+
+**CI / developer local** — fastest loop; use `scripts/start-local-api-and-ui.ps1` after SQL is up:
+
+```json
+"Authentication": { "Mode": "DevBypass" },
+"Storage": { "Topology": "SingleCatalog" },
+"AgentExecution": { "Mode": "simulator" },
+"Retrieval": { "Provider": "InMemory" }
+```
+
+Operator UI proxy (production-like): set `ARCHLUCID_PROXY_TRUST_SERVER_SCOPE_ONLY=true` and `ARCHLUCID_PROXY_TENANT_ID` / `ARCHLUCID_PROXY_WORKSPACE_ID` / `ARCHLUCID_PROXY_PROJECT_ID` so the Next.js proxy does not forward browser scope headers.
+
+### First-hour onboarding checklist
+
+| Step | Action | Doc |
+| --- | --- | --- |
+| 1 | Pick a preset row above | This section |
+| 2 | Start API + UI (`start-local-api-and-ui.ps1` or your host runbook) | [`OPERATOR_QUICKSTART.md`](../customer-facing/OPERATOR_QUICKSTART.md) |
+| 3 | Confirm `/health/live` and `/health/ready` | [`OPERATOR_QUICKSTART.md`](../customer-facing/OPERATOR_QUICKSTART.md) |
+| 4 | Run one CLI pilot or UI **New review → execute → commit** | [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
+| 5 | Open committed run detail — verify cost, trust card, decision summary, governance alerts | [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) |
+| 6 | Export package or sponsor briefing only after step 4 succeeds | [`PILOT_GUIDE.md`](../customer-facing/PILOT_GUIDE.md) |
+
 Pilot onboarding spine: [`customer-facing/PILOT_GUIDE.md`](../customer-facing/PILOT_GUIDE.md).
 
 ---

@@ -19,6 +19,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly runId: string;
   readonly buyerPolishedArtifactTable: boolean;
   readonly quickDecisionFindings: QuickDecisionFinding[];
+  readonly quickDecisionFromExplanationFallback: boolean;
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
   readonly findingCountDisplay: number | null;
   readonly warningCountDisplay: number | null;
@@ -36,6 +37,7 @@ export function RunDetailRunExplanationCollapsible(
     runId,
     buyerPolishedArtifactTable,
     quickDecisionFindings,
+    quickDecisionFromExplanationFallback,
     findingWireSnapshots,
     findingCountDisplay,
     warningCountDisplay,
@@ -64,6 +66,7 @@ export function RunDetailRunExplanationCollapsible(
           buyerPolishedShell={buyerPolishedArtifactTable}
           headlineFindingCount={findingCountDisplay}
           headlineWarningCount={warningCountDisplay}
+          usingExplanationFallback={quickDecisionFromExplanationFallback}
         />
         {explanationFailure ? (
           <>

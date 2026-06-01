@@ -47,6 +47,8 @@ export type RunDetailPageModel = {
   readonly showPilotScorecardPackageCta: boolean;
   readonly governanceGateLabel: string | null;
   readonly quickDecisionFindings: QuickDecisionFinding[];
+  /** When true, quick-decision rows were synthesized from explanation traces (not agent results). */
+  readonly quickDecisionFromExplanationFallback: boolean;
   readonly findingWireSnapshots: Record<string, FindingWireSnapshot>;
   readonly adrGeneratorInput: AdrGeneratorRunInput;
   readonly savingsSummary: RunSavingsSummaryModel | null;

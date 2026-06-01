@@ -385,6 +385,18 @@ function mergeQuickDecisionFindingsWithExplanationTraces(
   });
 }
 
+/** True when quick-decision rows come from aggregate explanation traces, not agent `results[].findings`. */
+export function isQuickDecisionDerivedFromExplanationTraces(
+  detail: RunDetail,
+  explanationSummary: RunExplanationSummary | null,
+): boolean {
+  if (extractQuickDecisionFindingsFromRunDetail(detail).length > 0) {
+    return false;
+  }
+
+  return findingTraceRowsFromSummary(explanationSummary).length > 0;
+}
+
 /**
  * Prefer flattened agent `results[].findings`; when that slice is empty but the aggregate explanation lists per-finding
  * trace rows (common when run-detail findings omit ids), derive quick-decision rows from explanation.

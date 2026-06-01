@@ -39,6 +39,7 @@ import {
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   buildFindingWireSnapshotsForRunDetail,
+  isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
   severityBadgeLabel,
 } from "@/lib/quick-decision-summary-derive";
@@ -356,6 +357,10 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       : governanceGateLabelRaw;
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
+  const quickDecisionFromExplanationFallback = isQuickDecisionDerivedFromExplanationTraces(
+    resolvedDetail,
+    explanationSummary,
+  );
   const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);
 
   const adrGeneratorInput = buildAdrGeneratorRunInput({
@@ -421,6 +426,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     showPilotScorecardPackageCta,
     governanceGateLabel,
     quickDecisionFindings,
+    quickDecisionFromExplanationFallback,
     findingWireSnapshots,
     adrGeneratorInput,
     savingsSummary,
