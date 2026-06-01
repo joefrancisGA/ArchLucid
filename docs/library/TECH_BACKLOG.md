@@ -47,7 +47,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-156 – TB-157** were added 2026-05-31 from local-dev triage: operators running `start-local-api-and-ui.ps1` (or UI-only) saw repeated Sonner warnings **“Review assistant unavailable / AI assistant service is not reachable”** while the root cause was **ArchLucid.Api not running** or **UI proxy → API misconfiguration** (502), not Azure OpenAI / Ask. **Both are P0 — pick up in the next available engineering thread** before other backlog polish. **TB-156** fail-closes the startup script on a full browser → UI → `/api/proxy` → API chain. **TB-157** reframes connectivity toasts so proxy/API outages say **API unreachable**, reserving assistant wording for Ask/SSE-only failures. Cross-ref [`docs/runbooks/TROUBLESHOOTING.md`](../runbooks/TROUBLESHOOTING.md), [`docs/library/customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md), `scripts/env-readiness.ps1`, `scripts/demo-start-local.ps1`.
 
-**TB-158 – TB-165** were added 2026-06-01 from `docs/assessments/LATEST_GPT55.md` human-input score-limiter triage and rescore. They avoid duplicating existing engineering tasks by extending **TB-131 – TB-134**, promoting existing **TB-141 – TB-142** to near-term GTM priority, and adding only missing owner-reviewable GTM/procurement/support work. Formal SOC 2 CPA and third-party pen-test programs remain parked in **TB-135 – TB-136** per the V1.1 assurance backlog rule; do not reclassify them from normal assessment passes.
+**TB-158 – TB-167** were added 2026-06-01 from `docs/assessments/LATEST_GPT55.md` human-input score-limiter triage and rescore. They avoid duplicating existing engineering tasks by extending **TB-131 – TB-134**, promoting existing **TB-141 – TB-142** to near-term GTM priority, and adding only missing owner-reviewable GTM/procurement/support/release-claim/sponsor-evidence work. Formal SOC 2 CPA and third-party pen-test programs remain parked in **TB-135 – TB-136** per the V1.1 assurance backlog rule; do not reclassify them from normal assessment passes.
 
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
@@ -69,7 +69,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | **Done (2026-05-31)** — `AuthenticationMode=ManagedIdentity` for completion, embeddings, judge; `AzureOpenAiConfigurationProbe`; KV sample + startup lint | S |
 | TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** — `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
 | TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | **Done (2026-06-01)** — `terraform-private` KV DNS zone + PE when `key_vault_id` set; `key_vault_private_endpoint_id` output; `terraform validate` | XS-S |
-| TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | Security --- container apps read KV secrets at runtime via managed identity; role assignment absent from all TF roots; portal-created, subject to drift | XS |
+| TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | **Done (2026-06-01)** — `terraform-keyvault/workload_rbac.tf` + principal ID vars; `terraform-private/keyvault_rbac.tf`; `apply-saas.ps1` TB-092 second pass; `terraform.tfvars.example` | XS |
 | TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | IaC coverage (HIGH) --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure OpenAI resource/deployment IDs rather than creating the service; hosted examples must wire IDs, endpoints, MI/RBAC, diagnostics assumptions, and US East pilot defaults as code. | M |
 | TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | IaC coverage --- `HotPathCache.RedisConnectionString` present in `appsettings.Production.json`; no `azurerm_redis_cache`; SKU, eviction, private endpoint unmanaged | S |
 | TB-095 | Assess + codify Cosmos DB --- create `terraform-cosmos` if active in production | IaC coverage --- `CosmosDb.ConnectionString` in `appsettings.json`; `Microsoft.Azure.Cosmos` NuGet in `ArchLucid.Persistence`; consistency/throughput/backup unmanaged if live | S-M |
@@ -134,6 +134,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-163 | Transactable procurement path | Commercial conversion — invoice/services SOW/private offer/Stripe/Marketplace decision tree, payment terms, legal/tax readiness, and claim boundaries | M |
 | TB-164 | V1.1 backlog: first named public reference customer | GTM proof — customer permission, logo/case-study approval, reference-call terms, and claim update process | Owner/GTM |
 | TB-165 | Assessment score consistency guard | Documentation quality — keep weighted tables, per-quality sections, and headline score synchronized after rescores | XS-S |
+| TB-166 | Release claim gate for full real-mode AI evidence | Release safety — RC packaging must attach passing Topology/Cost/Compliance/Critic evidence or automatically downgrade release copy and proof artifacts to simulator-only / partial-real-mode claims | S |
+| TB-167 | Sponsor AI readiness posture artifact | Sponsor proof — one simple release/proof artifact showing execution mode, quality gate, retrieval grounding, and budget/cost posture for every sponsor packet | S-M |
 | TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | Customer-visible UX — product help must render inside ArchLucid shell, not GitHub blob pages | M |
 | TB-144 | Customer-facing documentation registry | Correctness / maintainability — stable map from product topics to in-app routes and repo source paths | S |
 | TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | Customer-visible UX — HelpPanel, contextual help, doc index, hard-coded marketing/operator GitHub links | M |
@@ -982,6 +984,63 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **Refs:** `docs/assessments/LATEST_GPT55.md`, `docs/library/ASSESSMENT_QUALITY_MODEL.md`.
 
 **Size estimate:** XS-S.
+
+---
+
+## TB-166 — Release claim gate for full real-mode AI evidence
+
+**Objective:** Make release packaging fail safe when full Topology/Cost/Compliance/Critic real-mode evidence is missing, partial, stale, or HOLD.
+
+**Why this is not a duplicate:** **TB-137 – TB-140** generate and improve real-mode evidence. This item controls release claims and release-candidate packaging: if the evidence is not attached and passing, product/proof/release materials must narrow themselves to simulator-only or partial-real-mode language.
+
+**Scope:**
+
+- Add a release-candidate evidence manifest check that requires a current `real-llm-evidence-gate.json` / Markdown artifact for all four agent paths: Topology, Cost, Compliance, and Critic.
+- Validate artifact freshness, execution mode, agent coverage, structural validity, semantic/faithfulness status when available, and PASS/WARN/HOLD outcome.
+- Feed the result into release notes, first-pilot proof, commercial closeout, and public claim-boundary checks so missing or partial evidence produces simulator-only / partial-real-mode wording.
+- Add a documented manual override only for explicitly simulator-only releases; the override must name who approved the narrower claim and why.
+- Keep live Azure OpenAI calls out of normal PR CI. This is a release-candidate packaging guard, not a branch-protection gate.
+
+**Acceptance criteria:**
+
+- Release packaging cannot claim full real-mode AI confidence unless all four agent paths have current passing evidence attached.
+- Topology-only or partial live evidence is labeled as partial, not PASS.
+- Missing, stale, or HOLD evidence causes generated release/proof/commercial artifacts to use simulator-only or partial-real-mode claims.
+- Tests/fixtures cover full PASS, topology-only, partial-agent, stale artifact, missing artifact, and explicit simulator-only release.
+
+**Refs:** **TB-137**, **TB-138**, **TB-139**, **TB-140**, **TB-131**, **TB-134**, `scripts/Invoke-RealLlmEvidenceGate.ps1`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`, `docs/quality/REAL_LLM_SESSION_2026-05-29.md`, `docs/library/V1_RELEASE_CHECKLIST.md`.
+
+**Size estimate:** S.
+
+---
+
+## TB-167 — Sponsor AI readiness posture artifact
+
+**Objective:** Promote production-like retrieval, real-mode evidence, quality-gate results, and budget posture into one sponsor-safe artifact that every proof packet can include.
+
+**Why this is not a duplicate:** Existing items cover the component evidence: **TB-109** surfaces retrieval, **TB-137 – TB-140** cover real-mode evidence and cost metrics, **TB-166** controls release claims, and **TB-122 / TB-125 / TB-131** add proof/commercial summaries. This item composes those signals into one concise sponsor artifact instead of making buyers infer AI readiness from separate files.
+
+**Scope:**
+
+- Add an `ai-readiness-posture.json` and `ai-readiness-posture.md` artifact to first-pilot proof and release evidence collection.
+- Include execution mode per agent path: simulator, local-owner-dev real mode, partial real mode, mixed, or not run.
+- Include quality-gate posture: structural validity, semantic score, faithfulness/support ratio when available, PASS/WARN/HOLD outcome, and caveats.
+- Include retrieval posture: vector index type, Azure AI Search vs in-memory, tenant filtering status, grounding availability, degraded/missing retrieval state, and link/reference to retrieval-hit evidence when present.
+- Include budget posture: configured LLM budget, observed/estimated token usage and cost when available, missing-cost caveat when token usage is not captured, and kill-switch/budget guard status.
+- Include a sponsor-safe summary paragraph and internal diagnostic references; omit raw prompts, secrets, unredacted customer evidence, and raw retrieved text unless already approved elsewhere.
+- Link or embed the artifact from sponsor packet, release evidence, commercial closeout, and procurement/security packet outputs.
+
+**Acceptance criteria:**
+
+- Every generated sponsor proof packet has a single AI readiness posture artifact or an explicit "not applicable / simulator-only" reason.
+- The artifact makes it obvious whether claims are based on simulator, topology-only real evidence, full quad-agent real evidence, or mixed evidence.
+- Missing retrieval, missing cost data, failed quality gates, or HOLD real-mode evidence cannot appear as a green/pass summary.
+- Tests/fixtures cover full real-mode PASS, simulator-only, partial real-mode, missing retrieval, missing token/cost metrics, and HOLD quality gate.
+- The artifact reuses existing evidence outputs; it does not create a second quality-gate or ROI truth source.
+
+**Refs:** **TB-109**, **TB-122**, **TB-125**, **TB-131**, **TB-137**, **TB-139**, **TB-140**, **TB-166**, `scripts/collect-first-pilot-proof.ps1`, `scripts/Invoke-RealLlmEvidenceGate.ps1`, `docs/library/AGENT_OUTPUT_EVALUATION.md`, `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`.
+
+**Size estimate:** S-M.
 
 ---
 
@@ -4259,6 +4318,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 ---
 
 ## TB-092 --- Key Vault Secrets User RBAC for API + Worker managed identities
+
+**Status (2026-06-01):** **Done** — `azurerm_role_assignment` **Key Vault Secrets User** in `infra/terraform-keyvault/workload_rbac.tf` when `enable_key_vault` and principal ID vars are set; `infra/terraform-private/keyvault_rbac.tf` for `key_vault_workload_principal_ids` on `var.key_vault_id`; `infra/apply-saas.ps1` second pass after Container Apps; `infra/terraform-keyvault/terraform.tfvars.example`; docs in `CONFIGURATION_KEY_VAULT.md`, `REFERENCE_SAAS_STACK_ORDER.md`, `IAC_RUNTIME_PARITY.md`.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 

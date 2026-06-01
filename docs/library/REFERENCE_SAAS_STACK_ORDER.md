@@ -53,6 +53,15 @@ Apply each directory below **in order** with **its own backend key** when you ne
 
 CI validates **`terraform validate`** + **Trivy config** across these roots (see `.github/workflows/ci.yml`) **and** `infra/terraform-pilot`.
 
+### TB-092 — Key Vault workload RBAC (second pass)
+
+`terraform-keyvault` runs **before** `terraform-container-apps`, so API/Worker `principal_id` values are not known on the first Key Vault apply. After Container Apps exist, grant **`Key Vault Secrets User`** by either:
+
+1. **`infra/apply-saas.ps1 -MultiRoot -Apply`** — runs an extra apply on `terraform-keyvault` (and `terraform-private` when `key_vault_workload_principal_ids` / `key_vault_id` are configured) using Container Apps `terraform output` principal IDs; or
+2. Manual re-apply of `terraform-keyvault` with `api_managed_identity_principal_id` / `worker_managed_identity_principal_id` from `api_system_assigned_principal_id` / `worker_system_assigned_principal_id` outputs.
+
+See [`CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md) and [`TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md`](TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md).
+
 ---
 
 ## SaaS-shaped API profile (optional)

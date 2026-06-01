@@ -1,0 +1,17 @@
+﻿# Example tfvars for infra/terraform-keyvault (operator-supplied; do not commit secrets).
+# See docs/library/CONFIGURATION_KEY_VAULT.md and TB-092 in docs/library/TECH_BACKLOG.md.
+
+enable_key_vault       = true
+create_resource_group  = true
+resource_group_name    = "rg-archlucid-secrets"
+location               = "centralus"
+key_vault_name         = "kv-archlucid-example"
+sku_name               = "standard"
+
+# Human break-glass only — not for Container Apps workloads (least privilege).
+admin_object_ids = []
+
+# TB-092: populate after infra/terraform-container-apps apply (system-assigned principal_id outputs).
+# apply-saas.ps1 -MultiRoot -Apply runs a second keyvault apply with these IDs automatically.
+api_managed_identity_principal_id    = ""
+worker_managed_identity_principal_id = ""

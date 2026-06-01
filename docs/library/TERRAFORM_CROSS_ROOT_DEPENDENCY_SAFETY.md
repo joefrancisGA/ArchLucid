@@ -96,6 +96,8 @@ This does **not** replace `terraform graph`; it documents **intent** for operato
 | `terraform-container-apps` | `container_apps_subnet_id` | Dedicated subnet delegated to Container Apps Env (often created beside or within `terraform-private` topology) | When VNet-integrated env; validated by `checks.tf` ARM shape |
 | `terraform-edge` | `backend_hostname` | Container App ingress FQDN or APIM hostname | Must match live origin |
 | `terraform` (APIM) | Backend URL | Container Apps `/` or APIM-internal pattern per design | Consumption SKU limits apply |
+| `terraform-keyvault` | `api_managed_identity_principal_id`, `worker_managed_identity_principal_id` | `terraform-container-apps` / `api_system_assigned_principal_id`, `worker_system_assigned_principal_id` | **TB-092:** second apply after Container Apps; automated in `apply-saas.ps1 -MultiRoot -Apply` |
+| `terraform-private` | `key_vault_workload_principal_ids` | Same Container Apps principal outputs | RBAC on external `key_vault_id` when private data plane + vault PE are enabled |
 
 ---
 

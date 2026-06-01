@@ -14,7 +14,7 @@
 | Cosmos (graph) | `Cosmos:*` | — | Optional (InMemory/SQL paths exist) | TB-095 |
 | Service Bus | `ServiceBus:*` | — | Optional (outbox) | TB-099 |
 | ACR | Deploy scripts | `infra/terraform-acr` (partial) | **Required** for image pull in Azure | TB-097 |
-| Key Vault | `KeyVault:*` | `infra/terraform-private` | **Required** when KV public access disabled | TB-091 |
+| Key Vault | `KeyVault:*` | `infra/terraform-private` + `infra/terraform-keyvault` | **Required** when KV public access disabled | TB-091 (PE/DNS), **TB-092** (API/Worker `Key Vault Secrets User`) |
 
 ## Apply order (operator)
 
