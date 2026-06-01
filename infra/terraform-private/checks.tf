@@ -34,3 +34,15 @@ check "private_storage_account_id_arm_format" {
   }
 }
 
+
+check "private_key_vault_id_arm_format" {
+  assert {
+    condition = length(trimspace(var.key_vault_id)) == 0 || can(
+      regex(
+        "(?i)^/subscriptions/[0-9a-f-]+/resourceGroups/[^/]+/providers/Microsoft\\.KeyVault/vaults/[^/]+$",
+        var.key_vault_id
+      )
+    )
+    error_message = "key_vault_id must be a Microsoft.KeyVault/vaults/* ARM resource ID when set."
+  }
+}

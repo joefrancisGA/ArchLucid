@@ -8,6 +8,9 @@ location                  = "eastus2"
 sql_server_id       = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-data/providers/Microsoft.Sql/servers/archlucid-sql"
 storage_account_id  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/starchlucidstg"
 
+# Optional: Key Vault private endpoint + privatelink.vaultcore.azure.net (required when vault public access is disabled)
+# key_vault_id = "/subscriptions/.../resourceGroups/.../providers/Microsoft.KeyVault/vaults/archlucid-kv"
+
 # Optional: Azure AI Search private endpoint + privatelink.search.windows.net zone (omit or "" to skip)
 # search_service_id = "/subscriptions/.../providers/Microsoft.Search/searchServices/archlucid-search"
 

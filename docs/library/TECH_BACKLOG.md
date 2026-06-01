@@ -68,7 +68,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-081 | `ArchLucidApiKey` — production safety rule: require Key Vault reference | **Done (2026-05-31)** — `CollectAzureDevOpsArchLucidApiKeyKeyVaultReference`; `ProductionSecretSourceRulesTests` | XS |
 | TB-080 | Azure OpenAI — migrate from `ApiKey` config key to `DefaultAzureCredential` (Entra auth) | **Done (2026-05-31)** — `AuthenticationMode=ManagedIdentity` for completion, embeddings, judge; `AzureOpenAiConfigurationProbe`; KV sample + startup lint | S |
 | TB-084 | AzureExtractor — validate `SubscriptionId` as GUID before ARM URL construction | **Done (2026-05-31)** — `HostedAzureExtractorGuidValidator` on client + ARM reader; unit tests | XS |
-| TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | Security --- KV has `public_network_access_enabled=false` but no private endpoint or DNS zone in `terraform-private`; portal-only configuration, unmanageable by TF | XS-S |
+| TB-091 | Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`) | **Done (2026-06-01)** — `terraform-private` KV DNS zone + PE when `key_vault_id` set; `key_vault_private_endpoint_id` output; `terraform validate` | XS-S |
 | TB-092 | Key Vault Secrets User RBAC for API + Worker managed identities | Security --- container apps read KV secrets at runtime via managed identity; role assignment absent from all TF roots; portal-created, subject to drift | XS |
 | TB-093 | Compose Azure OpenAI existing-resource consumption into hosted Terraform stack | IaC coverage (HIGH) --- owner decision 2026-06-01: production-like hosted Terraform consumes pre-existing Azure OpenAI resource/deployment IDs rather than creating the service; hosted examples must wire IDs, endpoints, MI/RBAC, diagnostics assumptions, and US East pilot defaults as code. | M |
 | TB-094 | Create `terraform-redis` root --- Azure Cache for Redis hot-path cache | IaC coverage --- `HotPathCache.RedisConnectionString` present in `appsettings.Production.json`; no `azurerm_redis_cache`; SKU, eviction, private endpoint unmanaged | S |
@@ -4224,6 +4224,8 @@ Backfill.Cli emits console logging only (no OpenTelemetry). Exit codes `0/1/2/3`
 
 ---
 ## TB-091 --- Key Vault private endpoint + private DNS zone (`privatelink.vaultcore.azure.net`)
+
+**Status (2026-06-01):** **Done** — `azurerm_private_dns_zone` + VNet link + `azurerm_private_endpoint` for `privatelink.vaultcore.azure.net` when `enable_private_data_plane` and `key_vault_id` are set; `key_vault_private_endpoint_id` output; ARM ID check in `checks.tf`; documented in `terraform.tfvars.example` and `README.md`.
 
 **Source:** IaC parity audit (2026-05-27). Canvas: `canvases/iac-parity-audit.canvas.tsx`.
 
