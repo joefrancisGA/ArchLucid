@@ -1,4 +1,4 @@
-/** Heuristic parsers for extractor-style cost/orphan JSON; schemas evolve with the PowerShell package. */
+/** Heuristic parser for extractor-style cost JSON; orphan KPIs use GET /v1/roi/executive-summary (TB-103). */
 
 const MAX_DEPTH = 42;
 
@@ -159,61 +159,3 @@ function headingFromColumnDescriptor(cell: unknown): string {
   return typeof n === "string" ? n : "";
 }
 
-/** Orphan lists are arrays or envelope objects with `candidates` / similar. */
-export function heuristicAnnualUsdOpportunityFromOrphanCandidatesJson(parsed: unknown): number {
-  if (parsed === null || parsed === undefined) return 0;
-
-  const list = coerceOrphanList(parsed);
-
-  return list.reduce<number>((acc, row) => acc + sumOrphanCandidateRowUsdAnnual(row), 0);
-}
-
-function coerceOrphanList(parsed: unknown): unknown[] {
-  if (Array.isArray(parsed)) return parsed;
-
-  if (!isRecord(parsed)) return [];
-
-  if (Array.isArray(parsed.candidates)) return parsed.candidates;
-
-  if (Array.isArray(parsed.resources)) return parsed.resources;
-
-  if (Array.isArray(parsed.items)) return parsed.items;
-
-  if (Array.isArray(parsed.orphans)) return parsed.orphans;
-
-  return [];
-}
-
-function sumOrphanCandidateRowUsdAnnual(row: unknown): number {
-  if (!isRecord(row)) return 0;
-
-  let partial = 0;
-
-  Object.entries(row).forEach(([key, value]) => {
-    if (typeof value !== "number" || !Number.isFinite(value))
-      return;
-
-    const lowered = key.toLowerCase();
-
-    if (EXCLUDE_TAIL_KEY_FRAGMENT.test(key)) return;
-
-    const a = Math.abs(value);
-
-    if (MONTHLY_SAVINGS_KEY.test(key))
-      partial += a * 12;
-    else if (ANNUAL_VALUE_KEY.test(key))
-      partial += a;
-    else if (/monthly\b.*(cost|spend|usd)\b|(cost|spend|usd).*monthly/.test(lowered))
-      partial += a * 12;
-    else if (/\bwasteusd\b|(idle|unused|orphaned).*(cost|usd|spend)|(cost|usd|spend).*(idle|unused|orphan)/i.test(lowered)) {
-      const annualKeyed = /\bannual\b|\bperyear\b|\/yr\b/i.test(lowered);
-
-      partial += annualKeyed ? a : a * 12;
-    }
-    else if (/\borphan\b.*(usd|cost|savings)/i.test(key))
-      partial += /\bannual\b|\bperyear\b|\/yr\b/i.test(lowered) ? a : a * 12;
-    else return;
-  });
-
-  return partial;
-}

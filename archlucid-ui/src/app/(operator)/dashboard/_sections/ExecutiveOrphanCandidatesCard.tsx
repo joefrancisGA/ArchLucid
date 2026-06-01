@@ -38,13 +38,7 @@ export function ExecutiveOrphanCandidatesCard() {
           throw new Error(`HTTP ${res.status}`);
         }
 
-        const json = (await res.json()) as ExecutiveRoiSummary & {
-          orphanCandidates?: {
-            candidateCount?: number;
-            annualSavingsUsd?: number | null;
-            evidenceRunId?: string | null;
-          };
-        };
+        const json = (await res.json()) as ExecutiveRoiSummary;
 
         if (cancelled) {
           return;

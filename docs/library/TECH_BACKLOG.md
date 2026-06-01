@@ -4383,6 +4383,8 @@ All 7 Logic App Standard resources in `terraform-logicapps/main.tf` pass `storag
 
 ## TB-103 — Orphan candidate count + savings — expose via backend API; remove UI heuristic parser
 
+**Status (2026-05-31):** **Done** — `ExecutiveOrphanCandidateKpiCalculator` + `orphanCandidates` on `ExecutiveRoiSummaryResponse`; `ExecutiveOrphanCandidatesCard` reads API only; orphan heuristics removed from `run-potential-savings-parser.ts` (run detail uses cost artifact only).
+
 **Source:** Cross-layer domain-term audit (2026-05-27).
 
 **Problem:**
@@ -4431,6 +4433,8 @@ The UI card never reads backend orphan findings. Count and dollar figures can di
 ---
 
 ## TB-104 — 14-day expiring waiver KPI — server-compute the window; remove client-side date rule
+
+**Status (2026-05-31):** **Done** — `GovernanceWaiverExpiryWindow` + `ExpiringWaiversCount14Days` on ROI; dashboard uses `waiversExpiringWithin14Days`; `ExecutiveReviewPacketPortfolioSignalsFactory` maps ROI expiring count (not `ActiveWaiversCount`).
 
 **Source:** Cross-layer domain-term audit (2026-05-27). Cross-ref: code comment references TB-062 gap.
 
@@ -4483,6 +4487,8 @@ The 14-day window is a business rule that exists only in the browser. `Executive
 ---
 
 ## TB-105 — Business-impact category buckets — add pre-bucketed counts to `ExecutiveRoiSummaryResponse`; remove substring matcher
+
+**Status (2026-05-31):** **Done** — `ExecutiveBusinessImpactCategoryClassifier` + `BusinessImpactCategoryCounts` on ROI; `BusinessImpactSummaryWidget` reads API buckets (security/compliance + reliability themes for V1 widget).
 
 **Source:** Cross-layer domain-term audit (2026-05-27).
 

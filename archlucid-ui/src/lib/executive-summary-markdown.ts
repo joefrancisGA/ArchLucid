@@ -57,6 +57,14 @@ export type ExecutiveRoiSummary = {
     totalPotentialUsd: number;
   };
   businessImpactCategoryCounts?: ExecutiveBusinessImpactCategoryCounts;
+  expiringWaiversCount14Days?: number;
+  orphanCandidates?: ExecutiveOrphanCandidateSummary;
+};
+
+export type ExecutiveOrphanCandidateSummary = {
+  candidateCount: number;
+  annualSavingsUsd: number | null;
+  evidenceRunId?: string | null;
 };
 
 export type ExecutiveBusinessImpactCategoryCounts = {

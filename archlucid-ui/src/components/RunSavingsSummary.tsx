@@ -20,7 +20,7 @@ function sourceBadgeLabel(sourceKind: RunSavingsSummarySourceKind): string {
     return "demonstration KPI";
   }
 
-  return "cost-actual.json • orphan-candidates.json";
+  return "cost-actual.json";
 }
 
 /** Highlights annualized savings opportunity on run detail (server resolver or demo-only heuristics). */

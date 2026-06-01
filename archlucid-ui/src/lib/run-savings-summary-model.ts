@@ -3,12 +3,8 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   artifactBasenameMatchesList,
   RUN_POTENTIAL_SAVINGS_COST_ACTUAL_ARTIFACT_FILENAMES,
-  RUN_POTENTIAL_SAVINGS_ORPHAN_CANDIDATES_ARTIFACT_FILENAMES,
 } from "@/lib/run-potential-savings-artifact-names";
-import {
-  heuristicAnnualUsdOpportunityFromCostArtifactJson,
-  heuristicAnnualUsdOpportunityFromOrphanCandidatesJson,
-} from "@/lib/run-potential-savings-parser";
+import { heuristicAnnualUsdOpportunityFromCostArtifactJson } from "@/lib/run-potential-savings-parser";
 import {
   SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -67,7 +63,7 @@ export async function loadRunSavingsSummaryModel(params: Readonly<{
         ? []
         : [
           "Demonstration KPI — representative annualized extractor opportunity anchored to Claims Intake sample reviews.",
-          "Connect a tenant with live `cost-actual.json` and `orphan-candidates.json` artifacts to replace this illustrative figure.",
+          "Connect a tenant with live `cost-actual.json` artifacts to replace this illustrative figure.",
         ];
 
     const amount = SHOWCASE_STATIC_DEMO_ILLUSTRATIVE_ANNUALIZED_EXTRACTION_USD;
@@ -80,19 +76,14 @@ export async function loadRunSavingsSummaryModel(params: Readonly<{
   }
 
   const costDescriptor = resolveExtractorNamedArtifact(params.artifacts, RUN_POTENTIAL_SAVINGS_COST_ACTUAL_ARTIFACT_FILENAMES);
-  const orphanDescriptor = resolveExtractorNamedArtifact(
-    params.artifacts,
-    RUN_POTENTIAL_SAVINGS_ORPHAN_CANDIDATES_ARTIFACT_FILENAMES,
-  );
 
-  if (costDescriptor === null && orphanDescriptor === null)
+  if (costDescriptor === null)
     return null;
 
   const footnotesAccumulator: string[] = [];
   let fromCost = 0;
-  let fromOrphans = 0;
 
-  if (costDescriptor !== null && manifestTrim.length > 0) {
+  if (manifestTrim.length > 0) {
     try {
       const fetched = await fetchArtifactContentUtf8(manifestTrim, costDescriptor.artifactId, SAVINGS_JSON_FETCH_CAP_BYTES);
       const parsedJson = tryParsedJson(fetched);
@@ -104,41 +95,13 @@ export async function loadRunSavingsSummaryModel(params: Readonly<{
     }
   }
 
-  if (orphanDescriptor !== null && manifestTrim.length > 0) {
-    try {
-      const fetchedOrphan = await fetchArtifactContentUtf8(
-        manifestTrim,
-        orphanDescriptor.artifactId,
-        SAVINGS_JSON_FETCH_CAP_BYTES,
-      );
-
-      const parsedOrphanJson = tryParsedJson(fetchedOrphan);
-
-      footnotesAccumulator.push(...parsedOrphanJson.footnotes);
-
-      fromOrphans = heuristicAnnualUsdOpportunityFromOrphanCandidatesJson(parsedOrphanJson.parsed);
-    } catch {
-      footnotesAccumulator.push("`orphan-candidates.json` artifact could not be read for automatic KPI rollup.");
-    }
-  }
-
-  const sumRounded = Math.round(fromCost + fromOrphans);
+  const sumRounded = Math.round(fromCost);
 
   if (!Number.isFinite(sumRounded) || sumRounded <= 0)
     return null;
 
-  const artifactNamesHuman: string[] = [];
-
-  if (costDescriptor !== null)
-    artifactNamesHuman.push(costDescriptor.name.trim());
-
-  if (orphanDescriptor !== null)
-    artifactNamesHuman.push(orphanDescriptor.name.trim());
-
   footnotesAccumulator.push(
-    `Heuristic roll-up aggregates savings-like numeric signals from extractor JSON artifacts (${artifactNamesHuman.join(
-      "; ",
-    )}). Pure billed totals without adjacent savings wording are suppressed so Finance can still audit the originals via Artifacts.`,
+    `Heuristic roll-up aggregates savings-like numeric signals from ${costDescriptor.name.trim()}. Pure billed totals without adjacent savings wording are suppressed so Finance can still audit the original via Artifacts. Orphan-candidate totals live on the executive dashboard via GET /v1/roi/executive-summary.`,
   );
 
   return {

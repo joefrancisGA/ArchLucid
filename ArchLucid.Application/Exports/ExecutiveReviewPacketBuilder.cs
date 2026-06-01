@@ -51,7 +51,8 @@ public sealed class ExecutiveReviewPacketBuilder(
         string executiveSummary = BuildDeterministicExecutiveSummary(detail, topFindings);
         IReadOnlyList<ExecutiveReviewPacketDecisionRow> topDecisions = await BuildTopDecisionsAsync(cancellationToken)
             .ConfigureAwait(false);
-        ExecutiveReviewPacketPortfolioSignals portfolioSignals = BuildPortfolioSignals(roiSummary);
+        ExecutiveReviewPacketPortfolioSignals portfolioSignals =
+            ExecutiveReviewPacketPortfolioSignalsFactory.Create(roiSummary);
 
         return ExecutiveReviewPacketComposer.ComposeMarkdown(
             detail,
@@ -103,26 +104,4 @@ public sealed class ExecutiveReviewPacketBuilder(
         return rows;
     }
 
-    private static ExecutiveReviewPacketPortfolioSignals BuildPortfolioSignals(ExecutiveRoiSummaryResponse roiSummary)
-    {
-        List<string> nextActions = [];
-
-        if (roiSummary.BasisBreakdown?.DeferredUsd > 0m)
-            nextActions.Add("Review deferred findings before the next architecture board cycle.");
-
-        if (roiSummary.BasisBreakdown?.WaivedUsd > 0m)
-            nextActions.Add("Confirm active waivers remain within policy before sponsor distribution.");
-
-        if (nextActions.Count == 0)
-            nextActions.Add("Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off.");
-
-        return new ExecutiveReviewPacketPortfolioSignals
-        {
-            ResolvedFindingsCount30Days = roiSummary.ResolvedFindingsCount30Days,
-            NewlyDiscoveredFindingsCount30Days = roiSummary.NewlyDiscoveredFindingsCount30Days,
-            StaleRiskCount = 0,
-            ExpiringWaiversCount14Days = roiSummary.RealizedValue?.ActiveWaiversCount ?? 0,
-            NextActions = nextActions,
-        };
-    }
 }
