@@ -27,7 +27,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     /// </summary>
     private static readonly TimeSpan ParallelCreateRunHangGuard =
         ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
-        + TimeSpan.FromMinutes(45);
+        + TimeSpan.FromMinutes(10);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
@@ -64,7 +64,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         // exhaust GreenfieldSqlHostBootstrapBudget (30m) on cold CI SQL before the test hang guard starts.
         await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
             client,
-            includePostCreateRunWarmup: false);
+            includePostCreateRunWarmup: true);
 
         using CancellationTokenSource hangGuard = new();
         hangGuard.CancelAfter(ParallelCreateRunHangGuard);

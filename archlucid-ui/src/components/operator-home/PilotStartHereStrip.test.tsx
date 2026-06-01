@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { PilotStartHereStrip } from "@/components/operator-home/PilotStartHereStrip";
@@ -15,7 +15,10 @@ describe("first-review cognitive load guard", () => {
     render(<PilotStartHereStrip />);
 
     expect(screen.getByTestId("pilot-start-here-strip")).toBeInTheDocument();
-    expect(screen.getAllByRole("listitem")).toHaveLength(4);
+
+    const primaryStepList = screen.getByTestId("pilot-start-here-strip").querySelector("ol");
+    expect(primaryStepList).not.toBeNull();
+    expect(within(primaryStepList as HTMLElement).getAllByRole("listitem")).toHaveLength(4);
     expect(screen.getByTestId("pilot-start-platform")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-start-evidence")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-start-run")).toBeInTheDocument();

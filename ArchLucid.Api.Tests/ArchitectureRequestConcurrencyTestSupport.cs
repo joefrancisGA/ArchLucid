@@ -30,20 +30,17 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     internal static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(65);
 
     /// <summary>
-    ///     Per-POST ceiling for <see cref="GreenfieldSqlApiFactory" /> (10 min <c>sp_getapplock</c> + 5 min pipeline + cold
-    ///     SQL headroom). Parallel idempotency bursts after
-    ///     <see cref="WarmGreenfieldSqlHostForArchitectureRequestTestsAsync" /> should finish well under this; it must stay
-    ///     below <see cref="ArchitectureRequestBurstHttpTimeout" /> so greenfield tests do not inherit InMemory-factory
-    ///     budgets meant for hour-scale lock chains.
+    ///     Per-POST ceiling for <see cref="GreenfieldSqlApiFactory" /> (3 min <c>sp_getapplock</c> + 5 min pipeline +
+    ///     parallel waiter headroom). Must stay below InMemory-factory hour-scale budgets and below slow-shard blame-hang.
     /// </summary>
-    internal static readonly TimeSpan GreenfieldSqlArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(40);
+    internal static readonly TimeSpan GreenfieldSqlArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(15);
 
     /// <summary>
     ///     DbUp + readiness + optional first create-run on an empty catalog (outside parallel-burst hang guards).
     ///     Must exceed <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> so a single warm POST is not
     ///     cancelled by the bootstrap token before the HTTP client budget elapses.
     /// </summary>
-    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(35);
+    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(20);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -184,8 +181,13 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                 responses[i].Dispose();
                 await Task.Delay(delayMs, cancellationToken);
                 delayMs = Math.Min(delayMs * 2, 4000);
+
+                using CancellationTokenSource attemptBudget =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                attemptBudget.CancelAfter(GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
                 responses[i] =
-                    await PostSingleArchitectureRequestAsync(client, body, idempotencyKey, cancellationToken);
+                    await PostSingleArchitectureRequestAsync(client, body, idempotencyKey, attemptBudget.Token);
             }
         }
 

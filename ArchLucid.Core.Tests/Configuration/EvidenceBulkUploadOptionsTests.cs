@@ -10,12 +10,12 @@ namespace ArchLucid.Core.Tests.Configuration;
 public sealed class EvidenceBulkUploadOptionsTests
 {
     [Fact]
-    public void EvidenceBulkUploadOptions_DefaultsToThirtyFiles()
+    public void EvidenceBulkUploadOptions_DefaultsToTwoHundredFiles()
     {
         // Arrange
         EvidenceBulkUploadOptions options = new();
 
         // Assert
-        options.EvidenceBulkUploadMaxFiles.Should().Be(30);
+        options.EvidenceBulkUploadMaxFiles.Should().Be(200);
     }
 }
