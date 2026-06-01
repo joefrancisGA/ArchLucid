@@ -16202,6 +16202,20 @@
         ],
         "type": "object"
       },
+      "RecordRunOperatorGovernanceDispositionRequest": {
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/RunOperatorGovernanceDecision"
+          },
+          "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "RegisterItsmCorrelationRequest": {
         "properties": {
           "externalKey": {
@@ -18422,6 +18436,34 @@
         },
         "type": "object"
       },
+      "RunOperatorGovernanceDecision": {
+        "type": "integer"
+      },
+      "RunOperatorGovernanceDispositionDto": {
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/RunOperatorGovernanceDecision"
+          },
+          "occurredAtUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "rationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recordedByUserId": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "RunPipelineTimelineItemResponse": {
         "properties": {
           "actorUserName": {
@@ -18585,6 +18627,31 @@
             ]
           },
           "legacyRunStatus": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "operatorGovernanceDecision": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "operatorGovernanceDecisionByUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "operatorGovernanceDecisionRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "operatorGovernanceDecisionUtc": {
+            "format": "date-time",
             "type": [
               "null",
               "string"
@@ -40069,6 +40136,146 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "AuthorityQuery"
+        ]
+      }
+    },
+    "/v1/authority/runs/{runId}/disposition": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordRunOperatorGovernanceDispositionRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordRunOperatorGovernanceDispositionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RecordRunOperatorGovernanceDispositionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunOperatorGovernanceDispositionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunOperatorGovernanceDispositionDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunOperatorGovernanceDispositionDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
           },
           "404": {
             "content": {
