@@ -25,6 +25,60 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
     }
 
     /// <inheritdoc />
+    public Task<ItsmFindingCorrelationRecord?> TryGetByFindingAndProviderAsync(
+        Guid tenantId,
+        string findingId,
+        string provider,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
+
+        if (string.IsNullOrWhiteSpace(provider))
+            throw new ArgumentException("provider is required.", nameof(provider));
+
+        string trimmedFinding = findingId.Trim();
+        string trimmedProvider = provider.Trim();
+
+        ItsmFindingCorrelationRecord? match = _byKey.Values
+            .Where(r =>
+                r.TenantId == tenantId &&
+                string.Equals(r.FindingId, trimmedFinding, StringComparison.Ordinal) &&
+                string.Equals(r.Provider, trimmedProvider, StringComparison.Ordinal))
+            .OrderByDescending(r => r.CreatedUtc)
+            .FirstOrDefault();
+
+        return Task.FromResult(match);
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingAsync(
+        Guid tenantId,
+        string findingId,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
+
+        string trimmedFinding = findingId.Trim();
+
+        List<ItsmFindingCorrelationRecord> rows = _byKey.Values
+            .Where(r =>
+                r.TenantId == tenantId &&
+                string.Equals(r.FindingId, trimmedFinding, StringComparison.Ordinal))
+            .OrderBy(r => r.CreatedUtc)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<ItsmFindingCorrelationRecord>>(rows);
+    }
+
+    /// <inheritdoc />
     public Task RegisterAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -35,8 +89,6 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         string? externalSysId,
         CancellationToken ct)
     {
-        _ = externalSysId;
-
         if (tenantId == Guid.Empty)
             throw new ArgumentException("tenantId is required.", nameof(tenantId));
 
@@ -53,7 +105,17 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
 
         _ = _byKey.TryAdd(
             k,
-            new ItsmFindingCorrelationRecord { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, FindingId = findingId.Trim() });
+            new ItsmFindingCorrelationRecord
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                FindingId = findingId.Trim(),
+                Provider = provider.Trim(),
+                ExternalKey = externalKey.Trim(),
+                ExternalSysId = string.IsNullOrWhiteSpace(externalSysId) ? null : externalSysId.Trim(),
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
+            });
 
         return Task.CompletedTask;
     }

@@ -889,7 +889,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-161 — Design partner / pilot recruiting pipeline
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/DESIGN_PARTNER_RECRUITING_PIPELINE.md`](../go-to-market/DESIGN_PARTNER_RECRUITING_PIPELINE.md).
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_RECRUITING_PIPELINE.md`](../go-to-market/PILOT_RECRUITING_PIPELINE.md).
 
 **Objective:** Turn founder-led pilot recruiting into a repeatable, evidence-aware pipeline instead of ad hoc outreach.
 
@@ -913,7 +913,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-162 — Support and pilot operating model
 
-**Status (2026-06-01):** **Done** — [`docs/go-to-market/PILOT_SUPPORT_OPERATING_MODEL.md`](../go-to-market/PILOT_SUPPORT_OPERATING_MODEL.md).
+**Status (2026-06-01):** **Done** — [`docs/go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md`](../go-to-market/SUPPORT_AND_PILOT_OPERATING_MODEL.md).
 
 **Objective:** Define the operating posture for controlled pilots so buyers know how support, escalation, and incident communication work.
 
@@ -961,7 +961,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-164 — V1.1 backlog: first named public reference customer
 
-**Status (2026-06-01):** **Done (template)** — [`docs/go-to-market/V1_1_PUBLIC_REFERENCE_CUSTOMER_CHECKLIST.md`](../go-to-market/V1_1_PUBLIC_REFERENCE_CUSTOMER_CHECKLIST.md) (owner execution remains V1.1).
+**Status (2026-06-01):** **Done (template)** — [`docs/go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md`](../go-to-market/NAMED_REFERENCE_CUSTOMER_CAPTURE.md) (owner execution remains V1.1).
 
 **Objective:** Capture the owner-output work required before ArchLucid can use a named customer logo, public case study, or reference call as market proof.
 
@@ -987,7 +987,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-165 — Assessment score consistency guard
 
-**Status (2026-06-01):** **Done** — `scripts/ci/check_assessment_score_consistency.py` (+ pytest in `scripts/ci/tests/`).
+**Status (2026-06-01):** **Done** — `scripts/ci/check_assessment_score_consistency.py` (arithmetic headline check); `scripts/Assert-AssessmentScoreConsistency.ps1` (table-vs-detail text consistency check).
 
 **Objective:** Prevent assessment rescoring from updating the headline/table while leaving detailed quality sections stale.
 
@@ -1011,7 +1011,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-166 — Release claim gate for full real-mode AI evidence
 
-**Status (2026-06-01):** **Done** — `scripts/ci/check_release_real_mode_claim.py`, `scripts/Invoke-ReleaseRealModeClaimGate.ps1`, wired into `Invoke-ReleaseRealLlmEvidenceRequirement.ps1`; unit tests in `scripts/ci/tests/test_check_release_real_mode_claim.py`.
+**Status (2026-06-01):** **Done** — `scripts/ci/check_release_real_mode_claim.py`, `scripts/Invoke-ReleaseRealModeClaimGate.ps1`, wired into `Invoke-ReleaseRealLlmEvidenceRequirement.ps1`; unit tests in `scripts/ci/tests/test_check_release_real_mode_claim.py`; override procedure and downstream connections documented in [`docs/quality/RELEASE_CLAIM_GATE.md`](../quality/RELEASE_CLAIM_GATE.md).
 
 **Objective:** Make release packaging fail safe when full Topology/Cost/Compliance/Critic real-mode evidence is missing, partial, stale, or HOLD.
 
@@ -1040,7 +1040,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-167 — Sponsor AI readiness posture artifact
 
-**Status (2026-06-01):** **Done (V1 alias)** — `scripts/collect-first-pilot-proof.ps1` emits `ai-readiness-gate.json` / `.md` (consolidated posture); TB-166 adds `real-mode-claim-gate` for release copy.
+**Status (2026-06-01):** **Done** — `scripts/collect-first-pilot-proof.ps1` emits `ai-readiness-gate.json` / `.md` (consolidated posture); TB-166 adds `real-mode-claim-gate` for release copy; sponsor artifact schema and writing rules documented in [`docs/go-to-market/AI_READINESS_POSTURE.md`](../go-to-market/AI_READINESS_POSTURE.md).
 
 **Objective:** Promote production-like retrieval, real-mode evidence, quality-gate results, and budget posture into one sponsor-safe artifact that every proof packet can include.
 
@@ -3111,6 +3111,8 @@ Any executive card that mixes live ROI with mock or illustrative KPIs weakens tr
 ---
 
 ## TB-063 — ITSM one-click issue creation from findings — **V1.1**
+
+**Status (2026-05-31):** **Partial** — finding inspect panel (`FindingInspectItsmWorkflowPanel`), `GET /v1/integrations/itsm/correlations?findingId=`, duplicate outbound guard per provider, browse URLs when ITSM base URLs are configured. Remaining: risk-register row actions, inbound sync status on rows.
 
 **Source:** Commercial stickiness review (2026-05-27) plus owner scope: first-party Jira / ServiceNow productization is **V1.1**, not V1 GA. See [`V1_SCOPE.md`](V1_SCOPE.md) §2.13 and [`V1_DEFERRED.md`](V1_DEFERRED.md) §6.
 
@@ -5463,6 +5465,8 @@ There is no UI surface anywhere on the run detail page (or any sub-route) that s
 ---
 
 ## TB-110 — RunDetailPageView — add tool-call / function-invocation log panel
+
+**Status (2026-05-31):** **Partial** — `GET /v1/architecture/run/{runId}/tool-invocation-forensics`, `RunToolInvocationForensicsBuilder`, run-detail table UI (trace-derived redacted rows, blob completeness warning). Remaining: structured MCP/tool-call persistence, per-invocation raw blob expansion.
 
 **Source:** `RunDetailPageView` operator fidelity audit (2026-05-27). Canvas: `canvases/run-detail-operator-fidelity.canvas.tsx`.
 

@@ -20,6 +20,7 @@ import type {
   AgentExecutionTraceListPayload,
   AgentOutputEvaluationSummaryPayload,
   RunRetrievalGroundingPayload,
+  RunToolInvocationForensicsPayload,
 } from "@/types/agent-forensics";
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
@@ -193,6 +194,15 @@ export async function getRunTraces(
 
   return apiGetJsonWithTrace<AgentExecutionTraceListPayload>(
     `/v1/architecture/run/${encodeURIComponent(runId)}/traces?${q}`,
+  );
+}
+
+/** Trace-derived redacted invocation forensics (TB-110). */
+export async function getRunToolInvocationForensics(
+  runId: string,
+): Promise<ApiResponseWithTrace<RunToolInvocationForensicsPayload>> {
+  return apiGetJsonWithTrace<RunToolInvocationForensicsPayload>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/tool-invocation-forensics`,
   );
 }
 

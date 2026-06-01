@@ -172,7 +172,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Governance/GovernanceStickinessController.cs` | `/v1/governance` | standard | ReadAuthority |  |  |
 | `Governance/ManifestsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Governance/PolicyPacksController.cs` | `/v1/policy-packs` | standard | ReadAuthority | /policy-packs |  |
-| `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ExecuteAuthority |  |  |
+| `Integrations/ItsmCorrelationController.cs` | `/v1/integrations/itsm/correlations` | none | ReadAuthority |  |  |
 | `Integrations/ItsmInboundWebhooksController.cs` | `/v1/integrations/webhooks` | none | AllowAnonymous |  | partner_webhook_ingest |
 | `Integrations/ItsmIntegrationHealthController.cs` | `/v1/integrations/itsm/health` | standard | Authorize |  |  |
 | `Integrations/ItsmOutboundIssuesController.cs` | `/v1/integrations/itsm/outbound/issues` | none | ExecuteAuthority |  |  |

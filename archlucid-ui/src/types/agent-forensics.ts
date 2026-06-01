@@ -54,6 +54,28 @@ export type AgentOutputEvaluationScoreRow = {
 };
 
 /** Summary from `GET /v1/architecture/run/{runId}/agent-evaluation`. */
+/** Row from `GET /v1/architecture/run/{runId}/tool-invocation-forensics` (TB-110). */
+export type RunToolInvocationForensicRow = {
+  traceId: string;
+  taskId: string;
+  agentType: string;
+  toolName: string;
+  argsPreview: string;
+  outcome: string;
+  durationMs?: number | null;
+  blobUploadFailed: boolean;
+  completenessNote?: string | null;
+  invokedAtUtc: string;
+};
+
+export type RunToolInvocationForensicsPayload = {
+  runId: string;
+  hasStructuredToolCallLog: boolean;
+  hasTraceBlobPersistenceFailure: boolean;
+  completenessDisclaimer: string;
+  rows: RunToolInvocationForensicRow[];
+};
+
 export type AgentOutputEvaluationSummaryPayload = {
   runId: string;
   evaluatedAtUtc: string;

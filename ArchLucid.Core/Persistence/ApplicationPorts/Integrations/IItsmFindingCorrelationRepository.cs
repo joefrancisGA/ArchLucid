@@ -8,6 +8,17 @@ public interface IItsmFindingCorrelationRepository
         string externalKey,
         CancellationToken ct);
 
+    Task<ItsmFindingCorrelationRecord?> TryGetByFindingAndProviderAsync(
+        Guid tenantId,
+        string findingId,
+        string provider,
+        CancellationToken ct);
+
+    Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingAsync(
+        Guid tenantId,
+        string findingId,
+        CancellationToken ct);
+
     Task RegisterAsync(
         Guid tenantId,
         Guid workspaceId,

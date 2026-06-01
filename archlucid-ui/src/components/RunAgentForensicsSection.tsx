@@ -3,7 +3,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunToolInvocationForensicsPanel } from "@/components/RunToolInvocationForensicsPanel";
 import { EVIDENCE_FAITHFULNESS_HEURISTIC_DISCLAIMER } from "@/lib/agent-evidence-faithfulness-presenter";
-import { getRunAgentEvaluation, getRunTraces } from "@/lib/api";
+import { getRunAgentEvaluation, getRunTraces, getRunToolInvocationForensics } from "@/lib/api";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -168,6 +168,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
   let tracesFailure: ApiLoadFailureState | null = null;
   let evaluationPayload: AgentOutputEvaluationSummaryPayload | null = null;
   let evaluationFailure: ApiLoadFailureState | null = null;
+  let toolInvocationPayload: RunToolInvocationForensicsPayload | null = null;
   try {
     tracesPayload = (await getRunTraces(runId, 1, 100)).data;
   } catch (e) {
@@ -178,6 +179,12 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
     evaluationPayload = (await getRunAgentEvaluation(runId)).data;
   } catch (e) {
     evaluationFailure = toApiLoadFailure(e);
+  }
+
+  try {
+    toolInvocationPayload = (await getRunToolInvocationForensics(runId)).data;
+  } catch {
+    toolInvocationPayload = null;
   }
 
   const tracesRaw = tracesPayload?.traces ?? [];
@@ -199,7 +206,14 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
         separate deterministic signal (token and evidence-reference overlap vs the bundle). Requires architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.
       </p>
 
-      <RunToolInvocationForensicsPanel hasTraceBlobPersistenceFailure={blobPersistFailed} />
+      <RunToolInvocationForensicsPanel
+        hasTraceBlobPersistenceFailure={blobPersistFailed}
+        completenessDisclaimer={
+          toolInvocationPayload?.completenessDisclaimer ??
+          "Structured tool-call rows are not recorded for this review."
+        }
+        rows={toolInvocationRows}
+      />
 
       {blobPersistFailed ? (
         <div

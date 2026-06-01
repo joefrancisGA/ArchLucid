@@ -74,6 +74,25 @@ public sealed class SqlItsmFindingCorrelationRepository(
             cancellationToken => FindingRecordExistsCoreAsync(tenantId, findingId, cancellationToken),
             ct);
 
+    /// <inheritdoc />
+    public Task<ItsmFindingCorrelationRecord?> TryGetByFindingAndProviderAsync(
+        Guid tenantId,
+        string findingId,
+        string provider,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => TryGetByFindingAndProviderCoreAsync(tenantId, findingId, provider, cancellationToken),
+            ct);
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingAsync(
+        Guid tenantId,
+        string findingId,
+        CancellationToken ct) =>
+        _sqlOperations.ExecuteAsync(
+            cancellationToken => ListByFindingCoreAsync(tenantId, findingId, cancellationToken),
+            ct);
+
     private async Task<ItsmFindingCorrelationRecord?> TryGetByExternalKeyCoreAsync(
         string provider,
         string externalKey,
@@ -86,7 +105,7 @@ public sealed class SqlItsmFindingCorrelationRepository(
             throw new ArgumentException("externalKey is required.", nameof(externalKey));
 
         const string sql = """
-                           SELECT TenantId, WorkspaceId, ProjectId, FindingId
+                           SELECT TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey, ExternalSysId, CreatedUtc
                            FROM dbo.ItsmFindingCorrelations
                            WHERE Provider = @Provider AND ExternalKey = @ExternalKey;
                            """;
@@ -196,5 +215,60 @@ public sealed class SqlItsmFindingCorrelationRepository(
         int exists = await connection.ExecuteScalarAsync<int>(cmd);
 
         return exists != 0;
+    }
+
+    private async Task<ItsmFindingCorrelationRecord?> TryGetByFindingAndProviderCoreAsync(
+        Guid tenantId,
+        string findingId,
+        string provider,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentException("provider is required.", nameof(provider));
+
+        const string sql = """
+                           SELECT TOP (1) TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey, ExternalSysId, CreatedUtc
+                           FROM dbo.ItsmFindingCorrelations
+                           WHERE TenantId = @TenantId AND FindingId = @FindingId AND Provider = @Provider
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        CommandDefinition cmd = new(
+            sql,
+            new { TenantId = tenantId, FindingId = findingId.Trim(), Provider = provider.Trim() },
+            cancellationToken: ct);
+
+        return await connection.QuerySingleOrDefaultAsync<ItsmFindingCorrelationRecord>(cmd);
+    }
+
+    private async Task<IReadOnlyList<ItsmFindingCorrelationRecord>> ListByFindingCoreAsync(
+        Guid tenantId,
+        string findingId,
+        CancellationToken ct)
+    {
+        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+
+        const string sql = """
+                           SELECT TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey, ExternalSysId, CreatedUtc
+                           FROM dbo.ItsmFindingCorrelations
+                           WHERE TenantId = @TenantId AND FindingId = @FindingId
+                           ORDER BY CreatedUtc ASC;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        CommandDefinition cmd = new(
+            sql,
+            new { TenantId = tenantId, FindingId = findingId.Trim() },
+            cancellationToken: ct);
+
+        IEnumerable<ItsmFindingCorrelationRecord> rows =
+            await connection.QueryAsync<ItsmFindingCorrelationRecord>(cmd);
+
+        return rows.ToList();
     }
 }

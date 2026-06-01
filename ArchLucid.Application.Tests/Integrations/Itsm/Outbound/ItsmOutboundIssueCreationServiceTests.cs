@@ -108,6 +108,59 @@ public sealed class ItsmOutboundIssueCreationServiceTests
     }
 
     [Fact]
+    public async Task Jira_when_correlation_already_exists_skips_without_http()
+    {
+        HttpMessageHandler boom = new BoomHttpMessageHandler();
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "dup", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Inspect(FindingSeverity.Error, "dup"));
+
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByFindingAndProviderAsync(
+                It.IsAny<Guid>(),
+                "dup",
+                "Jira",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ItsmFindingCorrelationRecord
+            {
+                TenantId = Scope().TenantId,
+                WorkspaceId = Scope().WorkspaceId,
+                ProjectId = Scope().ProjectId,
+                FindingId = "dup",
+                Provider = "Jira",
+                ExternalKey = "DP-9",
+                CreatedUtc = DateTime.UtcNow
+            });
+
+        ItsmOutboundIssueCreationService sut = new(
+            findings.Object,
+            correlations.Object,
+            Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureRequestRepository>(),
+            Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
+            JiraClient(boom),
+            new ServiceNowOutboundIncidentClient(new HttpClient(boom), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+
+        ItsmOutboundIssueCreationResult r = await sut.TryCreateForFindingAsync(
+            ItsmOutboundIssueProvider.Jira,
+            Scope(),
+            "dup",
+            CancellationToken.None);
+
+        r.Kind.Should().Be(ItsmOutboundCreateTerminalKind.Skipped);
+        r.ExternalKey.Should().Be("DP-9");
+        r.UserMessage.Should().Contain("already linked");
+        correlations.Verify(
+            c => c.RegisterAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Jira_Info_severity_dropped_when_sendInfo_false()
     {
         HttpMessageHandler boom = new BoomHttpMessageHandler();

@@ -14,6 +14,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Traceability;
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -499,6 +500,28 @@ public sealed class RunQueryController(
             PageNumber = paging.PageNumber,
             PageSize = paging.PageSize
         });
+    }
+
+    /// <summary>
+    ///     Trace-derived redacted invocation forensics for operator review (TB-110). Not a structured MCP tool-call ledger.
+    /// </summary>
+    [HttpGet("run/{runId}/tool-invocation-forensics")]
+    [ProducesResponseType(typeof(RunToolInvocationForensicsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunToolInvocationForensics(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IReadOnlyList<AgentExecutionTrace> traces =
+            await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        RunToolInvocationForensicsResponse body =
+            RunToolInvocationForensicsBuilder.Build(runId, traces);
+
+        return Ok(body);
     }
 
     /// <summary>

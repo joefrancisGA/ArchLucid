@@ -4,17 +4,41 @@ import { describe, expect, it } from "vitest";
 import { RunToolInvocationForensicsPanel } from "@/components/RunToolInvocationForensicsPanel";
 
 describe("RunToolInvocationForensicsPanel", () => {
-  it("renders explicit not-recorded state", () => {
-    render(<RunToolInvocationForensicsPanel hasTraceBlobPersistenceFailure={false} />);
+  it("renders nothing when there are no rows", () => {
+    const { container } = render(
+      <RunToolInvocationForensicsPanel
+        hasTraceBlobPersistenceFailure={false}
+        completenessDisclaimer="No rows."
+        rows={[]}
+      />,
+    );
 
-    expect(screen.getByText("Tool and external invocation forensics (diagnostics)")).toBeInTheDocument();
-    expect(screen.getByText(/Structured tool-call and external-invocation rows are not recorded/i)).toBeInTheDocument();
-    expect(screen.getByText(/no safe structured invocation ledger exists yet/i)).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders trace completeness warning when blob persistence failed", () => {
-    render(<RunToolInvocationForensicsPanel hasTraceBlobPersistenceFailure={true} />);
+  it("renders invocation table and blob warning", () => {
+    render(
+      <RunToolInvocationForensicsPanel
+        hasTraceBlobPersistenceFailure={true}
+        completenessDisclaimer="Trace-derived rows only."
+        rows={[
+          {
+            traceId: "t1",
+            taskId: "task-1",
+            agentType: "Topology",
+            toolName: "topology-agent",
+            argsPreview: "analyze topology",
+            outcome: "Succeeded",
+            durationMs: null,
+            blobUploadFailed: false,
+            invokedAtUtc: "2026-05-01T12:00:00Z",
+          },
+        ]}
+      />,
+    );
 
-    expect(screen.getByRole("status")).toHaveTextContent(/Full trace completeness is degraded/i);
+    expect(screen.getByText("Tool and external invocation forensics (diagnostics)")).toBeInTheDocument();
+    expect(screen.getByText("topology-agent")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(/blob upload failure/i);
   });
 });

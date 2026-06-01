@@ -17,6 +17,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 import { FindingInspectGovernanceStickinessPanel } from "./FindingInspectGovernanceStickinessPanel";
+import { FindingInspectItsmWorkflowPanel } from "./FindingInspectItsmWorkflowPanel";
 
 /** Compares authority run ids from URL vs API (hyphenated vs `N` GUID, case). */
 export function sameAuthorityRunId(a: string, b: string): boolean
@@ -167,6 +168,8 @@ export function FindingInspectView({
       />
 
       <FindingInspectGovernanceStickinessPanel findingId={decodedFindingId} runId={runId} />
+
+      <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
 
       <OperatorEvidenceLimitsFooter
         runId={runId}

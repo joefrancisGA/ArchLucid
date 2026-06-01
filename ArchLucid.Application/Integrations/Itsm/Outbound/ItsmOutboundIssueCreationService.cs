@@ -81,6 +81,27 @@ public sealed class ItsmOutboundIssueCreationService(
             };
         }
 
+        string providerLabel = provider is ItsmOutboundIssueProvider.Jira ? "Jira" : "ServiceNow";
+        ItsmFindingCorrelationRecord? existingCorrelation = await _correlations
+            .TryGetByFindingAndProviderAsync(scope.TenantId, findingId.Trim(), providerLabel, ct)
+            .ConfigureAwait(false);
+
+        if (existingCorrelation is not null)
+        {
+            string skipEventType = provider is ItsmOutboundIssueProvider.Jira
+                ? AuditEventTypes.IntegrationJiraIssueCreateSkipped
+                : AuditEventTypes.IntegrationServiceNowIncidentCreateSkipped;
+            AuditEvent duplicateAudit = SkippedAudit(skipEventType, scope, inspect, "duplicate_correlation_exists");
+            return new ItsmOutboundIssueCreationResult
+            {
+                Kind = ItsmOutboundCreateTerminalKind.Skipped,
+                UserMessage =
+                    $"A {providerLabel} ticket is already linked to this finding ({existingCorrelation.ExternalKey}).",
+                ExternalKey = existingCorrelation.ExternalKey,
+                AuditEvents = [duplicateAudit]
+            };
+        }
+
         TenantItsmOutboundSettings? tenantRow = await _tenantItsmOutboundSettings.TryGetAsync(scope.TenantId, ct).ConfigureAwait(false);
         FindingSeverity severity = ItsmFindingAuthorityPayloadMapper.TryGetSeverity(inspect.TypedPayload, inspect.Severity);
         (string summary, string description) = ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(inspect.FindingId, inspect.RunId,

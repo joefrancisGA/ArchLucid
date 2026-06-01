@@ -1007,7 +1007,7 @@
       "route_template": "v{version:apiVersion}/integrations/itsm/correlations",
       "normalized_prefix": "/v1/integrations/itsm/correlations",
       "commercial_tier": "none",
-      "class_policy": "ExecuteAuthority",
+      "class_policy": "ReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     },

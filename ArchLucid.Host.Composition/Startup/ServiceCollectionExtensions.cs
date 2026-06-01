@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Evidence;
@@ -154,6 +155,8 @@ public static partial class ServiceCollectionExtensions
             .AddOutboundExternalHttpResilience();
         services.AddScoped<IItsmOutboundIntegrationHealthService, ItsmOutboundIntegrationHealthService>();
         services.AddScoped<ItsmOutboundIssueCreationService>();
+        services.AddScoped<ItsmExternalTicketUrlBuilder>();
+        services.AddScoped<ItsmFindingCorrelationQueryService>();
         services.Configure<EvidenceBulkUploadOptions>(
             configuration.GetSection(EvidenceBulkUploadOptions.SectionName));
         services.Configure<ZipEvidenceExpanderOptions>(

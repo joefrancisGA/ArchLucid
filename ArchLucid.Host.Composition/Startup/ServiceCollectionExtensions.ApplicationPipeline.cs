@@ -35,6 +35,7 @@ using ArchLucid.Application.Planning;
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Reports;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Application.Search;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.Runs.Finalization;
