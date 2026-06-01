@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 79.83%
+# ArchLucid Assessment – (A) Headline Readiness: 79.93%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Batches 0–3 **79.58%**; 4A **TB-175–176** **79.68%**; 4B **TB-121–128** commercial/audit proof parity **79.83%**. G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
+Rescore note: Through **79.83%** (4B); 4C **TB-129–134** commercial closeout → **79.93%**. G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
 
 ## Executive Summary
 
@@ -52,13 +52,13 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 80 | 7 | 4.83% | 140 |
-| Marketability | 84 | 8 | 5.79% | 128 |
+| Marketability | 85 | 8 | 5.86% | 120 |
 | Proof-of-ROI Readiness | 75 | 5 | 3.23% | 125 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
 | Executive Value Visibility | 78 | 4 | 2.69% | 88 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
-| Trustworthiness | 78 | 3 | 2.02% | 66 |
+| Trustworthiness | 79 | 3 | 2.05% | 63 |
 | Interoperability | 66 | 2 | 1.14% | 68 |
 | Architectural Integrity | 79 | 3 | 2.05% | 63 |
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
@@ -68,7 +68,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Traceability | 84 | 3 | 2.17% | 48 |
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
-| Commercial Packaging Readiness | 76 | 2 | 1.31% | 48 |
+| Commercial Packaging Readiness | 78 | 2 | 1.34% | 44 |
 | Reliability | 74 | 2 | 1.28% | 52 |
 | Auditability | 77 | 2 | 1.32% | 46 |
 | Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |

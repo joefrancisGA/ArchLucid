@@ -311,6 +311,15 @@ jobs:
       - name: Commercial audit proof batch unit tests (TB-127)
         run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_audit_proof_batch.py"
 
+      - name: Tier fit validation matrix (TB-132)
+        run: python scripts/ci/check_tier_fit_matrix.py
+
+      - name: Commercial overclaim guard (TB-134)
+        run: python scripts/ci/check_commercial_overclaim_guard.py
+
+      - name: Commercial closeout batch unit tests (TB-129-134)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_closeout_batch.py"
+
       - name: Hot-path performance budget registry (assessment #18)
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

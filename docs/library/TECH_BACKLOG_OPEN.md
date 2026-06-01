@@ -15,12 +15,13 @@
 | Starter proof packs | **TB-170 – TB-174** (chooser, metadata, CI validation, dry-run, golden walkthrough) |
 | Policy pack manifests | **TB-175 – TB-176** (packManifest, CI validation, dry-run index) |
 | Commercial / audit parity | **TB-121 – TB-128** (route parity, governance summary, freshness, audit matrix, buyer-safe audit, catalog, tests, triage one-pager) |
+| Commercial closeout | **TB-129 – TB-134** (quote-to-proof readiness, quote aging export, closeout consistency, tier fit, offer pack, overclaim guard) |
 
 ## P1 — template / commercial (next engineering batch)
 
 | ID | Title |
 | --- | --- |
-| TB-129 – TB-134 | Quote-to-proof, closeout, tier fit, offer pack, overclaim guard |
+| TB-158 | Pilot success thresholds and acceptance criteria |
 
 ## Real-mode / eval (owner or credentialed CI)
 

@@ -249,6 +249,9 @@ def test_proof_includes_enterprise_operations_artifacts() -> None:
     assert "governance-outcome-summary.md" in text
     assert "policy-pack-freshness.md" in text
     assert "audit-evidence-summary.md" in text
+    assert "quote-to-proof-readiness.md" in text
+    assert "commercial-closeout-consistency" in text
+    assert "check_commercial_overclaim_guard.py" in text
 
 
 def test_evidence_collector_tracks_llm_budget_fields() -> None:

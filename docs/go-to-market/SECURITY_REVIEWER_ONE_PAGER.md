@@ -18,7 +18,7 @@
 
 - CPA SOC 2 Type I/II report
 - Third-party penetration test publication
-- ISO or statutory certification automation
+- No ISO or statutory certification automation in V1 (deferred)
 - Live marketplace checkout as procurement gate
 
 ## We will never ask you to paste

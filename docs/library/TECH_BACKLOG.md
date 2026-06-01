@@ -124,12 +124,12 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-126 | Audit event catalog metadata | **Done (2026-06-01)** — `audit_event_catalog.v1.json` + CI check | M |
 | TB-127 | Audit tests for sponsor/procurement proof actions | **Done (2026-06-01)** — `test_commercial_audit_proof_batch.py` | M |
 | TB-128 | Support/audit triage one-pager | **Done (2026-06-01)** — `SUPPORT_AUDIT_TRIAGE_ONE_PAGER.md` | XS-S |
-| TB-129 | Quote-to-proof readiness checklist | Commercial packaging — quote, tier, proof status, ROI basis, deferred asks, and next commercial action should be one checklist | S |
-| TB-130 | Quote aging export and follow-up SLA report | Decision velocity — open quote requests need aging buckets, follow-up status, warn/breach counts, and AdminAuthority-only export | M |
-| TB-131 | Commercial closeout artifact hardening | Monetization — generated PASS/HOLD/DEFERRED_SCOPE, next ask, owner, and caveats should agree with proof JSON | S |
-| TB-132 | Tier fit validation matrix | Packaging correctness — tiers should map to buyer jobs, included evidence outputs, excluded capabilities, and deferred capabilities | S |
-| TB-133 | AI & Cloud Architecture Readiness Review offer pack aligned to pricing | GTM execution — one-page offer, pilot scope, pricing bands, week 1 / week 2 outcomes, proof outputs, exclusions, and buyer prerequisites | S |
-| TB-134 | Commercial copy overclaim guard + public claim-boundary guide | Trust / packaging safety — CI should catch copy implying live commerce, Marketplace transactability, SOC 2 CPA, public references, unsupported ROI, or unlabeled simulator/local-owner-dev/prototype claims | S |
+| TB-129 | Quote-to-proof readiness checklist | **Done (2026-06-01)** — `report_quote_to_proof_readiness.py` + proof artifacts | S |
+| TB-130 | Quote aging export and follow-up SLA report | **Done (2026-06-01)** — `quote-aging-sla.json/md` from AdminAuthority API in proof | M |
+| TB-131 | Commercial closeout artifact hardening | **Done (2026-06-01)** — `validate_commercial_closeout_consistency.py` + Pester tests | S |
+| TB-132 | Tier fit validation matrix | **Done (2026-06-01)** — `tier_fit_validation_matrix.v1.json` + `check_tier_fit_matrix.py` | S |
+| TB-133 | AI & Cloud Architecture Readiness Review offer pack aligned to pricing | **Done (2026-06-01)** — `AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md` | S |
+| TB-134 | Commercial copy overclaim guard + public claim-boundary guide | **Done (2026-06-01)** — `check_commercial_overclaim_guard.py` + `PUBLIC_CLAIM_BOUNDARY_GUIDE.md` | S |
 | TB-158 | Pilot success thresholds and acceptance criteria | Customer-success / ROI proof — model-assisted owner-reviewable PASS/HOLD thresholds for proof quality, ROI confidence, false positives, and time-to-first-value | S |
 | TB-141 | Near-term GTM backlog: real pilot proof packet cohort | GTM proof — owner-selected scenarios, approved data boundaries, and buyer-safe proof packets for Azure cost / orphan / governance review and adjacent starter cohorts | Owner/program |
 | TB-142 | Near-term GTM backlog: market-facing demo asset production | GTM proof — approved screenshots/video/copy and evidence-labeling rules for channel-specific demo assets | Owner/GTM |
@@ -571,6 +571,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-129 — Quote-to-proof readiness checklist
 
+**Status:** **Done (2026-06-01)** — `scripts/ci/report_quote_to_proof_readiness.py`; proof emits `quote-to-proof-readiness.json/md`.
+
 **Objective:** Tie sales-led quote requests to actual proof readiness before asking for annual conversion.
 
 **Scope:**
@@ -591,6 +593,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-130 — Quote aging export and follow-up SLA report
+
+**Status:** **Done (2026-06-01)** — `Add-PricingQuoteAgingFinding` writes `quote-aging-sla.json/md` when admin API reachable.
 
 **Objective:** Make sales-led commercial packaging operational instead of passive.
 
@@ -614,6 +618,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-131 — Commercial closeout artifact hardening
 
+**Status:** **Done (2026-06-01)** — `validate_commercial_closeout_consistency.py`; `FirstPilotCommercialCloseout.Tests.ps1`.
+
 **Objective:** Make the generated commercial closeout artifact authoritative and consistent with proof state.
 
 **Scope:**
@@ -636,6 +642,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-132 — Tier fit validation matrix
 
+**Status:** **Done (2026-06-01)** — [`scripts/ci/data/tier_fit_validation_matrix.v1.json`](../scripts/ci/data/tier_fit_validation_matrix.v1.json); CI `check_tier_fit_matrix.py`.
+
 **Objective:** Keep pricing tiers aligned with buyer jobs, evidence outputs, and explicit exclusions.
 
 **Scope:**
@@ -656,6 +664,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-133 — AI & Cloud Architecture Readiness Review offer pack aligned to pricing
+
+**Status:** **Done (2026-06-01)** — [`AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md`](../go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md).
 
 **Objective:** Turn the selected first sales motion, **AI & Cloud Architecture Readiness Review**, into a reusable sales-led package that can be drafted by a frontier model and owner-reviewed before publication.
 
@@ -681,6 +691,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-134 — Commercial copy overclaim guard + public claim-boundary guide
+
+**Status:** **Done (2026-06-01)** — `check_commercial_overclaim_guard.py`; [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md`](PUBLIC_CLAIM_BOUNDARY_GUIDE.md).
 
 **Objective:** Prevent buyer-facing commercial copy from implying unavailable capabilities, unsupported ROI, or unlabeled prototype/simulator/local-owner-dev evidence.
 

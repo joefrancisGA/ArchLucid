@@ -1192,6 +1192,10 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| Demo workspace validation | $(Resolve-FindingDisposition -Name 'demo-workspace-validation') | ``demo-workspace-validation.txt`` |")
     $lines.Add("| Trial-to-paid test-mode evidence | $(Resolve-FindingDisposition -Name 'trial-to-paid-test-mode-evidence') | ``trial-to-paid-test-mode-evidence.md`` |")
     $lines.Add("| Accelerator handoff acceptance | $(Resolve-FindingDisposition -Name 'accelerator-handoff-acceptance') | ``accelerator-handoff-acceptance.md`` |")
+    $lines.Add("| Quote-to-proof readiness | $(Resolve-FindingDisposition -Name 'quote-to-proof-readiness') | ``quote-to-proof-readiness.md`` |")
+    $lines.Add("| Commercial closeout | $(Resolve-FindingDisposition -Name 'commercial-closeout-consistency') | ``commercial-closeout.md`` |")
+    $lines.Add("| Tier fit matrix | $(Resolve-FindingDisposition -Name 'tier-fit-validation') | ``tier-fit-validation-matrix.md`` |")
+    $lines.Add("| Quote aging SLA | $(Resolve-FindingDisposition -Name 'pricing-quote-aging') | ``quote-aging-sla.md`` (when AdminAuthority API reachable) |")
 
     if ($DeferredScopeReasons.Count -gt 0) {
         $lines.Add('')
@@ -1342,6 +1346,8 @@ function Add-DemoDerivedRoiCommercialGate {
 }
 
 function Add-PricingQuoteAgingFinding {
+    param([string] $ProofDirectory = '')
+
     $uri = "$normalizedBase/v1/admin/marketing/pricing-quote-aging"
     $req = @{
         Uri             = $uri
@@ -1361,6 +1367,25 @@ function Add-PricingQuoteAgingFinding {
         $warnCount = [int]$aging.warnCount
         $breachCount = [int]$aging.breachCount
         $detail = "Open quote requests=$openCount; warn=$warnCount; breach=$breachCount."
+
+        if (-not [string]::IsNullOrWhiteSpace($ProofDirectory)) {
+            $jsonPath = Join-Path $ProofDirectory 'quote-aging-sla.json'
+            $mdPath = Join-Path $ProofDirectory 'quote-aging-sla.md'
+            $aging | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $jsonPath -Encoding UTF8
+            Add-ProofArtifact -Name 'quote-aging-sla.json' -Path 'quote-aging-sla.json' -Purpose 'AdminAuthority pricing quote aging export for sales follow-up SLA.'
+            $mdLines = @(
+                '# Quote aging / follow-up SLA (generated)',
+                '',
+                "| Open requests | $openCount |",
+                "| Warn count | $warnCount |",
+                "| Breach count | $breachCount |",
+                '',
+                'Recommended follow-up SLA: **7 days** from quote request (see QUOTE_TO_PROOF_READINESS_CHECKLIST.md).',
+                ''
+            )
+            $mdLines | Set-Content -LiteralPath $mdPath -Encoding UTF8
+            Add-ProofArtifact -Name 'quote-aging-sla.md' -Path 'quote-aging-sla.md' -Purpose 'Human-readable quote aging SLA summary.'
+        }
 
         if ($breachCount -gt 0) {
             $disposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
@@ -2177,10 +2202,98 @@ function Add-SecurityReviewerOnePagerFinding {
     Add-ProofFinding -Disposition 'WARN' -Name 'security-reviewer-one-pager' -Detail 'Security reviewer one-pager was not generated.' -Remediation 'Run scripts/ci/report_security_reviewer_one_pager.py.'
 }
 
+function Add-QuoteToProofReadinessFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $summaryPath = Join-Path $ProofDirectory 'go-no-go-summary.json'
+    $closeoutPath = Join-Path $ProofDirectory 'commercial-closeout.json'
+    $jsonPath = Join-Path $ProofDirectory 'quote-to-proof-readiness.json'
+    $mdPath = Join-Path $ProofDirectory 'quote-to-proof-readiness.md'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\report_quote_to_proof_readiness.py'
+    $args = @(
+        $scriptPath,
+        '--go-no-go-summary', $summaryPath,
+        '--json-out', $jsonPath,
+        '--markdown-out', $mdPath
+    )
+
+    if (Test-Path -LiteralPath $closeoutPath) {
+        $args += @('--commercial-closeout', $closeoutPath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'quote-to-proof-readiness.json' -Path 'quote-to-proof-readiness.json' -Purpose 'Quote-to-proof SEND/HOLD/DEFERRED_SCOPE checklist from proof state.'
+    Add-ProofArtifact -Name 'quote-to-proof-readiness.md' -Path 'quote-to-proof-readiness.md' -Purpose 'Human-readable quote-to-proof readiness summary.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'quote-to-proof-readiness' -Detail 'Quote-to-proof readiness artifact was not generated.' -Remediation 'Repair report_quote_to_proof_readiness.py.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $disposition = [string]$payload.proofDisposition
+
+    if ($disposition -eq 'SEND') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'quote-to-proof-readiness' -Detail 'Quote-to-proof readiness is SEND — safe to schedule sponsor review.' -Remediation ''
+        return
+    }
+
+    if ($disposition -eq 'DEFERRED_SCOPE') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'quote-to-proof-readiness' -Detail 'Quote-to-proof readiness is DEFERRED_SCOPE — document buyer asks separately from V1 proof gaps.' -Remediation 'See deferredScopeReasons in go-no-go-summary.json.'
+        return
+    }
+
+    $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $proofDisposition -Name 'quote-to-proof-readiness' -Detail "Quote-to-proof readiness is HOLD ($disposition)." -Remediation 'Resolve blocking proof findings before annual conversion ask.' -TriageCard 'FP-T017'
+}
+
+function Add-CommercialCloseoutConsistencyFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $scriptPath = Join-Path $PSScriptRoot 'ci\validate_commercial_closeout_consistency.py'
+    $summaryPath = Join-Path $ProofDirectory 'go-no-go-summary.json'
+    $closeoutJson = Join-Path $ProofDirectory 'commercial-closeout.json'
+    $closeoutMd = Join-Path $ProofDirectory 'commercial-closeout.md'
+    & python $scriptPath --go-no-go-summary $summaryPath --commercial-closeout $closeoutJson --commercial-closeout-md $closeoutMd 2>&1 | Out-Null
+    $exitCode = $LASTEXITCODE
+
+    if ($exitCode -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'commercial-closeout-consistency' -Detail 'commercial-closeout.json agrees with go-no-go-summary.json.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'BLOCK' -Name 'commercial-closeout-consistency' -Detail 'Commercial closeout JSON diverges from go-no-go summary.' -Remediation 'Repair Write-FirstPilotCommercialCloseoutArtifacts mapping.' -TriageCard 'FP-T017'
+}
+
+function Add-TierFitValidationFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $checkScript = Join-Path $PSScriptRoot 'ci\check_tier_fit_matrix.py'
+    & python $checkScript 2>&1 | Out-Null
+    $checkExit = $LASTEXITCODE
+
+    $jsonPath = Join-Path $ProofDirectory 'tier-fit-validation-matrix.json'
+    $mdPath = Join-Path $ProofDirectory 'tier-fit-validation-matrix.md'
+    $reportScript = Join-Path $PSScriptRoot 'ci\report_tier_fit_matrix_summary.py'
+    & python $reportScript --json-out $jsonPath --markdown-out $mdPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'tier-fit-validation-matrix.json' -Path 'tier-fit-validation-matrix.json' -Purpose 'Tier-to-buyer-job fit matrix for commercial packaging.'
+    Add-ProofArtifact -Name 'tier-fit-validation-matrix.md' -Path 'tier-fit-validation-matrix.md' -Purpose 'Human-readable tier fit matrix.'
+
+    if ($checkExit -eq 0) {
+        Add-ProofFinding -Disposition 'PASS' -Name 'tier-fit-validation' -Detail 'Tier fit matrix validates and GTM docs avoid forbidden V1 tier claims.' -Remediation ''
+        return
+    }
+
+    Add-ProofFinding -Disposition 'WARN' -Name 'tier-fit-validation' -Detail 'Tier fit matrix validation reported packaging copy issues.' -Remediation 'Run python scripts/ci/check_tier_fit_matrix.py.'
+}
+
 function Add-CompliancePostureClarityFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
-    $scriptPath = Join-Path $PSScriptRoot 'ci\check_compliance_posture_clarity.py'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\check_commercial_overclaim_guard.py'
     & python $scriptPath 2>&1 | Out-Null
     $exitCode = $LASTEXITCODE
 
@@ -2199,11 +2312,13 @@ function Add-CompliancePostureClarityFinding {
     Add-ProofArtifact -Name 'compliance-posture-evidence-table.md' -Path 'compliance-posture-evidence-table.md' -Purpose 'Current vs deferred compliance evidence table for procurement handoff.'
 
     if ($exitCode -eq 0) {
-        Add-ProofFinding -Disposition 'PASS' -Name 'compliance-posture-clarity' -Detail 'Buyer-facing compliance docs passed prohibited-phrase clarity scan.' -Remediation ''
+        Add-ProofFinding -Disposition 'PASS' -Name 'commercial-overclaim-guard' -Detail 'Commercial overclaim guard passed (docs + marketing paths).' -Remediation ''
+        Add-ProofFinding -Disposition 'PASS' -Name 'compliance-posture-clarity' -Detail 'Compliance posture clarity scan passed (alias of commercial-overclaim-guard).' -Remediation ''
         return
     }
 
-    Add-ProofFinding -Disposition 'WARN' -Name 'compliance-posture-clarity' -Detail 'Compliance posture clarity scan reported ambiguous certification wording in docs.' -Remediation 'Run python scripts/ci/check_compliance_posture_clarity.py and fix lines; use self-assessment/deferred caveats.'
+    Add-ProofFinding -Disposition 'WARN' -Name 'commercial-overclaim-guard' -Detail 'Commercial overclaim guard reported unsupported claims.' -Remediation 'See docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md and fix flagged lines.'
+    Add-ProofFinding -Disposition 'WARN' -Name 'compliance-posture-clarity' -Detail 'Compliance posture clarity scan reported ambiguous wording (alias).' -Remediation 'Run python scripts/ci/check_commercial_overclaim_guard.py.'
 }
 
 function Add-QualityGatePromotionStatusFinding {
@@ -2482,7 +2597,7 @@ else {
     Add-ProcurementDealReadyFinding -ProofDirectory $proofDir
     Add-TrialToPaidTestModeEvidenceFinding -ProofDirectory $proofDir
     Add-AcceleratorHandoffFinding -ProofDirectory $proofDir
-    Add-PricingQuoteAgingFinding
+    Add-PricingQuoteAgingFinding -ProofDirectory $proofDir
 }
 
 if ([string]::IsNullOrWhiteSpace($RunId)) {
@@ -2714,6 +2829,10 @@ $summary = [ordered]@{
 
 $summaryJsonPath = Join-Path $proofDir 'go-no-go-summary.json'
 $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryJsonPath -Encoding UTF8
+
+Add-QuoteToProofReadinessFinding -ProofDirectory $proofDir
+Add-CommercialCloseoutConsistencyFinding -ProofDirectory $proofDir
+Add-TierFitValidationFinding -ProofDirectory $proofDir
 
 $summaryMdPath = Join-Path $proofDir 'go-no-go-summary.md'
 $runIdLabel = if ([string]::IsNullOrWhiteSpace($RunId)) { 'Not supplied - readiness-only pass' } else { $RunId.Trim() }

@@ -1,0 +1,61 @@
+{
+  "schema": "archlucid.tier-fit-validation-matrix.v1",
+  "version": 1,
+  "tiers": [
+    {
+      "tierId": "team",
+      "displayName": "Team",
+      "buyerJob": "First committed architecture review with a small platform team",
+      "includedProofOutputs": [
+        "Committed review package",
+        "Sponsor-safe proof packet (when RunId supplied)",
+        "Executive ROI summary with basis labels"
+      ],
+      "excludedOrDeferred": [
+        "Live Stripe/Marketplace self-serve (unless explicitly enabled build flag)",
+        "SOC 2 CPA attestation",
+        "Public reference customer logo",
+        "V1.1 ITSM/chat connectors"
+      ],
+      "upgradePath": "Professional after guided pilot PASS proof"
+    },
+    {
+      "tierId": "professional",
+      "displayName": "Professional",
+      "buyerJob": "Repeatable architecture governance for enterprise architecture practice",
+      "includedProofOutputs": [
+        "All Team outputs",
+        "Governance workflows and policy-pack assignments",
+        "Procurement pack machinery"
+      ],
+      "excludedOrDeferred": [
+        "CPA SOC 2 Type II report from ArchLucid",
+        "Multi-region active-active SLA claims without contract",
+        "Owner-only real-mode evidence attachments"
+      ],
+      "upgradePath": "Enterprise for custom assurance and deployment posture"
+    },
+    {
+      "tierId": "enterprise",
+      "displayName": "Enterprise",
+      "buyerJob": "Org-wide rollout with procurement and assurance negotiation",
+      "includedProofOutputs": [
+        "All Professional outputs",
+        "Custom procurement and order-form path",
+        "Hosted SaaS reliability targets per SLA_TARGETS.md (pre-contractual)"
+      ],
+      "excludedOrDeferred": [
+        "Self-hosted enterprise deal without separate order form",
+        "Third-party pen-test publication (V1.1 backlog unless contracted)"
+      ],
+      "upgradePath": "Custom MSAs and assurance programs — owner-led"
+    }
+  ],
+  "forbiddenV1Claims": [
+    "buy on azure marketplace today",
+    "live stripe checkout is available",
+    "soc 2 certified",
+    "public reference customer available now",
+    "jira connector ships in v1"
+  ]
+}
