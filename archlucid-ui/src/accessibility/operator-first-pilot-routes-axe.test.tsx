@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import SettingsPage from "@/app/(operator)/settings/page";
 import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";

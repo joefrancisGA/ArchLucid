@@ -216,6 +216,9 @@ BEGIN
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'InlineFallbackFailed') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD InlineFallbackFailed BIT NULL;
 
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'SystemPromptContentHash') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD SystemPromptContentHash NVARCHAR(32) NULL;
+
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ProvenanceCorrelationId') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD ProvenanceCorrelationId NVARCHAR(260) NULL;
 END
@@ -2091,9 +2094,6 @@ BEGIN
         CREATE UNIQUE INDEX UX_GoldenManifests_RunId_Active
             ON dbo.GoldenManifests (RunId)
             WHERE ArchivedUtc IS NULL;
-END;
-GO
-
 END;
 GO
 
