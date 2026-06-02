@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
@@ -15,6 +16,7 @@ export default function NewRunPage() {
     <div>
       <div className="mb-1 flex flex-wrap items-baseline gap-3">
         <h2 className="m-0">New Architecture Review</h2>
+        <ContextualHelp helpKey="new-run-wizard" />
         <InAppHelpLink helpSlug="pilot-guide" label="Full pilot guidance" variant="text" />
       </div>
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">

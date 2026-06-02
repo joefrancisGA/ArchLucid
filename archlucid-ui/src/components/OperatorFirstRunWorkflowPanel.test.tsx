@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -33,87 +33,28 @@ vi.mock("@/lib/api", async () => {
   };
 });
 
-async function expandWorkflowChecklist(): Promise<void> {
-  fireEvent.click(screen.getByText("Show workflow checklist"));
-
-  await waitFor(() => {
-    expect(screen.getByTestId("operator-first-run-wizard-step-1")).toBeInTheDocument();
-  });
-}
-
 describe("OperatorFirstRunWorkflowPanel", () => {
   afterEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it("after hydrate shows workflow heading and primary wizard link", async () => {
+  it("after hydrate shows workflow heading, summary, and checklist anchor", async () => {
     render(<OperatorFirstRunWorkflowPanel />);
 
     const heading = await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
     expect(heading).toBeInTheDocument();
 
-    await expandWorkflowChecklist();
-
-    expect(await screen.findByTestId("core-pilot-milestone-rail")).toBeInTheDocument();
-
     const section = heading.closest("section");
     expect(section).toHaveTextContent(CORE_PILOT_WORKFLOW_SUMMARY_LINE);
     expect(section).toHaveTextContent("review package");
-    expect(await screen.findByTestId("operator-first-run-wizard-step-1")).toBeInTheDocument();
-
-    expect(screen.getByText("Start here")).toBeInTheDocument();
-
-    const wizard = screen.getByRole("link", { name: CORE_PILOT_STEPS[0].primaryLabel });
-    expect(wizard).toHaveAttribute("href", CORE_PILOT_STEPS[0].primaryHref);
+    expect(screen.getByText("First session coaching")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Continue checklist ↓" })).toHaveAttribute(
+      "href",
+      "#core-pilot-checklist-anchor",
+    );
+    expect(screen.getByText(`0 of ${CORE_PILOT_STEPS.length} steps complete`)).toBeInTheDocument();
   });
-
-  it(
-    "accordion toggles step body when clicking the step title",
-    async () => {
-      render(<OperatorFirstRunWorkflowPanel />);
-
-      await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
-      await expandWorkflowChecklist();
-
-      expect(
-        within(screen.getByTestId("operator-first-run-wizard-step-1")).getByRole("link", {
-          name: CORE_PILOT_STEPS[0].primaryLabel,
-        }),
-      ).toBeVisible();
-
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: new RegExp(`Step 2 — ${CORE_PILOT_STEPS[1].title}`, "i"),
-        }),
-      );
-
-      await waitFor(() => {
-        expect(
-          within(screen.getByTestId("operator-first-run-wizard-step-2")).getByRole("link", {
-            name: CORE_PILOT_STEPS[1].primaryLabel,
-          }),
-        ).toBeVisible();
-      });
-
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: new RegExp(`Step 3 — ${CORE_PILOT_STEPS[2].title}`, "i"),
-        }),
-      );
-
-      await waitFor(() => {
-        expect(
-          within(screen.getByTestId("operator-first-run-wizard-step-3")).getByRole("link", {
-            name: CORE_PILOT_STEPS[2].primaryLabel,
-          }),
-        ).toBeVisible();
-      });
-
-      expect(screen.getByRole("button", { name: /Step 4 — Finalize the review package/i })).toBeInTheDocument();
-    },
-    20_000,
-  );
 
   it("hide guide persists and show restores panel", async () => {
     render(<OperatorFirstRunWorkflowPanel />);
