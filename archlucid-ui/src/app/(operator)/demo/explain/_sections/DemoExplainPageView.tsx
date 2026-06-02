@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoExplainConversionCtaCard } from "@/components/DemoExplainConversionCtaCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 
@@ -17,11 +18,12 @@ export function DemoExplainPageView(props: Props) {
   const state = props.state;
 
   return (
-    <div
-      className="mx-auto max-w-6xl space-y-6 p-4"
-      data-testid="demo-explain-page"
-      aria-busy={state.loading}
-    >
+    <>
+      <div
+        className="mx-auto max-w-6xl space-y-6 p-4 pb-28 md:pb-24"
+        data-testid="demo-explain-page"
+        aria-busy={state.loading}
+      >
       <header className="space-y-2">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
           Example analysis — provenance and explanation
@@ -54,6 +56,11 @@ export function DemoExplainPageView(props: Props) {
           The demo response was incomplete — provenance or explanation is missing. Try again after the API is ready.
         </p>
       ) : null}
-    </div>
+      </div>
+
+      {state.payload && state.payload.provenanceGraph && state.payload.runExplanation ? (
+        <DemoExplainConversionCtaCard />
+      ) : null}
+    </>
   );
 }

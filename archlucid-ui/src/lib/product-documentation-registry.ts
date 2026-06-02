@@ -97,6 +97,13 @@ export const PRODUCT_DOCUMENTATION_REGISTRY: readonly ProductDocumentationEntry[
     sourcePaths: ["docs/runbooks/FIRST_VALUE_20_MINUTES.md"],
   },
   {
+    slug: "evaluator-workbook",
+    title: "Evaluator workbook",
+    summary: "Compact evaluator orientation — prerequisites, session flow, and pass/hold rules before deep configuration.",
+    audience: "buyer",
+    sourcePaths: ["docs/onboarding/EVALUATOR_WORKBOOK.md"],
+  },
+  {
     slug: "pilot-roi-model",
     title: "Pilot ROI model",
     summary: "How sponsor ROI figures are labeled, sourced, and kept buyer-safe in proof packets.",
