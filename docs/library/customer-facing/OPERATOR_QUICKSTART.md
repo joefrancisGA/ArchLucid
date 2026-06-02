@@ -84,9 +84,25 @@ cd my-pilot-project
 dotnet run --project ../ArchLucid.Cli -- run --quick
 ```
 
+**Template JSON (no project scaffold):**
+
+```bash
+archlucid request create --from-file templates/architecture-requests/greenfield-design-review.json
+```
+
+Optional idempotency key override:
+
+```bash
+archlucid request create --from-file templates/architecture-requests/greenfield-design-review.json --request-id pilot-001
+```
+
+Prints `RunId` for the follow-on `execute` / `commit` steps below (or use `archlucid second-run` for the full commit loop).
+
 ---
 
 ## Pilot run (curl — replace `RUN_ID` after step 1)
+
+Prefer **`archlucid request create --from-file …`** (above) instead of hand-rolling JSON with curl when you have a template file.
 
 ```bash
 export BASE=http://localhost:5128

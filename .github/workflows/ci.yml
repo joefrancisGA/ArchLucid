@@ -2,7 +2,9 @@
 #   Tier 0 â€” Secret scan (gitleaks; full clone)
 #   Tier 0.x â€” OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
 #               Runs parallel with Terraform validate; dotnet-fast-core needs it â†’ drift fails before corset guards.
-#   Tier 1 â€” .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
+#   Tier 0.9 — guards-pre-corset (text/Python guards; no solution build)
+#   Tier 1 — .NET fast core (corset): restore, build, Suite=Core tests (SBOM/coverage HTML in Tier 1.0)
+#   Tier 1.0 — dotnet-fast-core-artifacts (full CI): CycloneDX SBOM + ReportGenerator from corset Cobertura
 #   Tier 1a â€” Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
 #             offline agent regression (eval corpus + prompt JSON baseline); parallel after gitleaks
 #   Tier 1.5 â€” DbUp migrations on empty catalog (Docker SQL) + greenfield SQL boot (API process + /health/ready); after Tier 1
@@ -28,8 +30,8 @@
 # NuGet cache on setup-dotnet, PR sticky coverage comment.
 name: CI
 
-# PR (main/master): Tier 0â€“1 pre-corset jobs + **trimmed** `dotnet-fast-core` (no SBOM, no coverlet/ReportGenerator,
-# no finding-engine template test). All jobs after `dotnet-fast-core` run only on **workflow_dispatch** (full CI).
+# PR (main/master): Tier 0–0.9 + trimmed `dotnet-fast-core` (no Tier 1.0 artifacts, no coverlet, no finding-engine template).
+# Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
 on:
   pull_request:
@@ -383,6 +385,9 @@ jobs:
 
       - name: Adoption batch 5Y drift guards (TB-208)
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5y.py"
+
+      - name: Adoption batch 5Z drift guards (TB-209)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5z.py"
 
       - name: Hot path performance budgets guard
         run: python scripts/ci/assert_hot_path_performance_budgets.py
@@ -1004,6 +1009,45 @@ jobs:
         shell: pwsh
         run: Invoke-Pester -Strict -EnableExit -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
 
+  guards-pre-corset:
+    name: "CI: guards pre-corset (text)"
+    needs:
+      - gitleaks
+      - doc-markdown-links
+      - demo-workspaces-fixture-parity
+      - openapi-contract-snapshot
+      - terraform-advisory-snippets-validate
+      - iac-parity-scan
+      - terraform-validate-private
+      - terraform-validate-public-stacks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Fetch default branch for diff guards (manual CI)
+        if: github.event_name == 'workflow_dispatch'
+        run: git fetch origin "${{ github.event.repository.default_branch }}" --no-tags
+
+      - name: Set git diff range (PR)
+        if: github.event_name == 'pull_request'
+        run: echo "ARCHLUCID_GIT_DIFF_RANGE=${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" >> "$GITHUB_ENV"
+
+      - name: Set git diff range (push)
+        if: github.event_name == 'push'
+        run: echo "ARCHLUCID_GIT_DIFF_RANGE=${{ github.event.before }}...${{ github.event.after }}" >> "$GITHUB_ENV"
+
+      - name: Set git diff range (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "ARCHLUCID_GIT_DIFF_RANGE=origin/${{ github.event.repository.default_branch }}...HEAD" >> "$GITHUB_ENV"
+
+      - name: Run pre-corset guards
+        env:
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+        run: bash scripts/ci/run_guards_pre_corset.sh
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
     needs:
@@ -1015,8 +1059,9 @@ jobs:
       - iac-parity-scan
       - terraform-validate-private
       - terraform-validate-public-stacks
+      - guards-pre-corset
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
         with:
@@ -1052,221 +1097,6 @@ jobs:
         env:
           ASPNETCORE_ENVIRONMENT: Development
         run: dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --no-build -c Release -- config lint
-
-      - name: Guard â€” audit coverage matrix vs AuditEventTypes (names + marker)
-        run: python scripts/ci/assert_audit_const_count.py
-
-      - name: Guard â€” audit matrix vs OpenAPI POST/PUT/DELETE paths
-        run: python scripts/ci/assert_openapi_mutations_in_audit_matrix.py
-
-      - name: Guard â€” audit matrix vs controller HttpPost/Put/Delete routes
-        run: python scripts/ci/check_audit_matrix.py
-
-      - name: Guard â€” mutating route idempotency posture drift (INV-009)
-        run: python scripts/ci/detect_mutating_route_idempotency_drift.py
-
-      - name: Guard â€” route tier policy nav registry vs controllers + matrix
-        run: python scripts/ci/assert_route_tier_policy_nav.py
-
-      - name: coordinator parity probe (Python unit tests)
-        run: python3 scripts/ci/test_coordinator_parity_probe.py
-
-      - name: Guard â€” migration rollback scripts (latest ten)
-        run: python3 scripts/ci/assert_rollback_scripts_exist.py
-
-      - name: Guard â€” forward DbUp migrations must touch ArchLucid.sql (PR)
-        if: github.event_name == 'pull_request'
-        env:
-          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
-          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
-        run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
-
-      - name: Guard â€” forward DbUp migrations must touch ArchLucid.sql (push)
-        if: github.event_name == 'push'
-        env:
-          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
-          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
-        run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
-
-      - name: Guard â€” forward DbUp migrations must touch ArchLucid.sql (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
-          ARCHLUCID_GIT_DIFF_RANGE: origin/${{ github.event.repository.default_branch }}...HEAD
-        run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
-
-      - name: forward migration / ArchLucid.sql co-touch guard unit tests
-        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
-
-      - name: Guard â€” RLS residual-risk table classifications (PR)
-        if: github.event_name == 'pull_request'
-        env:
-          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
-          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
-        run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
-
-      - name: Guard â€” RLS residual-risk table classifications (push)
-        if: github.event_name == 'push'
-        env:
-          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
-          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
-        run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
-
-      - name: Guard â€” RLS residual-risk table classifications (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
-          ARCHLUCID_GIT_DIFF_RANGE: origin/${{ github.event.repository.default_branch }}...HEAD
-        run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
-
-      - name: RLS residual-risk classification guard unit tests
-        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_rls_residual_risk_classifications.py"
-
-      - name: Guard â€” migration numbering (warn-only)
-        # Non-blocking: surfaces duplicate ###_ prefixes (DbUp orders lexically; ties are silent).
-        # Flip to blocking after the historical 035_/096_ duplicates are renumbered (gated on
-        # confirming no production catalog has applied them â€” see
-        # docs/archive/quality/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md, question 5.1).
-        continue-on-error: true
-        run: python3 scripts/ci/check_migration_numbering.py
-
-      - name: Guard â€” legacy configuration sunset date
-        run: python3 scripts/ci/assert_legacy_config_sunset_not_passed.py
-
-      - name: Guard â€” golden agent reference JSON fixtures
-        run: python3 scripts/ci/assert_agent_reference_baselines.py
-
-      - name: Guard â€” unexpected archiforge string literals in C# (case-insensitive)
-        run: |
-          set +e
-          grep -rni "archiforge" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/archiforge-cs-hits.txt"
-          rc=$?
-          set -e
-          if [ "$rc" -gt 1 ]; then
-            echo "::error::ArchLucid rename guard: grep failed while scanning .cs files (rc=$rc)"
-            exit 1
-          fi
-          if [ "$rc" -eq 1 ]; then
-            echo "ArchLucid rename guard: no case-insensitive 'archiforge' matches in .cs files."
-            exit 0
-          fi
-          echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in .cs files:"
-          cat "${RUNNER_TEMP}/archiforge-cs-hits.txt"
-          exit 1
-
-      - name: Guard â€” unexpected archiforge string literals in TS/TSX
-        run: |
-          set +e
-          grep -rni "archiforge" --include="*.ts" --include="*.tsx" \
-            --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git . \
-            > "${RUNNER_TEMP}/archiforge-ts-hits.txt"
-          rc=$?
-          set -e
-          if [ "$rc" -gt 1 ]; then
-            echo "::error::ArchLucid rename guard: grep failed while scanning TS/TSX files (rc=$rc)"
-            exit 1
-          fi
-          if [ "$rc" -eq 1 ]; then
-            echo "ArchLucid rename guard: no 'archiforge' matches in TS/TSX files."
-            exit 0
-          fi
-          echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in TS/TSX files:"
-          cat "${RUNNER_TEMP}/archiforge-ts-hits.txt"
-          exit 1
-
-      - name: Guard â€” archiforge in marketing UI and terraform-edge (narrow paths)
-        run: |
-          set +e
-          grep -rni "archiforge" \
-            --include="*.ts" --include="*.tsx" --include="*.tf" \
-            'archlucid-ui/src/app/(marketing)' infra/terraform-edge \
-            > "${RUNNER_TEMP}/archiforge-marketing-edge.txt"
-          rc=$?
-          set -e
-          if [ "$rc" -gt 1 ]; then
-            echo "::error::ArchLucid rename guard: grep failed while scanning marketing UI / terraform-edge (rc=$rc)"
-            exit 1
-          fi
-          if [ "$rc" -eq 1 ]; then
-            echo "ArchLucid rename guard: no 'archiforge' in archlucid-ui/src/app/(marketing) or infra/terraform-edge."
-            exit 0
-          fi
-          echo "::error::ArchLucid rename guard: unexpected 'archiforge' in marketing UI or terraform-edge:"
-          cat "${RUNNER_TEMP}/archiforge-marketing-edge.txt"
-          exit 1
-
-      - name: Guard â€” no direct IIntegrationEventPublisher.PublishAsync bypasses
-        run: |
-          set +e
-          grep -rn "\.PublishAsync(" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/pub-hits.txt"
-          rc=$?
-          set -e
-          if [ "$rc" -gt 1 ]; then
-            echo "::error::grep failed while scanning for .PublishAsync( (rc=$rc)"
-            exit 1
-          fi
-          if [ "$rc" -eq 1 ]; then
-            echo "No .PublishAsync( matches in .cs files."
-            exit 0
-          fi
-          HITS=$(grep -v "Tests/" "${RUNNER_TEMP}/pub-hits.txt" \
-            | grep -v "IntegrationEventPublishing.cs" \
-            | grep -v "IntegrationEventOutboxProcessor.cs" \
-            | grep -v "interface IIntegrationEventPublisher" \
-            | grep -v "/// " \
-            || true)
-          if [ -n "$HITS" ]; then
-            echo "::error::Found direct IIntegrationEventPublisher.PublishAsync calls outside authorized locations:"
-            echo "$HITS"
-            echo ""
-            echo "Use OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync instead."
-            exit 1
-          fi
-
-      - name: Generate .NET SBOM (CycloneDX)
-        if: github.event_name != 'pull_request'
-        run: |
-          dotnet tool install CycloneDX --tool-path "${RUNNER_TEMP}/cdx" --verbosity quiet
-          CDX="${RUNNER_TEMP}/cdx/dotnet-cyclonedx"
-          test -x "$CDX" || CDX="${RUNNER_TEMP}/cdx/dotnet-CycloneDX"
-          "$CDX" ArchLucid.Api/ArchLucid.Api.csproj -o sbom-dotnet.json
-
-      - uses: actions/upload-artifact@v6
-        if: github.event_name != 'pull_request'
-        with:
-          name: sbom-dotnet
-          path: sbom-dotnet.json
-
-      - name: Context ingestion DI guards
-        run: python scripts/assert_context_ingestion_di_guards.py
-
-      - name: List endpoint pagination audit
-        run: python scripts/ci/assert_list_endpoint_pagination.py
-
-      - name: CI Python scripts (pytest)
-        run: |
-          python3 -m pip install --quiet pytest
-          cd scripts/ci && python3 -m pytest tests/ -v
-
-      - name: TB-003 named query performance allowlist (dry-run, non-blocking)
-        run: python3 scripts/ci/assert_query_performance.py --dry-run
-        continue-on-error: true
-
-      - name: PMF validation tracker (Captured vs TBD discipline)
-        run: python3 scripts/ci/assert_pmf_tracker_discipline.py
-
-      - name: V1 traceability matrix (docs vs repo paths)
-        run: python3 scripts/ci/assert_traceability_coverage.py
-
-      - name: V1 RTM dotnet filter tokens resolve
-        run: python3 scripts/ci/assert_rtm_test_filters_resolve.py
-
-      - name: Agent eval dataset manifest (shape)
-        run: python3 scripts/ci/eval_agent_quality.py --manifest-only --strict
-
-      - name: Retrieval IR golden eval (TB-049)
-        run: python3 scripts/ci/eval_retrieval_ir.py --enforce
-
       # Prompt-injection executable regression + eval corpus live in dedicated jobs (ci-agent-prompt-injection-regression,
       # ci-agent-offline-regression) so branch protection can require them by exact check name.
 
@@ -1278,41 +1108,6 @@ jobs:
         if: github.event_name != 'pull_request'
         run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
 
-      - name: Test â€” fast core (PR trimmed â€” no coverage collection)
-        if: github.event_name == 'pull_request'
-        run: dotnet test ArchLucid.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
-
-      - name: Merge coverage (HTML + GitHub job summary)
-        if: success() && github.event_name != 'pull_request'
-        run: |
-          set -euo pipefail
-          dotnet tool restore
-          OUT="${{ runner.temp }}/coverage-report-fast-core"
-          COV_DIR="${{ runner.temp }}/coverage-fast-core"
-          if [ ! -d "$COV_DIR" ]; then
-            echo "::error::Coverage directory missing: $COV_DIR"
-            exit 1
-          fi
-          # Do not rely on bash ** glob (globstar is off by default on Ubuntu); enumerate Cobertura files for ReportGenerator.
-          mapfile -d '' -t cov_files < <(find "$COV_DIR" -type f -name 'coverage.cobertura.xml' -print0)
-          if [ "${#cov_files[@]}" -eq 0 ]; then
-            echo "::error::No coverage.cobertura.xml under $COV_DIR (coverlet did not emit Cobertura)."
-            find "$COV_DIR" -type f -maxdepth 6 2>/dev/null | head -n 200 || true
-            exit 1
-          fi
-          report_list=$(IFS=';'; printf '%s' "${cov_files[*]}")
-          dotnet reportgenerator \
-            "-reports:${report_list}" \
-            "-targetdir:${OUT}" \
-            "-reporttypes:Html;TextSummary;MarkdownSummaryGithub" \
-            -verbosity:Info
-          if [ ! -f "${OUT}/SummaryGithub.md" ]; then
-            echo "::error::ReportGenerator did not write SummaryGithub.md under ${OUT}"
-            ls -la "$OUT" || true
-            exit 1
-          fi
-          cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
-
       - uses: actions/upload-artifact@v6
         if: github.event_name != 'pull_request'
         with:
@@ -1320,16 +1115,55 @@ jobs:
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
-        if: success() && github.event_name != 'pull_request'
-        with:
-          name: coverage-report-fast-core-html
-          path: ${{ runner.temp }}/coverage-report-fast-core/**
-          if-no-files-found: warn
+      - name: Test â€” fast core (PR trimmed â€” no coverage collection)
+        if: github.event_name == 'pull_request'
+        run: dotnet test ArchLucid.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
+
 
       - name: Test â€” finding-engine template (not in main solution)
         if: github.event_name != 'pull_request'
         run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
+
+  dotnet-fast-core-artifacts:
+    name: ".NET: fast core artifacts (SBOM + coverage HTML)"
+    needs: dotnet-fast-core
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore (SBOM)
+        run: dotnet restore ArchLucid.Api/ArchLucid.Api.csproj
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: coverage-fast-core
+          path: ${{ runner.temp }}/coverage-fast-core
+
+      - name: SBOM and coverage HTML
+        run: bash scripts/ci/run_dotnet_fast_core_artifacts.sh
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: sbom-dotnet
+          path: sbom-dotnet.json
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: coverage-report-fast-core-html
+          path: ${{ runner.temp }}/coverage-report-fast-core/**
+          if-no-files-found: warn
 
   # All infra/terraform* + infra/modules: init (no backend) + validate; apply-saas.ps1 consistency. No Azure creds.
   saas-terraform-roots-validate:

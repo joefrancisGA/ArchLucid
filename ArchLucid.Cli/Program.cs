@@ -92,6 +92,14 @@ public static class Program
                 case "second-run":
                     return await SecondRunCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "request":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "create", StringComparison.OrdinalIgnoreCase))
+                        return await RequestCreateCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    RequestCreateCommand.WriteUsage();
+
+                    return CliExitCode.UsageError;
+
                 case "trial":
                     if (normalized.Length > 1 && normalized[1] == "smoke")
                         return await TrialSmokeCommand.RunAsync(normalized.Skip(2).ToArray());
