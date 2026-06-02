@@ -1,5 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 
+import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
+
 import {
   SCREENSHOT_LEFT_RUN_ID,
   SCREENSHOT_RIGHT_RUN_ID,
@@ -32,10 +34,10 @@ export const BUYER_SHOWCASE_AUDIT_TRAIL_HEADING =
   "Audit trail for Claims Intake Modernization Review Package";
 
 /** Executive route H1 uses run `description` from showcase static payload. */
-export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = "Claims Intake Modernization Review Package";
+export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
 
-/** Review detail H1 via `buyerFacingReviewTitleFromSummary` for the showcase run. */
-export const BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE = "Claims Intake Modernization Review";
+/** Review detail H1 for showcase run (`load-run-detail-page-model` buyer-polished headline). */
+export const BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
 
 export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
   await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
