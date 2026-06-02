@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { ComplianceDriftChartPdfExport } from "@/components/ComplianceDriftChartPdfExport";
+import { DecisionsNeededSummaryCard } from "@/components/governance/DecisionsNeededSummaryCard";
 import { DataArchivalDegradedBanner } from "@/components/governance/DataArchivalDegradedBanner";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -15,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getComplianceDriftTrend, getGovernanceDashboard } from "@/lib/api";
+import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
+import type { GovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
@@ -48,6 +51,7 @@ type LoadState =
       warned30d: { count: number; exact: boolean };
       report30d: PilotValueReportJson;
       report90d: PilotValueReportJson;
+      decisionsNeeded: GovernanceDecisionsNeededSummary;
     }
   | { status: "error"; message: string; problem: ApiProblemDetails | null; correlationId: string | null };
 
@@ -101,7 +105,11 @@ export function ExecutiveWorkspaceHealthDashboard() {
     const b90 = rollingBounds(90);
 
     try {
-      const [dashboard, driftPoints, blocked30d, warned30d, report30d, report90d] = await Promise.all([
+      const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
+      const projectId = scopeHeaders["x-project-id"]?.trim() ?? "";
+
+      const [dashboard, driftPoints, blocked30d, warned30d, report30d, report90d, decisionsNeeded] =
+        await Promise.all([
         getGovernanceDashboard(50, 50, 50),
         getComplianceDriftTrend(b30.fromUtc, b30.toUtc, 1440),
         countAuditEventsInWindow({
@@ -116,6 +124,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         }),
         fetchPilotValueReportJson(b30.fromUtc, b30.toUtc),
         fetchPilotValueReportJson(b90.fromUtc, b90.toUtc),
+        getGovernanceDecisionsNeededSummary(projectId.length > 0 ? projectId : undefined),
       ]);
 
       setState({
@@ -126,6 +135,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
         warned30d,
         report30d,
         report90d,
+        decisionsNeeded,
       });
     } catch (e: unknown) {
       if (isApiRequestError(e)) {
@@ -148,6 +158,14 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
   useEffect(() => {
     void load();
+
+    const intervalId = window.setInterval(() => {
+      void load();
+    }, 30_000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [load]);
 
   if (state.status === "loading" || state.status === "idle") {
@@ -190,7 +208,7 @@ export function ExecutiveWorkspaceHealthDashboard() {
     return null;
   }
 
-  const { dashboard, driftPoints, blocked30d, warned30d, report30d, report90d } = state;
+  const { dashboard, driftPoints, blocked30d, warned30d, report30d, report90d, decisionsNeeded } = state;
 
   const sla = computeWorkspaceHealthSlaStats(dashboard.pendingApprovals, dashboard.recentDecisions);
 
@@ -249,6 +267,8 @@ export function ExecutiveWorkspaceHealthDashboard() {
       </div>
 
       <DataArchivalDegradedBanner />
+
+      <DecisionsNeededSummaryCard summary={decisionsNeeded} />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-neutral-200 dark:border-neutral-800">

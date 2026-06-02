@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 82.57%
+# ArchLucid Assessment – (A) Headline Readiness: 82.62%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **82.52%** (5AI); batch **5AJ TB-238** (wizard baseline metrics step) → **82.57%** (+1 Proof-of-ROI). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **82.57%** (5AJ); batch **5AK TB-223** (decisions-needed KPI card on governance dashboard) → **82.62%** (+1 Stickiness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -50,7 +50,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Adoption Friction | 77 | 6 | 4.04% | 138 |
-| Stickiness | 73 | 6 | 3.78% | 162 |
+| Stickiness | 74 | 6 | 3.83% | 156 |
 | Time-to-Value | 86 | 7 | 5.19% | 98 |
 | Marketability | 85 | 8 | 5.86% | 120 |
 | Proof-of-ROI Readiness | 77 | 5 | 3.32% | 115 |
@@ -137,9 +137,9 @@ Classification: Fixable in v1.
 
 ### Stickiness
 
-Score: 73. Weight: 6. Weighted impact: 3.78%. Weighted deficiency signal: 162.
+Score: 74. Weight: 6. Weighted impact: 3.83%. Weighted deficiency signal: 156.
 
-Justification: Stickiness is supported by repeat reviews, compare, replay, graph, governance, audit, policy packs, executive ROI summary, learning signals, and proof workflows. The gap is that recurring operating habits are not yet fully closed in the product UI: RAG grounding, tool calls, run-level remediation, and recurring review safety are still backlog items.
+Justification: Stickiness is supported by repeat reviews, compare, replay, graph, governance, audit, policy packs, executive ROI summary, learning signals, and proof workflows. Batch **5AK** closes **TB-223** — `/governance/dashboard` now surfaces `GET /v1/governance/decisions-needed-summary` as a six-tile **Decisions needed** KPI card (parallel fetch, 30-second refresh, empty state, waiver-expiry caution accent) so operators see open governance actions without drilling into APIs. The gap is that recurring operating habits are not yet fully closed in the product UI: RAG grounding, tool calls, run-level remediation, and recurring review safety are still backlog items.
 
 Tradeoffs: V1 can sell the first review without a complete operating loop. Retention and expansion need the product to become a weekly architecture habit, not just a report generator.
 
