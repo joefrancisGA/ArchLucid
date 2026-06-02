@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.58%
+# ArchLucid Assessment – (A) Headline Readiness: 80.62%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Through **80.50%** (5F); batches **5G TB-011** (persisted gate read path + dual-replica budget harness guards) and **5H TB-012** partial (INV-010/014 architecture tests) → **80.58%** (+1 Architectural Integrity capped). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **80.58%** (5G/5H); batch **5I TB-012** complete (INV-007/008/009 architecture guards) → **80.62%** (+1 Maintainability, +1 Testability, +1 Reliability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -64,12 +64,12 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
 | Decision Velocity | 71 | 2 | 1.22% | 58 |
 | Data Consistency | 70 | 2 | 1.21% | 60 |
-| Maintainability | 73 | 2 | 1.26% | 54 |
+| Maintainability | 74 | 2 | 1.28% | 52 |
 | Traceability | 84 | 3 | 2.17% | 48 |
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
 | Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
-| Reliability | 76 | 2 | 1.31% | 48 |
+| Reliability | 77 | 2 | 1.33% | 46 |
 | Auditability | 77 | 2 | 1.32% | 46 |
 | Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |
 | Explainability | 80 | 2 | 1.38% | 40 |
@@ -82,7 +82,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Availability | 74 | 1 | 0.64% | 26 |
 | Extensibility | 72 | 1 | 0.62% | 28 |
 | Cost-Effectiveness | 73 | 1 | 0.63% | 27 |
-| Testability | 75 | 1 | 0.65% | 25 |
+| Testability | 76 | 1 | 0.66% | 24 |
 | Supportability | 76 | 1 | 0.66% | 24 |
 | Template and Accelerator Richness | 82 | 1 | 0.71% | 18 |
 | Documentation | 78 | 1 | 0.67% | 22 |
@@ -341,9 +341,9 @@ Classification: v1 for evidence/copy precision; `(B)` for formal assurance.
 
 ### Maintainability
 
-Score: 72. Weight: 2. Weighted impact: 1.24%. Weighted deficiency signal: 56.
+Score: 74. Weight: 2. Weighted impact: 1.28%. Weighted deficiency signal: 52.
 
-Justification: The repo is modular and heavily documented, with tests, scripts, invariants, DDL discipline, and central package management. Maintainability is pressured by breadth: many projects, many docs, duplicate read models, legacy terminology, and a large backlog.
+Justification: The repo is modular and heavily documented, with tests, scripts, invariants, DDL discipline, and central package management. Batch **5I** closes **TB-012** Wave C architecture guards (**INV-007/008/009**), reducing invariant drift risk. Maintainability is still pressured by breadth: many projects, many docs, duplicate read models, legacy terminology, and a large backlog.
 
 Tradeoffs: Modularity and explicit docs are good. Too many surfaces make change impact harder.
 
@@ -365,9 +365,9 @@ Classification: v1.1 if not needed for first release; v1 if sponsor trust depend
 
 ### Reliability
 
-Score: 74. Weight: 2. Weighted impact: 1.28%. Weighted deficiency signal: 52.
+Score: 77. Weight: 2. Weighted impact: 1.33%. Weighted deficiency signal: 46.
 
-Justification: Reliability foundations include health checks, SQL retries, outbox, data consistency probes, release smoke, k6 smoke, chaos tests, and readiness scripts. Remaining risks include recurring review duplication, optional live gates, staging-specific validation, and IaC parity.
+Justification: Reliability foundations include health checks, SQL retries, outbox, data consistency probes, release smoke, k6 smoke, chaos tests, and readiness scripts. Batch **5I** adds architecture guards for mutating HTTP idempotency (**INV-009**) and cancellation forwarding on authority paths (**INV-008**). Remaining risks include recurring review duplication, optional live gates, staging-specific validation, and IaC parity.
 
 Tradeoffs: V1 intentionally does not require multi-region active/active. Single-region reliability plus clear drills is acceptable.
 
@@ -521,9 +521,9 @@ Classification: v1/v1.1.
 
 ### Testability
 
-Score: 74. Weight: 1. Weighted impact: 0.64%. Weighted deficiency signal: 26.
+Score: 76. Weight: 1. Weighted impact: 0.66%. Weighted deficiency signal: 24.
 
-Justification: Testability is strong: solution filters, core suite, full SQL regression, API snapshots, UI unit/live E2E, k6, chaos, golden fixtures, and coverage gates. Current coverage analysis still shows low-coverage hotspots in some production assemblies and a deferred 95% ratchet.
+Justification: Testability is strong: solution filters, core suite, full SQL regression, API snapshots, UI unit/live E2E, k6, chaos, golden fixtures, and coverage gates. Batch **5I** extends Wave C architecture test drift guards (**INV-007/008/009**). Current coverage analysis still shows low-coverage hotspots in some production assemblies and a deferred 95% ratchet.
 
 Tradeoffs: Raising coverage indiscriminately would be expensive. The right move is targeted tests for correctness/security hot paths.
 

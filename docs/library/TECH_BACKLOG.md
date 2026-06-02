@@ -240,7 +240,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-012 — Invariant Wave C — hygiene pack (clock, cancellation, idempotency, HTTP, repos, webhook order)
 
-**Status (2026-06-01, batch 5H):** **Partial** — **INV-003/011/015** architecture tests shipped earlier; batch **5H** adds **INV-010** (`CentralHttpClientArchitectureTests`) and **INV-014** (`NoMutableStaticFieldArchitectureTests`) + `test_invariant_wave_c_batch.py` CI drift guard. Remaining: **INV-007** injected time analyzer, **INV-008** cancellation forwarding analyzer, **INV-009** mutating HTTP idempotency middleware tests.
+**Status (2026-06-01, batch 5I):** **Done** — Wave C architecture guards complete: **INV-003/011/015** (earlier), **INV-010/014** (batch **5H**), **INV-007/008/009** (batch **5I** — `InjectedTimeArchitectureTests`, `CancellationForwardingArchitectureTests`, `MutatingHttpIdempotencyArchitectureTests`) + extended `test_invariant_wave_c_batch.py`. Follow-up Roslyn analyzers for **INV-007/008** remain optional hardening, not backlog blockers.
 
 **Covers:** **INV-007**–**INV-011**, **INV-014**, **INV-015** plus **INV-003** transactional vs informational markings.
 

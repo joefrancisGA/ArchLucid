@@ -30,6 +30,18 @@ class TestInvariantWaveCBatch(unittest.TestCase):
         path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "AuditPathClassificationArchitectureTests.cs"
         self.assertTrue(path.is_file(), f"Missing {path}")
 
+    def test_inv_007_injected_time_architecture_tests_exist(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "InjectedTimeArchitectureTests.cs"
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+    def test_inv_008_cancellation_forwarding_architecture_tests_exist(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "CancellationForwardingArchitectureTests.cs"
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+    def test_inv_009_mutating_http_idempotency_architecture_tests_exist(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "MutatingHttpIdempotencyArchitectureTests.cs"
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
 
 if __name__ == "__main__":
     unittest.main()
