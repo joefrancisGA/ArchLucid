@@ -37,9 +37,9 @@ describe("PilotRoiBaselineReadinessCard", () => {
     render(<PilotRoiBaselineReadinessCard />);
 
     expect(screen.getByTestId("pilot-roi-baseline-readiness-card")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "ROI baseline not set" })).toBeInTheDocument();
+    expect(screen.getByText("ROI baseline not set")).toBeInTheDocument();
     expect(
-      screen.getByText(/estimate time saved after your first review package/i),
+      screen.getByText(/estimate time saved after your first review/i),
     ).toBeInTheDocument();
   });
 

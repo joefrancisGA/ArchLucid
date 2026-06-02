@@ -52,12 +52,18 @@ vi.mock("@/lib/fetch-admin-config-lint", () => ({
 
 describe("FirstPilotReadinessCockpit", () => {
   beforeEach(() => {
+    localStorage.clear();
     vi.clearAllMocks();
   });
 
   afterEach(() => {
+    localStorage.clear();
     vi.useRealTimers();
   });
+
+  async function expandWorkspaceReadiness(): Promise<void> {
+    fireEvent.click(await screen.findByRole("button", { name: "Expand Workspace readiness" }));
+  }
 
   it("renders the workspace shell after readiness probes hydrate", async () => {
     render(<FirstPilotReadinessCockpit />);
@@ -69,6 +75,9 @@ describe("FirstPilotReadinessCockpit", () => {
     });
 
     expect(screen.getByRole("heading", { name: "Workspace readiness" })).toBeInTheDocument();
+
+    await expandWorkspaceReadiness();
+
     expect(screen.getByTestId("first-pilot-command-center-next-action")).toBeInTheDocument();
   });
 
@@ -76,8 +85,12 @@ describe("FirstPilotReadinessCockpit", () => {
     render(<FirstPilotReadinessCockpit />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-command-center-next-action")).toBeInTheDocument();
+      expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();
     });
+
+    await expandWorkspaceReadiness();
+
+    expect(screen.getByTestId("first-pilot-command-center-next-action")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Collapse Workspace readiness" }));
 

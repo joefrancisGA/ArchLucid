@@ -1,4 +1,4 @@
-> **Scope:** Sales, marketing, and agent authoring — what ArchLucid may say in V1 vs deferred `(B)` / V1.1 items.
+> **Scope:** Contributor-reference — sales, marketing, and agent authoring for what ArchLucid may say in V1 vs deferred `(B)` / V1.1 items; buyer-facing claim guardrails (TB-134).
 
 # Public claim boundary guide (TB-134)
 
