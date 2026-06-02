@@ -92,8 +92,12 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
             cancellationToken);
 
     /// <inheritdoc />
-    public Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default) =>
-        _inner.UpdateAsync(item, cancellationToken);
+    public Task UpdateAsync(
+        GovernanceApprovalRequest item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null) =>
+        _inner.UpdateAsync(item, cancellationToken, connection, transaction);
 
     /// <inheritdoc />
     public Task<GovernanceApprovalRequest?> GetByIdAsync(string approvalRequestId,
