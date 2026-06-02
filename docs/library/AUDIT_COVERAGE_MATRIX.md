@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:248 -->
+<!-- audit-core-const-count:249 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -167,6 +167,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Tenant agent-output quality gate mode override cleared | `SettingsController` (`DELETE /v1/admin/settings/agent-output-quality-gate-mode`) | `TenantAgentOutputQualityGateModeOverrideCleared` | Tenant + default workspace/project from scope | `{ effectiveMode }` after revert to host default |
 | Host API key rotation material issued | `AdminApiKeySettingsController` (`POST /v1/admin/settings/api-keys/rotate`) | `AdminApiKeyRotationMaterialIssued` | Tenant + default workspace/project from scope | `{ slot, deploymentAction, configPath }` — **no** key material |
 | Host API key rotated by key id | `AdminApiKeySettingsController` (`POST /v1/admin/apikeys/{keyId}/rotate`) | `ApiKeyRotated` | Tenant + default workspace/project from scope | `{ keyId, slot, deploymentAction, configPath }` — **no** key material |
+| Admin JWT token claims diagnostic (SSO role mapping) | `AdminAuthDiagnosticsController` (`POST /v1/admin/auth/diagnose-token`) | `AuthTokenDiagnosticRequested` | Tenant/Workspace/Project from ambient scope | `{ resolvedRoleCount, unmappedValueCount, warningCount }` — **no** bearer token material |
 | Tenant architecture review board cover logo upload | `AdminController` (`POST /v1/admin/tenant/logo`) | `TenantReviewBoardCoverLogoUploaded` | Tenant + default workspace/project from scope | `{ logoByteLength }` — PNG/JPEG validated via `ArchitectureReviewBoardCoverLogoValidator`; image bytes are **not** stored in audit payload |
 | Microsoft Teams incoming-webhook connection upsert | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionUpserted` | Tenant + default workspace/project from scope | Key Vault reference metadata (no secret material) |
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
@@ -300,6 +301,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RiskExceptionExpired` | `RiskExceptionExpired` | `RiskExceptionService` (expires active waivers past `ExpiresAtUtc` when listed) |
 | `ArchitectureReviewRecurrenceScheduleCreated` | `ArchitectureReviewRecurrenceScheduleCreated` | `GovernanceStickinessController` (`POST /v1/governance/recurrence-schedules`) |
 | `ArchitectureReviewRecurrenceTriggered` | `ArchitectureReviewRecurrenceTriggered` | `RecurringArchitectureReviewTriggerService` |
+| `AuthTokenDiagnosticRequested` | `Auth.TokenDiagnosticRequested` | `AdminAuthDiagnosticsController` (`POST /v1/admin/auth/diagnose-token`) |
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
 | `RunPinStateChanged` | `RunPinStateChanged` | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) |
