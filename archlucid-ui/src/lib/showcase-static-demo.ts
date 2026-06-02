@@ -1,5 +1,7 @@
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
+import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
+
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
 export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 
@@ -105,7 +107,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
     demoStatusMessage: "Demonstration — sample healthcare intake scenario",
     run: {
       runId,
-      projectId: "claims-intake-sample-workspace",
+      projectId: DEV_SCOPE_PROJECT_ID,
       description: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
       createdUtc: "2026-01-10T09:15:22.000Z",
     },

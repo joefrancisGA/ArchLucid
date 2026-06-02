@@ -1,3 +1,5 @@
+import { DEV_SCOPE_PROJECT_ID } from "@/lib/scope";
+
 /** Stable IDs for deterministic Playwright payloads (57R). */
 export const FIXTURE_RUN_ID = "e2e-fixture-run-001";
 
@@ -6,7 +8,8 @@ export const FIXTURE_RUN_ID = "e2e-fixture-run-001";
  * Live API + SQL E2E should prefer {@link SHOWCASE_DEMO_RUN_ID} + {@link SCREENSHOT_FINDING_ID} (see `smoke.spec.ts`).
  */
 export const FIXTURE_FINDING_ID = "e2e-finding-001";
-export const FIXTURE_PROJECT_ID = "e2e-fixture-project";
+/** Matches {@link getScopeHeaders} / mock E2E SSR scope so run detail passes {@link runProjectMatchesEffectiveScope}. */
+export const FIXTURE_PROJECT_ID = DEV_SCOPE_PROJECT_ID;
 export const FIXTURE_MANIFEST_ID = "f0000001-0000-4000-8000-000000000001";
 /** Manifest with valid summary and intentionally empty artifact descriptor list (57R E2E). */
 export const FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID = "f0000002-0000-4000-8000-000000000002";
