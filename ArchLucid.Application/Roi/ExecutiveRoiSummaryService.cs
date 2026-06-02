@@ -363,11 +363,24 @@ public sealed class ExecutiveRoiSummaryService(
 
         string? cursor = null;
         const int take = 100;
+        // Safety cap: history only needs the last 6 months; 2 000 pages ≈ 200 000 runs.
+        const int maxPages = 2_000;
+        int pageCount = 0;
 
         while (true)
         {
+            if (pageCount >= maxPages)
+            {
+                _logger.LogWarning(
+                    "BuildHistoryAsync: safety max-page cap ({Cap}) reached; stopping early.",
+                    maxPages);
+                break;
+            }
+
             (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
                 await _runDetailQueryService.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+
+            pageCount++;
 
             foreach (RunSummary summary in items)
             {
@@ -551,11 +564,23 @@ public sealed class ExecutiveRoiSummaryService(
         List<(RunSummary Summary, ArchitectureRunDetail Detail)> results = [];
         string? cursor = null;
         const int take = 100;
+        const int maxPages = 2_000;
+        int pageCount = 0;
 
         while (results.Count < maxRuns)
         {
+            if (pageCount >= maxPages)
+            {
+                _logger.LogWarning(
+                    "CollectCommittedRunsForTrendsAsync: safety max-page cap ({Cap}) reached; stopping early.",
+                    maxPages);
+                break;
+            }
+
             (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
                 await _runDetailQueryService.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+
+            pageCount++;
 
             foreach (RunSummary summary in items)
             {
@@ -588,11 +613,24 @@ public sealed class ExecutiveRoiSummaryService(
         Dictionary<string, RunSummary> latestBySystem = new(StringComparer.OrdinalIgnoreCase);
         string? cursor = null;
         const int take = 100;
+        // Safety cap: at 100 rows per page, 2 000 pages = 200 000 runs — well beyond any real tenant.
+        const int maxPages = 2_000;
+        int pageCount = 0;
 
         while (true)
         {
+            if (pageCount >= maxPages)
+            {
+                _logger.LogWarning(
+                    "CollectLatestCommittedRunPerSystemAsync: safety max-page cap ({Cap}) reached; stopping early.",
+                    maxPages);
+                break;
+            }
+
             (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
                 await _runDetailQueryService.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+
+            pageCount++;
 
             foreach (RunSummary summary in items)
             {
@@ -680,10 +718,15 @@ public sealed class ExecutiveRoiSummaryService(
 
     private static string ResolveEnvironmentLabel(ArchitectureRunDetail detail)
     {
+        ArgumentNullException.ThrowIfNull(detail);
+
         foreach (ManifestService service in detail.Manifest?.Services ?? [])
         {
-            foreach (string tag in service.Tags)
+            foreach (string? tag in service.Tags)
             {
+                if (tag is null)
+                    continue;
+
                 if (!TryParseEnvironmentTag(tag, out string environment))
                     continue;
 

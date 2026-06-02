@@ -75,7 +75,8 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
     }
 
     /// <inheritdoc />
-    public Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default,
+        IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
         cancellationToken.ThrowIfCancellationRequested();

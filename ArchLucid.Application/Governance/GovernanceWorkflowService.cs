@@ -325,13 +325,31 @@ public sealed class GovernanceWorkflowService(
             return record;
         }
 
-        if (prodApprovalToMarkPromoted is not null)
+        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+        try
         {
-            prodApprovalToMarkPromoted.Status = GovernanceApprovalStatus.Promoted;
-            await approvalRepo.UpdateAsync(prodApprovalToMarkPromoted, cancellationToken);
-        }
+            if (prodApprovalToMarkPromoted is not null)
+            {
+                prodApprovalToMarkPromoted.Status = GovernanceApprovalStatus.Promoted;
 
-        await promotionRepo.CreateAsync(record, cancellationToken);
+                if (uow.SupportsExternalTransaction)
+                    await approvalRepo.UpdateAsync(prodApprovalToMarkPromoted, cancellationToken, uow.Connection, uow.Transaction);
+                else
+                    await approvalRepo.UpdateAsync(prodApprovalToMarkPromoted, cancellationToken);
+            }
+
+            if (uow.SupportsExternalTransaction)
+                await promotionRepo.CreateAsync(record, cancellationToken, uow.Connection, uow.Transaction);
+            else
+                await promotionRepo.CreateAsync(record, cancellationToken);
+
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
         await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Governance.ManifestPromoted, promotedBy, record.PromotionRecordId,
             $"RunId={persistedRunId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}", cancellationToken);
         Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;

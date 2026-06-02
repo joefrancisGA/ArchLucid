@@ -181,7 +181,8 @@ public sealed class GovernanceApprovalRequestRepository(
         }
     }
 
-    public async Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default,
+        IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -200,8 +201,6 @@ public sealed class GovernanceApprovalRequestRepository(
                       WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
                       """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
         DynamicParameters p = new();
         p.Add("ApprovalRequestId", item.ApprovalRequestId);
         p.Add("Status", item.Status);
@@ -212,7 +211,15 @@ public sealed class GovernanceApprovalRequestRepository(
         p.Add("SlaBreachNotifiedUtc", item.SlaBreachNotifiedUtc, DbType.DateTime2);
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, p, cancellationToken: cancellationToken));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, p, transaction: transaction, cancellationToken: cancellationToken));
+            return;
+        }
+
+        using IDbConnection owned = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await owned.ExecuteAsync(new CommandDefinition(sql, p, cancellationToken: cancellationToken));
     }
 
     public async Task<GovernanceApprovalRequest?> GetByIdAsync(

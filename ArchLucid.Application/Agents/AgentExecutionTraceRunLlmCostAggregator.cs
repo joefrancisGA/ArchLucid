@@ -37,11 +37,14 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         {
             int inTok = trace.InputTokenCount ?? 0;
             int outTok = trace.OutputTokenCount ?? 0;
+            // TB-196: use persisted reasoning token count (added by TB-033) rather than hard-coding 0,
+            // so o-series / reasoning-model runs include that cost component in the estimate.
+            int reasoningTok = trace.ReasoningTokenCount ?? 0;
 
             promptSum += inTok;
             completionSum += outTok;
 
-            if (inTok <= 0 && outTok <= 0)
+            if (inTok <= 0 && outTok <= 0 && reasoningTok <= 0)
                 continue;
 
             string resolvedDeployment = string.IsNullOrWhiteSpace(trace.ModelDeploymentName)
@@ -53,7 +56,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
                     ? null
                     : resolvedDeployment;
 
-            decimal? slice = costEstimator.EstimateUsd(inTok, outTok, 0, deploymentForCost);
+            decimal? slice = costEstimator.EstimateUsd(inTok, outTok, reasoningTok, deploymentForCost);
 
             if (slice is { } d)
             {

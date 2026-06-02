@@ -124,6 +124,62 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.ProviderTokensWithoutRate);
     }
 
+    /// <summary>TB-196: ReasoningTokenCount must be forwarded to ILlmCostEstimator, not hard-coded to 0.</summary>
+    [Fact]
+    public void Compute_WithReasoningTokens_IncludesReasoningCostInEstimate()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(200, 50, 500, "o1-preview"))
+            .Returns(3.75m);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "o1-preview",
+                InputTokenCount = 200,
+                OutputTokenCount = 50,
+                ReasoningTokenCount = 500,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.EstimatedCostUsd.Should().Be(3.75m);
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.EstimatedFromConfiguredRates);
+
+        estimator.Verify(e => e.EstimateUsd(200, 50, 500, "o1-preview"), Times.Once);
+    }
+
+    /// <summary>TB-196: A trace with reasoning tokens only (no prompt/completion) still contributes to cost.</summary>
+    [Fact]
+    public void Compute_ReasoningTokensOnlyTrace_StillAccumulatesCost()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(0, 0, 300, "o1-preview"))
+            .Returns(0.90m);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "o1-preview",
+                InputTokenCount = null,
+                OutputTokenCount = null,
+                ReasoningTokenCount = 300,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.EstimatedCostUsd.Should().Be(0.90m);
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.EstimatedFromConfiguredRates);
+    }
+
     [Fact]
     public void Compute_LargeTokenTotals_UseLongAccumulationWithoutOverflow()
     {

@@ -40,7 +40,13 @@ public interface IGovernanceApprovalRequestRepository
     ///     Replaces the stored approval request with <paramref name="item" />.
     ///     Used to persist status transitions (e.g. Pending → Approved, Pending → Rejected).
     /// </summary>
-    Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default);
+    /// <param name="connection">When non-null, uses this open connection instead of opening a new one.</param>
+    /// <param name="transaction">Optional transaction associated with <paramref name="connection" />.</param>
+    Task UpdateAsync(
+        GovernanceApprovalRequest item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     ///     Returns the approval request with the specified <paramref name="approvalRequestId" />,

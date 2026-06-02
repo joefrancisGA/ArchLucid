@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.62%
+# ArchLucid Assessment – (A) Headline Readiness: 80.76%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
-Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
+Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **80.58%** (5G/5H); batch **5I TB-012** complete (INV-007/008/009 architecture guards) → **80.62%** (+1 Maintainability, +1 Testability, +1 Reliability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **80.62%** (5I); batch **5J** correctness cluster (**TB-196/197/205/206** — reasoning cost, PromoteAsync atomicity, ROI pagination guards, env-label null safety) → **80.76%** (+2 Correctness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -48,7 +48,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | --- | ---: | ---: | ---: | ---: |
 | AI/Agent Readiness | 72 | 8 | 4.97% | 224 |
 | Cutting-Edge AI Technology | 73 | 8 | 5.03% | 216 |
-| Correctness | 78 | 8 | 5.31% | 176 |
+| Correctness | 80 | 8 | 5.52% | 160 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 80 | 7 | 4.83% | 140 |
@@ -113,9 +113,9 @@ Classification: Mostly fixable in v1. Graph-RAG, agentic retrieval, fine-tuning,
 
 ### Correctness
 
-Score: 76. Weight: 8. Weighted impact: 5.24%. Weighted deficiency signal: 192.
+Score: 80. Weight: 8. Weighted impact: 5.52%. Weighted deficiency signal: 160.
 
-Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. The current backlog still identifies several customer-visible correctness risks: duplicated ROI/KPI calculations, expiring-waiver semantics, decision-count overcounting, cost-waste field aliasing, recurring review idempotency, and waiver/disposition invariants.
+Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5J** fixes reasoning-token cost underreporting (**TB-196**), atomic governance promotion (**TB-197**), ROI pagination safety caps (**TB-205**), and manifest env-label null safety (**TB-206**). Remaining backlog includes security-boundary test gaps (**TB-199/200**), `CostConstraintFindingEngine` coverage (**TB-198**), and agent-result uniqueness (**TB-201**).
 
 Tradeoffs: The system has many read surfaces because it has grown into a broad product. That creates useful product depth but increases semantic drift risk.
 
