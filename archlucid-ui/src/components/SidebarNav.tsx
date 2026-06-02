@@ -171,6 +171,8 @@ export function SidebarNav() {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  /** When true, pathname-first-run nav suppression no longer hides extended/advanced links the user asked to reveal. */
+  const [navDisclosurePathOverride, setNavDisclosurePathOverride] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
   /**
@@ -181,11 +183,9 @@ export function SidebarNav() {
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showProgressiveDisclosureChrome = !demoUi && !buyerPolishedShell;
-  const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
-    pathname,
-    showExtended,
-    showAdvanced,
-  );
+  const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = navDisclosurePathOverride
+    ? { showExtended, showAdvanced }
+    : effectiveNavDisclosureForPathname(pathname, showExtended, showAdvanced);
   const navExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
   const navAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
   const effectiveShellPresetId: OperatorShellPresetId = buyerPolishedShell || demoUi ? "full" : shellPresetId;
@@ -302,6 +302,10 @@ export function SidebarNav() {
     };
   }, [buyerPolishedShell, demoUi]);
 
+  useEffect(() => {
+    setNavDisclosurePathOverride(false);
+  }, [pathname]);
+
   function setGroupOpen(groupId: string, value: boolean): void {
     setOpenByGroup((prev) => ({ ...prev, [groupId]: value }));
 
@@ -309,6 +313,43 @@ export function SidebarNav() {
       window.localStorage.setItem(STORAGE_PREFIX + groupId, value ? "1" : "0");
     } catch {
       /* private mode */
+    }
+  }
+
+  function revealHiddenLinksInGroup(groupId: string, groupSurface: string): void {
+    setNavDisclosurePathOverride(true);
+    setGroupOpen(groupId, true);
+
+    // Extended-tier Review work links (e.g. Risk register, Scorecard) stay hidden while the
+    // collapsed-pilot sidebar filter is active even after showExtended — expand that filter too.
+    if (applyCollapsedSidebarPilotFilter && groupSurface === "review-workflow") {
+      setNavAllFeaturesExpanded(true);
+
+      setPreExpandPresetId(shellPresetId);
+
+      if (effectiveShellPresetId !== "full") {
+        persistShellPreset("full");
+      }
+
+      try {
+        window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, "true");
+      } catch {
+        /* private mode */
+      }
+    }
+
+    if (!showExtended) {
+      setShowExtended(true);
+
+      return;
+    }
+
+    if (!showAdvanced) {
+      setShowAdvanced(true);
+
+      if (!operatorShellPresetAllowsHref(effectiveShellPresetId, "/governance")) {
+        persistShellPreset("full");
+      }
     }
   }
 
@@ -561,9 +602,9 @@ export function SidebarNav() {
               <button
                 type="button"
                 className="auth-panel-focus sidebar-disclosure-trigger ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-700 hover:text-neutral-900 dark:text-neutral-200 dark:hover:text-neutral-50"
-                aria-label={`${hiddenByDisclosure} more destinations in ${group.label} — open Sidebar layout`}
+                aria-label={`Show ${hiddenByDisclosure} more destinations in ${group.label}`}
                 onClick={() => {
-                  setSettingsOpen(true);
+                  revealHiddenLinksInGroup(group.id, group.surface);
                 }}
               >
                 <ChevronDown className="h-3 w-3 shrink-0 opacity-80" aria-hidden />

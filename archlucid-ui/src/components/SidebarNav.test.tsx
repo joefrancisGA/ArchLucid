@@ -7,8 +7,12 @@ import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 
 import { SidebarNav } from "./SidebarNav";
 
+const { mockPathname } = vi.hoisted(() => ({
+  mockPathname: vi.fn((): string => "/"),
+}));
+
 vi.mock("next/navigation", () => ({
-  usePathname: (): string => "/",
+  usePathname: (): string => mockPathname(),
 }));
 
 vi.mock("next/link", () => ({
@@ -33,6 +37,7 @@ vi.mock("next/link", () => ({
 describe("SidebarNav (primary navigation)", () => {
   beforeEach(() => {
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
+    mockPathname.mockReturnValue("/");
 
     // Progressive disclosure persists `archlucid_nav_show_extended` in localStorage; clear so tests
     // do not inherit extended disclosure state from a prior case in the same file.
@@ -143,6 +148,26 @@ describe("SidebarNav (primary navigation)", () => {
 
     expect(screen.queryByText("Press Shift+? for help and keyboard shortcuts")).toBeNull();
     expect(screen.queryByText(/Search pages/i)).toBeNull();
+  });
+
+  it('reveals extended Review work links when "N more" is clicked instead of opening Sidebar layout', () => {
+    mockPathname.mockReturnValue("/reviews/new");
+
+    render(<SidebarNav />);
+
+    const nav = screen.getByRole("navigation", { name: "Review work" });
+
+    expect(within(nav).queryByRole("link", { name: "Risk register" })).toBeNull();
+    expect(within(nav).queryByRole("link", { name: "Scorecard" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Show 2 more destinations in Review work" }));
+
+    expect(screen.queryByRole("dialog", { name: "Sidebar layout" })).toBeNull();
+    expect(within(nav).getByRole("link", { name: "Risk register" })).toHaveAttribute(
+      "href",
+      "/governance/findings",
+    );
+    expect(within(nav).getByRole("link", { name: "Scorecard" })).toHaveAttribute("href", "/scorecard");
   });
 });
 
