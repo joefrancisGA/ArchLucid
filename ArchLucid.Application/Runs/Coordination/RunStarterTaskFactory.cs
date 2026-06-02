@@ -106,7 +106,8 @@ public static class RunStarterTaskFactory
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Topology],
-            AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest]
+            AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest],
+            ModelTierOverride = LlmModelTier.Economy
         };
     }
 
@@ -123,7 +124,8 @@ public static class RunStarterTaskFactory
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Cost],
-            AllowedSources = BuildCostAllowedSources(evidenceBundle)
+            AllowedSources = BuildCostAllowedSources(evidenceBundle),
+            ModelTierOverride = LlmModelTier.Economy
         };
     }
 
@@ -151,7 +153,8 @@ public static class RunStarterTaskFactory
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Compliance],
-            AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest]
+            AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest],
+            ModelTierOverride = LlmModelTier.Premium
         };
     }
 
@@ -168,7 +171,8 @@ public static class RunStarterTaskFactory
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [AgentTypeKeys.Critic],
-            AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest]
+            AllowedSources = [SourceArchitectureRequest, SourcePolicyPack, SourceServiceCatalog, SourcePriorManifest],
+            ModelTierOverride = LlmModelTier.Premium
         };
     }
 

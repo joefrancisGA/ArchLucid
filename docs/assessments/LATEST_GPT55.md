@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 81.45%
+# ArchLucid Assessment – (A) Headline Readiness: 81.52%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **81.38%** (5Q); batch **5R TB-196** (reasoning token cost in run LLM aggregator) → **81.45%** (+1 Correctness). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **81.45%** (5R); batch **5S TB-179** (multi-model tiered orchestration) → **81.52%** (+1 AI/Agent Readiness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -46,7 +46,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
-| AI/Agent Readiness | 74 | 8 | 5.11% | 208 |
+| AI/Agent Readiness | 75 | 8 | 5.17% | 200 |
 | Cutting-Edge AI Technology | 74 | 8 | 5.10% | 208 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
@@ -89,9 +89,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 ### AI/Agent Readiness
 
-Score: 74. Weight: 8. Weighted impact: 5.11%. Weighted deficiency signal: 208.
+Score: 75. Weight: 8. Weighted impact: 5.17%. Weighted deficiency signal: 200.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M** closes **TB-177** (adversarial Critic + empty-findings gate signal). Batch **5N** closes **TB-178** (streaming Ask SSE + `useAskStream` hook). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M** closes **TB-177** (adversarial Critic + empty-findings gate signal). Batch **5N** closes **TB-178** (streaming Ask SSE + `useAskStream` hook). Batch **5S** closes **TB-179** — Topology/Cost route to Economy (`Llm:Deployments:Fast`) and Compliance/Critic to Premium (`Llm:Deployments:Reasoning`) via starter tasks and tier resolver defaults. The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 

@@ -31,15 +31,32 @@ public sealed class AgentModelTierResolverTests
     }
 
     [Fact]
-    public void ResolveTierForAgent_maps_topology_and_critic_to_premium_by_default()
+    public void ResolveTierForAgent_maps_starter_agents_to_economy_and_premium_by_default()
     {
         AgentModelTierResolver resolver = CreateResolver(
             new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "primary-deploy" },
             new AgentModelTierOptions());
 
-        resolver.ResolveTierForAgent(AgentType.Topology, null).Should().Be(LlmModelTier.Premium);
+        resolver.ResolveTierForAgent(AgentType.Topology, null).Should().Be(LlmModelTier.Economy);
+        resolver.ResolveTierForAgent(AgentType.Cost, null).Should().Be(LlmModelTier.Economy);
+        resolver.ResolveTierForAgent(AgentType.Compliance, null).Should().Be(LlmModelTier.Premium);
         resolver.ResolveTierForAgent(AgentType.Critic, null).Should().Be(LlmModelTier.Premium);
-        resolver.ResolveTierForAgent(AgentType.Compliance, null).Should().Be(LlmModelTier.Standard);
+    }
+
+    [Fact]
+    public void ResolveDeploymentName_reads_llm_deployments_fast_and_reasoning_aliases()
+    {
+        AgentModelTierResolver resolver = CreateResolver(
+            new Dictionary<string, string?>
+            {
+                ["AzureOpenAI:DeploymentName"] = "primary-deploy",
+                ["Llm:Deployments:Fast"] = "gpt-4o-mini",
+                ["Llm:Deployments:Reasoning"] = "gpt-4o",
+            },
+            new AgentModelTierOptions());
+
+        resolver.ResolveDeploymentName(LlmModelTier.Economy).Should().Be("gpt-4o-mini");
+        resolver.ResolveDeploymentName(LlmModelTier.Premium).Should().Be("gpt-4o");
     }
 
     [Fact]

@@ -6,11 +6,13 @@ namespace ArchLucid.AgentRuntime;
 /// <summary>Built-in per-agent tier defaults applied when configuration does not override them.</summary>
 public static class AgentModelTierDefaults
 {
-    /// <summary>Default agent-type tier mappings (Topology/Critic → Premium).</summary>
+    /// <summary>Default agent-type tier mappings (TB-179: Topology/Cost → Economy; Compliance/Critic → Premium).</summary>
     public static IReadOnlyDictionary<string, string> DefaultAgentTypeTiers { get; } =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["Topology"] = nameof(LlmModelTier.Premium),
+            ["Topology"] = nameof(LlmModelTier.Economy),
+            ["Cost"] = nameof(LlmModelTier.Economy),
+            ["Compliance"] = nameof(LlmModelTier.Premium),
             ["Critic"] = nameof(LlmModelTier.Premium)
         };
 

@@ -56,8 +56,12 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
         string? configured = tier switch
         {
             LlmModelTier.Standard => opts.StandardDeploymentName,
-            LlmModelTier.Premium => opts.PremiumDeploymentName,
-            LlmModelTier.Economy => opts.EconomyDeploymentName,
+            LlmModelTier.Premium => FirstNonEmpty(
+                opts.PremiumDeploymentName,
+                _configuration["Llm:Deployments:Reasoning"]),
+            LlmModelTier.Economy => FirstNonEmpty(
+                opts.EconomyDeploymentName,
+                _configuration["Llm:Deployments:Fast"]),
             _ => null
         };
 
@@ -74,5 +78,16 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
         tier = LlmModelTier.Standard;
 
         return !string.IsNullOrWhiteSpace(value) && Enum.TryParse(value.Trim(), ignoreCase: true, out tier);
+    }
+
+    private static string? FirstNonEmpty(string? primary, string? fallback)
+    {
+        if (!string.IsNullOrWhiteSpace(primary))
+            return primary.Trim();
+
+        if (string.IsNullOrWhiteSpace(fallback))
+            return null;
+
+        return fallback.Trim();
     }
 }

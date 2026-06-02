@@ -351,6 +351,9 @@ jobs:
       - name: AI readiness batch unit tests (TB-178 / batch 5N)
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5n.py"
 
+      - name: AI readiness batch unit tests (TB-179 / batch 5S)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5s.py"
+
       - name: Correctness batch unit tests (TB-202 / batch 5O)
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5o.py"
 
