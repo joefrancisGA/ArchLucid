@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:247 -->
+<!-- audit-core-const-count:248 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -183,6 +183,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | LLM prepaid wallet auto-refill failed | `LlmTenantWalletService` | `LlmWalletRefillFailed` | TenantId | `{ declineCode, errorMessage }` — actor `system`. |
 | LLM prepaid wallet settings updated | `WalletController` (`PUT /v1/billing/wallet`) | `LlmWalletSettingsUpdated` | Tenant/Workspace/Project from ambient scope | `{ autoReplenishEnabled, monthlyCapUsd, hasPaymentMethod }` — Stripe customer/payment-method ids are **not** logged. |
 | LLM prompt truncated (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmContextTruncated` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokens, thresholdTokens, maxContextTokens }` — fire-and-forget when estimated prompt tokens exceed the configured threshold before completion. |
+| LLM evidence summarized (context length guard) | `ContextLengthGuardAgentCompletionClient` | `LlmEvidenceSummarized` | Tenant/Workspace/Project from ambient scope | `{ estimatedTokensBefore, estimatedTokensAfter, thresholdTokens, maxContextTokens }` — fire-and-forget when `AgentExecution:EvidenceSummarization:Enabled` and estimated prompt tokens exceed threshold before hard truncation. |
 | SCIM bearer token minted (Enterprise) | `ScimTokensAdminController` (`POST /v1/admin/scim/tokens`) | `ScimTokenIssued` | Tenant from ambient scope | `{ tokenId, publicLookupKey }` — plaintext token returned once in response body only. |
 | SCIM bearer token revoked | `ScimTokensAdminController` (`DELETE /v1/admin/scim/tokens/{id}`) | `ScimTokenRevoked` | Tenant from ambient scope | `{ tokenId }` |
 | SCIM user provisioned | `ScimUserService` (`POST /scim/v2/Users`) | `ScimUserProvisioned` | Tenant from `IScopeContextProvider` | SCIM user id / externalId summary (JSON) |
@@ -450,6 +451,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AgentTraceBlobPersistenceFailed` | `AgentTraceBlobPersistenceFailed` | `AgentExecutionTraceRecorder` |
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
 | `LlmContextTruncated` | `LlmContextTruncated` | `ContextLengthGuardAgentCompletionClient` (fire-and-forget; prompt truncated when estimated tokens exceed threshold) |
+| `LlmEvidenceSummarized` | `LlmEvidenceSummarized` | `ContextLengthGuardAgentCompletionClient` (fire-and-forget; evidence summarized when estimated tokens exceed threshold and summarization is enabled) |
 | `TrialUpgradeNudgeShown` | `TrialUpgradeNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/shown`) |
 | `TrialUpgradeNudgeClicked` | `TrialUpgradeNudgeClicked` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) |
 | `TeamExpansionNudgeShown` | `TeamExpansionNudgeShown` | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/shown`) |
