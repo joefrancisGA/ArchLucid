@@ -112,7 +112,7 @@ describe("HomePage (55R smoke — landing)", () => {
   it("renders Reviews panel, maturity layer cards, and workflow panel", async () => {
     render(<HomePage />);
 
-    expect(screen.getByRole("heading", { name: "Architecture reviews" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your reviews" })).toBeInTheDocument();
     expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
     expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
     expect(screen.getByText("Search & Insights")).toBeInTheDocument();

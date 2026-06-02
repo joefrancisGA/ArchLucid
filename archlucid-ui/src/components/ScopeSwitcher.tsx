@@ -4,6 +4,7 @@ import { ChevronsUpDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -234,6 +235,7 @@ export function ScopeSwitcher() {
         </span>
         <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
       </Button>
+      <ContextualHelp helpKey="operator-scope-switcher" />
       {open ? (
         <Card
           className="absolute right-0 top-full z-[60] mt-1 w-[min(22rem,calc(100vw-2rem))] space-y-3 p-3 shadow-lg"
