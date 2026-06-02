@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 82.40%
+# ArchLucid Assessment – (A) Headline Readiness: 82.46%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **82.34%** (5AF); batch **5AG TB-219** (wizard preset deep-link `?preset=`) → **82.40%** (+1 Time-to-Value). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **82.40%** (5AG); batch **5AH TB-220** (wizard-to-commit OTel histogram) → **82.46%** (+1 Time-to-Value). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -51,7 +51,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Adoption Friction | 77 | 6 | 4.04% | 138 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
-| Time-to-Value | 84 | 7 | 5.07% | 112 |
+| Time-to-Value | 85 | 7 | 5.13% | 105 |
 | Marketability | 85 | 8 | 5.86% | 120 |
 | Proof-of-ROI Readiness | 76 | 5 | 3.27% | 120 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
@@ -149,9 +149,9 @@ Classification: Core reliability pieces are v1. Wider habit-loop polish is v1.1 
 
 ### Time-to-Value
 
-Score: 84. Weight: 7. Weighted impact: 5.07%. Weighted deficiency signal: 112.
+Score: 85. Weight: 7. Weighted impact: 5.13%. Weighted deficiency signal: 105.
 
-Justification: First value is well documented: health, review creation, execute/commit, proof packet, sponsor ZIP. Demo workspaces and starter proof packs exist. Batch **5N** closes **TB-178** (streaming Ask SSE) so the interactive discovery loop renders tokens incrementally instead of blocking on full LLM completion. Batch **5AD** closes **TB-216** — `archlucid try --sponsor-packet` collapses demo-up through sponsor `proof-summary.md` into one CLI invocation (shared proof-packet writer; default `artifacts/try-sponsor-packet/<runId>`). Batch **5AE** closes **TB-217** — `DemoSeedStartupHostedService` auto-applies Contoso seed on startup when `Demo:AnonymousViewer:Enabled` is true so `/demo/explain` works on freshly deployed demo hosts without manual `POST /v1/demo/seed`. Batch **5AF** closes **TB-218** — `/demo/explain` sticky conversion CTA (`DemoExplainConversionCtaCard`) routes evaluators to `/reviews/new?preset=greenfield` with evaluator-workbook help. Batch **5AG** closes **TB-219** — `?preset=greenfield|modernize|blank` on `/reviews/new` auto-applies the matching wizard preset (full wizard skips step 0; quick mode honors `initialPresetId`) so self-qualification docs and demo CTAs carry evaluation context into step 1. The issue is not lack of path; it is path density and the need to choose the correct accelerator, evidence source, auth mode, and proof disposition.
+Justification: First value is well documented: health, review creation, execute/commit, proof packet, sponsor ZIP. Demo workspaces and starter proof packs exist. Batch **5N** closes **TB-178** (streaming Ask SSE) so the interactive discovery loop renders tokens incrementally instead of blocking on full LLM completion. Batch **5AD** closes **TB-216** — `archlucid try --sponsor-packet` collapses demo-up through sponsor `proof-summary.md` into one CLI invocation (shared proof-packet writer; default `artifacts/try-sponsor-packet/<runId>`). Batch **5AE** closes **TB-217** — `DemoSeedStartupHostedService` auto-applies Contoso seed on startup when `Demo:AnonymousViewer:Enabled` is true so `/demo/explain` works on freshly deployed demo hosts without manual `POST /v1/demo/seed`. Batch **5AF** closes **TB-218** — `/demo/explain` sticky conversion CTA (`DemoExplainConversionCtaCard`) routes evaluators to `/reviews/new?preset=greenfield` with evaluator-workbook help. Batch **5AG** closes **TB-219** — `?preset=greenfield|modernize|blank` on `/reviews/new` auto-applies the matching wizard preset (full wizard skips step 0; quick mode honors `initialPresetId`) so self-qualification docs and demo CTAs carry evaluation context into step 1. Batch **5AH** closes **TB-220** — wizard-created runs stamp `requestSource=wizard` and first commit records `archlucid.pilot.wizard_to_committed_minutes` (tags `execution_mode`, `preset_used`) so the 15-minute first-value claim is measurable instead of aspirational. The issue is not lack of path; it is path density and the need to choose the correct accelerator, evidence source, auth mode, and proof disposition.
 
 Tradeoffs: The repo correctly avoids pretending that demo-derived output is buyer proof. That honesty adds steps but protects trust.
 

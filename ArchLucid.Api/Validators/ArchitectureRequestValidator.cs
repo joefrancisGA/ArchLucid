@@ -91,5 +91,13 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
             .Must(ArchitectureRequestInlinePayloadBudget.IsWithinBudget)
             .WithMessage(
                 $"Total inline requirement and document characters must not exceed {ArchitectureRequestInlinePayloadBudget.MaxTotalInlineCharacters}.");
+
+        RuleFor(x => x.RequestSource)
+            .MaximumLength(32).WithMessage("RequestSource must not exceed 32 characters.")
+            .Must(source => source is null || WizardPilotRequestSourceValues.IsKnown(source))
+            .WithMessage("RequestSource must be 'wizard' or 'cli' when provided.");
+
+        RuleFor(x => x.WizardPresetUsed)
+            .MaximumLength(32).WithMessage("WizardPresetUsed must not exceed 32 characters.");
     }
 }

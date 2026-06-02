@@ -114,7 +114,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     setSubmitError(null);
 
     try {
-      const body = wizardValuesToCreateRunPayload(getValues());
+      const body = wizardValuesToCreateRunPayload(getValues(), { requestSource: "wizard" });
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
 

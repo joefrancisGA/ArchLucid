@@ -380,6 +380,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         // Pins dbo.Tenants.TrialFirstManifestCommittedUtc for every tenant on first commit; trial-funnel audit/metrics stay inside the hook.
         await _trialFunnelCommitHook.OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken);
         await _firstSessionLifecycleHook.OnSuccessfulManifestCommitAsync(commitScope.TenantId, cancellationToken);
+        WizardPilotCommitTelemetry.RecordIfWizardSourced(request, runRecord, committedUtc.UtcDateTime);
 
         if (!runRecord.IsSample)
             TryScheduleSampleRunPurgeForTenant(commitScope.TenantId);

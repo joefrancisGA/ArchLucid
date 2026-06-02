@@ -19,6 +19,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
+import { resolveWizardPresetDeeplinkTokenFromPresetId } from "@/lib/wizard-preset-deeplink";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
@@ -144,7 +145,11 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     setSubmitError(null);
 
     try {
-      const body = wizardValuesToCreateRunPayload(getValues());
+      const presetToken = resolveWizardPresetDeeplinkTokenFromPresetId(presetId);
+      const body = wizardValuesToCreateRunPayload(getValues(), {
+        requestSource: "wizard",
+        wizardPresetUsed: presetToken ?? undefined,
+      });
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
 

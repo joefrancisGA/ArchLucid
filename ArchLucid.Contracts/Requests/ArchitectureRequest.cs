@@ -147,4 +147,24 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     Optional client channel label (for example <c>wizard</c> or <c>cli</c>) used for pilot funnel telemetry; persisted in
+    ///     request JSON.
+    /// </summary>
+    public string? RequestSource
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     When <see cref="RequestSource" /> is <c>wizard</c>, optional preset token (<c>greenfield</c>, <c>modernize</c>,
+    ///     <c>blank</c>) for wizard-to-commit histogram tagging.
+    /// </summary>
+    public string? WizardPresetUsed
+    {
+        get;
+        set;
+    }
 }

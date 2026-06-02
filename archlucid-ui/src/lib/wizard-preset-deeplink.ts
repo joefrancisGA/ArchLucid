@@ -48,3 +48,21 @@ export function resolveWizardPresetValuesFromDeeplink(
 
   return preset.values;
 }
+
+const PRESET_ID_TO_DEEPLINK_TOKEN: Record<string, WizardPresetDeeplinkToken> = {
+  "greenfield-web-app": "greenfield",
+  "modernize-legacy": "modernize",
+  "blank-advanced": "blank",
+};
+
+export function resolveWizardPresetDeeplinkTokenFromPresetId(
+  presetId: string | null | undefined,
+): WizardPresetDeeplinkToken | null {
+  const normalized = presetId?.trim();
+
+  if (normalized === undefined || normalized.length === 0) {
+    return null;
+  }
+
+  return PRESET_ID_TO_DEEPLINK_TOKEN[normalized] ?? null;
+}

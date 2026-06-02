@@ -444,7 +444,10 @@ export function NewRunWizardClient() {
     setSubmitError(null);
 
     try {
-      const body = wizardValuesToCreateRunPayload(getValues());
+      const body = wizardValuesToCreateRunPayload(getValues(), {
+        requestSource: "wizard",
+        wizardPresetUsed: presetDeeplinkToken ?? undefined,
+      });
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
 

@@ -707,6 +707,16 @@ public static class ArchLucidInstrumentation
             description: "Increments once per tenant on first successful manifest commit.");
 
     /// <summary>
+    ///     Wall-clock minutes from wizard run creation to first committed manifest (TB-220; labels
+    ///     <c>execution_mode</c>, <c>preset_used</c>).
+    /// </summary>
+    public static readonly Histogram<double> WizardToCommittedMinutes =
+        AppMeter.CreateHistogram<double>(
+            "archlucid.pilot.wizard_to_committed_minutes",
+            "min",
+            "Wall-clock minutes from wizard submit to first committed manifest (labels execution_mode, preset_used).");
+
+    /// <summary>
     ///     First-tenant onboarding funnel events (Improvement 12). Aggregated counter — the
     ///     <c>event</c> tag is the only label by default. The <c>tenant_id</c> tag is added only when the
     ///     <c>Telemetry:FirstTenantFunnel:PerTenantEmission</c> feature flag is on (owner-only flip per
@@ -2001,6 +2011,21 @@ public static class ArchLucidInstrumentation
     public static void RecordFirstSessionCompleted()
     {
         FirstSessionCompletedTotal.Add(1);
+    }
+
+    /// <summary>Records <see cref="WizardToCommittedMinutes" /> for wizard-sourced runs (TB-220).</summary>
+    public static void RecordWizardToCommittedMinutes(double minutes, string executionMode, string presetUsed)
+    {
+        double clampedMinutes = minutes < 0 ? 0 : minutes;
+        string mode = string.IsNullOrWhiteSpace(executionMode) ? "unknown" : executionMode.Trim().ToLowerInvariant();
+        string preset = string.IsNullOrWhiteSpace(presetUsed) ? "unknown" : presetUsed.Trim().ToLowerInvariant();
+        TagList tags = new()
+        {
+            { "execution_mode", mode },
+            { "preset_used", preset },
+        };
+
+        WizardToCommittedMinutes.Record(clampedMinutes, tags);
     }
 
     /// <summary>Increments <see cref="AuditWriteFailuresTotal" /> (label <c>event_type</c>).</summary>

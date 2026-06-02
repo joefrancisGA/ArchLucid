@@ -69,6 +69,8 @@ export type CreateArchitectureRunRequestPayload = {
   topologyHints?: string[];
   securityBaselineHints?: string[];
   infrastructureDeclarations?: CreateArchitectureRunInfrastructureDeclarationPayload[];
+  requestSource?: "wizard" | "cli";
+  wizardPresetUsed?: string;
 };
 
 /** Response envelope for POST /v1/architecture/request. */

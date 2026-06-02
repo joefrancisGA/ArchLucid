@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseWizardPresetDeeplinkToken,
   resolveWizardPresetIdFromDeeplink,
+  resolveWizardPresetDeeplinkTokenFromPresetId,
   resolveWizardPresetValuesFromDeeplink,
 } from "@/lib/wizard-preset-deeplink";
 
@@ -25,5 +26,10 @@ describe("wizard-preset-deeplink", () => {
 
     expect(values).not.toBeNull();
     expect(values?.systemName).toBe("CustomerWebApp");
+  });
+
+  it("maps preset ids back to deeplink tokens", () => {
+    expect(resolveWizardPresetDeeplinkTokenFromPresetId("greenfield-web-app")).toBe("greenfield");
+    expect(resolveWizardPresetDeeplinkTokenFromPresetId("event-driven-integration")).toBeNull();
   });
 });

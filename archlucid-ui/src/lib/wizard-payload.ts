@@ -1,10 +1,18 @@
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
+export type WizardCreateRunPayloadOptions = {
+  requestSource?: "wizard";
+  wizardPresetUsed?: string;
+};
+
 /**
  * Maps validated wizard values to the POST `/v1/architecture/request` body (camelCase, optional fields omitted when empty).
  */
-export function wizardValuesToCreateRunPayload(values: WizardFormValues): CreateArchitectureRunRequestPayload {
+export function wizardValuesToCreateRunPayload(
+  values: WizardFormValues,
+  options?: WizardCreateRunPayloadOptions,
+): CreateArchitectureRunRequestPayload {
   const prior = values.priorManifestVersion?.trim();
   const inlineReq = values.inlineRequirements.map((s) => s.trim()).filter(Boolean);
   const documents = values.documents.filter((d) => d.name.trim() && d.content.trim());
@@ -47,6 +55,16 @@ export function wizardValuesToCreateRunPayload(values: WizardFormValues): Create
 
   if (infra.length > 0) {
     payload.infrastructureDeclarations = infra;
+  }
+
+  if (options?.requestSource !== undefined) {
+    payload.requestSource = options.requestSource;
+  }
+
+  const wizardPresetUsed = options?.wizardPresetUsed?.trim();
+
+  if (wizardPresetUsed !== undefined && wizardPresetUsed.length > 0) {
+    payload.wizardPresetUsed = wizardPresetUsed;
   }
 
   return payload;
