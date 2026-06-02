@@ -357,6 +357,9 @@ jobs:
       - name: Correctness batch unit tests (TB-203 / batch 5P)
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5p.py"
 
+      - name: Correctness batch unit tests (TB-204 / batch 5Q)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5q.py"
+
       - name: Hot path performance budgets guard
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

@@ -122,6 +122,9 @@ public sealed class RuleBasedDecisionEngineCriteriaWarningsTests
         audit.Warnings.Should().BeEmpty();
         audit.AppliedRuleIds.Should().ContainSingle().Which.Should().Be("rule-require-control-id");
         audit.AcceptedFindingIds.Should().ContainSingle().Which.Should().Be("finding-with-control");
+        audit.RequiredFindingIds.Should().ContainSingle().Which.Should().Be("finding-with-control");
+        audit.AllowedFindingIds.Should().BeEmpty();
+        audit.PreferredFindingIds.Should().BeEmpty();
     }
 
     private sealed class StubDecisionRuleProvider(params DecisionRule[] rules) : IDecisionRuleProvider

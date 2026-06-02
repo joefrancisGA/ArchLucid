@@ -41,7 +41,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                                TenantId, WorkspaceId, ProjectId,
                                DecisionTraceId, RunId, CreatedUtc,
                                RuleSetId, RuleSetVersion, RuleSetHash,
-                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
+                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RequiredFindingIdsJson,
+                               AllowedFindingIdsJson, PreferredFindingIdsJson, RejectedFindingIdsJson, NotesJson,
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, PromptRefsJson, WarningsJson
                            )
                            VALUES
@@ -49,7 +50,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                                @TenantId, @WorkspaceId, @ProjectId,
                                @DecisionTraceId, @RunId, @CreatedUtc,
                                @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                               @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
+                               @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RequiredFindingIdsJson,
+                               @AllowedFindingIdsJson, @PreferredFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
                                @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @PromptRefsJson, @WarningsJson
                            );
                            """;
@@ -67,6 +69,9 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             audit.RuleSetHash,
             AppliedRuleIdsJson = JsonEntitySerializer.Serialize(audit.AppliedRuleIds),
             AcceptedFindingIdsJson = JsonEntitySerializer.Serialize(audit.AcceptedFindingIds),
+            RequiredFindingIdsJson = JsonEntitySerializer.Serialize(audit.RequiredFindingIds),
+            AllowedFindingIdsJson = JsonEntitySerializer.Serialize(audit.AllowedFindingIds),
+            PreferredFindingIdsJson = JsonEntitySerializer.Serialize(audit.PreferredFindingIds),
             RejectedFindingIdsJson = JsonEntitySerializer.Serialize(audit.RejectedFindingIds),
             NotesJson = JsonEntitySerializer.Serialize(audit.Notes),
             audit.ContextSnapshotId,
@@ -96,7 +101,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                                TenantId, WorkspaceId, ProjectId,
                                DecisionTraceId, RunId, CreatedUtc,
                                RuleSetId, RuleSetVersion, RuleSetHash,
-                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
+                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RequiredFindingIdsJson,
+                               AllowedFindingIdsJson, PreferredFindingIdsJson, RejectedFindingIdsJson, NotesJson,
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, PromptRefsJson, WarningsJson
                            FROM dbo.DecisioningTraces
                            WHERE TenantId = @TenantId
@@ -129,6 +135,9 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             RuleSetHash = row.RuleSetHash,
             AppliedRuleIds = JsonEntitySerializer.Deserialize<List<string>>(row.AppliedRuleIdsJson),
             AcceptedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.AcceptedFindingIdsJson),
+            RequiredFindingIds = DeserializeFindingIds(row.RequiredFindingIdsJson),
+            AllowedFindingIds = DeserializeFindingIds(row.AllowedFindingIdsJson),
+            PreferredFindingIds = DeserializeFindingIds(row.PreferredFindingIdsJson),
             RejectedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.RejectedFindingIdsJson),
             Notes = JsonEntitySerializer.Deserialize<List<string>>(row.NotesJson),
             ContextSnapshotId = row.ContextSnapshotId,
@@ -138,6 +147,11 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             Warnings = JsonEntitySerializer.Deserialize<List<RuleAuditTraceWarning>>(row.WarningsJson ?? "[]"),
         });
     }
+
+    private static List<string> DeserializeFindingIds(string? json) =>
+        string.IsNullOrWhiteSpace(json)
+            ? []
+            : JsonEntitySerializer.Deserialize<List<string>>(json);
 
     private sealed class DecisionTraceRow
     {
@@ -206,6 +220,24 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             get;
             init;
         } = null!;
+
+        public string? RequiredFindingIdsJson
+        {
+            get;
+            init;
+        }
+
+        public string? AllowedFindingIdsJson
+        {
+            get;
+            init;
+        }
+
+        public string? PreferredFindingIdsJson
+        {
+            get;
+            init;
+        }
 
         public string RejectedFindingIdsJson
         {

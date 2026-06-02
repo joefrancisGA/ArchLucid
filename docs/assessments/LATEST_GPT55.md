@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 81.31%
+# ArchLucid Assessment – (A) Headline Readiness: 81.38%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **81.24%** (5N+5O); batch **5P TB-203** (`ConversationService` unit tests) → **81.31%** (+1 Correctness). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **81.31%** (5P); batch **5Q TB-204** (rule audit action-specific finding sets) → **81.38%** (+1 Correctness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -48,7 +48,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | --- | ---: | ---: | ---: | ---: |
 | AI/Agent Readiness | 74 | 8 | 5.11% | 208 |
 | Cutting-Edge AI Technology | 74 | 8 | 5.10% | 208 |
-| Correctness | 84 | 8 | 5.79% | 128 |
+| Correctness | 85 | 8 | 5.86% | 120 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 81 | 7 | 4.89% | 133 |
@@ -113,9 +113,9 @@ Classification: Mostly fixable in v1. Graph-RAG, agentic retrieval, fine-tuning,
 
 ### Correctness
 
-Score: 84. Weight: 8. Weighted impact: 5.79%. Weighted deficiency signal: 128.
+Score: 85. Weight: 8. Weighted impact: 5.86%. Weighted deficiency signal: 120.
 
-Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5L** adds DB-level `UX_AgentResults_RunId_TaskId` with HTTP **409** on concurrent duplicate agent-result submits (**TB-201**). Batch **5O** closes **TB-202** (Notifications/ChatOps tests). Batch **5P** closes **TB-203** with `ConversationService` lifecycle, scope-mismatch, history take-limit, and empty-content behavior tests. Remaining backlog: **TB-204** audit trace differentiation.
+Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5L** adds DB-level `UX_AgentResults_RunId_TaskId` with HTTP **409** on concurrent duplicate agent-result submits (**TB-201**). Batch **5O** closes **TB-202** (Notifications/ChatOps tests). Batch **5P** closes **TB-203** (`ConversationService` lifecycle tests). Batch **5Q** closes **TB-204** with differentiated `require`/`allow`/`prefer` finding-id sets on authority rule audit traces and explainability DTOs. Remaining Correctness backlog: **TB-196** (reasoning token cost underreporting, P0).
 
 Tradeoffs: The system has many read surfaces because it has grown into a broad product. That creates useful product depth but increases semantic drift risk.
 

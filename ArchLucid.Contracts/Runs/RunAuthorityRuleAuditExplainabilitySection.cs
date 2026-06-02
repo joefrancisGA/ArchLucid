@@ -41,6 +41,24 @@ public sealed class RunAuthorityRuleAuditExplainabilitySection
         set;
     } = [];
 
+    public IReadOnlyList<string> RequiredFindingIds
+    {
+        get;
+        set;
+    } = [];
+
+    public IReadOnlyList<string> AllowedFindingIds
+    {
+        get;
+        set;
+    } = [];
+
+    public IReadOnlyList<string> PreferredFindingIds
+    {
+        get;
+        set;
+    } = [];
+
     public IReadOnlyList<string> RejectedFindingIds
     {
         get;

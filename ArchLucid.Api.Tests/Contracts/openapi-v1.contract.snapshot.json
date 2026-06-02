@@ -17441,6 +17441,12 @@
             },
             "type": "array"
           },
+          "allowedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "appliedRuleIds": {
             "items": {
               "type": "string"
@@ -17463,6 +17469,12 @@
           "pipeline": {
             "type": "string"
           },
+          "preferredFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "promptRefs": {
             "items": {
               "$ref": "#/components/schemas/RuleAuditTracePromptRef"
@@ -17470,6 +17482,12 @@
             "type": "array"
           },
           "rejectedFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "requiredFindingIds": {
             "items": {
               "type": "string"
             },

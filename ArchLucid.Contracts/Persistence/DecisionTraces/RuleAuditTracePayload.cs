@@ -72,6 +72,27 @@ public sealed class RuleAuditTracePayload
         set;
     } = [];
 
+    /// <summary>Findings accepted by a <c>require</c> rule action (TB-204).</summary>
+    public List<string> RequiredFindingIds
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Findings accepted by an <c>allow</c> rule action (TB-204).</summary>
+    public List<string> AllowedFindingIds
+    {
+        get;
+        set;
+    } = [];
+
+    /// <summary>Findings accepted by a <c>prefer</c> rule action (TB-204).</summary>
+    public List<string> PreferredFindingIds
+    {
+        get;
+        set;
+    } = [];
+
     public List<string> RejectedFindingIds
     {
         get;

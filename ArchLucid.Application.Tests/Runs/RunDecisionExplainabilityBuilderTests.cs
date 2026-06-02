@@ -32,6 +32,7 @@ public sealed class RunDecisionExplainabilityBuilderTests
                 RuleSetVersion = "1.0",
                 AppliedRuleIds = ["rule-1"],
                 AcceptedFindingIds = ["finding-1"],
+                RequiredFindingIds = ["finding-1"],
                 ContextSnapshotId = contextId,
                 GraphSnapshotId = graphId,
                 FindingsSnapshotId = findingsId,
@@ -73,6 +74,7 @@ public sealed class RunDecisionExplainabilityBuilderTests
 
         built.AuthorityRuleAudit.Should().NotBeNull();
         built.AuthorityRuleAudit!.RuleSetId.Should().Be("baseline");
+        built.AuthorityRuleAudit.RequiredFindingIds.Should().ContainSingle().Which.Should().Be("finding-1");
         built.ManifestDecisions.Should().HaveCount(1);
         built.ManifestDecisions[0].BuyerConfidenceSource.Should().Be("Evidence-backed");
         built.CoordinatorDecisionNodes.Should().HaveCount(1);

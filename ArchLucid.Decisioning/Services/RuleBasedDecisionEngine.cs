@@ -93,8 +93,17 @@ public class RuleBasedDecisionEngine(
                 switch (rule.Action.ToLowerInvariant())
                 {
                     case "require":
+                        audit.RequiredFindingIds.Add(finding.FindingId);
+                        audit.AcceptedFindingIds.Add(finding.FindingId);
+                        break;
+
                     case "allow":
+                        audit.AllowedFindingIds.Add(finding.FindingId);
+                        audit.AcceptedFindingIds.Add(finding.FindingId);
+                        break;
+
                     case "prefer":
+                        audit.PreferredFindingIds.Add(finding.FindingId);
                         audit.AcceptedFindingIds.Add(finding.FindingId);
                         break;
 
