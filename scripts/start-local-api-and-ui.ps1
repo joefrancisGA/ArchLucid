@@ -57,8 +57,7 @@ function Test-HttpStatus {
         $response = Invoke-WebRequest -Uri $Uri -UseBasicParsing -TimeoutSec 8
 
         return $ExpectedStatus -contains $response.StatusCode
-    }
-    catch {
+    } catch {
         return $false
     }
 }
@@ -118,10 +117,12 @@ function Assert-EnvLocalApiPortAlignment {
     }
 
     if ($uri.Port -ne $ApiPort) {
-        Write-StageError -Stage "config" -Message (
-            "ARCHLUCID_API_BASE_URL port $($uri.Port) does not match -ApiPort $ApiPort. "
-            + "Expected http://localhost:$ApiPort (native) or adjust -ApiPort for Docker demo (5000)."
-        )
+        $portMismatchMessage = (
+            'ARCHLUCID_API_BASE_URL port {0} does not match -ApiPort {1}. ' +
+            'Expected http://localhost:{1} (native) or adjust -ApiPort for Docker demo (5000).'
+        ) -f $uri.Port, $ApiPort
+
+        Write-StageError -Stage 'config' -Message $portMismatchMessage
     }
 }
 
@@ -160,23 +161,29 @@ if (-not $SkipPreflight) {
 
     Assert-EnvLocalApiPortAlignment
 
-    if (-not (Test-PortServingApiHealth -Port $ApiPort)) {
+    $apiAlreadyHealthy = Test-PortServingApiHealth -Port $ApiPort
+
+    if (-not $apiAlreadyHealthy) {
         $apiListeners = Get-NetTCPConnection -LocalPort $ApiPort -State Listen -ErrorAction SilentlyContinue
 
         if ($null -ne $apiListeners -and $apiListeners.Count -gt 0) {
             Write-StageError -Stage "preflight" -Message "Port $ApiPort is in use but /health/live did not return 200."
         }
     }
-    else {
-        Write-Host "API already listening on port $ApiPort — skipping API spawn." -ForegroundColor Yellow
+
+    if ($apiAlreadyHealthy) {
+        Write-Host "API already listening on port $ApiPort - skipping API spawn." -ForegroundColor Yellow
         $script:SkipApiSpawn = $true
     }
 
-    if (Test-PortServingUiRoot -Port $UiPort) {
-        Write-Host "UI already listening on port $UiPort — skipping UI spawn." -ForegroundColor Yellow
+    $uiAlreadyUp = Test-PortServingUiRoot -Port $UiPort
+
+    if ($uiAlreadyUp) {
+        Write-Host "UI already listening on port $UiPort - skipping UI spawn." -ForegroundColor Yellow
         $script:SkipUiSpawn = $true
     }
-    else {
+
+    if (-not $uiAlreadyUp) {
         $uiListeners = Get-NetTCPConnection -LocalPort $UiPort -State Listen -ErrorAction SilentlyContinue
 
         if ($null -ne $uiListeners -and $uiListeners.Count -gt 0) {
@@ -195,8 +202,7 @@ if ($EnsureSql) {
         if ($LASTEXITCODE -ne 0) {
             Write-StageError -Stage "sql" -Message "dev up --sql-only failed with exit code $LASTEXITCODE"
         }
-    }
-    finally {
+    } finally {
         Pop-Location
     }
 }
@@ -244,11 +250,23 @@ if (-not (Wait-HttpStatus -Uri $proxyLiveUrl -TimeoutSec 90)) {
     $directApiOk = Test-HttpStatus -Uri $apiLiveUrl
     $configuredBase = Get-EnvLocalApiBaseUrl
 
+    $directApiLabel = 'FAILED'
+
+    if ($directApiOk) {
+        $directApiLabel = 'OK'
+    }
+
+    $configuredBaseLabel = '(not set in .env.local)'
+
+    if ($configuredBase) {
+        $configuredBaseLabel = $configuredBase
+    }
+
     Write-Host ""
     Write-Host "Proxy chain check failed (stage: proxy-chain)." -ForegroundColor Red
-    Write-Host "  Direct API $apiLiveUrl : $(if ($directApiOk) { 'OK' } else { 'FAILED' })"
+    Write-Host "  Direct API $apiLiveUrl : $directApiLabel"
     Write-Host "  UI proxy $proxyLiveUrl : FAILED"
-    Write-Host "  ARCHLUCID_API_BASE_URL : $(if ($configuredBase) { $configuredBase } else { '(not set in .env.local)' })"
+    Write-Host "  ARCHLUCID_API_BASE_URL : $configuredBaseLabel"
     Write-Host "  Next steps:"
     Write-Host "    - Confirm ArchLucid.Api is running on port $ApiPort"
     Write-Host "    - Match archlucid-ui/.env.local to http://localhost:$ApiPort"
@@ -276,7 +294,6 @@ Write-Host "Opening browser: $browserUrl" -ForegroundColor Green
 
 try {
     Start-Process $browserUrl
-}
-catch {
+} catch {
     Write-Warning "Could not start default browser. Open manually: $browserUrl"
 }
