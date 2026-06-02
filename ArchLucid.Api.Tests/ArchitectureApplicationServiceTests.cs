@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
@@ -464,6 +465,27 @@ public sealed class ArchitectureApplicationServiceTests
         sutResult.Error.Should().Contain("already been submitted");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task SubmitAgentResultAsync_WhenRepositoryDetectsDuplicateRow_ReturnsConflict()
+    {
+        ArchitectureRun run = ValidRun();
+        AgentResult result = ValidResult();
+        List<AgentTask> tasks = [ValidTask()];
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailFor(run, tasks, []));
+
+        _resultRepository
+            .Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>(), null, null))
+            .ThrowsAsync(new AgentResultDuplicateConflictException("run-1", result.TaskId));
+
+        SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
+
+        sutResult.Success.Should().BeFalse();
+        sutResult.FailureKind.Should().Be(ApplicationServiceFailureKind.Conflict);
+        sutResult.Error.Should().Contain(result.TaskId);
     }
 
     [SkippableFact]

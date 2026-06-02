@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.84%
+# ArchLucid Assessment – (A) Headline Readiness: 80.93%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **80.76%** (5J); batch **5K** correctness tests (**TB-198/199/200** — cost engine coverage verified, auth handler + scope boundary tests) → **80.84%** (+1 Correctness, +1 Testability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **80.84%** (5K); batch **5L TB-201** (`UX_AgentResults_RunId_TaskId` + 409 on duplicate submit) → **80.93%** (+1 Correctness, +1 Reliability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -48,7 +48,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | --- | ---: | ---: | ---: | ---: |
 | AI/Agent Readiness | 72 | 8 | 4.97% | 224 |
 | Cutting-Edge AI Technology | 73 | 8 | 5.03% | 216 |
-| Correctness | 81 | 8 | 5.59% | 152 |
+| Correctness | 82 | 8 | 5.66% | 144 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 80 | 7 | 4.83% | 140 |
@@ -69,7 +69,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
 | Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
-| Reliability | 77 | 2 | 1.33% | 46 |
+| Reliability | 78 | 2 | 1.34% | 44 |
 | Auditability | 77 | 2 | 1.32% | 46 |
 | Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |
 | Explainability | 80 | 2 | 1.38% | 40 |
@@ -113,9 +113,9 @@ Classification: Mostly fixable in v1. Graph-RAG, agentic retrieval, fine-tuning,
 
 ### Correctness
 
-Score: 81. Weight: 8. Weighted impact: 5.59%. Weighted deficiency signal: 152.
+Score: 82. Weight: 8. Weighted impact: 5.66%. Weighted deficiency signal: 144.
 
-Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5J** fixed reasoning-token cost, governance promotion atomicity, ROI pagination caps, and env-label null safety. Batch **5K** closes **TB-198/199/200** with `CostConstraintFindingEngine` unit tests, `TenantOrProjectCapabilityAuthorizationHandler` authorization scenarios, and verified `HttpScopeContextProvider` scope-boundary tests. Remaining backlog: **TB-201** agent-result uniqueness, **TB-202–204** coverage gaps.
+Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5L** adds DB-level `UX_AgentResults_RunId_TaskId` with HTTP **409** on concurrent duplicate agent-result submits (**TB-201**). Prior batches closed reasoning cost, governance atomicity, ROI guards, and auth-boundary test gaps. Remaining backlog: **TB-202–204** coverage gaps.
 
 Tradeoffs: The system has many read surfaces because it has grown into a broad product. That creates useful product depth but increases semantic drift risk.
 
@@ -365,9 +365,9 @@ Classification: v1.1 if not needed for first release; v1 if sponsor trust depend
 
 ### Reliability
 
-Score: 77. Weight: 2. Weighted impact: 1.33%. Weighted deficiency signal: 46.
+Score: 78. Weight: 2. Weighted impact: 1.34%. Weighted deficiency signal: 44.
 
-Justification: Reliability foundations include health checks, SQL retries, outbox, data consistency probes, release smoke, k6 smoke, chaos tests, and readiness scripts. Batch **5I** adds architecture guards for mutating HTTP idempotency (**INV-009**) and cancellation forwarding on authority paths (**INV-008**). Remaining risks include recurring review duplication, optional live gates, staging-specific validation, and IaC parity.
+Justification: Reliability foundations include health checks, SQL retries, outbox, data consistency probes, release smoke, k6 smoke, chaos tests, and readiness scripts. Batch **5L** hardens multi-replica agent-result idempotency with a unique `(RunId, TaskId)` index and conflict mapping on submit. Batch **5I** added mutating HTTP idempotency and cancellation-forwarding guards. Remaining risks include optional live gates, staging-specific validation, and IaC parity.
 
 Tradeoffs: V1 intentionally does not require multi-region active/active. Single-region reliability plus clear drills is acceptable.
 

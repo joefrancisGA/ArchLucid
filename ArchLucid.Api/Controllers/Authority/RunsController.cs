@@ -743,6 +743,7 @@ public sealed partial class RunsController(
     [ProducesResponseType(typeof(SubmitAgentResultResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SubmitAgentResult(
         [FromRoute] string runId,
         [FromBody] SubmitAgentResultRequest? request,
@@ -1015,6 +1016,7 @@ public sealed partial class RunsController(
             ApplicationServiceFailureKind.RunNotFound => this.NotFoundProblem(detail, ProblemTypes.RunNotFound),
             ApplicationServiceFailureKind.ResourceNotFound => this.NotFoundProblem(detail,
                 ProblemTypes.ResourceNotFound),
+            ApplicationServiceFailureKind.Conflict => this.ConflictProblem(detail, ProblemTypes.Conflict),
             _ => this.BadRequestProblem(detail)
         };
     }

@@ -8,5 +8,6 @@ public enum ApplicationServiceFailureKind
 {
     BadRequest,
     RunNotFound,
-    ResourceNotFound
+    ResourceNotFound,
+    Conflict
 }
