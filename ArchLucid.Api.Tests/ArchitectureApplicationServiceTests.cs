@@ -80,7 +80,7 @@ public sealed class ArchitectureApplicationServiceTests
         actorContext.Setup(a => a.GetActor()).Returns("unit-test");
 
         _agentEvidencePackageRepository
-            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AgentEvidencePackage?)null);
         _evidenceBuilder
             .Setup(b =>

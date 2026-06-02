@@ -91,7 +91,7 @@ public sealed class FindingLlmAuditServiceTests
             .ReturnsAsync(new RunDetailDto { FindingsSnapshot = new FindingsSnapshot { Findings = [finding] }, });
 
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.GetByRunIdAsync(RunGuid.ToString("N"), It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), RunGuid.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AgentExecutionTrace> { wrong, match });
 
         Mock<IPromptRedactor> redactor = new();
