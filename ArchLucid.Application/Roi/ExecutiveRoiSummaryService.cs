@@ -358,7 +358,7 @@ public sealed class ExecutiveRoiSummaryService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         DateTime windowStart = utcNow.AddMonths(-6);
 
-        Dictionary<string, (decimal Savings, int CriticalCount, DateTime LatestUtc)> buckets =
+        Dictionary<string, ExecutiveRoiHistoryMonthAggregate> buckets =
             new(StringComparer.Ordinal);
 
         string? cursor = null;
@@ -402,16 +402,30 @@ public sealed class ExecutiveRoiSummaryService(
                     .Count(static finding => !finding.IsMuted
                         && string.Equals(finding.Severity.ToString(), "Critical", StringComparison.OrdinalIgnoreCase));
 
-                if (!buckets.TryGetValue(monthKey, out (decimal Savings, int CriticalCount, DateTime LatestUtc) existing))
+                if (!buckets.TryGetValue(monthKey, out ExecutiveRoiHistoryMonthAggregate? existing))
                 {
-                    buckets[monthKey] = (savings ?? 0m, criticalCount, summary.CreatedUtc);
+                    ExecutiveRoiHistoryMonthAggregate created = new()
+                    {
+                        Savings = savings ?? 0m,
+                        CriticalCount = criticalCount,
+                        LatestUtc = summary.CreatedUtc,
+                    };
+
+                    ApplyRunModeToAggregate(created, detail);
+
+                    buckets[monthKey] = created;
                     continue;
                 }
 
-                decimal mergedSavings = existing.Savings + (savings ?? 0m);
-                int mergedCritical = existing.CriticalCount + criticalCount;
-                DateTime latestUtc = summary.CreatedUtc > existing.LatestUtc ? summary.CreatedUtc : existing.LatestUtc;
-                buckets[monthKey] = (mergedSavings, mergedCritical, latestUtc);
+                existing.Savings += savings ?? 0m;
+                existing.CriticalCount += criticalCount;
+
+                if (summary.CreatedUtc > existing.LatestUtc)
+                {
+                    existing.LatestUtc = summary.CreatedUtc;
+                }
+
+                ApplyRunModeToAggregate(existing, detail);
             }
 
             if (!hasMore || string.IsNullOrEmpty(next))
@@ -422,15 +436,41 @@ public sealed class ExecutiveRoiSummaryService(
 
         List<ExecutiveRoiHistoryPoint> points = buckets
             .OrderBy(static pair => pair.Key, StringComparer.Ordinal)
-            .Select(static pair => new ExecutiveRoiHistoryPoint
+            .Select(static pair =>
             {
-                SnapshotUtc = new DateTimeOffset(pair.Value.LatestUtc, TimeSpan.Zero),
-                TotalEstimatedUsdSavings = pair.Value.Savings,
-                CriticalSecurityFindings = pair.Value.CriticalCount,
+                ExecutiveRoiHistoryMonthAggregate aggregate = pair.Value;
+
+                return new ExecutiveRoiHistoryPoint
+                {
+                    SnapshotUtc = new DateTimeOffset(aggregate.LatestUtc, TimeSpan.Zero),
+                    TotalEstimatedUsdSavings = aggregate.Savings,
+                    CriticalSecurityFindings = aggregate.CriticalCount,
+                    RealRunCount = aggregate.RealRunCount,
+                    SimulatorRunCount = aggregate.SimulatorRunCount,
+                    RealModeSavingsUsd = ExecutiveRoiHistoryRunModeCalculator.ComputeRealModeSavingsUsd(
+                        aggregate.Savings,
+                        aggregate.RealRunCount,
+                        aggregate.SimulatorRunCount),
+                    IsMixedMode = ExecutiveRoiHistoryRunModeCalculator.IsMixedMode(
+                        aggregate.RealRunCount,
+                        aggregate.SimulatorRunCount),
+                };
             })
             .ToList();
 
         return new ExecutiveRoiHistoryResponse { Points = points };
+    }
+
+    private static void ApplyRunModeToAggregate(ExecutiveRoiHistoryMonthAggregate aggregate, ArchitectureRunDetail detail)
+    {
+        if (ExecutiveRoiHistoryRunModeCalculator.IsRealMode(detail.Run.StructuralExecutionMode))
+        {
+            aggregate.RealRunCount += 1;
+
+            return;
+        }
+
+        aggregate.SimulatorRunCount += 1;
     }
 
     /// <inheritdoc />

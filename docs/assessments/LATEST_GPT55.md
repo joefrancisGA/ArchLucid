@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 82.62%
+# ArchLucid Assessment – (A) Headline Readiness: 82.67%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **82.57%** (5AJ); batch **5AK TB-223** (decisions-needed KPI card on governance dashboard) → **82.62%** (+1 Stickiness). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **82.62%** (5AK); batch **5AL TB-239** (executive ROI history run-mode label on trend chart) → **82.67%** (+1 Proof-of-ROI). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -53,7 +53,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Stickiness | 74 | 6 | 3.83% | 156 |
 | Time-to-Value | 86 | 7 | 5.19% | 98 |
 | Marketability | 85 | 8 | 5.86% | 120 |
-| Proof-of-ROI Readiness | 77 | 5 | 3.32% | 115 |
+| Proof-of-ROI Readiness | 78 | 5 | 3.36% | 110 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
 | Executive Value Visibility | 78 | 4 | 2.69% | 88 |
 | Usability | 72 | 3 | 1.86% | 84 |
@@ -173,9 +173,9 @@ Classification: v1 for copy/proof discipline; public references and market-facin
 
 ### Proof-of-ROI Readiness
 
-Score: 77. Weight: 5. Weighted impact: 3.32%. Weighted deficiency signal: 115.
+Score: 78. Weight: 5. Weighted impact: 3.36%. Weighted deficiency signal: 110.
 
-Justification: ROI model, scorecard, first-value reports, executive ROI summary, pilot deltas, and ROI basis labels exist. Batch **5AJ** closes **TB-238** — the full architecture wizard adds an optional **Baseline metrics** step that persists review-cycle hours via `PUT /v1/tenant/baseline` (with confidence note and skip) so first-value reports can label ROI inputs **buyer-provided** instead of defaulting to low-confidence placeholders. Remaining weakness: executive ROI history still lacks run-mode breakdown (**TB-239**) and multiple KPI/waiver/cost fields still need canonicalization.
+Justification: ROI model, scorecard, first-value reports, executive ROI summary, pilot deltas, and ROI basis labels exist. Batch **5AJ** closes **TB-238** — the full architecture wizard adds an optional **Baseline metrics** step that persists review-cycle hours via `PUT /v1/tenant/baseline` (with confidence note and skip) so first-value reports can label ROI inputs **buyer-provided** instead of defaulting to low-confidence placeholders. Batch **5AL** closes **TB-239** — `GET /v1/roi/executive-summary/history` now returns per-period `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, and `IsMixedMode` (pro-rated from `StructuralExecutionMode`); the executive ROI trend chart shows mixed-mode footnote, per-bar tooltips, and a **Simulator-only** badge when a month has no Real runs. Remaining weakness: multiple KPI/waiver/cost fields still need canonicalization (**TB-240** regression guard and broader KPI unification).
 
 Tradeoffs: ROI humility protects trust but weakens sales punch until actual pilot data is captured.
 

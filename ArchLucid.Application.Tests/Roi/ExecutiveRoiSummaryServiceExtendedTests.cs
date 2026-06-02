@@ -416,6 +416,63 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
     }
 
     [Fact]
+    public async Task BuildHistoryAsync_pro_rates_savings_by_real_and_simulator_run_counts()
+    {
+        // Regression guard for TB-239 — mixed-mode history must not present simulator-only totals as buyer-realized savings.
+        DateTime monthUtc = new(2026, 4, 15, 0, 0, 0, DateTimeKind.Utc);
+        Guid[] runIds =
+        [
+            Guid.Parse("11111111111111111111111111111111"),
+            Guid.Parse("22222222222222222222222222222222"),
+            Guid.Parse("33333333333333333333333333333333"),
+            Guid.Parse("44444444444444444444444444444444"),
+            Guid.Parse("55555555555555555555555555555555"),
+        ];
+
+        List<RunSummary> summaries =
+        [
+            new RunSummary { RunId = runIds[0].ToString("N"), SystemName = "A", Status = nameof(ArchitectureRunStatus.Committed), CreatedUtc = monthUtc },
+            new RunSummary { RunId = runIds[1].ToString("N"), SystemName = "B", Status = nameof(ArchitectureRunStatus.Committed), CreatedUtc = monthUtc },
+            new RunSummary { RunId = runIds[2].ToString("N"), SystemName = "C", Status = nameof(ArchitectureRunStatus.Committed), CreatedUtc = monthUtc },
+            new RunSummary { RunId = runIds[3].ToString("N"), SystemName = "D", Status = nameof(ArchitectureRunStatus.Committed), CreatedUtc = monthUtc },
+            new RunSummary { RunId = runIds[4].ToString("N"), SystemName = "E", Status = nameof(ArchitectureRunStatus.Committed), CreatedUtc = monthUtc },
+        ];
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((summaries, false, null));
+
+        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
+        savingsResolver
+            .Setup(resolver => resolver.ResolveFromFindingsSnapshotIdAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(100m);
+
+        for (int index = 0; index < runIds.Length; index += 1)
+        {
+            Guid runId = runIds[index];
+            StructuralExecutionMode mode = index < 3 ? StructuralExecutionMode.Real : StructuralExecutionMode.Simulator;
+            string runIdHex = runId.ToString("N");
+
+            runQuery
+                .Setup(query => query.GetRunDetailAsync(runIdHex, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(BuildDetail(runId, $"System-{index}", Guid.NewGuid(), monthUtc, [], structuralExecutionMode: mode));
+        }
+
+        ExecutiveRoiSummaryService sut = CreateSut(runQuery.Object, savingsResolver.Object);
+
+        ExecutiveRoiHistoryResponse response = await sut.BuildHistoryAsync(CancellationToken.None);
+
+        response.Points.Should().ContainSingle();
+        ExecutiveRoiHistoryPoint point = response.Points[0];
+        point.RealRunCount.Should().Be(3);
+        point.SimulatorRunCount.Should().Be(2);
+        point.TotalEstimatedUsdSavings.Should().Be(500m);
+        point.RealModeSavingsUsd.Should().Be(300m);
+        point.IsMixedMode.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task BuildExportAsync_deduplicates_findings_and_aggregates_environment_savings()
     {
         DateTime committedUtc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
@@ -574,7 +631,8 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
         Guid? findingsSnapshotId,
         DateTime committedUtc,
         IReadOnlyList<ArchitectureFinding> findings,
-        string? environmentTag = null)
+        string? environmentTag = null,
+        StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Simulator)
     {
         GoldenManifest manifest = new()
         {
@@ -605,6 +663,7 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
             CompletedUtc = committedUtc,
             CurrentManifestVersion = "v1",
             FindingsSnapshotId = findingsSnapshotId,
+            StructuralExecutionMode = structuralExecutionMode,
         };
 
         return new ArchitectureRunDetail
