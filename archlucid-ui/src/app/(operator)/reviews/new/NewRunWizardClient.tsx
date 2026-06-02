@@ -29,6 +29,11 @@ import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accel
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { applyWizardPreset } from "@/lib/wizard-presets";
+import {
+  parseWizardPresetDeeplinkToken,
+  resolveWizardPresetIdFromDeeplink,
+  resolveWizardPresetValuesFromDeeplink,
+} from "@/lib/wizard-preset-deeplink";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { getWizardStepFieldGroup } from "@/lib/wizard-step-fields";
 import {
@@ -231,6 +236,16 @@ export function NewRunWizardClient() {
     return null;
   }, [searchParams]);
 
+  const presetDeeplinkToken = useMemo(
+    () => parseWizardPresetDeeplinkToken(searchParams?.get("preset")),
+    [searchParams],
+  );
+
+  const presetDeeplinkPresetId = useMemo(
+    () => resolveWizardPresetIdFromDeeplink(searchParams?.get("preset")),
+    [searchParams],
+  );
+
   useEffect(() => {
     if (!baselineFirst) {
       return;
@@ -269,6 +284,32 @@ export function NewRunWizardClient() {
       }
     }
   }, [acceleratorPackId, baselineFirst, reset]);
+
+  useEffect(() => {
+    if (presetDeeplinkToken === null || presetDeeplinkPresetId === null) {
+      return;
+    }
+
+    if (baselineFirst || acceleratorPackId !== null) {
+      return;
+    }
+
+    const presetValues = resolveWizardPresetValuesFromDeeplink(presetDeeplinkToken);
+
+    if (presetValues === null) {
+      return;
+    }
+
+    reset(applyWizardPreset(buildDefaultWizardValues(), presetValues));
+    setStepIndex(1);
+    setWizardMode("full");
+
+    try {
+      window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+    } catch {
+      /* ignore */
+    }
+  }, [acceleratorPackId, baselineFirst, presetDeeplinkPresetId, presetDeeplinkToken, reset]);
 
   useEffect(() => {
     if (baselineFirst) {
@@ -520,10 +561,22 @@ export function NewRunWizardClient() {
               key={wizardMode}
               blocksLlmExecution={blocksLlmExecution}
               llmBudgetStatus={llmBudgetStatus}
+              initialPresetId={presetDeeplinkPresetId ?? undefined}
               onRunCreated={(id) => {
                 setRunId(id);
               }}
             />
+          ) : null}
+
+          {wizardModeReady && showFullWizardShell && presetDeeplinkPresetId !== null ? (
+            <p
+              className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-sm dark:border-neutral-800"
+              data-testid="wizard-preset-deeplink-active"
+              data-preset-id={presetDeeplinkPresetId}
+            >
+              Preset applied from link:{" "}
+              <span className="font-medium">{presetDeeplinkToken ?? presetDeeplinkPresetId}</span>
+            </p>
           ) : null}
 
           {wizardModeReady && showFullWizardShell ? (

@@ -25,7 +25,7 @@ Read [`go-to-market/BUYER_ORIENTATION_ONE_SCREEN.md`](../go-to-market/BUYER_ORIE
 
 ## Session flow (four steps)
 
-1. **Create** architecture review (UI or `archlucid run create`).
+1. **Create** architecture review (UI or `archlucid run create`). Quick start: `https://your-pilot-url/reviews/new?preset=greenfield` pre-fills the greenfield template.
 2. **Execute** with evidence attached.
 3. **Commit** manifest (unit of truth).
 4. **Collect proof** after commit.

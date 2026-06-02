@@ -33,6 +33,8 @@ export type QuickStartWizardProps = {
   /** Monthly LLM dollar gate from parent (shared fetch with full wizard shell). */
   llmBudgetStatus: LlmMonthlyDollarBudgetStatus | null;
   blocksLlmExecution: boolean;
+  /** Optional preset id from `?preset=` deep link (see `wizard-preset-deeplink.ts`). */
+  initialPresetId?: string;
   /** Invoked after a run id is returned so the parent can show pipeline tracking. */
   onRunCreated: (runId: string) => void;
 };
@@ -46,7 +48,13 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const [quickStep, setQuickStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
-  const [presetId, setPresetId] = useState<string>("greenfield-web-app");
+  const [presetId, setPresetId] = useState<string>(() => {
+    if (props.initialPresetId !== undefined && wizardPresets.some((entry) => entry.id === props.initialPresetId)) {
+      return props.initialPresetId;
+    }
+
+    return "greenfield-web-app";
+  });
 
   const { trigger, getValues, reset, setValue, clearErrors } = useFormContext<WizardFormValues>();
 
