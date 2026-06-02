@@ -79,6 +79,37 @@
         },
         "type": "object"
       },
+      "AdminTokenClaimsDiagnosticRequest": {
+        "properties": {
+          "bearerToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminTokenClaimsDiagnosticResponse": {
+        "properties": {
+          "resolvedRoles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "unmappedValues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "AdminAuthConfigurationDiagnosticsResponse": {
         "properties": {
           "audienceConfigured": {
@@ -22229,6 +22260,57 @@
               }
             },
             "description": "OK"
+          }
+        },
+        "tags": [
+          "AdminAuthDiagnostics"
+        ]
+      }
+    },
+    "/v1/admin/auth/diagnose-token": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticRequest"
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "tags": [

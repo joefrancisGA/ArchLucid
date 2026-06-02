@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 81.80%
+# ArchLucid Assessment – (A) Headline Readiness: 81.86%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **81.73%** (5V); batch **5W TB-191** (prompt template content-hash pinning on traces) → **81.80%** (+1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **81.80%** (5W); batch **5X TB-207** (token-claims diagnostic for SSO 403 triage) → **81.86%** (+1 Adoption Friction). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -49,7 +49,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
 | Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
 | Correctness | 86 | 8 | 5.93% | 112 |
-| Adoption Friction | 70 | 6 | 3.62% | 180 |
+| Adoption Friction | 71 | 6 | 3.68% | 174 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 81 | 7 | 4.89% | 133 |
 | Marketability | 85 | 8 | 5.86% | 120 |
@@ -125,9 +125,9 @@ Classification: v1 must-fix for the highest-risk customer-visible values before 
 
 ### Adoption Friction
 
-Score: 70. Weight: 6. Weighted impact: 3.62%. Weighted deficiency signal: 180.
+Score: 71. Weight: 6. Weighted impact: 3.68%. Weighted deficiency signal: 174.
 
-Justification: There is a strong first-pilot operator path, 20-minute first-value guide, proof packets, release smoke, and a clear Pilot vs Operate boundary. But the path still demands SQL/auth/API/worker/proof/quality/procurement awareness. Product help still exposes repo paths and GitHub links in user-visible places. Some local failure states are confusing, including API/proxy outage toasts framed as AI assistant failures.
+Justification: There is a strong first-pilot operator path, 20-minute first-value guide, proof packets, release smoke, and a clear Pilot vs Operate boundary. Batch **5X** closes **TB-207** — admin `POST /v1/admin/auth/diagnose-token` and `archlucid auth test-token --bearer` for JWT role-claim triage after SSO 403s. But the path still demands SQL/auth/API/worker/proof/quality/procurement awareness. Product help still exposes repo paths and GitHub links in user-visible places. Some local failure states are confusing, including API/proxy outage toasts framed as AI assistant failures.
 
 Tradeoffs: A sophisticated enterprise product cannot hide all setup. But the first pilot should make the next step obvious and error causes precise.
 

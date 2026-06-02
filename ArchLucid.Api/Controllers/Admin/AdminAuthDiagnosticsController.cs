@@ -1,6 +1,7 @@
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Contracts.Admin;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scim;
@@ -35,7 +36,9 @@ public sealed class AdminAuthDiagnosticsController(
     IOptionsMonitor<ArchLucidSamlAuthOptions> samlAuthOptionsMonitor,
     ITenantIdentityProviderConfigurationRepository tenantIdentityProviderConfigurationRepository,
     IScimTenantTokenRepository scimTenantTokenRepository,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    ITokenClaimsDiagnosticService tokenClaimsDiagnosticService,
+    IAuditService auditService) : ControllerBase
 {
     private const int MaxAuthDiagnosticsEntries = 200;
 
@@ -61,6 +64,12 @@ public sealed class AdminAuthDiagnosticsController(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    private readonly ITokenClaimsDiagnosticService _tokenClaimsDiagnosticService =
+        tokenClaimsDiagnosticService ?? throw new ArgumentNullException(nameof(tokenClaimsDiagnosticService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     /// <summary>
     ///     Returns the most recent IdP JWT role-mapping failures captured in the in-memory ring buffer.
     /// </summary>
@@ -75,6 +84,45 @@ public sealed class AdminAuthDiagnosticsController(
             _authDiagnosticsRingBuffer.GetRecent(Math.Clamp(maxCount, 1, MaxAuthDiagnosticsEntries));
 
         return Ok(entries);
+    }
+
+    /// <summary>
+    ///     Decodes a JWT payload without signature validation and evaluates role-claim mapping via
+    ///     <see cref="ArchLucidRoleClaimsTransformation" />.
+    /// </summary>
+    [HttpPost("auth/diagnose-token")]
+    [ProducesResponseType(typeof(AdminTokenClaimsDiagnosticResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<AdminTokenClaimsDiagnosticResponse>> DiagnoseTokenAsync(
+        [FromBody] AdminTokenClaimsDiagnosticRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.BearerToken))
+            return BadRequest("BearerToken is required.");
+
+        AdminTokenClaimsDiagnosticResponse response =
+            await _tokenClaimsDiagnosticService
+                .DiagnoseAsync(request.BearerToken, cancellationToken)
+                .ConfigureAwait(false);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = User.Identity?.Name ?? "admin";
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.AuthTokenDiagnosticRequested,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson =
+                    $"{{\"resolvedRoleCount\":{response.ResolvedRoles.Count},\"unmappedValueCount\":{response.UnmappedValues.Count},\"warningCount\":{response.Warnings.Count}}}",
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
     }
 
     /// <summary>

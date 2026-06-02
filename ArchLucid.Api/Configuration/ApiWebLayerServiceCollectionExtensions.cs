@@ -60,6 +60,7 @@ public static class ApiWebLayerServiceCollectionExtensions
             return new CacheTelemetrySnapshotProvider(() => projectionOptions.CurrentValue.Enabled);
         });
         services.AddScoped<IAdminApiKeySettingsService, AdminApiKeySettingsService>();
+        services.AddScoped<ITokenClaimsDiagnosticService, TokenClaimsDiagnosticService>();
         services.AddHttpClient<IOidcWellKnownDiagnosticsService, OidcWellKnownDiagnosticsService>(static client =>
         {
             client.Timeout = TimeSpan.FromSeconds(10);

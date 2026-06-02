@@ -126,11 +126,17 @@ public static class Program
                             normalized.Skip(2).ToArray(),
                             CliCommandShared.TryLoadConfigFromCwd());
 
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "test-token", StringComparison.OrdinalIgnoreCase))
+                        return await AuthTestTokenCommand.RunAsync(
+                            normalized.Skip(2).ToArray(),
+                            CliCommandShared.TryLoadConfigFromCwd());
+
                     if (normalized.Length > 1 && string.Equals(normalized[1], "sso-preflight", StringComparison.OrdinalIgnoreCase))
                         return await AuthSsoPreflightCommand.RunAsync();
 
                     AuthValidateSamlCommand.WriteUsage();
                     AuthDiagnosticsCommand.WriteUsage();
+                    AuthTestTokenCommand.WriteUsage();
                     AuthSsoPreflightCommand.WriteUsage();
 
                     return CliExitCode.UsageError;

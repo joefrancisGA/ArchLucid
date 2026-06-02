@@ -582,6 +582,9 @@ public static class AuditEventTypes
     /// <summary>Admin issued new host API key rotation material (payload excludes key material).</summary>
     public const string AdminApiKeyRotationMaterialIssued = "Admin.ApiKeyRotationMaterialIssued";
 
+    /// <summary>Admin invoked JWT role-claim diagnostic (<c>POST /v1/admin/auth/diagnose-token</c>); payload excludes token material.</summary>
+    public const string AuthTokenDiagnosticRequested = "Auth.TokenDiagnosticRequested";
+
     public const string ApiKeyRotated = "Security.ApiKeyRotated";
 
     /// <summary>
