@@ -18,15 +18,20 @@ internal static class ConfigLintReportBuilder
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        IReadOnlyList<ConfigLintReportFinding> blocking = snapshot.BlockingFindings
+        List<ConfigLintReportFinding> blocking = snapshot.BlockingFindings
             .Select(f => ToFinding(f, "BLOCK"))
             .ToList();
 
-        IReadOnlyList<ConfigLintReportFinding> advisory = snapshot.AdvisoryFindings
+        List<ConfigLintReportFinding> advisory = snapshot.AdvisoryFindings
             .Select(f => ToFinding(f, "WARN"))
             .ToList();
 
-        string disposition = ResolveDisposition(blocking.Count, advisory.Count);
+        if (string.Equals(profileName, ConfigLintProfileNames.ProductionLikeHostedPilot, StringComparison.Ordinal))
+            PromoteHostedPilotQualityGateFindings(blocking, advisory);
+
+        IReadOnlyList<ConfigLintReportFinding> advisoryReadOnly = advisory;
+
+        string disposition = ResolveDisposition(blocking.Count, advisoryReadOnly.Count);
 
         return new ConfigLintReportDocument
         {
@@ -36,7 +41,7 @@ internal static class ConfigLintReportBuilder
             Disposition = disposition,
             SponsorHandoffRecommended = disposition is "READY" or "WARN",
             BlockingFindings = blocking,
-            AdvisoryFindings = advisory,
+            AdvisoryFindings = advisoryReadOnly,
             CheckCategories = BuildCheckCategories(profileName),
         };
     }
@@ -145,6 +150,39 @@ internal static class ConfigLintReportBuilder
         sb.AppendLine();
     }
 
+    private static void PromoteHostedPilotQualityGateFindings(
+        List<ConfigLintReportFinding> blocking,
+        List<ConfigLintReportFinding> advisory)
+    {
+        List<ConfigLintReportFinding> promoted = advisory
+            .Where(static f => string.Equals(
+                f.RuleName,
+                ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike,
+                StringComparison.Ordinal))
+            .Select(static f => new ConfigLintReportFinding
+            {
+                RuleName = f.RuleName,
+                Message = f.Message,
+                Severity = "BLOCK",
+                Category = f.Category,
+                WhyItMatters = f.WhyItMatters,
+                ConfigKeys = f.ConfigKeys,
+                RemediationHint = f.RemediationHint,
+                ExpectedProofArtifact = f.ExpectedProofArtifact,
+            })
+            .ToList();
+
+        if (promoted.Count == 0)
+            return;
+
+        advisory.RemoveAll(static f => string.Equals(
+            f.RuleName,
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike,
+            StringComparison.Ordinal));
+
+        blocking.AddRange(promoted);
+    }
+
     private static ConfigLintReportFinding ToFinding(HostingMisconfigurationWarning warning, string severity)
     {
         ConfigLintFindingGuidance.Guidance? guidance = ConfigLintFindingGuidance.TryResolve(warning.RuleName);
@@ -182,6 +220,9 @@ internal static class ConfigLintReportBuilder
         if (ruleName.Contains("openai", StringComparison.OrdinalIgnoreCase)
             || ruleName.Contains("connectivity", StringComparison.OrdinalIgnoreCase))
             return "Azure OpenAI real-mode readiness";
+
+        if (ruleName.Contains("quality_gate", StringComparison.OrdinalIgnoreCase))
+            return "Quality-gate posture";
 
         if (ruleName.Contains("azure_ai_search", StringComparison.OrdinalIgnoreCase)
             || ruleName.Contains("retrieval", StringComparison.OrdinalIgnoreCase))
@@ -234,7 +275,8 @@ internal static class ConfigLintReportBuilder
             new ConfigLintReportCheckCategory
             {
                 Category = "Quality-gate posture",
-                EvaluatedVia = "First-pilot proof PilotStrict / agent-quality rows (companion proof artifact)",
+                EvaluatedVia =
+                    "Blocking `quality_gate_warn_only_in_real_production_like` when Real + WarnOnly under production-like-hosted-pilot profile",
             },
             new ConfigLintReportCheckCategory
             {

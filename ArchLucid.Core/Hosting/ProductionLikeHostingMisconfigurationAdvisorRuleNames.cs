@@ -54,4 +54,11 @@ public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
     /// <summary>Plaintext Azure OpenAI API key on production-like real-mode hosting.</summary>
     public const string AzureOpenAiApiKeyPlaintextProductionLike =
         "azure_openai_api_key_plaintext_production_like";
+
+    /// <summary>
+    ///     <c>ArchLucid:AgentOutput:QualityGate:Mode=WarnOnly</c> with <c>AgentExecution:Mode=Real</c> on production-like hosting.
+    ///     Advisory in general lint; blocking under <c>production-like-hosted-pilot</c> profile (TB-213).
+    /// </summary>
+    public const string QualityGateWarnOnlyInRealProductionLike =
+        "quality_gate_warn_only_in_real_production_like";
 }

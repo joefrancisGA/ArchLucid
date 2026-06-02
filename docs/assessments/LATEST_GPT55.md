@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 82.10%
+# ArchLucid Assessment – (A) Headline Readiness: 82.16%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **82.04%** (5AA); batch **5AB TB-211** (SAML SP certificate rotation runbook) → **82.10%** (+1 Adoption Friction). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **82.10%** (5AB); batch **5AC TB-213** (QualityGate WarnOnly production-like lint rule) → **82.16%** (+1 Adoption Friction). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -49,7 +49,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
 | Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
 | Correctness | 86 | 8 | 5.93% | 112 |
-| Adoption Friction | 75 | 6 | 3.92% | 150 |
+| Adoption Friction | 76 | 6 | 3.98% | 144 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 81 | 7 | 4.89% | 133 |
 | Marketability | 85 | 8 | 5.86% | 120 |
@@ -125,9 +125,9 @@ Classification: v1 must-fix for the highest-risk customer-visible values before 
 
 ### Adoption Friction
 
-Score: 75. Weight: 6. Weighted impact: 3.92%. Weighted deficiency signal: 150.
+Score: 76. Weight: 6. Weighted impact: 3.98%. Weighted deficiency signal: 144.
 
-Justification: There is a strong first-pilot operator path, 20-minute first-value guide, proof packets, release smoke, and a clear Pilot vs Operate boundary. Batch **5X** closes **TB-207** — admin `POST /v1/admin/auth/diagnose-token` and `archlucid auth test-token --bearer` for JWT role-claim triage after SSO 403s. Batch **5Y** closes **TB-208** — `PackAsTool` CLI, **Publish CLI** workflow (NuGet + self-contained win/linux/osx binaries), and `CLI_INSTALL.md` linked from operator quickstart. Batch **5Z** closes **TB-209** — `archlucid request create --from-file` posts template JSON to `/v1/architecture/request` and prints `RunId`, replacing hand-rolled curl in operator quickstart. Batch **5AA** closes **TB-210** — `PILOT_PREREQUISITES.md` (per-profile Azure checklist, illustrative cost table, Azure AI Search blocking callout) plus `Test-ArchLucidPrerequisites.ps1` linked from operator path and configuration reference. Batch **5AB** closes **TB-211** — canonical `SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` (detection, OpenSSL generation, zero-downtime rotation, rollback) linked from configuration reference. But the path still demands SQL/auth/API/worker/proof/quality/procurement awareness. Product help still exposes repo paths and GitHub links in user-visible places. Some local failure states are confusing, including API/proxy outage toasts framed as AI assistant failures.
+Justification: There is a strong first-pilot operator path, 20-minute first-value guide, proof packets, release smoke, and a clear Pilot vs Operate boundary. Batch **5X** closes **TB-207** — admin `POST /v1/admin/auth/diagnose-token` and `archlucid auth test-token --bearer` for JWT role-claim triage after SSO 403s. Batch **5Y** closes **TB-208** — `PackAsTool` CLI, **Publish CLI** workflow (NuGet + self-contained win/linux/osx binaries), and `CLI_INSTALL.md` linked from operator quickstart. Batch **5Z** closes **TB-209** — `archlucid request create --from-file` posts template JSON to `/v1/architecture/request` and prints `RunId`, replacing hand-rolled curl in operator quickstart. Batch **5AA** closes **TB-210** — `PILOT_PREREQUISITES.md` (per-profile Azure checklist, illustrative cost table, Azure AI Search blocking callout) plus `Test-ArchLucidPrerequisites.ps1` linked from operator path and configuration reference. Batch **5AB** closes **TB-211** — canonical `SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` (detection, OpenSSL generation, zero-downtime rotation, rollback) linked from configuration reference. Batch **5AC** closes **TB-213** — `quality_gate_warn_only_in_real_production_like` lint (advisory for Real+WarnOnly; **HOLD** under `production-like-hosted-pilot` profile). But the path still demands SQL/auth/API/worker/proof/quality/procurement awareness. Product help still exposes repo paths and GitHub links in user-visible places. Some local failure states are confusing, including API/proxy outage toasts framed as AI assistant failures.
 
 Tradeoffs: A sophisticated enterprise product cannot hide all setup. But the first pilot should make the next step obvious and error causes precise.
 

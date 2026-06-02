@@ -325,6 +325,83 @@ public sealed class ConfigLintCommandTests
         }
     }
 
+    [Fact]
+    public async Task ConfigLint_ProductionLikeProfile_WithRealWarnOnlyQualityGate_ReturnsHoldJson()
+    {
+        string prevCwd = Environment.CurrentDirectory;
+
+        Dictionary<string, string?> saved = SaveClearEnv(
+          ["ASPNETCORE_ENVIRONMENT", "DOTNET_ENVIRONMENT", "ARCHLUCID_ENVIRONMENT", "ARCHLUCID_API_URL"]);
+
+        string temp =
+            Path.Combine(Path.GetTempPath(), "ArchLucid.Cli.Tests.configLint." + Guid.NewGuid().ToString("N")[..8]);
+        Directory.CreateDirectory(temp);
+
+        await File.WriteAllTextAsync(
+            Path.Combine(temp, "appsettings.json"),
+            """
+            {
+              "ArchLucidAuth": { "Mode": "ApiKey" },
+              "Authentication": { "ApiKey": { "Enabled": true } },
+              "AgentExecution": { "Mode": "Real" },
+              "ArchLucid": {
+                "AgentOutput": {
+                  "QualityGate": { "Mode": "WarnOnly" }
+                }
+              },
+              "Retrieval": {
+                "VectorIndex": "AzureSearch",
+                "AzureSearch": {
+                  "Endpoint": "https://example.search.windows.net",
+                  "IndexName": "archlucid-retrieval-test"
+                }
+              }
+            }
+            """);
+
+        string jsonPath = Path.Combine(temp, "config-lint-production-like-hosted-pilot.json");
+
+        try
+        {
+            Environment.CurrentDirectory = temp;
+
+            int exit = await Program.RunAsync(
+              [
+                  "config",
+                  "lint",
+                  "--profile",
+                  "production-like-hosted-pilot",
+                  "--json-out",
+                  jsonPath,
+              ]);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            File.Exists(jsonPath).Should().BeTrue();
+
+            using JsonDocument document = JsonDocument.Parse(await File.ReadAllTextAsync(jsonPath));
+            JsonElement root = document.RootElement;
+            root.GetProperty("ok").GetBoolean().Should().BeFalse();
+            root.GetProperty("proofDisposition").GetString().Should().Be("HOLD");
+            root.GetRawText().Should().Contain("quality_gate_warn_only_in_real_production_like");
+        }
+
+        finally
+        {
+            Environment.CurrentDirectory = prevCwd;
+            RestoreEnv(saved);
+
+            try
+            {
+                Directory.Delete(temp, true);
+            }
+
+            catch
+            {
+                // best-effort cleanup
+            }
+        }
+    }
+
     private static Dictionary<string, string?> SaveClearEnv(string[] keys)
     {
         Dictionary<string, string?> saved = new(StringComparer.Ordinal);

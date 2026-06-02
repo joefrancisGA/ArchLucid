@@ -83,6 +83,13 @@ internal static class ConfigLintFindingGuidance
                     "Configure the Search service URL and credentials (prefer Key Vault references) before sponsor handoff.",
                     "config-lint-production-like-hosted-pilot.json"),
 
+            ProductionLikeHostingMisconfigurationAdvisorRuleNames.QualityGateWarnOnlyInRealProductionLike =>
+                new Guidance(
+                    "Real-mode hosted pilots with WarnOnly quality gate can pass low-quality agent output to sponsor proof.",
+                    "AgentExecution:Mode; ArchLucid:AgentOutput:QualityGate:Mode; ArchLucid:AgentOutput:QualityGate:EnforceOnReject; ArchLucid:AgentOutput:QualityGate:BlockRunOnReject",
+                    "Set Mode=PilotStrict with faithfulness floors on production-like hosts, or stay on Simulator until PilotStrict is configured.",
+                    "config-lint-production-like-hosted-pilot.json · go-no-go-summary.md"),
+
             ProductionLikeHostingMisconfigurationAdvisorRuleNames.CorsAllowedOriginsEmptyProductionLikeHost =>
                 new Guidance(
                     "Browser clients on staging/production-like hosts need explicit CORS origins.",

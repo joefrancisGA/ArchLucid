@@ -43,6 +43,12 @@ public static class OperatorConfigurationLintEvaluator
         advisory.AddRange(
             ProductionLikeSecretTransportConfigurationLint.DescribeAdvisoryFindings(configuration, trimmedEnv));
 
+        HostingMisconfigurationWarning? qualityGateWarnOnly =
+            QualityGateWarnOnlyProductionLikeConfigurationLint.TryDescribeAdvisoryFinding(configuration, trimmedEnv);
+
+        if (qualityGateWarnOnly is not null)
+            advisory.Add(qualityGateWarnOnly.Value);
+
         HostingMisconfigurationWarning? openAiConnectivity =
             AzureOpenAiEndpointConnectivityLintAdvisor.TryDescribeConnectivityFinding(
                 configuration,
