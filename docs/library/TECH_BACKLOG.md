@@ -71,6 +71,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-229 – TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0→1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `EXECUTIVE_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (**TB-236**, DEFERRED — owner action, PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131–134** (commercial packaging), **TB-141–142** (proof cohort / demo assets), **TB-162–164** (trust center, procurement pack), or **TB-170–176** (proof pack chooser/metadata).
 
+**TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
+
 **TB-238 – TB-243** were added 2026-06-02 from an independent first-principles **Proof-of-ROI Readiness** quality assessment (`docs/assessments/ProofOfROIReadiness_06022026.MD`, score 72/100, COMMERCIAL weight 5/116). They address: baseline capture prompt in pilot wizard (**TB-238**, P1), executive ROI history run-mode label (**TB-239**, P1), executive ROI surface data quality regression guard (**TB-240**, P1), board-pack AI executive narrative (**TB-241**, P2), ROI model freshness CI guard (**TB-242**, P2), and sponsor proof delivery tracking event (**TB-243**, P2). These do not duplicate **TB-103–105** (orphan-candidate dual pipeline / waiver window / bucket bucketing), **TB-149–155** (data consistency defect fixes), **TB-062** (executive dashboard KPI replacement), or **TB-186** (run summary one-pager). TB-240 specifically adds regression-guard tests that verify TB-103/TB-149/TB-151/TB-152/TB-155 fixes hold; it is a guard, not a duplicate of those fixes.
 
 | ID | Title | Priority driver | Size |
@@ -109,7 +111,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-207 | Token-claims diagnostic — `POST /v1/admin/auth/diagnose-token` + `archlucid auth test-token --bearer` — decode JWT payload without signature validation; pipe through `ArchLucidRoleClaimsTransformation`; return `resolvedRoles[]`, `unmappedValues[]`, `warnings[]`; Admin auth required; durable `Auth.TokenDiagnosticRequested` audit event | **Done (2026-06-02 batch 5X)** — `TokenClaimsDiagnosticService` + admin endpoint + CLI + `AuthTokenDiagnosticRequested` audit; `test_adoption_batch_5x.py` | M |
 | TB-208 | CLI as dotnet global tool + self-contained binaries — `<PackAsTool>true</PackAsTool>` in `ArchLucid.Cli.csproj`; GitHub Actions publish job for win-x64/linux-x64/osx-x64 `PublishSingleFile=true`; `docs/engineering/CLI_INSTALL.md`; update `OPERATOR_QUICKSTART.md` | **Done (2026-06-02 batch 5Y)** — `publish-cli.yml` + `CLI_INSTALL.md` + operator quickstart link; `test_adoption_batch_5y.py` | S |
 | TB-209 | `archlucid request create --from-file <path>` — reads JSON file, POSTs to `POST /v1/architecture/request`, prints run ID; optional `--request-id` override; replace `curl` example in `OPERATOR_QUICKSTART.md` reference architecture section | **Done (2026-06-02 batch 5Z)** — `RequestCreateCommand` + `ArchitectureRequestFileParser` + operator quickstart CLI section; `test_adoption_batch_5z.py` | S |
-| TB-210 | Pilot prerequisites page — `docs/runbooks/PILOT_PREREQUISITES.md` with per-profile Azure resource checklist, cost estimate table, Azure AI Search blocking callout, and `scripts/Test-ArchLucidPrerequisites.ps1`; linked from `FIRST_PILOT_OPERATOR_PATH.md` and `CONFIGURATION_REFERENCE.md` | Adoption Friction P1 — no "before you start" page; Azure AI Search requirement surprise mid-deployment | S |
+| TB-210 | Pilot prerequisites page — `docs/runbooks/PILOT_PREREQUISITES.md` with per-profile Azure resource checklist, cost estimate table, Azure AI Search blocking callout, and `scripts/Test-ArchLucidPrerequisites.ps1`; linked from `FIRST_PILOT_OPERATOR_PATH.md` and `CONFIGURATION_REFERENCE.md` | **Done (2026-06-02 batch 5AA)** — `PILOT_PREREQUISITES.md` + `Test-ArchLucidPrerequisites.ps1` + operator/config links; `test_adoption_batch_5aa.py` | S |
 | TB-211 | SAML SP certificate rotation runbook — `docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`; detection + `openssl` generation + zero-downtime rotation + rollback; linked from `CONFIGURATION_REFERENCE.md` | Adoption Friction P1 — runbook referenced in docs but absent from repo | XS |
 | TB-212 | IaC adoption-critical subset — Terraform for Azure OpenAI, Azure AI Search, Azure Content Safety in `infra/terraform-hosted-prod/`; update outputs, tfvars.example, `CONFIGURATION_REFERENCE.md` | Adoption Friction P1 — three production-like required services absent from Terraform | M |
 | TB-213 | QualityGate WarnOnly lint rule — `quality_gate_warn_only_in_real_production_like`; Advisory for Real+WarnOnly; HOLD for production-like-hosted-pilot profile; 4-state unit tests | Adoption Friction P2 — no lint signal for WarnOnly+Real pilots | S |
@@ -144,6 +146,12 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-241 | Board-pack AI executive narrative — `Roi:GenerateBoardPackNarrative` config flag (default false); when true call `IAgentCompletionClient` (ModelTier.Fast) with savings/ROI/mode/confidence JSON; prefix board-pack Markdown with `## Executive summary`; frontend toggle; unit test | Proof-of-ROI P2 — board pack is structural data export only; no AI interpretation paragraph for sponsor use | M |
 | TB-242 | ROI model freshness CI guard — `scripts/ci/check_roi_model_freshness.py`; extract "Last reviewed:" date from `ROI_MODEL.md`; warn-only exit 0 when >90 days old; add CI step; update `ROI_MODEL.md` last-reviewed date to 2026-06-02 | Proof-of-ROI P2 — `ROI_MODEL.md` §8 is 6+ weeks stale; inline subscription/TCO numbers may diverge from `PRICING_PHILOSOPHY.md §5` | XS |
 | TB-243 | Sponsor proof delivery tracking event — `AuditEventType.SponsorEvidencePackSent` (type 79); `POST /v1/pilots/runs/{runId}/sponsor-pack-sent` (optional recipient + delivery method); "Mark as sent to sponsor" button in `RunDetailFirstScreenProofStatus.tsx` → `StatusTag "Sent to sponsor"`; unit tests | Proof-of-ROI P2 — proof generated vs proof delivered are invisible; CS team cannot identify operators who generate but don't send | S |
+| TB-244 | KPI tile drill-through navigation — wrap each count in `ExecutiveRoiDashboardLiveKpiCards.tsx` with a Next.js `<Link>` pointing to the relevant filtered page (e.g., `/runs?filter=orphan-candidates`, `/compliance?filter=drift`); add `data-testid` for each link; Vitest tests | Executive Value Visibility P1 — live KPI tiles show counts but clicking them does nothing; executives cannot drill into the numbers that matter most | S |
+| TB-245 | ROI trend chart upgrade to SVG bar chart — replace CSS `<div>` proportional bars in `ExecutiveRoiTrendSection.tsx` with a proper SVG chart (reuse `ExecutiveRoiSystemicIssueTrendChart` pattern); add Y-axis labels, month labels, on-hover tooltips with exact values; Vitest snapshot test | Executive Value Visibility P1 — current CSS div bars lack axis labels and tooltips; unacceptable in an executive-facing dashboard | M |
+| TB-246 | Executive shell nav — add Scorecard and Dashboard links — add "Scorecard" (`/executive/scorecard`) and "Dashboard" (`/executive/dashboard`) `<Button>` nav links to `ExecutiveShellFrame.tsx` header nav; highlight active route; Vitest test | Executive Value Visibility P1 — `ExecutiveShellFrame` nav is missing scorecard and dashboard links; both pages are undiscoverable for sponsors who land on the shell | XS |
+| TB-247 | "Top 3 actions" section on executive scorecard — add a "Recommended actions" card to `ExecutiveScorecardClient.tsx` that derives 1–3 plain-language recommendations from loaded data (highest-drift policy, largest orphan cost bucket, most overdue review); unit tests for derivation logic | Executive Value Visibility P2 — scorecard shows aggregate metrics with no forward guidance; executives must navigate to detail pages to understand what to do next | M |
+| TB-248 | "Day N since first commit" badge on executive KPI strip — compute `N = (today - firstCommitUtc).TotalDays` and add "Day {N} of your ArchLucid pilot" display below the savings KPI tile in `ExecutiveRoiDashboardLiveKpiCards.tsx`; read `FirstCommitUtc` from ROI summary endpoint; unit test | Executive Value Visibility P2 — the "Day N since first commit" badge described in `EXECUTIVE_SPONSOR_BRIEF.md` is not live; a key sponsor trust signal is missing | S |
+| TB-249 | Cross-tenant portfolio graceful 403 — in `RoiController.GetCrossTenantPortfolioSummaryAsync` return a structured `ProblemDetails` with user-facing guidance when directory object key is missing (403); update `PortfolioPageView.tsx` to display the guidance text rather than a blank/silent error; create `docs/library/MULTI_TENANT_PORTFOLIO.md` | Executive Value Visibility P3 — silent 403 with no user guidance; enterprise portfolio feature degrades invisibly on misconfigured tenants | S |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -6888,3 +6896,213 @@ Documentation:
 **Cross-ref:** TB-215 (wizard evidence upload — both touch wizard submit), TB-216 (`archlucid try --sponsor-packet` — related TTV measurement), `FIRST_VALUE_20_MINUTES.md`.
 
 ---
+
+## TB-244 — KPI tile drill-through navigation (P1)
+
+**Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `ExecutiveRoiDashboardLiveKpiCards.tsx` renders live count tiles for orphan candidates, SQL backup mismatches, and similar signals, but none of the tiles are clickable. An executive sponsor who wants to understand the numbers behind a KPI must navigate away manually. This is the highest-deficiency gap in the EVV assessment (sub-dimension deficiency 10.50 + 6.60).
+
+**Cursor prompt:**
+```
+Add click-through navigation to each KPI tile in ExecutiveRoiDashboardLiveKpiCards.tsx.
+
+1. Import Next.js Link from 'next/link'.
+
+2. For each count tile, wrap the displayed number (and optionally the tile card) in a <Link> pointing to the appropriate filtered page:
+   - Orphan candidates count → /runs?filter=orphan-candidates
+   - SQL backup / region mismatches → /compliance?filter=backup-region
+   - Compliance drift count → /compliance?filter=drift
+   - Any other KPIs: point to the most relevant list page with a filter param that the target page already accepts, or /executive/dashboard as a fallback.
+
+3. Style the link so the tile still looks like a card (not a blue underline): add cursor-pointer, hover:ring-2 ring-primary/30, transition classes consistent with other interactive cards in the executive shell.
+
+4. Add data-testid="kpi-tile-{name}-link" to each wrapper Link for testability.
+
+5. Add Vitest tests:
+   - Each tile renders a link with the correct href.
+   - Link wrapper does not break the existing KPI count display.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/executive/` (`ExecutiveRoiDashboardLiveKpiCards.tsx`)
+
+**Cross-ref:** TB-245 (trend chart upgrade — same dashboard page), TB-246 (executive shell nav), TB-062 (executive KPI replacement).
+
+---
+
+## TB-245 — ROI trend chart upgrade to SVG bar chart (P1)
+
+**Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `ExecutiveRoiTrendSection.tsx` renders 6-month ROI trend data as proportional CSS `<div>` elements. There are no axis labels, no month labels on bars, and no hover tooltips showing exact values. This is visually indistinguishable from a placeholder and is unacceptable in an executive-facing dashboard.
+
+**Cursor prompt:**
+```
+Replace the CSS div-bar implementation in ExecutiveRoiTrendSection.tsx with a proper SVG bar chart.
+
+1. Reference the existing ExecutiveRoiSystemicIssueTrendChart component (or pattern) in the same directory. Reuse its SVG rendering approach, color tokens, and responsive container pattern.
+
+2. The chart must render:
+   - Vertical bars scaled to the max value in the dataset.
+   - Y-axis labels on the left side (e.g., "$0", "$5k", "$10k") with 3–4 evenly spaced ticks.
+   - Month abbreviation labels (e.g., "Jan", "Feb") below each bar.
+   - On-hover tooltip showing the exact value for that month (e.g., "$8,240 — Feb 2026").
+
+3. Keep the existing data contract (array of { month: string, savingsUsd: number } or equivalent) — do not change the API/endpoint shape.
+
+4. Wrap the SVG in a responsive container (e.g., min-h-[160px] w-full) consistent with other chart components in the executive shell.
+
+5. Add a Vitest snapshot test: given a fixed array of 6 monthly values, the rendered SVG output matches the snapshot.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/executive/` (`ExecutiveRoiTrendSection.tsx`)
+- Reference: `ExecutiveRoiSystemicIssueTrendChart.tsx` (pattern source)
+
+**Cross-ref:** TB-244 (KPI drill-through — same dashboard page), TB-062 (executive KPI replacement original spec).
+
+---
+
+## TB-246 — Executive shell nav — add Scorecard and Dashboard links (P1)
+
+**Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `ExecutiveShellFrame.tsx` renders the outer chrome for the executive-facing route group but its navigation header is missing links to the Scorecard (`/executive/scorecard`) and Dashboard (`/executive/dashboard`). Both pages exist but are undiscoverable for any sponsor who lands directly on the shell.
+
+**Cursor prompt:**
+```
+Add navigation links to ExecutiveShellFrame.tsx.
+
+1. In the header nav section of ExecutiveShellFrame.tsx, add two nav items:
+   - "Dashboard" → href="/executive/dashboard"
+   - "Scorecard" → href="/executive/scorecard"
+
+2. Use the existing nav item pattern (Button variant="ghost" or nav <a> tag — match whatever other links in the same header use).
+
+3. Highlight the active route: use Next.js usePathname() to compare the current path; apply an active style (e.g., underline or font-semibold) when pathname starts with the link's href.
+
+4. Add a Vitest test: renders both links with correct hrefs; active link receives the active class when pathname matches.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/executive/` (`ExecutiveShellFrame.tsx`)
+
+**Cross-ref:** TB-244 (KPI tiles — linked from dashboard), TB-247 (scorecard actions section — visible once nav lands user on scorecard).
+
+---
+
+## TB-247 — "Top 3 actions" section on executive scorecard (P2)
+
+**Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `ExecutiveScorecardClient.tsx` displays aggregate metrics (savings totals, drift counts, orphan buckets) but provides no forward guidance. An executive sponsor sees what has happened but receives no plain-language recommendation about what to do next. This is the highest P2 sub-dimension deficiency in the EVV assessment (6.60).
+
+**Cursor prompt:**
+```
+Add a "Recommended actions" card to ExecutiveScorecardClient.tsx.
+
+1. After the existing summary metrics section, add a new card with heading "Recommended actions".
+
+2. Derive 1–3 plain-language recommendations from the data already loaded on the page:
+   - If compliance drift count > 0: "Review {N} drifted policies — your team has {N} governance policies with active drift. Open Compliance → Drift."
+   - If orphan candidates cost bucket > $0: "Reclaim {$X} in orphan candidates — {N} resources are flagged for decommission review. Open Runs → Orphan Candidates."
+   - If most-overdue review is > 30 days: "Complete overdue architecture review — '{ReviewName}' has been pending for {D} days."
+   - Show at most 3; sort by descending estimated dollar impact or days overdue.
+   - If no recommendations apply, show: "No actions needed — all signals are healthy."
+
+3. Each recommendation item should include:
+   - A short headline (bold).
+   - A one-sentence explanation.
+   - A "View →" link pointing to the relevant filtered page.
+
+4. Unit tests:
+   - scorecard data with drift > 0 → drift recommendation is first.
+   - scorecard data with orphan cost > 0 → orphan recommendation rendered.
+   - all-healthy data → "No actions needed" message shown.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/executive/` (`ExecutiveScorecardClient.tsx`)
+
+**Cross-ref:** TB-246 (nav links — user must be able to find the scorecard), TB-244 (KPI drill-through — recommendations link to same filtered pages).
+
+---
+
+## TB-248 — "Day N since first commit" badge on executive KPI strip (P2)
+
+**Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `EXECUTIVE_SPONSOR_BRIEF.md` explicitly describes a "Day N since first commit" badge as a key sponsor trust signal. This badge is not live in `ExecutiveRoiDashboardLiveKpiCards.tsx`. Its absence means the longitudinal pilot narrative — "you have been running ArchLucid for N days and here is what we found" — is not surfaced to the sponsor in the UI.
+
+**Cursor prompt:**
+```
+Add a "Day N of your ArchLucid pilot" display to ExecutiveRoiDashboardLiveKpiCards.tsx.
+
+1. The ROI summary endpoint (GET /v1/roi/executive-summary) should already return FirstCommitUtc (ISO 8601 string). If it does not, add it to the response DTO in ArchLucid.Api.
+
+2. In ExecutiveRoiDashboardLiveKpiCards.tsx, compute:
+   const daysSinceFirstCommit = Math.floor((Date.now() - new Date(summary.firstCommitUtc).getTime()) / 86_400_000);
+
+3. Below the primary savings KPI tile, add a secondary display:
+   <p className="text-sm text-muted-foreground">Day {daysSinceFirstCommit} of your ArchLucid pilot</p>
+
+4. Guard against null/missing firstCommitUtc: if absent, omit the badge entirely (do not show "Day NaN").
+
+5. Unit tests:
+   - firstCommitUtc 30 days ago → renders "Day 30 of your ArchLucid pilot".
+   - firstCommitUtc null/missing → badge is not rendered.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/executive/` (`ExecutiveRoiDashboardLiveKpiCards.tsx`)
+- `ArchLucid.Api/` (add `FirstCommitUtc` to executive summary DTO if missing)
+
+**Cross-ref:** TB-244 (KPI tiles — same component file), `EXECUTIVE_SPONSOR_BRIEF.md`.
+
+---
+
+## TB-249 — Cross-tenant portfolio graceful 403 (P3)
+
+**Source:** Executive Value Visibility quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`), 2026-06-02.
+**Problem:** `GET /v1/roi/cross-tenant-portfolio` returns a silent HTTP 403 when a directory object key is missing (misconfigured multi-tenant setup). `PortfolioPageView.tsx` receives a 403 with no body guidance and renders a blank or generic error state. Enterprise customers with misconfigured tenants have no way to diagnose the issue without opening a support ticket.
+
+**Cursor prompt:**
+```
+Add graceful 403 handling to the cross-tenant portfolio endpoint and UI.
+
+Backend — RoiController.GetCrossTenantPortfolioSummaryAsync:
+1. When a directory object key is missing (the condition that currently produces a silent 403), return:
+   return Problem(
+     title: "Portfolio directory key not configured",
+     detail: "This tenant does not have a portfolio directory object key configured. Contact your ArchLucid administrator to enable cross-tenant portfolio access.",
+     statusCode: 403,
+     type: "https://archlucid.net/errors/portfolio-key-not-configured"
+   );
+   Use the existing ProblemDetails pattern used elsewhere in the controller.
+
+Frontend — PortfolioPageView.tsx (or equivalent):
+2. When the portfolio API call returns 403, parse the ProblemDetails body and display:
+   - An inline info card (not a toast — this is a configuration state, not a transient error).
+   - Show the 'detail' field from ProblemDetails as the primary message.
+   - Add a secondary link: "Learn more about portfolio configuration" → docs/library/MULTI_TENANT_PORTFOLIO.md (or its published URL).
+
+Documentation:
+3. Create docs/library/MULTI_TENANT_PORTFOLIO.md with:
+   - What the cross-tenant portfolio feature is.
+   - Prerequisites: directory object key configuration per tenant.
+   - How to enable it (config key name, example value, where to set it).
+   - What the 403 error means and how to resolve it.
+
+Unit tests:
+4. Backend: missing key → 403 ProblemDetails with correct title and detail.
+5. Frontend: 403 response with ProblemDetails body → info card rendered with detail text.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/RoiController.cs`
+- `archlucid-ui/src/app/executive/` (`PortfolioPageView.tsx` or equivalent)
+- `docs/library/MULTI_TENANT_PORTFOLIO.md` (new file)
+
+**Cross-ref:** TB-244–248 (other EVV items — same executive route group), `EXECUTIVE_SPONSOR_BRIEF.md`.

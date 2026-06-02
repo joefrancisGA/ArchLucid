@@ -45,7 +45,7 @@ All other keys are optional unless **When required** in the detailed table says 
 
 ## Pilot configuration profiles
 
-These profiles are operator shortcuts, not new configuration modes. Use them to decide which existing keys and checks must be present before a handoff.
+These profiles are operator shortcuts, not new configuration modes. Use them to decide which existing keys and checks must be present before a handoff. **Before deploy:** [`PILOT_PREREQUISITES.md`](../runbooks/PILOT_PREREQUISITES.md) (resource checklist, cost table, Azure AI Search blocking callout) and `.\scripts\Test-ArchLucidPrerequisites.ps1`.
 
 | Profile | Boundary | Required first checks | Optional but common | Common failure mode |
 | --- | --- | --- | --- | --- |
