@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.76%
+# ArchLucid Assessment – (A) Headline Readiness: 80.84%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **80.62%** (5I); batch **5J** correctness cluster (**TB-196/197/205/206** — reasoning cost, PromoteAsync atomicity, ROI pagination guards, env-label null safety) → **80.76%** (+2 Correctness). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **80.76%** (5J); batch **5K** correctness tests (**TB-198/199/200** — cost engine coverage verified, auth handler + scope boundary tests) → **80.84%** (+1 Correctness, +1 Testability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -48,7 +48,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | --- | ---: | ---: | ---: | ---: |
 | AI/Agent Readiness | 72 | 8 | 4.97% | 224 |
 | Cutting-Edge AI Technology | 73 | 8 | 5.03% | 216 |
-| Correctness | 80 | 8 | 5.52% | 160 |
+| Correctness | 81 | 8 | 5.59% | 152 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 80 | 7 | 4.83% | 140 |
@@ -82,7 +82,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Availability | 74 | 1 | 0.64% | 26 |
 | Extensibility | 72 | 1 | 0.62% | 28 |
 | Cost-Effectiveness | 73 | 1 | 0.63% | 27 |
-| Testability | 76 | 1 | 0.66% | 24 |
+| Testability | 77 | 1 | 0.66% | 23 |
 | Supportability | 76 | 1 | 0.66% | 24 |
 | Template and Accelerator Richness | 82 | 1 | 0.71% | 18 |
 | Documentation | 78 | 1 | 0.67% | 22 |
@@ -113,9 +113,9 @@ Classification: Mostly fixable in v1. Graph-RAG, agentic retrieval, fine-tuning,
 
 ### Correctness
 
-Score: 80. Weight: 8. Weighted impact: 5.52%. Weighted deficiency signal: 160.
+Score: 81. Weight: 8. Weighted impact: 5.59%. Weighted deficiency signal: 152.
 
-Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5J** fixes reasoning-token cost underreporting (**TB-196**), atomic governance promotion (**TB-197**), ROI pagination safety caps (**TB-205**), and manifest env-label null safety (**TB-206**). Remaining backlog includes security-boundary test gaps (**TB-199/200**), `CostConstraintFindingEngine` coverage (**TB-198**), and agent-result uniqueness (**TB-201**).
+Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5J** fixed reasoning-token cost, governance promotion atomicity, ROI pagination caps, and env-label null safety. Batch **5K** closes **TB-198/199/200** with `CostConstraintFindingEngine` unit tests, `TenantOrProjectCapabilityAuthorizationHandler` authorization scenarios, and verified `HttpScopeContextProvider` scope-boundary tests. Remaining backlog: **TB-201** agent-result uniqueness, **TB-202–204** coverage gaps.
 
 Tradeoffs: The system has many read surfaces because it has grown into a broad product. That creates useful product depth but increases semantic drift risk.
 
@@ -521,9 +521,9 @@ Classification: v1/v1.1.
 
 ### Testability
 
-Score: 76. Weight: 1. Weighted impact: 0.66%. Weighted deficiency signal: 24.
+Score: 77. Weight: 1. Weighted impact: 0.66%. Weighted deficiency signal: 23.
 
-Justification: Testability is strong: solution filters, core suite, full SQL regression, API snapshots, UI unit/live E2E, k6, chaos, golden fixtures, and coverage gates. Batch **5I** extends Wave C architecture test drift guards (**INV-007/008/009**). Current coverage analysis still shows low-coverage hotspots in some production assemblies and a deferred 95% ratchet.
+Justification: Testability is strong: solution filters, core suite, full SQL regression, API snapshots, UI unit/live E2E, k6, chaos, golden fixtures, and coverage gates. Batch **5I/5K** extend architecture and correctness drift guards in CI. Current coverage analysis still shows low-coverage hotspots in some production assemblies and a deferred 95% ratchet.
 
 Tradeoffs: Raising coverage indiscriminately would be expensive. The right move is targeted tests for correctness/security hot paths.
 
