@@ -1,6 +1,6 @@
 "use client";
 
-import { HelpCircle } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 
 import { getHelpUrl } from "@/lib/contextual-help";
 import { cn } from "@/lib/utils";
@@ -35,12 +35,12 @@ export function HelpButton({ pageKey, className }: HelpButtonProps) {
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-              "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-500 shadow-sm hover:border-neutral-500 hover:text-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-500 dark:hover:text-neutral-100",
+              "inline-flex shrink-0 rounded p-0.5 text-neutral-500 hover:text-neutral-700 focus-visible:outline focus-visible:ring-2 dark:text-neutral-400 dark:hover:text-neutral-200",
               className,
             )}
             aria-label="View documentation"
           >
-            <HelpCircle className="h-3 w-3" aria-hidden />
+            <CircleHelp className="h-3.5 w-3.5" aria-hidden />
           </a>
         </TooltipTrigger>
         <TooltipContent side="bottom">View documentation</TooltipContent>

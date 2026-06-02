@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { HelpCircle } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { usePathname } from "next/navigation";
@@ -164,7 +164,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                               setHelpDocSearchOpen(true);
                             }}
                           >
-                            <HelpCircle className="h-4 w-4" aria-hidden />
+                            <CircleHelp className="h-4 w-4" aria-hidden />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
@@ -262,7 +262,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                               setHelpDocSearchOpen(true);
                             }}
                           >
-                            <HelpCircle className="h-4 w-4" aria-hidden />
+                            <CircleHelp className="h-4 w-4" aria-hidden />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
