@@ -49,5 +49,5 @@ Concrete enum names and serialization may evolve; **absence of mode remains inva
 
 - [`docs/library/ARCHITECTURE_INVARIANTS.md`](../../library/ARCHITECTURE_INVARIANTS.md)
 - [`docs/library/TECH_BACKLOG.md`](../../library/TECH_BACKLOG.md) — **`TB-009` … `TB-012`**
-- [`TEMPLATE.md`](TEMPLATE.md) — ADR authoring skeleton
+- [`template.md`](template.md) — ADR authoring skeleton
 - [ADR README](README.md) — numbering and immutability

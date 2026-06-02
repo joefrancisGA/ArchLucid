@@ -32,9 +32,9 @@ Use this drill after a candidate release build to gather **signals** (not a subs
    .\scripts\Invoke-RealLlmEvidenceGate.ps1
    ```
 
-   **Generated report (attach to release artifacts; gitignored):** [`artifacts/release/real-llm-evidence-gate.md`](../../artifacts/release/real-llm-evidence-gate.md). With credentials, companion metrics may appear next to it as **`artifacts/release/real-llm-last-run-metrics.json`** (also gitignored).
+   **Generated report (attach to release artifacts; gitignored):** `artifacts/release/real-llm-evidence-gate.md`. With credentials, companion metrics may appear next to it as **`artifacts/release/real-llm-last-run-metrics.json`** (also gitignored).
 
-5. **Production profile preflight (repo-only, no Azure login)** — auth mode, JWT posture, API key disablement, SQL connection shape, Key Vault sample, prompt redaction, observability export hints, billing safety, Worker `appsettings` presence, plus Terraform layout.    **Generated report (attach to release artifacts; gitignored by default):** [`artifacts/deployment/production-profile-preflight.md`](../../artifacts/deployment/production-profile-preflight.md).
+5. **Production profile preflight (repo-only, no Azure login)** — auth mode, JWT posture, API key disablement, SQL connection shape, Key Vault sample, prompt redaction, observability export hints, billing safety, Worker `appsettings` presence, plus Terraform layout.    **Generated report (attach to release artifacts; gitignored by default):** `artifacts/deployment/production-profile-preflight.md`.
 
    ```powershell
    .\scripts\Emit-ProductionProfilePreflightMarkdown.ps1
