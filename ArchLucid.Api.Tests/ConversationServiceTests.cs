@@ -212,4 +212,81 @@ public sealed class ConversationServiceTests
 
         history.Should().BeEquivalentTo(expected);
     }
+
+    [SkippableFact]
+    public async Task GetOrCreateThreadAsync_creates_new_thread_when_supplied_id_is_missing()
+    {
+        Guid requestedId = Guid.NewGuid();
+
+        Mock<IConversationThreadRepository> threads = new();
+        Mock<IConversationMessageRepository> messages = new();
+
+        threads
+            .Setup(x => x.GetByIdAsync(requestedId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ConversationThread?)null);
+        threads
+            .Setup(x => x.CreateAsync(It.IsAny<ConversationThread>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ConversationService sut = new(threads.Object, messages.Object);
+
+        ConversationThread thread = await sut.GetOrCreateThreadAsync(
+            requestedId,
+            _tenant,
+            _workspace,
+            _project,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        thread.ThreadId.Should().NotBe(requestedId);
+        threads.Verify(x => x.CreateAsync(It.IsAny<ConversationThread>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task GetHistoryAsync_passes_take_limit_to_repository()
+    {
+        Guid threadId = Guid.NewGuid();
+        const int take = 40;
+
+        Mock<IConversationMessageRepository> messages = new();
+        messages
+            .Setup(x => x.GetByThreadIdAsync(threadId, take, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ConversationMessage>());
+
+        ConversationService sut = new(Mock.Of<IConversationThreadRepository>(), messages.Object);
+
+        await sut.GetHistoryAsync(threadId, take, CancellationToken.None);
+
+        messages.Verify(
+            x => x.GetByThreadIdAsync(threadId, take, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task AppendUserMessageAsync_persists_empty_content_without_service_validation()
+    {
+        Guid threadId = Guid.NewGuid();
+
+        Mock<IConversationThreadRepository> threads = new();
+        Mock<IConversationMessageRepository> messages = new();
+
+        messages
+            .Setup(x => x.AddAsync(It.IsAny<ConversationMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        threads
+            .Setup(x => x.UpdateLastUpdatedAsync(threadId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ConversationService sut = new(threads.Object, messages.Object);
+
+        await sut.AppendUserMessageAsync(threadId, string.Empty, CancellationToken.None);
+
+        messages.Verify(
+            x => x.AddAsync(
+                It.Is<ConversationMessage>(m => m.Content == string.Empty),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }
