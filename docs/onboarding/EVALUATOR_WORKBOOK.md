@@ -39,6 +39,13 @@ $env:ARCHLUCID_API_URL = 'https://your-pilot.example'
 ./scripts/collect-first-pilot-proof.ps1 -BaseUrl $env:ARCHLUCID_API_URL -RunId '<run-id-after-commit>'
 ```
 
+Local demo stack — zero to sponsor proof folder in one sitting:
+
+```powershell
+dotnet run --project ArchLucid.Cli -- try --sponsor-packet --out artifacts/proof
+# default out: artifacts/try-sponsor-packet/<runId> → proof-summary.md
+```
+
 Sponsor send:
 
 ```powershell

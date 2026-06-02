@@ -109,4 +109,22 @@ internal sealed class TryCommandHooks
         get;
         init;
     }
+
+    /// <summary>
+    ///     Write a sponsor proof-packet folder for the committed run (reuses
+    ///     <see cref="PilotProofPacketCommand.WriteFolderAsync" />).
+    /// </summary>
+    public required Func<string, string, string, CancellationToken, Task<PilotProofPacketWriteOutcome>>
+        WriteSponsorPacket
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Open a directory in the OS file manager (best-effort).</summary>
+    public required Action<string> OpenDirectory
+    {
+        get;
+        init;
+    }
 }

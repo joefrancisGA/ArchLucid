@@ -59,7 +59,9 @@ internal static class TryCommand
             DownloadFirstValueReport = FirstValueReportSaveAsync,
             OpenFile = OpenLocalArtifact,
             OpenUrl = OpenInBrowser,
-            CreateApiClient = baseUrl => new ArchLucidApiClient(baseUrl)
+            OpenDirectory = OpenDirectoryInFileManager,
+            CreateApiClient = baseUrl => new ArchLucidApiClient(baseUrl),
+            WriteSponsorPacket = WriteSponsorPacketAsync
         };
 
         return await RunCoreAsync(options, hooks, Console.Out, cancellationToken);
@@ -113,10 +115,12 @@ internal static class TryCommand
             ComposePathListBuilder.BuildAbsolutePaths(composeDir,
                 hooks.ResolveComposeOverlays(options.IsPilotRealAzureOpenAiAttempt));
 
+        int totalSteps = options.SponsorPacket ? 6 : 5;
+
         await output.WriteLineAsync(
             options.IsPilotRealAzureOpenAiAttempt
-                ? "Step 1/5: Bringing up the pilot Docker stack (full-stack + demo + real Azure OpenAI overlay)..."
-                : "Step 1/5: Bringing up the pilot Docker stack (full-stack + demo overlay)...");
+                ? $"Step 1/{totalSteps}: Bringing up the pilot Docker stack (full-stack + demo + real Azure OpenAI overlay)..."
+                : $"Step 1/{totalSteps}: Bringing up the pilot Docker stack (full-stack + demo overlay)...");
         int pilotExit = await hooks.PilotUp(composeAbsolutePaths, cancellationToken);
 
         if (pilotExit != CliExitCode.Success)
@@ -128,14 +132,14 @@ internal static class TryCommand
         }
 
         await output.WriteLineAsync();
-        await output.WriteLineAsync("Step 2/5: Ensuring Contoso demo seed (POST /v1/demo/seed)...");
+        await output.WriteLineAsync($"Step 2/{totalSteps}: Ensuring Contoso demo seed (POST /v1/demo/seed)...");
         DemoSeedOutcome seedOutcome = await hooks.DemoSeed(options.ApiBaseUrl, cancellationToken);
         await output.WriteLineAsync(seedOutcome.Message);
 
         ArchLucidApiClient client = hooks.CreateApiClient(options.ApiBaseUrl);
 
         await output.WriteLineAsync();
-        await output.WriteLineAsync("Step 3/5: Submitting a sample architecture request...");
+        await output.WriteLineAsync($"Step 3/{totalSteps}: Submitting a sample architecture request...");
         ArchLucidApiClient.CreateRunResult create = await hooks.CreateRun(client, cancellationToken);
 
         if (!create.Success || create.Response is null)
@@ -162,7 +166,7 @@ internal static class TryCommand
 
         await output.WriteLineAsync();
         await output.WriteLineAsync(
-            $"Step 4/5: Polling until run is ReadyForCommit (deadline {options.CommitDeadline.TotalSeconds:n0}s)...");
+            $"Step 4/{totalSteps}: Polling until run is ReadyForCommit (deadline {options.CommitDeadline.TotalSeconds:n0}s)...");
         ArchitectureRunStatus reached = await PollForCommittableStatusAsync(
             ct => GetStatusAsync(hooks.GetRun, client, runId, ct),
             options.CommitDeadline,
@@ -215,7 +219,8 @@ internal static class TryCommand
         await output.WriteLineAsync($"  Committed. Manifest version: {version}");
 
         await output.WriteLineAsync();
-        await output.WriteLineAsync("Step 5/5: Downloading the first-value report and opening artifacts...");
+        await output.WriteLineAsync(
+            $"Step 5/{totalSteps}: Downloading the first-value report{(options.OpenArtifacts ? " and opening artifacts" : string.Empty)}...");
 
         string reportPath = Path.Combine(Directory.GetCurrentDirectory(), $"first-value-{runId}.md");
         bool reportSaved =
@@ -240,9 +245,38 @@ internal static class TryCommand
         if (options.OpenArtifacts)
             hooks.OpenUrl(runUrl);
 
+        if (options.SponsorPacket)
+        {
+            await output.WriteLineAsync();
+            await output.WriteLineAsync($"Step 6/{totalSteps}: Generating sponsor proof packet...");
+            string sponsorOutDirectory = options.ResolveSponsorPacketDirectory(runId);
+
+            PilotProofPacketWriteOutcome sponsorOutcome = await hooks.WriteSponsorPacket(
+                options.ApiBaseUrl,
+                runId,
+                sponsorOutDirectory,
+                cancellationToken);
+
+            if (sponsorOutcome.ExitCode != CliExitCode.Success)
+            {
+                await output.WriteLineAsync("Error: Sponsor proof packet generation failed.");
+
+                return sponsorOutcome.ExitCode;
+            }
+
+            string proofSummaryPath = Path.Combine(sponsorOutcome.OutputDirectory, "proof-summary.md");
+            await output.WriteLineAsync($"  Output directory: {sponsorOutcome.OutputDirectory}");
+            await output.WriteLineAsync($"  Sponsor packet ready → {proofSummaryPath}");
+
+            if (options.OpenArtifacts)
+                hooks.OpenDirectory(sponsorOutcome.OutputDirectory);
+        }
+
         await output.WriteLineAsync();
         await output.WriteLineAsync(
-            "Done. You have a committed manifest, a sponsor-grade Markdown report, and an open run.");
+            options.SponsorPacket
+                ? "Done. You have a committed manifest, a sponsor-grade Markdown report, a proof-packet folder, and an open run."
+                : "Done. You have a committed manifest, a sponsor-grade Markdown report, and an open run.");
 
         return CliExitCode.Success;
     }
@@ -450,6 +484,35 @@ internal static class TryCommand
         try
         {
             Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
+        }
+        catch
+        {
+            // Best-effort — the path was already printed.
+        }
+    }
+
+    private static async Task<PilotProofPacketWriteOutcome> WriteSponsorPacketAsync(
+        string apiBaseUrl,
+        string runId,
+        string outputDirectory,
+        CancellationToken cancellationToken)
+    {
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
+
+        return await PilotProofPacketCommand.WriteFolderAsync(
+            runId,
+            apiBaseUrl,
+            outputDirectory,
+            config,
+            Console.Error,
+            cancellationToken);
+    }
+
+    private static void OpenDirectoryInFileManager(string directoryPath)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo { FileName = directoryPath, UseShellExecute = true });
         }
         catch
         {

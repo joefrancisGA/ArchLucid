@@ -365,6 +365,88 @@ public sealed class TryCommandTests
     }
 
     [Fact]
+    public void Parse_SponsorPacket_SetsFlagAndDefaultOutDirectory()
+    {
+        TryCommandOptions? opts = TryCommandOptions.Parse(["--sponsor-packet"], out string? error);
+
+        error.Should().BeNull();
+        opts!.SponsorPacket.Should().BeTrue();
+        opts.SponsorPacketOutDirectory.Should().BeNull();
+        opts.ResolveSponsorPacketDirectory("run-abc").Should().Be(
+            Path.Combine("artifacts", "try-sponsor-packet", "run-abc"));
+    }
+
+    [Fact]
+    public void Parse_SponsorPacket_WithOut_UsesExplicitDirectory()
+    {
+        TryCommandOptions? opts = TryCommandOptions.Parse(
+            ["--sponsor-packet", "--out", "artifacts/proof"],
+            out string? error);
+
+        error.Should().BeNull();
+        opts!.SponsorPacket.Should().BeTrue();
+        opts.SponsorPacketOutDirectory.Should().Be("artifacts/proof");
+        opts.ResolveSponsorPacketDirectory("run-abc").Should().Be("artifacts/proof");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_sponsor_packet_invokes_proof_packet_with_committed_run_id()
+    {
+        StringWriter output = new();
+        TryCommandOptions options = new()
+        {
+            SponsorPacket = true,
+            SponsorPacketOutDirectory = "artifacts/proof-run-happy"
+        };
+
+        string? capturedRunId = null;
+        string? capturedApiBase = null;
+        string? capturedOutDir = null;
+        List<string> openedDirectories = [];
+
+        TryCommandHooks hooks = OrchestrationHooks(
+            "run-happy",
+            writeSponsorPacket: (apiBase, runId, outDir, _) =>
+            {
+                capturedApiBase = apiBase;
+                capturedRunId = runId;
+                capturedOutDir = outDir;
+
+                return Task.FromResult(
+                    new PilotProofPacketWriteOutcome(CliExitCode.Success, Path.GetFullPath(outDir)));
+            },
+            openDirectory: openedDirectories.Add);
+
+        int exit = await TryCommand.RunCoreAsync(options, hooks, output);
+
+        exit.Should().Be(CliExitCode.Success);
+        capturedRunId.Should().Be("run-happy");
+        capturedApiBase.Should().Be(TryCommandOptions.DefaultApiBaseUrl);
+        capturedOutDir.Should().Be("artifacts/proof-run-happy");
+        openedDirectories.Should().ContainSingle().Which.Should().Contain("proof-run-happy");
+        output.ToString().Should().Contain("Generating sponsor proof packet");
+        output.ToString().Should().Contain("Sponsor packet ready");
+        output.ToString().Should().Contain("proof-summary.md");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_sponsor_packet_failure_returns_that_exit_code()
+    {
+        StringWriter output = new();
+        TryCommandOptions options = new() { SponsorPacket = true, OpenArtifacts = false };
+
+        TryCommandHooks hooks = OrchestrationHooks(
+            "run-packet-fail",
+            writeSponsorPacket: (_, _, _, _) =>
+                Task.FromResult(new PilotProofPacketWriteOutcome(CliExitCode.OperationFailed, "artifacts/fail")));
+
+        int exit = await TryCommand.RunCoreAsync(options, hooks, output);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        output.ToString().Should().Contain("Sponsor proof packet generation failed");
+    }
+
+    [Fact]
     public void Parse_NoArgs_ReturnsDefaults()
     {
         TryCommandOptions? opts = TryCommandOptions.Parse([], out string? error);
@@ -378,6 +460,7 @@ public sealed class TryCommandTests
         opts.CommitDeadline.Should().Be(TryCommandOptions.DefaultCommitDeadline);
         opts.RealMode.Should().BeFalse();
         opts.StrictReal.Should().BeFalse();
+        opts.SponsorPacket.Should().BeFalse();
     }
 
     [Fact]
@@ -604,8 +687,11 @@ public sealed class TryCommandTests
                 throw new InvalidOperationException("DownloadFirstValueReport should not have been invoked."),
             OpenFile = _ => throw new InvalidOperationException("OpenFile should not have been invoked."),
             OpenUrl = _ => throw new InvalidOperationException("OpenUrl should not have been invoked."),
+            OpenDirectory = _ => throw new InvalidOperationException("OpenDirectory should not have been invoked."),
             CreateApiClient = _ =>
-                throw new InvalidOperationException("CreateApiClient should not have been invoked.")
+                throw new InvalidOperationException("CreateApiClient should not have been invoked."),
+            WriteSponsorPacket = (_, _, _, _) =>
+                throw new InvalidOperationException("WriteSponsorPacket should not have been invoked.")
         };
     }
 
@@ -642,7 +728,9 @@ public sealed class TryCommandTests
         Func<ArchLucidApiClient, string, CancellationToken, Task<ArchLucidApiClient.CommitRunResult?>>? commitRun = null,
         Func<string, string, string, CancellationToken, Task<bool>>? downloadFirstValueReport = null,
         Action<string>? openFile = null,
-        Action<string>? openUrl = null)
+        Action<string>? openUrl = null,
+        Func<string, string, string, CancellationToken, Task<PilotProofPacketWriteOutcome>>? writeSponsorPacket = null,
+        Action<string>? openDirectory = null)
     {
         ArchLucidApiClient sharedClient = CreateDisposalSafeTestApiClient();
 
@@ -692,7 +780,12 @@ public sealed class TryCommandTests
             DownloadFirstValueReport = downloadFirstValueReport ?? ((_, _, _, _) => Task.FromResult(false)),
             OpenFile = openFile ?? (_ => { }),
             OpenUrl = openUrl ?? (_ => { }),
-            CreateApiClient = _ => sharedClient
+            OpenDirectory = openDirectory ?? (_ => { }),
+            CreateApiClient = _ => sharedClient,
+            WriteSponsorPacket = writeSponsorPacket
+                               ?? ((_, _, _, _) =>
+                                   throw new InvalidOperationException(
+                                       "WriteSponsorPacket was not expected in this scenario."))
         };
     }
 }

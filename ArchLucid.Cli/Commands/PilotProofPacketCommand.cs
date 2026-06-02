@@ -73,6 +73,40 @@ internal static class PilotProofPacketCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
+        string resolvedOutputDirectory = outputDirectory
+                                         ?? Path.Combine(Directory.GetCurrentDirectory(), "proof-packet", runId);
+
+        PilotProofPacketWriteOutcome writeOutcome = await WriteFolderAsync(
+            runId,
+            normalized,
+            resolvedOutputDirectory,
+            config,
+            Console.Error,
+            cancellationToken);
+
+        if (writeOutcome.ExitCode == CliExitCode.Success)
+            await Console.Out.WriteLineAsync($"Wrote buyer proof packet folder: {writeOutcome.OutputDirectory}");
+
+        return writeOutcome.ExitCode;
+    }
+
+    /// <summary>
+    ///     Shared proof-packet writer used by <c>pilot proof-packet</c> and <c>try --sponsor-packet</c>.
+    /// </summary>
+    internal static async Task<PilotProofPacketWriteOutcome> WriteFolderAsync(
+        string runId,
+        string apiBaseUrl,
+        string outputDirectory,
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
+        TextWriter errorWriter,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(apiBaseUrl);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
+        ArgumentNullException.ThrowIfNull(errorWriter);
+
+        string normalized = apiBaseUrl.Trim().TrimEnd('/');
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
 
         using HttpClient http = new();
@@ -88,30 +122,30 @@ internal static class PilotProofPacketCommand
 
         if (deltasResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            await Console.Error.WriteLineAsync($"Run '{runId}' was not found (or is out of scope).");
+            await errorWriter.WriteLineAsync($"Run '{runId}' was not found (or is out of scope).");
 
-            return CliExitCode.UsageError;
+            return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
         }
 
         if (!deltasResponse.IsSuccessStatusCode)
         {
             string body = await deltasResponse.Content.ReadAsStringAsync(cancellationToken);
-            await Console.Error.WriteLineAsync($"Error fetching pilot-run-deltas: {(int)deltasResponse.StatusCode}: {body}");
+            await errorWriter.WriteLineAsync(
+                $"Error fetching pilot-run-deltas: {(int)deltasResponse.StatusCode}: {body}");
 
-            return CliExitCode.OperationFailed;
+            return new PilotProofPacketWriteOutcome(CliExitCode.OperationFailed, outputDirectory);
         }
 
         string deltasJson = await deltasResponse.Content.ReadAsStringAsync(cancellationToken);
 
         if (!BuyerProofPackCommitGuard.TryValidate(deltasJson, out bool demoWarning, out string? gateError))
         {
-            await Console.Error.WriteLineAsync(gateError);
+            await errorWriter.WriteLineAsync(gateError);
 
-            return CliExitCode.UsageError;
+            return new PilotProofPacketWriteOutcome(CliExitCode.UsageError, outputDirectory);
         }
 
-        string dir = outputDirectory
-                     ?? Path.Combine(Directory.GetCurrentDirectory(), "proof-packet", runId);
+        string dir = Path.GetFullPath(outputDirectory);
         Directory.CreateDirectory(dir);
 
         await File.WriteAllTextAsync(Path.Combine(dir, "run-evidence.json"), PrettyPrintJson(deltasJson), Utf8NoBom, cancellationToken);
@@ -122,7 +156,7 @@ internal static class PilotProofPacketCommand
 
         if (!pilotStrictSatisfied)
         {
-            await Console.Error.WriteLineAsync(
+            await errorWriter.WriteLineAsync(
                 "WARN: PilotStrict evidence is not satisfied — sponsor handoff is not recommended (see limitations.md).");
         }
 
@@ -261,9 +295,7 @@ internal static class PilotProofPacketCommand
             Utf8NoBom,
             cancellationToken);
 
-        Console.WriteLine($"Wrote buyer proof packet folder: {dir}");
-
-        return CliExitCode.Success;
+        return new PilotProofPacketWriteOutcome(CliExitCode.Success, dir);
     }
 
     private static string PrettyPrintJson(string raw)

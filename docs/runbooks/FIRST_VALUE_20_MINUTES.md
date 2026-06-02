@@ -20,6 +20,7 @@
 | 1 | `dotnet run --project ArchLucid.Cli -- doctor` | Connection OK; auth mode summarized |
 | 2 | Create + execute + commit one review (UI **Home** checklist or CLI `archlucid run` → execute → commit) | Committed run id |
 | 3 | `dotnet run --project ArchLucid.Cli -- pilot proof-packet <runId> --out artifacts/proof-packet/<runId>` | Folder: `proof-summary.md`, `run-evidence.json`, `audit-sample.json`, `artifact-manifest.json`, `environment.json`, `limitations.md` |
+| 3 (combined) | `dotnet run --project ArchLucid.Cli -- try --sponsor-packet --out artifacts/proof` | Zero-to-proof in one command: Docker up → demo seed → sample run → commit → sponsor folder with `proof-summary.md` (default out: `artifacts/try-sponsor-packet/<runId>`) |
 | 4 | Review `proof-summary.md` **Sponsor first-page status** block | Evidence source, quality disposition, ROI basis, next action |
 | 5 | Optional sponsor ZIP: `dotnet run --project ArchLucid.Cli -- buyer-proof-pack <runId> --out artifacts/buyer-proof.zip` | Email-sized ZIP for executives |
 

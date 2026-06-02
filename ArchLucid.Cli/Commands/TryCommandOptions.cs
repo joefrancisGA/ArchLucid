@@ -72,11 +72,45 @@ internal sealed class TryCommandOptions
     }
 
     /// <summary>
+    ///     When <see langword="true" />, write a sponsor proof-packet folder after commit via
+    ///     <see cref="PilotProofPacketCommand.WriteFolderAsync" />.
+    /// </summary>
+    public bool SponsorPacket
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     Optional output directory for <see cref="SponsorPacket" />; when null,
+    ///     <see cref="ResolveSponsorPacketDirectory" /> applies the default layout.
+    /// </summary>
+    public string? SponsorPacketOutDirectory
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Real compose overlay + CLI preflight are active (<c>--real</c> and <c>ARCHLUCID_REAL_AOAI=1</c>).
     /// </summary>
     public bool IsPilotRealAzureOpenAiAttempt =>
         RealMode &&
         string.Equals(Environment.GetEnvironmentVariable(ArchLucidRealAoaiEnv)?.Trim(), "1", StringComparison.Ordinal);
+
+    /// <summary>
+    ///     Default sponsor-packet folder when <see cref="SponsorPacketOutDirectory" /> is not set:
+    ///     <c>artifacts/try-sponsor-packet/&lt;runId&gt;</c>.
+    /// </summary>
+    public string ResolveSponsorPacketDirectory(string runId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!string.IsNullOrWhiteSpace(SponsorPacketOutDirectory))
+            return SponsorPacketOutDirectory;
+
+        return Path.Combine("artifacts", "try-sponsor-packet", runId);
+    }
 
     /// <summary>
     ///     Parses CLI arguments after the leading <c>try</c> token. Returns null and sets <paramref name="error" />
@@ -93,6 +127,8 @@ internal sealed class TryCommandOptions
         TimeSpan? commitDeadlineSeconds = null;
         bool realMode = false;
         bool strictReal = false;
+        bool sponsorPacket = false;
+        string? sponsorPacketOutDirectory = null;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -110,6 +146,15 @@ internal sealed class TryCommandOptions
 
                 case "--strict-real":
                     strictReal = true;
+                    break;
+
+                case "--sponsor-packet":
+                    sponsorPacket = true;
+                    break;
+
+                case "--out":
+                    if (!TryReadNext(args, ref i, current, out string? outValue, out error)) return null;
+                    sponsorPacketOutDirectory = outValue;
                     break;
 
                 case "--api-base-url":
@@ -134,7 +179,7 @@ internal sealed class TryCommandOptions
 
                 default:
                     error =
-                        $"Unknown argument for 'try': {current}. Usage: archlucid try [--real] [--strict-real] [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <seconds>] [--commit-deadline <seconds>]";
+                        $"Unknown argument for 'try': {current}. Usage: archlucid try [--real] [--strict-real] [--sponsor-packet] [--out <dir>] [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <seconds>] [--commit-deadline <seconds>]";
                     return null;
             }
         }
@@ -152,7 +197,9 @@ internal sealed class TryCommandOptions
             ReadinessDeadline = readinessDeadline,
             CommitDeadline = commitDeadline,
             RealMode = realMode,
-            StrictReal = strictReal
+            StrictReal = strictReal,
+            SponsorPacket = sponsorPacket,
+            SponsorPacketOutDirectory = sponsorPacketOutDirectory
         };
     }
 
