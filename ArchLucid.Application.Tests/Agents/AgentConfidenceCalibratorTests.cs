@@ -28,7 +28,33 @@ public sealed class AgentConfidenceCalibratorTests
 
         AgentConfidenceCalibrator sut = new(
             samples.Object,
-            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = true, MinimumSamplesForCalibration = 5 }));
+            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = true }));
+
+        double calibrated = await sut.CalibrateAsync(AgentType.Topology, 0.42, CancellationToken.None);
+
+        calibrated.Should().Be(0.42);
+    }
+
+    [Fact]
+    public async Task CalibrateAsync_with_samples_below_twenty_returns_raw_confidence()
+    {
+        Mock<IAgentConfidenceCalibrationSampleRepository> samples = new();
+        List<AgentConfidenceCalibrationSampleRow> rows = Enumerable
+            .Range(0, 19)
+            .Select(i => new AgentConfidenceCalibrationSampleRow
+            {
+                RawConfidence = 0.1 + (i * 0.04),
+                SemanticScore = 0.5,
+            })
+            .ToList();
+
+        samples
+            .Setup(r => r.GetRecentByAgentTypeAsync(AgentType.Topology, 200, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rows);
+
+        AgentConfidenceCalibrator sut = new(
+            samples.Object,
+            Options.Create(new AgentConfidenceCalibrationOptions { Enabled = true }));
 
         double calibrated = await sut.CalibrateAsync(AgentType.Topology, 0.42, CancellationToken.None);
 

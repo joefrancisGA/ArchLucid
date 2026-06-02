@@ -21,10 +21,10 @@ public sealed class AgentConfidenceCalibrationOptions
         set;
     } = 200;
 
-    /// <summary>Minimum samples required before a non-identity calibration curve is applied.</summary>
+    /// <summary>Minimum samples required before a non-identity calibration curve is applied (TB-180 fail-open).</summary>
     public int MinimumSamplesForCalibration
     {
         get;
         set;
-    } = 5;
+    } = 20;
 }
