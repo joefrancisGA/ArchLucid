@@ -73,6 +73,25 @@ describe("first-pilot operator routes — axe (Vitest)", () => {
         });
       }
 
+      if (url.includes("/api/proxy/v1/pilots/scorecard")) {
+        return new Response(
+          JSON.stringify({
+            tenantId: "00000000-0000-0000-0000-000000000001",
+            totalRunsCommitted: 0,
+            totalManifestsCreated: 0,
+            totalFindingsResolved: 0,
+            averageTimeToManifestMinutes: null,
+            totalAuditEventsGenerated: 0,
+            totalGovernanceApprovalsCompleted: 0,
+            firstCommitUtc: null,
+            daysSinceFirstCommit: null,
+            baselines: null,
+            roiEstimate: null,
+          }),
+          { status: 200 },
+        );
+      }
+
       return originalFetch(input);
     }) as typeof fetch;
 

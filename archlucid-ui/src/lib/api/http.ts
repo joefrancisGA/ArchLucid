@@ -29,6 +29,20 @@ export function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
+/**
+ * Same-origin proxy path for browser JSON/binary calls. Vitest/jsdom exposes `window` but Node `fetch`
+ * requires an absolute URL — use a stable localhost base only under Vitest.
+ */
+function browserProxyUrl(path: string): string {
+  const relative = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
+
+  if (typeof process !== "undefined" && process.env.VITEST !== undefined) {
+    return new URL(relative, "http://localhost").href;
+  }
+
+  return relative;
+}
+
 export async function ensureOidcBearerReady(): Promise<void> {
   if (isBrowser() && isJwtAuthMode()) {
     await ensureAccessTokenFresh();
@@ -55,7 +69,7 @@ export function getBearerToken(): string | undefined {
  */
 export function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersInit } {
   if (isBrowser()) {
-    const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
+    const url = browserProxyUrl(path);
     const headers: Record<string, string> = {
       Accept: "*/*",
       ...getEffectiveBrowserProxyScopeHeaders(),
@@ -87,7 +101,7 @@ export function resolveBinaryGetRequest(path: string): { url: string; headers: H
  */
 export function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   if (isBrowser()) {
-    const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
+    const url = browserProxyUrl(path);
     const headers: Record<string, string> = {
       Accept: "application/json",
       ...getEffectiveBrowserProxyScopeHeaders(),
