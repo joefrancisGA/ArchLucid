@@ -17,7 +17,6 @@ import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -546,7 +545,6 @@ export function NewRunWizardClient() {
             </p>
             </div>
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-              {stepIndex === 0 ? <ContextualHelp helpKey="new-run-wizard" placement="left" /> : null}
               <ArchitectureRequestWizardHelpDrawer />
             </div>
           </div>
