@@ -73,7 +73,8 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         decimal? estimatedUsd = null;
         string costBasis = RunLlmCostEstimationBasis.Unavailable;
 
-        if (promptSum + completionSum <= 0)
+        // Reasoning-only traces (TB-196) have zero prompt/completion sums but may still produce a USD estimate.
+        if (promptSum + completionSum <= 0 && !anyCost)
             return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
 
         if (anyCost)
