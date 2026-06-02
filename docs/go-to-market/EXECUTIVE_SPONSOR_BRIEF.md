@@ -14,17 +14,17 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 - **[READ_THIS_FIRST.md](../READ_THIS_FIRST.md)** — forced decision-tree entry (buyer vs contributor vs security vs architecture)
 - **[README.md](../REPOSITORY_README.md)** — repo entry and deeper operator material
-- **[go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md](go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md)** — one-email sponsor/procurement copy (subject, ~120-word summary, four-artifact checklist)
-- **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — pilot measurement companion
-- **[PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
-- **[CORE_PILOT.md](CORE_PILOT.md)** — operator first-pilot motion
-- **[runbooks/FIRST_PILOT_OPERATOR_PATH.md](runbooks/FIRST_PILOT_OPERATOR_PATH.md)** — single end-to-end V1 pilot path with failure recovery
-- **[library/walkthroughs/README.md](library/walkthroughs/README.md)** — Azure SaaS, AI governance, and healthcare accelerator packs
-- **[go-to-market/INTEGRATION_CATALOG.md](go-to-market/INTEGRATION_CATALOG.md)** — V1 vs V1.1 integration boundaries for procurement
-- **[go-to-market/POSITIONING.md](go-to-market/POSITIONING.md)** — positioning aligned to this brief
-- **[go-to-market/GTM_BACKLOG.md](go-to-market/GTM_BACKLOG.md)** — internal service-led sequencing (named offers, outreach, monetization tasks); **`SERVICE_LED_OFFERS.md`** productized SKU menu
+- **[go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md](EXECUTIVE_ONE_EMAIL_KIT.md)** — one-email sponsor/procurement copy (subject, ~120-word summary, four-artifact checklist)
+- **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)** — pilot measurement companion
+- **[PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
+- **[CORE_PILOT.md](../CORE_PILOT.md)** — operator first-pilot motion
+- **[runbooks/FIRST_PILOT_OPERATOR_PATH.md](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)** — single end-to-end V1 pilot path with failure recovery
+- **[library/walkthroughs/README.md](../library/walkthroughs/README.md)** — Azure SaaS, AI governance, and healthcare accelerator packs
+- **[go-to-market/INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)** — V1 vs V1.1 integration boundaries for procurement
+- **[go-to-market/POSITIONING.md](POSITIONING.md)** — positioning aligned to this brief
+- **[go-to-market/GTM_BACKLOG.md](GTM_BACKLOG.md)** — internal service-led sequencing (named offers, outreach, monetization tasks); **`SERVICE_LED_OFFERS.md`** productized SKU menu
 
-**One-shot sponsor PDF:** the operator-shell **review-detail** page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows a non-modal **“Email this review to your sponsor”** banner after a successful commit (exact banner text may still say *run* until label-only UI updates land). The banner downloads a PDF projection of the canonical first-value-report for that **review** via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known (pinned for **all** tiers on first authority commit; optional SQL backfill for legacy rows), the banner can show a small **“Day N since first commit”** badge (UTC full-day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](library/API_CONTRACTS.md#pilots-v1pilots).
+**One-shot sponsor PDF:** the operator-shell **review-detail** page (`/runs/[runId]` — legacy URL; may redirect to `/reviews/…`) shows a non-modal **“Email this review to your sponsor”** banner after a successful commit (exact banner text may still say *run* until label-only UI updates land). The banner downloads a PDF projection of the canonical first-value-report for that **review** via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known (pinned for **all** tiers on first authority commit; optional SQL backfill for legacy rows), the banner can show a small **“Day N since first commit”** badge (UTC full-day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](../library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](../library/API_CONTRACTS.md#pilots-v1pilots).
 
 ---
 
@@ -44,7 +44,7 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 
 **Buyer-facing category:** Architecture Proof Engine — *Defensible architecture, on demand.*
 
-**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](architecture/adrs/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.net` (staging) and `https://archlucid.net` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md).
+**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](../architecture/adrs/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.net` (staging) and `https://archlucid.net` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md).
 
 ---
 
@@ -119,7 +119,7 @@ That is the main V1 buying motion.
 | Sponsor updates often become slideware detached from the evidence trail. | Sponsor-ready outputs stay tied to the committed review and label estimates, defaults, and customer-entered values explicitly. |
 | Follow-up reviews depend on manual comparison. | A second review can compare against the prior package and keep governance questions separate from the first-pilot proof. |
 
-**Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](library/API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical.
+**Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](../library/API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical.
 
 ---
 
@@ -134,9 +134,9 @@ A credible pilot should show improvement in a few concrete areas:
 - **change visibility between reviews,**
 - **governance evidence readiness.**
 
-For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md).
+For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md).
 
-**Automated sponsor package:** operators on a Standard-tier tenant can generate a **per-tenant value report DOCX** from the operator UI (`/value-report` or “Generate sponsor report” on review detail after commit; legacy copy may say *run*). The document summarizes committed manifests, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [go-to-market/ROI_MODEL.md](go-to-market/ROI_MODEL.md).
+**Automated sponsor package:** operators on a Standard-tier tenant can generate a **per-tenant value report DOCX** from the operator UI (`/value-report` or “Generate sponsor report” on review detail after commit; legacy copy may say *run*). The document summarizes committed manifests, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [go-to-market/ROI_MODEL.md](ROI_MODEL.md).
 
 ---
 
@@ -148,7 +148,7 @@ After **Pilot** is proven, **Operate** is the second buyer-facing layer. It comb
 
 **Governance and trust** — when the organization is ready to operationalize architecture decision workflows more broadly: governance approvals, policy packs, auditability, compliance drift visibility, alerts, and operational control surfaces. That half of Operate is where ArchLucid becomes more directly relevant to governance, audit, security, and compliance stakeholders.
 
-Progressive disclosure still applies: deeper governance and write-oriented operator affordances remain aligned with **Execute** rank and tier rules in the shell (see [PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)); the API remains authoritative for **401/403**.
+Progressive disclosure still applies: deeper governance and write-oriented operator affordances remain aligned with **Execute** rank and tier rules in the shell (see [PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md)); the API remains authoritative for **401/403**.
 
 ---
 

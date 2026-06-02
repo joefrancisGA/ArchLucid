@@ -8,7 +8,7 @@
 
 - Validate that PITR restores succeed within the documented RTO window.
 - Validate that geo-failover completes and the application passes health checks.
-- Record actual RTO/RPO achieved for [`RTO_RPO_TARGETS.md`](../RTO_RPO_TARGETS.md) review.
+- Record actual RTO/RPO achieved for [`RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md) review.
 
 ## Pre-drill checklist
 
@@ -46,7 +46,7 @@
 3. Record time-to-failover-complete (listener FQDN DNS update).
 4. Run smoke tests via [`docs/library/LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md) against production endpoint.
 5. Confirm API `/health/ready` is Healthy within target RTO (60 minutes from drill start).
-6. Record actual RTO and RPO (replication lag at time of failover) in [`RTO_RPO_TARGETS.md`](../RTO_RPO_TARGETS.md).
+6. Record actual RTO and RPO (replication lag at time of failover) in [`RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md).
 7. Fail back to original primary when confirmed healthy.
 
 ## LTR restore test (verify a monthly snapshot exists and is restorable)
@@ -68,4 +68,4 @@ When **`ArtifactLargePayload:BlobProvider=AzureBlob`** is enabled in the deploye
 
 - Record actual RTO achieved (vs target under 1 hour).
 - Record replication lag at failover time (vs target RPO under 5 minutes).
-- Update the "Last reviewed" date in [`RTO_RPO_TARGETS.md`](../RTO_RPO_TARGETS.md).
+- Update the "Last reviewed" date in [`RTO_RPO_TARGETS.md`](../library/RTO_RPO_TARGETS.md).

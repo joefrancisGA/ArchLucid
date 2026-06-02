@@ -12,7 +12,7 @@ Use when you need **symptom → likely cause → first command → deeper doc**.
 | --- | --- | --- | --- |
 | API unreachable / connection refused | Host down, wrong URL/port, network | `dotnet run --project ArchLucid.Cli -- doctor`; confirm `ARCHLUCID_API_URL` / TLS | [COMMON_ERRORS.md](COMMON_ERRORS.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
 | **`/health/ready`** unhealthy | Missing dependency (SQL, Bus, key vault), migration, config | Read JSON `entries[]` for first **Unhealthy** / **Degraded** (dependency name) | [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) (opening readiness steps) |
-| **401** | Missing/invalid API key or JWT | Set `ARCHLUCID_API_KEY` or Entra bearer per environment docs | [API_KEY_ROTATION.md](../library/API_KEY_ROTATION.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
+| **401** | Missing/invalid API key or JWT | Set `ARCHLUCID_API_KEY` or Entra bearer per environment docs | [API_KEY_ROTATION.md](API_KEY_ROTATION.md)), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
 | **403** | Role or scope (tenant/workspace/project) mismatch | Confirm identity, **`x-tenant-id`**, workspace/project headers | [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) |
 | **402** | Trial / seat entitlement exhausted | Read response `detail` and `supportHint`—no entitlement bypass in production | [TRIAL_AND_SIGNUP.md](../go-to-market/TRIAL_AND_SIGNUP.md) |
 | Run not **ReadyToCommit** / pipeline stuck | Prior stage incomplete, execute failure, data issue | `archlucid status <runId>`; run detail pipeline timeline | [CORE_PILOT.md](../CORE_PILOT.md) (steps 2–3) |

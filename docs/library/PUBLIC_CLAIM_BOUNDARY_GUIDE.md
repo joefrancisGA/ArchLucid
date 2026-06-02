@@ -29,4 +29,4 @@
 
 - [`../go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md`](../go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md)
 - [`QUOTE_TO_PROOF_READINESS_CHECKLIST.md`](../go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md)
-- [`tier_fit_validation_matrix.v1.json`](../scripts/ci/data/tier_fit_validation_matrix.v1.json)
+- [`tier_fit_validation_matrix.v1.json`](../../../../scripts/ci/data/tier_fit_validation_matrix.v1.json)

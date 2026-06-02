@@ -14,7 +14,7 @@
 
 ## Context
 
-ArchLucid operators already receive **tenant-private** architecture intelligence from their own committed manifests, runs, and governance outputs under **strict row-level security (RLS)** and RBAC. Product strategy (see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) **Resolved 2026-04-21** table — row *Cross-tenant pattern library*, and **item 14** follow-ups) calls for an **optional** capability: show **patterns other tenants in the same industry / vertical preset have adopted**, derived from **aggregated** manifest-derived signals, **without** exposing which tenant contributed which artefact.
+ArchLucid operators already receive **tenant-private** architecture intelligence from their own committed manifests, runs, and governance outputs under **strict row-level security (RLS)** and RBAC. Product strategy (see [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) **Resolved 2026-04-21** table — row *Cross-tenant pattern library*, and **item 14** follow-ups) calls for an **optional** capability: show **patterns other tenants in the same industry / vertical preset have adopted**, derived from **aggregated** manifest-derived signals, **without** exposing which tenant contributed which artefact.
 
 **Who asked / who approved.** The **owner** approved the feature at the principle level (**opt-in**, **k-anonymity**, **DPA carve-out**) in the **2026-04-21** interactive Q&A snapshot recorded in `docs/PENDING_QUESTIONS.md`. **Implementing ADR ownership (item 14, Resolved 2026-04-22)** is **assistant drafts in full**. **ADR acceptance (Status → Accepted):** owner **2026-05-03** — merges that ship SQL, Worker ETL, services, or UI for this capability must implement **this** ADR verbatim on security posture (dedicated principal, nightly ETL, k ≥ 5, opt-in default OFF, projection read model); **`PENDING_QUESTIONS.md` item 14** updated accordingly.
 
@@ -143,9 +143,9 @@ sequenceDiagram
 
 ## Related
 
-- [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) — Resolved tables (**Cross-tenant pattern library**), item **14**
+- [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) — Resolved tables (**Cross-tenant pattern library**), item **14**
 - [`docs/go-to-market/DPA_TEMPLATE.md`](../../go-to-market/DPA_TEMPLATE.md) — **Section 10 — Cross-tenant patterns opt-in**
 - [ADR 0003 — SQL RLS and SESSION_CONTEXT](0003-sql-rls-session-context.md)
 - [ADR 0018 — Background workloads (Container Apps Jobs)](0018-background-workloads-container-apps-jobs.md)
-- [`docs/security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md)
+- [`docs/security/MULTI_TENANT_RLS.md`](../../security/MULTI_TENANT_RLS.md)
 - [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md) (buyer-facing honesty on aggregates — update when GA)

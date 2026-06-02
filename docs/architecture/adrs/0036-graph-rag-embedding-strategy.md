@@ -54,5 +54,5 @@ Investigation (2026-05-26) confirmed the graph contract is functionally stable: 
 
 - [`docs/library/KNOWLEDGE_GRAPH.md`](../../library/KNOWLEDGE_GRAPH.md)
 - [`docs/library/RAG_QUALITY_TECHNICAL_BACKLOG.md`](../../library/RAG_QUALITY_TECHNICAL_BACKLOG.md) — **RAG-V2-001**
-- [ADR 0004](0004-authority-commit-outbox.md) — outbox refresh
+- [ADR 0004](0004-transactional-outbox-retrieval-indexing.md) — outbox refresh
 - [ADR 0031](0031-cross-tenant-pattern-library.md) — cross-tenant pattern library boundaries

@@ -106,6 +106,6 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): committed man
 | Doc | Use |
 |-----|-----|
 | [`library/walkthroughs/README.md`](../../library/walkthroughs/README.md) | Accelerator pack index |
-| [`CORE_PILOT.md`](../../CORE_PILOT.md) | Four-step Core Pilot spine |
+| [`CORE_PILOT.md`](../../CORE_PILOT.md))))))))) | Four-step Core Pilot spine |
 | [`PRODUCT_PACKAGING.md`](../../library/PRODUCT_PACKAGING.md) | Capability inventory |
 | [`AZURE_EXTRACTOR.md`](../../library/AZURE_EXTRACTOR.md) | Extractor script and upload contract |

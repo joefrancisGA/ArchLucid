@@ -72,7 +72,7 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 | **(iv)** | **Waived for pre-release** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21 owner Q&A follow-up) | Original gate required `COORDINATOR_TO_AUTHORITY_PARITY.md` to show 14 contiguous green daily rows of **Coordinator-pipeline writes = 0**. Pre-release there is no customer traffic, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block. ADR 0029 § Operational considerations explains the rationale. Restored automatically if V1 ships to a paying customer before PR A merges. |
 | **Phase 2 catalog** | **Partial (2026-04-21)** | `AuditEventTypes.Run` nested class + dual-write landed; dashboards/exports migration + Sunset log-warning cadence still per ADR 0021 § Phase 2 exit gate |
 
-- **Artifacts:** [`evidence/phase3/gate-verification.md`](../evidence/phase3/gate-verification.md)
+- **Artifacts:** [`evidence/phase3/gate-verification.md`](../../evidence/phase3/gate-verification.md)
 
 - **Parity excerpt (inline — not 14 days):**
 
@@ -88,8 +88,8 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 - [ADR 0010 — Dual manifest and decision-trace repository contracts](0010-dual-manifest-trace-repository-contracts.md)
 - [ADR 0012 — Runs / authority convergence write-freeze](0012-runs-authority-convergence-write-freeze.md)
 - [ADR 0021 — Coordinator pipeline strangler plan](0021-coordinator-pipeline-strangler-plan.md)
-- [COORDINATOR_TO_AUTHORITY_PARITY.md](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md)
-- [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md)
+- [COORDINATOR_TO_AUTHORITY_PARITY.md](../../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md)
+- [dual-pipeline-navigator-superseded.md](../../archive/dual-pipeline-navigator-superseded.md)
 
 ## Follow-up (unblock Phase 3)
 

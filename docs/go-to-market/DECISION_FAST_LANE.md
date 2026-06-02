@@ -74,4 +74,4 @@ Short answers for common stalls: [`PROCUREMENT_OBJECTION_PLAYBOOK.md`](PROCUREME
 
 ## Related
 
-[`docs/library/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md`](../library/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md) · [`docs/library/V1_SCOPE.md`](../library/V1_SCOPE.md)
+[`docs/library/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md`](../assessments/LATEST_GPT55.md) · [`docs/library/V1_SCOPE.md`](../library/V1_SCOPE.md)

@@ -21,4 +21,4 @@ Use these before a buyer runs their own tenant to show **proof package shape**, 
 | Differentiation vs generic copilots | [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) | Committed run + audit sample | Does not replace live reference customer |
 | Full first-pilot rollup | `scripts/collect-first-pilot-proof.ps1 -RunId <id>` | RunId after commit; optional `-ProductionLikeHostedPilot` | Secrets never written into proof folder |
 
-**Walkthroughs:** [`library/walkthroughs/README.md`](../../library/walkthroughs/README.md) · **Core pilot:** [`CORE_PILOT.md`](../../CORE_PILOT.md)
+**Walkthroughs:** [`library/walkthroughs/README.md`](../../library/walkthroughs/README.md) · **Core pilot:** [`CORE_PILOT.md`](../../CORE_PILOT.md)))))))))

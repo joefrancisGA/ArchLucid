@@ -1,4 +1,4 @@
-> **Scope:** Canonical guide for **routing documentation by audience** (customer / evaluator vs contributor / internal) — merges TB-013 role hints with a folder compass; not a duplicate of onboarding narrative in [`START_HERE_DEPTH.md`](START_HERE_DEPTH.md) or task rows in [`NAVIGATOR.md`](../NAVIGATOR.md).
+> **Scope:** Canonical guide for **routing documentation by audience** (customer / evaluator vs contributor / internal) — merges TB-013 role hints with a folder compass; not a duplicate of onboarding narrative in [`START_HERE_DEPTH.md`](START_HERE_DEPTH.md) or task rows in [`NAVIGATOR.md`](../archive/NAVIGATOR.md).
 
 # Documentation by audience
 
@@ -20,8 +20,8 @@ Use this table when you need a **starting doc**, not a folder tour:
 | Audience | Intent | Start here |
 | --- | --- | --- |
 | **Buyer / pilot / sponsor** | Time-to-value, trust, procurement | [`docs/START_HERE.md`](../START_HERE.md), [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) |
-| **Operator / tenant admin** | Day-2 configuration, runbooks, shell | [`docs/library/OPERATOR_QUICKSTART.md`](OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](../OPERATIONS_ADMIN.md) |
-| **Contributor / platform engineer** | Repo layout, invariants, CI, migrations | [`.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc), [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md), [`docs/library/CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) |
+| **Operator / tenant admin** | Day-2 configuration, runbooks, shell | [`docs/library/OPERATOR_QUICKSTART.md`](OPERATOR_QUICKSTART.md), [`docs/library/API_CONTRACTS.md`](API_CONTRACTS.md), [`docs/OPERATIONS_ADMIN.md`](OPERATIONS_ADMIN.md)) |
+| **Contributor / platform engineer** | Repo layout, invariants, CI, migrations | [`.cursor/rules/Architecture-Invariants.mdc`](ARCHITECTURE_INVARIANTS.md), [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md), [`docs/library/CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) |
 
 When in doubt on **new** markdown, add a one-line **`Audience:`** note next to the scope header (see `.cursor/rules/Doc-Scope-Header.mdc`); CI validates scope lines.
 
@@ -52,7 +52,7 @@ Two **documentation planes** coexist: **outward-facing product + trust narration
 | [`docs/runbooks/`](../runbooks/), [`docs/onboarding/day-one-sre.md`](../onboarding/day-one-sre.md), many [`docs/deployment/`](../deployment/) pages | **Vendor internal / reliability / infra** | Incident, failover, Stripe GA, infra setup. |
 | [`docs/engineering/`](../engineering/) | **Contributors / platform engineers** | Install order, first commit loop, IaC ergonomics adjacent to BUILD. |
 | [`docs/security/`](../security/) (long-form) | **Security reviewers + architects** mixed | VPAT/threat-model depth — skim [`trust-center.md`](../go-to-market/trust-center.md) first when buying. |
-| [`docs/library/`](./) | **Mixed** — default to [`NAVIGATOR.md`](../NAVIGATOR.md) rows | Hundreds of refs: [`BUILD.md`](BUILD.md), [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md), assessments, connectors. |
+| [`docs/library/`](./) | **Mixed** — default to [`NAVIGATOR.md`](../archive/NAVIGATOR.md) rows | Hundreds of refs: [`BUILD.md`](BUILD.md), [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md), assessments, connectors. |
 
 ## Component breakdown — canonical hubs
 
@@ -70,7 +70,7 @@ Two **documentation planes** coexist: **outward-facing product + trust narration
 
 Deep narrative for both columns together — **[`START_HERE_DEPTH.md`](START_HERE_DEPTH.md)**.
 
-Task lookup with **explicit customer-vs-internal tables** — **[`NAVIGATOR.md`](../NAVIGATOR.md)**.
+Task lookup with **explicit customer-vs-internal tables** — **[`NAVIGATOR.md`](../archive/NAVIGATOR.md)**.
 
 ## Data flow (how audiences should traverse docs)
 
@@ -100,4 +100,4 @@ Default **depth-first** material belongs under **`docs/library/`** or a topic su
 ## Related
 
 - [`docs/library/PILOT_GUIDE.md`](PILOT_GUIDE.md)
-- [`docs/contributor/README.md`](../contributor/README.md) (if present)
+- [`docs/contributor/README.md`](../engineering/CONTRIBUTOR_ON_ONE_PAGE.md)) (if present)

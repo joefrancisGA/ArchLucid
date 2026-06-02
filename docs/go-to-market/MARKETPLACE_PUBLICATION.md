@@ -7,12 +7,12 @@
 
 ## Objective
 
-Track **Partner Center** and repository steps so a transactable SaaS offer can go live without ad-hoc gaps. Technical webhook behavior is documented in [AZURE_MARKETPLACE_SAAS_OFFER.md](../AZURE_MARKETPLACE_SAAS_OFFER.md) and [BILLING.md](../library/BILLING.md).
+Track **Partner Center** and repository steps so a transactable SaaS offer can go live without ad-hoc gaps. Technical webhook behavior is documented in [AZURE_MARKETPLACE_SAAS_OFFER.md](AZURE_MARKETPLACE_SAAS_OFFER.md)) and [BILLING.md](../library/BILLING.md).
 
 ## Preconditions (owner)
 
 1. **Microsoft Partner Center** account in **Commercial Marketplace** program — **seller / legal verification complete** (**owner-recorded**).
-2. **Landing page URL** aligned with `Billing:AzureMarketplace:LandingPageUrl` (accepts query parameters documented in [AZURE_MARKETPLACE_SAAS_OFFER.md](../AZURE_MARKETPLACE_SAAS_OFFER.md)).
+2. **Landing page URL** aligned with `Billing:AzureMarketplace:LandingPageUrl` (accepts query parameters documented in [AZURE_MARKETPLACE_SAAS_OFFER.md](AZURE_MARKETPLACE_SAAS_OFFER.md))).
 3. **Webhook URL** reachable from Microsoft: `https://<api-host>/v1/billing/webhooks/marketplace` with Entra validation as configured.
 4. **Managed identity** (or secret) authorized for Marketplace fulfillment API audience `https://marketplaceapi.microsoft.com` when activation calls are enabled.
 

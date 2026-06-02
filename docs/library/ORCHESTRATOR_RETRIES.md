@@ -33,7 +33,7 @@ Both **`ExecuteAsync`** (inline) and **`CompleteQueuedAuthorityPipelineAsync`** 
 2. When the timeout fires, the orchestrator logs a pipeline timeout, increments **`PipelineTimeoutsTotal`**, rolls back the unit of work, and throws **`OperationCanceledException`** (filtered so caller-initiated cancellation is not mislabeled).
 3. Individual LLM calls inherit this token through stage executors; there is **no separate LLM-only retry loop** inside the orchestrator — LLM failures surface as stage failures unless the agent runtime layer retries at a lower level.
 
-Configure timeout under **`ArchLucid:AuthorityPipeline:PipelineTimeout`** (see host `appsettings` and [PILOT_GUIDE.md](../PILOT_GUIDE.md)).
+Configure timeout under **`ArchLucid:AuthorityPipeline:PipelineTimeout`** (see host `appsettings` and [PILOT_GUIDE.md](customer-facing/PILOT_GUIDE.md))).
 
 ---
 

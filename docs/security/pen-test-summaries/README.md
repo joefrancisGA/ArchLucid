@@ -32,4 +32,4 @@
 - [`../PEN_TEST_SOW_TEMPLATE.md`](../PEN_TEST_SOW_TEMPLATE.md)
 - [`../PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md`](../PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
 - [`../../go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md) — public **Recent assurance activity** table records engagement metadata (vendor, scope, completion date) without exposing redacted findings; this folder remains the in-repo working surface.
-- [`../../SECURITY.md`](../../library/SECURITY.md)
+- [`../library/SECURITY.md`](../../library/SECURITY.md)

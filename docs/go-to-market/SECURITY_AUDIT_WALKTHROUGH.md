@@ -18,7 +18,7 @@ Assume review id `runId` and tenant scope already established.
 | 4 | Capture **correlation id** from a failed or successful API call | Response header `X-Correlation-ID` |
 | 5 | Open **top finding evidence chain** | First-value report evidence card · `GET` finding evidence-chain endpoints per [`../library/API_CONTRACTS.md`](../library/API_CONTRACTS.md) |
 | 6 | Verify **artifact descriptors** for the committed manifest | Review detail artifacts table · evidence bundle `artifact-manifest.json` |
-| 7 | Attach **procurement pack** when buyer review requires policies | `python scripts/build_procurement_pack.py --strict` — see [`procurement-pack-quality.md`](../../dist/procurement-pack/procurement-pack-quality.md) after build |
+| 7 | Attach **procurement pack** when buyer review requires policies | `python scripts/build_procurement_pack.py --strict` — see [`procurement-pack-quality.md`](../../scripts/build_procurement_pack.py) after build |
 
 ## Limitations
 

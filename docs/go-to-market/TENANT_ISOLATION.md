@@ -40,7 +40,7 @@ flowchart TB
   C --> Q
 ```
 
-- **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([../SECURITY.md](../library/SECURITY.md)).
+- **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([SECURITY.md](../library/SECURITY.md)).
 - **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) §5).
 - **Layer 3 — Database:** In `SystemWithPerTenantCatalogs` (production) mode the database boundary provides primary tenant isolation. **RLS** is available as optional configuration (`STATE = OFF` by default); it is not a required production control. Documentation: [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
 
@@ -62,7 +62,7 @@ Optional **Front Door + WAF**, optional **APIM**, and **private endpoints** for 
 
 ## 4. Audit and accountability
 
-Durable **append-only** audit events and correlation IDs support forensic review ([../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md), [../SECURITY.md](../library/SECURITY.md)).
+Durable **append-only** audit events and correlation IDs support forensic review ([../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md), [SECURITY.md](../library/SECURITY.md)).
 
 ---
 
@@ -103,7 +103,7 @@ CI validates references with `--dry-run`.
 | [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | RLS design, `SESSION_CONTEXT`, covered tables |
 | [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | STRIDE, trust boundaries |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Edge, identity, private connectivity |
-| [../SECURITY.md](../library/SECURITY.md) | RBAC, rate limiting, CI security tests, PII |
+| [SECURITY.md](../library/SECURITY.md) | RBAC, rate limiting, CI security tests, PII |
 
 ---
 

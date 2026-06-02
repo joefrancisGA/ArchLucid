@@ -32,7 +32,7 @@
 
 | Control intent | Status | Evidence |
 |----------------|--------|----------|
-| Access control | Strong (engineering) | [`../SECURITY.md`](../library/SECURITY.md), [`../CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
+| Access control | Strong (engineering) | [`SECURITY.md`](../library/SECURITY.md), [`../CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | Data protection | Strong (engineering) | [`MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md) |
 
 ## Control family E — Asset management

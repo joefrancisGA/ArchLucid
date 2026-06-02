@@ -54,9 +54,9 @@ Two **complementary** integrations:
 
 | Area | Files |
 | --- | --- |
-| Job summary | [`integrations/azure-devops-task-manifest-delta/task.yml`](../../integrations/azure-devops-task-manifest-delta/task.yml), [`job-summary.mjs`](../../integrations/azure-devops-task-manifest-delta/job-summary.mjs) |
-| PR comment + status | [`integrations/azure-devops-task-manifest-delta-pr-comment/task.yml`](../../integrations/azure-devops-task-manifest-delta-pr-comment/task.yml), [`post-pr-thread.mjs`](../../integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread.mjs), [`post-pr-thread-wire.mjs`](../../integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread-wire.mjs) |
-| Shared Markdown | [`integrations/github-action-manifest-delta/fetch-manifest-delta.mjs`](../../integrations/github-action-manifest-delta/fetch-manifest-delta.mjs) |
+| Job summary | [`integrations/azure-devops-task-manifest-delta/task.yml`](../../../integrations/azure-devops-task-manifest-delta/task.yml), [`job-summary.mjs`](../../../integrations/azure-devops-task-manifest-delta/job-summary.mjs) |
+| PR comment + status | [`integrations/azure-devops-task-manifest-delta-pr-comment/task.yml`](../../../integrations/azure-devops-task-manifest-delta-pr-comment/task.yml), [`post-pr-thread.mjs`](../../../integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread.mjs), [`post-pr-thread-wire.mjs`](../../../integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread-wire.mjs) |
+| Shared Markdown | [`integrations/github-action-manifest-delta/fetch-manifest-delta.mjs`](../../../integrations/github-action-manifest-delta/fetch-manifest-delta.mjs) |
 | Wire-format parity (C#) | `AzureDevOpsPullRequestWireFormat` in `ArchLucid.Integrations.AzureDevOps` |
 | Tests | `integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread.test.mjs`, `integrations/azure-devops-task-manifest-delta/job-summary.test.mjs`, `ArchLucid.Integrations.AzureDevOps.Tests/AzureDevOpsRequestBodyParityWithPipelineTaskTests.cs` |
 

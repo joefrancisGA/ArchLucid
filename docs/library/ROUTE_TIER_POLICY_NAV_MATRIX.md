@@ -58,7 +58,7 @@ python scripts/ci/assert_route_tier_policy_nav.py
 
 Use `--sync` only when intentionally regenerating the registry and appendix after reviewing route/tier/policy changes. This check protects buyer claims; it does not grant access or replace API authorization.
 
-**Related:** **[PROCUREMENT_FAST_LANE.md](../go-to-market/PROCUREMENT_FAST_LANE.md)** (procurement skim), **[NAV_CONFIG_CONTRACT.md](NAV_CONFIG_CONTRACT.md)** if present.
+**Related:** **[PROCUREMENT_FAST_LANE.md](../go-to-market/PROCUREMENT_FAST_LANE.md)** (procurement skim), **[../../archlucid-ui/docs/../../archlucid-ui/docs/../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md](../../archlucid-ui/docs/../../archlucid-ui/docs/../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md)** if present.
 
 ## Appendix — per-controller registry (CI)
 

@@ -93,5 +93,5 @@ CLI operators can also run **`archlucid doctor`** / **`archlucid health`** again
 | Release-manager deployment notes (summary) | [`docs/engineering/DEPLOYMENT.md`](../engineering/DEPLOYMENT.md) |
 | Configuration key catalog | [`docs/library/CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md) |
 | V1 vs V2 Redis / projection posture | [`docs/library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6e |
-| Knowledge graph product concepts | [`docs/KNOWLEDGE_GRAPH.md`](../KNOWLEDGE_GRAPH.md) |
+| Knowledge graph product concepts | [`docs/KNOWLEDGE_GRAPH.md`](../library/KNOWLEDGE_GRAPH.md) |
 | Observability | [`docs/library/OBSERVABILITY.md`](../library/OBSERVABILITY.md) |

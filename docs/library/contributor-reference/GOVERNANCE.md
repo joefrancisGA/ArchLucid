@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — Governance workflow - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Governance workflow
@@ -9,13 +9,13 @@ ArchLucid governance covers **approval requests**, **manifest promotions** betwe
 
 ## Default policy pack bodies (reference)
 
-Pilots creating packs via **`POST /v1/governance/policy-packs`** can start from checked-in JSON that matches **`PolicyPackContentDocument`**. Canonical strings live in **`ArchLucid.Application/Governance/DefaultPolicyPacks/DefaultPolicyPackTemplates.cs`** (`AzureWellArchitectedAnalogueJson`, `SecurityBaselineSaaSJson`). They are **not** auto-inserted into SQL—operators still **create**, **publish**, and **assign** packs explicitly per [`PRE_COMMIT_GOVERNANCE_GATE.md`](PRE_COMMIT_GOVERNANCE_GATE.md). For curl-oriented templates see also [`../../templates/policy-packs/README.md`](../../templates/policy-packs/README.md).
+Pilots creating packs via **`POST /v1/governance/policy-packs`** can start from checked-in JSON that matches **`PolicyPackContentDocument`**. Canonical strings live in **`ArchLucid.Application/Governance/DefaultPolicyPacks/DefaultPolicyPackTemplates.cs`** (`AzureWellArchitectedAnalogueJson`, `SecurityBaselineSaaSJson`). They are **not** auto-inserted into SQL—operators still **create**, **publish**, and **assign** packs explicitly per [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md). For curl-oriented templates see also [`../../templates/policy-packs/README.md`](../../templates/policy-packs/README.md).
 
 ## Segregation of duties (approve / reject)
 
 A reviewer **must not** approve or reject a governance approval request they **submitted**.
 
-**JWT (Entra / OIDC) paths.** The server derives a **canonical segregation key** from `tid` + `oid` (`IActorContext.GetActorId()`, shape `jwt:{tenantId}:{objectId}`, or `jwt:{objectId}` when `tid` is absent — see [**ADR 0034**](../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md)). At persistence time the API stores **`RequestedByActorKey`** / **`ReviewedByActorKey`** on `dbo.GovernanceApprovalRequests` (additive columns alongside human-readable **`RequestedBy`** / approved-by display strings).
+**JWT (Entra / OIDC) paths.** The server derives a **canonical segregation key** from `tid` + `oid` (`IActorContext.GetActorId()`, shape `jwt:{tenantId}:{objectId}`, or `jwt:{objectId}` when `tid` is absent — see [**ADR 0034**](../../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md)). At persistence time the API stores **`RequestedByActorKey`** / **`ReviewedByActorKey`** on `dbo.GovernanceApprovalRequests` (additive columns alongside human-readable **`RequestedBy`** / approved-by display strings).
 
 `GovernanceSegregationRules` compares **JWT-prefixed** keys ordinally when **both** the stored submission key and the reviewer key match the JWT canonical pattern; otherwise it falls back to **ordinal, case-insensitive** comparison of display strings (API-key-only traffic, mixed legacy rows, or missing keys).
 

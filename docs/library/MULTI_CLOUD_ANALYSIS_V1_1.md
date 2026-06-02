@@ -72,7 +72,7 @@ Implementation may land **incrementally** before all phases complete; **buyer-co
 |------|--------------------------|
 | Extend enum | `ArchLucid.Contracts/Common/CloudProvider.cs` — add `Aws = 2`, `Gcp = 3` |
 | CLI parsing | `ArchLucid.Cli/Commands/CliCommandShared.cs` — map `aws`, `gcp` (replace today’s silent Azure fallback for non-empty unknown strings) |
-| Wire / OpenAPI | Regenerate snapshot + clients per [Http-Surface-Docs-And-Clients.mdc](../../.cursor/rules/Http-Surface-Docs-And-Clients.mdc) |
+| Wire / OpenAPI | Regenerate snapshot + clients per [Http-Surface-Docs-And-Clients.mdc](../engineering/AGENTS.md) |
 | Operator UI | Baseline wizard / review create — cloud provider selector when promoted from deferred wizard copy |
 
 **Acceptance:** `POST /v1/architecture/request` with `cloudProvider: 2` persists and flows to orchestration; CLI `--cloud aws` sets enum correctly.

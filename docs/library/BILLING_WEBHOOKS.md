@@ -2,7 +2,7 @@
 
 # Billing documentation (entry)
 
-**Canonical reference:** [Billing — provider abstraction (Stripe + Azure Marketplace)](library/BILLING.md) (architecture, data flow, security, provider matrix).
+**Canonical reference:** [Billing — provider abstraction (Stripe + Azure Marketplace)](BILLING.md) (architecture, data flow, security, provider matrix).
 
 ## Webhook routes (API)
 

@@ -16,7 +16,7 @@
 | CAIQ / SIG responses | Standard questionnaire answers (self-attested) | Procurement pack build |
 | DPA template | Contractual data-processing terms (legal review required) | [`DPA_TEMPLATE.md`](DPA_TEMPLATE.md) |
 | Subprocessor list | Third-party processors | Trust Center + pack |
-| SOC 2 roadmap + self-assessment | Readiness narrative — **not CPA attestation** | Trust Center · [`SOC2_ROADMAP.md`](../security/SOC2_ROADMAP.md) |
+| SOC 2 roadmap + self-assessment | Readiness narrative — **not CPA attestation** | Trust Center · [`SOC2_ROADMAP.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |
 | Tenant isolation + security architecture | Design intent and controls map | Trust Center · security architecture docs |
 | API SLO targets | **Targets**, not contractual SLA | [`API_SLOS.md`](../library/API_SLOS.md) |
 | `--deal-ready` dry-run | Required V1 assurance **sources exist** and placeholders are buyer-safe | [`PROCUREMENT_DEAL_READY.md`](../runbooks/PROCUREMENT_DEAL_READY.md) |

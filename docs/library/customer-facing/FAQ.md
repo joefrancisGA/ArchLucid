@@ -19,7 +19,7 @@ Not for all paths: simulator/deterministic modes exist for engineering. Real LLM
 ## Security and data
 
 **How do I report a security vulnerability?**  
-Email **security@archlucid.net**; do not file public issues for undisclosed vulnerabilities. See **[SECURITY.md](../../SECURITY.md)**.
+Email **security@archlucid.net**; do not file public issues for undisclosed vulnerabilities. See **[SECURITY.md](../SECURITY.md)**.
 
 **Where does tenant data live?**  
 Production-style deployments use Azure-native storage and SQL with **row-level security**; see **[../../security/MULTI_TENANT_RLS.md](../../security/MULTI_TENANT_RLS.md)**.
@@ -55,7 +55,7 @@ A durable, versioned architecture artifact (manifest) produced after successful 
 Organizations evaluating ArchLucid under controlled staging/production-like setups — see **[PILOT_GUIDE.md](PILOT_GUIDE.md)** and **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**.
 
 **How do I get help as a pilot?**  
-Email **support@archlucid.net** for product/support questions during pilots; keep security issues on **security@archlucid.net**. See **[SECURITY.md](../../SECURITY.md)**.
+Email **support@archlucid.net** for product/support questions during pilots; keep security issues on **security@archlucid.net**. See **[SECURITY.md](../SECURITY.md)**.
 
 **Is there accessibility support?**  
-Report accessibility barriers to **accessibility@archlucid.net** (see **[../SECURITY.md](../../SECURITY.md)**).
+Report accessibility barriers to **accessibility@archlucid.net** (see **[SECURITY.md](../SECURITY.md)**).

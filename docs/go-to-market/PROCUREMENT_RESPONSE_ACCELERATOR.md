@@ -102,7 +102,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |34 | SLA **targets** (pre-contract narrative)? | Self-asserted | [SLA_TARGETS.md](../library/SLA_TARGETS.md) · [SLA_SUMMARY.md](SLA_SUMMARY.md) |
 |35 | API SLO framing? | Self-asserted | [API_SLOS.md](../library/API_SLOS.md) |
 |36 | Scalability / load-test narrative for buyers? | Self-asserted | [BUYER_SCALABILITY_FAQ.md](../library/BUYER_SCALABILITY_FAQ.md) |
-| 37 | Dynamic application security scanning (baseline rules narrative)? | Implemented | [ZAP_BASELINE_RULES.md](../security/ZAP_BASELINE_RULES.md) · [`infra/zap/README.md`](../../infra/zap/README.md) |
+| 37 | Dynamic application security scanning (baseline rules narrative)? | Implemented | [ZAP_BASELINE_RULES.md](../security/ZAP_BASELINE_RULES.md) · [`infra/zap/README.md`](../security/ZAP_BASELINE_RULES.md) |
 |38 | External penetration-test **UI / scope** checklist? | Self-asserted | [PENTEST_EXTERNAL_UI_CHECKLIST.md](../security/PENTEST_EXTERNAL_UI_CHECKLIST.md) |
 
 ### H — Privacy, communications & contractual drafts

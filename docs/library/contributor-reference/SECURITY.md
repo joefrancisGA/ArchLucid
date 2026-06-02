@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — Security overview (ArchLucid) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
 
 
 # Security overview (ArchLucid)
@@ -12,19 +12,19 @@ This document points to security-relevant behavior and gates. It is not a full t
 The **OWASP ZAP baseline** scan runs against the **ArchLucid API Docker image** in CI (`.github/workflows/ci.yml`, job `security-zap-api-baseline`) and on a **weekly schedule** (`.github/workflows/zap-baseline-strict-scheduled.yml`). Both use `zap-baseline.py` **without** `-I`, so **warnings and failures from the scan fail the workflow** (merge gate in CI; regression catch on the schedule).
 
 - **Configuration:** `infra/zap/baseline-pr.tsv` (mounted into the scanner container as `config/baseline-pr.tsv`).
-- **Triage and rule maintenance:** [docs/security/ZAP_BASELINE_RULES.md](../security/ZAP_BASELINE_RULES.md).
-- **Operational layout:** [infra/zap/README.md](../../infra/zap/README.md).
+- **Triage and rule maintenance:** [docs/security/ZAP_BASELINE_RULES.md](../../security/ZAP_BASELINE_RULES.md).
+- **Operational layout:** [infra/zap/README.md](../../security/ZAP_BASELINE_RULES.md).
 
 Other layers (authentication, RLS, rate limiting, CORS, security headers) are described in `docs/DEPLOYMENT.md`, `docs/security/MULTI_TENANT_RLS.md`, and product code under `ArchLucid.Api` / `ArchLucid.Host.Core`.
 
-- **API key rotation (comma-separated overlap):** [docs/runbooks/API_KEY_ROTATION.md](../runbooks/API_KEY_ROTATION.md)
-- **RLS residual risk acceptance (template):** [docs/security/RLS_RISK_ACCEPTANCE.md](../security/RLS_RISK_ACCEPTANCE.md)
+- **API key rotation (comma-separated overlap):** [docs/runbooks/API_KEY_ROTATION.md](../../runbooks/API_KEY_ROTATION.md)
+- **RLS residual risk acceptance (template):** [docs/security/RLS_RISK_ACCEPTANCE.md](../../security/RLS_RISK_ACCEPTANCE.md)
 
-**System-wide STRIDE summary (product boundary):** [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md).
+**System-wide STRIDE summary (product boundary):** [docs/security/SYSTEM_THREAT_MODEL.md](../../security/SYSTEM_THREAT_MODEL.md).
 
 ## OpenAPI-driven fuzzing (Schemathesis, PR + schedule)
 
-Merge-blocking **Schemathesis light** runs on every PR after full .NET regression: [`.github/workflows/ci.yml`(../../.github/workflows/ci.yml) job **`api-schemathesis-light`** builds the API image, starts the container, and runs **`--phases=examples`** against **`/openapi/v1.json`** with **`--checks=all`** (response schema and status conformance). Full fuzzing and stateful phases run weekly — see **[docs/API_FUZZ_TESTING.md](API_FUZZ_TESTING.md)**.
+Merge-blocking **Schemathesis light** runs on every PR after full .NET regression: [`.github/workflows/ci.yml`(../../.github/workflows/ci.yml) job **`api-schemathesis-light`** builds the API image, starts the container, and runs **`--phases=examples`** against **`/openapi/v1.json`** with **`--checks=all`** (response schema and status conformance). Full fuzzing and stateful phases run weekly — see **[docs/API_FUZZ_TESTING.md](../API_FUZZ_TESTING.md)**.
 
 ## Shipped auth defaults (`appsettings.json` / `appsettings.Development.json`)
 
@@ -32,11 +32,11 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 - **`ArchLucid.Api/appsettings.Development.json`** (merged when **`ASPNETCORE_ENVIRONMENT=Development`**, including CI and local **`dotnet run`**): sets **`ArchLucidAuth:Mode`** back to **`DevelopmentBypass`** for frictionless local and test factories. **`Authentication:ApiKey:DevelopmentBypassAll`** stays **`false`** so the “open API key path” bypass is not the default even in Development.
 - **`appsettings.Production.json`** / **`appsettings.Staging.json`** continue to set **`JwtBearer`** with Entra-style **configuration samples** (non-secrets); **`docker-compose.yml`** still sets **`ArchLucidAuth__Mode=DevelopmentBypass`** explicitly for the compose dev stack.
 
-**Optional JWT bearer-only production (regulated SaaS):** set **`ArchLucidAuth:RequireJwtBearerInProduction=true`**. When **`ASPNETCORE_ENVIRONMENT=Production`**, **`ArchLucidConfigurationRules`** then requires **`ArchLucidAuth:Mode=JwtBearer`** (API keys are rejected at startup). Default is **`false`** so pilots may keep **`ApiKey`** in production until they cut over to **OIDC / JWT bearer** (**Entra** or another issuer — **[V1_SCOPE.md](V1_SCOPE.md) §2.12**).
+**Optional JWT bearer-only production (regulated SaaS):** set **`ArchLucidAuth:RequireJwtBearerInProduction=true`**. When **`ASPNETCORE_ENVIRONMENT=Production`**, **`ArchLucidConfigurationRules`** then requires **`ArchLucidAuth:Mode=JwtBearer`** (API keys are rejected at startup). Default is **`false`** so pilots may keep **`ApiKey`** in production until they cut over to **OIDC / JWT bearer** (**Entra** or another issuer — **[V1_SCOPE.md](../V1_SCOPE.md) §2.12**).
 
-**OIDC issuers beyond Entra (V1 GA):** **`JwtBearer`** accepts tokens from **configurable OIDC authorities** when **`ArchLucidAuth:Authority`** targets a standards-compliant issuer (discovery + JWKS). Claim mapping into **`ArchLucidRoles`** is operator-owned — capture buyer IdP shapes in procurement questionnaires (**[PROCUREMENT_FAQ.md](../go-to-market/PROCUREMENT_FAQ.md)**). Operator checklist: **[GENERIC_OIDC_SETUP.md](../runbooks/GENERIC_OIDC_SETUP.md)**.
+**OIDC issuers beyond Entra (V1 GA):** **`JwtBearer`** accepts tokens from **configurable OIDC authorities** when **`ArchLucidAuth:Authority`** targets a standards-compliant issuer (discovery + JWKS). Claim mapping into **`ArchLucidRoles`** is operator-owned — capture buyer IdP shapes in procurement questionnaires (**[PROCUREMENT_FAQ.md](../../go-to-market/PROCUREMENT_FAQ.md)**). Operator checklist: **[GENERIC_OIDC_SETUP.md](../../runbooks/GENERIC_OIDC_SETUP.md)**.
 
-**Native SAML 2.0 SP (V1 GA — owner 2026-05-15):** Workforce SSO via SAML **Service Provider** flows ships alongside **`JwtBearer`** OIDC (**[V1_SCOPE.md](V1_SCOPE.md) §2.12**). Operators enable it with **`ArchLucidAuth:Saml2:Enabled=true`** and bind **`ArchLucidAuth:Saml2`** (**SP issuer**, **IdP metadata** URL, optional **signing certificate** for outbound AuthnRequests, and inbound claim mapping — see **[CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)**).
+**Native SAML 2.0 SP (V1 GA — owner 2026-05-15):** Workforce SSO via SAML **Service Provider** flows ships alongside **`JwtBearer`** OIDC (**[V1_SCOPE.md](../V1_SCOPE.md) §2.12**). Operators enable it with **`ArchLucidAuth:Saml2:Enabled=true`** and bind **`ArchLucidAuth:Saml2`** (**SP issuer**, **IdP metadata** URL, optional **signing certificate** for outbound AuthnRequests, and inbound claim mapping — see **[CONFIGURATION_REFERENCE.md](../CONFIGURATION_REFERENCE.md)**).
 
 - **Coexistence with API auth:** **`ArchLucidAuth:Mode`** still selects the primary scheme for **`DefaultAuthenticateScheme`** / **`DefaultChallengeScheme`** / **`DefaultForbidScheme`** (**JwtBearer**, **ApiKey**, or **DevelopmentBypass**). SAML uses the cookie handler’s **`DefaultSignInScheme`** / **`DefaultSignOutScheme`** so browser SSO can complete without replacing API bearer defaults.
 - **RBAC and isolation:** SAML assertions are normalized onto the same **`ArchLucidRoles`** / permission claim path as JWT (**`ArchLucidSamlInboundClaimsNormalizer`** + **`ArchLucidRoleClaimsTransformation`**); tenant/workspace/project **`Guid`** claims remain operator-mapped via claim types in **`ArchLucidAuth:Saml2`**.
@@ -104,5 +104,5 @@ ArchLucid uses **Serilog** with **structured logging**: message templates use **
 
 - **Architecture requests and run payloads** may include system descriptions, URLs, and free text that operators paste from internal docs. Treat stored **run rows**, **context snapshots**, **agent traces** (including optional inline prompts when enabled), and **audit** entries as **tenant-scoped operational data**, not anonymous telemetry.
 - **LLM calls:** When **`AgentExecution:TraceStorage:PersistFullPrompts`** or inline forensic columns are enabled, prompts and completions may be persisted in SQL and/or blob storage. Restrict access via **RBAC**, **private networking**, and **SQL/Key Vault** permissions aligned with your data classification policy.
-- **Retention:** Default posture is **keep until archived/deleted by operator workflows** (see **[AUDIT_RETENTION_POLICY.md](AUDIT_RETENTION_POLICY.md)** for audit export and tiering notes). For regulated environments, define **explicit retention / purge** runbooks per workspace and document them in deployment packages.
+- **Retention:** Default posture is **keep until archived/deleted by operator workflows** (see **[AUDIT_RETENTION_POLICY.md](../AUDIT_RETENTION_POLICY.md)** for audit export and tiering notes). For regulated environments, define **explicit retention / purge** runbooks per workspace and document them in deployment packages.
 - **Exports:** Support bundles, DOCX/ZIP exports, and audit CSVs can contain **PII-sized** content; distribute only over approved channels and encrypt at rest in transit per org policy.

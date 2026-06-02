@@ -43,5 +43,5 @@ Migration: **`ArchLucid.Persistence/Migrations/130_GovernanceApprovalRequests_Ac
 ## References
 
 - [`docs/library/GOVERNANCE.md`](../../library/GOVERNANCE.md) — segregation section
-- [`ArchLucid.Application/Common/ActorContext.cs`](../../ArchLucid.Application/Common/ActorContext.cs)
-- [`ArchLucid.Application/Governance/GovernanceSegregationRules.cs`](../../ArchLucid.Application/Governance/GovernanceSegregationRules.cs)
+- [`ArchLucid.Application/Common/ActorContextKeys.cs`](../../../ArchLucid.Application/Common/ActorContextKeys.cs)
+- [`ArchLucid.Application/Governance/GovernanceSegregationRules.cs`](../../../ArchLucid.Application/Governance/GovernanceSegregationRules.cs)

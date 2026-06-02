@@ -53,7 +53,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-169** was added 2026-06-01 from the GPT-5.5 adoption-friction follow-up. It does not duplicate **TB-156 – TB-157** (API/proxy diagnostics) or **TB-143 – TB-148** (in-app docs). It targets first-run branching and progressive disclosure: Pilot-first onboarding should keep Operate surfaces out of the primary path until a committed review exists.
 
-**TB-170** was added 2026-06-01 from the **Docs: markdown link integrity** CI advisory output. It does not duplicate **TB-147** (GitHub blob URLs in product UI) or **TB-143 – TB-148** (in-app customer docs). It targets broken relative markdown link targets left after `docs/library/` consolidation and navigational moves; the check still reports **200+** stale paths while running warn-only in CI.
+**TB-170** was added 2026-06-01 from the **Docs: markdown link integrity** CI advisory output. It does not duplicate **TB-147** (GitHub blob URLs in product UI) or **TB-143 – TB-148** (in-app customer docs). It targets broken relative markdown link targets left after `docs/library/` consolidation and navigational moves; **Done (2026-06-01 batch 5F)** — `check_doc_links.py` exits 0 and CI is merge-blocking.
 
 **TB-177 – TB-190** were added 2026-06-01 from an independent first-principles AI/Agent Readiness quality assessment (`docs/assessments/AI_AGENT_READINESS_06012026.MD`). They target the agent pipeline gaps identified in that assessment in priority order: adversarial Critic posture (**TB-177**, P0), streaming Ask (**TB-178**, P0), multi-model tiered orchestration (**TB-179**, P1), calibrated confidence (**TB-180**, P1), nightly eval harness cron (**TB-181**, P1), automated AI readiness posture script (**TB-182**, P1), findings re-ranker (**TB-183**, P2), governance-block explainer (**TB-184**, P2), per-finding conversational explainer (**TB-185**, P2), run summary one-pager (**TB-186**, P2), AI-assisted request authoring (**TB-187**, P2), IaC stub generator (**TB-188**, P3), policy-pack drafting assistant (**TB-189**, P3), and LLM-as-judge coverage extension (**TB-190**, P2 pending owner budget approval). These do not duplicate items already tracked: **TB-011/TB-012** (invariant wave B/C), **TB-034–038** (provenance forensics), **TB-137/TB-139/TB-140** (real-mode eval — owner-credentialed), or any AI Leverage Roadmap items previously promoted to backlog. The real-mode CI gate flip is **not added here** — it requires owner action (see **PQ-AI-01** in the assessment).
 
@@ -165,7 +165,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-167 | Sponsor AI readiness posture artifact | Sponsor proof — one simple release/proof artifact showing execution mode, quality gate, retrieval grounding, and budget/cost posture for every sponsor packet | S-M |
 | TB-168 | Executive KPI semantic contract and UI heuristic regression guard | Customer-visible correctness — **Done** (2026-06-01): `EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`, UI + Application.Tests guards | S |
 | TB-169 | Pilot-first onboarding and Operate-surface progressive disclosure | Adoption friction — **Done** (2026-06-01): committed-review nav gate + first-run workflow panel | M |
-| TB-170 | Remediate stale relative markdown links (docs/nav consolidation drift) | Documentation quality — `check_doc_links.py` still reports **200+** broken targets; CI step is advisory only | L |
+| TB-170 | Remediate stale relative markdown links (docs/nav consolidation drift) | **Done (2026-06-01 batch 5F)** — `repair_doc_links_batch5f.py` + stubs; `check_doc_links.py` exit 0; CI merge-blocking | L |
 | TB-143 | In-app markdown documentation renderer + `/help/{topic}` routes | **Done (2026-06-01)** — registry-backed `/help/{topic}` renderer | M |
 | TB-144 | Customer-facing documentation registry | **Done (2026-06-01)** — `product-documentation-registry.ts` | S |
 | TB-145 | Migrate operator/product help links from GitHub blob to in-app routes | **Done (2026-06-01)** — primary surfaces use `resolveInAppDocHref` | M |
@@ -230,7 +230,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-170 — Accelerator chooser — buyer job → starter proof pack → expected proof output
 
-**Status:** **Done (2026-06-01)** — [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md), [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md), `AcceleratorChooserCard`, registry slug `accelerator-chooser`.
+**Status:** **Done (2026-06-01)** — [`ACCELERATOR_CHOOSER.md`](ACCELERATOR_CHOOSER.md), [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md), `AcceleratorChooserCard`, registry slug `accelerator-chooser`.
 
 **Objective:** Give evaluators one obvious way to pick the right existing accelerator without browsing the whole `templates/` tree.
 
@@ -524,7 +524,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-126 — Audit event catalog metadata
 
-**Status:** **Done (2026-06-01)** — [`scripts/ci/data/audit_event_catalog.v1.json`](../scripts/ci/data/audit_event_catalog.v1.json) + `check_audit_event_catalog.py`.
+**Status:** **Done (2026-06-01)** — [`scripts/ci/data/audit_event_catalog.v1.json`](../../scripts/ci/data/audit_event_catalog.v1.json) + `check_audit_event_catalog.py`.
 
 **Objective:** Make audit event types self-describing for support, compliance review, and drift checks.
 
@@ -665,7 +665,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-132 — Tier fit validation matrix
 
-**Status:** **Done (2026-06-01)** — [`scripts/ci/data/tier_fit_validation_matrix.v1.json`](../scripts/ci/data/tier_fit_validation_matrix.v1.json); CI `check_tier_fit_matrix.py`.
+**Status:** **Done (2026-06-01)** — [`scripts/ci/data/tier_fit_validation_matrix.v1.json`](../../../../../scripts/ci/data/tier_fit_validation_matrix.v1.json); CI `check_tier_fit_matrix.py`.
 
 **Objective:** Keep pricing tiers aligned with buyer jobs, evidence outputs, and explicit exclusions.
 
@@ -1200,11 +1200,11 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 ## TB-170 — Remediate stale relative markdown links (docs/nav consolidation drift)
 
-**Status:** Open. Partial triage during the 2026-06-01 CI loop (`docs/ARCHITECTURE_INDEX.md`, gitignored `LATEST.md` retargets to tracked assessment files); `python scripts/ci/check_doc_links.py` still reports **200+** broken relative targets.
+**Status:** **Done (2026-06-01 batch 5F).** Repaired **200** stale relative targets (`scripts/ci/repair_doc_links_batch5f.py`, redirect stubs, depth fixes); `python scripts/ci/check_doc_links.py` exits **0** on a clean checkout; CI **Check relative markdown links** is merge-blocking (`continue-on-error` removed); drift guard `scripts/ci/tests/test_doc_links_batch.py`.
 
 **Objective:** Restore repo-wide relative markdown link integrity so documentation cross-refs resolve after `docs/library/` consolidation and navigational moves.
 
-**Why this is not a duplicate:** **TB-147** blocks GitHub blob URLs in operator/marketing UI code. **TB-143 – TB-148** move customer help in-app. **TB-170** fixes broken relative `[text](path)` targets inside `docs/`, `archlucid-ui/docs/`, and root `README.md` surfaced by the CI advisory scanner.
+**Why this is not a duplicate:** **TB-147** blocks GitHub blob URLs in operator/marketing UI code. **TB-143 – TB-148** move customer help in-app. **TB-170** fixes broken relative markdown link targets inside `docs/`, `archlucid-ui/docs/`, and root `README.md` surfaced by the CI advisory scanner.
 
 **Scope:**
 
@@ -1618,7 +1618,7 @@ Wallet config requires **`Admin`** (same as billing today). Webhook validates St
 - [`docs/go-to-market/STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md)
 - [`docs/library/ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (**INV-004** budget coherence)
 - [`docs/library/V1_DEFERRED.md`](V1_DEFERRED.md) §6b (commerce un-hold sequencing)
-- [`docs/OPERATIONS_LLM_QUOTA.md`](../OPERATIONS_LLM_QUOTA.md)
+- [`docs/OPERATIONS_LLM_QUOTA.md`](OPERATIONS_LLM_QUOTA.md)
 - [`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) — Improvement **#27** (implementation prompt)
 
 **Size estimate:** **M** — ~1–2 days end-to-end (wallet tables + service + Stripe gateway + webhook + UI + metrics + tests + doc sync). Gating piece is **`LlmCompletionAccountingClient`** wallet fallback path.
@@ -3811,7 +3811,7 @@ This is not a WIQL or API-injection path (no ADO query APIs are used in C#), but
 **What to do:**
 
 1. In `GoldenManifestCompareMarkdownFormatter`, strip or escape `SummaryHighlights` through a static `SanitizeMarkdownLine(string)` helper that removes bare HTML tags, trims to a maximum safe length (e.g. 500 chars), and rejects strings containing `<script`, `javascript:`, or `data:` prefixes.
-2. In `AzureDevOpsRunSummaryMarkdown`, validate `operatorRunDeepLink` / `StatusTargetUrl` against an allowlist of URL schemes (`https://` only) and hostname suffix (your own domain) before embedding in `[...](url)` syntax.
+2. In `AzureDevOpsRunSummaryMarkdown`, validate `operatorRunDeepLink` / `StatusTargetUrl` against an allowlist of URL schemes (`https://` only) and hostname suffix (your own domain) before embedding run deep links in markdown summary output.
 3. Add unit tests in `ArchLucid.Integrations.AzureDevOps.Tests` covering both helpers with malicious inputs.
 4. Consider a separate `AzureDevOpsMarkdownSanitizer` class so the policy is applied in one place and is testable independently.
 

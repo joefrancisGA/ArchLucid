@@ -4,7 +4,7 @@
 
 **Audience:** Sales engineers and pilot leads guiding a prospect tenant through the **first architecture review** outcome.
 
-**Companion:** [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/DECISION_FAST_LANE.md`](../go-to-market/DECISION_FAST_LANE.md), [`docs/library/CHAMPION_48H_KIT.md`](../library/CHAMPION_48H_KIT.md).
+**Companion:** [`docs/CORE_PILOT.md`](../CORE_PILOT.md), [`docs/go-to-market/DECISION_FAST_LANE.md`](../go-to-market/DECISION_FAST_LANE.md), [`docs/library/CHAMPION_48H_KIT.md`](../go-to-market/DECISION_FAST_LANE.md).
 
 ---
 

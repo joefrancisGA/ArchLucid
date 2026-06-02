@@ -18,7 +18,7 @@
 
 - Pin client generation to the **`info.version`** field from `/openapi/v1.json`.
 - Do not assume Swashbuckle document ordering matches snapshot ordering.
-- Breaking changes are announced in [`BREAKING_CHANGES.md`](BREAKING_CHANGES.md).
+- Breaking changes are announced in [`BREAKING_CHANGES.md`](../archive/BREAKING_CHANGES.md.
 
 ## Related
 

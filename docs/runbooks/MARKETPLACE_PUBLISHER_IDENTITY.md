@@ -21,7 +21,7 @@
 
 <!-- TODO(owner) -->
 
-**Offer / product ID:** `<<OFFER_ID>>` — maps to application configuration key **`Billing:AzureMarketplace:MarketplaceOfferId`** (see [`ArchLucid.Api/appsettings.json`](../../ArchLucid.Api/appsettings.json) and [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md)).
+**Offer / product ID:** `<<OFFER_ID>>` — maps to application configuration key **`Billing:AzureMarketplace:MarketplaceOfferId`** (see [`ArchLucid.Api/appsettings.json`](../../ArchLucid.Api/appsettings.json) and [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md)).
 
 ## CI alignment
 

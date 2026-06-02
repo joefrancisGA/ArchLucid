@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.42%
+# ArchLucid Assessment – (A) Headline Readiness: 80.50%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Through **80.34%** (5D); batch **5E TB-078** cross-tenant isolation matrix CI wiring + pen-test cross-ref → **80.42%** (+1 Trustworthiness capped). G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
+Rescore note: Through **80.42%** (5E); batch **5F TB-170** markdown link repair (200→0), merge-blocking `check_doc_links` + drift guard → **80.50%** (+1 Maintainability capped). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -64,7 +64,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
 | Decision Velocity | 71 | 2 | 1.22% | 58 |
 | Data Consistency | 70 | 2 | 1.21% | 60 |
-| Maintainability | 72 | 2 | 1.24% | 56 |
+| Maintainability | 73 | 2 | 1.26% | 54 |
 | Traceability | 84 | 3 | 2.17% | 48 |
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |

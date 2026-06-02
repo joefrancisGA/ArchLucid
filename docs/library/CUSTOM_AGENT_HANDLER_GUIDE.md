@@ -137,13 +137,13 @@ Do not load third-party assemblies via `Assembly.LoadFrom` in the host — that 
 - Public **plugin marketplace**, NuGet “agent packs,” or unsigned DLL drop-ins.
 - In-process loading of **customer-supplied binaries** without a forked host deployment.
 - **MCP** tool servers as a substitute for handler registration — MCP is a separate V1.1 membrane ([`V1_SCOPE.md`](V1_SCOPE.md) §2.8 / [`V1_DEFERRED.md`](V1_DEFERRED.md)).
-- Guaranteed **backward-compatible** handler contracts across major versions without reading [`BREAKING_CHANGES.md`](../BREAKING_CHANGES.md).
+- Guaranteed **backward-compatible** handler contracts across major versions without reading [`BREAKING_CHANGES.md`](../../BREAKING_CHANGES.md)).
 
 ## 9. Versioning / upgrade checklist
 
 When upgrading ArchLucid:
 
-1. Read [`BREAKING_CHANGES.md`](../BREAKING_CHANGES.md) for agent pipeline or contract changes.
+1. Read [`BREAKING_CHANGES.md`](../../BREAKING_CHANGES.md)) for agent pipeline or contract changes.
 2. Rebuild your handler against the new `ArchLucid.Contracts` package.
 3. Run `ArchLucid.AgentRuntime.Tests` and your handler’s unit tests.
 4. Run a simulator create → execute → commit smoke, then one real-mode pilot if applicable.

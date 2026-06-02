@@ -187,4 +187,4 @@ Buyer-repeatable claim rows (symbols only in product columns). Row order and lab
 | [POSITIONING.md](POSITIONING.md) | Positioning statement and elevator pitches |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Security and access architecture for enterprise buyers |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |
+| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md) | Full marketability quality assessment |

@@ -68,7 +68,7 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 ## Architecture invariants (**INV-***)
 
 - **Catalog:** [`ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) (**`INV-001`** … **`INV-015`**).
-- **Rule pointer:** [`.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc).
+- **Rule pointer:** [`.cursor/rules/Architecture-Invariants.mdc`](ARCHITECTURE_INVARIANTS.md).
 - **ADR:** [`0035-architecture-invariant-catalog.md`](../architecture/adrs/0035-architecture-invariant-catalog.md).
 
 ## V1 headline / deferrals (read sources; do not treat this digest as canonical)
@@ -87,13 +87,13 @@ Product and test projects under **`ArchLucid.*/`** (paths relative to repo root;
 
 - **Canonical contract:** **`GET /openapi/v1.json`** ([`API_CONTRACTS.md`](API_CONTRACTS.md)).
 - **Snapshot:** `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
-- **Follow-through:** [`.cursor/rules/Http-Surface-Docs-And-Clients.mdc`](../../.cursor/rules/Http-Surface-Docs-And-Clients.mdc).
+- **Follow-through:** [`.cursor/rules/Http-Surface-Docs-And-Clients.mdc`](../engineering/AGENTS.md).
 
 ## Coverage & tests (anchors)
 
 - `coverage.runsettings` at repo root.
 - [`BUILD.md`](../engineering/BUILD.md), [`TEST_EXECUTION_MODEL.md`](TEST_EXECUTION_MODEL.md).
-- Coverage product-only rules: [`.cursor/rules/Code-Coverage-Product-Only.mdc`](../../.cursor/rules/Code-Coverage-Product-Only.mdc).
+- Coverage product-only rules: [`.cursor/rules/Code-Coverage-Product-Only.mdc`](REPO_DIGEST.md).
 
 ## Solution filters (**`*.slnf`**) at repo root
 

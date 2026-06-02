@@ -108,6 +108,6 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `ai-gov-*` fi
 | Doc | Use |
 |-----|-----|
 | [`library/walkthroughs/README.md`](../../library/walkthroughs/README.md) | Accelerator pack index |
-| [`CORE_PILOT.md`](../../CORE_PILOT.md) | Four-step Core Pilot spine |
+| [`CORE_PILOT.md`](../../CORE_PILOT.md))))))))) | Four-step Core Pilot spine |
 | [`PRODUCT_PACKAGING.md`](../../library/PRODUCT_PACKAGING.md) | Capability inventory |
 | [`ai-governance-responsible-ai-rules-v1.json`](../../samples/policy-packs/ai-governance-responsible-ai-rules-v1.json) | Curated rules corpus sample |

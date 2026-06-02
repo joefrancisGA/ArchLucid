@@ -11,7 +11,7 @@
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~180 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 
-**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md) and [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md).
+**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md) and [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md)).
 
 **Readiness scoring boundary:** Trust, reference, and assurance discounts are **commercial pricing choices** that account for buyer friction. They are not `(A)` headline product-readiness deductions and must not be used to imply that V1 pilots are blocked by SOC 2 CPA attestation, third-party pen-test publication, live commerce, or public references. Those items remain procurement realism / deferred-scope context unless a separate owner decision picks them up.
 
@@ -92,7 +92,7 @@ Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manag
 
 ### 3.1 Canonical Marketplace tier names
 
-**Partner Center plan display names** and in-repo GTM docs must use **`Team`**, **`Professional`**, and **`Enterprise`** — the same labels as the packaging table above — not shorthand such as **`Pro`**. That keeps [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md), [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md), and webhook tier mapping aligned. **CI:** `python scripts/ci/assert_marketplace_pricing_alignment.py`. **Configuration:** Stripe `Billing:Stripe:PriceIdPro` is a historical key name for the **Professional** tier Price ID only; do not use `Pro` as the external tier label in new docs.
+**Partner Center plan display names** and in-repo GTM docs must use **`Team`**, **`Professional`**, and **`Enterprise`** — the same labels as the packaging table above — not shorthand such as **`Pro`**. That keeps [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md), [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md)), and webhook tier mapping aligned. **CI:** `python scripts/ci/assert_marketplace_pricing_alignment.py`. **Configuration:** Stripe `Billing:Stripe:PriceIdPro` is a historical key name for the **Professional** tier Price ID only; do not use `Pro` as the external tier label in new docs.
 
 ### 3.2 Interim Stripe Team self-serve (bundled SKU)
 

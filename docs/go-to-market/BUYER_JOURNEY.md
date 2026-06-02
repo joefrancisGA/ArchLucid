@@ -43,7 +43,7 @@ ArchLucid is an **AI-assisted architecture workflow** with three product layers:
 
 ## Security model
 
-Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`), SQL **RLS session context** for tenant-scoped reads, **no SMB** on the public internet (private endpoints for Azure Storage). See [../SECURITY.md](../library/SECURITY.md) and [../onboarding/day-one-security.md](../onboarding/day-one-security.md).
+Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`), SQL **RLS session context** for tenant-scoped reads, **no SMB** on the public internet (private endpoints for Azure Storage). See [SECURITY.md](../library/SECURITY.md) and [../onboarding/day-one-security.md](../onboarding/day-one-security.md).
 
 ## Operational considerations
 

@@ -42,7 +42,7 @@ Capture **`X-Correlation-ID`** (or `correlationId` in problem JSON) on every fai
 | Likely cause | Missing role mapping, wrong audience, dev bypass in shared env, scope mismatch |
 | Escalation artifact | `archlucid auth diagnostics` or `GET /v1/admin/auth/configuration-diagnostics` (admin key; no secrets in output) |
 
-→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](../library/API_KEY_ROTATION.md) · Settings → **Identity providers** (OIDC discovery strip)
+→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](API_KEY_ROTATION.md)) · Settings → **Identity providers** (OIDC discovery strip)
 
 ---
 

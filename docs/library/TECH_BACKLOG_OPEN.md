@@ -46,7 +46,7 @@ _(None — TB-071–TB-078 closed; see architecture stragglers below.)_
 
 | ID | Title |
 | --- | --- |
-| TB-170 (docs) | Markdown link integrity CI — stale relative links (warn-only) |
+| TB-170 (docs) | ~~Markdown link integrity CI~~ **Done (2026-06-01 batch 5F)** — `check_doc_links.py` exits 0; merge-blocking in `doc-markdown-links` |
 
 ## GTM / owner-blocked
 

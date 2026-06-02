@@ -7,7 +7,7 @@
 
 ## Purpose
 
-ArchLucid publishes a **public** OpenPGP key so vulnerability reporters can **encrypt** findings to **`security@archlucid.net`** before the public key exists at **`https://archlucid.net/.well-known/pgp-key.txt`**, coordinated disclosure uses **plain email** only (see [SECURITY.md](../../SECURITY.md)).
+ArchLucid publishes a **public** OpenPGP key so vulnerability reporters can **encrypt** findings to **`security@archlucid.net`** before the public key exists at **`https://archlucid.net/.well-known/pgp-key.txt`**, coordinated disclosure uses **plain email** only (see [SECURITY.md](../library/SECURITY.md)).
 
 This document is an **executable recipe** for the **owner-self custodian** (decision **2026-04-22**, [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) items **10** / **21**). The **private** key never enters this repository, CI secrets, or Azure Key Vault (Key Vault is for application secrets such as Stripe/Marketplace—not PGP private material).
 
@@ -152,7 +152,7 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 
 3. **After merge**, confirm the marketing host serves **`/.well-known/pgp-key.txt`** over **HTTPS** (same path as source).
 
-4. **Short fingerprint for humans:** copy only the **last sixteen hexadecimal characters** of the primary fingerprint (OpenPGP refers to this as the **64‑bit key identifier**). Add that substring to [SECURITY.md](../../SECURITY.md) under the PGP section and to [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) Contact bullets with whatever label your house style uses for the short form (run `gpg --fingerprint` locally and transcribe **only** digits from your real key—never commit invented or sample fingerprint material to this repository).
+4. **Short fingerprint for humans:** copy only the **last sixteen hexadecimal characters** of the primary fingerprint (OpenPGP refers to this as the **64‑bit key identifier**). Add that substring to [SECURITY.md](../library/SECURITY.md) under the PGP section and to [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) Contact bullets with whatever label your house style uses for the short form (run `gpg --fingerprint` locally and transcribe **only** digits from your real key—never commit invented or sample fingerprint material to this repository).
 
 5. Update the **custodian record** table at the bottom of **this** file with the full fingerprint.
 

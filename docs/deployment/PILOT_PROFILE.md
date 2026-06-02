@@ -7,7 +7,7 @@
 
 ## Objective
 
-> **Install order moved.** See [../INSTALL_ORDER.md](../INSTALL_ORDER.md) for laptop + Azure pilot toolchains; this page covers cost posture only (week-one tasks after install).
+> **Install order moved.** See [../INSTALL_ORDER.md](../engineering/INSTALL_ORDER.md) for laptop + Azure pilot toolchains; this page covers cost posture only (week-one tasks after install).
 
 Run a **short-lived** ArchLucid environment (single region, reduced HA) to prove **Core Pilot** value without paying the full **production** multi-stack bill ([REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md)).
 

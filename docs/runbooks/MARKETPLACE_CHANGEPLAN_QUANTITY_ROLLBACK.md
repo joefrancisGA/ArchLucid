@@ -9,7 +9,7 @@
 
 **When to use:** A `ChangePlan` or `ChangeQuantity` webhook from Azure Marketplace has misbehaved (mis-mapped tier, wrong seat count, unexpected mutation), and you need to **stop further mutations** while you investigate. The system was migrated to **`Billing:AzureMarketplace:GaEnabled=true`** as the shipped default on **2026-04-20** (Quality Assessment Improvement 4 Marketplace flip — see [`docs/CHANGELOG.md`](../CHANGELOG.md)). The `false` branch is **deliberately preserved** as the supported rollback path and is not dead code.
 
-**Related:** [`docs/BILLING.md`](../library/BILLING.md) (operational considerations table), [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md) (webhook actions table), [`docs/architecture/adrs/0016-billing-provider-abstraction.md`](../architecture/adrs/0016-billing-provider-abstraction.md), migration **086** (`086_Billing_MarketplaceChangePlanQuantity.sql`).
+**Related:** [`docs/BILLING.md`](../library/BILLING.md) (operational considerations table), [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md) (webhook actions table), [`docs/architecture/adrs/0016-billing-provider-abstraction.md`](../architecture/adrs/0016-billing-provider-abstraction.md), migration **086** (`086_Billing_MarketplaceChangePlanQuantity.sql`).
 
 ---
 
@@ -38,7 +38,7 @@
    - **Container Apps env override:** add `Billing__AzureMarketplace__GaEnabled=false` to the API revision's environment variables. Container Apps will create a new revision and shift traffic; an explicit redeploy of the image is **not** required.
    - **Local / non-prod:** set the same key in `appsettings.Development.json` or via `--Billing:AzureMarketplace:GaEnabled=false` on the CLI.
 
-3. **Verify the flip took effect** with a synthetic webhook (Microsoft-issued JWT not required for the smoke check — use the existing `BillingMarketplaceWebhookDeferredApiFactory` test factory pattern, or the curl in [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md) "Example webhook"). Expect **HTTP 202** with `AcknowledgedNoOp` instead of HTTP 200.
+3. **Verify the flip took effect** with a synthetic webhook (Microsoft-issued JWT not required for the smoke check — use the existing `BillingMarketplaceWebhookDeferredApiFactory` test factory pattern, or the curl in [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md) "Example webhook"). Expect **HTTP 202** with `AcknowledgedNoOp` instead of HTTP 200.
 
 4. **Page the on-call billing engineer.** This is a rollback — they own the post-incident analysis, the data-fix decision, and the re-enable timing.
 
@@ -174,6 +174,6 @@ After re-enable, the next `ChangePlan` / `ChangeQuantity` webhook should mutate 
 | Action | Where | Expected outcome |
 |--------|-------|------------------|
 | Set `Billing:AzureMarketplace:GaEnabled=false` | App Configuration / Container Apps env / appsettings overlay | New revision (~60s); next webhook returns HTTP 202 |
-| Smoke test webhook | curl from [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md) | HTTP 202, `AcknowledgedNoOp` recorded |
+| Smoke test webhook | curl from [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md) | HTTP 202, `AcknowledgedNoOp` recorded |
 | Watch `Marketplace.Webhook.ChangePlan.Deferred` rate | App Insights / Grafana | Rises; `Applied` rate falls to 0 |
 | Page on-call billing engineer | Pager / chat | Triage and decide on data-fix path |

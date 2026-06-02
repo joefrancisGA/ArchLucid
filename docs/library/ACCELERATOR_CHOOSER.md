@@ -6,10 +6,10 @@ Use this table **after** your first committed review ([Core Pilot](CORE_PILOT.md
 
 | Buyer job | Starter pack | Target persona | Required inputs | Expected proof outputs | Scope | When **not** to use |
 | --- | --- | --- | --- | --- | --- | --- |
-| Regulated SaaS procurement / SOC-style diligence language | [`regulated-saas-soc-procurement`](../templates/starter-proof-packs/regulated-saas-soc-procurement/) | Security / procurement lead | `second-run.json`, `policy-context.json` | Policy-pack findings, proof checklist, sponsor-safe caveats (not CPA SOC 2) | **V1-ready** | Before any commit; buyer demands CPA attestation |
-| Healthcare data workflow / PHI storyline | [`healthcare-data-workflow`](../templates/starter-proof-packs/healthcare-data-workflow/) | Clinical platform or compliance lead | `second-run.json`, `policy-context.json` | Healthcare pack findings, checklist | **V1-ready** | Real PHI in inputs; HIPAA certification claims |
-| Azure cost / orphan / governance review | [`azure-cost-governance`](../templates/starter-proof-packs/azure-cost-governance/) | FinOps or platform owner | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | **V1-ready** | Non-Azure-only architecture with no Azure evidence |
-| AI / LLM workload governance | [`ai-llm-workload`](../templates/starter-proof-packs/ai-llm-workload/) | AI governance or platform lead | `second-run.json`, `policy-context.json` | AI governance findings, faithfulness-friendly citations | **V1-ready** | Generic chat comparison only; no LLM in scope |
+| Regulated SaaS procurement / SOC-style diligence language | [`regulated-saas-soc-procurement`](../../templates/starter-proof-packs/regulated-saas-soc-procurement/) | Security / procurement lead | `second-run.json`, `policy-context.json` | Policy-pack findings, proof checklist, sponsor-safe caveats (not CPA SOC 2) | **V1-ready** | Before any commit; buyer demands CPA attestation |
+| Healthcare data workflow / PHI storyline | [`healthcare-data-workflow`](../../templates/starter-proof-packs/healthcare-data-workflow/) | Clinical platform or compliance lead | `second-run.json`, `policy-context.json` | Healthcare pack findings, checklist | **V1-ready** | Real PHI in inputs; HIPAA certification claims |
+| Azure cost / orphan / governance review | [`azure-cost-governance`](../../templates/starter-proof-packs/azure-cost-governance/) | FinOps or platform owner | `second-run.json`, optional extractor ZIP | Cost/orphan-oriented findings, ROI source labels | **V1-ready** | Non-Azure-only architecture with no Azure evidence |
+| AI / LLM workload governance | [`ai-llm-workload`](../../templates/starter-proof-packs/ai-llm-workload/) | AI governance or platform lead | `second-run.json`, `policy-context.json` | AI governance findings, faithfulness-friendly citations | **V1-ready** | Generic chat comparison only; no LLM in scope |
 | Multi-tier web architecture (greenfield) | Wizard preset **Greenfield web app** (in-app) | Engineering lead / architect | Architecture request via new-review wizard | Topology/compliance findings on your inputs | **V1-ready** | Buyer needs specialty pack above instead |
 
 Each pack folder includes `starter-pack.json` with `scopeLabel`, `doNotUseWhen`, and `deferredScopeNotes`.
@@ -32,7 +32,7 @@ Bundled **platform default** packs (23+ categories seeded per tenant) are listed
 
 ## Canonical references
 
-- Pack chooser (templates tree): [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
+- Pack chooser (templates tree): [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md)
 - Golden walkthrough (one pack): [`walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md)
 - First-pilot path: [`../runbooks/FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md)
 

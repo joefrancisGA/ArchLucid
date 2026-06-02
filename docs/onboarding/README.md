@@ -7,7 +7,7 @@
 
 # Week-one onboarding (role-scoped)
 
-> **Install order stub:** [../INSTALL_ORDER.md](../INSTALL_ORDER.md). Persona routing: **[../START_HERE.md](../START_HERE.md)** — then return here for your role’s checklist.
+> **Install order stub:** [../INSTALL_ORDER.md](../engineering/INSTALL_ORDER.md). Persona routing: **[../START_HERE.md](../START_HERE.md)** — then return here for your role’s checklist.
 
 Short **ticket-style** checklists for onboarding to **ArchLucid**: each page lists only **3–5** outcomes a role typically touches in the **first week**. Deep dives stay in the linked golden path and architecture docs.
 

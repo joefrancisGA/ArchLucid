@@ -178,4 +178,4 @@
 - [`TECH_BACKLOG.md`](TECH_BACKLOG.md) — **TB-009** through **TB-012** enforcement waves  
 - [ADR 0035 (Proposed)](../architecture/adrs/0035-architecture-invariant-catalog.md) — governance and acceptance  
 - [`SONNET_AI_FUNCTIONALITY_REVIEW_BRIEF.md`](SONNET_AI_FUNCTIONALITY_REVIEW_BRIEF.md) — AI-path review questions overlapping INV-002  
-- [`docs/NEXT_REFACTORINGS.md`](../NEXT_REFACTORINGS.md) — broader refactor backlog (orthogonal)
+- [`docs/NEXT_REFACTORINGS.md`](NEXT_REFACTORINGS.md)) — broader refactor backlog (orthogonal)

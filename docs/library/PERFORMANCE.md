@@ -109,4 +109,4 @@ Azure **hosting** order-of-operations (no capacity promise): **[DEPLOYMENT.md](D
 
 - [OBSERVABILITY.md](OBSERVABILITY.md) — **`archlucid_explanation_cache_*`** and other business KPI metrics.
 - [DI_REGISTRATION_MAP.md](DI_REGISTRATION_MAP.md) — conditional **`IRunExplanationSummaryService`** registration.
-- [ArchLucid.Persistence.Coordination/Caching/HotPathCacheOptions.cs](../../ArchLucid.Persistence.Coordination/Caching/HotPathCacheOptions.cs) — options type (source).
+- [ArchLucid.Persistence.Coordination/Caching/HotPathCacheOptions.cs](../../ArchLucid.Persistence/Coordination/Caching/HotPathCacheOptions.cs) — options type (source).

@@ -38,13 +38,13 @@ These rules load when `*.cs` files are in context (`globs: "**/*.cs"`, `alwaysAp
 
 | Bundle | File | What it covers |
 |--------|------|----------------|
-| **Guards & flow** | [`CSharp-Terse-Guards-And-Flow.mdc`](../../.cursor/rules/CSharp-Terse-Guards-And-Flow.mdc) | Same-line guards, early return (no trailing `else`), braceless single-statement `if`/`foreach`/etc., invert-`if` flattening, single-line `throw`/`continue`, IDE0011 / `FORMATTING.md`. |
-| **Modern language** | [`CSharp-Terse-Modern-Language.mdc`](../../.cursor/rules/CSharp-Terse-Modern-Language.mdc) | Pattern matching & `is null`, `??`/`??=`, switch expressions, `=>` members, LINQ pipelines, `[]` collection expressions, target-typed `new`, range/index. |
-| **Construction & layout** | [`CSharp-Members-And-Construction.mdc`](../../.cursor/rules/CSharp-Members-And-Construction.mdc) | Primary constructors, backing-field null coalescing for DI, one-line simple properties, no stacked blank lines, named bounds / magic numbers. |
+| **Guards & flow** | [`CSharp-Terse-Guards-And-Flow.mdc`](CSHARP_HOUSE_STYLE.md) | Same-line guards, early return (no trailing `else`), braceless single-statement `if`/`foreach`/etc., invert-`if` flattening, single-line `throw`/`continue`, IDE0011 / `FORMATTING.md`. |
+| **Modern language** | [`CSharp-Terse-Modern-Language.mdc`](CSHARP_HOUSE_STYLE.md) | Pattern matching & `is null`, `??`/`??=`, switch expressions, `=>` members, LINQ pipelines, `[]` collection expressions, target-typed `new`, range/index. |
+| **Construction & layout** | [`CSharp-Members-And-Construction.mdc`](CSHARP_HOUSE_STYLE.md) | Primary constructors, backing-field null coalescing for DI, one-line simple properties, no stacked blank lines, named bounds / magic numbers. |
 
-**Always-on (non-`*.cs`)** rules — agent policy, session hygiene, architecture output shape, user task discipline — live in other `.mdc` files (see `.cursor/rules/` directory listing), including [`User-Task-Discipline.mdc`](../../.cursor/rules/User-Task-Discipline.mdc).
+**Always-on (non-`*.cs`)** rules — agent policy, session hygiene, architecture output shape, user task discipline — live in other `.mdc` files (see `.cursor/rules/` directory listing), including [`User-Task-Discipline.mdc`](../engineering/AGENTS.md).
 
-**Supplementary:** CodeQL logging — [`CodeQL-Sanitized-Logging.mdc`](../../.cursor/rules/CodeQL-Sanitized-Logging.mdc).
+**Supplementary:** CodeQL logging — [`CodeQL-Sanitized-Logging.mdc`](CODEQL_MERGE_AND_LOCAL.md).
 
 ---
 

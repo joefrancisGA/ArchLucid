@@ -106,6 +106,6 @@ Use [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md): `healthcare-c
 | Doc | Use |
 |-----|-----|
 | [`library/walkthroughs/README.md`](../../library/walkthroughs/README.md) | Specialty accelerator template index |
-| [`CORE_PILOT.md`](../../CORE_PILOT.md) | Four-step Core Pilot spine |
+| [`CORE_PILOT.md`](../../CORE_PILOT.md))))))))) | Four-step Core Pilot spine |
 | [`PRODUCT_PACKAGING.md`](../../library/PRODUCT_PACKAGING.md) | Capability inventory |
 | [`PRE_COMMIT_GOVERNANCE_GATE.md`](../../library/PRE_COMMIT_GOVERNANCE_GATE.md) | Gate behavior |

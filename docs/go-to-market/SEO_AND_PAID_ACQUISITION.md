@@ -132,7 +132,7 @@ CAC guardrail: reconcile against **`docs/go-to-market/PRICING_PHILOSOPHY.md`** p
 
 ## 6. Data flow (tracking and attribution)
 
-Tracked as engineering backlog: **TB-019** (**UTM → provision success → telemetry/SQL**) plus **TB-020** (**JSON-LD + consent-gated third-party replay / CSP**) in [`docs/library/TECH_BACKLOG.md`](TECH_BACKLOG.md).
+Tracked as engineering backlog: **TB-019** (**UTM → provision success → telemetry/SQL**) plus **TB-020** (**JSON-LD + consent-gated third-party replay / CSP**) in [`docs/library/TECH_BACKLOG.md`](../library/TECH_BACKLOG.md).
 
 Targets until shipped:
 

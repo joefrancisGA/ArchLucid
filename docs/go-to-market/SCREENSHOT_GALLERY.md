@@ -193,4 +193,4 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | [POSITIONING.md](POSITIONING.md) | Value pillars and proof points for caption language |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which screenshots matter most to which persona |
 | [../operator-shell.md](../library/operator-shell.md) | Operator UI workflow documentation |
-| [../FIRST_RUN_WIZARD.md](../FIRST_RUN_WIZARD.md) | Wizard steps and field mappings |
+| [FIRST_RUN_WIZARD.md](../library/FIRST_RUN_WIZARD.md) | Wizard steps and field mappings |

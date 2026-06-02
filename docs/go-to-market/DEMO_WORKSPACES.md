@@ -100,7 +100,7 @@ If you add realism, prefer clearly fake domains (**`*.example`** / **`northwind-
 
 ## Acceptance criteria checklist (demo workspace readiness)
 
-Use this checklist before tagging **GA / external pilot freeze** aligned with the sequenced prompts in **`[CURSOR_PROMPTS_GA_TASKS_27_32.md](../../archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md)`** (and related **`CURSOR_PROMPTS_GA_TASK_*.md`** under **`docs/archive/agent-prompts/`** — historical task lists, not product documentation).
+Use this checklist before tagging **GA / external pilot freeze** aligned with the sequenced prompts in **`[CURSOR_PROMPTS_GA_TASKS_27_32.md](../archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md)`** (and related **`CURSOR_PROMPTS_GA_TASK_*.md`** under **`docs/archive/agent-prompts/`** — historical task lists, not product documentation).
 
 - [ ] **Golden demo validation:** `./scripts/verify-demo-workspace.ps1` reports **`Demo workspace disposition: PASS`** (or documented **HOLD** with stable reason codes) including **`GET /v1/demo/preview`** essentials via `scripts/demo_preview_essentials.py`. First-pilot proof collects `demo-workspace-validation.txt` when commercial handoff runs.
 

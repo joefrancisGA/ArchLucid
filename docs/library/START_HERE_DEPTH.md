@@ -23,7 +23,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 ## Assumptions
 
-- **Quick lookup:** [Doc Navigator](../NAVIGATOR.md) — **two tables** (**customer-facing** vs **contributor / engineering / ops**); each row links to one best-fit document.
+- **Quick lookup:** [Doc Navigator](../archive/NAVIGATOR.md) — **two tables** (**customer-facing** vs **contributor / engineering / ops**); each row links to one best-fit document.
 - **Persona copy-paste recipes:** [customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md](customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md) — architect, governance, procurement/security, platform engineer.
 - You self-identified above. The **buyer column never installs anything**; the **contributor column** uses the spine.
 - Incomplete requirements and imperfect teams are normal — this layout keeps the **default path narrow** and pushes depth into [`docs/library/`](.) and topic folders.
@@ -32,7 +32,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 - **Architectural decision records** stay under [`docs/architecture/adrs/`](../architecture/adrs/) (do not treat ADRs as onboarding fiction).
 - **Historical receipts** stay under [`docs/archive/`](../archive/) — never silently rewritten.
-- **SMB / port 445** never belongs on the public internet; storage stays on private endpoints (see [`SECURITY.md`](../../SECURITY.md) at repo root and [`docs/TROUBLESHOOTING.md`](../TROUBLESHOOTING.md)).
+- **SMB / port 445** never belongs on the public internet; storage stays on private endpoints (see [`SECURITY.md`](SECURITY.md))) at repo root and [`docs/TROUBLESHOOTING.md`](../TROUBLESHOOTING.md)).
 
 ## Architecture overview (where ArchLucid sits)
 
@@ -70,11 +70,11 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 
 Start at **[`../START_HERE.md`](../START_HERE.md)** and follow the contributor tree.
 
-**Filename redirects:** [`FIRST_5_DOCS.md`](../FIRST_5_DOCS.md), [`FIRST_FIVE_DOCS.md`](../FIRST_FIVE_DOCS.md), [`FIRST_RUN_WIZARD.md`](../FIRST_RUN_WIZARD.md), [`FIRST_RUN_WALKTHROUGH.md`](../FIRST_RUN_WALKTHROUGH.md) are **thin stubs** pointing at [`READ_THIS_FIRST.md`](../READ_THIS_FIRST.md) so bookmarks stay stable; spine detail stays in the hub.
+**Filename redirects:** [`FIRST_5_DOCS.md`](../archive/FIRST_5_DOCS.md))), [`FIRST_FIVE_DOCS.md`](../archive/FIRST_5_DOCS.md))), [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md))), [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md))) are **thin stubs** pointing at [`READ_THIS_FIRST.md`](../READ_THIS_FIRST.md) so bookmarks stay stable; spine detail stays in the hub.
 
 ## Security model (read once)
 
-- **Authentication modes** and fail-closed defaults are summarized in **[`library/SECURITY.md`](SECURITY.md)** and repo-root **[`SECURITY.md`](../../SECURITY.md)**.
+- **Authentication modes** and fail-closed defaults are summarized in **[`library/SECURITY.md`](SECURITY.md))** and repo-root **[`SECURITY.md`](SECURITY.md)))**.
 - **Tenant isolation / RLS** deep dive: [`security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md).
 
 ## Operational considerations

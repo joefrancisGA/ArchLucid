@@ -67,4 +67,4 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 | [`PRICING_PHILOSOPHY.md` § 5.4](../PRICING_PHILOSOPHY.md#54-discount-stack-work-down) | Operational tracker — owner, target close, evidence link, re-rate trigger per discount line |
 | [`REFERENCE_NARRATIVE_TEMPLATE.md`](../REFERENCE_NARRATIVE_TEMPLATE.md) | Three fictional-but-realistic narrative archetypes (FinServ / Tech / Healthcare) for marketing |
 | [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md) | Metric definitions every published case study should populate |
-| [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../../AZURE_MARKETPLACE_SAAS_OFFER.md) | Where published references appear in the Marketplace listing copy |
+| [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md))))) | Where published references appear in the Marketplace listing copy |

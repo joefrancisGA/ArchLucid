@@ -17,7 +17,7 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter "Suite=Core&
 | [ArchLucid.Api.Tests/Security/AuthorizationBoundaryTests.cs](../../ArchLucid.Api.Tests/Security/AuthorizationBoundaryTests.cs) | API key: Reader vs policies, anonymous 401, health |
 | [ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs](../../ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs) | SQL + RLS: two tenants, run visibility |
 | [ArchLucid.Api.Tests/Security/ApiKeyReaderAndAdminArchLucidApiFactory.cs](../../ArchLucid.Api.Tests/Security/ApiKeyReaderAndAdminArchLucidApiFactory.cs) | `WebApplicationFactory` with `ArchLucidAuth:Mode=ApiKey` and read + admin keys |
-| [ArchLucid.Api.Tests/Security/SqlRlsTenantIsolationApiFactory.cs](../../ArchLucid.Api.Tests/Security/SqlRlsTenantIsolationApiFactory.cs) | `GreenfieldSqlApiFactory` + `SqlServer:RowLevelSecurity:ApplySessionContext=true` |
+| [ArchLucid.Api.Tests/Security/GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs) | `GreenfieldSqlApiFactory` + `SqlServer:RowLevelSecurity:ApplySessionContext=true` |
 
 **Related (not duplicated here)**
 
@@ -46,7 +46,7 @@ These run only when **either** `ARCHLUCID_API_TEST_SQL` **or** `ARCHLUCID_SQL_TE
 |---|---------------|---------------|----------|
 | 1 | `Tenant_b_cannot_see_tenant_a_run_sql_rls` | Tenant **A** `POST /v1/architecture/request` → `runId`; tenant **B** `GET`/`GET` list with different `x-tenant-id` (and matching workspace / project) | B: `GET /v1/architecture/run/{runId}` → **404**; list for B does not contain the run; A: `GET` same run → **2xx** |
 
-**Factory note:** [SqlRlsTenantIsolationApiFactory.cs](../../ArchLucid.Api.Tests/Security/SqlRlsTenantIsolationApiFactory.cs) layers `SqlServer:RowLevelSecurity:ApplySessionContext` on the greenfield SQL `WebApplicationFactory` so the API’s `RlsSessionContextApplicator` applies `al_tenant_id` (and related keys) on each connection.
+**Factory note:** [GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs) layers `SqlServer:RowLevelSecurity:ApplySessionContext` on the greenfield SQL `WebApplicationFactory` so the API’s `RlsSessionContextApplicator` applies `al_tenant_id` (and related keys) on each connection.
 
 **Operational note:** RLS is described in [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md). Break-glass configuration does not replace per-tenant `SESSION_CONTEXT` for normal app traffic; greenfield test hosts may still set break-glass for bootstrap—see in-repo comments on `SqlRowLevelSecurityBypassAmbient` and [GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs).
 

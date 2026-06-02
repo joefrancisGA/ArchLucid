@@ -15,7 +15,7 @@ This document records **intent and provisioning steps**. Creating the alias in D
 
 | Mailbox | Role |
 | ------- | ---- |
-| `security@archlucid.net` | Canonical coordinated disclosure + security inquiries (see [`SECURITY.md`](../../SECURITY.md)). |
+| `security@archlucid.net` | Canonical coordinated disclosure + security inquiries (see [`SECURITY.md`](../library/SECURITY.md)). |
 | `accessibility@archlucid.net` | Accessibility barrier reports; **same custodian / same tenant** as `security@`, separate alias for clarity and filtering. |
 
 ## Public surfaces
@@ -44,5 +44,5 @@ This document records **intent and provisioning steps**. Creating the alias in D
 
 ## Operational notes
 
-- **Volume expectation:** low initially; still warrants the same **48-hour acknowledgment** target as security mail where feasible (not a legal SLA — see [`SECURITY.md`](../../SECURITY.md) for security-specific timelines).
+- **Volume expectation:** low initially; still warrants the same **48-hour acknowledgment** target as security mail where feasible (not a legal SLA — see [`SECURITY.md`](../library/SECURITY.md) for security-specific timelines).
 - **Spam / phishing:** the alias is published on the public web; use the same anti-phishing posture as `security@` (SPF/DKIM/DMARC already aligned at domain level).

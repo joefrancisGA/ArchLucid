@@ -2,7 +2,7 @@
 
 # AI & Cloud Architecture Readiness Review — offer pack (TB-133)
 
-**Primary service-led motion** aligned with [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) and [`GUIDED_PILOT.md`](GUIDED_PILOT.md).
+**Primary service-led motion** aligned with [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) and [`GUIDED_PILOT.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md).
 
 ## One-page offer
 
@@ -46,7 +46,7 @@ ArchLucid delivers a **time-boxed architecture review** that produces a **commit
 ## Order-form path
 
 1. PASS proof disposition on quote-to-proof readiness
-2. Agree tier via [`tier_fit_validation_matrix.v1.json`](../scripts/ci/data/tier_fit_validation_matrix.v1.json)
+2. Agree tier via [`tier_fit_validation_matrix.v1.json`](../../../../../scripts/ci/data/tier_fit_validation_matrix.v1.json)
 3. Execute [`ORDER_FORM_TEMPLATE.md`](ORDER_FORM_TEMPLATE.md)
 
 ## Next step after proof

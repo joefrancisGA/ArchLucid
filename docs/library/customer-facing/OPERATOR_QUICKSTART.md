@@ -21,7 +21,7 @@ ArchLucid is an **HTTP API** (and optional **operator UI**) that turns a structu
 
 ## Environment
 
-> **Install order moved.** See [INSTALL_ORDER.md](../../INSTALL_ORDER.md). This page now only covers operator commands **after** the local or hosted environment is running.
+> **Install order moved.** See [INSTALL_ORDER.md](../../engineering/INSTALL_ORDER.md). This page now only covers operator commands **after** the local or hosted environment is running.
 
 ## Local API (example)
 

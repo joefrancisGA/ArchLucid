@@ -47,7 +47,7 @@ Include **API `GET /version`**, **`X-Correlation-ID`**, relevant logs, and (if p
 ## Getting help
 
 - **Product / pilot support:** **support@archlucid.net** — how-to, integration behavior, non-security defects during pilots.
-- **Security vulnerabilities:** **security@archlucid.net** — coordinated disclosure only; see [SECURITY.md](../../SECURITY.md).
+- **Security vulnerabilities:** **security@archlucid.net** — coordinated disclosure only; see [SECURITY.md](../SECURITY.md).
 - **Accessibility barriers (non-security):** **accessibility@archlucid.net** — WCAG / usability in product or marketing surfaces.
 - **Self-serve Q&A:** [FAQ.md](FAQ.md).
 

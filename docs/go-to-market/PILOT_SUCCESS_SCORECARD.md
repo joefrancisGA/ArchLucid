@@ -231,4 +231,4 @@ Before presenting, run through [`COMMERCIAL_CONVERSION_CHECKLIST.md`](COMMERCIAL
 | [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical setup for the pilot environment |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |
 | [../OBSERVABILITY.md](../library/OBSERVABILITY.md) | OTel metric names referenced in this scorecard |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability assessment |
+| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md) | Full marketability assessment |

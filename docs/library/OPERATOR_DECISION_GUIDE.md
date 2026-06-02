@@ -45,7 +45,7 @@ Use this table when you need a working configuration without reading the full [`
 
 `SingleCatalog` is for local and CI convenience only — do not treat it as substitute for per-tenant catalog isolation on hosted SaaS ([`V1_SCOPE.md`](V1_SCOPE.md) §2.4).
 
-**Command-first companion:** [`customer-facing/OPERATOR_QUICKSTART.md`](../customer-facing/OPERATOR_QUICKSTART.md) (health probes, CLI pilot run, support bundle).
+**Command-first companion:** [`customer-facing/OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) (health probes, CLI pilot run, support bundle).
 
 ### Copy-paste starter blocks (illustrative)
 
@@ -83,13 +83,13 @@ Operator UI proxy (production-like): set `ARCHLUCID_PROXY_TRUST_SERVER_SCOPE_ONL
 | Step | Action | Doc |
 | --- | --- | --- |
 | 1 | Pick a preset row above | This section |
-| 2 | Start API + UI (`start-local-api-and-ui.ps1` or your host runbook) | [`OPERATOR_QUICKSTART.md`](../customer-facing/OPERATOR_QUICKSTART.md) |
-| 3 | Confirm `/health/live` and `/health/ready` | [`OPERATOR_QUICKSTART.md`](../customer-facing/OPERATOR_QUICKSTART.md) |
+| 2 | Start API + UI (`start-local-api-and-ui.ps1` or your host runbook) | [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
+| 3 | Confirm `/health/live` and `/health/ready` | [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
 | 4 | Run one CLI pilot or UI **New review → execute → commit** | [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
 | 5 | Open committed run detail — verify cost, trust card, decision summary, governance alerts | [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) |
-| 6 | Export package or sponsor briefing only after step 4 succeeds | [`PILOT_GUIDE.md`](../customer-facing/PILOT_GUIDE.md) |
+| 6 | Export package or sponsor briefing only after step 4 succeeds | [`PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md) |
 
-Pilot onboarding spine: [`customer-facing/PILOT_GUIDE.md`](../customer-facing/PILOT_GUIDE.md).
+Pilot onboarding spine: [`customer-facing/PILOT_GUIDE.md`](customer-facing/PILOT_GUIDE.md).
 
 ---
 

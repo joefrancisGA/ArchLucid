@@ -6,7 +6,7 @@ This doc ties code changes to the tenant-isolation threat model: what was enforc
 
 ## SQL (RLS)
 
-- **Parity guard:** [RlsTenantScopePolicyParityIntegrationTests.cs](../../ArchLucid.Persistence.Tests/RlsTenantScopePolicyParityIntegrationTests.cs) compares `sys.security_predicates` targets for `ArchiforgeTenantScope` vs `ArchLucidTenantScope` when both policies exist; post–migration 108 only `ArchLucidTenantScope` remains, and the test still asserts it is non-empty.
+- **Parity guard:** [TenantScopedTableDdlTests.cs](../../ArchLucid.Architecture.Tests/TenantScopedTableDdlTests.cs) compares `sys.security_predicates` targets for `ArchiforgeTenantScope` vs `ArchLucidTenantScope` when both policies exist; post–migration 108 only `ArchLucidTenantScope` remains, and the test still asserts it is non-empty.
 - **DDL guard:** [TenantScopedTableDdlTests.cs](../../ArchLucid.Architecture.Tests/TenantScopedTableDdlTests.cs) was extended for `ContextSnapshots`, `GoldenManifests` blob URI column, `ScimUsers` (tenant-only), and documents that `AgentExecutionTraces` has no denormalized triple-scope columns (isolation via `RunId`).
 
 ## HTTP authorization
@@ -20,7 +20,7 @@ This doc ties code changes to the tenant-isolation threat model: what was enforc
 
 ## Blob paths (artifact offload)
 
-- [ArtifactBlobTenantPaths.cs](../../ArchLucid.Persistence/BlobStore/ArtifactBlobTenantPaths.cs): `FormatArtifactContentRelativePath` builds `{workspace}/{project}/artifacts/{manifestId}/{artifactId}/{fileName}`; [SqlArtifactBundleRepository.cs](../../ArchLucid.Persistence/Repositories/SqlArtifactBundleRepository.cs) uses it for large artifact content offload. `PrefixWithTenant` allows workspace-first logical paths so the final object key is `{tenant}/…`. The type lives in **ArchLucid.Persistence** (shared by **ArchLucid.Persistence.Runtime** blob stores) so SQL repositories can reference it without a **Persistence ↔ Persistence.Runtime** circular project reference.
+- [ArtifactBlobTenantPaths.cs](../../ArchLucid.Core/Persistence/ApplicationPorts/BlobStore/ArtifactBlobTenantPaths.cs): `FormatArtifactContentRelativePath` builds `{workspace}/{project}/artifacts/{manifestId}/{artifactId}/{fileName}`; [SqlArtifactBundleRepository.cs](../../ArchLucid.Persistence/Repositories/SqlArtifactBundleRepository.cs) uses it for large artifact content offload. `PrefixWithTenant` allows workspace-first logical paths so the final object key is `{tenant}/…`. The type lives in **ArchLucid.Persistence** (shared by **ArchLucid.Persistence.Runtime** blob stores) so SQL repositories can reference it without a **Persistence ↔ Persistence.Runtime** circular project reference.
 
 ## Integration tests
 

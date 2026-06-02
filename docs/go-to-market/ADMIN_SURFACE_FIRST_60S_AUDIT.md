@@ -21,7 +21,7 @@
 
 ## Doc / test anchors
 
-- **`archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`** — surfaces + authority map.
+- **`archlucid-ui/docs/../../archlucid-ui/docs/../../archlucid-ui/docs/../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`** — surfaces + authority map.
 - **`nav-config.structure.test.ts`** — `AdminAuthority` only on `operator-admin`.
 - **`nav-shell-visibility.test.ts`** — system health via admin group; `surfaceFilter`; demo mode on admin group.
 

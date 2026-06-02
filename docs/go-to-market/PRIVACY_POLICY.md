@@ -227,7 +227,7 @@ We may update this policy to reflect changes in our practices or legal requireme
 For privacy-related questions, requests, or complaints:
 
 - **Email:** `privacy@archlucid.net`
-- **Security disclosures:** `security@archlucid.net` (see [`SECURITY.md`](../../SECURITY.md))
+- **Security disclosures:** `security@archlucid.net` (see [`SECURITY.md`](../library/SECURITY.md))
 
 ---
 

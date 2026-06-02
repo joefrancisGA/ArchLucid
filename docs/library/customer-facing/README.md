@@ -25,4 +25,4 @@ Remaining audience-split work (Phase 3, guarded moves for **`API_CONTRACTS.md`**
 ## See also
 
 - [`DOCUMENTATION_BY_AUDIENCE.md`](../DOCUMENTATION_BY_AUDIENCE.md) — folder-level compass  
-- [`NAVIGATOR.md`](../../NAVIGATOR.md) — task routing (tables split audience)
+- [`NAVIGATOR.md`](../../archive/NAVIGATOR.md) — task routing (tables split audience)

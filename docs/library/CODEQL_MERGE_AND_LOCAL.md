@@ -19,7 +19,7 @@ Optional but useful: under **Settings → Code security and analysis → Code sc
 
 ## 2. Cursor / VS Code extension (local IDE)
 
-1. Install the **CodeQL** extension (`GitHub.vscode-codeql`) — already listed in [`.vscode/extensions.json`](../../.vscode/extensions.json).
+1. Install the **CodeQL** extension (`GitHub.vscode-codeql`) — already listed in [`.vscode/extensions.json`](CODEQL_MERGE_AND_LOCAL.md).
 2. Install the **[CodeQL CLI](https://github.com/github/codeql-cli-binaries/releases)** and either add it to your **`PATH`** or set **User** setting **`codeQL.cli.executablePath`** to the **`codeql`** / **`codeql.exe`** binary (see the extension’s *CLI* section in Settings).
 3. Keep query behavior aligned with CI: **`security-extended`** plus the model pack in [`.github/codeql/codeql-config.yml`](../../.github/codeql/codeql-config.yml) (see [CODEQL_TRIAGE.md](CODEQL_TRIAGE.md)).
 

@@ -8,7 +8,7 @@ Work through the questions in order.
 
 **Q1.** Does your team produce architecture review packages for stakeholders?
 
-- **No** → ArchLucid may not be a fit today. See [go-to-market/NOT_A_FIT.md](go-to-market/NOT_A_FIT.md).
+- **No** → ArchLucid may not be a fit today. See [go-to-market/NOT_A_FIT.md](NOT_A_FIT.md).
 - **Yes** → Continue.
 
 **Q2.** Do you run workloads on Azure (or plan to within 6 months)?
@@ -35,6 +35,6 @@ Work through the questions in order.
 ## Next reads
 
 - [Executive Sponsor Brief](EXECUTIVE_SPONSOR_BRIEF.md)
-- [Pricing philosophy](go-to-market/PRICING_PHILOSOPHY.md)
+- [Pricing philosophy](PRICING_PHILOSOPHY.md)
 - [Trust Center](trust-center.md)
-- [Core Pilot guide](CORE_PILOT.md)
+- [Core Pilot guide](../CORE_PILOT.md)

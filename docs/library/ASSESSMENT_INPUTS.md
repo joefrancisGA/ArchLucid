@@ -30,7 +30,7 @@ Read these **before** grepping broadly or opening large code regions. For scorin
 | 9 | [`API_CONTRACTS.md`](API_CONTRACTS.md) | HTTP / OpenAPI contract of record |
 |10 | [`CONFIGURATION_REFERENCE.md`](CONFIGURATION_REFERENCE.md) | Operator configuration surface |
 |11 | [`../go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) | Commercial motion and design-partner context (for `(B)` when asked) |
-|12 | [`../../.cursor/rules/Architecture-Invariants.mdc`](../../.cursor/rules/Architecture-Invariants.mdc) | INV-* catalog pointer |
+|12 | [`ARCHITECTURE_INVARIANTS.md`](ARCHITECTURE_INVARIANTS.md) | INV-* catalog pointer |
 |13 | [`../START_HERE.md`](../START_HERE.md) | Evaluator spine and doc routing |
 
 **Outputs:** Write the latest pass to the rolling file under **`docs/assessments/`** (**today:** overwrite **[`docs/assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md)** in place — if that filename changes, update this sentence only). **Do not** add new dated multi-thousand-line assessment files under `docs/library/` unless the team explicitly opts back in — archive prior snapshots under **`docs/archive/assessments/`** instead.

@@ -37,7 +37,7 @@ The items below remain **out of scope for V1** and are intentionally deferred to
 
 **Why deferred:** The component is large but covered by visibility/preset Vitest anchors; refactoring during V1 churn risks regressions to progressive disclosure.
 
-**V1.1 intent:** Extract filter chains (demo / buyer-polished / preset / authority tier) into testable hooks or pure helpers while preserving `docs/NAV_CONFIG_CONTRACT.md`.
+**V1.1 intent:** Extract filter chains (demo / buyer-polished / preset / authority tier) into testable hooks or pure helpers while preserving `docs/../../archlucid-ui/docs/../../archlucid-ui/docs/../../archlucid-ui/docs/NAV_CONFIG_CONTRACT.md`.
 
 ## 6. Segment-level `not-found.tsx` for dynamic routes
 

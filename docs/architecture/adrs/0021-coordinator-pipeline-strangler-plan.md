@@ -18,7 +18,7 @@
 > assertion sweeps every loaded `ArchLucid.*` production assembly (constructors, fields, properties) and fails the build when any type outside an explicit
 > allow-list type-references the coordinator manifest repository. The allow-list contains four entries: the unified reader (`ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader`)
 > and the three documented write-path orchestrators that Phase 3 will retire (`ArchitectureRunCommitOrchestrator`, `ReplayRunService`, `DemoSeedService`). When Phase 3
-> ships, the allow-list shrinks to the single reader entry by deletion. Parity evidence is captured per the cadence in [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md).
+> ships, the allow-list shrinks to the single reader entry by deletion. Parity evidence is captured per the cadence in [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md).
 >
 > **2026-04-21 update — Phase 3 mechanism (a) re-scoped (see [ADR 0030](0030-coordinator-authority-pipeline-unification.md)).** A grounding read of the actual code (`SqlGoldenManifestRepository` vs `GoldenManifestRepository`, `Decisioning.Models.GoldenManifest` vs `Contracts.Manifest.GoldenManifest`, master DDL `dbo.GoldenManifests` vs `dbo.GoldenManifestVersions`) showed the two pipelines persist incompatible domain models to incompatible SQL tables and use different decision engines. The single-PR-A "deletion" framing in this ADR's § Phase 3 mechanism (a) is therefore replaced by the sequenced **PR A0 → PR A4** plan in ADR 0030. ADR 0030 is `Amends` against this ADR; this ADR stays `Accepted`. The Phase 3 exit gates **(ii)** and **(iii)** still apply, but per-sub-PR rather than to a single PR A; gates **(i)** and **(iv)** stay waived for the pre-release window per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md).
 >
@@ -41,7 +41,7 @@ Both pipelines were declared deliberately distinct in **[ADR 0010 — Dual manif
 
 Two independent forces are now creating pressure to revisit ADR 0010:
 
-- **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
+- **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/archive/dual-pipeline-navigator-superseded.md`](../../archive/dual-pipeline-navigator-superseded.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
 - **Cognitive load + onboarding cost.** Day-1 developer onboarding (`docs/onboarding/day-one-developer.md`) currently sends a new contributor through both interface families even when the day-1 task only touches one. The dual-pipeline model is a real source of "I changed the wrong repository" defects in PR review history.
 
 ADR 0010 cannot be overridden by a single "while I'm in here" refactor PR. The project's ADR governance (`docs/architecture/adrs/README.md`) requires accepted ADRs to be **superseded** by a new ADR rather than rewritten or deleted.
@@ -64,14 +64,14 @@ This ADR moves from `Proposed` → `Accepted` only when **all** of the following
 
 - A signed-off architecture-review note (date + reviewers, attached to the PR that flips this ADR's status) confirming Phase 0 evidence is sufficient.
 - The two regression tests from § Implementation hardening below have been green on `main` for at least 14 days.
-- The [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) decision tree has not flagged a *new* coordinator-only event constant in those 14 days (i.e. nobody is actively extending the doomed family during the review window).
+- The [`docs/archive/dual-pipeline-navigator-superseded.md`](../../archive/dual-pipeline-navigator-superseded.md) decision tree has not flagged a *new* coordinator-only event constant in those 14 days (i.e. nobody is actively extending the doomed family during the review window).
 - A run-volume parity report comparing Coordinator vs Authority p95 latency, p99 latency, audit-row counts, and replay parity on a representative tenant exists at `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`.
 
 ### Phase 0 — Strangler hardening (no behaviour change)
 
 **Status:** Shipped 2026-04-20 alongside this ADR. Listed here for completeness so the timeline reads in order.
 
-- Sharpen [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) with a "Which path do I use?" decision tree that answers the day-1 question before a contributor has to read this ADR.
+- Sharpen [`docs/archive/dual-pipeline-navigator-superseded.md`](../../archive/dual-pipeline-navigator-superseded.md) with a "Which path do I use?" decision tree that answers the day-1 question before a contributor has to read this ADR.
 - Add `ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs` so any new constant that violates the dual-pipeline boundary fails the build.
 - Add `ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs` so the renamed `ICoordinator*` family cannot silently regrow into the unprefixed namespace.
 
@@ -131,9 +131,9 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 
 - [ADR 0010 — Dual manifest and decision-trace repository contracts](0010-dual-manifest-trace-repository-contracts.md) (the boundary this ADR plans to retire).
 - [ADR 0012 — Runs / authority convergence write-freeze](0012-runs-authority-convergence-write-freeze.md) (the partial unification this ADR builds on).
-- [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) (decision tree + "Why we have not collapsed these" pointing back here).
+- [`docs/archive/dual-pipeline-navigator-superseded.md`](../../archive/dual-pipeline-navigator-superseded.md) (decision tree + "Why we have not collapsed these" pointing back here).
 - [`docs/AUDIT_COVERAGE_MATRIX.md`](../../library/AUDIT_COVERAGE_MATRIX.md) (audit-event catalog the regression tests assert against).
 - [`docs/API_CONTRACTS.md`](../../library/API_CONTRACTS.md) (deprecation policy used by Phase 2's `Sunset` header).
-- [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md) (parity report — latency, audit volume, replay parity per cadence).
-- [`docs/CHANGELOG.md`](../CHANGELOG.md) 2026-04-20 entry (records Phase 0 shipment); 2026-04-21 entry (records Phase 1 retirement gate + Phase 2 deprecation signal).
-- [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md`](../archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md) (rationale for the phased approach this ADR formalizes).
+- [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md) (parity report — latency, audit volume, replay parity per cadence).
+- [`docs/CHANGELOG.md`](../../CHANGELOG.md) 2026-04-20 entry (records Phase 0 shipment); 2026-04-21 entry (records Phase 1 retirement gate + Phase 2 deprecation signal).
+- [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md`](../../archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md) (rationale for the phased approach this ADR formalizes).

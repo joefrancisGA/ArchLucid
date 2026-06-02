@@ -20,7 +20,7 @@ Reclaim Azure SQL storage from **dormant trial catalogs** whose `dbo.TenantDatab
 
 - Break-glass SQL login on the **system** catalog and permission to `DROP DATABASE` on the tenant logical server (or equivalent Terraform operator role).
 - Access to Azure Portal / `az sql db` for the target elastic pool.
-- Familiarity with [`TRIAL_LIFECYCLE.md`](TRIAL_LIFECYCLE.md) and [`TENANT_SQL_TOPOLOGY_RUNBOOK.md`](TENANT_SQL_TOPOLOGY_RUNBOOK.md).
+- Familiarity with [`TRIAL_LIFECYCLE.md`](TRIAL_LIFECYCLE.md) and [`../operations/../operations/../operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md`](../operations/../operations/../operations/TENANT_SQL_TOPOLOGY_RUNBOOK.md).
 
 ## Inventory query (system catalog)
 
