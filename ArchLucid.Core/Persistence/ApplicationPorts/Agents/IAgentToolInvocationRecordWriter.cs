@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Agents;
 
-namespace ArchLucid.Application.Agents;
+namespace ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 
 /// <summary>Writes structured tool-invocation ledger rows from agent traces (TB-110).</summary>
 public interface IAgentToolInvocationRecordWriter

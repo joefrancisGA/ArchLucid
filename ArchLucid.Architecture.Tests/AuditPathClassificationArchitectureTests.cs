@@ -66,6 +66,7 @@ public sealed class AuditPathClassificationArchitectureTests
         "FindingReviewTrailAppendService",
         "GovernanceWorkflowService",
         "RiskExceptionService",
+        "RunOperatorGovernanceDispositionService",
         "PolicyPackDryRunService",
         "PolicyPackGovernanceDryRunService",
         "ArchitectureRunCreateOrchestrator",

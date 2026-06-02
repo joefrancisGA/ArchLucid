@@ -1,5 +1,6 @@
 using System.Diagnostics.Metrics;
 
+using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -7,6 +8,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
@@ -421,6 +423,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();
         services.Configure<LlmPromptRedactionOptions>(o => o.Enabled = false);
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
+        services.AddSingleton<IAgentToolInvocationRecordWriter, NoOpAgentToolInvocationRecordWriter>();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
         services.AddScoped<AgentRuntime.AgentExecutionTraceRecorder>();
         ServiceProvider provider = services.BuildServiceProvider();

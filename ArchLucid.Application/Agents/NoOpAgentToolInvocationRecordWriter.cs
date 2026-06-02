@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 
 namespace ArchLucid.Application.Agents;
 

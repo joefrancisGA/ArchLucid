@@ -5,8 +5,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Application.Agents;
+using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 // Child namespace `ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder` shadows the runtime type name in this parent namespace (CS0118).
 using AgentExecutionTraceRecorderImpl = ArchLucid.AgentRuntime.AgentExecutionTraceRecorder;
-
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>

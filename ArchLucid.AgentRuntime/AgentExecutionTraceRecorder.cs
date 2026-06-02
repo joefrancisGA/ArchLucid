@@ -9,7 +9,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Application.Agents;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
 
