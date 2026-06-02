@@ -261,8 +261,17 @@ export function FirstPilotReadinessCockpit() {
 
     void (async () => {
       try {
+        if (isPublicDemoModeEnv()) {
+          if (!cancelled) {
+            setCommitCtx(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);
+            setRunsLoadFailed(false);
+          }
+
+          return;
+        }
+
         const [trialAnchoredCommit, merged] = await Promise.all([
-          isPublicDemoModeEnv() ? Promise.resolve(false) : fetchTrialAnchoredCommit().catch(() => false),
+          fetchTrialAnchoredCommit().catch(() => false),
           loadProjectRunsMergedWithDemoFallback("default").catch(() => ({ items: [], loadError: true })),
         ]);
 
@@ -272,11 +281,7 @@ export function FirstPilotReadinessCockpit() {
 
         setRuns(merged.items);
         setRunsLoadFailed(merged.loadError === true);
-        setCommitCtx(
-          isPublicDemoModeEnv()
-            ? PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT
-            : buildCorePilotCommitContextFromRunItems(merged.items, trialAnchoredCommit),
-        );
+        setCommitCtx(buildCorePilotCommitContextFromRunItems(merged.items, trialAnchoredCommit));
       } catch {
         if (!cancelled) {
           setRuns([]);

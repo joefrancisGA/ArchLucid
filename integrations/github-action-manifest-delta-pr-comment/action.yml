@@ -24,9 +24,9 @@ inputs:
       runs do not have a PR context.
     required: true
   repository:
-    description: 'owner/repo slug; defaults to the repository the workflow is running in.'
+    description: 'owner/repo slug; leave empty to use GITHUB_REPOSITORY from the runner.'
     required: false
-    default: '${{ github.repository }}'
+    default: ''
   github-token:
     description: >
       Token used by `gh api` to read existing comments and create / update the
@@ -86,7 +86,8 @@ runs:
         ARCHLUCID_STICKY_MARKER: ${{ inputs.marker }}
       run: |
         set -euo pipefail
+        REPO_SLUG="${INPUT_REPOSITORY:-$GITHUB_REPOSITORY}"
         # Split owner/repo locally so the Node script never has to parse it.
-        export GITHUB_REPO_OWNER="${INPUT_REPOSITORY%%/*}"
-        export GITHUB_REPO_NAME="${INPUT_REPOSITORY#*/}"
+        export GITHUB_REPO_OWNER="${REPO_SLUG%%/*}"
+        export GITHUB_REPO_NAME="${REPO_SLUG#*/}"
         node "${GITHUB_ACTION_PATH}/post-pr-comment.mjs"
