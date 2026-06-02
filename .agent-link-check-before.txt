@@ -1,0 +1,352 @@
+﻿python : Broken relative markdown links:
+At C:\Users\jafra\AppData\Local\Temp\ps-script-bc5bb95b-07e1-45bc-8ab8-b6ecd06cd793.ps1:88 char:1
++ python scripts/ci/check_doc_links.py 2>&1 | Out-File -FilePath .agent ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Broken relative markdown links::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md -> 
+missing path docs/architecture/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEI
+GHTED_80_72.md -> missing path docs/architecture/archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../archive/dual-pipeline-navigator-superseded.md -> 
+missing path docs/architecture/archive/dual-pipeline-navigator-superseded.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../archive/dual-pipeline-navigator-superseded.md -> 
+missing path docs/architecture/archive/dual-pipeline-navigator-superseded.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../archive/dual-pipeline-navigator-superseded.md -> 
+missing path docs/architecture/archive/dual-pipeline-navigator-superseded.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../archive/dual-pipeline-navigator-superseded.md -> 
+missing path docs/architecture/archive/dual-pipeline-navigator-superseded.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md -> 
+missing path docs/architecture/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../CHANGELOG.md -> missing path 
+docs/architecture/CHANGELOG.md
+docs/architecture/adrs/0021-coordinator-pipeline-strangler-plan.md:../archive/quality/2026-04-23-doc-depth-reorg/CURSOR
+_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md -> missing path 
+docs/architecture/archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md
+docs/architecture/adrs/0022-coordinator-phase3-deferred.md:../evidence/phase3/gate-verification.md -> missing path 
+docs/architecture/evidence/phase3/gate-verification.md
+docs/architecture/adrs/0022-coordinator-phase3-deferred.md:../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md -> missing 
+path docs/architecture/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
+docs/architecture/adrs/0022-coordinator-phase3-deferred.md:../archive/dual-pipeline-navigator-superseded.md -> missing 
+path docs/architecture/archive/dual-pipeline-navigator-superseded.md
+docs/architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md:../../integrations/azure-devops-tas
+k-manifest-delta/task.yml -> missing path docs/integrations/azure-devops-task-manifest-delta/task.yml
+docs/architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md:../../integrations/azure-devops-tas
+k-manifest-delta/job-summary.mjs -> missing path docs/integrations/azure-devops-task-manifest-delta/job-summary.mjs
+docs/architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md:../../integrations/azure-devops-tas
+k-manifest-delta-pr-comment/task.yml -> missing path 
+docs/integrations/azure-devops-task-manifest-delta-pr-comment/task.yml
+docs/architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md:../../integrations/azure-devops-tas
+k-manifest-delta-pr-comment/post-pr-thread.mjs -> missing path 
+docs/integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread.mjs
+docs/architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md:../../integrations/azure-devops-tas
+k-manifest-delta-pr-comment/post-pr-thread-wire.mjs -> missing path 
+docs/integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread-wire.mjs
+docs/architecture/adrs/0024-azure-devops-pipeline-task-parity-with-github-action.md:../../integrations/github-action-ma
+nifest-delta/fetch-manifest-delta.mjs -> missing path 
+docs/integrations/github-action-manifest-delta/fetch-manifest-delta.mjs
+docs/architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md:../runbooks/COORDINATOR_TO_AUTHORITY_PARIT
+Y.md -> missing path docs/architecture/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
+docs/architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md:../runbooks/COORDINATOR_TO_AUTHORITY_PARIT
+Y.md -> missing path docs/architecture/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
+docs/architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md:../PENDING_QUESTIONS.md -> missing path 
+docs/architecture/PENDING_QUESTIONS.md
+docs/architecture/adrs/0029-coordinator-strangler-acceleration-2026-05-15.md:../CHANGELOG.md -> missing path 
+docs/architecture/CHANGELOG.md
+docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md:../../ArchLucid.Api/Middleware/ApiDeprecation
+HeadersMiddleware.cs -> missing path docs/ArchLucid.Api/Middleware/ApiDeprecationHeadersMiddleware.cs
+docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md:../architecture/COORDINATOR_STRANGLER_INVENTO
+RY.md -> missing path docs/architecture/architecture/COORDINATOR_STRANGLER_INVENTORY.md
+docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md:../architecture/COORDINATOR_STRANGLER_INVENTO
+RY.md -> missing path docs/architecture/architecture/COORDINATOR_STRANGLER_INVENTORY.md
+docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md:../archive/dual-pipeline-navigator-superseded
+.md -> missing path docs/architecture/archive/dual-pipeline-navigator-superseded.md
+docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md:../PENDING_QUESTIONS.md -> missing path 
+docs/architecture/PENDING_QUESTIONS.md
+docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md:../architecture/AUTHORITY_PROJECTION_KNOWN_EM
+PTY.json -> missing path docs/architecture/architecture/AUTHORITY_PROJECTION_KNOWN_EMPTY.json
+docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md:../CHANGELOG.md -> missing path 
+docs/architecture/CHANGELOG.md
+docs/architecture/adrs/0031-cross-tenant-pattern-library.md:../PENDING_QUESTIONS.md -> missing path 
+docs/architecture/PENDING_QUESTIONS.md
+docs/architecture/adrs/0031-cross-tenant-pattern-library.md:../PENDING_QUESTIONS.md -> missing path 
+docs/architecture/PENDING_QUESTIONS.md
+docs/architecture/adrs/0031-cross-tenant-pattern-library.md:../security/MULTI_TENANT_RLS.md -> missing path 
+docs/architecture/security/MULTI_TENANT_RLS.md
+docs/architecture/adrs/0033-first-real-value-single-env-var-flip.md:../runbooks/AGENT_EXECUTION_FAILURES.md -> missing 
+path docs/architecture/runbooks/AGENT_EXECUTION_FAILURES.md
+docs/architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md:../../ArchLucid.Application/Common/ActorConte
+xt.cs -> missing path docs/ArchLucid.Application/Common/ActorContext.cs
+docs/architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md:../../ArchLucid.Application/Governance/Govern
+anceSegregationRules.cs -> missing path docs/ArchLucid.Application/Governance/GovernanceSegregationRules.cs
+docs/architecture/adrs/0036-graph-rag-embedding-strategy.md:0004-authority-commit-outbox.md -> missing path 
+docs/architecture/adrs/0004-authority-commit-outbox.md
+docs/demo/DEMO_RECORDING_STORYBOARD.md:operator-shell.md -> missing path docs/demo/operator-shell.md
+docs/demo/DEMO_RECORDING_STORYBOARD.md:operator-shell.md -> missing path docs/demo/operator-shell.md
+docs/demo/DEMO_RECORDING_STORYBOARD.md:AUDIT_COVERAGE_MATRIX.md -> missing path docs/demo/AUDIT_COVERAGE_MATRIX.md
+docs/demo/DEMO_RECORDING_STORYBOARD.md:V1_SCOPE.md -> missing path docs/demo/V1_SCOPE.md
+docs/demo/DEMO_RECORDING_STORYBOARD.md:V1_SCOPE.md -> missing path docs/demo/V1_SCOPE.md
+docs/demo/DEMO_RECORDING_STORYBOARD.md:SECURITY.md -> missing path docs/demo/SECURITY.md
+docs/demo/DEMO_RECORDING_STORYBOARD.md:RELEASE_SMOKE.md -> missing path docs/demo/RELEASE_SMOKE.md
+docs/deployment/PILOT_PROFILE.md:../INSTALL_ORDER.md -> missing path docs/INSTALL_ORDER.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:START_HERE.md -> missing path docs/engineering/START_HERE.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:START_HERE.md -> missing path docs/engineering/START_HERE.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:engineering/FIRST_30_MINUTES.md -> missing path 
+docs/engineering/engineering/FIRST_30_MINUTES.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:engineering/BUILD.md -> missing path docs/engineering/engineering/BUILD.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:ARCHITECTURE_ON_ONE_PAGE.md -> missing path 
+docs/engineering/ARCHITECTURE_ON_ONE_PAGE.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:library/API_CONTRACTS.md -> missing path 
+docs/engineering/library/API_CONTRACTS.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:engineering/DEPLOYMENT.md -> missing path 
+docs/engineering/engineering/DEPLOYMENT.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:engineering/INSTALL_ORDER.md -> missing path 
+docs/engineering/engineering/INSTALL_ORDER.md
+docs/engineering/CONTRIBUTOR_ON_ONE_PAGE.md:TROUBLESHOOTING.md -> missing path docs/engineering/TROUBLESHOOTING.md
+docs/go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md:GUIDED_PILOT.md -> missing path 
+docs/go-to-market/GUIDED_PILOT.md
+docs/go-to-market/AI_CLOUD_ARCHITECTURE_READINESS_REVIEW_OFFER_PACK.md:../scripts/ci/data/tier_fit_validation_matrix.v1
+.json -> missing path docs/scripts/ci/data/tier_fit_validation_matrix.v1.json
+docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md:START_HERE.md -> missing path docs/go-to-market/START_HERE.md
+docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md:go-to-market/PRICING_PHILOSOPHY.md -> missing path 
+docs/go-to-market/go-to-market/PRICING_PHILOSOPHY.md
+docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md:runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md -> missing path 
+docs/go-to-market/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md
+docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md:runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md -> missing path 
+docs/go-to-market/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md
+docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md:library/BILLING.md -> missing path 
+docs/go-to-market/library/BILLING.md
+docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md:architecture/adrs/0016-billing-provider-abstraction.md -> missing 
+path docs/go-to-market/architecture/adrs/0016-billing-provider-abstraction.md
+docs/go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md:runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md -> missing path 
+docs/go-to-market/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md
+docs/go-to-market/BUYER_PERSONAS.md:../library/MARKETABILITY_ASSESSMENT_2026_04_15.md -> missing path 
+docs/library/MARKETABILITY_ASSESSMENT_2026_04_15.md
+docs/go-to-market/COMPETITIVE_LANDSCAPE.md:../library/MARKETABILITY_ASSESSMENT_2026_04_15.md -> missing path 
+docs/library/MARKETABILITY_ASSESSMENT_2026_04_15.md
+docs/go-to-market/DECISION_FAST_LANE.md:../library/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md -> 
+missing path docs/library/DECISION_VELOCITY_SOLUTION_QUALITY_ASSESSMENT_2026_05_02_1.29.md
+docs/go-to-market/DEMO_WORKSPACES.md:../../archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md -> missing path 
+archive/agent-prompts/CURSOR_PROMPTS_GA_TASKS_27_32.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md -> missing path 
+docs/go-to-market/go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PILOT_ROI_MODEL.md -> missing path 
+docs/go-to-market/library/PILOT_ROI_MODEL.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PRODUCT_PACKAGING.md -> missing path 
+docs/go-to-market/library/PRODUCT_PACKAGING.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:CORE_PILOT.md -> missing path docs/go-to-market/CORE_PILOT.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:runbooks/FIRST_PILOT_OPERATOR_PATH.md -> missing path 
+docs/go-to-market/runbooks/FIRST_PILOT_OPERATOR_PATH.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/walkthroughs/README.md -> missing path 
+docs/go-to-market/library/walkthroughs/README.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/INTEGRATION_CATALOG.md -> missing path 
+docs/go-to-market/go-to-market/INTEGRATION_CATALOG.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/POSITIONING.md -> missing path 
+docs/go-to-market/go-to-market/POSITIONING.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/GTM_BACKLOG.md -> missing path 
+docs/go-to-market/go-to-market/GTM_BACKLOG.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md -> missing path 
+docs/go-to-market/library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/API_CONTRACTS.md#pilots-v1pilots -> missing path 
+docs/go-to-market/library/API_CONTRACTS.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:architecture/adrs/0020-azure-primary-platform-permanent.md -> missing 
+path docs/go-to-market/architecture/adrs/0020-azure-primary-platform-permanent.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/REFERENCE_SAAS_STACK_ORDER.md -> missing path 
+docs/go-to-market/library/REFERENCE_SAAS_STACK_ORDER.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/API_CONTRACTS.md -> missing path 
+docs/go-to-market/library/API_CONTRACTS.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PILOT_ROI_MODEL.md -> missing path 
+docs/go-to-market/library/PILOT_ROI_MODEL.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:go-to-market/ROI_MODEL.md -> missing path 
+docs/go-to-market/go-to-market/ROI_MODEL.md
+docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md:library/PRODUCT_PACKAGING.md -> missing path 
+docs/go-to-market/library/PRODUCT_PACKAGING.md
+docs/go-to-market/INTEGRATION_CATALOG.md:../../integrations/recipes/README.md -> missing path 
+integrations/recipes/README.md
+docs/go-to-market/INTEGRATION_CATALOG.md:../../integrations/recipes/SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md -> missing 
+path integrations/recipes/SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md
+docs/go-to-market/INTEGRATION_CATALOG.md:../../integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md -> missing path 
+integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md
+docs/go-to-market/INTEGRATION_CATALOG.md:../../integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md -> 
+missing path integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md
+docs/go-to-market/INTEGRATION_CATALOG.md:../../integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md -> missing path 
+integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md
+docs/go-to-market/MARKETPLACE_PUBLICATION.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/go-to-market/MARKETPLACE_PUBLICATION.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/go-to-market/PILOT_SUCCESS_SCORECARD.md:../library/MARKETABILITY_ASSESSMENT_2026_04_15.md -> missing path 
+docs/library/MARKETABILITY_ASSESSMENT_2026_04_15.md
+docs/go-to-market/POSITIONING.md:../library/MARKETABILITY_ASSESSMENT_2026_04_15.md -> missing path 
+docs/library/MARKETABILITY_ASSESSMENT_2026_04_15.md
+docs/go-to-market/PRICING_PHILOSOPHY.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/go-to-market/PRICING_PHILOSOPHY.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/go-to-market/PROCUREMENT_DEAL_READY_ONE_PAGER.md:../security/SOC2_ROADMAP.md -> missing path 
+docs/security/SOC2_ROADMAP.md
+docs/go-to-market/PRODUCT_DATASHEET.md:../../CORE_PILOT.md -> missing path CORE_PILOT.md
+docs/go-to-market/reference-customers/DESIGN_PARTNER_NEXT_CASE_STUDY.md:../library/CONCEPT_VOCABULARY.md -> missing 
+path docs/go-to-market/library/CONCEPT_VOCABULARY.md
+docs/go-to-market/reference-customers/EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md:../library/CONCEPT_VOCABULARY.md -> missing 
+path docs/go-to-market/library/CONCEPT_VOCABULARY.md
+docs/go-to-market/reference-customers/README.md:../../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/go-to-market/SCREENSHOT_GALLERY.md:../FIRST_RUN_WIZARD.md -> missing path docs/FIRST_RUN_WIZARD.md
+docs/go-to-market/SECURITY_AUDIT_WALKTHROUGH.md:../../dist/procurement-pack/procurement-pack-quality.md -> missing 
+path dist/procurement-pack/procurement-pack-quality.md
+docs/go-to-market/SEO_AND_PAID_ACQUISITION.md:TECH_BACKLOG.md -> missing path docs/go-to-market/TECH_BACKLOG.md
+docs/go-to-market/SHOULD_YOU_EVALUATE.md:go-to-market/NOT_A_FIT.md -> missing path 
+docs/go-to-market/go-to-market/NOT_A_FIT.md
+docs/go-to-market/SHOULD_YOU_EVALUATE.md:go-to-market/PRICING_PHILOSOPHY.md -> missing path 
+docs/go-to-market/go-to-market/PRICING_PHILOSOPHY.md
+docs/go-to-market/SHOULD_YOU_EVALUATE.md:CORE_PILOT.md -> missing path docs/go-to-market/CORE_PILOT.md
+docs/go-to-market/TRUST_CENTER.md:../../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md -> missing path 
+security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md
+docs/go-to-market/TRUST_CENTER.md:../library/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md -> missing path 
+docs/library/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md
+docs/library/ACCELERATOR_CHOOSER.md:../templates/starter-proof-packs/regulated-saas-soc-procurement/ -> missing path 
+docs/templates/starter-proof-packs/regulated-saas-soc-procurement
+docs/library/ACCELERATOR_CHOOSER.md:../templates/starter-proof-packs/healthcare-data-workflow/ -> missing path 
+docs/templates/starter-proof-packs/healthcare-data-workflow
+docs/library/ACCELERATOR_CHOOSER.md:../templates/starter-proof-packs/azure-cost-governance/ -> missing path 
+docs/templates/starter-proof-packs/azure-cost-governance
+docs/library/ACCELERATOR_CHOOSER.md:../templates/starter-proof-packs/ai-llm-workload/ -> missing path 
+docs/templates/starter-proof-packs/ai-llm-workload
+docs/library/ACCELERATOR_CHOOSER.md:../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md -> missing path 
+docs/templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md
+docs/library/ARCHITECTURE_INVARIANTS.md:../NEXT_REFACTORINGS.md -> missing path docs/NEXT_REFACTORINGS.md
+docs/library/ASSESSMENT_INPUTS.md:../../.cursor/rules/Architecture-Invariants.mdc -> missing path 
+.cursor/rules/Architecture-Invariants.mdc
+docs/library/BILLING_WEBHOOKS.md:library/BILLING.md -> missing path docs/library/library/BILLING.md
+docs/library/CODEQL_MERGE_AND_LOCAL.md:../../.vscode/extensions.json -> missing path .vscode/extensions.json
+docs/library/contributor-reference/GOVERNANCE.md:../START_HERE.md -> missing path docs/library/START_HERE.md
+docs/library/contributor-reference/GOVERNANCE.md:PRE_COMMIT_GOVERNANCE_GATE.md -> missing path 
+docs/library/contributor-reference/PRE_COMMIT_GOVERNANCE_GATE.md
+docs/library/contributor-reference/GOVERNANCE.md:../architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.m
+d -> missing path docs/library/architecture/adrs/0034-segregation-of-duties-entra-oid-actor-keys.md
+docs/library/contributor-reference/SECURITY.md:../START_HERE.md -> missing path docs/library/START_HERE.md
+docs/library/contributor-reference/SECURITY.md:../security/ZAP_BASELINE_RULES.md -> missing path 
+docs/library/security/ZAP_BASELINE_RULES.md
+docs/library/contributor-reference/SECURITY.md:../../infra/zap/README.md -> missing path docs/infra/zap/README.md
+docs/library/contributor-reference/SECURITY.md:../runbooks/API_KEY_ROTATION.md -> missing path 
+docs/library/runbooks/API_KEY_ROTATION.md
+docs/library/contributor-reference/SECURITY.md:../security/RLS_RISK_ACCEPTANCE.md -> missing path 
+docs/library/security/RLS_RISK_ACCEPTANCE.md
+docs/library/contributor-reference/SECURITY.md:../security/SYSTEM_THREAT_MODEL.md -> missing path 
+docs/library/security/SYSTEM_THREAT_MODEL.md
+docs/library/contributor-reference/SECURITY.md:API_FUZZ_TESTING.md -> missing path 
+docs/library/contributor-reference/API_FUZZ_TESTING.md
+docs/library/contributor-reference/SECURITY.md:V1_SCOPE.md -> missing path 
+docs/library/contributor-reference/V1_SCOPE.md
+docs/library/contributor-reference/SECURITY.md:../go-to-market/PROCUREMENT_FAQ.md -> missing path 
+docs/library/go-to-market/PROCUREMENT_FAQ.md
+docs/library/contributor-reference/SECURITY.md:../runbooks/GENERIC_OIDC_SETUP.md -> missing path 
+docs/library/runbooks/GENERIC_OIDC_SETUP.md
+docs/library/contributor-reference/SECURITY.md:V1_SCOPE.md -> missing path 
+docs/library/contributor-reference/V1_SCOPE.md
+docs/library/contributor-reference/SECURITY.md:CONFIGURATION_REFERENCE.md -> missing path 
+docs/library/contributor-reference/CONFIGURATION_REFERENCE.md
+docs/library/contributor-reference/SECURITY.md:AUDIT_RETENTION_POLICY.md -> missing path 
+docs/library/contributor-reference/AUDIT_RETENTION_POLICY.md
+docs/library/COVERAGE_GAP_ANALYSIS.md:START_HERE.md -> missing path docs/library/START_HERE.md
+docs/library/CSHARP_HOUSE_STYLE.md:../../.cursor/rules/CSharp-Terse-Guards-And-Flow.mdc -> missing path 
+.cursor/rules/CSharp-Terse-Guards-And-Flow.mdc
+docs/library/CSHARP_HOUSE_STYLE.md:../../.cursor/rules/CSharp-Terse-Modern-Language.mdc -> missing path 
+.cursor/rules/CSharp-Terse-Modern-Language.mdc
+docs/library/CSHARP_HOUSE_STYLE.md:../../.cursor/rules/CSharp-Members-And-Construction.mdc -> missing path 
+.cursor/rules/CSharp-Members-And-Construction.mdc
+docs/library/CSHARP_HOUSE_STYLE.md:../../.cursor/rules/User-Task-Discipline.mdc -> missing path 
+.cursor/rules/User-Task-Discipline.mdc
+docs/library/CSHARP_HOUSE_STYLE.md:../../.cursor/rules/CodeQL-Sanitized-Logging.mdc -> missing path 
+.cursor/rules/CodeQL-Sanitized-Logging.mdc
+docs/library/CUSTOM_AGENT_HANDLER_GUIDE.md:../BREAKING_CHANGES.md -> missing path docs/BREAKING_CHANGES.md
+docs/library/CUSTOM_AGENT_HANDLER_GUIDE.md:../BREAKING_CHANGES.md -> missing path docs/BREAKING_CHANGES.md
+docs/library/customer-facing/FAQ.md:../../SECURITY.md -> missing path docs/SECURITY.md
+docs/library/customer-facing/FAQ.md:../../SECURITY.md -> missing path docs/SECURITY.md
+docs/library/customer-facing/FAQ.md:../../SECURITY.md -> missing path docs/SECURITY.md
+docs/library/customer-facing/OPERATOR_QUICKSTART.md:../../INSTALL_ORDER.md -> missing path docs/INSTALL_ORDER.md
+docs/library/customer-facing/PILOT_GUIDE.md:../../SECURITY.md -> missing path docs/SECURITY.md
+docs/library/customer-facing/README.md:../../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
+docs/library/customer-facing/WORKFLOW_RECIPES_BY_PERSONA.md:../../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
+docs/library/DOCUMENTATION_BY_AUDIENCE.md:../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
+docs/library/DOCUMENTATION_BY_AUDIENCE.md:../OPERATIONS_ADMIN.md -> missing path docs/OPERATIONS_ADMIN.md
+docs/library/DOCUMENTATION_BY_AUDIENCE.md:../../.cursor/rules/Architecture-Invariants.mdc -> missing path 
+.cursor/rules/Architecture-Invariants.mdc
+docs/library/DOCUMENTATION_BY_AUDIENCE.md:../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
+docs/library/DOCUMENTATION_BY_AUDIENCE.md:../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
+docs/library/DOCUMENTATION_BY_AUDIENCE.md:../contributor/README.md -> missing path docs/contributor/README.md
+docs/library/EXECUTIVE_SHELL.md:../../archlucid-ui/src/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectF
+indingBody.tsx -> missing path 
+archlucid-ui/src/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectFindingBody.tsx
+docs/library/LIVE_E2E_JWT_SETUP.md:../INSTALL_ORDER.md -> missing path docs/INSTALL_ORDER.md
+docs/library/MULTI_CLOUD_ANALYSIS_V1_1.md:../../.cursor/rules/Http-Surface-Docs-And-Clients.mdc -> missing path 
+.cursor/rules/Http-Surface-Docs-And-Clients.mdc
+docs/library/OPENAPI_CLIENT_DRIFT_OPERATOR_NOTE.md:BREAKING_CHANGES.md -> missing path docs/library/BREAKING_CHANGES.md
+docs/library/OPERATOR_ATLAS.md:../FIRST_30_MINUTES.md -> missing path docs/FIRST_30_MINUTES.md
+docs/library/OPERATOR_DECISION_GUIDE.md:../customer-facing/OPERATOR_QUICKSTART.md -> missing path 
+docs/customer-facing/OPERATOR_QUICKSTART.md
+docs/library/OPERATOR_DECISION_GUIDE.md:../customer-facing/OPERATOR_QUICKSTART.md -> missing path 
+docs/customer-facing/OPERATOR_QUICKSTART.md
+docs/library/OPERATOR_DECISION_GUIDE.md:../customer-facing/OPERATOR_QUICKSTART.md -> missing path 
+docs/customer-facing/OPERATOR_QUICKSTART.md
+docs/library/OPERATOR_DECISION_GUIDE.md:../customer-facing/PILOT_GUIDE.md -> missing path 
+docs/customer-facing/PILOT_GUIDE.md
+docs/library/OPERATOR_DECISION_GUIDE.md:../customer-facing/PILOT_GUIDE.md -> missing path 
+docs/customer-facing/PILOT_GUIDE.md
+docs/library/ORCHESTRATOR_RETRIES.md:../PILOT_GUIDE.md -> missing path docs/PILOT_GUIDE.md
+docs/library/PERFORMANCE.md:../../ArchLucid.Persistence.Coordination/Caching/HotPathCacheOptions.cs -> missing path 
+ArchLucid.Persistence.Coordination/Caching/HotPathCacheOptions.cs
+docs/library/POLICY_PACK_ARC_AMPE_DESIGN.md:POLICY_PACK_APPENDIX_ARC_AMPE_V1.md -> missing path 
+docs/library/POLICY_PACK_APPENDIX_ARC_AMPE_V1.md
+docs/library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md:../scripts/ci/data/tier_fit_validation_matrix.v1.json -> missing path 
+docs/scripts/ci/data/tier_fit_validation_matrix.v1.json
+docs/library/REPO_DIGEST.md:../../.cursor/rules/Architecture-Invariants.mdc -> missing path 
+.cursor/rules/Architecture-Invariants.mdc
+docs/library/REPO_DIGEST.md:../../.cursor/rules/Http-Surface-Docs-And-Clients.mdc -> missing path 
+.cursor/rules/Http-Surface-Docs-And-Clients.mdc
+docs/library/REPO_DIGEST.md:../../.cursor/rules/Code-Coverage-Product-Only.mdc -> missing path 
+.cursor/rules/Code-Coverage-Product-Only.mdc
+docs/library/REPO_HYGIENE.md:../../.cursor/rules/Docs-Root-Markdown-Budget.mdc -> missing path 
+.cursor/rules/Docs-Root-Markdown-Budget.mdc
+docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md:NAV_CONFIG_CONTRACT.md -> missing path docs/library/NAV_CONFIG_CONTRACT.md
+docs/library/START_HERE_DEPTH.md:../NAVIGATOR.md -> missing path docs/NAVIGATOR.md
+docs/library/START_HERE_DEPTH.md:../FIRST_5_DOCS.md -> missing path docs/FIRST_5_DOCS.md
+docs/library/START_HERE_DEPTH.md:../FIRST_FIVE_DOCS.md -> missing path docs/FIRST_FIVE_DOCS.md
+docs/library/START_HERE_DEPTH.md:../FIRST_RUN_WIZARD.md -> missing path docs/FIRST_RUN_WIZARD.md
+docs/library/START_HERE_DEPTH.md:../FIRST_RUN_WALKTHROUGH.md -> missing path docs/FIRST_RUN_WALKTHROUGH.md
+docs/library/TECH_BACKLOG.md:../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md -> missing path 
+docs/templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md
+docs/library/TECH_BACKLOG.md:../scripts/ci/data/audit_event_catalog.v1.json -> missing path 
+docs/scripts/ci/data/audit_event_catalog.v1.json
+docs/library/TECH_BACKLOG.md:../scripts/ci/data/tier_fit_validation_matrix.v1.json -> missing path 
+docs/scripts/ci/data/tier_fit_validation_matrix.v1.json
+docs/library/TECH_BACKLOG.md:path -> missing path docs/library/path
+docs/library/TECH_BACKLOG.md:../OPERATIONS_LLM_QUOTA.md -> missing path docs/OPERATIONS_LLM_QUOTA.md
+docs/library/TECH_BACKLOG.md:url -> missing path docs/library/url
+docs/library/V1_DEFERRED.md:../../.cursor/rules/Navigation.mdc -> missing path .cursor/rules/Navigation.mdc
+docs/library/V1_RELEASE_CHECKLIST.md:../COVERAGE_GAP_ANALYSIS.md -> missing path docs/COVERAGE_GAP_ANALYSIS.md
+docs/library/V1_REQUIREMENTS_TEST_TRACEABILITY.md:../infra/prometheus/archlucid-alerts.yml -> missing path 
+docs/infra/prometheus/archlucid-alerts.yml
+docs/onboarding/CORE_PILOT_FIRST_SESSION_PLAN.md:../../archlucid-ui/src/app/(operator)/runs/new/page.tsx -> missing 
+path archlucid-ui/src/app/(operator)/runs/new/page.tsx
+docs/onboarding/day-one-sre.md:../INSTALL_ORDER.md -> missing path docs/INSTALL_ORDER.md
+docs/onboarding/README.md:../INSTALL_ORDER.md -> missing path docs/INSTALL_ORDER.md
+docs/operations/PROJECTION_CACHE_AND_REPLICAS.md:../KNOWLEDGE_GRAPH.md -> missing path docs/KNOWLEDGE_GRAPH.md
+docs/runbooks/BACKUP_RESTORE_DRILL.md:../RTO_RPO_TARGETS.md -> missing path docs/RTO_RPO_TARGETS.md
+docs/runbooks/BACKUP_RESTORE_DRILL.md:../RTO_RPO_TARGETS.md -> missing path docs/RTO_RPO_TARGETS.md
+docs/runbooks/BACKUP_RESTORE_DRILL.md:../RTO_RPO_TARGETS.md -> missing path docs/RTO_RPO_TARGETS.md
+docs/runbooks/CORE_PILOT_SE_WORKFLOW.md:../library/CHAMPION_48H_KIT.md -> missing path docs/library/CHAMPION_48H_KIT.md
+docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md:../library/API_KEY_ROTATION.md -> missing path 
+docs/library/API_KEY_ROTATION.md
+docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md:../AZURE_MARKETPLACE_SAAS_OFFER.md -> missing path 
+docs/AZURE_MARKETPLACE_SAAS_OFFER.md
+docs/runbooks/PILOT_RESCUE_PLAYBOOK.md:../library/API_KEY_ROTATION.md -> missing path docs/library/API_KEY_ROTATION.md
+... and 10 more

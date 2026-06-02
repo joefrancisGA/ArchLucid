@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -28,9 +29,13 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            _results.RemoveAll(r =>
-                string.Equals(r.RunId, result.RunId, StringComparison.Ordinal) &&
-                string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal));
+            if (_results.Any(r =>
+                    string.Equals(r.RunId, result.RunId, StringComparison.Ordinal) &&
+                    string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
+            {
+                throw new AgentResultDuplicateConflictException(result.RunId, result.TaskId);
+            }
+
             _results.Add(Clone(result));
         }
 

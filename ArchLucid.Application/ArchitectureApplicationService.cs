@@ -10,10 +10,12 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -132,6 +134,22 @@ public sealed class ArchitectureApplicationService(
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformationAgentResultSubmitted(runId, result.ResultId, result.AgentType, newStatus);
             return new SubmitResultResult(true, result.ResultId, null);
+        }
+        catch (AgentResultDuplicateConflictException ex)
+        {
+            await uow.RollbackAsync(cancellationToken);
+
+            return new SubmitResultResult(false, null, ex.Message, ApplicationServiceFailureKind.Conflict);
+        }
+        catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+        {
+            await uow.RollbackAsync(cancellationToken);
+
+            return new SubmitResultResult(
+                false,
+                null,
+                $"A result for task '{result.TaskId}' has already been submitted for this run.",
+                ApplicationServiceFailureKind.Conflict);
         }
         catch
         {

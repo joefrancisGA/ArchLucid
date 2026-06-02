@@ -5,16 +5,23 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory) : IAgentResultRepository
 {
+    /// <summary>
+    ///     Persists one agent result row. Duplicate <c>(RunId, TaskId)</c> inserts fail with
+    ///     <see cref="ArchLucid.Core.Persistence.AgentResultDuplicateConflictException" /> (see TB-201 unique index).
+    /// </summary>
     public async Task CreateAsync(
         AgentResult result,
         CancellationToken cancellationToken = default,
@@ -22,10 +29,6 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(result);
-
-        // Delete-then-insert by (RunId, TaskId) so that a duplicate submission from a
-        // retrying agent replaces the previous row rather than violating a unique constraint.
-        const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId AND TaskId = @TaskId;";
 
         const string insertSql = """
                                  INSERT INTO AgentResults
@@ -79,12 +82,6 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             if (transaction is not null)
             {
                 await conn.ExecuteAsync(new CommandDefinition(
-                    deleteSql,
-                    new { result.RunId, result.TaskId },
-                    transaction,
-                    cancellationToken: cancellationToken));
-
-                await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
                     transaction,
@@ -92,22 +89,15 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             }
             else
             {
-                using IDbTransaction tx = conn.BeginTransaction();
-
-                await conn.ExecuteAsync(new CommandDefinition(
-                    deleteSql,
-                    new { result.RunId, result.TaskId },
-                    tx,
-                    cancellationToken: cancellationToken));
-
                 await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
-                    tx,
                     cancellationToken: cancellationToken));
-
-                tx.Commit();
             }
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            throw new AgentResultDuplicateConflictException(result.RunId, result.TaskId, ex);
         }
         finally
         {

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.Core.Scoping;
@@ -74,6 +75,27 @@ public abstract class AgentResultRepositoryContractTests
 
         loaded.Should().ContainSingle();
         loaded[0].ResultId.Should().Be("new");
+    }
+
+    [SkippableFact]
+    public async Task Create_duplicate_task_for_run_throws_AgentResultDuplicateConflictException()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentResultRepository repo = CreateRepository();
+        string requestId = "arr-dup-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTaskRow(runId, "res-task-dup");
+
+        await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
+
+        AgentResult first = NewResult(runId, task.TaskId, "first", TimeProvider.System.UtcNowDateTime());
+        AgentResult second = NewResult(runId, task.TaskId, "second", TimeProvider.System.UtcNowDateTime().AddSeconds(1));
+
+        await repo.CreateAsync(first, CancellationToken.None);
+
+        Func<Task> act = () => repo.CreateAsync(second, CancellationToken.None);
+
+        await act.Should().ThrowAsync<AgentResultDuplicateConflictException>();
     }
 
     private static AgentTask NewTaskRow(string runId, string taskId)
