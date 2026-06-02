@@ -8,6 +8,7 @@
 
 | Cluster | IDs |
 | --- | --- |
+| Tenancy defense-in-depth | **TB-076**, **TB-077** |
 | In-app docs | **TB-143 – TB-148** |
 | Data consistency KPIs | **TB-149 – TB-155** |
 | Local dev diagnostics | **TB-156 – TB-157** |
@@ -22,8 +23,18 @@
 
 | ID | Title |
 | --- | --- |
-| TB-076 | Run-child SQL scope predicates + in-memory repository tenant keys |
-| TB-077 | Operator UI resource ownership checks + governance mutation hardening |
+| TB-078 | Cross-tenant isolation integration test matrix (residual wiring) |
+
+## P1 — backfill / jobs operational hardening (batch TB-085–090)
+
+| ID | Title |
+| --- | --- |
+| TB-085 | SqlRelationalBackfill — paged entity scans + durable checkpoint table |
+| TB-086 | Backfill.Cli — bounded memory + quarantine for poison catalog rows |
+| TB-087 | Backfill concurrent rerun — DB-level duplicate FindingRecords guard |
+| TB-088 | Jobs.Cli digest scanner — per-tenant failure isolation |
+| TB-089 | Governance digest — idempotent send on ACA retry |
+| TB-090 | Backfill/Jobs — `--output-json` report + per-stage timing (partial; extend CI) |
 
 ## Real-mode / eval (owner or credentialed CI)
 
@@ -41,7 +52,6 @@
 | TB-012 | Invariant Wave C |
 | TB-030 | Architecture.Tests gap closure |
 | TB-034 – TB-038, TB-040, TB-044 – TB-056 | Provenance / determinism / explainability gaps |
-| TB-076 – TB-077 | Defense-in-depth tenancy |
 
 ## Docs hygiene
 

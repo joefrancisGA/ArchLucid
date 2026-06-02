@@ -12,6 +12,8 @@ import {
   type ArchitectureDecisionRegisterEntry,
   type ArchitectureDecisionRegisterFilters,
 } from "@/lib/api/governance-stickiness-api";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { projectIdFromScopeHeaders } from "@/lib/operator-resource-scope";
 import {
   BUYER_GOVERNANCE_DECISION_REGISTER_LEAD,
   BUYER_GOVERNANCE_DECISION_REGISTER_TITLE,
@@ -51,7 +53,8 @@ export default function DecisionRegisterClient() {
       setLoadError(null);
 
       try {
-        const response = await getArchitectureDecisionRegister(undefined, filters);
+        const projectId = projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders());
+        const response = await getArchitectureDecisionRegister(projectId, filters);
         if (!cancelled) setDecisions(response.decisions ?? []);
       } catch (error: unknown) {
         if (!cancelled) setLoadError(error instanceof Error ? error.message : "Failed to load decision register.");

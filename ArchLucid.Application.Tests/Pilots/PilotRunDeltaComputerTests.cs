@@ -52,7 +52,7 @@ public sealed class PilotRunDeltaComputerTests
         };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
 
-        traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentExecutionTrace { TraceId = "t-1" },
@@ -142,7 +142,7 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
-        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
@@ -169,7 +169,7 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
-        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
@@ -192,7 +192,7 @@ public sealed class PilotRunDeltaComputerTests
 
         Mock<IFindingEvidenceChainService> evidence = new();
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("traces offline"));
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
@@ -228,7 +228,7 @@ public sealed class PilotRunDeltaComputerTests
         result.TopFindingSeverity.Should().BeNull();
         result.TopFindingEvidenceChain.Should().BeNull();
         evidence.Verify(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-        traces.Verify(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()), Times.Once);
+        traces.Verify(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [SkippableFact]
@@ -267,7 +267,7 @@ public sealed class PilotRunDeltaComputerTests
             .ThrowsAsync(new InvalidOperationException("chain unavailable"));
 
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
         audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
@@ -293,7 +293,7 @@ public sealed class PilotRunDeltaComputerTests
 
         Mock<IFindingEvidenceChainService> evidence = new();
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
@@ -320,7 +320,7 @@ public sealed class PilotRunDeltaComputerTests
 
         Mock<IFindingEvidenceChainService> evidence = new();
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
         ScopeContext sc = new()
@@ -378,7 +378,7 @@ public sealed class PilotRunDeltaComputerTests
 
         Mock<IFindingEvidenceChainService> evidence = new();
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
@@ -422,7 +422,7 @@ public sealed class PilotRunDeltaComputerTests
     {
         evidence = new Mock<IFindingEvidenceChainService>();
         traces = new Mock<IAgentExecutionTraceRepository>();
-        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         Mock<IAuditRepository> audit = new();
         audit.Setup(a => a.CountFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),

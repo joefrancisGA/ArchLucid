@@ -47,7 +47,7 @@ public sealed class DapperAuthorityQueryService(
     {
         IReadOnlyList<RunRecord> runs = await runRepository.ListByProjectAsync(scope, projectId, take, ct);
         List<RunSummaryDto> summaries = runs.Select(AuthorityRunMapper.MapSummary).ToList();
-        await RunExecutionDegradation.PopulateSummariesAsync(summaries, runs, _agentExecutionTraceRepository, ct);
+        await RunExecutionDegradation.PopulateSummariesAsync(scope, summaries, runs, _agentExecutionTraceRepository, ct);
 
         return summaries;
     }
@@ -70,7 +70,7 @@ public sealed class DapperAuthorityQueryService(
             ct);
 
         List<RunSummaryDto> summaries = page.Items.Select(AuthorityRunMapper.MapSummary).ToList();
-        await RunExecutionDegradation.PopulateSummariesAsync(summaries, page.Items, _agentExecutionTraceRepository, ct);
+        await RunExecutionDegradation.PopulateSummariesAsync(scope, summaries, page.Items, _agentExecutionTraceRepository, ct);
 
         return (summaries, page.HasMore);
     }
@@ -85,6 +85,7 @@ public sealed class DapperAuthorityQueryService(
 
         RunSummaryDto summary = AuthorityRunMapper.MapSummary(run);
         IReadOnlyList<string> agents = await _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+            scope,
             run.RunId.ToString("N"),
             ct);
         RunExecutionDegradation.Apply(summary, run, agents);
@@ -122,7 +123,7 @@ public sealed class DapperAuthorityQueryService(
             ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, loadArtifactBodies: true, ct)
             : Task.FromResult<ArtifactBundle?>(null);
         Task<IReadOnlyList<string>> degradedAgentsTask =
-            _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(run.RunId.ToString("N"), ct);
+            _agentExecutionTraceRepository.GetDistinctAgentTypesWithLlmResourceFallbackAsync(scope, run.RunId.ToString("N"), ct);
 
         await Task.WhenAll(
             contextTask,

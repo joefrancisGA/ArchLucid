@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -83,6 +84,7 @@ public interface IAgentExecutionTraceRepository
     /// <param name="runId">The run whose traces are requested.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default);
 
@@ -95,6 +97,7 @@ public interface IAgentExecutionTraceRepository
     /// <param name="limit">Maximum number of rows to return.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+        ScopeContext scope,
         string runId,
         int offset,
         int limit,
@@ -115,11 +118,13 @@ public interface IAgentExecutionTraceRepository
     ///     <see cref="AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix" />).
     /// </summary>
     Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default);
 
     /// <summary>Batch form of <see cref="GetDistinctAgentTypesWithLlmResourceFallbackAsync" /> keyed by <paramref name="runId" /> string.</summary>
     Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        ScopeContext scope,
         IReadOnlyList<string> runIds,
         CancellationToken cancellationToken = default);
 

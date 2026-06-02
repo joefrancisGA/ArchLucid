@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,16 @@ namespace ArchLucid.Application.Agents;
 /// <inheritdoc cref="IAgentConfidenceCalibrationService" />
 public sealed class AgentConfidenceCalibrationService(
     IAgentResultRepository agentResultRepository,
+    IScopeContextProvider scopeContextProvider,
     IAgentConfidenceCalibrator calibrator,
     IOptions<AgentConfidenceCalibrationOptions> options,
     ILogger<AgentConfidenceCalibrationService> logger) : IAgentConfidenceCalibrationService
 {
     private readonly IAgentResultRepository _agentResultRepository =
         agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IAgentConfidenceCalibrator _calibrator =
         calibrator ?? throw new ArgumentNullException(nameof(calibrator));
@@ -36,7 +41,8 @@ public sealed class AgentConfidenceCalibrationService(
         if (!_options.Enabled)
             return;
 
-        IReadOnlyList<AgentResult> results = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken)
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentResult> results = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         foreach (AgentResult result in results)

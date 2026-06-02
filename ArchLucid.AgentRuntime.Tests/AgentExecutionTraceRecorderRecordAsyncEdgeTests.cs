@@ -17,7 +17,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 // Child namespace `ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder` shadows the runtime type name in this parent namespace (CS0118).
 using AgentExecutionTraceRecorderImpl = ArchLucid.AgentRuntime.AgentExecutionTraceRecorder;
-
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
@@ -90,7 +90,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
             isSimulatorExecution: true,
             cancellationToken: CancellationToken.None);
 
-        IReadOnlyList<AgentExecutionTrace> traces = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<AgentExecutionTrace> traces = await repo.GetByRunIdAsync(new ScopeContext { TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010"), WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020"), ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030") }, runId, CancellationToken.None);
         traces.Should().ContainSingle();
         traces[0].EstimatedCostUsd.Should().BeNull();
     }

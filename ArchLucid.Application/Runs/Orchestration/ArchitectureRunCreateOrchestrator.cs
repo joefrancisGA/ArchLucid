@@ -336,7 +336,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(_runRepository, _scopeContextProvider, _taskRepository, runId, cancellationToken);
         if (run is null)
             throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
-        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        ScopeContext rehydrateScope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(rehydrateScope, runId, cancellationToken);
         if (tasks.Count == 0)
             throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");
         string? bundleRef = tasks[0].EvidenceBundleRef;

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
+using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Tests.Contracts;
 [Trait("Category", "Unit")]
 

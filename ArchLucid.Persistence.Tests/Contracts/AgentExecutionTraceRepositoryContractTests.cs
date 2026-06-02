@@ -3,6 +3,8 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Trait("Category", "Unit")]
@@ -48,7 +50,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         await repo.CreateAsync(NewTrace(runId, task.TaskId, "t1", first), CancellationToken.None);
         await repo.CreateAsync(NewTrace(runId, taskB.TaskId, "t2", second), CancellationToken.None);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].TraceId.Should().Be("t1");
@@ -73,7 +75,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             NewTrace(runId, task.TaskId, "second-trace", TimeProvider.System.UtcNowDateTime()),
             CancellationToken.None);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         list.Should().ContainSingle();
         list[0].TraceId.Should().Be("second-trace");
@@ -101,11 +103,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         await repo.CreateAsync(NewTrace(runId, task2.TaskId, "p2", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
             CancellationToken.None);
 
-        (IReadOnlyList<AgentExecutionTrace> page, int total) = await repo.GetPagedByRunIdAsync(
-            runId,
-            1,
-            1,
-            CancellationToken.None);
+        (IReadOnlyList<AgentExecutionTrace> page, int total) = await repo.GetPagedByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, 1, 1, CancellationToken.None);
 
         total.Should().Be(3);
         page.Should().ContainSingle();
@@ -154,7 +152,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             "file:///rsp",
             CancellationToken.None);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.FullSystemPromptBlobKey.Should().Be("file:///sys");
         t.FullUserPromptBlobKey.Should().Be("file:///usr");
@@ -182,7 +180,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             "resp-full",
             CancellationToken.None);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.FullSystemPromptInline.Should().Be("sys-full");
         t.FullUserPromptInline.Should().BeNull();
@@ -195,7 +193,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             null,
             CancellationToken.None);
 
-        list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        list = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
         t = list.Should().ContainSingle().Subject;
         t.FullSystemPromptInline.Should().Be("sys-full");
         t.FullUserPromptInline.Should().Be("user-full");
@@ -306,9 +304,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
                 modelDeploymentName: "gpt-4-primary"),
             CancellationToken.None);
 
-        IReadOnlyList<string> agents = await repo.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
-            runId,
-            CancellationToken.None);
+        IReadOnlyList<string> agents = await repo.GetDistinctAgentTypesWithLlmResourceFallbackAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         agents.Should().BeEmpty();
     }
@@ -356,9 +352,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
                 fallbackName),
             CancellationToken.None);
 
-        IReadOnlyList<string> agents = await repo.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
-            runId,
-            CancellationToken.None);
+        IReadOnlyList<string> agents = await repo.GetDistinctAgentTypesWithLlmResourceFallbackAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         agents.Should().Equal("Cost", "Topology");
     }
@@ -399,7 +393,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             CancellationToken.None);
 
         IReadOnlyDictionary<string, IReadOnlyList<string>> map =
-            await repo.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync([runA, runB], CancellationToken.None);
+            await repo.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(ArchitectureCommitTestSeed.AsScopeContext(), [runA, runB], CancellationToken.None);
 
         map.Should().ContainKey(runA);
         map[runA].Should().Equal("Compliance");

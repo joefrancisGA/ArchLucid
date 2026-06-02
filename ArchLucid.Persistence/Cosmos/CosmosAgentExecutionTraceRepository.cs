@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -158,9 +159,11 @@ public sealed class CosmosAgentExecutionTraceRepository(
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default)
     {
+        _ = scope;
         (IReadOnlyList<AgentExecutionTrace> traces, _) = await QueryRunPageAsync(runId, 0, 500, cancellationToken);
 
         return traces;
@@ -168,11 +171,13 @@ public sealed class CosmosAgentExecutionTraceRepository(
 
     /// <inheritdoc />
     public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+        ScopeContext scope,
         string runId,
         int offset,
         int limit,
         CancellationToken cancellationToken = default)
     {
+        _ = scope;
         return await QueryRunPageAsync(runId, offset, limit, cancellationToken);
     }
 
@@ -202,16 +207,18 @@ public sealed class CosmosAgentExecutionTraceRepository(
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(scope, runId, cancellationToken);
 
         return AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(traces);
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        ScopeContext scope,
         IReadOnlyList<string> runIds,
         CancellationToken cancellationToken = default)
     {
@@ -227,7 +234,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
 
         foreach (string rid in normalized)
         {
-            IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(rid, cancellationToken);
+            IReadOnlyList<AgentExecutionTrace> traces = await GetByRunIdAsync(scope, rid, cancellationToken);
             map[rid] = AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(traces);
         }
 

@@ -85,7 +85,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
-            .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentTask
@@ -120,7 +120,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             .ReturnsAsync([]);
 
         Mock<IAgentResultRepository> resultRepo = new();
-        resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
         resultRepo
             .Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);

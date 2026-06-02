@@ -2,6 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 
 using Dapper;
 
@@ -21,6 +22,13 @@ public static class ArchitectureCommitTestSeed
     private static readonly Guid SeedWorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020");
 
     private static readonly Guid SeedScopeProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030");
+
+    public static ScopeContext AsScopeContext() => new()
+    {
+        TenantId = SeedTenantId,
+        WorkspaceId = SeedWorkspaceId,
+        ProjectId = SeedScopeProjectId,
+    };
 
     /// <summary>Inserts <c>dbo.ArchitectureRequests</c> only (idempotent on <paramref name="requestId" />).</summary>
     public static async Task InsertArchitectureRequestOnlyAsync(

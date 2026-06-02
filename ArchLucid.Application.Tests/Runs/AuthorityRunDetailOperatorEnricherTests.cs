@@ -19,6 +19,8 @@ using FluentAssertions;
 
 using Moq;
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Application.Tests.Runs;
 
 [Trait("Suite", "Core")]
@@ -79,7 +81,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentExecutionTrace
@@ -168,7 +170,7 @@ public sealed class AuthorityRunDetailOperatorEnricherTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetByRunIdAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Mock<ILlmCostEstimator> estimator = new();

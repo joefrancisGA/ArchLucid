@@ -348,7 +348,8 @@ public sealed class AzureExtractorIngestService(
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        IReadOnlyList<AgentTask> tasks = await agentTaskRepository.GetByRunIdAsync(runGuid.ToString("N"), ct);
+        ScopeContext attachScope = scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentTask> tasks = await agentTaskRepository.GetByRunIdAsync(attachScope, runGuid.ToString("N"), ct);
 
         string? bundleRef = (from task in tasks where !string.IsNullOrWhiteSpace(task.EvidenceBundleRef) select task.EvidenceBundleRef!.Trim())
             .FirstOrDefault();

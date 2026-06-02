@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Governance;
@@ -17,10 +18,14 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
     internal static async Task<(long PromptTokens, long CompletionTokens)> AggregateAsync(
         IRunDetailQueryService runDetailQueryService,
         IAgentExecutionTraceRepository traceRepository,
+        IScopeContextProvider scopeContextProvider,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);
         ArgumentNullException.ThrowIfNull(traceRepository);
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         DateTime windowStartUtc = TimeProvider.System.UtcNowDateTime().Subtract(RecentWindow);
         long promptTotal = 0;
@@ -49,7 +54,7 @@ internal static class GovernanceDashboardRecentRunTokenAggregator
                     return (promptTotal, completionTotal);
 
                 IReadOnlyList<Contracts.Agents.AgentExecutionTrace> traces =
-                    await traceRepository.GetByRunIdAsync(summary.RunId, cancellationToken).ConfigureAwait(false);
+                    await traceRepository.GetByRunIdAsync(scope, summary.RunId, cancellationToken).ConfigureAwait(false);
 
                 foreach (Contracts.Agents.AgentExecutionTrace trace in traces)
                 {

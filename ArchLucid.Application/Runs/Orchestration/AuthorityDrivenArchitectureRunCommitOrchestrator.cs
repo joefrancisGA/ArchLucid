@@ -297,7 +297,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             GraphSnapshot? graph = await _graphSnapshotRepository.GetByIdAsync(scope, graphId, cancellationToken);
             if (graph is null)
                 throw new InvalidOperationException($"Graph snapshot '{graphId:D}' for run '{runId}' was not found.");
-            agentResultsForTelemetry = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
+            agentResultsForTelemetry = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
             GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
             FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(scope, findingsId, cancellationToken);
             if (findings is null)
@@ -624,11 +624,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken));
         if (existing.Count > 0)
             return;
-        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        ScopeContext commitNodesScope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
         if (tasks.Count == 0)
             return;
         AgentEvidencePackage evidence = await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
-        IReadOnlyList<AgentResult> results = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentResult> results = await _agentResultRepository.GetByRunIdAsync(commitNodesScope, runId, cancellationToken);
         if (results.Count == 0)
             return;
         IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationService.EvaluateAsync(runId, request, evidence, tasks, results, cancellationToken);

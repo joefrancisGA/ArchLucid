@@ -5,6 +5,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ namespace ArchLucid.Application.Agents.IaC;
 public sealed class FindingIacStubGenerator(
     IAgentCompletionClient completionClient,
     IAgentResultRepository agentResultRepository,
+    IScopeContextProvider scopeContextProvider,
     ILogger<FindingIacStubGenerator> logger) : IFindingIacStubGenerator
 {
     private const string SystemPrompt =
@@ -27,13 +29,17 @@ public sealed class FindingIacStubGenerator(
     private readonly IAgentResultRepository _agentResultRepository = agentResultRepository
                                                                      ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     private readonly ILogger<FindingIacStubGenerator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task GenerateAndPersistStubsForRunAsync(string runId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        IReadOnlyList<AgentResult> existingResults = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentResult> existingResults = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
         if (existingResults.Count == 0)
             return;

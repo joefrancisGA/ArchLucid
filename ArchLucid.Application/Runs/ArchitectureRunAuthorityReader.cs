@@ -33,7 +33,7 @@ public static class ArchitectureRunAuthorityReader
         if (record is null)
             return null;
         // Implementations (and loose test doubles) may return null; treat as no tasks so callers still get a run shape.
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         IReadOnlyList<string> taskIds = tasks.Select(t => t.TaskId).ToList();
         return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
     }

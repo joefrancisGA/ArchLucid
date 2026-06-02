@@ -80,9 +80,9 @@ public sealed class RunDetailQueryService(
             return null;
         }
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         ArchitectureRun run = RunRecordToArchitectureRunMapper.ToArchitectureRun(record, tasks.Select(t => t.TaskId).ToList());
-        List<AgentResult> results = (await resultRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
+        List<AgentResult> results = (await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken)).ToList();
 
         if (record.FindingsSnapshotId is { } findingsSnapshotId)
         {

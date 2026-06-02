@@ -1,5 +1,6 @@
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Queries;
 
@@ -7,11 +8,13 @@ namespace ArchLucid.Persistence.Queries;
 public static class RunExecutionDegradation
 {
     public static async Task PopulateSummariesAsync(
+        ScopeContext scope,
         IReadOnlyList<RunSummaryDto> summaries,
         IReadOnlyList<RunRecord> runs,
         IAgentExecutionTraceRepository traceRepository,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(summaries);
         ArgumentNullException.ThrowIfNull(runs);
         ArgumentNullException.ThrowIfNull(traceRepository);
@@ -27,6 +30,7 @@ public static class RunExecutionDegradation
 
         IReadOnlyDictionary<string, IReadOnlyList<string>> byRun =
             await traceRepository.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+                scope,
                 runIdStrings,
                 cancellationToken);
 

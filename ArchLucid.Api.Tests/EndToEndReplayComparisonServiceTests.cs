@@ -11,6 +11,7 @@ using FluentAssertions;
 
 using Moq;
 
+using ArchLucid.Core.Scoping;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>

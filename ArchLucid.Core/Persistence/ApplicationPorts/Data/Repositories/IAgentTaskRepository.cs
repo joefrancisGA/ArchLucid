@@ -2,6 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -25,5 +26,8 @@ public interface IAgentTaskRepository
     ///     Returns all tasks for the given <paramref name="runId" />, ordered by creation time ascending.
     ///     Returns an empty list (never <see langword="null" />) when no tasks are found.
     /// </summary>
-    Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
 }

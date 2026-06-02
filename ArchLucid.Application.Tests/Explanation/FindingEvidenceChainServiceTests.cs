@@ -73,7 +73,7 @@ public sealed class FindingEvidenceChainServiceTests
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
-        traces.Setup(t => t.GetByRunIdAsync(runGuid.ToString("N"), It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runGuid.ToString("N"), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentExecutionTrace

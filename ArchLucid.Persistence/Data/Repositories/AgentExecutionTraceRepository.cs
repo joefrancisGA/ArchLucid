@@ -5,6 +5,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -439,16 +440,21 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     }
 
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default)
     {
+        RunChildRunScopeSql.RequireScope(scope);
+
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-                      SELECT TraceJson
-                      FROM AgentExecutionTraces
-                      WHERE RunId = @RunId
-                      ORDER BY CreatedUtc
+                      SELECT t.TraceJson
+                      FROM AgentExecutionTraces t
+                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      WHERE t.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY t.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
 
@@ -456,7 +462,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             sql,
             new
             {
-                RunId = runId
+                RunId = runId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
             },
             cancellationToken: cancellationToken));
 
@@ -464,19 +473,24 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     }
 
     public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+        ScopeContext scope,
         string runId,
         int offset,
         int limit,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-                           SELECT TraceJson,
-                                  COUNT(*) OVER () AS TotalCount
-                           FROM AgentExecutionTraces
-                           WHERE RunId = @RunId
-                           ORDER BY CreatedUtc
-                           OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
-                           """;
+        RunChildRunScopeSql.RequireScope(scope);
+
+        string sql = $"""
+                      SELECT t.TraceJson,
+                             COUNT(*) OVER () AS TotalCount
+                      FROM AgentExecutionTraces t
+                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      WHERE t.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY t.CreatedUtc
+                      OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
+                      """;
 
         int clampedOffset = Math.Max(0, offset);
         int clampedLimit = Math.Clamp(limit, 1, 500);
@@ -529,6 +543,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default)
     {
@@ -536,6 +551,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         IReadOnlyDictionary<string, IReadOnlyList<string>> map =
             await GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+                scope,
                 [runId.Trim()],
                 cancellationToken);
 
@@ -544,6 +560,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        ScopeContext scope,
         IReadOnlyList<string> runIds,
         CancellationToken cancellationToken = default)
     {
@@ -558,17 +575,21 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         if (normalized.Count == 0)
             return new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
 
+        RunChildRunScopeSql.RequireScope(scope);
+
         const string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
 
         // List<string> is globally mapped to JSON via ListStringTypeHandler, which prevents Dapper's IN-list expansion.
         string[] runIdsParameter = normalized.ToArray();
 
-        const string sql = """
-                             SELECT DISTINCT RunId, AgentType
-                             FROM dbo.AgentExecutionTraces
-                             WHERE RunId IN @RunIds
-                               AND ModelDeploymentName LIKE @PrefixPattern
-                             """;
+        string sql = $"""
+                      SELECT DISTINCT t.RunId, t.AgentType
+                      FROM dbo.AgentExecutionTraces t
+                      {RunChildRunScopeSql.InnerJoinRuns("t")}
+                      WHERE t.RunId IN @RunIds
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND t.ModelDeploymentName LIKE @PrefixPattern
+                      """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -576,7 +597,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             new CommandDefinition(sql, new
             {
                 RunIds = runIdsParameter,
-                PrefixPattern = pattern
+                PrefixPattern = pattern,
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
             },
                 cancellationToken: cancellationToken));
 

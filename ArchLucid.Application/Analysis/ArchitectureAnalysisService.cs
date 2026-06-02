@@ -7,6 +7,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -18,6 +19,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ArchitectureAnalysisService(
     IRunDetailQueryService runDetailQueryService,
+    IScopeContextProvider scopeContextProvider,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IAgentEvidencePackageRepository evidenceRepository,
     IAgentExecutionTraceRepository traceRepository,
@@ -29,6 +31,9 @@ public sealed class ArchitectureAnalysisService(
     IAgentResultDiffService agentResultDiffService) : IArchitectureAnalysisService
 {
     private const string ExecutionModeCurrent = ExecutionModes.Current;
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc/>
     public async Task<ArchitectureAnalysisReport> BuildAsync(ArchitectureAnalysisRequest request, CancellationToken cancellationToken = default)
@@ -62,7 +67,8 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(request.RunId, cancellationToken)).ToList();
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken)).ToList();
             if (report.ExecutionTraces.Count == 0)
                 report.Warnings.Add("No execution traces were found for this run.");
         }
@@ -123,7 +129,8 @@ public sealed class ArchitectureAnalysisService(
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             else
             {
-                IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+                ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+                IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results ?? await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
                 report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, request.CompareRunId, rightResults);
             }

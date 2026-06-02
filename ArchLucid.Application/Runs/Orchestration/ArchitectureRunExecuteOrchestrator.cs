@@ -233,7 +233,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
             if (!safety.IsAllowed)
                 throw new InvalidOperationException(string.Join("; ", safety.Reasons));
-            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+            ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
+            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
             if (tasks.Count == 0)
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
             AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
@@ -374,7 +375,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     /// </summary>
     private async Task<ExecuteRunResult?> TryReturnExistingExecuteResultsAsync(ArchitectureRun run, string runId, CancellationToken cancellationToken)
     {
-        IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        ScopeContext idempotencyScope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(idempotencyScope, runId, cancellationToken);
         if (_runStateTransitionService.IsExecuteIdempotentTerminalStatus(run.Status))
         {
             if (existingResults.Count > 0)
@@ -395,7 +397,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             return null;
 
         IReadOnlyList<AgentTask> scheduledTasks =
-            await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+            await taskRepository.GetByRunIdAsync(idempotencyScope, runId, cancellationToken);
 
         if (!ArePersistedResultsCompleteForTasks(scheduledTasks, existingResults))
         {

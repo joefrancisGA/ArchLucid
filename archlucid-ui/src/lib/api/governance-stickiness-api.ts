@@ -152,7 +152,7 @@ export async function recordFindingDisposition(
   body: {
     disposition: FindingDispositionKind;
     rationale?: string;
-    runId?: string;
+    runId: string;
     revisitDueUtc?: string;
     evidenceRequestText?: string;
   },

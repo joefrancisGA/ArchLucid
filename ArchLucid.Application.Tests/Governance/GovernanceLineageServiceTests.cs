@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -58,7 +58,7 @@ public sealed class GovernanceLineageServiceTests
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         promotions
-            .Setup(p => p.GetByRunIdAsync(approval.RunId, It.IsAny<CancellationToken>()))
+            .Setup(p => p.GetByRunIdAsync(It.IsAny<ScopeContext>(), approval.RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         GovernanceLineageService sut = new(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
@@ -92,7 +92,7 @@ public sealed class GovernanceLineageServiceTests
                 new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runN, Status = ArchitectureRunStatus.Committed } });
 
         promotions
-            .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
+            .Setup(p => p.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         FindingsSnapshot snapshot = new()
@@ -164,7 +164,7 @@ public sealed class GovernanceLineageServiceTests
                 new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runN, Status = ArchitectureRunStatus.Committed } });
 
         promotions
-            .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
+            .Setup(p => p.GetByRunIdAsync(It.IsAny<ScopeContext>(), runN, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         FindingsSnapshot snapshot = new()

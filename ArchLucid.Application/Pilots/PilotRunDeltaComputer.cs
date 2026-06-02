@@ -127,7 +127,8 @@ public sealed class PilotRunDeltaComputer(
     {
         try
         {
-            IReadOnlyList<AgentExecutionTrace> list = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+            ScopeContext traceScope = _scopeContextProvider.GetCurrentScope();
+            IReadOnlyList<AgentExecutionTrace> list = await _agentExecutionTraceRepository.GetByRunIdAsync(traceScope, runId, cancellationToken);
             return (list, list.Count, true);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

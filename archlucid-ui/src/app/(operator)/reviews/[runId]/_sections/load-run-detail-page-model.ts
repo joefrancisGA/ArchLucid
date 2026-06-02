@@ -1,5 +1,6 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { isBrowser } from "@/lib/api/http";
 import {
   type ApiResponseWithTrace,
   compareRuns,
@@ -45,6 +46,12 @@ import {
 } from "@/lib/quick-decision-summary-derive";
 import { resolveReviewOutcomeCounts } from "@/lib/review-outcome-counts";
 import { resolveRunDetailSavingsSummary } from "@/lib/run-detail-savings-summary-resolve";
+import { getScopeHeaders } from "@/lib/scope";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import {
+  projectIdFromScopeHeaders,
+  runProjectMatchesEffectiveScope,
+} from "@/lib/operator-resource-scope";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import {
   SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
@@ -114,6 +121,15 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   }
 
   const resolvedDetail = envelope.value;
+
+  const effectiveScopeHeaders = isBrowser()
+    ? getEffectiveBrowserProxyScopeHeaders()
+    : getScopeHeaders();
+  const effectiveProjectId = projectIdFromScopeHeaders(effectiveScopeHeaders);
+
+  if (!runProjectMatchesEffectiveScope(resolvedDetail.run.projectId, effectiveProjectId)) {
+    return { kind: "not-found" };
+  }
 
   let canShowCompareReviewButton = false;
   let priorCommittedRun: RunSummary | null = null;

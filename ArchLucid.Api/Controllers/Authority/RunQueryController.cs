@@ -117,9 +117,11 @@ public sealed class RunQueryController(
                 cancellationToken);
         }
 
+        ScopeContext appendScope = scopeContextProvider.GetCurrentScope();
         await RunAgentExecutionLlmCostEstimateAppender.AppendAsync(
             response,
             runId,
+            appendScope,
             agentExecutionTraceRepository,
             llmCostEstimator,
             cancellationToken);
@@ -488,8 +490,11 @@ public sealed class RunQueryController(
         };
         (int skip, int take) = paging.Normalize();
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
         (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) =
             await agentExecutionTraceRepository.GetPagedByRunIdAsync(
+                scope,
                 runId,
                 skip,
                 take,
@@ -517,10 +522,11 @@ public sealed class RunQueryController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IReadOnlyList<AgentExecutionTrace> traces =
-            await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        IReadOnlyList<AgentExecutionTrace> traces =
+            await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
         IReadOnlyList<AgentToolInvocationRecord> structured = [];
 
         if (scope.TenantId != Guid.Empty && Guid.TryParse(runId, out Guid runGuid))

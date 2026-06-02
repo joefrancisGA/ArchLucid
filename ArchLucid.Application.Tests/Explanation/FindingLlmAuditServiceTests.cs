@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -60,7 +60,7 @@ public sealed class FindingLlmAuditServiceTests
         result.Should().NotBeNull();
         result.TraceId.Should().Be("abc123");
         result.UserPromptRedacted.Should().Be("user@test.com");
-        traces.Verify(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        traces.Verify(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [SkippableFact]

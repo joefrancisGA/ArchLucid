@@ -170,8 +170,9 @@ public sealed class AuthorityPipelineWorkProcessor(
         List<AgentTask> starterTasks =
             RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest);
 
+        ScopeContext materializedScope = AmbientScopeContext.CurrentOverride ?? jobScope;
         IReadOnlyList<AgentTask> existingTasks =
-            await taskRepository.GetByRunIdAsync(runIdN, cancellationToken);
+            await taskRepository.GetByRunIdAsync(materializedScope, runIdN, cancellationToken);
 
         if (existingTasks.Count == 0)
 

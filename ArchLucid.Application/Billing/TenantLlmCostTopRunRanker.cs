@@ -51,7 +51,7 @@ public sealed class TenantLlmCostTopRunRanker(
         {
             string runHex = summary.RunId.ToString("N");
             IReadOnlyList<AgentExecutionTrace> traces = await _traceRepository
-                .GetByRunIdAsync(runHex, cancellationToken)
+                .GetByRunIdAsync(scope, runHex, cancellationToken)
                 .ConfigureAwait(false);
 
             if (traces.Count == 0)

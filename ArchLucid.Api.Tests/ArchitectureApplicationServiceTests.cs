@@ -80,7 +80,7 @@ public sealed class ArchitectureApplicationServiceTests
         actorContext.Setup(a => a.GetActor()).Returns("unit-test");
 
         _agentEvidencePackageRepository
-            .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AgentEvidencePackage?)null);
         _evidenceBuilder
             .Setup(b =>
@@ -267,7 +267,7 @@ public sealed class ArchitectureApplicationServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _resultRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([result]);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -332,7 +332,7 @@ public sealed class ArchitectureApplicationServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _resultRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([.. existingResults, result]);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -366,7 +366,7 @@ public sealed class ArchitectureApplicationServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _resultRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([.. existingResults, result]);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -438,7 +438,7 @@ public sealed class ArchitectureApplicationServiceTests
             .ReturnsAsync(DetailFor(run, tasks, []));
         _resultRepository.Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _resultRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([result]);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);

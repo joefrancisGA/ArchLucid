@@ -11,6 +11,7 @@ using FluentAssertions;
 
 using Moq;
 
+using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.Tests.Governance;
 
 [Trait("Category", "Unit")]
@@ -56,7 +57,8 @@ public sealed class GovernanceDashboardServiceTests
             approvals.Object,
             changes.Object,
             runQuery.Object,
-            traces.Object);
+            traces.Object,
+            CreateScopeProvider());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -86,7 +88,8 @@ public sealed class GovernanceDashboardServiceTests
             approvals.Object,
             changes.Object,
             runQuery.Object,
-            traces.Object);
+            traces.Object,
+            CreateScopeProvider());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
@@ -128,7 +131,7 @@ public sealed class GovernanceDashboardServiceTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AgentExecutionTrace>
             {
                 new() { InputTokenCount = 120, OutputTokenCount = 45 },
@@ -139,12 +142,21 @@ public sealed class GovernanceDashboardServiceTests
             approvals.Object,
             changes.Object,
             runQuery.Object,
-            traces.Object);
+            traces.Object,
+            CreateScopeProvider());
 
         GovernanceDashboardSummary summary = await sut.GetDashboardAsync(tenantId);
 
         summary.TotalPromptTokens.Should().Be(200);
         summary.TotalCompletionTokens.Should().Be(100);
+    }
+
+    private static IScopeContextProvider CreateScopeProvider()
+    {
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        return scope.Object;
     }
 
     private static (Mock<IRunDetailQueryService> RunQuery, Mock<IAgentExecutionTraceRepository> Traces) CreateEmptyTokenMocks()

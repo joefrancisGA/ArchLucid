@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.04%
+# ArchLucid Assessment – (A) Headline Readiness: 80.14%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Through **79.93%** (4C); 5A **TB-158** pilot acceptance proof automation → **80.04%**. G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
+Rescore note: Through **80.04%** (5A); batch **5B TB-076/TB-077** tenancy defense-in-depth → **80.14%** (+1 Trustworthiness, +1 Architectural Integrity, +1 Correctness capped). G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
 
 ## Executive Summary
 
@@ -48,7 +48,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | --- | ---: | ---: | ---: | ---: |
 | AI/Agent Readiness | 72 | 8 | 4.97% | 224 |
 | Cutting-Edge AI Technology | 73 | 8 | 5.03% | 216 |
-| Correctness | 76 | 8 | 5.24% | 192 |
+| Correctness | 77 | 8 | 5.24% | 192 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
 | Time-to-Value | 80 | 7 | 4.83% | 140 |
@@ -58,9 +58,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Executive Value Visibility | 78 | 4 | 2.69% | 88 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
-| Trustworthiness | 79 | 3 | 2.05% | 63 |
+| Trustworthiness | 80 | 3 | 2.05% | 63 |
 | Interoperability | 66 | 2 | 1.14% | 68 |
-| Architectural Integrity | 79 | 3 | 2.05% | 63 |
+| Architectural Integrity | 80 | 3 | 2.05% | 63 |
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
 | Decision Velocity | 71 | 2 | 1.22% | 58 |
 | Data Consistency | 70 | 2 | 1.21% | 60 |

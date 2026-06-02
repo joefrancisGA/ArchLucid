@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -12,7 +13,8 @@ public sealed class GovernanceDashboardService(
     IGovernanceApprovalRequestRepository approvalRequestRepository,
     IPolicyPackChangeLogRepository policyPackChangeLogRepository,
     IRunDetailQueryService runDetailQueryService,
-    IAgentExecutionTraceRepository traceRepository) : IGovernanceDashboardService
+    IAgentExecutionTraceRepository traceRepository,
+    IScopeContextProvider scopeContextProvider) : IGovernanceDashboardService
 {
     private readonly IGovernanceApprovalRequestRepository _approvalRequestRepository =
         approvalRequestRepository ?? throw new ArgumentNullException(nameof(approvalRequestRepository));
@@ -25,6 +27,9 @@ public sealed class GovernanceDashboardService(
 
     private readonly IAgentExecutionTraceRepository _traceRepository =
         traceRepository ?? throw new ArgumentNullException(nameof(traceRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc/>
     public async Task<GovernanceDashboardSummary> GetDashboardAsync(Guid tenantId, int maxPending = 20, int maxDecisions = 20, int maxChanges = 20,
@@ -42,7 +47,7 @@ public sealed class GovernanceDashboardService(
         Task<IReadOnlyList<GovernanceApprovalRequest>> decisionsTask = _approvalRequestRepository.GetRecentDecisionsAsync(maxDecisions, cancellationToken);
         Task<IReadOnlyList<PolicyPackChangeLogEntry>> changesTask = _policyPackChangeLogRepository.GetByTenantAsync(tenantId, maxChanges, cancellationToken);
         Task<(long PromptTokens, long CompletionTokens)> tokenTask =
-            GovernanceDashboardRecentRunTokenAggregator.AggregateAsync(_runDetailQueryService, _traceRepository, cancellationToken);
+            GovernanceDashboardRecentRunTokenAggregator.AggregateAsync(_runDetailQueryService, _traceRepository, _scopeContextProvider, cancellationToken);
         await Task.WhenAll(pendingTask, decisionsTask, changesTask, tokenTask);
         IReadOnlyList<GovernanceApprovalRequest> pending = await pendingTask;
         IReadOnlyList<GovernanceApprovalRequest> decisions = await decisionsTask;

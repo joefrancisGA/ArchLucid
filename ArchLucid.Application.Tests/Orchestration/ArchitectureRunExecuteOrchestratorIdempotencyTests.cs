@@ -130,7 +130,7 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             : "topology-task-idempotent";
 
         taskRepo
-            .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentTask { RunId = runId, AgentType = AgentType.Topology, TaskId = topologyTaskId },
@@ -138,7 +138,7 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
 
         Mock<IAgentResultRepository> resultRepo = new();
         resultRepo
-            .Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null))
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null))
             .ReturnsAsync(existingResults);
 
         return new ArchitectureRunExecuteOrchestrator(

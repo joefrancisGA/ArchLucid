@@ -1,5 +1,6 @@
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Trust;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Runs;
@@ -95,8 +96,9 @@ public sealed class AuthorityRunDetailOperatorEnricher(
         string runHex,
         CancellationToken cancellationToken)
     {
+        ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
         IReadOnlyList<AgentExecutionTrace> traces =
-            await _agentExecutionTraceRepository.GetByRunIdAsync(runHex, cancellationToken).ConfigureAwait(false);
+            await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runHex, cancellationToken).ConfigureAwait(false);
 
         AgentExecutionTraceRunLlmCostSummary summary =
             AgentExecutionTraceRunLlmCostAggregator.Compute(traces, _llmCostEstimator);

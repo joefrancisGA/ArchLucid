@@ -2,6 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -32,8 +33,12 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
     {
+        _ = scope;
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {

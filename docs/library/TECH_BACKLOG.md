@@ -3656,6 +3656,8 @@ For Entra JWT with embedded `tenant_id`, the API ignores hostile headers. For De
 
 ## TB-076 — Run-child SQL scope predicates + in-memory repository tenant keys
 
+**Status (2026-06-01):** **Done** — `ScopeContext` first parameter on `IAgentTaskRepository` / `IAgentResultRepository` / `IAgentExecutionTraceRepository` run-child reads; `RunChildRunScopeSql` joins `dbo.Runs`; callers + Cosmos stub updated; `RunChildRunScopeSqlTests`.
+
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). After a scoped run load, child data is often loaded by `RunId` only.
 
 **Problem:**
@@ -3693,6 +3695,8 @@ Residual risk in **SingleCatalog** / dev if run gate is skipped or connection ta
 ---
 
 ## TB-077 — Operator UI resource ownership checks + governance mutation hardening
+
+**Status (2026-06-01):** **Done** — `operator-resource-scope.ts`; run-detail project mismatch → not-found; required `runId` on disposition POST; decision register scoped by effective project; CI drift guard `test_tenancy_defense_batch.py`.
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). Dynamic operator routes use resource IDs only; no post-load tenant ownership validation.
 

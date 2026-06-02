@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
+using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.Tests.Agents.IaC;
 
 [Trait("Suite", "Core")]
@@ -60,7 +61,7 @@ public sealed class FindingIacStubGeneratorTests
 
         Mock<IAgentResultRepository> resultRepository = new();
         resultRepository
-            .Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>(), null, null))
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([result]);
 
         List<AgentResult>? persisted = null;
@@ -70,9 +71,13 @@ public sealed class FindingIacStubGeneratorTests
                 (rows, _, _, _) => persisted = rows.ToList())
             .Returns(Task.CompletedTask);
 
+        Mock<IScopeContextProvider> scopeContextProvider = new();
+        scopeContextProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
         FindingIacStubGenerator sut = new(
             completionClient.Object,
             resultRepository.Object,
+            scopeContextProvider.Object,
             NullLogger<FindingIacStubGenerator>.Instance);
 
         await sut.GenerateAndPersistStubsForRunAsync("run-1", CancellationToken.None);

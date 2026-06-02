@@ -8,6 +8,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,6 +20,7 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 /// </summary>
 public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
     IAgentExecutionTraceRepository traceRepository,
+    IScopeContextProvider scopeContextProvider,
     IAgentOutputEvaluator structuralEvaluator,
     HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
     IAgentOutputQualityGate qualityGate,
@@ -30,6 +32,9 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
 {
     private readonly IAgentExecutionTraceRepository _traceRepository =
         traceRepository ?? throw new ArgumentNullException(nameof(traceRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IAgentOutputEvaluator _structuralEvaluator =
         structuralEvaluator ?? throw new ArgumentNullException(nameof(structuralEvaluator));
@@ -63,8 +68,9 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
         try
         {
             string runKey = snapshot.RunId.ToString("N");
+            ScopeContext scope = AmbientScopeContext.CurrentOverride ?? _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentExecutionTrace> traces =
-                await _traceRepository.GetByRunIdAsync(runKey, cancellationToken);
+                await _traceRepository.GetByRunIdAsync(scope, runKey, cancellationToken);
 
             Dictionary<AgentType, AgentExecutionTrace> traceByAgentType = traces
                 .GroupBy(static t => t.AgentType)

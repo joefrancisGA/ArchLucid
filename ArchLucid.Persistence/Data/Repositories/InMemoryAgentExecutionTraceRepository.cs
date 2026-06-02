@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -222,9 +223,12 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId,
+    public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
+        ScopeContext scope,
+        string runId,
         CancellationToken cancellationToken = default)
     {
+        _ = scope;
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
@@ -240,11 +244,13 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
 
     /// <inheritdoc />
     public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+        ScopeContext scope,
         string runId,
         int offset,
         int limit,
         CancellationToken cancellationToken = default)
     {
+        _ = scope;
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
@@ -285,9 +291,11 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
 
     /// <inheritdoc />
     public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default)
     {
+        _ = scope;
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -303,9 +311,11 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
 
     /// <inheritdoc />
     public Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        ScopeContext scope,
         IReadOnlyList<string> runIds,
         CancellationToken cancellationToken = default)
     {
+        _ = scope;
         ArgumentNullException.ThrowIfNull(runIds);
         cancellationToken.ThrowIfCancellationRequested();
 

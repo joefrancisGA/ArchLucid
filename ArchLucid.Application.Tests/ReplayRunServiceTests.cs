@@ -206,7 +206,7 @@ public sealed class ReplayRunServiceTests
         };
 
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
-        evidenceRepo.Setup(x => x.GetByRunIdAsync(originalRunId, It.IsAny<CancellationToken>())).ReturnsAsync(evidence);
+        evidenceRepo.Setup(x => x.GetByRunIdAsync(It.IsAny<ScopeContext>(), originalRunId, It.IsAny<CancellationToken>())).ReturnsAsync(evidence);
 
         AgentResult result = new()
         {
@@ -334,7 +334,7 @@ public sealed class ReplayRunServiceTests
         };
 
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
-        evidenceRepo.Setup(x => x.GetByRunIdAsync(originalRunId, It.IsAny<CancellationToken>())).ReturnsAsync(evidence);
+        evidenceRepo.Setup(x => x.GetByRunIdAsync(It.IsAny<ScopeContext>(), originalRunId, It.IsAny<CancellationToken>())).ReturnsAsync(evidence);
 
         List<AgentResult> results =
         [

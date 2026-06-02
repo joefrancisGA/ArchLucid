@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -93,24 +94,30 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         }
     }
 
-    public async Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(string runId,
+    public async Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(
+        ScopeContext scope,
+        string runId,
         CancellationToken cancellationToken = default)
     {
+        RunChildRunScopeSql.RequireScope(scope);
+
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT
-                          TaskId,
-                          RunId,
-                          AgentType,
-                          Objective,
-                          Status,
-                          CreatedUtc,
-                          CompletedUtc,
-                          EvidenceBundleRef
-                      FROM AgentTasks
-                      WHERE RunId = @RunId
-                      ORDER BY CreatedUtc
+                          at.TaskId,
+                          at.RunId,
+                          at.AgentType,
+                          at.Objective,
+                          at.Status,
+                          at.CreatedUtc,
+                          at.CompletedUtc,
+                          at.EvidenceBundleRef
+                      FROM AgentTasks at
+                      {RunChildRunScopeSql.InnerJoinRuns("at")}
+                      WHERE at.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY at.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
 
@@ -118,7 +125,10 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             sql,
             new
             {
-                RunId = runId
+                RunId = runId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
             },
             cancellationToken: cancellationToken));
 

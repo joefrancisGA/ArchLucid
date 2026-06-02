@@ -45,7 +45,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             null,
             meta);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
 
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.PromptTemplateId.Should().Be("topology-system");
@@ -71,7 +71,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             true,
             null);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.ModelDeploymentName.Should().Be(AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName);
         t.ModelVersion.Should().Be(AgentExecutionTraceModelMetadata.UnspecifiedModelVersion);
@@ -102,7 +102,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             1_000_000,
             500_000);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.InputTokenCount.Should().Be(1_000_000);
         t.OutputTokenCount.Should().Be(500_000);
@@ -126,7 +126,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             true,
             null);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.FullSystemPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullUserPromptBlobKey.Should().NotBeNullOrEmpty();
@@ -158,7 +158,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.FullSystemPromptBlobKey.Should().BeNull();
         t.FullUserPromptBlobKey.Should().BeNull();
@@ -191,7 +191,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             true,
             null);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.BlobUploadFailed.Should().BeTrue();
         t.FullUserPromptInline.Should().Be("full-user");
@@ -226,7 +226,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             true,
             null);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.BlobUploadFailed.Should().BeTrue();
         t.FullSystemPromptInline.Should().Be("s");
@@ -394,7 +394,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             true,
             null);
 
-        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.InlineFallbackFailed.Should().BeTrue();
 
@@ -546,19 +546,14 @@ public sealed class AgentExecutionTraceRecorderReproTests
             return _inner.GetByTraceIdAsync(traceId, cancellationToken);
         }
 
-        public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId,
-            CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(ScopeContext scope, string runId, CancellationToken cancellationToken = default)
         {
-            return _inner.GetByRunIdAsync(runId, cancellationToken);
+            return _inner.GetByRunIdAsync(scope, runId, cancellationToken);
         }
 
-        public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
-            string runId,
-            int offset,
-            int limit,
-            CancellationToken cancellationToken = default)
+        public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(ScopeContext scope, string runId, int offset, int limit, CancellationToken cancellationToken = default)
         {
-            return _inner.GetPagedByRunIdAsync(runId, offset, limit, cancellationToken);
+            return _inner.GetPagedByRunIdAsync(scope, runId, offset, limit, cancellationToken);
         }
 
         public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId,
@@ -567,19 +562,15 @@ public sealed class AgentExecutionTraceRecorderReproTests
             return _inner.GetByTaskIdAsync(taskId, cancellationToken);
         }
 
-        public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
-            string runId,
-            CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(ScopeContext scope, string runId, CancellationToken cancellationToken = default)
         {
-            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackAsync(runId, cancellationToken);
+            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackAsync(scope, runId, cancellationToken);
         }
 
         public Task<IReadOnlyDictionary<string, IReadOnlyList<string>>>
-            GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
-                IReadOnlyList<string> runIds,
-                CancellationToken cancellationToken = default)
+            GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(ScopeContext scope, IReadOnlyList<string> runIds, CancellationToken cancellationToken = default)
         {
-            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(runIds, cancellationToken);
+            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(scope, runIds, cancellationToken);
         }
 
         public Task<int> HardDeleteTracesArchivedBeforeAsync(

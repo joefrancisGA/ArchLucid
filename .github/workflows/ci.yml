@@ -323,6 +323,9 @@ jobs:
       - name: Pilot acceptance thresholds batch unit tests (TB-158)
         run: python -m unittest discover -s scripts/ci/tests -p "test_pilot_acceptance_batch.py"
 
+      - name: Tenancy defense-in-depth batch unit tests (TB-076-077)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_tenancy_defense_batch.py"
+
       - name: Hot-path performance budget registry (assessment #18)
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

@@ -38,7 +38,7 @@ public sealed class FindingLlmAuditService(
         if (match is null)
             return null;
         string runIdStr = runId.ToString("N");
-        AgentExecutionTrace? trace = await ResolveTraceAsync(runIdStr, match, cancellationToken);
+        AgentExecutionTrace? trace = await ResolveTraceAsync(scope, runIdStr, match, cancellationToken);
         if (trace is null)
             return null;
         PromptRedactionOutcome sys = _promptRedactor.Redact(ResolveSystemPrompt(trace));
@@ -58,7 +58,7 @@ public sealed class FindingLlmAuditService(
         };
     }
 
-    private async Task<AgentExecutionTrace?> ResolveTraceAsync(string runId, Finding finding, CancellationToken cancellationToken)
+    private async Task<AgentExecutionTrace?> ResolveTraceAsync(ScopeContext scope, string runId, Finding finding, CancellationToken cancellationToken)
     {
         string? preferredId = finding.Trace.SourceAgentExecutionTraceId;
         if (!string.IsNullOrWhiteSpace(preferredId))
@@ -68,7 +68,7 @@ public sealed class FindingLlmAuditService(
                 return direct;
         }
 
-        IReadOnlyList<AgentExecutionTrace> traces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTrace> traces = await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         if (traces.Count == 0)
             return null;
         if (!Enum.TryParse(finding.EngineType, true, out AgentType engineAgent))

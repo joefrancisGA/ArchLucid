@@ -2,6 +2,7 @@ using System.Data;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -39,6 +40,7 @@ public interface IAgentResultRepository
     /// <param name="runId">The run identifier to query.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,

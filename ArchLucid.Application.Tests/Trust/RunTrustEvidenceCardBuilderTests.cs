@@ -57,7 +57,7 @@ public sealed class RunTrustEvidenceCardBuilderTests
                 It.Is<AuditEventFilter>(f => f.RunId == runGuid),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(12);
-        traces.Setup(t => t.GetPagedByRunIdAsync(detail.Run.RunId, 0, 1, It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.GetPagedByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, 0, 1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(([], 44));
 
         RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);

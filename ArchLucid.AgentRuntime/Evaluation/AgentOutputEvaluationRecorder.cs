@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentExecutionTraceRepository traceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentResultRepository agentResultRepository,
+    IScopeContextProvider scopeContextProvider,
     IAgentOutputEvaluator evaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
@@ -58,6 +60,9 @@ public sealed class AgentOutputEvaluationRecorder(
     private readonly IAgentResultRepository _agentResultRepository =
         agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     private readonly IAgentConfidenceCalibrationService _confidenceCalibrationService =
         confidenceCalibrationService ?? throw new ArgumentNullException(nameof(confidenceCalibrationService));
 
@@ -86,16 +91,18 @@ public sealed class AgentOutputEvaluationRecorder(
     {
         ArgumentException.ThrowIfNullOrEmpty(runId);
 
+        ScopeContext scope = AmbientScopeContext.CurrentOverride ?? _scopeContextProvider.GetCurrentScope();
+
         AgentEvidencePackage? evidence =
             await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
 
-        IReadOnlyList<AgentExecutionTrace> traces = await traceRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTrace> traces = await traceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
         await _confidenceCalibrationService
             .ApplyCalibratedConfidenceForRunAsync(runId, cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<AgentResult> agentResults = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken)
+        IReadOnlyList<AgentResult> agentResults = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         Dictionary<string, double?> calibratedByTaskId = BuildCalibratedConfidenceByTaskId(agentResults);

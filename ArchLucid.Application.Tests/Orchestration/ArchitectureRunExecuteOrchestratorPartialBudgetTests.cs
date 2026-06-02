@@ -83,7 +83,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
             .ReturnsAsync([]);
 
         Mock<IAgentResultRepository> resultRepo = new();
-        resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
         resultRepo
             .Setup(r => r.CreateAsync(
                 It.IsAny<AgentResult>(),
@@ -177,7 +177,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
-            .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentTask

@@ -77,12 +77,12 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
         requestRepo.Setup(r => r.GetByIdAsync(request.RequestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
 
         Mock<IAgentTaskRepository> taskRepo = new();
-        taskRepo.Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        taskRepo.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IAgentExecutor> executor = new();
         Mock<IAgentEvaluationService> evaluationService = new();
         Mock<IAgentResultRepository> resultRepo = new();
-        resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
 
         Mock<IAgentEvaluationRepository> evalRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
@@ -194,12 +194,12 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
         requestRepo.Setup(r => r.GetByIdAsync(request.RequestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
 
         Mock<IAgentTaskRepository> taskRepo = new();
-        taskRepo.Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        taskRepo.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IAgentExecutor> executor = new();
         Mock<IAgentEvaluationService> evaluationService = new();
         Mock<IAgentResultRepository> resultRepo = new();
-        resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
 
         Mock<IAgentEvaluationRepository> evalRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();

@@ -10,6 +10,7 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,7 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public sealed class AgentArchitectureFindingConfidenceEnricher(
     IAgentResultRepository agentResultRepository,
     IAgentExecutionTraceRepository traceRepository,
+    IScopeContextProvider scopeContextProvider,
     IAgentOutputEvaluator structuralEvaluator,
     HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
     IAgentOutputQualityGate qualityGate,
@@ -36,6 +38,9 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
     private readonly IAgentExecutionTraceRepository _traceRepository =
         traceRepository ?? throw new ArgumentNullException(nameof(traceRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IAgentOutputEvaluator _structuralEvaluator =
         structuralEvaluator ?? throw new ArgumentNullException(nameof(structuralEvaluator));
@@ -66,14 +71,15 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
         try
         {
+            ScopeContext scope = AmbientScopeContext.CurrentOverride ?? _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentResult> results =
-                await _agentResultRepository.GetByRunIdAsync(runId.Trim(), cancellationToken);
+                await _agentResultRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken);
 
             if (results.Count == 0)
                 return;
 
             IReadOnlyList<AgentExecutionTrace> traces =
-                await _traceRepository.GetByRunIdAsync(runId.Trim(), cancellationToken);
+                await _traceRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken);
 
             Dictionary<AgentType, AgentExecutionTrace> traceByAgentType = traces
                 .GroupBy(static t => t.AgentType)

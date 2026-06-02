@@ -315,7 +315,7 @@ public sealed class ExecutionModeCrossSurfaceInvariantTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
 
-        traces.Setup(t => t.GetPagedByRunIdAsync(It.IsAny<string>(), 0, 1, It.IsAny<CancellationToken>()))
+        traces.Setup(t => t.GetPagedByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), 0, 1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(([], 0));
 
         return new RunTrustEvidenceCardBuilder(

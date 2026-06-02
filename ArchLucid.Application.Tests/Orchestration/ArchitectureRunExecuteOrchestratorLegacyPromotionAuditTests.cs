@@ -84,7 +84,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
-            .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentTask { RunId = runId, AgentType = AgentType.Topology, TaskId = Guid.NewGuid().ToString("N"), },
@@ -114,7 +114,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             .ReturnsAsync([]);
 
         Mock<IAgentResultRepository> resultRepo = new();
-        resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
         resultRepo
             .Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);

@@ -5,6 +5,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -219,16 +220,21 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
     }
 
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        RunChildRunScopeSql.RequireScope(scope);
+
         string sql = $"""
-                      SELECT ResultJson
-                      FROM AgentResults
-                      WHERE RunId = @RunId
-                      ORDER BY CreatedUtc
+                      SELECT ar.ResultJson
+                      FROM AgentResults ar
+                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      WHERE ar.RunId = @RunId
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                      ORDER BY ar.CreatedUtc
                       {SqlPagingSyntax.FirstRowsOnly(1000)};
                       """;
 
@@ -240,7 +246,13 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         {
             rows = await conn.QueryAsync<string>(new CommandDefinition(
                 sql,
-                new { RunId = runId },
+                new
+                {
+                    RunId = runId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
                 transaction,
                 cancellationToken: cancellationToken));
         }

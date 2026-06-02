@@ -211,16 +211,18 @@ public sealed class ArchitectureApplicationService(
     private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(string runId, AgentResult result, IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (uow.SupportsExternalTransaction)
         {
             await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
             // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
-            IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken, uow.Connection, uow.Transaction);
+            IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, uow.Connection, uow.Transaction);
             return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResults);
         }
 
         await resultRepository.CreateAsync(result, cancellationToken);
-        IReadOnlyList<AgentResult> allResultsMemory = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentResult> allResultsMemory = await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResultsMemory);
     }
 

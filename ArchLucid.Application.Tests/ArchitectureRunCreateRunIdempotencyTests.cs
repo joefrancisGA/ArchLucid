@@ -78,7 +78,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
 
         Mock<IAgentTaskRepository> taskRepository = new();
         taskRepository
-            .Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(tasks);
 
         Mock<IEvidenceBundleRepository> evidenceBundleRepository = new();

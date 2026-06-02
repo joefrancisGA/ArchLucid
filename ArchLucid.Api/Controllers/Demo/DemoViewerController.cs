@@ -135,6 +135,7 @@ public sealed class DemoViewerController(
         await RunAgentExecutionLlmCostEstimateAppender.AppendAsync(
             response,
             runId,
+            DemoScopes.BuildDemoScope(),
             _agentExecutionTraceRepository,
             _llmCostEstimator,
             cancellationToken);

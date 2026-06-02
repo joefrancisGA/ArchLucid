@@ -63,7 +63,7 @@ public sealed class TenantLlmCostTopRunRankerTests
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetByRunIdAsync(runAHex, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), runAHex, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentExecutionTrace
@@ -77,7 +77,7 @@ public sealed class TenantLlmCostTopRunRankerTests
             ]);
 
         traces
-            .Setup(repository => repository.GetByRunIdAsync(runBHex, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.GetByRunIdAsync(It.IsAny<ScopeContext>(), runBHex, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentExecutionTrace

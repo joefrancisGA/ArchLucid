@@ -123,7 +123,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ScopeContext batchScope = _dependencies.ScopeContextProvider.GetCurrentScope();
 
         IReadOnlyList<AgentResult> persistedResults =
-            await _dependencies.AgentResultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            await _dependencies.AgentResultRepository.GetByRunIdAsync(batchScope, runId, cancellationToken).ConfigureAwait(false);
 
         Dictionary<string, AgentResult> persistedByTaskId = persistedResults
             .GroupBy(static result => result.TaskId, StringComparer.Ordinal)

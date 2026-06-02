@@ -161,7 +161,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
 
         Mock<IAgentTaskRepository> taskRepository = new();
         taskRepository
-            .Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(coordinationOutcome.Tasks);
 
         Mock<IEvidenceBundleRepository> evidenceBundleRepository = new();

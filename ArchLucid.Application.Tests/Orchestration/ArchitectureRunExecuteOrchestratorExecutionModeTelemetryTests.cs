@@ -142,7 +142,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
 
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
-            .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AgentTask
@@ -154,7 +154,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             ]);
 
         Mock<IAgentResultRepository> resultRepo = new();
-        resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
         resultRepo
             .Setup(r => r.CreateAsync(
                 It.IsAny<AgentResult>(),

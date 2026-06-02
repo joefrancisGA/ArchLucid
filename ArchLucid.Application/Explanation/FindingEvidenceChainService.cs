@@ -70,7 +70,7 @@ public sealed class FindingEvidenceChainService(
             return null;
 
         IReadOnlyList<AgentExecutionTrace> traces =
-            await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+            await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
 
         List<string> traceIds = traces
             .Select(t => t.TraceId)

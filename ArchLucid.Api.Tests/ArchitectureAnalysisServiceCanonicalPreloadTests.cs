@@ -15,6 +15,7 @@ using FluentAssertions;
 
 using Moq;
 
+using ArchLucid.Core.Scoping;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -32,6 +33,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     private readonly Mock<IAgentResultRepository> _resultRepository = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
     private readonly Mock<IManifestSummaryGenerator> _summaryGenerator = new();
+    private readonly Mock<IScopeContextProvider> _scopeContextProvider = new();
     private readonly ArchitectureAnalysisService _sut;
     private readonly Mock<IAgentExecutionTraceRepository> _traceRepository = new();
     private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader = new();
@@ -40,10 +42,12 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     {
         _evidenceRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AgentEvidencePackage?)null);
-        _traceRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+        _traceRepository.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        _scopeContextProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
         _sut = new ArchitectureAnalysisService(
             _runDetailQueryService.Object,
+            _scopeContextProvider.Object,
             _unifiedGoldenManifestReader.Object,
             _evidenceRepository.Object,
             _traceRepository.Object,

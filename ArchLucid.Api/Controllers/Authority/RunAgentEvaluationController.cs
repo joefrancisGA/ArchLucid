@@ -52,8 +52,10 @@ public sealed class RunAgentEvaluationController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken).ConfigureAwait(false))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
         IReadOnlyList<AgentExecutionTrace> traces =
-            await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         int skipped = traces.Count(static t =>
             !t.ParseSucceeded || string.IsNullOrEmpty(t.ParsedResultJson));

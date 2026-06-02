@@ -143,11 +143,13 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         Mock<IAgentExecutionTraceRepository> traceRows = new();
         traceRows
             .Setup(r => r.GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<string>());
         traceRows
             .Setup(r => r.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<IReadOnlyList<string>>(),
                 It.IsAny<CancellationToken>()))
             .Returns<IReadOnlyList<string>, CancellationToken>((ids, _) =>

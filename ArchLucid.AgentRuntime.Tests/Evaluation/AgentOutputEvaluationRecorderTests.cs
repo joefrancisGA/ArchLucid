@@ -20,6 +20,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 [Trait("Suite", "Core")]
@@ -89,6 +91,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             traceRepository,
             evidenceRepo,
             agentResults,
+            new FixedScopeProvider(),
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(opts)),
@@ -104,6 +107,16 @@ public sealed class AgentOutputEvaluationRecorderTests
             new NoOpAgentOutputEvaluationRepository(),
             agentExecutionOptions.Object,
             logger);
+    }
+
+    private sealed class FixedScopeProvider : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() => new()
+        {
+            TenantId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            WorkspaceId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+            ProjectId = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+        };
     }
 
     private static IAgentOutputQualityGateOptionsResolver CreateGateOptionsResolver(AgentOutputQualityGateOptions opts)

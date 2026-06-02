@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -69,11 +70,13 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
 
     /// <inheritdoc />
     public Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
+        ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        _ = scope;
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {

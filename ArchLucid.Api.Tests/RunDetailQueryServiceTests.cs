@@ -137,9 +137,9 @@ public sealed class RunDetailQueryServiceTests
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
-        _taskRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
+        _taskRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([task]);
-        _resultRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([agentResult]);
         _unifiedManifestReader
             .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
@@ -167,9 +167,9 @@ public sealed class RunDetailQueryServiceTests
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
-        _taskRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
+        _taskRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        _resultRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         _unifiedManifestReader
             .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
@@ -191,9 +191,9 @@ public sealed class RunDetailQueryServiceTests
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid2, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
-        _taskRepo.Setup(r => r.GetByRunIdAsync(Run2N, It.IsAny<CancellationToken>()))
+        _taskRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run2N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        _resultRepo.Setup(r => r.GetByRunIdAsync(Run2N, It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run2N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         _unifiedManifestReader
@@ -221,9 +221,9 @@ public sealed class RunDetailQueryServiceTests
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(record);
-        _taskRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
+        _taskRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        _resultRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         _unifiedManifestReader
             .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))

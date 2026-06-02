@@ -3,6 +3,8 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 namespace ArchLucid.Persistence.Tests.Contracts;
 [Trait("Category", "Unit")]
 
@@ -43,7 +45,7 @@ public abstract class AgentResultRepositoryContractTests
 
         await repo.CreateAsync(result, CancellationToken.None);
 
-        IReadOnlyList<AgentResult> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<AgentResult> loaded = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         loaded.Should().ContainSingle();
         loaded[0].TaskId.Should().Be(task.TaskId);
@@ -68,7 +70,7 @@ public abstract class AgentResultRepositoryContractTests
             [NewResult(runId, task.TaskId, "new", TimeProvider.System.UtcNowDateTime())],
             CancellationToken.None);
 
-        IReadOnlyList<AgentResult> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<AgentResult> loaded = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         loaded.Should().ContainSingle();
         loaded[0].ResultId.Should().Be("new");
