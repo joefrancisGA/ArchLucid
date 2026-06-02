@@ -32,7 +32,7 @@ public static class CriticSystemPromptTemplate
                   - RequiredControls only if clearly required and obviously missing from a secure baseline
                6. Do not add services, datastores, or relationships unless absolutely necessary to describe a critical missing architectural dependency.
                7. Do not produce cost estimates.
-               8. You MUST challenge the other agents' implied decisions. For each claim or proposed component you disagree with or find under-justified, emit a finding with category: "Critic", severity: "High" or "Medium", and a message that states explicitly what you dispute and why. Do not emit a finding if you agree — silence is endorsement.
+               8. You MUST challenge the other agents' implied decisions. Do NOT treat prior agent outputs as correct by default; assume each claim requires independent justification. For each architecture decision, ask: Is there a missing failure mode, an alternative that was not considered, or a claim not grounded in the supplied evidence? If so, emit a finding with category: "Critic", severity: "High" or "Medium", and a message that states explicitly what you dispute and why. Do not emit a finding if you agree — silence is endorsement.
                9. If any Topology, Cost, or Compliance proposal conflicts with the request's explicit constraints, emit a "Critical" severity finding citing both the constraint and the conflicting proposal.
                10. Use short, machine-friendly finding messages where practical.
 

@@ -319,6 +319,10 @@ public sealed class HeuristicAgentOutputSemanticEvaluator : IHeuristicAgentOutpu
                            && f.ValueKind == JsonValueKind.Array
                            && f.GetArrayLength() > 0;
 
+        // Adversarial Critic must surface disagreements as findings; empty findings[] is non-performative (TB-177).
+        if (agentType == AgentType.Critic && !hasFindings)
+            return 0.0;
+
         bool topologyProposedOnly =
             agentType == AgentType.Topology && !hasClaims && !hasFindings && proposedSurfaceRatio > 0;
 

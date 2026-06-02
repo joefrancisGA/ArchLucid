@@ -115,6 +115,12 @@ Registered as **singleton** (`IAgentOutputSemanticEvaluator → CompositeAgentOu
 - **Agent coverage:** Only **`AgentType.Topology`** and **`AgentType.Critic`** invoke the judge. **Cost** and **Compliance** stay **heuristic-only** to limit spend under that shared cap.
 - **Simulator:** When **`SkipWhenSimulator`** is **true** (default) and **`AgentExecution:Mode`** is **Simulator**, the judge is skipped.
 
+### Critic adversarial posture (TB-177)
+
+- **Prompt:** **`CriticSystemPromptTemplate`** (rules 8–9) uses a challenge-first posture: the Critic must dispute under-justified prior-agent claims and must not treat upstream outputs as correct by default. Silence on a disputed decision is treated as endorsement only when the Critic agrees.
+- **Empty findings signal:** When **`findings[]`** is absent or empty on a **Critic** trace, **`HeuristicAgentOutputSemanticEvaluator`** sets **`OverallSemanticScore`** to **0.0** even when **`claims[]`** is populated. At default quality-gate floors (**`SemanticWarnBelow` 0.65**, **`SemanticRejectBelow` 0.5**), that outcome is **warned** or **rejected**, never **accepted** — an empty Critic result is suspicious, not a passing review.
+- **Regression:** **`CriticAgentHandlerTests.EmptyFindingsCriticOutput_DoesNotPassQualityGateWarnThreshold`** and **`HeuristicAgentOutputSemanticEvaluatorTests.Evaluate_critic_with_claims_but_empty_findings_scores_zero_overall`**.
+
 ### LLM faithfulness judge (evidence vs agent JSON)
 
 - **Configuration:** **`ArchLucid:Agents:LlmFaithfulness`** (`AgentOutputLlmFaithfulnessOptions`).

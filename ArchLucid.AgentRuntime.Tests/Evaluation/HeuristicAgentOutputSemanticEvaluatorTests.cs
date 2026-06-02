@@ -176,6 +176,25 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
     }
 
     [SkippableFact]
+    public void Evaluate_critic_with_claims_but_empty_findings_scores_zero_overall()
+    {
+        const string json = """
+                            {
+                                "claims": [
+                                    { "text": "A", "evidenceRefs": [{ "id": "e1" }] }
+                                ],
+                                "findings": []
+                            }
+                            """;
+
+        AgentOutputSemanticScore score = _sut.Evaluate("t1", json, AgentType.Critic);
+
+        score.ClaimsQualityRatio.Should().Be(1.0);
+        score.OverallSemanticScore.Should().Be(0.0);
+        score.HeuristicOverallScore.Should().Be(0.0);
+    }
+
+    [SkippableFact]
     public void Evaluate_only_findings_uses_findings_ratio_as_overall()
     {
         const string json = """

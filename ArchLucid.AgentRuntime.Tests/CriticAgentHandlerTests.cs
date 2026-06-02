@@ -1,6 +1,8 @@
+using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
@@ -8,6 +10,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -259,7 +263,48 @@ public sealed class CriticAgentHandlerTests
         string prompt = CriticSystemPromptTemplate.GetText();
 
         prompt.Should().Contain("You MUST challenge the other agents' implied decisions");
+        prompt.Should().Contain("Do NOT treat prior agent outputs as correct by default");
+        prompt.Should().Contain("missing failure mode");
         prompt.Should().Contain("emit a \"Critical\" severity finding");
         prompt.Should().NotContain("Prefer conservative, review-oriented findings");
+    }
+
+    [SkippableFact]
+    public void EmptyFindingsCriticOutput_DoesNotPassQualityGateWarnThreshold()
+    {
+        const string emptyFindingsJson = """
+                                         {
+                                           "resultId": "RES-CRITIC-EMPTY",
+                                           "taskId": "TASK-CRITIC-001",
+                                           "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                           "agentType": "Critic",
+                                           "claims": [
+                                             "Prior agents assumed private networking without evidence."
+                                           ],
+                                           "evidenceRefs": [ "request" ],
+                                           "confidence": 0.9,
+                                           "findings": [],
+                                           "createdUtc": "2026-03-15T14:00:00Z"
+                                         }
+                                         """;
+
+        HeuristicAgentOutputSemanticEvaluator semanticEvaluator = new();
+        AgentOutputSemanticScore semantic =
+            semanticEvaluator.Evaluate("trace-empty-critic", emptyFindingsJson, AgentType.Critic);
+
+        AgentOutputEvaluator structuralEvaluator = new();
+        AgentOutputEvaluationScore structural =
+            structuralEvaluator.Evaluate("trace-empty-critic", emptyFindingsJson, AgentType.Critic);
+
+        AgentOutputQualityGate gate = new(Options.Create(new AgentOutputQualityGateOptions()));
+        AgentOutputQualityGateOutcome outcome = gate.Evaluate(structural, semantic);
+
+        semantic.OverallSemanticScore.Should().BeLessThan(
+            new AgentOutputQualityGateOptions().SemanticWarnBelow,
+            because: "empty Critic findings must score below the default warn floor");
+
+        outcome.Should().NotBe(
+            AgentOutputQualityGateOutcome.Accepted,
+            because: "empty Critic output is suspicious and must not pass the quality gate warn threshold");
     }
 }
