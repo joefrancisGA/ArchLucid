@@ -79,37 +79,6 @@
         },
         "type": "object"
       },
-      "AdminTokenClaimsDiagnosticRequest": {
-        "properties": {
-          "bearerToken": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "AdminTokenClaimsDiagnosticResponse": {
-        "properties": {
-          "resolvedRoles": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "unmappedValues": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "warnings": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "type": "object"
-      },
       "AdminAuthConfigurationDiagnosticsResponse": {
         "properties": {
           "audienceConfigured": {
@@ -770,6 +739,37 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "AdminTokenClaimsDiagnosticRequest": {
+        "properties": {
+          "bearerToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminTokenClaimsDiagnosticResponse": {
+        "properties": {
+          "resolvedRoles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "unmappedValues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -22271,6 +22271,11 @@
       "post": {
         "requestBody": {
           "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticRequest"
+              }
+            },
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticRequest"
@@ -22280,13 +22285,9 @@
               "schema": {
                 "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticRequest"
               }
-            },
-            "text/plain": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminTokenClaimsDiagnosticRequest"
-              }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -22310,6 +22311,23 @@
             "description": "OK"
           },
           "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
             "description": "Bad Request"
           }
         },
