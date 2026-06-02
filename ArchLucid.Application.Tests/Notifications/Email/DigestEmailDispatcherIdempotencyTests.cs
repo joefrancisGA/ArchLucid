@@ -58,7 +58,8 @@ public sealed class DigestEmailDispatcherIdempotencyTests
                 TopManifestRuns: [],
                 FindingsDeltaSummary: null,
                 DashboardUrl: "https://example.test/d",
-                SponsorValueReportUrl: "https://example.test/sponsor"),
+                SponsorValueReportUrl: "https://example.test/sponsor",
+                LatestCommittedRunIdHex: null),
             ["ops@example.test"],
             "https://example.test/unsub",
             CancellationToken.None);
