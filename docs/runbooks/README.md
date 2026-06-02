@@ -35,7 +35,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [ADVISORY_SCAN_FAILURES.md](./ADVISORY_SCAN_FAILURES.md) | Advisory scans fail or schedules do not fire. |
 | **P2** | [COMPARISON_REPLAY_RATE_LIMITS.md](./COMPARISON_REPLAY_RATE_LIMITS.md) | Replay throttling, 429s, or batch replay partial failures. |
 | **P2** | [RATE_LIMIT_EXCEEDED.md](./RATE_LIMIT_EXCEEDED.md) | **429** on **`POST …/evidence/bulk`** (`evidenceBulkUpload` policy): identify tenant, inspect limits, tune config. |
-| **P2** | [SAML_CERT_ROTATION.md](./SAML_CERT_ROTATION.md) | Rotate **`ArchLucidAuth:Saml2`** SP signing PFX without SSO downtime; IdP trust overlap, deploy, `archlucid saml test-config`. |
+| **P2** | [SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md](./SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md) | Rotate **`ArchLucidAuth:Saml2`** SP signing PFX without SSO downtime; detection, OpenSSL, IdP overlap, rollback (`archlucid saml test-config`). Alias: [SAML_CERT_ROTATION.md](./SAML_CERT_ROTATION.md). |
 | **P2** | [SCIM_TOKEN_ROTATION.md](./SCIM_TOKEN_ROTATION.md) | Rotate inbound SCIM bearer tokens per tenant; update Entra/Okta provisioning apps without sync breakage. |
 | **P2** | [COMPARISON_RECORD_ORPHAN_REMEDIATION.md](./COMPARISON_RECORD_ORPHAN_REMEDIATION.md) | Orphan `ComparisonRecords` / golden manifests / findings snapshots vs `dbo.Runs` (dry-run then delete). |
 | **P2** | [DATA_CONSISTENCY_ENFORCEMENT.md](./DATA_CONSISTENCY_ENFORCEMENT.md) | Orphan probe **Warn / Alert / Quarantine** modes, Prometheus counters, quarantine (**insert-only** staging). |
