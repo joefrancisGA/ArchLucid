@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 81.59%
+# ArchLucid Assessment – (A) Headline Readiness: 81.66%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **81.52%** (5S); batch **5T TB-180** (calibrated agent confidence) → **81.59%** (+1 AI/Agent Readiness). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **81.59%** (5T); batch **5U TB-181** (nightly template eval harness cron) → **81.66%** (+1 AI/Agent Readiness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -46,7 +46,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
-| AI/Agent Readiness | 76 | 8 | 5.24% | 192 |
+| AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
 | Cutting-Edge AI Technology | 74 | 8 | 5.10% | 208 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
@@ -89,9 +89,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 ### AI/Agent Readiness
 
-Score: 76. Weight: 8. Weighted impact: 5.24%. Weighted deficiency signal: 192.
+Score: 77. Weight: 8. Weighted impact: 5.31%. Weighted deficiency signal: 184.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M** closes **TB-177**; **5N** closes **TB-178** (streaming Ask); **5S** closes **TB-179** (tiered orchestration); **5T** closes **TB-180** — isotonic `IAgentConfidenceCalibrator` writes `CalibratedConfidence` and quality gates prefer it over raw semantic scores, fail-open below 20 samples. The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 
