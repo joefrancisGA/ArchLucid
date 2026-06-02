@@ -94,7 +94,7 @@ public sealed class AdminAuthDiagnosticsController(
     [HttpPost("auth/diagnose-token")]
     [ProducesResponseType(typeof(AdminTokenClaimsDiagnosticResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<AdminTokenClaimsDiagnosticResponse>> DiagnoseTokenAsync(
+    public async Task<IActionResult> DiagnoseTokenAsync(
         [FromBody] AdminTokenClaimsDiagnosticRequest request,
         CancellationToken cancellationToken)
     {
