@@ -5,7 +5,8 @@ import { wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 
 const stepPickSchema: Record<number, z.ZodTypeAny | null> = {
   0: null,
-  1: wizardFormSchema.pick({
+  1: null,
+  2: wizardFormSchema.pick({
     systemName: true,
     environment: true,
     cloudProvider: true,
@@ -13,17 +14,17 @@ const stepPickSchema: Record<number, z.ZodTypeAny | null> = {
     description: true,
     inlineRequirements: true,
   }),
-  2: wizardFormSchema.pick({ constraints: true, requiredCapabilities: true, assumptions: true }),
-  3: null,
-  4: wizardFormSchema.pick({
+  3: wizardFormSchema.pick({ constraints: true, requiredCapabilities: true, assumptions: true }),
+  4: null,
+  5: wizardFormSchema.pick({
     policyReferences: true,
     topologyHints: true,
     securityBaselineHints: true,
     documents: true,
     infrastructureDeclarations: true,
   }),
-  5: null,
   6: null,
+  7: null,
 };
 
 export type WizardStepFieldError = { field: string; message: string };
@@ -48,7 +49,7 @@ function wizardStepAllowedFields(stepIndex: number, baselineFirst: boolean): (ke
 
 function resolvePickSchemaIndex(uiStep: number, baselineFirst: boolean): number | null {
   if (!baselineFirst) {
-    if (uiStep <= 0 || uiStep > 6) {
+    if (uiStep <= 1 || uiStep > 7) {
       return null;
     }
 
@@ -59,7 +60,7 @@ function resolvePickSchemaIndex(uiStep: number, baselineFirst: boolean): number 
     return null;
   }
 
-  if (uiStep > 6) {
+  if (uiStep > 7) {
     return null;
   }
 
@@ -124,11 +125,11 @@ export function stepHasBlockingFormErrors(
   baselineFirst: boolean,
 ): boolean {
   if (baselineFirst) {
-    if (stepIndex < 2 || stepIndex > 5 || stepIndex === 1 || stepIndex === 4) {
+    if (stepIndex < 2 || stepIndex > 6 || stepIndex === 1 || stepIndex === 5) {
       return false;
     }
   } else {
-    if (stepIndex < 1 || stepIndex > 4 || stepIndex === 3) {
+    if (stepIndex < 2 || stepIndex > 5 || stepIndex === 4) {
       return false;
     }
   }

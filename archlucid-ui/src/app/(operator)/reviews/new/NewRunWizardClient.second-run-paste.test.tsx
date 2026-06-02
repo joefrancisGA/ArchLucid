@@ -82,7 +82,11 @@ components = ["api"]
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2:/);
+      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
     });
 
     await waitFor(() => {

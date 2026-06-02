@@ -111,8 +111,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   };
 
   const goNext = async () => {
-    const validationStepIndex = quickStep === 0 ? 1 : 2;
-    const fieldGroup = WIZARD_STEP_FIELD_GROUPS[validationStepIndex];
+    const fieldGroup = quickStep <= 1 ? WIZARD_STEP_FIELD_GROUPS[2] : null;
 
     if (fieldGroup != null) {
       // Trigger validation for only the fields on this step

@@ -13,6 +13,9 @@ import { WizardStepAzureContext } from "@/components/wizard/steps/WizardStepAzur
 import { WizardStepBaselineZip } from "@/components/wizard/steps/WizardStepBaselineZip";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
+import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
+import { WizardPostCreateEvidenceUploadPanel } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
+import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
@@ -24,6 +27,7 @@ import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isAcceleratorPackId, resolveAcceleratorWizardPreset } from "@/lib/accelerator-wizard-presets";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
@@ -35,7 +39,8 @@ import {
   resolveWizardPresetValuesFromDeeplink,
 } from "@/lib/wizard-preset-deeplink";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
-import { getWizardStepFieldGroup } from "@/lib/wizard-step-fields";
+import { getWizardStepFieldGroup, FULL_WIZARD_EVIDENCE_STEP_INDEX } from "@/lib/wizard-step-fields";
+import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
@@ -54,6 +59,7 @@ import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Choose starting point", description: "Template, import, or blank" },
+  { label: "Evidence (optional)", description: "Azure extractor ZIP or demo data" },
   { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
   { label: "Ingest Azure context", description: "Packager command (optional)" },
@@ -78,15 +84,15 @@ const STEP_INDEX_MAX_BASELINE = WIZARD_STEP_DEFINITIONS_BASELINE.length - 1;
 
 function macroWizardStepIndex(stepIndex: number, baselineFirst: boolean): number {
   if (!baselineFirst) {
-    if (stepIndex <= 1) {
+    if (stepIndex <= 2) {
       return 0;
     }
 
-    if (stepIndex <= 4) {
+    if (stepIndex <= 5) {
       return 1;
     }
 
-    if (stepIndex === 5) {
+    if (stepIndex === 6) {
       return 2;
     }
 
@@ -173,13 +179,20 @@ export function NewRunWizardClient() {
   }, [searchParams]);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
-  const reviewStepIndex: number = baselineFirst ? 6 : 5;
-  const trackStepIndex: number = baselineFirst ? 7 : 6;
+  const reviewStepIndex: number = 6;
+  const trackStepIndex: number = 7;
 
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
+  const [pendingEvidenceFile, setPendingEvidenceFile] = useState<File | null>(null);
+  const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
+  const [evidenceUploadError, setEvidenceUploadError] = useState<{
+    message: string;
+    problem: ApiProblemDetails | null;
+    correlationId: string | null;
+  } | null>(null);
   const [wizardMode, setWizardMode] = useState<"quick" | "full">(() => {
     if (typeof window === "undefined") {
       return "quick";
@@ -350,11 +363,11 @@ export function NewRunWizardClient() {
       return;
     }
 
-    if (stepIndex >= (baselineFirst ? 2 : 1)) {
+    if (stepIndex >= 2) {
       setValue("systemName", OPERATOR_HOME_EXAMPLE_SYSTEM_NAME, { shouldValidate: true, shouldDirty: true });
       setValue("description", OPERATOR_HOME_EXAMPLE_DESCRIPTION, { shouldValidate: true, shouldDirty: true });
     }
-  }, [operatorHomeExampleKey, setValue, stepIndex, baselineFirst]);
+  }, [operatorHomeExampleKey, setValue, stepIndex]);
 
   useEffect(() => {
     if (stepIndex !== reviewStepIndex) {
@@ -405,6 +418,40 @@ export function NewRunWizardClient() {
 
   const goBack = () => {
     setStepIndex((current) => Math.max(0, current - 1));
+  };
+
+  const uploadPendingEvidence = useCallback(async (runIdValue: string, file: File): Promise<void> => {
+    setEvidenceUploadState("uploading");
+    setEvidenceUploadError(null);
+
+    const result = await uploadAzureExtractorPackage(file, { runId: runIdValue });
+
+    if (result.ok) {
+      setEvidenceUploadState("success");
+      setPendingEvidenceFile(null);
+
+      return;
+    }
+
+    setEvidenceUploadState("failed");
+    setEvidenceUploadError({
+      message: result.message,
+      problem: result.problem,
+      correlationId: result.correlationId,
+    });
+  }, []);
+
+  const retryEvidenceUpload = useCallback(async () => {
+    if (runId === null || pendingEvidenceFile === null) {
+      return;
+    }
+
+    await uploadPendingEvidence(runId, pendingEvidenceFile);
+  }, [pendingEvidenceFile, runId, uploadPendingEvidence]);
+
+  const skipEvidenceAndAdvance = () => {
+    setPendingEvidenceFile(null);
+    setStepIndex((current) => Math.min(stepMax, current + 1));
   };
 
   const goNext = async () => {
@@ -461,6 +508,10 @@ export function NewRunWizardClient() {
       setStepIndex(trackStepIndex);
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
+
+      if (pendingEvidenceFile !== null) {
+        await uploadPendingEvidence(id, pendingEvidenceFile);
+      }
     } catch (error: unknown) {
       setSubmitError(error);
 
@@ -611,7 +662,7 @@ export function NewRunWizardClient() {
             completedSteps={completedMacroSteps}
           />
 
-          {stepIndex >= 1 && stepIndex <= reviewStepIndex && !(baselineFirst && stepIndex === 1) ? (
+          {stepIndex >= 2 && stepIndex <= reviewStepIndex && !(baselineFirst && stepIndex === 1) ? (
             <div
               className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2 text-sm"
               data-testid="new-run-wizard-step-recap"
@@ -636,13 +687,13 @@ export function NewRunWizardClient() {
               ) : (
                 <span className="text-neutral-600 dark:text-neutral-400">Add identity on this step.</span>
               )}
-              {stepIndex >= 2 && recapDescription.length > 0 ? (
+              {stepIndex >= 3 && recapDescription.length > 0 ? (
                 <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
                   <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
                   {recapDescription.length > 180 ? `${recapDescription.slice(0, 177)}…` : recapDescription}
                 </span>
               ) : null}
-              {stepIndex >= 3 && recapConstraints.length > 0 ? (
+              {stepIndex >= 4 && recapConstraints.length > 0 ? (
                 <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
                   <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
                   {recapConstraints.length > 120 ? `${recapConstraints.slice(0, 117)}…` : recapConstraints}
@@ -659,19 +710,36 @@ export function NewRunWizardClient() {
               onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
             />
           ) : null}
+          {stepIndex === FULL_WIZARD_EVIDENCE_STEP_INDEX && !baselineFirst ? (
+            <WizardStepEvidenceUpload
+              pendingFile={pendingEvidenceFile}
+              onPendingFileChange={setPendingEvidenceFile}
+              onSkipDemoData={skipEvidenceAndAdvance}
+            />
+          ) : null}
           {stepIndex === 1 && baselineFirst ? <WizardStepBaselineZip /> : null}
-          {stepIndex === (baselineFirst ? 2 : 1) ? (
+          {stepIndex === 2 ? (
             <div className="space-y-8">
               <WizardStepIdentity />
               <WizardStepDescription />
             </div>
           ) : null}
-          {stepIndex === (baselineFirst ? 3 : 2) ? <WizardStepConstraints /> : null}
-          {stepIndex === (baselineFirst ? 4 : 3) ? <WizardStepAzureContext /> : null}
-          {stepIndex === (baselineFirst ? 5 : 4) ? <WizardStepAdvanced /> : null}
+          {stepIndex === 3 ? <WizardStepConstraints /> : null}
+          {stepIndex === 4 ? <WizardStepAzureContext /> : null}
+          {stepIndex === 5 ? <WizardStepAdvanced /> : null}
           {stepIndex === reviewStepIndex ? <WizardStepReview /> : null}
           {stepIndex === trackStepIndex && runId ? (
-            <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+            <>
+              <WizardPostCreateEvidenceUploadPanel
+                pendingFile={pendingEvidenceFile}
+                uploadState={evidenceUploadState}
+                uploadError={evidenceUploadError}
+                onRetry={() => {
+                  void retryEvidenceUpload();
+                }}
+              />
+              <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+            </>
           ) : null}
 
           {showNav ? (

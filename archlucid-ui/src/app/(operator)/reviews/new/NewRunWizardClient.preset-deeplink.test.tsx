@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const searchParamsState = {
@@ -80,6 +80,12 @@ describe("NewRunWizardClient (preset deeplink query)", { timeout: 60_000 }, () =
         "data-preset-id",
         "greenfield-web-app",
       );
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("System name")).toBeInTheDocument();
     });
 
     const systemName = screen.getByLabelText("System name") as HTMLInputElement;

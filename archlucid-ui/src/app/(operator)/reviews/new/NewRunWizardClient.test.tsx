@@ -95,6 +95,37 @@ async function clickPrimaryForward() {
   });
 }
 
+async function skipEvidenceStep() {
+  await waitFor(() => {
+    expect(screen.getByTestId("wizard-evidence-upload-step")).toBeInTheDocument();
+  });
+
+  await act(async () => {
+    fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
+  });
+}
+
+async function selectGreenfieldPreset() {
+  const greenfieldCard = greenfieldPresetCard();
+
+  await act(async () => {
+    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
+  });
+
+  await waitFor(() => {
+    expect(progressLine()).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+  });
+}
+
+async function selectGreenfieldAndSkipEvidence() {
+  await selectGreenfieldPreset();
+  await skipEvidenceStep();
+
+  await waitFor(() => {
+    expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
+  });
+}
+
 describe("NewRunWizardClient", { timeout: 60_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -145,16 +176,13 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     expect(progressLine()).toHaveTextContent(/Step 1: Choose starting point/);
     expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 4 — Request brief/);
 
-    const greenfieldCard = greenfieldPresetCard();
-    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
+    await selectGreenfieldPreset();
 
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
-
-    for (let i = 0; i < 4; i += 1) {
+    for (let i = 0; i < 5; i += 1) {
       await clickPrimaryForward();
     }
 
-    expect(progressLine()).toHaveTextContent(/Step 6:/);
+    expect(progressLine()).toHaveTextContent(/Step 7: Review/);
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {
@@ -180,30 +208,27 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     await renderNewRunWizard();
 
     await clickPrimaryForward();
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    expect(progressLine()).toHaveTextContent(/Step 2: Evidence \(optional\)/);
 
     await clickPrimaryForward();
-    expect(progressLine()).toHaveTextContent(/Step 3:/);
+    expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
 
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    expect(progressLine()).toHaveTextContent(/Step 2: Evidence \(optional\)/);
   });
 
   it("blocks Next and shows an inline system name error when required field is empty", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = greenfieldPresetCard();
-    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
-
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    await selectGreenfieldAndSkipEvidence();
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
     fireEvent.blur(systemName);
 
     await clickPrimaryForward();
-    
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+
+    expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/Required/i);
   });
@@ -211,8 +236,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
   it("clears the system name error when the user types", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = greenfieldPresetCard();
-    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
+    await selectGreenfieldAndSkipEvidence();
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
@@ -228,24 +252,18 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
   it("advances from identity when fields satisfy validation", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = greenfieldPresetCard();
-    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
-
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    await selectGreenfieldAndSkipEvidence();
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
-    expect(progressLine()).toHaveTextContent(/Step 3:/);
+    expect(progressLine()).toHaveTextContent(/Step 4: Constraints/);
   });
 
   it("blocks Next on identity when prior manifest version is not a valid UUID", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = greenfieldPresetCard();
-    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
-
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    await selectGreenfieldAndSkipEvidence();
 
     const advancedTriggers = screen.getAllByRole("button", { name: /advanced options/i });
     fireEvent.click(advancedTriggers[0]);
@@ -258,17 +276,14 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     await clickPrimaryForward();
 
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
     expect(await screen.findByRole("alert")).toHaveTextContent(/valid uuid/i);
   });
 
   it("blocks Next on description when narrative is shorter than the minimum length", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = greenfieldPresetCard();
-    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
-
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    await selectGreenfieldAndSkipEvidence();
 
     const description = screen.getByLabelText("Description");
     fireEvent.change(description, { target: { value: "short" } });
@@ -276,7 +291,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     await clickPrimaryForward();
 
-    expect(progressLine()).toHaveTextContent(/Step 2:/);
+    expect(progressLine()).toHaveTextContent(/Step 3: Identity & goals/);
     expect(await screen.findByRole("alert")).toHaveTextContent(/at least 10 characters/i);
   });
 
