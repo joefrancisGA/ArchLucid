@@ -178,11 +178,11 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
 
     await selectGreenfieldPreset();
 
-    for (let i = 0; i < 5; i += 1) {
+    for (let i = 0; i < 6; i += 1) {
       await clickPrimaryForward();
     }
 
-    expect(progressLine()).toHaveTextContent(/Step 7: Review/);
+    expect(progressLine()).toHaveTextContent(/Step 8: Review/);
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {

@@ -13,6 +13,7 @@ import { WizardStepAzureContext } from "@/components/wizard/steps/WizardStepAzur
 import { WizardStepBaselineZip } from "@/components/wizard/steps/WizardStepBaselineZip";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
+import { WizardStepBaselineMetrics } from "@/components/wizard/steps/WizardStepBaselineMetrics";
 import { WizardStepEvidenceUpload } from "@/components/wizard/steps/WizardStepEvidenceUpload";
 import { WizardPostCreateEvidenceUploadPanel } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
@@ -39,8 +40,21 @@ import {
   resolveWizardPresetValuesFromDeeplink,
 } from "@/lib/wizard-preset-deeplink";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
-import { getWizardStepFieldGroup, FULL_WIZARD_EVIDENCE_STEP_INDEX } from "@/lib/wizard-step-fields";
+import {
+  getWizardStepFieldGroup,
+  FULL_WIZARD_BASELINE_METRICS_STEP_INDEX,
+  FULL_WIZARD_EVIDENCE_STEP_INDEX,
+} from "@/lib/wizard-step-fields";
+import {
+  saveTenantReviewCycleBaseline,
+  validateWizardBaselineReviewCycleHours,
+} from "@/lib/save-tenant-review-cycle-baseline";
 import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
+import {
+  type WizardBaselineConfidence,
+  wizardBaselineConfidenceSourceNote,
+} from "@/lib/wizard-baseline-confidence";
+import { PILOT_BASELINE_WIZARD_SAVED_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
@@ -64,6 +78,7 @@ const WIZARD_STEP_DEFINITIONS_FULL = [
   { label: "Constraints", description: "Limits & capabilities" },
   { label: "Ingest Azure context", description: "Packager command (optional)" },
   { label: "Advanced", description: "Optional context" },
+  { label: "Baseline metrics (optional)", description: "ROI reporting inputs" },
   { label: "Review", description: "Confirm & create" },
   { label: "Pipeline", description: "Track progress" },
 ] as const;
@@ -71,12 +86,13 @@ const WIZARD_STEP_DEFINITIONS_FULL = [
 const WIZARD_STEP_DEFINITIONS_BASELINE = [
   WIZARD_STEP_DEFINITIONS_FULL[0],
   { label: "Upload extractor ZIP", description: "Packager output (read-only inventory)" },
-  WIZARD_STEP_DEFINITIONS_FULL[1],
   WIZARD_STEP_DEFINITIONS_FULL[2],
   WIZARD_STEP_DEFINITIONS_FULL[3],
   WIZARD_STEP_DEFINITIONS_FULL[4],
   WIZARD_STEP_DEFINITIONS_FULL[5],
   WIZARD_STEP_DEFINITIONS_FULL[6],
+  WIZARD_STEP_DEFINITIONS_FULL[7],
+  WIZARD_STEP_DEFINITIONS_FULL[8],
 ] as const;
 
 const STEP_INDEX_MAX_FULL = WIZARD_STEP_DEFINITIONS_FULL.length - 1;
@@ -92,7 +108,7 @@ function macroWizardStepIndex(stepIndex: number, baselineFirst: boolean): number
       return 1;
     }
 
-    if (stepIndex === 6) {
+    if (stepIndex <= 7) {
       return 2;
     }
 
@@ -107,7 +123,7 @@ function macroWizardStepIndex(stepIndex: number, baselineFirst: boolean): number
     return 1;
   }
 
-  if (stepIndex === 6) {
+  if (stepIndex <= 7) {
     return 2;
   }
 
@@ -179,8 +195,8 @@ export function NewRunWizardClient() {
   }, [searchParams]);
   const stepDefinitions = baselineFirst ? WIZARD_STEP_DEFINITIONS_BASELINE : WIZARD_STEP_DEFINITIONS_FULL;
   const stepMax: number = baselineFirst ? STEP_INDEX_MAX_BASELINE : STEP_INDEX_MAX_FULL;
-  const reviewStepIndex: number = 6;
-  const trackStepIndex: number = 7;
+  const reviewStepIndex: number = 7;
+  const trackStepIndex: number = 8;
 
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -193,6 +209,9 @@ export function NewRunWizardClient() {
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+  const [baselineReviewCycleHours, setBaselineReviewCycleHours] = useState("");
+  const [baselineConfidence, setBaselineConfidence] = useState<WizardBaselineConfidence>("unsure");
+  const [baselineMetricsError, setBaselineMetricsError] = useState<string | null>(null);
   const [wizardMode, setWizardMode] = useState<"quick" | "full">(() => {
     if (typeof window === "undefined") {
       return "quick";
@@ -454,9 +473,67 @@ export function NewRunWizardClient() {
     setStepIndex((current) => Math.min(stepMax, current + 1));
   };
 
+  const skipBaselineMetricsAndAdvance = () => {
+    setBaselineReviewCycleHours("");
+    setBaselineMetricsError(null);
+    setStepIndex((current) => Math.min(stepMax, current + 1));
+  };
+
+  const persistBaselineMetricsIfNeeded = useCallback(async (): Promise<boolean> => {
+    const validationError = validateWizardBaselineReviewCycleHours(baselineReviewCycleHours);
+
+    if (validationError !== null) {
+      setBaselineMetricsError(validationError);
+
+      return false;
+    }
+
+    setBaselineMetricsError(null);
+
+    const trimmed = baselineReviewCycleHours.trim();
+
+    if (trimmed.length === 0) {
+      return true;
+    }
+
+    const hours = Number(trimmed);
+    const result = await saveTenantReviewCycleBaseline({
+      baselineReviewCycleHours: hours,
+      baselineReviewCycleSourceNote: wizardBaselineConfidenceSourceNote(baselineConfidence),
+    });
+
+    if (!result.ok) {
+      setBaselineMetricsError(result.message);
+      showToast("err", result.message);
+
+      return false;
+    }
+
+    showToast("ok", "Review-cycle baseline saved for ROI reporting.");
+    setBaselineReviewCycleHours("");
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event(PILOT_BASELINE_WIZARD_SAVED_EVENT));
+    }
+
+    return true;
+  }, [baselineConfidence, baselineReviewCycleHours, showToast]);
+
   const goNext = async () => {
     if (stepIndex === 0) {
       setStepIndex(1);
+      return;
+    }
+
+    if (stepIndex === FULL_WIZARD_BASELINE_METRICS_STEP_INDEX) {
+      const saved = await persistBaselineMetricsIfNeeded();
+
+      if (!saved) {
+        return;
+      }
+
+      setStepIndex((current) => Math.min(stepMax, current + 1));
+
       return;
     }
 
@@ -727,6 +804,22 @@ export function NewRunWizardClient() {
           {stepIndex === 3 ? <WizardStepConstraints /> : null}
           {stepIndex === 4 ? <WizardStepAzureContext /> : null}
           {stepIndex === 5 ? <WizardStepAdvanced /> : null}
+          {stepIndex === FULL_WIZARD_BASELINE_METRICS_STEP_INDEX ? (
+            <WizardStepBaselineMetrics
+              reviewCycleHours={baselineReviewCycleHours}
+              confidence={baselineConfidence}
+              fieldError={baselineMetricsError}
+              onReviewCycleHoursChange={(value) => {
+                setBaselineReviewCycleHours(value);
+
+                if (baselineMetricsError !== null) {
+                  setBaselineMetricsError(null);
+                }
+              }}
+              onConfidenceChange={setBaselineConfidence}
+              onSkipForNow={skipBaselineMetricsAndAdvance}
+            />
+          ) : null}
           {stepIndex === reviewStepIndex ? <WizardStepReview /> : null}
           {stepIndex === trackStepIndex && runId ? (
             <>

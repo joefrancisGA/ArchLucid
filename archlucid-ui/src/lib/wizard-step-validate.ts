@@ -25,6 +25,7 @@ const stepPickSchema: Record<number, z.ZodTypeAny | null> = {
   }),
   6: null,
   7: null,
+  8: null,
 };
 
 export type WizardStepFieldError = { field: string; message: string };
@@ -49,7 +50,7 @@ function wizardStepAllowedFields(stepIndex: number, baselineFirst: boolean): (ke
 
 function resolvePickSchemaIndex(uiStep: number, baselineFirst: boolean): number | null {
   if (!baselineFirst) {
-    if (uiStep <= 1 || uiStep > 7) {
+    if (uiStep <= 1 || uiStep > 8) {
       return null;
     }
 
@@ -60,7 +61,7 @@ function resolvePickSchemaIndex(uiStep: number, baselineFirst: boolean): number 
     return null;
   }
 
-  if (uiStep > 7) {
+  if (uiStep > 8) {
     return null;
   }
 
@@ -125,7 +126,7 @@ export function stepHasBlockingFormErrors(
   baselineFirst: boolean,
 ): boolean {
   if (baselineFirst) {
-    if (stepIndex < 2 || stepIndex > 6 || stepIndex === 1 || stepIndex === 5) {
+    if (stepIndex < 2 || stepIndex > 7 || stepIndex === 1 || stepIndex === 5) {
       return false;
     }
   } else {

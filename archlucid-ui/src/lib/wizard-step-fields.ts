@@ -3,7 +3,10 @@ import type { WizardFormValues } from "@/lib/wizard-schema";
 /** Full-wizard step index for optional evidence upload (TB-215). Baseline-first uses ZIP at step 1 instead. */
 export const FULL_WIZARD_EVIDENCE_STEP_INDEX = 1;
 
-/** RHF field groups validated before leaving each step (0 = preset; 7 = pipeline — N/A for Next). */
+/** Full-wizard step index for optional ROI baseline capture (TB-238). */
+export const FULL_WIZARD_BASELINE_METRICS_STEP_INDEX = 6;
+
+/** RHF field groups validated before leaving each step (0 = preset; 8 = pipeline — N/A for Next). */
 export const WIZARD_STEP_FIELD_GROUPS: Record<number, (keyof WizardFormValues)[] | null> = {
   0: null,
   1: null,
@@ -19,6 +22,7 @@ export const WIZARD_STEP_FIELD_GROUPS: Record<number, (keyof WizardFormValues)[]
   ],
   6: null,
   7: null,
+  8: null,
 };
 
 /**

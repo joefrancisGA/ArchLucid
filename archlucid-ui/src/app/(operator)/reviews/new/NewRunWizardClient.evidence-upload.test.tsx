@@ -97,7 +97,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
       },
     });
 
-    for (let i = 0; i < 4; i += 1) {
+    for (let i = 0; i < 5; i += 1) {
       await clickPrimaryForward();
     }
 
