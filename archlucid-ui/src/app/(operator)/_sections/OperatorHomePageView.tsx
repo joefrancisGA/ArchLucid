@@ -159,7 +159,9 @@ function OperatorHomePageBody() {
         <HomeSectionHeading id="operator-home-started-heading">Get started</HomeSectionHeading>
         <PilotStartHereStrip />
         <CorePilotNextStepsCard />
-        <CorePilotChecklist />
+        <div id="core-pilot-checklist-anchor">
+          <CorePilotChecklist />
+        </div>
         <FirstPilotOperatingRail />
         <div className="max-w-prose space-y-3">
           <FirstWeekRouteGuidance variant="home" />

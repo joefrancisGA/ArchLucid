@@ -84,13 +84,13 @@ describe("CorePilotChecklist", () => {
       expect(screen.getByTestId("core-pilot-checklist-complete")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Collapse Review workflow checklist" }));
+    fireEvent.click(screen.getByRole("button", { name: "Collapse First review checklist" }));
 
     await waitFor(() => {
       expect(screen.queryByTestId("core-pilot-checklist-complete")).not.toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Expand Review workflow checklist" }));
+    fireEvent.click(screen.getByRole("button", { name: "Expand First review checklist" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("core-pilot-checklist-complete")).toBeInTheDocument();

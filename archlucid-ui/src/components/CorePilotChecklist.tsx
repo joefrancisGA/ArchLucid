@@ -78,7 +78,7 @@ export function CorePilotChecklist() {
 
   return (
     <OperatorHomeDisclosureSection
-      title="Review workflow checklist"
+      title="First review checklist"
       titleId="core-pilot-checklist-heading"
       sectionTestId="core-pilot-checklist"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}
