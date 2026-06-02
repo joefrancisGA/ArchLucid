@@ -92,7 +92,7 @@ internal static class Program
         stopwatch.Stop();
 
         Console.WriteLine(
-            $"Backfill finished. Processed={report.ProcessedCount} Success={report.SuccessCount} Failures={report.FailureCount}");
+            $"Backfill finished. Processed={report.ProcessedCount} Success={report.SuccessCount} Failures={report.FailureCount} SkippedQuarantined={report.SkippedQuarantinedCount}");
 
         foreach (SqlRelationalBackfillFailure failure in report.Failures)
             Console.WriteLine($"{failure.Stage} {failure.EntityKey}: {failure.Message}");
@@ -172,6 +172,11 @@ internal static class Program
 
             If --only is present, --skip-* flags are ignored.
 
+            Operational hardening (ignored when --readiness):
+              --batch-size N     Keyset page size for header scans (default 500).
+              --max-retries N    Skip entities after N failures unless --force-retry (default 3).
+              --force-retry      Retry quarantined entities regardless of failure count.
+
             Output:
               --output-json [path]
                               Emit a machine-readable JSON report after completion.
@@ -219,6 +224,9 @@ internal static class Program
         bool skipFindings = false;
         bool skipGolden = false;
         bool skipArtifact = false;
+        int batchSize = 500;
+        int maxRetries = 3;
+        bool forceRetry = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -226,6 +234,26 @@ internal static class Program
             if (a.Equals("--only", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
             {
                 onlyList = args[++i];
+                continue;
+            }
+
+            if (a.Equals("--batch-size", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length &&
+                int.TryParse(args[++i], out int parsedBatch) && parsedBatch > 0)
+            {
+                batchSize = parsedBatch;
+                continue;
+            }
+
+            if (a.Equals("--max-retries", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length &&
+                int.TryParse(args[++i], out int parsedRetries) && parsedRetries >= 0)
+            {
+                maxRetries = parsedRetries;
+                continue;
+            }
+
+            if (a.Equals("--force-retry", StringComparison.OrdinalIgnoreCase))
+            {
+                forceRetry = true;
                 continue;
             }
 
@@ -256,7 +284,10 @@ internal static class Program
                 GraphSnapshots = !skipGraph,
                 FindingsSnapshots = !skipFindings,
                 GoldenManifestsPhase1 = !skipGolden,
-                ArtifactBundles = !skipArtifact
+                ArtifactBundles = !skipArtifact,
+                BatchSize = batchSize,
+                MaxRetries = maxRetries,
+                ForceRetry = forceRetry,
             };
 
         HashSet<string> stages = new(StringComparer.OrdinalIgnoreCase);
@@ -272,7 +303,10 @@ internal static class Program
             GraphSnapshots = stages.Contains("graph"),
             FindingsSnapshots = stages.Contains("findings"),
             GoldenManifestsPhase1 = stages.Contains("golden"),
-            ArtifactBundles = stages.Contains("artifact")
+            ArtifactBundles = stages.Contains("artifact"),
+            BatchSize = batchSize,
+            MaxRetries = maxRetries,
+            ForceRetry = forceRetry,
         };
     }
 

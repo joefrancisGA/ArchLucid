@@ -15,19 +15,23 @@ public sealed class AdvisoryDueScheduleProcessor(
     ILogger<AdvisoryDueScheduleProcessor> logger)
 {
     /// <summary>
-    /// Loads up to <paramref name="maxSchedules"/> due rows and runs each; per-schedule errors are logged and swallowed except <see cref="OperationCanceledException"/>.
+    /// Loads up to <paramref name="maxSchedules"/> due rows and runs each; per-schedule errors are logged and counted except <see cref="OperationCanceledException"/>.
     /// </summary>
-    public async Task ProcessDueAsync(DateTime utcNow, int maxSchedules, CancellationToken ct)
+    public async Task<AdvisoryDueScheduleProcessResult> ProcessDueAsync(DateTime utcNow, int maxSchedules, CancellationToken ct)
     {
         IReadOnlyList<AdvisoryScanSchedule> due = await scheduleRepository
                 .ListDueAsync(utcNow, maxSchedules, ct)
             ;
+
+        int successCount = 0;
+        int failureCount = 0;
 
         foreach (AdvisoryScanSchedule schedule in due)
 
             try
             {
                 await runner.RunScheduleAsync(schedule, ct);
+                successCount++;
             }
             catch (OperationCanceledException)
             {
@@ -35,7 +39,18 @@ public sealed class AdvisoryDueScheduleProcessor(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Advisory scan failed for schedule {ScheduleId}.", schedule.ScheduleId);
+                failureCount++;
+                logger.LogError(
+                    ex,
+                    "Advisory scan failed for schedule {ScheduleId}. FailureCount={FailureCount} SuccessCount={SuccessCount}",
+                    schedule.ScheduleId,
+                    failureCount,
+                    successCount);
             }
+
+        return new AdvisoryDueScheduleProcessResult
+        {
+            SuccessCount = successCount, FailureCount = failureCount
+        };
     }
 }

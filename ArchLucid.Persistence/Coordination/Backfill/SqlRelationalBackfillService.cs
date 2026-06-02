@@ -1,14 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Repositories;
 
-using Dapper;
-
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Persistence.Coordination.Backfill;
@@ -29,6 +31,9 @@ public sealed class SqlRelationalBackfillService(
     IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
     ILogger<SqlRelationalBackfillService> logger) : ISqlRelationalBackfillService
 {
+    private readonly SqlRelationalBackfillCheckpointStore _checkpoints = new(connectionFactory);
+    private readonly SqlRelationalBackfillFailureQuarantineStore _quarantine = new(connectionFactory);
+
     public async Task<SqlRelationalBackfillReport> RunAsync(SqlRelationalBackfillOptions options, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -39,7 +44,7 @@ public sealed class SqlRelationalBackfillService(
             await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
                 "ContextSnapshots",
                 report,
-                () => BackfillContextSnapshotsAsync(report, ct),
+                () => BackfillContextSnapshotsAsync(options, report, ct),
                 ct);
         }
 
@@ -48,7 +53,7 @@ public sealed class SqlRelationalBackfillService(
             await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
                 "GraphSnapshots",
                 report,
-                () => BackfillGraphSnapshotsAsync(report, ct),
+                () => BackfillGraphSnapshotsAsync(options, report, ct),
                 ct);
         }
 
@@ -57,7 +62,7 @@ public sealed class SqlRelationalBackfillService(
             await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
                 "FindingsSnapshots",
                 report,
-                () => BackfillFindingsSnapshotsAsync(report, ct),
+                () => BackfillFindingsSnapshotsAsync(options, report, ct),
                 ct);
         }
 
@@ -66,7 +71,7 @@ public sealed class SqlRelationalBackfillService(
             await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
                 "GoldenManifestsPhase1",
                 report,
-                () => BackfillGoldenManifestsAsync(report, ct),
+                () => BackfillGoldenManifestsAsync(options, report, ct),
                 ct);
         }
 
@@ -75,253 +80,253 @@ public sealed class SqlRelationalBackfillService(
             await SqlRelationalBackfillStageRunner.RunTrackedStageAsync(
                 "ArtifactBundles",
                 report,
-                () => BackfillArtifactBundlesAsync(report, ct),
+                () => BackfillArtifactBundlesAsync(options, report, ct),
                 ct);
         }
 
         return report;
     }
 
-    private async Task BackfillContextSnapshotsAsync(SqlRelationalBackfillReport report, CancellationToken ct)
+    private Task BackfillContextSnapshotsAsync(
+        SqlRelationalBackfillOptions options,
+        SqlRelationalBackfillReport report,
+        CancellationToken ct) =>
+        SqlRelationalBackfillStageProcessor.ProcessGuidStageAsync(
+            "ContextSnapshots",
+            options,
+            report,
+            connectionFactory,
+            _checkpoints,
+            _quarantine,
+            "dbo.ContextSnapshots",
+            "SnapshotId",
+            (snapshotId, token) => ProcessContextSnapshotAsync(snapshotId, token),
+            logger,
+            ct);
+
+    private async Task ProcessContextSnapshotAsync(Guid snapshotId, CancellationToken ct)
     {
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        List<Guid> ids = (await connection.QueryAsync<Guid>(
-            new CommandDefinition(
-                """
-                SELECT SnapshotId
-                FROM dbo.ContextSnapshots
-                ORDER BY CreatedUtc;
-                """,
-                cancellationToken: ct))).ToList();
+        await using Microsoft.Data.SqlClient.SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
 
-        foreach (Guid snapshotId in ids)
+        ContextSnapshot? snapshot = await contextSnapshotRepository.GetByIdAsync(
+            ScopedRepositoryScopeValidation.TrustedJobScope,
+            snapshotId,
+            conn,
+            tx,
+            ct);
+
+        if (snapshot is null)
         {
-            report.ProcessedCount++;
+            tx.Commit();
 
-            try
-            {
-                await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                await using SqlTransaction tx = conn.BeginTransaction();
+            return;
+        }
 
-                ContextSnapshot? snapshot = await contextSnapshotRepository.GetByIdAsync(
-                    ScopedRepositoryScopeValidation.TrustedJobScope,
-                    snapshotId,
-                    conn,
-                    tx,
+        await SqlContextSnapshotRepository.BackfillRelationalSlicesAsync(snapshot, conn, tx, ct);
+        tx.Commit();
+    }
+
+    private Task BackfillGraphSnapshotsAsync(
+        SqlRelationalBackfillOptions options,
+        SqlRelationalBackfillReport report,
+        CancellationToken ct) =>
+        SqlRelationalBackfillStageProcessor.ProcessGuidStageAsync(
+            "GraphSnapshots",
+            options,
+            report,
+            connectionFactory,
+            _checkpoints,
+            _quarantine,
+            "dbo.GraphSnapshots",
+            "GraphSnapshotId",
+            (graphSnapshotId, token) => ProcessGraphSnapshotAsync(graphSnapshotId, token),
+            logger,
+            ct);
+
+    private async Task ProcessGraphSnapshotAsync(Guid graphSnapshotId, CancellationToken ct)
+    {
+        await using Microsoft.Data.SqlClient.SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
+
+        GraphSnapshot? snapshot = await graphSnapshotRepository.GetByIdAsync(
+            ScopedRepositoryScopeValidation.TrustedJobScope,
+            graphSnapshotId,
+            conn,
+            tx,
+            ct);
+
+        if (snapshot is null)
+        {
+            tx.Commit();
+
+            return;
+        }
+
+        await SqlGraphSnapshotRepository.BackfillRelationalSlicesAsync(snapshot, conn, tx, ct);
+        tx.Commit();
+        await TryInvalidateGraphProjectionAfterGraphBackfillAsync(snapshot, ct);
+    }
+
+    private Task BackfillFindingsSnapshotsAsync(
+        SqlRelationalBackfillOptions options,
+        SqlRelationalBackfillReport report,
+        CancellationToken ct) =>
+        SqlRelationalBackfillStageProcessor.ProcessGuidStageAsync(
+            "FindingsSnapshots",
+            options,
+            report,
+            connectionFactory,
+            _checkpoints,
+            _quarantine,
+            "dbo.FindingsSnapshots",
+            "FindingsSnapshotId",
+            (findingsSnapshotId, token) => ProcessFindingsSnapshotAsync(findingsSnapshotId, token),
+            logger,
+            ct);
+
+    private async Task ProcessFindingsSnapshotAsync(Guid findingsSnapshotId, CancellationToken ct)
+    {
+        await using Microsoft.Data.SqlClient.SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
+
+        FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(
+            ScopedRepositoryScopeValidation.TrustedJobScope,
+            findingsSnapshotId,
+            ct);
+
+        if (snapshot is null)
+        {
+            tx.Commit();
+
+            return;
+        }
+
+        // TB-087: idempotency and duplicate prevention rely on repository transaction + UQ_FindingRecords_Snapshot_FindingId.
+        await SqlFindingsSnapshotRepository.BackfillRelationalSlicesAsync(snapshot, conn, tx, ct);
+        tx.Commit();
+    }
+
+    private async Task BackfillGoldenManifestsAsync(
+        SqlRelationalBackfillOptions options,
+        SqlRelationalBackfillReport report,
+        CancellationToken ct)
+    {
+        const string stage = "GoldenManifestsPhase1";
+        SqlRelationalBackfillCursor cursor = await _checkpoints.GetCursorAsync(stage, ct);
+
+        while (!ct.IsCancellationRequested)
+        {
+            IReadOnlyList<SqlRelationalBackfillGoldenManifestPageRow> page =
+                await SqlRelationalBackfillPagedEntityLoader.LoadGoldenManifestPageAsync(
+                    connectionFactory,
+                    cursor,
+                    options.BatchSize,
                     ct);
-                if (snapshot is null)
+
+            if (page.Count == 0)
+                break;
+
+            SqlRelationalBackfillCursor checkpointCandidate = cursor;
+            bool stopPage = false;
+
+            foreach (SqlRelationalBackfillGoldenManifestPageRow row in page)
+            {
+                string entityKey = row.ManifestId.ToString("D");
+                SqlRelationalBackfillCursor rowCursor = new(row.CreatedUtc, row.ManifestId);
+
+                if (await _quarantine.ShouldSkipAsync(stage, entityKey, options.MaxRetries, options.ForceRetry, ct))
                 {
-                    tx.Commit();
+                    report.SkippedQuarantinedCount++;
+                    checkpointCandidate = rowCursor;
+
                     continue;
                 }
 
-                await SqlContextSnapshotRepository.BackfillRelationalSlicesAsync(snapshot, conn, tx, ct);
-                tx.Commit();
-                report.SuccessCount++;
-                logger.LogInformation("Backfill ContextSnapshots: completed {SnapshotId}", snapshotId);
-            }
-            catch (Exception ex)
-            {
-                report.FailureCount++;
-                report.Failures.Add(
-                    new SqlRelationalBackfillFailure
-                    {
-                        Stage = "ContextSnapshots", EntityKey = snapshotId.ToString(), Message = ex.Message
-                    });
-                logger.LogError(ex, "Backfill ContextSnapshots: failed {SnapshotId}", snapshotId);
-            }
-        }
-    }
+                report.ProcessedCount++;
 
-    private async Task BackfillGraphSnapshotsAsync(SqlRelationalBackfillReport report, CancellationToken ct)
-    {
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        List<Guid> ids = (await connection.QueryAsync<Guid>(
-            new CommandDefinition(
-                """
-                SELECT GraphSnapshotId
-                FROM dbo.GraphSnapshots
-                ORDER BY CreatedUtc;
-                """,
-                cancellationToken: ct))).ToList();
-
-        foreach (Guid graphSnapshotId in ids)
-        {
-            report.ProcessedCount++;
-
-            try
-            {
-                await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                await using SqlTransaction tx = conn.BeginTransaction();
-
-                GraphSnapshot? snapshot = await graphSnapshotRepository.GetByIdAsync(
-                    ScopedRepositoryScopeValidation.TrustedJobScope,
-                    graphSnapshotId,
-                    conn,
-                    tx,
-                    ct);
-                if (snapshot is null)
+                try
                 {
-                    tx.Commit();
-                    continue;
-                }
-
-                await SqlGraphSnapshotRepository.BackfillRelationalSlicesAsync(snapshot, conn, tx, ct);
-                tx.Commit();
-                await TryInvalidateGraphProjectionAfterGraphBackfillAsync(snapshot, ct);
-                report.SuccessCount++;
-                logger.LogInformation("Backfill GraphSnapshots: completed {GraphSnapshotId}", graphSnapshotId);
-            }
-            catch (Exception ex)
-            {
-                report.FailureCount++;
-                report.Failures.Add(
-                    new SqlRelationalBackfillFailure
+                    ScopeContext scope = new()
                     {
-                        Stage = "GraphSnapshots", EntityKey = graphSnapshotId.ToString(), Message = ex.Message
-                    });
-                logger.LogError(ex, "Backfill GraphSnapshots: failed {GraphSnapshotId}", graphSnapshotId);
-            }
-        }
-    }
+                        TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ProjectId
+                    };
 
-    private async Task BackfillFindingsSnapshotsAsync(SqlRelationalBackfillReport report, CancellationToken ct)
-    {
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        List<Guid> ids = (await connection.QueryAsync<Guid>(
-            new CommandDefinition(
-                """
-                SELECT FindingsSnapshotId
-                FROM dbo.FindingsSnapshots
-                ORDER BY CreatedUtc;
-                """,
-                cancellationToken: ct))).ToList();
+                    ManifestDocument? manifest = await goldenManifestRepository.GetByIdAsync(scope, row.ManifestId, ct);
 
-        foreach (Guid findingsSnapshotId in ids)
-        {
-            report.ProcessedCount++;
+                    if (manifest is null)
+                    {
+                        report.SuccessCount++;
+                        checkpointCandidate = rowCursor;
 
-            try
-            {
-                await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                await using SqlTransaction tx = conn.BeginTransaction();
+                        continue;
+                    }
 
-                FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(
-                    ScopedRepositoryScopeValidation.TrustedJobScope,
-                    findingsSnapshotId,
-                    ct);
+                    await using Microsoft.Data.SqlClient.SqlConnection conn =
+                        await connectionFactory.CreateOpenConnectionAsync(ct);
+                    await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
 
-                if (snapshot is null)
+                    await SqlGoldenManifestRepository.BackfillPhase1RelationalSlicesAsync(manifest, conn, tx, ct);
+                    tx.Commit();
+                    report.SuccessCount++;
+                    await _quarantine.ClearAsync(stage, entityKey, ct);
+                    checkpointCandidate = rowCursor;
+                    logger.LogInformation("Backfill GoldenManifests: completed {ManifestId}", row.ManifestId);
+                }
+                catch (Exception ex) when (!ct.IsCancellationRequested)
                 {
-                    tx.Commit();
-                    continue;
+                    report.FailureCount++;
+                    report.Failures.Add(
+                        new SqlRelationalBackfillFailure
+                        {
+                            Stage = stage, EntityKey = entityKey, Message = ex.Message
+                        });
+
+                    await _quarantine.RecordFailureAsync(stage, entityKey, ex.Message, options.MaxRetries, ct);
+                    logger.LogError(ex, "Backfill GoldenManifests: failed {ManifestId}", row.ManifestId);
+                    stopPage = true;
+
+                    break;
                 }
+            }
 
-                await SqlFindingsSnapshotRepository.BackfillRelationalSlicesAsync(snapshot, conn, tx, ct);
-                tx.Commit();
-                report.SuccessCount++;
-                logger.LogInformation("Backfill FindingsSnapshots: completed {FindingsSnapshotId}", findingsSnapshotId);
-            }
-            catch (Exception ex)
-            {
-                report.FailureCount++;
-                report.Failures.Add(
-                    new SqlRelationalBackfillFailure
-                    {
-                        Stage = "FindingsSnapshots", EntityKey = findingsSnapshotId.ToString(), Message = ex.Message
-                    });
-                logger.LogError(ex, "Backfill FindingsSnapshots: failed {FindingsSnapshotId}", findingsSnapshotId);
-            }
+            cursor = checkpointCandidate;
+            await _checkpoints.SaveCursorAsync(stage, cursor, ct);
+
+            if (stopPage || page.Count < options.BatchSize)
+                break;
         }
     }
 
-    private async Task BackfillGoldenManifestsAsync(SqlRelationalBackfillReport report, CancellationToken ct)
+    private Task BackfillArtifactBundlesAsync(
+        SqlRelationalBackfillOptions options,
+        SqlRelationalBackfillReport report,
+        CancellationToken ct) =>
+        SqlRelationalBackfillStageProcessor.ProcessGuidStageAsync(
+            "ArtifactBundles",
+            options,
+            report,
+            connectionFactory,
+            _checkpoints,
+            _quarantine,
+            "dbo.ArtifactBundles",
+            "BundleId",
+            (bundleId, token) => ProcessArtifactBundleAsync(bundleId, token),
+            logger,
+            ct);
+
+    private async Task ProcessArtifactBundleAsync(Guid bundleId, CancellationToken ct)
     {
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        List<(Guid ManifestId, Guid TenantId, Guid WorkspaceId, Guid ProjectId)> rows =
-            (await connection.QueryAsync<(Guid ManifestId, Guid TenantId, Guid WorkspaceId, Guid ProjectId)>(
-                new CommandDefinition(
-                    """
-                    SELECT ManifestId, TenantId, WorkspaceId, ProjectId
-                    FROM dbo.GoldenManifests
-                    ORDER BY CreatedUtc;
-                    """,
-                    cancellationToken: ct))).ToList();
+        ArtifactBundle? bundle = await artifactBundleRepository.GetByBundleIdAsync(bundleId, ct);
 
-        foreach ((Guid manifestId, Guid tenantId, Guid workspaceId, Guid projectId) in rows)
-        {
-            report.ProcessedCount++;
+        if (bundle is null)
+            return;
 
-            try
-            {
-                ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+        await using Microsoft.Data.SqlClient.SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using Microsoft.Data.SqlClient.SqlTransaction tx = conn.BeginTransaction();
 
-                ManifestDocument? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
-                if (manifest is null)
-                    continue;
-
-                await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                await using SqlTransaction tx = conn.BeginTransaction();
-
-                await SqlGoldenManifestRepository.BackfillPhase1RelationalSlicesAsync(manifest, conn, tx, ct);
-                tx.Commit();
-                report.SuccessCount++;
-                logger.LogInformation("Backfill GoldenManifests: completed {ManifestId}", manifestId);
-            }
-            catch (Exception ex)
-            {
-                report.FailureCount++;
-                report.Failures.Add(
-                    new SqlRelationalBackfillFailure
-                    {
-                        Stage = "GoldenManifestsPhase1", EntityKey = manifestId.ToString(), Message = ex.Message
-                    });
-                logger.LogError(ex, "Backfill GoldenManifests: failed {ManifestId}", manifestId);
-            }
-        }
-    }
-
-    private async Task BackfillArtifactBundlesAsync(SqlRelationalBackfillReport report, CancellationToken ct)
-    {
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        List<Guid> ids = (await connection.QueryAsync<Guid>(
-            new CommandDefinition(
-                """
-                SELECT BundleId
-                FROM dbo.ArtifactBundles
-                ORDER BY CreatedUtc;
-                """,
-                cancellationToken: ct))).ToList();
-
-        foreach (Guid bundleId in ids)
-        {
-            report.ProcessedCount++;
-
-            try
-            {
-                ArtifactBundle? bundle = await artifactBundleRepository.GetByBundleIdAsync(bundleId, ct);
-                if (bundle is null)
-                    continue;
-
-                await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                await using SqlTransaction tx = conn.BeginTransaction();
-
-                await SqlArtifactBundleRepository.BackfillRelationalSlicesAsync(bundle, conn, tx, ct);
-                tx.Commit();
-                report.SuccessCount++;
-                logger.LogInformation("Backfill ArtifactBundles: completed {BundleId}", bundleId);
-            }
-            catch (Exception ex)
-            {
-                report.FailureCount++;
-                report.Failures.Add(
-                    new SqlRelationalBackfillFailure
-                    {
-                        Stage = "ArtifactBundles", EntityKey = bundleId.ToString(), Message = ex.Message
-                    });
-                logger.LogError(ex, "Backfill ArtifactBundles: failed {BundleId}", bundleId);
-            }
-        }
+        await SqlArtifactBundleRepository.BackfillRelationalSlicesAsync(bundle, conn, tx, ct);
+        tx.Commit();
     }
 
     private async Task TryInvalidateGraphProjectionAfterGraphBackfillAsync(GraphSnapshot snapshot, CancellationToken ct)
@@ -338,17 +343,17 @@ public sealed class SqlRelationalBackfillService(
             return;
         }
 
-
         graphSnapshotProjectionCache.Invalidate(scope, snapshot.RunId, snapshot.GraphSnapshotId);
     }
 
     private async Task<ScopeContext?> TryResolveRunScopeAsync(Guid runId, CancellationToken ct)
     {
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using Microsoft.Data.SqlClient.SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         List<(Guid TenantId, Guid WorkspaceId, Guid ScopeProjectId)> matches =
-            (await connection.QueryAsync<(Guid TenantId, Guid WorkspaceId, Guid ScopeProjectId)>(
-                new CommandDefinition(
+            (await Dapper.SqlMapper.QueryAsync<(Guid TenantId, Guid WorkspaceId, Guid ScopeProjectId)>(
+                connection,
+                new Dapper.CommandDefinition(
                     """
                     SELECT TenantId, WorkspaceId, ScopeProjectId
                     FROM dbo.Runs
@@ -368,4 +373,3 @@ public sealed class SqlRelationalBackfillService(
         };
     }
 }
-

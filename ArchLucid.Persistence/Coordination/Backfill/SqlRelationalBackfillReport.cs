@@ -23,6 +23,13 @@ public sealed class SqlRelationalBackfillReport
         set;
     }
 
+    /// <summary>Entities skipped because <see cref="SqlRelationalBackfillOptions.MaxRetries"/> was exceeded (TB-086).</summary>
+    public int SkippedQuarantinedCount
+    {
+        get;
+        set;
+    }
+
     public List<SqlRelationalBackfillFailure> Failures
     {
         get;

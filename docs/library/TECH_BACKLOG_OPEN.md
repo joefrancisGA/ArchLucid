@@ -8,6 +8,7 @@
 
 | Cluster | IDs |
 | --- | --- |
+| Backfill / jobs operational hardening | **TB-085** – **TB-090** |
 | Tenancy defense-in-depth | **TB-076**, **TB-077** |
 | In-app docs | **TB-143 – TB-148** |
 | Data consistency KPIs | **TB-149 – TB-155** |
@@ -24,17 +25,6 @@
 | ID | Title |
 | --- | --- |
 | TB-078 | Cross-tenant isolation integration test matrix (residual wiring) |
-
-## P1 — backfill / jobs operational hardening (batch TB-085–090)
-
-| ID | Title |
-| --- | --- |
-| TB-085 | SqlRelationalBackfill — paged entity scans + durable checkpoint table |
-| TB-086 | Backfill.Cli — bounded memory + quarantine for poison catalog rows |
-| TB-087 | Backfill concurrent rerun — DB-level duplicate FindingRecords guard |
-| TB-088 | Jobs.Cli digest scanner — per-tenant failure isolation |
-| TB-089 | Governance digest — idempotent send on ACA retry |
-| TB-090 | Backfill/Jobs — `--output-json` report + per-stage timing (partial; extend CI) |
 
 ## Real-mode / eval (owner or credentialed CI)
 

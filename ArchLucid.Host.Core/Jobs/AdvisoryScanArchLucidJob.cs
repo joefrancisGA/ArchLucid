@@ -27,7 +27,19 @@ public sealed class AdvisoryScanArchLucidJob(
             AdvisoryDueScheduleProcessor processor =
                 scope.ServiceProvider.GetRequiredService<AdvisoryDueScheduleProcessor>();
 
-            await processor.ProcessDueAsync(TimeProvider.System.UtcNowDateTime(), MaxSchedulesPerRun, cancellationToken).ConfigureAwait(false);
+            AdvisoryDueScheduleProcessResult result = await processor
+                .ProcessDueAsync(TimeProvider.System.UtcNowDateTime(), MaxSchedulesPerRun, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (result.HasFailures)
+            {
+                _logger.LogWarning(
+                    "Advisory scan job completed with entity failures. FailureCount={FailureCount} SuccessCount={SuccessCount}",
+                    result.FailureCount,
+                    result.SuccessCount);
+
+                return ArchLucidJobExitCodes.JobFailure;
+            }
         }
         catch (OperationCanceledException)
         {

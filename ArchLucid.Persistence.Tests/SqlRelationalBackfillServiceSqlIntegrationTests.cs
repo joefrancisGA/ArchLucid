@@ -154,6 +154,66 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
         afterSecond.Should().Be(afterFirst);
     }
 
+    [SkippableFact]
+    public async Task RunAsync_skips_quarantined_entity_when_max_retries_exceeded()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                """
+                INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
+
+                INSERT INTO dbo.ContextSnapshots
+                (
+                    SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
+                    CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                )
+                VALUES
+                (
+                    @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
+                    N'not-valid-json', @DeltaSummary, N'[]', N'[]', N'{}'
+                );
+                """,
+                new
+                {
+                    RunId = runId,
+                    ProjectId = "proj-quarantine",
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    TenantId,
+                    WorkspaceId,
+                    ScopeProjectId = ProjectId,
+                    SnapshotId = snapshotId,
+                    DeltaSummary = (string?)null,
+                },
+                cancellationToken: CancellationToken.None));
+
+        SqlRelationalBackfillService backfill = CreateService(factory);
+        SqlRelationalBackfillOptions options = new()
+        {
+            ContextSnapshots = true,
+            GraphSnapshots = false,
+            FindingsSnapshots = false,
+            GoldenManifestsPhase1 = false,
+            ArtifactBundles = false,
+            BatchSize = 10,
+            MaxRetries = 1,
+        };
+
+        SqlRelationalBackfillReport first = await backfill.RunAsync(options, CancellationToken.None);
+        first.FailureCount.Should().BeGreaterThan(0);
+
+        SqlRelationalBackfillReport second = await backfill.RunAsync(options, CancellationToken.None);
+        second.SkippedQuarantinedCount.Should().Be(1);
+        second.FailureCount.Should().Be(0);
+    }
+
     private static SqlRelationalBackfillService CreateService(SqlConnectionFactory factory)
     {
         return new SqlRelationalBackfillService(

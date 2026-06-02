@@ -20,6 +20,9 @@ public sealed class TrialLifecycleArchLucidJob(
     /// <inheritdoc />
     public async Task<int> RunOnceAsync(CancellationToken cancellationToken)
     {
+        int failureCount = 0;
+        int successCount = 0;
+
         try
         {
             using IServiceScope scope = _serviceProvider.CreateScope();
@@ -33,7 +36,25 @@ public sealed class TrialLifecycleArchLucidJob(
 
             foreach (Guid tenantId in tenantIds)
 
-                await engine.TryAdvanceTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await engine.TryAdvanceTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
+                    successCount++;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    failureCount++;
+                    _logger.LogError(
+                        ex,
+                        "Trial lifecycle failed for tenant {TenantId}. FailureCount={FailureCount} SuccessCount={SuccessCount}",
+                        tenantId,
+                        failureCount,
+                        successCount);
+                }
         }
         catch (OperationCanceledException)
         {
@@ -42,6 +63,16 @@ public sealed class TrialLifecycleArchLucidJob(
         catch (Exception ex)
         {
             _logger.LogError(ex, "Trial lifecycle job iteration failed.");
+
+            return ArchLucidJobExitCodes.JobFailure;
+        }
+
+        if (failureCount > 0)
+        {
+            _logger.LogWarning(
+                "Trial lifecycle job completed with tenant failures. FailureCount={FailureCount} SuccessCount={SuccessCount}",
+                failureCount,
+                successCount);
 
             return ArchLucidJobExitCodes.JobFailure;
         }

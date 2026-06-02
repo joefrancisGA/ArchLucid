@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.14%
+# ArchLucid Assessment – (A) Headline Readiness: 80.24%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Through **80.04%** (5A); batch **5B TB-076/TB-077** tenancy defense-in-depth → **80.14%** (+1 Trustworthiness, +1 Architectural Integrity, +1 Correctness capped). G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
+Rescore note: Through **80.14%** (5B); batch **5C TB-085–090** backfill checkpoint/quarantine, findings DB idempotency, container-job per-entity isolation, digest ledger-before-send → **80.24%** (+1 Reliability, +1 Availability, +1 Deployability capped). G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
 
 ## Executive Summary
 
@@ -69,17 +69,17 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
 | Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
-| Reliability | 74 | 2 | 1.28% | 52 |
+| Reliability | 76 | 2 | 1.31% | 48 |
 | Auditability | 77 | 2 | 1.32% | 46 |
 | Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |
 | Explainability | 80 | 2 | 1.38% | 40 |
 | Cognitive Load | 66 | 1 | 0.57% | 34 |
 | Customer Self-Sufficiency | 68 | 1 | 0.59% | 32 |
-| Deployability | 69 | 1 | 0.59% | 31 |
+| Deployability | 71 | 1 | 0.61% | 29 |
 | Scalability | 70 | 1 | 0.60% | 30 |
 | Manageability | 71 | 1 | 0.61% | 29 |
 | Performance | 71 | 1 | 0.61% | 29 |
-| Availability | 72 | 1 | 0.62% | 28 |
+| Availability | 74 | 1 | 0.64% | 26 |
 | Extensibility | 72 | 1 | 0.62% | 28 |
 | Cost-Effectiveness | 73 | 1 | 0.63% | 27 |
 | Testability | 75 | 1 | 0.65% | 25 |

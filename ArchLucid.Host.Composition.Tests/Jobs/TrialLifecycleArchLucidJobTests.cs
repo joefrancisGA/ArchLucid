@@ -53,6 +53,47 @@ public sealed class TrialLifecycleArchLucidJobTests
         code.Should().Be(ArchLucidJobExitCodes.JobFailure);
     }
 
+    [Fact]
+    public async Task RunOnceAsync_returns_job_failure_when_one_tenant_advance_throws_but_continues_others()
+    {
+        Guid failing = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid succeeding = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<ITenantRepository> tenantRepo = new();
+        tenantRepo.Setup(r => r.ListTrialLifecycleAutomationTenantIdsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([failing, succeeding]);
+        tenantRepo.Setup(r => r.GetByIdAsync(failing, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("tenant failed"));
+        tenantRepo.Setup(r => r.GetByIdAsync(succeeding, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        await using ServiceProvider provider = BuildProviderWithTenantRepository(tenantRepo.Object);
+        TrialLifecycleArchLucidJob job = new(provider, NullLogger<TrialLifecycleArchLucidJob>.Instance);
+
+        int code = await job.RunOnceAsync(CancellationToken.None);
+
+        code.Should().Be(ArchLucidJobExitCodes.JobFailure);
+        tenantRepo.Verify(r => r.GetByIdAsync(succeeding, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static ServiceProvider BuildProviderWithTenantRepository(ITenantRepository tenantRepository)
+    {
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> lifecycleOptions = new();
+        lifecycleOptions.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        ServiceCollection services = [];
+        services.AddScoped<ITenantRepository>(_ => tenantRepository);
+        services.AddScoped<ITenantHardPurgeService>(_ => Mock.Of<ITenantHardPurgeService>());
+        services.AddScoped<IAuditService>(_ => Mock.Of<IAuditService>());
+        services.AddSingleton(lifecycleOptions.Object);
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<ILogger<TrialLifecycleTransitionEngine>>(_ =>
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
+        services.AddScoped<TrialLifecycleTransitionEngine>();
+
+        return services.BuildServiceProvider();
+    }
+
     private static ServiceProvider BuildProviderWithEmptyAutomationList()
     {
         Mock<ITenantRepository> tenantRepo = new();

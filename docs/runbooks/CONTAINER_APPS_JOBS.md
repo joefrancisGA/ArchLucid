@@ -40,6 +40,12 @@ Canonical slugs: `ArchLucid.Host.Core.Jobs.ArchLucidJobNames`.
 | 2 | Invalid CLI (`--job` missing) or `ArchLucidConfigurationRules` errors |
 | 3 | Unknown `--job` name (no `IArchLucidJob` registration) |
 
+## Per-entity failure isolation (TB-088 / TB-089)
+
+Multi-tenant jobs (`trial-lifecycle`, `advisory-scan`) catch errors **per tenant or schedule**, log `FailureCount` / `SuccessCount`, and still process remaining entities in the same invocation. The job exits **non-zero** when any entity failed so ACA can alert, without requiring a full-loop retry for healthy entities (downstream handlers must stay idempotent).
+
+Digest email dispatchers (`ExecDigestEmailDispatcher`, `WeeklyExecutiveSummaryEmailDispatcher`) call `ISentEmailLedger.TryRecordSentAsync` **before** `IEmailProvider.SendAsync` so an ACA retry after a successful send does not emit a second email for the same idempotency key.
+
 ## Terraform (`infra/terraform-container-apps/jobs.tf`)
 
 - `trigger_type = "Schedule"` requires `cron_expression`.

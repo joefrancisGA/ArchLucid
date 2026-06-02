@@ -55,10 +55,26 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-170** was added 2026-06-01 from the **Docs: markdown link integrity** CI advisory output. It does not duplicate **TB-147** (GitHub blob URLs in product UI) or **TB-143 – TB-148** (in-app customer docs). It targets broken relative markdown link targets left after `docs/library/` consolidation and navigational moves; the check still reports **200+** stale paths while running warn-only in CI.
 
+**TB-177 – TB-190** were added 2026-06-01 from an independent first-principles AI/Agent Readiness quality assessment (`docs/assessments/AI_AGENT_READINESS_06012026.MD`). They target the agent pipeline gaps identified in that assessment in priority order: adversarial Critic posture (**TB-177**, P0), streaming Ask (**TB-178**, P0), multi-model tiered orchestration (**TB-179**, P1), calibrated confidence (**TB-180**, P1), nightly eval harness cron (**TB-181**, P1), automated AI readiness posture script (**TB-182**, P1), findings re-ranker (**TB-183**, P2), governance-block explainer (**TB-184**, P2), per-finding conversational explainer (**TB-185**, P2), run summary one-pager (**TB-186**, P2), AI-assisted request authoring (**TB-187**, P2), IaC stub generator (**TB-188**, P3), policy-pack drafting assistant (**TB-189**, P3), and LLM-as-judge coverage extension (**TB-190**, P2 pending owner budget approval). These do not duplicate items already tracked: **TB-011/TB-012** (invariant wave B/C), **TB-034–038** (provenance forensics), **TB-137/TB-139/TB-140** (real-mode eval — owner-credentialed), or any AI Leverage Roadmap items previously promoted to backlog. The real-mode CI gate flip is **not added here** — it requires owner action (see **PQ-AI-01** in the assessment).
+
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
+| TB-177 | Adversarial Critic second-pass — replace rule 8 with challenge-first posture in `CriticSystemPromptTemplate.cs` + `CriticAgentHandlerTests.cs` | AI/Agent Readiness P0 — Critic is currently consensus-leaning; single-file prompt change with test | S |
+| TB-178 | Streaming Ask SSE — `POST /v1/ask/stream` + `AskStreamAsync` + `useAskStream()` UI hook | AI/Agent Readiness P0 — eliminates blank-screen latency on every Ask query; reuses existing LLM client | M |
+| TB-179 | Multi-model tiered orchestration — `ModelTier` enum + `AgentTaskFactory` tier assignment + config-driven deployment resolution | AI/Agent Readiness P1 — targets 30–50% run cost reduction; backward-compatible config | M |
+| TB-180 | Calibrated agent confidence — `IAgentConfidenceCalibrator` piecewise-linear calibration + `CalibratedConfidence` column on `dbo.AgentResults` | AI/Agent Readiness P1 — quality gate confidence thresholds are currently ungrounded; fail-open when < 20 data points | M |
+| TB-181 | Template eval harness nightly cron — add `cron: '0 3 * * *'` trigger + JSON summary output to `template-eval-harness.yml` | AI/Agent Readiness P1 — regression window is currently days; nightly sentinel closes the detection gap | XS |
+| TB-182 | `Write-AiReadinessPosture.ps1` — automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent Readiness P1 — every pilot delivery currently requires manual JSON fill; schema stable | S |
+| TB-183 | Findings priority re-ranker — `IFindingPriorityReranker` + `PriorityRank` column + `?orderBy=priority` param, feature-flagged | AI/Agent Readiness P2 — operators receive undifferentiated High findings list; business-impact ordering per `IndustryVertical` | M |
+| TB-184 | Governance-block explainer — AI explanation on 409 `GovernanceBlockResult` via `IAgentCompletionClient`, feature-flagged | AI/Agent Readiness P2 — governance blocks are currently opaque rule IDs with no minimum-edit guidance | S |
+| TB-185 | Per-finding conversational explainer — `AskAboutFindingAsync` + `POST /v1/architecture/finding/{findingId}/ask` + inline UI chat icon | AI/Agent Readiness P2 — operators cannot ask "why?" inline without copying finding context manually | M |
+| TB-186 | Run summary one-pager auto-generator — `RunSummaryOnePager` export variant + `GET /v1/architecture/run/{runId}/export/summary`, feature-flagged | AI/Agent Readiness P2 — no CFO-ready artifact in one click; every sponsor packet requires manual export + edit | M |
+| TB-187 | AI-assisted architecture request authoring — `POST /v1/architecture/request/draft` + pre-fill UI button | AI/Agent Readiness P2 — blank-page tax on first run; pure assistive, no changes to run contract | M |
+| TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; requires owner approval on token budget sub-cap | AI/Agent Readiness P2 — Cost and Compliance remain heuristic-only semantic evaluation; owner input required on budget before implementing | M |
+| TB-188 | Findings-to-IaC stub generator — `IFindingIacStubGenerator` + `IacStub` nullable property on `ArchitectureFinding`, feature-flagged | AI/Agent Readiness P3 — closes "what do I do now?" gap; finding → Bicep snippet with disclaimer | M |
+| TB-189 | AI policy-pack drafting assistant — `POST /v1/governance/policy-pack/draft` with few-shot bundled-pack examples + UI draft panel | AI/Agent Readiness P3 — blank-page tax on enterprise policy authoring; removes primary pilot-stall pattern | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Partial (Batch H, 2026-05-26) — **INV-002** persisted mode + trust card + operator UI badge; INV-004/012/013 remain | L |
@@ -86,7 +102,12 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-100 | Migrate Logic App Standard storage from access-key to managed identity | IaC hygiene — **Done** 2026-06-01 (RBAC on hosting storage; access key still required by platform for file share mount) | M |
 | TB-101 | Resolve legacy App Service VNet integration in `terraform-private/app_service.tf` | IaC hygiene — **Done** 2026-06-01 (documented legacy optional path; Container Apps is active compute) | XS |
 | TB-102 | Parameterize `application_insights_sampling_percentage` in `terraform-monitoring` | IaC hygiene — **Done** 2026-06-01; `application_insights_sampling_percentage` variable (0–100, default 100) | XS |
-| TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | **Done (2026-05-31)** — `--output-json [path]`, `stages[]` timings on report, `BackfillCliJsonReportSerializerTests` | XS |
+| TB-085 | SqlRelationalBackfill — paged scans + checkpoint table | **Done (2026-06-01)** — `--batch-size`, `dbo.BackfillCheckpoints`, keyset paging | M |
+| TB-086 | Backfill poison-row quarantine | **Done (2026-06-01)** — `dbo.BackfillFailures`, `--max-retries`, `--force-retry`, JSON `skippedQuarantinedCount` | S |
+| TB-087 | Findings backfill DB idempotency | **Done (2026-06-01)** — migration **229** unique index; repository-only slice guard | XS–S |
+| TB-088 | Container jobs per-entity isolation | **Done (2026-06-01)** — `TrialLifecycleArchLucidJob`, `AdvisoryDueScheduleProcessResult` | S |
+| TB-089 | Digest ledger-before-send | **Done (2026-06-01)** — verified + `DigestEmailDispatcherIdempotencyTests` | S |
+| TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | **Done (2026-05-31)** — extended with quarantine fields in JSON (2026-06-01) | XS |
 | TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
 | TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
 | TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **Done (2026-05-31)** — `scripts/start-local-api-and-ui.ps1` E2E proxy gate | S |
@@ -3942,6 +3963,8 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 
 ## TB-085 — SqlRelationalBackfill — paged entity scans + durable checkpoint table
 
+**Status (2026-06-01):** **Done** — `--batch-size`, `dbo.BackfillCheckpoints`, keyset paging via `SqlRelationalBackfillPagedEntityLoader` / `SqlRelationalBackfillStageProcessor`; documented in [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md).
+
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
 **Problem:**
@@ -3978,6 +4001,8 @@ While integrations (`AzureDevOps`, `AzureExtractor`) are not currently exposed a
 
 ## TB-086 — SqlRelationalBackfill — poison-row quarantine (`BackfillFailures` + `--max-retries`)
 
+**Status (2026-06-01):** **Done** — `dbo.BackfillFailures`, `--max-retries`, `--force-retry`, `SkippedQuarantinedCount` on report + JSON; integration test in `SqlRelationalBackfillServiceSqlIntegrationTests`.
+
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
 **Problem:**
@@ -4009,6 +4034,8 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 ---
 
 ## TB-087 — Findings backfill slice — DB-level idempotency (remove double COUNT race)
+
+**Status (2026-06-01):** **Done** — migration **229** `UQ_FindingRecords_Snapshot_FindingId`; service relies on `SqlFindingsSnapshotRepository.BackfillRelationalSlicesAsync` inside one transaction (no separate service-level COUNT).
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
@@ -4043,6 +4070,8 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 
 ## TB-088 — Container App jobs — per-entity error isolation in multi-tenant loops
 
+**Status (2026-06-01):** **Done** — per-tenant try/catch in `TrialLifecycleArchLucidJob`; `AdvisoryDueScheduleProcessResult` + non-zero exit when any schedule failed; documented in [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
+
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 
 **Problem:**
@@ -4074,6 +4103,8 @@ A row that repeatedly fails (corrupt JSON, missing blob payload, schema mismatch
 ---
 
 ## TB-089 — Digest delivery scanners — record delivery before send (ACA retry idempotency)
+
+**Status (2026-06-01):** **Done** — `TryRecordSentAsync` precedes `SendAsync` in exec + weekly executive dispatchers; `DigestEmailDispatcherIdempotencyTests`; runbook note in [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
 **Source:** Backfill.Cli and Jobs.Cli operational review (2026-05-27).
 

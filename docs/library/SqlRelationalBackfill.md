@@ -95,6 +95,16 @@ dotnet run --project ArchLucid.Backfill.Cli -- -c "Server=.;Database=ArchLucid;I
 
 If `--only` is present, `--skip-*` is ignored.
 
+**Operational hardening (TB-085 / TB-086):**
+
+| Flag | Effect |
+|------|--------|
+| `--batch-size N` | Keyset page size for header scans (default **500**). Bounds memory on large catalogs. |
+| `--max-retries N` | After **N** failures for the same `(stage, entity)`, skip that entity on later runs (default **3**). |
+| `--force-retry` | Retry quarantined entities even when `FailureCount >= max-retries`. |
+
+Checkpoints are stored in `dbo.BackfillCheckpoints` per stage (`LastProcessedCreatedUtc`, `LastProcessedKey`). The cursor advances only after successful or quarantined-skipped entities so poison rows do not leave gaps. Reset a stage by deleting its checkpoint row (and optionally `dbo.BackfillFailures` rows for that stage) before re-running.
+
 **Help:** `dotnet run --project ArchLucid.Backfill.Cli -- --help`
 
 **Machine-readable report (TB-090):**
@@ -104,7 +114,9 @@ dotnet run --project ArchLucid.Backfill.Cli -- --output-json ./backfill-report.j
 dotnet run --project ArchLucid.Backfill.Cli -- --readiness --output-json ./readiness-report.json
 ```
 
-`--output-json` without a path writes JSON to stdout. Reports use schema `archlucid.backfill.cli.report.v1` and include total `elapsedMs`, per-stage timings (`stages[]` with `ElapsedMilliseconds` and delta counts), and entity `failures` for backfill mode.
+`--output-json` without a path writes JSON to stdout. Reports use schema `archlucid.backfill.cli.report.v1` and include total `elapsedMs`, per-stage timings (`stages[]` with `ElapsedMilliseconds` and delta counts), `skippedQuarantinedCount`, and entity `failures` for backfill mode.
+
+**Findings idempotency (TB-087):** concurrent reruns rely on `UQ_FindingRecords_Snapshot_FindingId` (migration **229**) and transactional slice inserts in `SqlFindingsSnapshotRepository.BackfillRelationalSlicesAsync` — backfill does not write cost rows.
 
 Programmatically, construct `SqlRelationalBackfillOptions` with `init` properties set to `false` to skip stages when not using the CLI.
 

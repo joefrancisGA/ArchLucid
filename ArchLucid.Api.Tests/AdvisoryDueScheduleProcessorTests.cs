@@ -39,8 +39,11 @@ public sealed class AdvisoryDueScheduleProcessorTests
             runner.Object,
             NullLogger<AdvisoryDueScheduleProcessor>.Instance);
 
-        await sut.ProcessDueAsync(TimeProvider.System.UtcNowDateTime(), 10, CancellationToken.None);
+        AdvisoryDueScheduleProcessResult result =
+            await sut.ProcessDueAsync(TimeProvider.System.UtcNowDateTime(), 10, CancellationToken.None);
 
+        result.FailureCount.Should().Be(0);
+        result.SuccessCount.Should().Be(2);
         order.Should().Equal(a.ScheduleId, b.ScheduleId);
         runner.Verify(x => x.RunScheduleAsync(a, It.IsAny<CancellationToken>()), Times.Once);
         runner.Verify(x => x.RunScheduleAsync(b, It.IsAny<CancellationToken>()), Times.Once);
@@ -70,8 +73,11 @@ public sealed class AdvisoryDueScheduleProcessorTests
             runner.Object,
             NullLogger<AdvisoryDueScheduleProcessor>.Instance);
 
-        await sut.ProcessDueAsync(TimeProvider.System.UtcNowDateTime(), 10, CancellationToken.None);
+        AdvisoryDueScheduleProcessResult result =
+            await sut.ProcessDueAsync(TimeProvider.System.UtcNowDateTime(), 10, CancellationToken.None);
 
+        result.FailureCount.Should().Be(1);
+        result.SuccessCount.Should().Be(1);
         runner.Verify(x => x.RunScheduleAsync(b, It.IsAny<CancellationToken>()), Times.Once);
     }
 

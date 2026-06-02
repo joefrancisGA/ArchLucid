@@ -326,6 +326,9 @@ jobs:
       - name: Tenancy defense-in-depth batch unit tests (TB-076-077)
         run: python -m unittest discover -s scripts/ci/tests -p "test_tenancy_defense_batch.py"
 
+      - name: Backfill and container jobs batch unit tests (TB-085-090)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_backfill_jobs_batch.py"
+
       - name: Hot-path performance budget registry (assessment #18)
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

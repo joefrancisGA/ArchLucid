@@ -80,4 +80,33 @@ public sealed class AdvisoryScanArchLucidJobTests
 
         code.Should().Be(ArchLucidJobExitCodes.JobFailure);
     }
+
+    [Fact]
+    public async Task RunOnceAsync_returns_job_failure_when_a_due_schedule_runner_throws()
+    {
+        AdvisoryScanSchedule schedule = new() { ScheduleId = Guid.NewGuid() };
+
+        Mock<IAdvisoryScanScheduleRepository> repo = new();
+        repo.Setup(r => r.ListDueAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([schedule]);
+
+        Mock<IAdvisoryScanRunner> runner = new();
+        runner.Setup(r => r.RunScheduleAsync(schedule, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("schedule failed"));
+
+        ServiceCollection services = [];
+        services.AddSingleton(repo.Object);
+        services.AddSingleton(runner.Object);
+        services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(_ =>
+            NullLogger<AdvisoryDueScheduleProcessor>.Instance);
+        services.AddScoped<AdvisoryDueScheduleProcessor>();
+
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+        AdvisoryScanArchLucidJob job = new(scopeFactory, NullLogger<AdvisoryScanArchLucidJob>.Instance);
+
+        int code = await job.RunOnceAsync(CancellationToken.None);
+
+        code.Should().Be(ArchLucidJobExitCodes.JobFailure);
+    }
 }

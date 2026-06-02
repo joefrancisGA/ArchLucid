@@ -25,6 +25,7 @@ public static class BackfillCliJsonReportSerializer
             processedCount = report.ProcessedCount,
             successCount = report.SuccessCount,
             failureCount = report.FailureCount,
+            skippedQuarantinedCount = report.SkippedQuarantinedCount,
             stages = report.StageTimings.Select(
                 static t => new
                 {
