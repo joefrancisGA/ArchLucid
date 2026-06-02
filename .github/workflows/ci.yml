@@ -336,6 +336,9 @@ jobs:
       - name: Invariant Wave B architecture batch unit tests (TB-011 / TB-030)
         run: python -m unittest discover -s scripts/ci/tests -p "test_invariant_wave_b_batch.py"
 
+      - name: Invariant Wave C architecture batch unit tests (TB-012)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_invariant_wave_c_batch.py"
+
       - name: Hot-path performance budget registry (assessment #18)
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

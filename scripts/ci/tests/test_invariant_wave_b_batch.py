@@ -27,6 +27,25 @@ class TestInvariantWaveBBatch(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("PersistCommittedChainAsync(scope, replayGuid,", text)
 
+    def test_inv_012_persisted_read_path_architecture_tests_exist(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Architecture.Tests"
+            / "AgentOutputQualityGatePersistedReadPathArchitectureTests.cs"
+        )
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+    def test_inv_004_dual_replica_budget_harness_architecture_tests_exist(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "LlmBudgetDualReplicaHarnessArchitectureTests.cs"
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+        concurrency = (
+            REPO_ROOT
+            / "ArchLucid.Persistence.Tests"
+            / "SqlLlmTenantBudgetRepositoryConcurrencyIntegrationTests.cs"
+        )
+        self.assertTrue(concurrency.is_file(), f"Missing {concurrency}")
+
     def test_tb_030_dependency_constraint_tier_exists(self) -> None:
         path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "DependencyConstraintTests.cs"
         text = path.read_text(encoding="utf-8")
