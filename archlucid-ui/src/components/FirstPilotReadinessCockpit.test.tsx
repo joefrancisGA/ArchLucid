@@ -19,15 +19,14 @@ vi.mock("@/lib/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
 }));
 
-vi.mock("@/lib/core-pilot-commit-context", () => ({
-  fetchCorePilotCommitContext: vi.fn(async () => ({
-    hasCommittedManifest: false,
-    committedReviewCount: 0,
-    latestRunId: null,
-    firstCommittedRunId: null,
-    secondCommittedRunId: null,
-  })),
-}));
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/core-pilot-commit-context")>();
+
+  return {
+    ...actual,
+    fetchTrialAnchoredCommit: vi.fn(async () => false),
+  };
+});
 
 vi.mock("@/lib/current-principal", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/current-principal")>();
@@ -65,16 +64,15 @@ describe("FirstPilotReadinessCockpit", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Expand Workspace readiness" }));
   }
 
-  it("renders the workspace shell after readiness probes hydrate", async () => {
+  it("renders the workspace shell immediately and hydrates after probes finish", async () => {
     render(<FirstPilotReadinessCockpit />);
 
-    expect(screen.getByTestId("first-pilot-readiness-cockpit-loading")).toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Workspace readiness" })).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByTestId("first-pilot-readiness-cockpit")).toBeInTheDocument();
+      expect(screen.queryByText(/still checking/i)).not.toBeInTheDocument();
     });
-
-    expect(screen.getByRole("heading", { name: "Workspace readiness" })).toBeInTheDocument();
 
     await expandWorkspaceReadiness();
 
