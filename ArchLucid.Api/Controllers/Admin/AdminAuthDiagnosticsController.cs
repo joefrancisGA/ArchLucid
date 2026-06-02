@@ -1,4 +1,5 @@
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Audit;
@@ -98,7 +99,7 @@ public sealed class AdminAuthDiagnosticsController(
         CancellationToken cancellationToken)
     {
         if (request is null || string.IsNullOrWhiteSpace(request.BearerToken))
-            return BadRequest("BearerToken is required.");
+            return this.BadRequestProblem("BearerToken is required.", ProblemTypes.ValidationFailed);
 
         AdminTokenClaimsDiagnosticResponse response =
             await _tokenClaimsDiagnosticService
