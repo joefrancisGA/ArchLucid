@@ -8,6 +8,7 @@
 
 | Cluster | IDs |
 | --- | --- |
+| Architecture.Tests gap closure | **TB-030** |
 | Backfill / jobs operational hardening | **TB-085** – **TB-090** |
 | Tenancy defense-in-depth | **TB-076**, **TB-077** |
 | In-app docs | **TB-143 – TB-148** |
@@ -38,9 +39,8 @@
 
 | ID | Title |
 | --- | --- |
-| TB-011 | Invariant Wave B remainder |
+| TB-011 | Invariant Wave B remainder (persisted gate read path, dual-replica budget CI harness) |
 | TB-012 | Invariant Wave C |
-| TB-030 | Architecture.Tests gap closure |
 | TB-034 – TB-038, TB-040, TB-044 – TB-056 | Provenance / determinism / explainability gaps |
 
 ## Docs hygiene

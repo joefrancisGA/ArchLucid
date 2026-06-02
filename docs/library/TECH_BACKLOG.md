@@ -63,21 +63,21 @@ Items here are **greenlit in principle** — the decision has been made and cont
 |----|-------|----------------|------|
 | TB-177 | Adversarial Critic second-pass — replace rule 8 with challenge-first posture in `CriticSystemPromptTemplate.cs` + `CriticAgentHandlerTests.cs` | AI/Agent Readiness P0 — Critic is currently consensus-leaning; single-file prompt change with test | S |
 | TB-178 | Streaming Ask SSE — `POST /v1/ask/stream` + `AskStreamAsync` + `useAskStream()` UI hook | AI/Agent Readiness P0 — eliminates blank-screen latency on every Ask query; reuses existing LLM client | M |
-| TB-179 | Multi-model tiered orchestration — `ModelTier` enum + `AgentTaskFactory` tier assignment + config-driven deployment resolution | AI/Agent Readiness P1 — targets 30–50% run cost reduction; backward-compatible config | M |
+| TB-179 | Multi-model tiered orchestration — `ModelTier` enum (`Fast`=gpt-4o-mini, `Reasoning`=GPT-4o) + `AgentTaskFactory` tier assignment + config keys `Llm:Deployments:Fast` / `Llm:Deployments:Reasoning`; Topology initial draft + Cost extraction → Fast; Compliance + Critic → Reasoning | AI/Agent Readiness P1 — targets 30–50% run cost reduction; model selection resolved 2026-06-01 (PQ-AI-04) | M |
 | TB-180 | Calibrated agent confidence — `IAgentConfidenceCalibrator` piecewise-linear calibration + `CalibratedConfidence` column on `dbo.AgentResults` | AI/Agent Readiness P1 — quality gate confidence thresholds are currently ungrounded; fail-open when < 20 data points | M |
 | TB-181 | Template eval harness nightly cron — add `cron: '0 3 * * *'` trigger + JSON summary output to `template-eval-harness.yml` | AI/Agent Readiness P1 — regression window is currently days; nightly sentinel closes the detection gap | XS |
-| TB-182 | `Write-AiReadinessPosture.ps1` — automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent Readiness P1 — every pilot delivery currently requires manual JSON fill; schema stable | S |
+| TB-182 | `Write-AiReadinessPosture.ps1` — automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent Readiness P1 — every pilot delivery currently requires manual JSON fill; schema stable | Done (2026-06-01) |
 | TB-183 | Findings priority re-ranker — `IFindingPriorityReranker` + `PriorityRank` column + `?orderBy=priority` param, feature-flagged | AI/Agent Readiness P2 — operators receive undifferentiated High findings list; business-impact ordering per `IndustryVertical` | M |
 | TB-184 | Governance-block explainer — AI explanation on 409 `GovernanceBlockResult` via `IAgentCompletionClient`, feature-flagged | AI/Agent Readiness P2 — governance blocks are currently opaque rule IDs with no minimum-edit guidance | S |
 | TB-185 | Per-finding conversational explainer — `AskAboutFindingAsync` + `POST /v1/architecture/finding/{findingId}/ask` + inline UI chat icon | AI/Agent Readiness P2 — operators cannot ask "why?" inline without copying finding context manually | M |
 | TB-186 | Run summary one-pager auto-generator — `RunSummaryOnePager` export variant + `GET /v1/architecture/run/{runId}/export/summary`, feature-flagged | AI/Agent Readiness P2 — no CFO-ready artifact in one click; every sponsor packet requires manual export + edit | M |
 | TB-187 | AI-assisted architecture request authoring — `POST /v1/architecture/request/draft` + pre-fill UI button | AI/Agent Readiness P2 — blank-page tax on first run; pure assistive, no changes to run contract | M |
-| TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; requires owner approval on token budget sub-cap | AI/Agent Readiness P2 — Cost and Compliance remain heuristic-only semantic evaluation; owner input required on budget before implementing | M |
+| TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; add `LlmJudgeBudget` sub-cap (~200k tokens/day, isolated from run-execution quota) as prerequisite | AI/Agent Readiness P2 — sub-cap design resolved 2026-06-01 (PQ-AI-02); implement sub-cap first, then extend judge coverage | M |
 | TB-188 | Findings-to-IaC stub generator — `IFindingIacStubGenerator` + `IacStub` nullable property on `ArchitectureFinding`, feature-flagged | AI/Agent Readiness P3 — closes "what do I do now?" gap; finding → Bicep snippet with disclaimer | M |
 | TB-189 | AI policy-pack drafting assistant — `POST /v1/governance/policy-pack/draft` with few-shot bundled-pack examples + UI draft panel | AI/Agent Readiness P3 — blank-page tax on enterprise policy authoring; removes primary pilot-stall pattern | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
-| TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Partial (Batch H, 2026-05-26) — **INV-002** persisted mode + trust card + operator UI badge; INV-004/012/013 remain | L |
+| TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | Partial (Batch H + **5D 2026-06-01**) — **INV-002** done; **INV-004/012/013** architecture guards + existing integration tests; full dual-replica budget harness + persisted gate aggregate read path remain | L |
 | TB-033 | Agent execution trace — persist LLM sampling params + reasoning token count | **Done (2026-05-31)** — `AgentExecutionTraceRecorder` persists sampling params + `ReasoningTokenCount`; `AgentExecutionTraceRecorderSamplingParamsTests` | XS |
 | TB-071 | Azure Search production client — wire tenant OData filter on every search/delete | **Done (2026-05-31)** — `AzureSearchSdkClient` + scoped delete; `AzureSearchTenantScopeFilterBuilderTests` | S–M |
 | TB-072 | Scope-to-identity binding at API ingress (ApiKey, DevBypass, header/claim reconciliation) | **Done (2026-05-31)** — `ScopeIdentityBindingMiddleware` + ApiKey scope claims; `ScopeIdentityBindingIntegrationTests` | M |
@@ -205,6 +205,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 ---
 
 ## TB-011 — Invariant Wave B — execution mode, budgets, single quality-gate outcome, replay isolation
+
+**Status (2026-06-01, Batch 5D):** **Partial** — **INV-002** done (Batch H); **INV-004** `LlmBudgetTrackerArchitectureTests` + existing `LlmCostGuardrailArchitectureTests` + `SqlLlmTenantBudgetRepositoryConcurrencyIntegrationTests`; **INV-012** Application options injection guard + new `AgentOutputQualityGateApiConsumerArchitectureTests`; **INV-013** `ReplayReadOnlyScopeArchitectureTests` replay-guid commit guard + integration test. Remaining: persisted gate aggregate read path for all consumers, full dual-replica budget harness in CI.
 
 **Covers:** **INV-002**, **INV-004**, **INV-012**, **INV-013**.
 
@@ -2193,6 +2195,8 @@ A domain analysis service should not know about notification mechanisms. The cur
 ---
 
 ## TB-030 — Architecture.Tests gap closure — add Mcp, AzureExtractor, AgentSimulator, Jobs.Cli coverage + 10 missing `[Fact]`s
+
+**Status (2026-06-01):** **Done** — four project references in `ArchLucid.Architecture.Tests.csproj`; Tier-9 `DependencyConstraintTests` facts for Mcp, Integrations, Jobs.Cli, AgentSimulator allow-list, Api/AzureExtractor csproj guard; CI drift guard `test_invariant_wave_b_batch.py`.
 
 **Source:** Dependency graph audit (2026-05-26). Four production assemblies are not referenced in `ArchLucid.Architecture.Tests.csproj` and therefore have zero layer-boundary assertions. Additionally, 10 `[Fact]` methods are absent from `DependencyConstraintTests` for violations that are currently unguarded.
 

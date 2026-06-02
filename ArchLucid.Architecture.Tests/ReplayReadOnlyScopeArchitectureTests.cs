@@ -56,6 +56,22 @@ public sealed class ReplayReadOnlyScopeArchitectureTests
             "INV-013 requires ReplayCommitOriginalGoldenManifestIsolationIntegrationTests in ArchLucid.Api.Tests.");
     }
 
+    [Fact]
+    public void ReplayRunService_commits_authority_chain_under_replay_run_id_not_original()
+    {
+        string root = FindRepoRoot();
+        string path = Path.Combine(root, "ArchLucid.Application", "ReplayRunService.cs");
+        string source = File.ReadAllText(path);
+
+        source.Should().Contain(
+            "PersistCommittedChainAsync(scope, replayGuid,",
+            "INV-013 replay commit must target the replay authority run id.");
+
+        source.Should().NotContain(
+            "PersistCommittedChainAsync(scope, originalGuid,",
+            "INV-013 must not commit replay outputs against the original run id.");
+    }
+
     private static string FindRepoRoot()
     {
         DirectoryInfo? current = new(Directory.GetCurrentDirectory());
