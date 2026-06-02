@@ -23,6 +23,8 @@ ArchLucid is an **HTTP API** (and optional **operator UI**) that turns a structu
 
 > **Install order moved.** See [INSTALL_ORDER.md](../../engineering/INSTALL_ORDER.md). This page now only covers operator commands **after** the local or hosted environment is running.
 
+**Install the CLI (evaluators without .NET SDK):** [CLI_INSTALL.md](../../engineering/CLI_INSTALL.md) — GitHub **Publish CLI** workflow artifacts (self-contained binaries) or `dotnet tool install -g ArchLucid.Cli`. After install, prefer `archlucid …` instead of `dotnet run --project ArchLucid.Cli -- …` in the examples below.
+
 ## Local API (example)
 
 ```bash

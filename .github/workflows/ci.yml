@@ -381,6 +381,9 @@ jobs:
       - name: Adoption batch 5X drift guards (TB-207)
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5x.py"
 
+      - name: Adoption batch 5Y drift guards (TB-208)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5y.py"
+
       - name: Hot path performance budgets guard
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 
