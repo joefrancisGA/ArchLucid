@@ -5,7 +5,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Tests.Support;
+
 namespace ArchLucid.Persistence.Tests.Contracts;
 [Trait("Category", "Unit")]
 
