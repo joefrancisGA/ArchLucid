@@ -1,5 +1,7 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import * as corePilotCommitContext from "@/lib/core-pilot-commit-context";
 
 import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context-copy";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
@@ -175,9 +177,20 @@ describe("SidebarNav pilot_operator default preset", () => {
   beforeEach(() => {
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
     localStorage.clear();
+    vi.spyOn(corePilotCommitContext, "fetchCorePilotCommitContext").mockResolvedValue({
+      hasCommittedManifest: true,
+      committedReviewCount: 1,
+      latestRunId: "run-1",
+      firstCommittedRunId: "run-1",
+      secondCommittedRunId: null,
+    });
   });
 
-  it("switches to full navigator and reveals analysis essentials when Show all features is clicked", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("switches to full navigator and reveals analysis essentials when Show all features is clicked", async () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -197,7 +210,14 @@ describe("SidebarNav pilot_operator default preset", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
     fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
 
-    expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+    const analysisNav = screen.getByRole("navigation", { name: "Analysis" });
+
+    await waitFor(() => {
+      expect(within(analysisNav).getByRole("link", { name: "Compare two reviews" })).toHaveAttribute(
+        "href",
+        "/compare",
+      );
+    });
     expect(screen.getByRole("link", { name: "Risk register" })).toHaveAttribute("href", "/governance/findings");
   });
 });

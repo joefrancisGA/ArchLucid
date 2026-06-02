@@ -163,7 +163,7 @@ def test_batch_cde_artifacts_wired() -> None:
 
     assert "report_production_like_azure_pilot_proof.py" in text
     assert "report_security_reviewer_one_pager.py" in text
-    assert "check_compliance_posture_clarity.py" in text
+    assert "check_commercial_overclaim_guard.py" in text
     assert "report_quality_gate_promotion_status.py" in text
     assert "detect_mutating_route_audit_surface_changes.py" in text
     assert "production-like-azure-pilot-proof.md" in text
