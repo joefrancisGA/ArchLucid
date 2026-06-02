@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime.Tokens;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -10,12 +11,14 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-///     Decorator: estimates prompt tokens and truncates or rejects before the inner completion client runs.
+///     Decorator: estimates prompt tokens and summarizes, truncates, or rejects before the inner completion client runs.
 /// </summary>
 public sealed class ContextLengthGuardAgentCompletionClient(
     IAgentCompletionClient inner,
     ITokenCounter tokenCounter,
     IOptionsMonitor<LlmContextWindowOptions> contextOptions,
+    IOptionsMonitor<EvidenceSummarizationOptions> summarizationOptions,
+    IEvidenceSummarizationService evidenceSummarizationService,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
     ILogger<ContextLengthGuardAgentCompletionClient> logger) : IAgentCompletionClient
@@ -28,6 +31,12 @@ public sealed class ContextLengthGuardAgentCompletionClient(
 
     private readonly IOptionsMonitor<LlmContextWindowOptions> _contextOptions =
         contextOptions ?? throw new ArgumentNullException(nameof(contextOptions));
+
+    private readonly IOptionsMonitor<EvidenceSummarizationOptions> _summarizationOptions =
+        summarizationOptions ?? throw new ArgumentNullException(nameof(summarizationOptions));
+
+    private readonly IEvidenceSummarizationService _evidenceSummarizationService =
+        evidenceSummarizationService ?? throw new ArgumentNullException(nameof(evidenceSummarizationService));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -42,7 +51,7 @@ public sealed class ContextLengthGuardAgentCompletionClient(
     public LlmProviderDescriptor Descriptor => _inner.Descriptor;
 
     /// <inheritdoc />
-    public Task<string> CompleteJsonAsync(
+    public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
         int? maxTokens = null,
@@ -52,30 +61,98 @@ public sealed class ContextLengthGuardAgentCompletionClient(
         LlmContextWindowOptions opts = _contextOptions.CurrentValue;
 
         if (!opts.Enabled || opts.MaxContextTokens < 1)
-            return _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
+            return await _inner
+                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                .ConfigureAwait(false);
 
         int estimated = _tokenCounter.CountTokens(systemPrompt) + _tokenCounter.CountTokens(userPrompt);
         int threshold = (int)Math.Floor(opts.MaxContextTokens * Math.Clamp(opts.ThresholdRatio, 0.5, 0.99));
 
         if (estimated <= threshold)
-            return _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken);
+        {
+            return await _inner
+                .CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         if (opts.TruncateUserPromptOnExceeded)
         {
             int systemTokens = _tokenCounter.CountTokens(systemPrompt);
             int remainingBudget = Math.Max(1, threshold - systemTokens);
+            string effectiveUserPrompt = userPrompt;
+            int effectiveEstimated = estimated;
+
+            if (_summarizationOptions.CurrentValue.Enabled)
+            {
+                string summarizedUserPrompt = await _evidenceSummarizationService
+                    .SummarizeAsync(userPrompt, remainingBudget, AgentType.Topology, cancellationToken)
+                    .ConfigureAwait(false);
+
+                int summarizedEstimated =
+                    _tokenCounter.CountTokens(systemPrompt) + _tokenCounter.CountTokens(summarizedUserPrompt);
+
+                if (!string.Equals(summarizedUserPrompt, userPrompt, StringComparison.Ordinal)
+                    && summarizedEstimated <= threshold)
+                {
+                    ScheduleSummarizationAudit(estimated, summarizedEstimated, threshold, opts.MaxContextTokens);
+                    effectiveUserPrompt = summarizedUserPrompt;
+                    effectiveEstimated = summarizedEstimated;
+                }
+            }
+
+            if (effectiveEstimated <= threshold)
+            {
+                return await _inner
+                    .CompleteJsonAsync(systemPrompt, effectiveUserPrompt, maxTokens, temperature, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
             string truncatedUser = TokenAwareContextBudget.TruncateToTokenBudget(
-                userPrompt,
+                effectiveUserPrompt,
                 out bool wasTruncated,
                 maxEstimatedTokens: remainingBudget);
 
             if (wasTruncated)
-                ScheduleTruncationAudit(estimated, threshold, opts.MaxContextTokens);
+                ScheduleTruncationAudit(effectiveEstimated, threshold, opts.MaxContextTokens);
 
-            return _inner.CompleteJsonAsync(systemPrompt, truncatedUser, maxTokens, temperature, cancellationToken);
+            return await _inner
+                .CompleteJsonAsync(systemPrompt, truncatedUser, maxTokens, temperature, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         throw new ContextLengthExceededException(estimated, opts.MaxContextTokens, threshold);
+    }
+
+    [InformationalAudit]
+    private void ScheduleSummarizationAudit(
+        int estimatedTokensBefore,
+        int estimatedTokensAfter,
+        int thresholdTokens,
+        int maxContextTokens)
+    {
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "LLM evidence summarized before completion. EstimatedBefore={EstimatedBefore}, EstimatedAfter={EstimatedAfter}, Threshold={Threshold}, MaxContext={MaxContext}",
+                estimatedTokensBefore,
+                estimatedTokensAfter,
+                thresholdTokens,
+                maxContextTokens);
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        _ = _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.LlmEvidenceSummarized,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson =
+                    $"{{\"estimatedTokensBefore\":{estimatedTokensBefore},\"estimatedTokensAfter\":{estimatedTokensAfter},\"thresholdTokens\":{thresholdTokens},\"maxContextTokens\":{maxContextTokens}}}",
+            },
+            CancellationToken.None);
     }
 
     [InformationalAudit]

@@ -71,6 +71,9 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<GenerateIacStubsOptions>(configuration.GetSection(GenerateIacStubsOptions.SectionPath));
         services.Configure<RerankFindingsOptions>(configuration.GetSection(RerankFindingsOptions.SectionPath));
+        services.Configure<EvidenceSummarizationOptions>(
+            configuration.GetSection(EvidenceSummarizationOptions.SectionPath));
+        services.AddScoped<IEvidenceSummarizationService, EvidenceSummarizationService>();
         services.AddScoped<IFindingIacStubGenerator, FindingIacStubGenerator>();
         services.AddScoped<IFindingPriorityReranker, FindingPriorityReranker>();
         services.Configure<AgentConfidenceCalibrationOptions>(
@@ -1305,6 +1308,8 @@ public static partial class ServiceCollectionExtensions
             azureCompletionEnvelope,
             sp.GetRequiredService<ITokenCounter>(),
             sp.GetRequiredService<IOptionsMonitor<LlmContextWindowOptions>>(),
+            sp.GetRequiredService<IOptionsMonitor<EvidenceSummarizationOptions>>(),
+            sp.GetRequiredService<IEvidenceSummarizationService>(),
             auditService,
             scopeProvider,
             sp.GetRequiredService<ILogger<ContextLengthGuardAgentCompletionClient>>());

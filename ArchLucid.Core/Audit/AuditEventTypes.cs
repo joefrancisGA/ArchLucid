@@ -539,6 +539,9 @@ public static class AuditEventTypes
     /// <summary>LLM prompt truncated because estimated tokens exceeded the configured context threshold.</summary>
     public const string LlmContextTruncated = "LlmContextTruncated";
 
+    /// <summary>LLM evidence summarized because estimated prompt tokens exceeded the configured context threshold.</summary>
+    public const string LlmEvidenceSummarized = "LlmEvidenceSummarized";
+
     /// <summary>Operator shell showed the usage-based trial upgrade nudge (payload includes <c>trigger</c>).</summary>
     public const string TrialUpgradeNudgeShown = "TrialUpgradeNudgeShown";
 
