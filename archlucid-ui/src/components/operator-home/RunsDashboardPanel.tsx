@@ -143,11 +143,16 @@ function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
     .includes(OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN.toLowerCase());
 }
 
+type RunsDashboardPanelProps = {
+  /** Suppress the built-in section heading when a parent zone heading already labels this panel. */
+  hideHeading?: boolean;
+};
+
 /**
  * Single home-column runs snapshot: recent list, attention runs, and outcome medians in one card with tab segments
  * and one `listRunsByProjectPaged` request.
  */
-export function RunsDashboardPanel() {
+export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelProps = {}) {
   const [tab, setTab] = useState<TabId>("recent");
   const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -301,12 +306,14 @@ export function RunsDashboardPanel() {
 
   return (
     <section aria-labelledby="runs-dashboard-heading" data-onboarding="tour-runs-dashboard">
-      <h3
-        id="runs-dashboard-heading"
-        className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
-      >
-        {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
-      </h3>
+      {!hideHeading ? (
+        <h3
+          id="runs-dashboard-heading"
+          className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
+        >
+          {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
+        </h3>
+      ) : null}
       <Card
         className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         data-testid="runs-dashboard-panel"

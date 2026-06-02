@@ -53,7 +53,7 @@ function OperatorHomeReviewsGrid() {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
       <div className="min-w-0 space-y-4">
-        <RunsDashboardPanel />
+        <RunsDashboardPanel hideHeading />
         <OperatorCorePilotDiagnosticsChecklist />
         <AfterCorePilotChecklistHint />
 
