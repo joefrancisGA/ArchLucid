@@ -182,7 +182,7 @@ export function resolveFirstPilotOperatingRailSteps(
 /** Builds rail signals from health readiness, run list, and optional evidence acknowledgement. */
 export function buildFirstPilotOperatingRailSignals(input: {
   healthStatus: string | null;
-  runs: RunSummary[];
+  runs: readonly RunSummary[];
   evidenceAcknowledged: boolean;
   hasCommittedManifest: boolean;
   latestRunId: string | null;
