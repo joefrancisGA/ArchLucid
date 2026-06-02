@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 81.06%
+# ArchLucid Assessment – (A) Headline Readiness: 81.24%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **80.93%** (5L); batch **5M TB-177** (adversarial Critic prompt + empty-findings quality gate signal) → **81.06%** (+1 AI/Agent Readiness, +1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **81.06%** (5M); batches **5N TB-178** (+1 AI/Agent Readiness, +1 Time-to-Value) and **5O TB-202** (+1 Correctness) → **81.24%**. G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -46,12 +46,12 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
-| AI/Agent Readiness | 73 | 8 | 5.04% | 216 |
+| AI/Agent Readiness | 74 | 8 | 5.11% | 208 |
 | Cutting-Edge AI Technology | 74 | 8 | 5.10% | 208 |
-| Correctness | 82 | 8 | 5.66% | 144 |
+| Correctness | 83 | 8 | 5.73% | 136 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
-| Time-to-Value | 80 | 7 | 4.83% | 140 |
+| Time-to-Value | 81 | 7 | 4.89% | 133 |
 | Marketability | 85 | 8 | 5.86% | 120 |
 | Proof-of-ROI Readiness | 76 | 5 | 3.27% | 120 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
@@ -82,16 +82,16 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Availability | 74 | 1 | 0.64% | 26 |
 | Extensibility | 72 | 1 | 0.62% | 28 |
 | Cost-Effectiveness | 73 | 1 | 0.63% | 27 |
-| Testability | 77 | 1 | 0.66% | 23 |
+| Testability | 78 | 1 | 0.67% | 22 |
 | Supportability | 76 | 1 | 0.66% | 24 |
 | Template and Accelerator Richness | 82 | 1 | 0.71% | 18 |
 | Documentation | 78 | 1 | 0.67% | 22 |
 
 ### AI/Agent Readiness
 
-Score: 73. Weight: 8. Weighted impact: 5.04%. Weighted deficiency signal: 216.
+Score: 74. Weight: 8. Weighted impact: 5.11%. Weighted deficiency signal: 208.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M** closes **TB-177**: adversarial Critic prompt posture and a deterministic empty-findings quality signal so non-performative Critic output cannot pass default warn floors. The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M** closes **TB-177** (adversarial Critic + empty-findings gate signal). Batch **5N** closes **TB-178** (streaming Ask SSE + `useAskStream` hook). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 
@@ -103,7 +103,7 @@ Classification: Fixable in v1 for release-candidate evidence. Stronger unattende
 
 Score: 74. Weight: 8. Weighted impact: 5.10%. Weighted deficiency signal: 208.
 
-Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
+Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
 
 Tradeoffs: Conservative fail-open retrieval and optional judges keep runs resilient and affordable. They reduce confidence when the user needs formal "this answer is grounded" guarantees.
 
@@ -113,9 +113,9 @@ Classification: Mostly fixable in v1. Graph-RAG, agentic retrieval, fine-tuning,
 
 ### Correctness
 
-Score: 82. Weight: 8. Weighted impact: 5.66%. Weighted deficiency signal: 144.
+Score: 83. Weight: 8. Weighted impact: 5.73%. Weighted deficiency signal: 136.
 
-Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5L** adds DB-level `UX_AgentResults_RunId_TaskId` with HTTP **409** on concurrent duplicate agent-result submits (**TB-201**). Prior batches closed reasoning cost, governance atomicity, ROI guards, and auth-boundary test gaps. Remaining backlog: **TB-202–204** coverage gaps.
+Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5L** adds DB-level `UX_AgentResults_RunId_TaskId` with HTTP **409** on concurrent duplicate agent-result submits (**TB-201**). Batch **5O** closes **TB-202** with unit coverage for Slack HMAC verification, ChatOps webhook HTTP failure propagation, and authority-run ChatOps hook delivery paths. Remaining backlog: **TB-203–204** coverage gaps.
 
 Tradeoffs: The system has many read surfaces because it has grown into a broad product. That creates useful product depth but increases semantic drift risk.
 
@@ -149,9 +149,9 @@ Classification: Core reliability pieces are v1. Wider habit-loop polish is v1.1 
 
 ### Time-to-Value
 
-Score: 78. Weight: 7. Weighted impact: 4.71%. Weighted deficiency signal: 154.
+Score: 81. Weight: 7. Weighted impact: 4.89%. Weighted deficiency signal: 133.
 
-Justification: First value is well documented: health, review creation, execute/commit, proof packet, sponsor ZIP. Demo workspaces and starter proof packs exist. The issue is not lack of path; it is path density and the need to choose the correct accelerator, evidence source, auth mode, and proof disposition.
+Justification: First value is well documented: health, review creation, execute/commit, proof packet, sponsor ZIP. Demo workspaces and starter proof packs exist. Batch **5N** closes **TB-178** (streaming Ask SSE) so the interactive discovery loop renders tokens incrementally instead of blocking on full LLM completion. The issue is not lack of path; it is path density and the need to choose the correct accelerator, evidence source, auth mode, and proof disposition.
 
 Tradeoffs: The repo correctly avoids pretending that demo-derived output is buyer proof. That honesty adds steps but protects trust.
 

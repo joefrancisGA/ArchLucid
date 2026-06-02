@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.Notifications;
 
 using FluentAssertions;
@@ -134,5 +136,57 @@ public sealed class ChatOpsWebhookDeliveryServiceTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<WebhookPostOptions?>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task DeliverAsync_propagates_http_4xx_failure_from_poster()
+    {
+        Mock<IWebhookPoster> poster = new();
+        poster.Setup(p =>
+                p.PostJsonAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .ThrowsAsync(new HttpRequestException("client error", inner: null, statusCode: HttpStatusCode.BadRequest));
+
+        ChatOpsWebhookDeliveryService sut = new(poster.Object);
+        ChatOpsWebhookMessage msg = new() { Title = "t", Body = "b" };
+
+        Func<Task> act = async () =>
+            await sut.DeliverAsync(
+                ChatOpsWebhookTarget.Slack,
+                "https://hooks.slack.com/services/TEST",
+                msg,
+                CancellationToken.None);
+
+        await act.Should().ThrowAsync<HttpRequestException>()
+            .Where(ex => ex.StatusCode == HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task DeliverAsync_propagates_http_5xx_failure_from_poster()
+    {
+        Mock<IWebhookPoster> poster = new();
+        poster.Setup(p =>
+                p.PostJsonAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<object>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .ThrowsAsync(new HttpRequestException("server error", inner: null, statusCode: HttpStatusCode.InternalServerError));
+
+        ChatOpsWebhookDeliveryService sut = new(poster.Object);
+        ChatOpsWebhookMessage msg = new() { Title = "t", Body = "b" };
+
+        Func<Task> act = async () =>
+            await sut.DeliverAsync(
+                ChatOpsWebhookTarget.Teams,
+                "https://outlook.office.com/webhook/TEST",
+                msg,
+                CancellationToken.None);
+
+        await act.Should().ThrowAsync<HttpRequestException>()
+            .Where(ex => ex.StatusCode == HttpStatusCode.InternalServerError);
     }
 }
