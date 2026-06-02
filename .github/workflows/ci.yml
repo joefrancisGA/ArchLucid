@@ -57,6 +57,8 @@ on:
 # where we skip nested cache noise.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # OpenAPI snapshot already runs in job openapi-contract-snapshot; skip here to shorten corset test time.
+  DOTNET_FAST_CORE_TEST_FILTER: Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord&FullyQualifiedName!~OpenApiContractSnapshotTests
 
 jobs:
   gitleaks:
@@ -1061,7 +1063,8 @@ jobs:
       - terraform-validate-public-stacks
       - guards-pre-corset
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Suite=Core + coverlet on a cold runner often exceeds 60m; 120m avoids false timeouts (build + test in one job).
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
         with:
@@ -1100,13 +1103,13 @@ jobs:
       # Prompt-injection executable regression + eval corpus live in dedicated jobs (ci-agent-prompt-injection-regression,
       # ci-agent-offline-regression) so branch protection can require them by exact check name.
 
-      # Includes OpenApiContractSnapshotTests (Suite=Core); same assertion already ran in job openapi-contract-snapshot for fail-fast ordering.
+      # OpenApiContractSnapshotTests excluded via DOTNET_FAST_CORE_TEST_FILTER; job openapi-contract-snapshot already gates drift.
       # ArchLucid.Api.Client regenerates from that CI baseline snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).
       - name: Test â€” fast core (with coverage)
         if: github.event_name != 'pull_request'
-        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
+        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "${{ env.DOTNET_FAST_CORE_TEST_FILTER }}" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
 
       - uses: actions/upload-artifact@v6
         if: github.event_name != 'pull_request'
@@ -1117,19 +1120,15 @@ jobs:
 
       - name: Test â€” fast core (PR trimmed â€” no coverage collection)
         if: github.event_name == 'pull_request'
-        run: dotnet test ArchLucid.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
+        run: dotnet test ArchLucid.sln --no-build -c Release --filter "${{ env.DOTNET_FAST_CORE_TEST_FILTER }}"
 
-
-      - name: Test â€” finding-engine template (not in main solution)
-        if: github.event_name != 'pull_request'
-        run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
   dotnet-fast-core-artifacts:
     name: ".NET: fast core artifacts (SBOM + coverage HTML)"
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
 
@@ -1153,6 +1152,9 @@ jobs:
 
       - name: SBOM and coverage HTML
         run: bash scripts/ci/run_dotnet_fast_core_artifacts.sh
+
+      - name: Test — finding-engine template (not in main solution)
+        run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
       - uses: actions/upload-artifact@v6
         with:

@@ -151,7 +151,7 @@ Shared resolution lives in **`ArchLucid.TestSupport`** (`SqlServerIntegrationTes
 1. Set **`ARCHLUCID_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
 2. On **Windows**, omit it and the fixture tries **`localhost`** with integrated security first (same implicit default as API integration tests), then **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchLucidPersistenceTests`**).
 
-**CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHLUCID_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL). The **`dotnet-fast-core`** job **depends on** the Terraform **`terraform-validate-private`** and **`terraform-validate-public-stacks`** jobs so invalid IaC fails before the .NET corset runs.
+**CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHLUCID_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL). **`guards-pre-corset`** runs text/Python guards in parallel with Tier **0.x** Terraform/OpenAPI; **`dotnet-fast-core`** **`needs`** that job plus Terraform validate so invalid IaC or policy drift fails before the corset **restore/build/test** path.
 
 ### Application layer unit tests (`ArchLucid.Application.Tests`)
 

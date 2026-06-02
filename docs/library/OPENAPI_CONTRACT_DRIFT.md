@@ -46,7 +46,9 @@ Prevent accidental HTTP surface changes: the generated OpenAPI document for **v1
 | `scripts/ci/check_openapi_contract_snapshot.sh` (and `.ps1`) | Local / CI **same** build+test as the fail-fast gate (build `ArchLucid.Api.Tests` only, then single test FQN) |
 | `scripts/git-hooks/pre-push` (+ `Install-GitHooks.ps1` / `install-git-hooks.sh`) | Optional **pre-push** gate: same check before refs leave your clone when outgoing commits touch API-contract paths (see Operational considerations) |
 | `.github/workflows/ci.yml` job **openapi-contract-snapshot** | Runs **before** **dotnet-fast-core** (`needs`); surfaces drift **without** waiting for SBOM/Python guards/full-solution corset guards |
-| `.github/workflows/ci.yml` job **dotnet-fast-core** | Runs `Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord` (still includes this test for coverage merge parity) |
+| `.github/workflows/ci.yml` job **guards-pre-corset** | Text/Python policy guards (no solution build); gates **dotnet-fast-core** |
+| `.github/workflows/ci.yml` job **dotnet-fast-core** | Runs `DOTNET_FAST_CORE_TEST_FILTER` (fast core subset; **excludes** `OpenApiContractSnapshotTests` — covered by **openapi-contract-snapshot**) |
+| `.github/workflows/ci.yml` job **dotnet-fast-core-artifacts** | Full CI only: CycloneDX SBOM + ReportGenerator HTML from corset Cobertura |
 
 ## 6. Data flow
 
