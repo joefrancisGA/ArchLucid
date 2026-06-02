@@ -19,4 +19,18 @@ public static class AgentPromptCanonicalHasher
 
         return Convert.ToHexStringLower(hash);
     }
+
+    /// <summary>First 16 lowercase hex characters of the canonical SHA-256 fingerprint.</summary>
+    public static string ContentHashPrefix16(string text) =>
+        ContentHashPrefix16FromSha256Hex(Sha256HexUtf8Normalized(text));
+
+    /// <summary>First 16 lowercase hex characters of a full SHA-256 hex digest.</summary>
+    public static string ContentHashPrefix16FromSha256Hex(string sha256Hex)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(sha256Hex);
+
+        return sha256Hex.Length <= 16
+            ? sha256Hex.ToLowerInvariant()
+            : sha256Hex[..16].ToLowerInvariant();
+    }
 }

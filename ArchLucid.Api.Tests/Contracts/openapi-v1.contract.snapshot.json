@@ -1201,6 +1201,12 @@
           "systemPrompt": {
             "type": "string"
           },
+          "systemPromptContentHash": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "systemPromptContentSha256": {
             "type": [
               "null",

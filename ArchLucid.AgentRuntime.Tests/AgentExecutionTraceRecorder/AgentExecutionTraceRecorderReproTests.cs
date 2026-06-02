@@ -1,6 +1,7 @@
 using System.Diagnostics.Metrics;
 
 using ArchLucid.Application.Agents;
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -53,7 +54,33 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.PromptTemplateId.Should().Be("topology-system");
         t.PromptTemplateVersion.Should().Be("1.0.0");
         t.SystemPromptContentSha256.Should().Be("abc123deadbeef");
+        t.SystemPromptContentHash.Should().Be("abc123deadbeef");
         t.PromptReleaseLabel.Should().Be("pilot-a");
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_without_prompt_repro_computes_system_prompt_content_hash()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+        const string systemPrompt = "line1\nline2";
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            systemPrompt,
+            "user",
+            "{}",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+
+        t.SystemPromptContentHash.Should().Be(AgentPromptCanonicalHasher.ContentHashPrefix16(systemPrompt));
+        t.SystemPromptContentSha256.Should().Be(AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(systemPrompt));
     }
 
     [SkippableFact]

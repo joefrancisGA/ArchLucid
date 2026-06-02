@@ -115,6 +115,20 @@ Finding forensic read: `GET /v1/architecture/run/{runId}/findings/{findingId}/ev
 
 See [`TECH_BACKLOG.md`](TECH_BACKLOG.md) §TB-033–TB-038.
 
+## Prompt identity (TB-191)
+
+Each trace row stores **`SystemPromptContentHash`**: the first **16** lowercase hex characters of the canonical SHA-256 digest of the rendered system prompt (same normalization as **`AgentPromptCanonicalHasher`** — CRLF folded to LF before hashing). The full **64**-character digest remains on **`SystemPromptContentSha256`** inside **`TraceJson`**.
+
+**`SystemPromptContentHash`** allows operators to verify whether a prompt template change occurred between two runs. Match on **hash + `PromptTemplateId`** for exact reproducibility forensics; use SQL:
+
+```sql
+SELECT TraceId, RunId, AgentType, PromptTemplateId, SystemPromptContentHash, CreatedUtc
+FROM dbo.AgentExecutionTraces
+WHERE SystemPromptContentHash = @HashPrefix;
+```
+
+The column is **content-hash only** — the trace row does not store the full system prompt text (see truncation and blob workflow above).
+
 ## DDL
 
-Schema additions ship in migrations **`053`**, **`056`**, **`062`** (inline columns), **`064`** (**`InlineFallbackFailed`**), **`065`** (filtered index **`IX_AgentExecutionTraces_InlineFallbackFailed`**), and **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
+Schema additions ship in migrations **`053`**, **`056`**, **`062`** (inline columns), **`064`** (**`InlineFallbackFailed`**), **`065`** (filtered index **`IX_AgentExecutionTraces_InlineFallbackFailed`**), **`239`** (**`SystemPromptContentHash`**), and **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.

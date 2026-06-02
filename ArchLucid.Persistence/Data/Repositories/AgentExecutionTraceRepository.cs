@@ -45,7 +45,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                FullUserPromptBlobKey,
                                FullResponseBlobKey,
                                ModelDeploymentName,
-                               ModelVersion
+                               ModelVersion,
+                               SystemPromptContentHash
                            )
                            VALUES
                            (
@@ -61,7 +62,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                @FullUserPromptBlobKey,
                                @FullResponseBlobKey,
                                @ModelDeploymentName,
-                               @ModelVersion
+                               @ModelVersion,
+                               @SystemPromptContentHash
                            );
                            """;
 
@@ -95,7 +97,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 trace.FullUserPromptBlobKey,
                 trace.FullResponseBlobKey,
                 trace.ModelDeploymentName,
-                trace.ModelVersion
+                trace.ModelVersion,
+                trace.SystemPromptContentHash
             },
             cancellationToken: cancellationToken));
     }

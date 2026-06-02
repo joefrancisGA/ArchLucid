@@ -55644,6 +55644,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("systemPrompt")]
         public string? SystemPrompt { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("systemPromptContentHash")]
+        public string? SystemPromptContentHash { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("systemPromptContentSha256")]
         public string? SystemPromptContentSha256 { get; set; } = default!;
 

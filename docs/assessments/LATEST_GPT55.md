@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 81.73%
+# ArchLucid Assessment – (A) Headline Readiness: 81.80%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **81.66%** (5U); batch **5V TB-192** (dynamic evidence summarization before context overflow) → **81.73%** (+1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **81.73%** (5V); batch **5W TB-191** (prompt template content-hash pinning on traces) → **81.80%** (+1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -47,7 +47,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
 | AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
-| Cutting-Edge AI Technology | 75 | 8 | 5.17% | 200 |
+| Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Adoption Friction | 70 | 6 | 3.62% | 180 |
 | Stickiness | 73 | 6 | 3.78% | 162 |
@@ -101,9 +101,9 @@ Classification: Fixable in v1 for release-candidate evidence. Stronger unattende
 
 ### Cutting-Edge AI Technology
 
-Score: 75. Weight: 8. Weighted impact: 5.17%. Weighted deficiency signal: 200.
+Score: 76. Weight: 8. Weighted impact: 5.24%. Weighted deficiency signal: 192.
 
-Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation (`IEvidenceSummarizationService`, `LlmEvidenceSummarized` audit). It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
+Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation. Batch **5W** closes **TB-191** — `SystemPromptContentHash` on traces for prompt-forensics queries. It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
 
 Tradeoffs: Conservative fail-open retrieval and optional judges keep runs resilient and affordable. They reduce confidence when the user needs formal "this answer is grounded" guarantees.
 

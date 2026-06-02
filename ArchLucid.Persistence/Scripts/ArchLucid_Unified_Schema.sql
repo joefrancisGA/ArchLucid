@@ -220,6 +220,9 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'InlineFallbackFailed') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD InlineFallbackFailed BIT NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'SystemPromptContentHash') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD SystemPromptContentHash NVARCHAR(32) NULL;
 END
 
 GO

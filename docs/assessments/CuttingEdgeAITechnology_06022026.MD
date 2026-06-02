@@ -1,7 +1,7 @@
 > **Scope:** Independent first-principles quality assessment — Cutting-Edge AI Technology only. Produced 2026-06-02. Not a buyer document. Scoring boundary follows `Assessment-Scope-V1_1.mdc`; items explicitly deferred to V1.1, V2, or owner-only action do **not** reduce `(A)` headline readiness.
 
 # Cutting-Edge AI Technology — Quality Assessment
-## Score: **75 / 100** | Weighted Share of Total: **17.78%** (Weight 8 of 45)
+## Score: **76 / 100** | Weighted Share of Total: **17.78%** (Weight 8 of 45)
 
 ---
 
@@ -13,10 +13,10 @@
 | Weight | 8 |
 | Total weight (all qualities) | 45 |
 | Weighted share of total | 8 ÷ 45 = **17.78%** |
-| Score | **75** |
-| Weighted contribution to headline | 75 × 8 ÷ 45 = **13.33** |
+| Score | **76** |
+| Weighted contribution to headline | 76 × 8 ÷ 45 = **13.51** |
 | Maximum possible contribution | 100 × 8 ÷ 45 = **17.78** |
-| Weighted deficiency signal | (100 − 75) × 8 = **200** |
+| Weighted deficiency signal | (100 − 76) × 8 = **192** |
 
 **Definition (from `ASSESSMENT_QUALITY_MODEL.md`):** Modernity and technical strength of the AI substrate — model integration, retrieval design, structured outputs, context-window handling, redaction, evaluation hooks, and the degree to which the solution uses current AI techniques without compromising enterprise constraints.
 
@@ -115,13 +115,11 @@ Areas are ordered from highest impact gap to lowest. Weighting within this quali
 
 ---
 
-### 2.8 No prompt template content-hash pinning on runs (TB-191 — new)
+### 2.8 Prompt template content-hash pinning on runs (**TB-191** — **Done batch 5W**)
 
-**Gap:** `AgentExecutionTrace` records the template ID (e.g., `topology_v1`) but not the content hash of the actual system prompt used. If a prompt is edited without a template ID change, prior runs cannot be distinguished from post-change runs. This prevents honest prompt A/B comparison and forensic root-cause analysis of quality changes.
+**Was:** `AgentExecutionTrace` recorded template ID but not a content hash of the rendered system prompt.
 
-**Fix:** Compute a stable SHA-256 of the rendered system prompt at execution time; store on `AgentExecutionTrace` as `SystemPromptContentHash` (first 16 hex chars is sufficient for identity).
-
-**Deficiency:** Low — quality and forensics debt; does not affect current run correctness.
+**Now:** `SystemPromptContentHash` (first 16 hex of canonical SHA-256) is persisted on `dbo.AgentExecutionTraces`, surfaced on trace API responses, and documented in `AGENT_TRACE_FORENSICS.md` §Prompt identity.
 
 ---
 
@@ -501,7 +499,7 @@ All three questions are resolved by applying first-principles reasoning against 
 | 5 | Calibrated agent confidence | TB-180 | P1 | M | No |
 | 6 | Nightly eval harness cron | TB-181 | P1 | XS | No (PQ-CEAT-03 resolved: notification-only V1) |
 | 7 | Dynamic evidence summarization | TB-192 | P1 | M | No (PQ-CEAT-02 resolved: tenant quota) |
-| 8 | Prompt template content-hash pinning | TB-191 | P2 | S | No |
+| 8 | Prompt template content-hash pinning | TB-191 | P2 | S | **Done (batch 5W)** |
 | 9 | LLM provider abstraction scaffold | TB-193 | P2 | M | No (PQ-CEAT-01 resolved: scaffold only, V2 for providers) |
 | 10 | RAG corpus operator monitoring panel | TB-194 | P2 | S–M | No |
 | 11 | Multi-turn Ask context compression | TB-195 | P2 | M | No |
@@ -509,4 +507,4 @@ All three questions are resolved by applying first-principles reasoning against 
 
 ---
 
-*Assessment produced: 2026-06-02. Scoring boundary: `Assessment-Scope-V1_1.mdc`. Items deferred to V1.1, V2, or owner-only action do not reduce the headline score of 75.*
+*Assessment produced: 2026-06-02. Scoring boundary: `Assessment-Scope-V1_1.mdc`. Items deferred to V1.1, V2, or owner-only action do not reduce the headline score of 76.*

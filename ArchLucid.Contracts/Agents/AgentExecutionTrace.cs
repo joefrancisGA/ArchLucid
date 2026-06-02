@@ -142,6 +142,15 @@ public sealed class AgentExecutionTrace
         set;
     }
 
+    /// <summary>
+    ///     First 16 hex characters of <see cref="SystemPromptContentSha256" /> for indexed prompt-forensics queries (TB-191).
+    /// </summary>
+    public string? SystemPromptContentHash
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optional operator-defined label from configuration (A/B variant, pilot name); not part of the content hash.</summary>
     public string? PromptReleaseLabel
     {

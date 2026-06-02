@@ -63,6 +63,16 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
+**TB-214** was added 2026-06-02 from the Adoption Friction quality assessment as a DEFERRED item. Non-Azure/non-extractor evidence JSON upload path is **V1.1 scope** per `docs/library/V1_DEFERRED.md §6r` and `docs/PENDING_QUESTIONS.md` *Resolved 2026-06-02 (PQ-AF-01)*. Owner must specify schema and ingestion surface boundary before Cursor implementation can begin. ID is reserved; do not reassign.
+
+**TB-215 – TB-221** were generated 2026-06-02 from an independent first-principles **Time-to-Value** quality assessment (`docs/assessments/TimeToValue_06022026.MD`, score 68/100, COMMERCIAL weight 7/116). They address: evidence upload integrated into review wizard (**TB-215**, P1), `archlucid try --sponsor-packet` one-shot demo-to-proof command (**TB-216**, P1), demo seed auto-apply on startup (**TB-217**, P1), demo viewer "Start your own review" CTA (**TB-218**, P2), wizard preset deep-link from self-qualification docs (**TB-219**, P2), wizard-to-commit OTel histogram (**TB-220**, P2), and hosted SaaS self-serve trial (**TB-221**, DEFERRED V1.1 per `V1_DEFERRED.md §6r` — PQ-TTV-01 resolved 2026-06-02). These do not duplicate **TB-156/TB-157** (API/proxy startup diagnostics), **TB-169** (pilot-first progressive disclosure), **TB-143–148** (in-app documentation presentation), or **TB-238** (wizard baseline capture prompt — from Proof-of-ROI assessment).
+
+**TB-222 – TB-228** were added 2026-06-02 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06022026.MD`, score 63/100, COMMERCIAL weight 6/116). They address: recurrence scheduling UI post-commit + management page (**TB-222**, P1), decisions-needed KPI card on governance dashboard (**TB-223**, P1), AI conversational compare-two-runs narrative (**TB-224**, P1), CS-06 RLS fix on `SqlOperatorStickinessSnapshotReader` (**TB-225**, P1 security), risk exceptions dedicated management page (**TB-226**, P2), `collect-first-pilot-proof.ps1` multi-run support (**TB-227**, P2), and internal tenant health score admin surface (**TB-228**, P3). These do not duplicate **TB-057–063** (stickiness feature backlog), **TB-048/TB-073** (tenancy bleed on other repos), or **TB-062** (executive dashboard live KPIs).
+
+**TB-229 – TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0→1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `EXECUTIVE_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (**TB-236**, DEFERRED — owner action, PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131–134** (commercial packaging), **TB-141–142** (proof cohort / demo assets), **TB-162–164** (trust center, procurement pack), or **TB-170–176** (proof pack chooser/metadata).
+
+**TB-238 – TB-243** were added 2026-06-02 from an independent first-principles **Proof-of-ROI Readiness** quality assessment (`docs/assessments/ProofOfROIReadiness_06022026.MD`, score 72/100, COMMERCIAL weight 5/116). They address: baseline capture prompt in pilot wizard (**TB-238**, P1), executive ROI history run-mode label (**TB-239**, P1), executive ROI surface data quality regression guard (**TB-240**, P1), board-pack AI executive narrative (**TB-241**, P2), ROI model freshness CI guard (**TB-242**, P2), and sponsor proof delivery tracking event (**TB-243**, P2). These do not duplicate **TB-103–105** (orphan-candidate dual pipeline / waiver window / bucket bucketing), **TB-149–155** (data consistency defect fixes), **TB-062** (executive dashboard KPI replacement), or **TB-186** (run summary one-pager). TB-240 specifically adds regression-guard tests that verify TB-103/TB-149/TB-151/TB-152/TB-155 fixes hold; it is a guard, not a duplicate of those fixes.
+
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
 | TB-196 | Reasoning token cost underreporting fix — update `AgentExecutionTraceRunLlmCostAggregator.Compute()` to pass `trace.ReasoningTokenCount ?? 0` (not literal `0`) to `costEstimator.EstimateUsd`; add test covering reasoning-token cost path | **Done (2026-06-02 batch 5R)** — aggregator forwards reasoning tokens (shipped 5J); `AgentExecutionTraceRunLlmCostAggregatorTests`; `test_correctness_batch_5r.py` drift guard | XS |
@@ -91,7 +101,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; add `LlmJudgeBudget` sub-cap (~200k tokens/day, isolated from run-execution quota) as prerequisite | AI/Agent Readiness P2 — sub-cap design resolved 2026-06-01 (PQ-AI-02); implement sub-cap first, then extend judge coverage | M |
 | TB-188 | Findings-to-IaC stub generator — `IFindingIacStubGenerator` + `IacStub` nullable property on `ArchitectureFinding`, feature-flagged | AI/Agent Readiness P3 — closes "what do I do now?" gap; finding → Bicep snippet with disclaimer | M |
 | TB-189 | AI policy-pack drafting assistant — `POST /v1/governance/policy-pack/draft` with few-shot bundled-pack examples + UI draft panel | AI/Agent Readiness P3 — blank-page tax on enterprise policy authoring; removes primary pilot-stall pattern | M |
-| TB-191 | Prompt template content-hash pinning on runs — add `SystemPromptContentHash` (first 16 hex of SHA-256) to `dbo.AgentExecutionTraces` + `AgentExecutionTraceDto`; compute in `AgentExecutionTraceRecorder` | Cutting-Edge AI Technology P2 — enables forensic prompt identity verification between runs; closes A/B accountability gap | S |
+| TB-191 | Prompt template content-hash pinning on runs — add `SystemPromptContentHash` (first 16 hex of SHA-256) to `dbo.AgentExecutionTraces` + `AgentExecutionTraceDto`; compute in `AgentExecutionTraceRecorder` | **Done (2026-06-02 batch 5W)** — `SystemPromptContentHash` column + recorder canonical hash + OpenAPI surface; `AgentPromptReproTests` + `test_cutting_edge_batch_5w.py` | S |
 | TB-192 | Dynamic evidence summarization before context overflow — `IEvidenceSummarizationService` using `ModelTier.Fast`; counts against tenant run-execution quota (not a separate sub-cap — PQ-CEAT-02 resolved 2026-06-02); invoked by `ContextLengthGuardAgentCompletionClient` before hard truncation; `AgentExecution:EvidenceSummarization:Enabled=false` (opt-in); fail-open | **Done (2026-06-02 batch 5V)** — `EvidenceSummarizationService` + guard integration + `LlmEvidenceSummarized` audit; `EvidenceSummarizationServiceDependencyTests` + `test_cutting_edge_batch_5v.py` | M |
 | TB-193 | LLM provider abstraction factory scaffold — `ILlmProviderFactory` + `LlmProviderDescriptor.ProviderType` enum (`AzureOpenAi`, `Anthropic`, `GoogleGemini`, `LocalOllama`); `DefaultLlmProviderFactory` wraps existing Azure OpenAI client; architecture test for interface isolation; **no concrete non-Azure provider implementations** (V2 per PQ-CEAT-01 resolved 2026-06-02 — Azure-native mandate ADR 0020) | Cutting-Edge AI Technology P2 — scaffold decouples interface from Azure OpenAI implementation; concrete providers require separate owner ADR | M |
 | TB-194 | RAG corpus operator monitoring panel — `GET /v1/admin/rag-health` returning per-`CorpusKind` chunk counts, last-indexed-at, embedding dim, stale flag; UI panel under `/admin/rag-health`; Playwright smoke test | Cutting-Edge AI Technology P2 — operators have no in-app visibility into RAG index health; `RetrievalCorpusFreshnessSummary` exists but is health-probe only | S–M |
@@ -103,6 +113,37 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-211 | SAML SP certificate rotation runbook — `docs/runbooks/SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md`; detection + `openssl` generation + zero-downtime rotation + rollback; linked from `CONFIGURATION_REFERENCE.md` | Adoption Friction P1 — runbook referenced in docs but absent from repo | XS |
 | TB-212 | IaC adoption-critical subset — Terraform for Azure OpenAI, Azure AI Search, Azure Content Safety in `infra/terraform-hosted-prod/`; update outputs, tfvars.example, `CONFIGURATION_REFERENCE.md` | Adoption Friction P1 — three production-like required services absent from Terraform | M |
 | TB-213 | QualityGate WarnOnly lint rule — `quality_gate_warn_only_in_real_production_like`; Advisory for Real+WarnOnly; HOLD for production-like-hosted-pilot profile; 4-state unit tests | Adoption Friction P2 — no lint signal for WarnOnly+Real pilots | S |
+| TB-214 | Non-Azure/non-extractor evidence JSON upload path — DEFERRED: owner must supply schema and ingestion surface boundary; V1.1 scope per `V1_DEFERRED.md §6r`; PQ-AF-01 resolved 2026-06-02 | Adoption Friction DEFERRED (V1.1) | — |
+| TB-215 | Evidence upload integrated into review wizard — add optional "Evidence (optional)" step between Preset and Identity; dropzone for `.zip`; "Skip and use demo data" secondary; auto-upload via `POST /v1/azure-extractor/upload` after review created when file present; Vitest tests | Time-to-Value P1 — evidence upload is a separate post-wizard step; evaluators who skip it must re-discover Phase C2 | M |
+| TB-216 | `archlucid try --sponsor-packet` one-shot command — extend CLI `try` with `--sponsor-packet` + `--out <dir>` flags; reuse `PilotProofPacketCommand` internals after commit; print output path; update `FIRST_VALUE_20_MINUTES.md` and `EVALUATOR_WORKBOOK.md` | Time-to-Value P1 — no single command from zero to sponsor-ready proof folder; requires 3 separate commands and manual run-id lookup | S |
+| TB-217 | Demo seed auto-apply on startup — `DemoSeedStartupHostedService.cs` reads `Demo:AnonymousViewer:Enabled`; if true calls seed on startup (non-fatal); update `DEMO_WORKSPACES.md`; unit test | Time-to-Value P1 — `/demo/explain` returns 404 when seed not applied; first-impression failure for any freshly deployed demo environment | S |
+| TB-218 | Demo viewer "Start your own review" CTA — sticky footer card on `/demo/explain` page: "Start a new review →" → `/runs/new?preset=greenfield`; secondary help link; mobile floating button; Vitest test | Time-to-Value P2 — demo viewer has no forward CTA; conversion from passive demo viewer to active evaluator is entirely manual navigation | S |
+| TB-219 | Wizard preset deep-link — `?preset=greenfield/modernize/blank` query param auto-selects wizard preset on mount; update `SHOULD_YOU_EVALUATE.md` Q4 and `EVALUATOR_WORKBOOK.md` to link directly to `/runs/new?preset=greenfield`; Vitest test | Time-to-Value P2 — wizard has no deep-link; self-qualification docs link to UI root with no context carry-through | XS |
+| TB-220 | Wizard-to-commit OTel histogram — add `archlucid.pilot.wizard_to_committed_minutes` (histogram, tags: execution_mode, preset_used); record on commit for wizard-sourced runs (`requestSource = "wizard"`); update `OBSERVABILITY.md` + `PILOT_SUCCESS_SCORECARD.md §2.4` | Time-to-Value P2 — "15-minute first value" claim is aspirational; no telemetry verifies it or identifies where evaluators stall | S |
+| TB-221 | Hosted SaaS self-serve trial — DEFERRED: requires live Stripe (commerce un-hold) + DNS cutover to `signup.archlucid.net`; V1.1 per `V1_DEFERRED.md §6r` (PQ-TTV-01 resolved 2026-06-02); Cursor role: none until commerce un-hold | Time-to-Value DEFERRED (V1.1) | — |
+
+| TB-222 | Recurrence scheduling UI — `RecurrenceSchedulePostCommitCard` post-commit nudge + `/governance/recurrence-schedules` management page; calls `createArchitectureReviewRecurrenceSchedule` / `listArchitectureReviewRecurrenceSchedules`; enable/disable toggle | Stickiness P1 — recurrence endpoints built but no UI; operators must call API directly | M |
+| TB-223 | `DecisionsNeededSummaryCard` in governance dashboard — parallel-fetch `GET /v1/governance/decisions-needed-summary`; 6-tile KPI grid (pendingApprovals, staleRisks, unownedHighSeverityRisks, findingsAwaitingEvidence, waiversExpiringWithin14Days, deferredFindingsDue); `--al-caution` accent when waivers expiring; empty state; 30s auto-refresh | Stickiness P1 — decisions-needed API built but not surfaced on governance dashboard | S |
+| TB-224 | AI compare narrative — extend `AskService` for `BaseRunId + TargetRunId`; one fast LLM call; `ComparisonNarrative` on `AskResponse`; highlighted callout above compare delta table; guarded by `Ask:GenerateComparisonNarrative` | Stickiness P1 — compare shows raw diff rows; no "net better or worse" narrative | M |
+| TB-225 | CS-06 fix — inject `IRlsSessionContextApplicator` in `SqlOperatorStickinessSnapshotReader`; `ApplyAsync` before queries in `GetOperatorSignalsAsync` + `GetFunnelSnapshotAsync`; rename `ToDateTimeOffset` → `ToNullableUtcDateTime`; one-line `{ get; init; }` row types; `long` COUNT columns | Stickiness P1 (security) — future call path without TenantId guard silently crosses tenant boundaries | S |
+| TB-226 | Risk exceptions management page — `archlucid-ui/src/app/(operator)/governance/risk-exceptions/page.tsx` + `RiskExceptionsClient.tsx`; `EnterpriseTable` with expiry sort, StatusTag (Active/Expiring/Expired), Renew/Revoke actions; warning callout when any within 14 days; nav entry after "Governance findings" | Stickiness P2 — risk exceptions only accessible from finding inspector; no cross-register list view | M |
+| TB-227 | `collect-first-pilot-proof.ps1` multi-run support — `-RunNumber` + `-CompareBaseRunId` params; compare endpoint + decisions-needed + risk register on run 2+; `pilot-proof-run{N}/` folder; `stickinessSignals` section in manifest; update `REPEAT_REVIEW_LOOP.md §5` | Stickiness P2 — script is first-run-only; no scripted second-review comparison-enriched evidence path | S |
+| TB-228 | Internal tenant health admin surface — `GET /v1/admin/tenant-health` (SystemAdminAuthority); `TenantHealthSummaryResponse` with EngagementScore, GovernanceScore, PilotFunnelStage, RunsLast7d, LastActivityUtc; optional `/admin/tenant-health` page with `EnterpriseTable` + color-coded engagement | Stickiness P3 — TenantHealthScores computed but not exposed; SaaS CS team blind to at-risk accounts | M |
+| TB-229 | Reference-customer first-contact workflow — `REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md` (email + 3 commitment tiers + 15% discount reference + objection handling); `REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` (pilot-complete → Published steps a–h); update `reference-customers/README.md §3` | Marketability P1 — reference infrastructure complete; no operational workflow to go from pilot-complete to reference-published | S |
+| TB-230 | GTM collateral placeholder audit — replace `[placeholder]` contact in `PRODUCT_DATASHEET.md`; fix Q2 dead-end in `SHOULD_YOU_EVALUATE.md`; create `PLACEHOLDER_AUDIT.md`; add `scripts/ci/check_gtm_placeholder_tokens.py` warn-only CI step | Marketability P1 — buyer documents with `[placeholder]` contact field destroy trust on receipt | S |
+| TB-231 | Stage 0→1 claim-readiness tracker — `docs/go-to-market/CLAIM_READINESS_STATUS.md` (G1–G6 PASS/HOLD table + evidence links + who unblocks); `docs/go-to-market/PROOF_PACKET_RUN_LOG.md` (per-run G4 progress log); link both from `GTM_BACKLOG.md` | Marketability P1 — G1–G6 framework exists only in docs; no operational status page to update after each pilot | S |
+| TB-232 | LinkedIn publishing calendar — `docs/go-to-market/LINKEDIN_PUBLISHING_SCHEDULE.md`; assign publish dates to M-10 through M-15 (weekly Monday 8 AM); hashtag set per post; comment-seed prompts; Published/Engagement tracking column | Marketability P2 — 6 posts written and ready; no execution calendar; publishing deprioritized indefinitely | XS |
+| TB-233 | Demo video storyboard — `docs/go-to-market/DEMO_VIDEO_STORYBOARD.md`; shot-by-shot table from `DEMO_VIDEO_SCRIPT.md` (URL/screen, action, narration, annotation, duration); pre- and post-production checklists; target <3 min total | Marketability P2 — script exists; storyboard removes 90% of production decision burden for recorder | S |
+| TB-234 | `SHOULD_YOU_EVALUATE.md` ICP enrichment — add Q5 (team ≥3 architects); update 15-min eval path with hosted SaaS link + quote-request fallback; add "Strong fit signals" section (5 ICP indicators) | Marketability P2 — Q2 dead-ends with no contact link; evaluation path doesn't guide ICP-fit buyers | XS |
+| TB-235 | `EXECUTIVE_ONE_EMAIL_KIT.md` — verify or create; 3 subject lines; 120-word body with `<<PILOT_OUTCOME>>`; four-artifact checklist; follow-up timing; cross-ref to `EXECUTIVE_SPONSOR_BRIEF.md` | Marketability P2 — file referenced from `EXECUTIVE_SPONSOR_BRIEF.md` but may not exist; dead link in executive brief | XS |
+| TB-236 | Demo video production — DEFERRED: owner screen recording + voiceover required; TB-233 storyboard is prerequisite; Cursor role: none until owner returns media | Marketability DEFERRED (V1.1 GTM owner action — PQ-MKT-03 resolved 2026-06-02) | — |
+| TB-237 | Pricing page early-adopter framing — add "Early adopter pricing" 2-sentence note below tier grid in marketing pricing component; add "Transparent early-access framing" row to `PRICING_PHILOSOPHY.md §1` | Marketability P2 — pricing page has no framing explaining discount stack; buyers asking "why affordable?" get no answer | XS |
+| TB-238 | Baseline capture prompt in pilot wizard — add optional "Baseline metrics" step to architecture request wizard; numeric input for review cycle hours + confidence select; on submit call `PUT /v1/pilots/baselines`; skip button; Vitest tests; update `FIRST_PILOT_OPERATOR_PATH.md §Baseline` | Proof-of-ROI P1 — without UI prompt, all first-value reports default to "Defaulted / Low confidence" ROI labels | S |
+| TB-239 | Executive ROI history run-mode label — add `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, `IsMixedMode` to `ExecutiveRoiHistoryPeriod`; compute from `dbo.Runs.ExecutionMode`; frontend: mode footnote + Simulator-only badge + tooltip | Proof-of-ROI P1 — history trend mixes Real and Simulator runs with no mode label; cosmetically impressive but sponsor-misleading | S |
+| TB-240 | Executive ROI surface data quality regression guard — add `ExecutiveRoiSummaryInvariantTests.cs` covering FindingsReduced/FindingsAdded polarity (TB-151/152), waiver 14-day window consistency (TB-149), orphan-candidate single pipeline (TB-103), cache freshness (TB-155) | Proof-of-ROI P1 — four open data quality defects in the primary sponsor-facing ROI endpoint; guard prevents regression after fixes | S |
+| TB-241 | Board-pack AI executive narrative — `Roi:GenerateBoardPackNarrative` config flag (default false); when true call `IAgentCompletionClient` (ModelTier.Fast) with savings/ROI/mode/confidence JSON; prefix board-pack Markdown with `## Executive summary`; frontend toggle; unit test | Proof-of-ROI P2 — board pack is structural data export only; no AI interpretation paragraph for sponsor use | M |
+| TB-242 | ROI model freshness CI guard — `scripts/ci/check_roi_model_freshness.py`; extract "Last reviewed:" date from `ROI_MODEL.md`; warn-only exit 0 when >90 days old; add CI step; update `ROI_MODEL.md` last-reviewed date to 2026-06-02 | Proof-of-ROI P2 — `ROI_MODEL.md` §8 is 6+ weeks stale; inline subscription/TCO numbers may diverge from `PRICING_PHILOSOPHY.md §5` | XS |
+| TB-243 | Sponsor proof delivery tracking event — `AuditEventType.SponsorEvidencePackSent` (type 79); `POST /v1/pilots/runs/{runId}/sponsor-pack-sent` (optional recipient + delivery method); "Mark as sent to sponsor" button in `RunDetailFirstScreenProofStatus.tsx` → `StatusTag "Sent to sponsor"`; unit tests | Proof-of-ROI P2 — proof generated vs proof delivered are invisible; CS team cannot identify operators who generate but don't send | S |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -5733,5 +5774,1117 @@ There is no Cursor rule that instructs the AI assistant to follow the Carbon-ins
 **Cross-ref:** **TB-114**–**TB-119** (the design system items this rule enforces).
 
 **Size estimate:** **XS** — ~1 h (rule file + AGENTS.md update).
+
+---
+
+## TB-222 — Recurrence scheduling UI: post-commit nudge + management page
+
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-01
+**Priority:** P1
+**Size estimate:** M
+
+**Problem:**
+
+`POST /v1/governance/recurrence-schedules` and `GET /v1/governance/recurrence-schedules` are fully implemented in `GovernanceStickinessController`. `ArchitectureReviewRecurrenceSchedule` (with `scheduleId`, `cronExpression`, `nextRunUtc`, `isEnabled`) is fully typed in `governance-stickiness-api.ts`. But there is no UI that calls these endpoints. Operators who want a weekly review cadence must call the API directly. The post-commit flow has no "Schedule next review" affordance. This is the single most concrete operating-rhythm gap — the recurrence infrastructure is built and idle.
+
+**What to do:**
+
+```
+Create two UI surfaces for recurrence scheduling:
+
+1. Post-commit nudge (RecurrenceSchedulePostCommitCard):
+   In `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`, after the CommitRunButton succeeds and `hasGoldenManifest` is true, render a new `RecurrenceSchedulePostCommitCard` component. The card should:
+   - Show "Schedule next review" heading using `OPERATOR_TYPOGRAPHY.pageTitle`.
+   - Pre-fill a cron expression field defaulting to `0 8 * * 1` (weekly Monday 8am).
+   - Include a display name field (default: "Weekly architecture review").
+   - Submit via `createArchitectureReviewRecurrenceSchedule` from `governance-stickiness-api.ts` with `sourceRunId = runId`.
+   - On success, show a StatusTag "Scheduled" badge and the `nextRunUtc` in a human-readable format.
+   - On error, show an inline error message.
+   - Wrap in a collapsible; open by default only when `hasStickinessPrompt` (new boolean prop) is true.
+
+2. Recurrence management page (`/governance/recurrence-schedules`):
+   Create `archlucid-ui/src/app/(operator)/governance/recurrence-schedules/page.tsx` and a `RecurrenceSchedulesClient.tsx` client component. The page should:
+   - Call `listArchitectureReviewRecurrenceSchedules` on load.
+   - Render schedules in an `EnterpriseTable` with columns: Name, Source Run ID (truncated), Cron, Next Run, Enabled.
+   - Show a `StatusTag` (Ready / Needs attention) based on `isEnabled` and `nextRunUtc` being in the past.
+   - Provide an enable/disable toggle (call `PUT /v1/governance/recurrence-schedules/{id}` if that endpoint exists, otherwise note the gap).
+   - Add the route to the governance nav section in `nav-config.ts` after "Decision register".
+   - Add a LayerHeader: "Operate (governance and trust)".
+
+Add unit tests for `RecurrenceSchedulePostCommitCard`: submitted state, success state, error state.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- `archlucid-ui/src/app/(operator)/governance/recurrence-schedules/page.tsx` (new)
+- `archlucid-ui/src/components/governance/RecurrenceSchedulePostCommitCard.tsx` (new)
+- `archlucid-ui/src/components/governance/RecurrenceSchedulesClient.tsx` (new)
+- `archlucid-ui/src/lib/api/governance-stickiness-api.ts`
+- nav-config.ts
+
+**Cross-ref:** TB-057–063 (stickiness backlog), `GovernanceStickinessController.cs`, `REPEAT_REVIEW_LOOP.md`.
+
+---
+
+## TB-223 — Decisions-needed KPI card in governance dashboard
+
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-02
+**Priority:** P1
+**Size estimate:** S
+
+**Problem:**
+
+`GET /v1/governance/decisions-needed-summary` returns a fully specified `GovernanceDecisionsNeededSummary` DTO with 7 fields: `pendingApprovals`, `staleRisks`, `unownedHighSeverityRisks`, `findingsAwaitingEvidence`, `waiversExpiringWithin14Days`, `deferredFindingsDue`, `totalDecisionItems`. `getGovernanceDecisionsNeededSummary` is fully implemented in `governance-stickiness-api.ts`. The governance dashboard does NOT surface this summary. Operators who open the dashboard on Monday morning have no answer to "what decisions do I need to make today?"
+
+**What to do:**
+
+```
+Add a "Decisions needed" KPI card to the governance dashboard.
+
+In `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`:
+1. Import `getGovernanceDecisionsNeededSummary` from `@/lib/api/governance-stickiness-api`.
+2. Fetch the summary alongside the existing `getGovernanceDashboard` call (parallel fetch).
+3. Create a new `DecisionsNeededSummaryCard` component in `archlucid-ui/src/components/governance/`:
+   - Renders a 2×3 grid of KPI tiles using `OPERATOR_TYPOGRAPHY.kpiValue` for counts and `OPERATOR_TYPOGRAPHY.label` for labels.
+   - Tiles: "Pending approvals", "Stale risks", "Unowned High risks", "Awaiting evidence", "Waivers expiring (14d)", "Deferred items due".
+   - If `totalDecisionItems === 0`, render an `OperatorEmptyState` with message "No decisions needed — all risks are current."
+   - If `waiversExpiringWithin14Days > 0`, wrap the tile in a subtle left-border accent using `--al-caution` CSS variable.
+   - Each tile links to the relevant route: pending approvals → `/governance`, stale risks → `/governance/findings?filter=stale`, waivers expiring → `/governance/risk-exceptions`.
+4. Place the card at the top of the governance dashboard, before the pending approval requests list.
+5. Auto-refresh alongside the existing 30-second dashboard refresh.
+6. Add a Vitest test for `DecisionsNeededSummaryCard`: renders 7 tiles, shows empty state when totalDecisionItems is 0, highlights waivers expiring tile.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`
+- `archlucid-ui/src/components/governance/DecisionsNeededSummaryCard.tsx` (new)
+
+**Cross-ref:** TB-061 (decisions-needed API — this TB adds the visual surface), TB-155 (canonical decisions-needed count accuracy).
+
+---
+
+## TB-224 — AI conversational compare-two-runs narrative
+
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-03
+**Priority:** P1
+**Size estimate:** M
+
+**Problem:**
+
+`IComparisonService` produces structured deltas. The compare UI renders a diff table. But "what changed between run A and run B, and why does it matter?" requires human interpretation of raw delta rows. Without a narrative, every comparison feels like a spreadsheet diff rather than a progress report — weakening the "value compounds over time" story that makes buyers renew. This is `AI_LEVERAGE_ROADMAP.md` item 11.
+
+**What to do:**
+
+```
+Add an AI narrative to the compare view.
+
+Backend:
+1. In `AskService.cs`, extend `AskAsync` to check if `AskRequest.BaseRunId` and `AskRequest.TargetRunId` are both non-null.
+2. When both are present, after loading the comparison delta from `IComparisonService`, make a single additional LLM call using `IAgentCompletionClient` (ModelTier.Fast if multi-model tiering is available, else default model):
+   - System prompt: "You are an enterprise architect reviewing the delta between two architecture runs. Write a 3–5 sentence narrative covering: (1) the most significant improvement, (2) any new risk introduced, (3) whether the architecture is net-better or net-worse overall. Be specific and concrete. If the delta has no changes, say so."
+   - User content: serialize the delta into a compact JSON summary (total additions, removals, modifications; top 3 finding categories by change count).
+3. Add string property `ComparisonNarrative` (nullable) to `AskResponse`.
+4. Guard with config key `Ask:GenerateComparisonNarrative` (default `false`).
+5. Add unit test: delta with additions produces non-empty narrative; empty delta produces null/empty.
+
+Frontend:
+6. In the archlucid-ui compare page, after loading the comparison delta:
+   - If both run IDs are present, call `POST /v1/ask` with `{ baseRunId, targetRunId, question: "Summarize the architectural changes" }`.
+   - If `ComparisonNarrative` is non-null, render it as a highlighted info callout above the delta table with a "✦ AI narrative" label.
+   - Show loading skeleton while the Ask call is in-flight.
+   - Show nothing on error (non-blocking).
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Ask/AskService.cs`
+- `ArchLucid.Contracts/Ask/AskRequest.cs`, `AskResponse.cs`
+- Compare page component in `archlucid-ui`
+
+**Cross-ref:** `AI_LEVERAGE_ROADMAP.md` item 11, TB-178 (streaming Ask — complementary), TB-179 (multi-model tiering — fast-path prerequisite for cost safety).
+
+---
+
+## TB-225 — CS-06: Inject `IRlsSessionContextApplicator` in `SqlOperatorStickinessSnapshotReader`
+
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-04
+**Priority:** P1 (security)
+**Size estimate:** S
+
+**Problem:**
+
+`CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md §5.3` flags CS-06 as **High** severity: `SqlOperatorStickinessSnapshotReader` does not apply `IRlsSessionContextApplicator` before executing its multi-subquery SELECT. The current guard is only `WHERE TenantId = @TenantId`. In a future call path that omits the parameter, this would silently return cross-tenant data. This is the same class of defect that TB-048/TB-073 addressed elsewhere in the stack.
+
+**What to do:**
+
+```
+Fix CS-06 in `ArchLucid.Persistence/CustomerSuccess/SqlOperatorStickinessSnapshotReader.cs`:
+
+1. Add `IRlsSessionContextApplicator` as a constructor parameter (after `IReadReplicaQueryConnectionFactory`).
+2. In both `GetOperatorSignalsAsync` and `GetFunnelSnapshotAsync`:
+   a. Open the connection via `IReadReplicaQueryConnectionFactory.CreateOpenConnectionAsync(cancellationToken)`.
+   b. Call `await _rlsSessionContextApplicator.ApplyAsync(connection, tenantId, cancellationToken)` before executing the query.
+   c. Pass the open connection into the `CommandDefinition` explicitly.
+3. Fix CS-07: rename `ToDateTimeOffset` to `ToNullableUtcDateTime` — the method returns `DateTime?`, not `DateTimeOffset`.
+4. Fix CS-08: collapse `OperatorSignalsRow` and `FunnelRow` inner class properties to one-line `{ get; init; }` per CSharp-SimpleProperties-OneLine.mdc.
+5. Fix CS-09: change all COUNT column row type properties to `long`; remove `ToInt(object? v)` defensive converter.
+6. Update `InMemoryOperatorStickinessSnapshotReader.cs` constructor to accept (and ignore) the new applicator for DI parity.
+7. Update DI registration in the composition root to pass `IRlsSessionContextApplicator` to `SqlOperatorStickinessSnapshotReader`.
+8. Add unit tests to `ArchLucid.Persistence.Tests/CustomerSuccess/`:
+   - `GetOperatorSignalsAsync_AppliesRls` — verifies `ApplyAsync` is called before query execution.
+   - `GetFunnelSnapshotAsync_AppliesRls` — same for funnel query.
+   - `ToNullableUtcDateTime_ReturnsNull_WhenDbNull` — verifies the renamed helper.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/CustomerSuccess/SqlOperatorStickinessSnapshotReader.cs`
+- `ArchLucid.Persistence/CustomerSuccess/InMemoryOperatorStickinessSnapshotReader.cs`
+- Composition root DI registration
+- `ArchLucid.Persistence.Tests/CustomerSuccess/` (new tests)
+
+**Cross-ref:** TB-048, TB-073 (same class of tenancy gap), `CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md §5.3`.
+
+---
+
+## TB-226 — Risk exceptions dedicated management page
+
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-05
+**Priority:** P2
+**Size estimate:** M
+
+**Problem:**
+
+`listRiskExceptions`, `createRiskException`, `renewRiskException`, and `revokeRiskException` are all implemented in `governance-stickiness-api.ts`. Risk exception creation is accessible from `FindingInspectGovernanceStickinessPanel.tsx` only. There is no cross-finding list view where operators can see all active waivers, filter by expiry, renew expiring ones, or revoke outdated ones. An operator managing 40 active waivers across 200 findings has no single surface.
+
+**What to do:**
+
+```
+Create `archlucid-ui/src/app/(operator)/governance/risk-exceptions/page.tsx` and a `RiskExceptionsClient.tsx` client component.
+
+`RiskExceptionsClient.tsx`:
+1. On mount, call `listRiskExceptions()` from `governance-stickiness-api.ts`.
+2. Render results in an `EnterpriseTable` with columns:
+   - Finding ID (truncated with copy button)
+   - Owner User ID
+   - Rationale (truncated to 80 chars, full text in tooltip)
+   - Status (StatusTag: "Active" green, "Expiring soon" amber when within 14 days, "Expired" red)
+   - Expires (formatted date)
+   - Actions (Renew / Revoke)
+3. "Renew" opens an inline row form with new expiration date picker (default: +90 days) and optional rationale field; calls `renewRiskException`.
+4. "Revoke" calls `revokeRiskException` with a confirmation dialog.
+5. Sort by `expiresAtUtc` ascending by default (soonest-to-expire at top).
+6. Show a warning callout at the top when any exception expires within 14 days.
+7. Show `OperatorEmptyState` when no active exceptions exist.
+
+`page.tsx`:
+- Server component wrapper with `OperatorPageHeader` title "Risk exceptions" and LayerHeader "Operate (governance and trust)".
+- Render `<RiskExceptionsClient />`.
+
+Add to governance nav in `nav-config.ts` after the "Governance findings" entry.
+Add Vitest tests: renders table with 3 items, shows expiring-soon warning, empty state when 0 items.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/governance/risk-exceptions/page.tsx` (new)
+- `archlucid-ui/src/components/governance/RiskExceptionsClient.tsx` (new)
+- nav-config.ts
+
+**Cross-ref:** TB-059 (risk exceptions API — done), TB-222 (recurrence scheduling page — same nav cluster).
+
+---
+
+## TB-227 — `collect-first-pilot-proof.ps1` multi-run support
+
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-06
+**Priority:** P2
+**Size estimate:** S
+
+**Problem:**
+
+`collect-first-pilot-proof.ps1` is written as a first-run-only collection tool. The `REPEAT_REVIEW_LOOP.md` second-review proof checklist requires comparison delta output and stickiness signals — neither of which is collected by the current script. An operator doing the second review has no scripted path to produce comparison-enriched evidence.
+
+**What to do:**
+
+```
+Update `scripts/collect-first-pilot-proof.ps1` to support multi-run evidence collection.
+
+1. Add a `-RunNumber` parameter (int, default 1). When `-RunNumber 2` or higher:
+   a. Require a `-CompareBaseRunId` parameter (Guid, the previous committed run ID).
+   b. Call the compare endpoint (`GET /v1/architecture/run/{CompareBaseRunId}/compare/{RunId}` per `API_CONTRACTS.md`). Write response JSON to `pilot-proof/compare-run{N-1}-to-run{N}.json`.
+   c. Call `GET /v1/governance/decisions-needed-summary` and write to `pilot-proof/decisions-needed-summary-run{N}.json`.
+   d. Call `GET /v1/governance/risk-register` and write to `pilot-proof/risk-register-run{N}.json`.
+   e. In the output manifest, add a `stickinessSignals` section: `findingsReduced`, `findingsAdded`, `cycleTimeDeltaMinutes`, `governanceComplianceDelta`.
+
+2. Rename the output folder from `pilot-proof/` to `pilot-proof-run{N}/` when `-RunNumber > 1`.
+
+3. Update the script header comment to state multi-run support and `-RunNumber 2+` usage.
+
+4. Update `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md` and `docs/library/REPEAT_REVIEW_LOOP.md §5` to reference the `-RunNumber 2` invocation pattern.
+
+5. Add Pester tests: RunNumber=1 writes to pilot-proof/, RunNumber=2 requires CompareBaseRunId, output includes stickinessSignals section.
+```
+
+**Affected files / projects:**
+
+- `scripts/collect-first-pilot-proof.ps1`
+- `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md`
+- `docs/library/REPEAT_REVIEW_LOOP.md §5`
+
+**Cross-ref:** `REPEAT_REVIEW_LOOP.md` second-review proof checklist, TB-223 (decisions-needed surface), TB-231 (proof run log).
+
+---
+
+## TB-228 — Internal tenant health score admin surface
+
+**Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-07
+**Priority:** P3
+**Size estimate:** M
+
+**Problem:**
+
+`TenantHealthScoringCalculator` computes engagement, governance, and pilot completion scores. `dbo.TenantHealthScores` stores them. But there is no endpoint or UI where ArchLucid's internal team can see per-tenant health signals to identify at-risk accounts. This leaves the SaaS CS team blind to adoption signals during the critical post-pilot conversion window.
+
+**What to do:**
+
+```
+Add an internal admin endpoint for tenant health scores.
+
+Backend:
+1. Create `GET /v1/admin/tenant-health` in a new `AdminCustomerSuccessController.cs` in `ArchLucid.Api/Controllers/Admin/`.
+2. Require `ArchLucidPolicies.SystemAdminAuthority` (internal operator only — not tenant-scoped).
+3. Inject `IOperatorStickinessSnapshotReader` and call `GetOperatorSignalsAsync` for all tenants (admin context bypasses RLS via `SqlRowLevelSecurityBypassAmbient`).
+4. Also read `dbo.TenantHealthScores` via `ITenantCustomerSuccessRepository` (extend with `GetAllHealthScoresAsync` if needed; use RLS bypass ambient scoped to a background context).
+5. Return `TenantHealthSummaryResponse`: TenantId, WorkspaceId, EngagementScore, GovernanceScore, PilotFunnelStage, RunsLast7d, CommitsLast7d, LastActivityUtc.
+6. Add `[RequiresSystemAdmin]` attribute; do not expose to standard tenant users.
+7. Add unit tests: 200 for system admin, 403 for tenant user.
+
+Frontend (optional, admin-only):
+8. Add `/admin/tenant-health` page behind existing admin auth guard.
+9. Render `EnterpriseTable` with sortable columns: Tenant, Engagement, Governance, Funnel Stage, Runs 7d, Last Active.
+10. Color-code: red for engagement < 30, amber for 30–60, green > 60 using `SeverityTag`.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Admin/AdminCustomerSuccessController.cs` (new)
+- `ArchLucid.Persistence/CustomerSuccess/ITenantCustomerSuccessRepository.cs`
+- `archlucid-ui/src/app/(operator)/admin/tenant-health/page.tsx` (new, optional)
+
+**Cross-ref:** `TenantHealthScoringCalculator.cs`, `CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md`, TB-225 (RLS fix on snapshot reader).
+
+---
+
+## TB-229 — Reference-customer first-contact capture workflow
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-01
+**Priority:** P1
+**Size estimate:** S
+
+**Problem:**
+
+The reference-customer infrastructure is complete (case study templates, CI guard `check_reference_customer_status.py`, 15% reference pricing incentive). The missing piece is the operational workflow for an owner to go from "pilot completed" to "reference published." Without a written first-contact template, the ask never gets sent, which is why all rows in `reference-customers/README.md` remain `Placeholder` or `Draft`.
+
+**What to do:**
+
+```
+Create docs/go-to-market/REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md with:
+- Subject line variants (short/long) for asking a pilot customer to be a reference
+- Body template referencing the 15% standing discount (PRICING_PHILOSOPHY.md §4.1)
+- Three commitment options: (1) logo only, (2) logo + written quote, (3) full case study + reference call
+- Objection-handling postscript for "we have a non-disclosure policy"
+- Required fields: <<CUSTOMER_NAME>>, <<TIER>>, <<PILOT_OUTCOME_SENTENCE>>
+
+Create docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md with:
+- Per-customer checklist from "pilot complete" to "Published" status
+- Steps: (a) pilot metrics gathered from PILOT_ROI_MODEL.md §5, (b) first-contact email sent, (c) approval in writing received, (d) logo file received, (e) case study draft sent, (f) customer-approved draft in hand, (g) CHANGELOG.md entry, (h) README row updated to Published
+
+Update reference-customers/README.md §3 "How to add a real reference" to reference both new documents. Place the links after step 1.
+```
+
+**Affected files / projects:**
+
+- `docs/go-to-market/REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md` (new)
+- `docs/go-to-market/REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md` (new)
+- `docs/go-to-market/reference-customers/README.md`
+
+**Cross-ref:** `PRICING_PHILOSOPHY.md §4.1`, `check_reference_customer_status.py`, TB-231 (proof run log for G4 progress).
+
+---
+
+## TB-230 — GTM collateral placeholder audit and CI guard
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-02
+**Priority:** P1
+**Size estimate:** S
+
+**Problem:**
+
+`PRODUCT_DATASHEET.md` ends with `Contact: [placeholder — add sales contact or URL]`. `SHOULD_YOU_EVALUATE.md` Q2 dead-ends with "Contact us for multi-cloud roadmap" with no link. Multiple buyer-facing documents contain `<<placeholder>>`, `[placeholder]`, or `TBD` tokens in customer-visible positions. A buyer landing on any of these ends the session.
+
+**What to do:**
+
+```
+1. In docs/go-to-market/PRODUCT_DATASHEET.md, replace the final contact placeholder line with:
+   "**Get started:** [archlucid.net](https://archlucid.net) · [Request a demo or quote](https://archlucid.net/contact)"
+
+2. In docs/go-to-market/SHOULD_YOU_EVALUATE.md, replace the Q2 no-branch dead-end with:
+   "- **No** → ArchLucid V1 targets Azure workloads. If your workloads are on AWS or GCP, [contact us](https://archlucid.net/contact) about our multi-cloud roadmap."
+
+3. Create scripts/ci/check_gtm_placeholder_tokens.py that:
+   - Recursively scans docs/go-to-market/**/*.md
+   - Identifies lines containing <<[A-Z_]+>> patterns
+   - Prints file:line:token for each match
+   - Exits 0 (non-blocking — warn only)
+
+4. Create docs/go-to-market/PLACEHOLDER_AUDIT.md that lists each known unfilled <<...>> token with: document path, token name, owner, and target date.
+
+5. Integrate check_gtm_placeholder_tokens.py into .github/workflows/ci.yml as a warn-only step named "Check GTM placeholder tokens".
+```
+
+**Affected files / projects:**
+
+- `docs/go-to-market/PRODUCT_DATASHEET.md`
+- `docs/go-to-market/SHOULD_YOU_EVALUATE.md`
+- `scripts/ci/check_gtm_placeholder_tokens.py` (new)
+- `docs/go-to-market/PLACEHOLDER_AUDIT.md` (new)
+- `.github/workflows/ci.yml`
+
+**Cross-ref:** PQ-MKT-01 (canonical contact URL — resolved V1.1; use `archlucid.net/contact` as placeholder pending commerce un-hold), TB-229 (reference-customer workflow), TB-231 (claim-readiness tracker).
+
+---
+
+## TB-231 — Stage 0→1 claim-readiness status tracker and proof run log
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-03
+**Priority:** P1
+**Size estimate:** S
+
+**Problem:**
+
+The G1–G6 framework is excellent but only documented in `GTM_BACKLOG.md`. There is no operational status page that a founder can update after each pilot to track progress toward Stage 1. Without this, the gate system exists only in documentation — not as a working checkpoint. Stage 1 access requires G1–G4 all PASS for ≥3 qualifying runs, and G4 currently has no log.
+
+**What to do:**
+
+```
+Create docs/go-to-market/CLAIM_READINESS_STATUS.md:
+- Header: current authorized stage (default: Stage 0)
+- Table with columns: Gate | Signal | Current Status | Evidence Link | Blocking Dep | Who Unblocks
+- Populate Gate, Signal from CLAIM_READINESS_CHECKLIST.md
+- Initial status for G1: HOLD (needs run-detail fidelity verification)
+- Initial status for G2: PASS (RoiMetricSourceKind implemented per GTM_BACKLOG)
+- Initial status for G3: PASS (TB-071/072/073 done per TECH_BACKLOG.md)
+- Initial status for G4: HOLD (0 of 3 qualifying real runs logged)
+- Initial status for G5: HOLD (requires owner credentials — owner action)
+- Initial status for G6: PASS (trust pack current; deferred items stated as deferred)
+- Section: "Stage 1 is authorized when G1–G4 all PASS for ≥3 runs"
+- Section: "Last reviewed: 2026-06-02"
+
+Create docs/go-to-market/PROOF_PACKET_RUN_LOG.md:
+- Table: Run date | Tenant | Run ID | Mode (Real/Simulator) | Proof packet generated? | Clean (no manual surgery)? | Notes
+- One placeholder row showing required format
+
+Add links to both documents in GTM_BACKLOG.md "Proof-gated rollout criteria" section after the "How to use this" subsection.
+```
+
+**Affected files / projects:**
+
+- `docs/go-to-market/CLAIM_READINESS_STATUS.md` (new)
+- `docs/go-to-market/PROOF_PACKET_RUN_LOG.md` (new)
+- `docs/go-to-market/GTM_BACKLOG.md`
+
+**Cross-ref:** `CLAIM_READINESS_CHECKLIST.md`, `GTM_BACKLOG.md §Proof-gated rollout criteria`, TB-227 (multi-run proof script), TB-229 (reference capture workflow).
+
+---
+
+## TB-232 — LinkedIn publishing calendar
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-04
+**Priority:** P2
+**Size estimate:** XS
+
+**Problem:**
+
+The five posts (M-10 through M-14) and one long-form article (M-15) in `LINKEDIN_CONTENT_V1.md` are written and ready. No execution calendar exists. Without a calendar and a public commitment mechanism, posting gets deprioritized indefinitely.
+
+**Note:** PQ-MKT-02 (first post date and cadence approval) was resolved V1.1 per `V1_DEFERRED.md §6r`. Cursor produces the calendar structure; owner sets the start date and approves before publishing.
+
+**What to do:**
+
+```
+Create docs/go-to-market/LINKEDIN_PUBLISHING_SCHEDULE.md:
+
+Post schedule (weekly cadence, Monday 8:00 AM recommended):
+- Week 1: M-10 (The bottleneck nobody talks about)
+- Week 2: M-11 (Why AI for architecture keeps disappointing teams)
+- Week 3: M-12 (title from LINKEDIN_CONTENT_V1.md)
+- Week 4: M-13 (title from LINKEDIN_CONTENT_V1.md)
+- Week 5: M-14 (title from LINKEDIN_CONTENT_V1.md)
+- Week 7: M-15 long-form article (2-week gap for audience warmup)
+
+For each post, add:
+- Recommended hashtags: #EnterpriseArchitecture, #SoftwareArchitecture, #CloudGovernance (3-4 max)
+- Comment seed: 1 sentence the poster can comment within 30 minutes of posting to boost reach
+- Status column: Published (Yes/No) + Publish date (owner sets; leave TBD)
+
+Add a "Publishing tips" section covering algorithm timing, comment engagement window, and tag discipline.
+
+Cross-reference to LINKEDIN_CONTENT_V1.md for full post copy.
+```
+
+**Affected files / projects:**
+
+- `docs/go-to-market/LINKEDIN_PUBLISHING_SCHEDULE.md` (new)
+- Reference only: `docs/go-to-market/LINKEDIN_CONTENT_V1.md`
+
+**Cross-ref:** PQ-MKT-02 resolved V1.1, `LINKEDIN_CONTENT_V1.md`, `SEO_AND_PAID_ACQUISITION.md`.
+
+---
+
+## TB-233 — Demo video storyboard
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-05
+**Priority:** P2
+**Size estimate:** S
+
+**Problem:**
+
+`DEMO_VIDEO_SCRIPT.md` exists with script content. No companion storyboard exists. Without a shot-by-shot storyboard, "record the demo video" stays permanently deferred because the decision burden of what to show and when is too high. The storyboard removes 90% of that burden.
+
+**Note:** PQ-MKT-03 (who records, which tool, voiceover acceptable) was resolved V1.1. TB-236 (actual video production) is DEFERRED until owner answers. This TB is the prerequisite.
+
+**What to do:**
+
+```
+Read docs/go-to-market/DEMO_VIDEO_SCRIPT.md in full.
+
+Create docs/go-to-market/DEMO_VIDEO_STORYBOARD.md with:
+- Total target length: under 3 minutes for first buyer-facing cut
+- For each segment from the script, produce a table row:
+  | Segment | URL/Screen | Action | Narration extract | Annotation | Duration (s) |
+- Include a pre-production checklist:
+  - [ ] Staging or local environment with seeded Contoso demo tenant running
+  - [ ] Browser zoom at 100%, full-screen, clean bookmark bar
+  - [ ] Loom / Camtasia recording started before narration begins
+  - [ ] Close all non-ArchLucid browser tabs
+  - [ ] Test audio quality before recording
+- Include a post-production checklist:
+  - [ ] Trim dead air at start/end
+  - [ ] Add title card: "ArchLucid — Defensible architecture, on demand"
+  - [ ] Add captions for accessibility
+  - [ ] Upload to Loom or Wistia (not YouTube for sales demo — avoid competitor ads)
+  - [ ] Add link in PRODUCT_DATASHEET.md and EXECUTIVE_SPONSOR_BRIEF.md
+```
+
+**Affected files / projects:**
+
+- `docs/go-to-market/DEMO_VIDEO_STORYBOARD.md` (new)
+- Reference only: `docs/go-to-market/DEMO_VIDEO_SCRIPT.md`
+
+**Cross-ref:** TB-236 (video production — DEFERRED; this TB is the prerequisite), PQ-MKT-03 resolved V1.1.
+
+---
+
+## TB-234 — `SHOULD_YOU_EVALUATE.md` ICP enrichment
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-06
+**Priority:** P2
+**Size estimate:** XS
+
+**Problem:**
+
+`SHOULD_YOU_EVALUATE.md` Q2 dead-ends with no contact link. The evaluation path does not help ICP-fit buyers understand what success looks like. A 5th question and "Strong fit signals" section would reduce misaligned trials and increase conversion confidence.
+
+**What to do:**
+
+```
+In docs/go-to-market/SHOULD_YOU_EVALUATE.md:
+
+1. Add a 5th question after Q4:
+   Q5. Does your team have at least 3 architects or engineers who regularly author architecture decisions?
+   - No → ArchLucid may be early — try a single pilot review to validate fit.
+   - Yes → You are well-positioned for a full pilot.
+
+2. Replace the 15-minute evaluation path section with:
+   ## 15-minute evaluation path
+   **Hosted SaaS:** Sign up at [archlucid.net/trial](https://archlucid.net/trial) → quick scan → review findings → commit manifest.
+   If sign-up is not yet available, [request a guided demo](https://archlucid.net/contact).
+   **Self-hosted:** From the repo root: `archlucid doctor && archlucid new --quick-scan` → review findings (about 15 minutes).
+
+3. Add a "Strong fit signals" section after the evaluation path:
+   You are likely a strong fit if:
+   - Your last architecture review involved ≥2 weeks of preparation time
+   - You have had a compliance finding surface in production rather than during design
+   - You are Azure-primary or planning to be within 6 months
+   - Your organization has a formal architecture review board or CAB
+   - You need to produce audit-trail evidence for a regulator, insurer, or CTO sign-off
+```
+
+**Affected files / projects:**
+
+- `docs/go-to-market/SHOULD_YOU_EVALUATE.md`
+
+**Cross-ref:** `BUYER_PERSONAS.md`, `IDEAL_CUSTOMER_PROFILE.md`, TB-230 (Q2 link fix — overlapping change; coordinate or combine).
+
+---
+
+## TB-235 — `EXECUTIVE_ONE_EMAIL_KIT.md` — verify or create
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-07
+**Priority:** P2
+**Size estimate:** XS
+
+**Problem:**
+
+`EXECUTIVE_SPONSOR_BRIEF.md §Related` references `EXECUTIVE_ONE_EMAIL_KIT.md` as "one-email sponsor/procurement copy." If that file does not exist, it is a dead reference in the executive brief. An owner who finishes a pilot and wants to close the sponsor via email needs this kit.
+
+**What to do:**
+
+```
+Check whether docs/go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md exists.
+
+If it does not exist, create it with:
+- 3 subject line variants (urgency-light, outcome-first, meeting-request)
+- 120-word email body with: opening hook, 2-sentence product description, pilot outcome placeholder (<<PILOT_OUTCOME>>), and CTA (schedule 30 minutes to review findings)
+- Four-artifact checklist the operator attaches:
+  1. Executive Sponsor Brief PDF (docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md → export)
+  2. First-value report PDF (POST /v1/pilots/runs/{runId}/first-value-report.pdf)
+  3. Pilot proof packet ZIP (scripts/collect-first-pilot-proof.ps1)
+  4. ROI estimate (docs/library/PILOT_ROI_MODEL.md §5 benchmark)
+- Follow-up timing guidance (48-hour first follow-up, 5-day second follow-up)
+- Cross-reference back to EXECUTIVE_SPONSOR_BRIEF.md as the canonical sponsor narrative
+
+If the file exists but is a stub, fill it with the above content.
+```
+
+**Affected files / projects:**
+
+- `docs/go-to-market/EXECUTIVE_ONE_EMAIL_KIT.md` (create if missing)
+
+**Cross-ref:** `EXECUTIVE_SPONSOR_BRIEF.md`, TB-227 (`collect-first-pilot-proof.ps1`), TB-229 (reference capture workflow).
+
+---
+
+## TB-236 — Demo video production (DEFERRED)
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-08
+**Priority:** DEFERRED — owner action required
+**Deferred per:** `V1_DEFERRED.md §6r` — PQ-MKT-03 resolved 2026-06-02
+
+**Problem:**
+
+No demo video has been produced despite `DEMO_VIDEO_SCRIPT.md` existing. The video is the conversion asset that bridges LinkedIn cold traffic to product understanding. Without it, buyers who arrive from social content have no "show me what this does" answer.
+
+**Cursor can do:** TB-233 (storyboard — prerequisite, separate TB). TB-236 requires owner screen recording and voiceover.
+
+**Do not pick up:** This item requires the owner to record the video using a tool of their choice (see PQ-MKT-03, resolved V1.1). No Cursor implementation is possible until media is returned for description/caption pass.
+
+**Cross-ref:** TB-233 (storyboard prerequisite), PQ-MKT-03 resolved V1.1.
+
+---
+
+## TB-237 — Pricing page early-adopter framing
+
+**Source assessment:** `docs/assessments/Marketability_06022026.MD` §MKT-09
+**Priority:** P2
+**Size estimate:** XS
+
+**Problem:**
+
+The pricing page has tier grids but no framing that explains why the price is lower than expected. Buyers who ask "why is this so affordable?" mid-pilot either get no answer or get an internal explanation they shouldn't see. A 2-sentence buyer-facing early-adopter framing converts pricing transparency from a risk into a feature.
+
+**What to do:**
+
+```
+In archlucid-ui/src/app/(marketing)/pricing/ (or the relevant marketing pricing component):
+Find the pricing section and add a pricing philosophy note below the tier grid:
+
+"**Early adopter pricing.** Current prices reflect ArchLucid's early-access period.
+List prices are intentionally set at approximately 50% of fair value to reward
+early adopters who help us build our first reference cases. Prices will increase
+as we publish independent security attestations and customer case studies —
+your rate is locked for the life of your initial subscription."
+
+Also update PRICING_PHILOSOPHY.md §1 Pricing principles table with a new row:
+| **Transparent early-access framing** | Buyers who understand why the price is low are more likely to convert, not less. The discount stack is an honest early-adopter signal, not a distress indicator. |
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(marketing)/pricing/` (pricing component)
+- `docs/go-to-market/PRICING_PHILOSOPHY.md §1`
+
+**Cross-ref:** `PRICING_PHILOSOPHY.md §3.2` (Stripe Team checkout flag), `PRICING_PHILOSOPHY.md §4.1` (reference discount), TB-230 (GTM placeholder audit — coordinate on pricing page changes).
+
+---
+
+## TB-238 — Baseline capture prompt in pilot wizard
+
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-01
+**Priority:** P1
+**Size estimate:** S
+
+**Problem:**
+
+`POST /v1/register` optionally accepts `baselineReviewCycleHours` and `baselineReviewCycleSource`. `PilotBaselineRecord` persists them and `PilotRunDeltaComputer` uses them to compute before/after deltas. But the pilot wizard never prompts the operator for this data. Without a UI prompt, every first-value report defaults to "Defaulted" or "Low confidence" ROI labels — the weakest possible sponsor-facing output. The infrastructure is built; it just has no UI entry point.
+
+**What to do:**
+
+```
+Add a baseline capture step to the architecture request wizard.
+
+1. Locate the architecture request wizard in archlucid-ui (7-step flow — search for ArchitectureRequestWizard or similar).
+   After the workspace/project selection step and before the execution step, add a new optional step: "Baseline metrics (for ROI reporting)".
+
+2. The step should contain:
+   - A numeric input: "How many hours does a typical architecture review currently take your team (request to approved manifest)?"
+     Label: "Current review cycle time (hours)" · Placeholder: "e.g. 40"
+     Help text: "Used to calculate time savings in your first-value report. Leave blank to use industry defaults."
+   - A select: "How confident are you in this estimate?"
+     Options: "Very confident (measured)", "Somewhat confident (team estimate)", "Not sure (leave blank)"
+   - A "Skip" button that advances without submitting.
+
+3. On submit:
+   - If baseline hours > 0, call `PUT /v1/pilots/baselines` (verify endpoint per API_CONTRACTS.md):
+     `{ "baselineReviewCycleHours": <value>, "baselineReviewCycleSource": "<confidence label>" }`
+   - If skipped, do not call the endpoint.
+
+4. Add Vitest tests: baseline step renders with numeric input, skip advances without API call, submit calls baselines endpoint.
+
+5. Update docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md §Baseline to reference the new wizard step.
+```
+
+**Affected files / projects:**
+
+- Architecture request wizard component in `archlucid-ui`
+- `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`
+
+**Cross-ref:** `FirstValueReportBuilder.cs`, `PilotRunDeltaComputer.cs`, `PilotBaselineRecord`, `PILOT_ROI_MODEL.md §3.1 Baseline questions`.
+
+---
+
+## TB-239 — Executive ROI history run-mode label
+
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-02
+**Priority:** P1
+**Size estimate:** S
+
+**Problem:**
+
+`GET /v1/roi/executive-summary/history` aggregates 6-month savings without distinguishing Real vs Simulator execution mode. A tenant running 95% Simulator runs sees cosmetically impressive annualized savings that do not represent real LLM cost, real compliance exposure, or real governance evidence. A sponsor who opens the history trend before a renewal meeting may see numbers that are entirely Simulator-derived.
+
+**What to do:**
+
+```
+Add run-mode breakdown to the executive ROI history response.
+
+Backend:
+1. In `ExecutiveRoiHistoryPeriod` (search for `ExecutiveRoiHistoryPeriod` or `ExecutiveRoiHistoryResponse`), add:
+   - `int RealRunCount` — committed runs with ExecutionMode = Real
+   - `int SimulatorRunCount` — committed runs with ExecutionMode != Real
+   - `decimal RealModeSavingsUsd` — savings pro-rated to Real-mode runs (total × real/(real+sim))
+   - `bool IsMixedMode` — true when both Real and Simulator runs contributed
+
+2. In `IExecutiveRoiSummaryService.BuildHistoryAsync`, compute per-period mode breakdown from dbo.Runs.ExecutionMode.
+
+3. Add unit test: 3 Real + 2 Simulator → correct mode counts and pro-rated savings.
+
+Frontend:
+4. In the executive ROI history chart component:
+   - If `isMixedMode` for any period: footnote "Chart includes both Real and Simulator runs."
+   - Tooltip per bar: real count, simulator count, real-mode savings.
+   - `StatusTag "Simulator-only"` badge on periods where `realRunCount === 0`.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Roi/IExecutiveRoiSummaryService.cs`
+- `ExecutiveRoiHistoryPeriod` contract
+- Executive ROI history chart in `archlucid-ui`
+
+**Cross-ref:** `RoiController.cs` `/executive-summary/history`, `PILOT_SUCCESS_SCORECARD.md §2.4` (Operational metrics — Run success rate).
+
+---
+
+## TB-240 — Executive ROI surface data quality regression guard
+
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-03
+**Priority:** P1
+**Size estimate:** S
+
+**Problem:**
+
+TB-103 (orphan-candidate dual pipeline), TB-149 (waiver window inconsistency), TB-151/TB-152 (inverted/aliased fields on `ExecutiveSummaryResult`), and TB-155 (cache vs live divergence) are the four documented defects in the executive ROI summary surface. Once those fixes land, there is no regression guard that keeps them fixed. This TB adds logical invariant tests to prevent silent regression.
+
+**What to do:**
+
+```
+Create ArchLucid.Application.Tests/Roi/ExecutiveRoiSummaryInvariantTests.cs:
+
+Test 1 — FindingsReduced/FindingsAdded polarity (guards TB-151/TB-152):
+- Given two runs where run2 has fewer findings than run1
+- Assert ExecutiveSummaryResult.FindingsReduced > 0
+- Assert ExecutiveSummaryResult.FindingsAdded == 0
+
+Test 2 — WaiversExpiringWithin14Days consistency (guards TB-149):
+- Given a waiver expiring in 10 days
+- Assert GovernanceDecisionsNeededSummary.WaiversExpiringWithin14Days == 1
+- Assert ExecutiveSummaryResult waiver count agrees
+
+Test 3 — OrphanCandidateCount single source (guards TB-103):
+- Given a run with 3 orphan candidates from one pipeline only
+- Assert ExecutiveSummaryResult.OrphanCandidateCount == 3 (not 6 from two pipelines)
+
+Test 4 — Cache freshness (guards TB-155):
+- Given a new waiver decision written after cache is populated
+- Assert GetExecutiveSummaryAsync returns the updated count (cache invalidated)
+
+Add a comment in each test: `// Regression guard for TB-NNN — <summary of original defect>`.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Application.Tests/Roi/ExecutiveRoiSummaryInvariantTests.cs` (new)
+- No production code changes — guard only
+
+**Cross-ref:** TB-103, TB-149, TB-151, TB-152, TB-155 — this TB guards those fixes, does not implement them.
+
+---
+
+## TB-241 — Board-pack AI executive narrative
+
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-04
+**Priority:** P2
+**Size estimate:** M
+
+**Problem:**
+
+`GET /v1/roi/executive-summary/board-pack` generates structural markdown/PDF with no AI interpretation. A sponsor who receives the board pack gets raw tables without any contextual narrative. The difference between a data dump and a sponsor-ready document is 3–5 sentences that explain what the numbers mean in plain language. This is a direct AI leverage opportunity.
+
+**What to do:**
+
+```
+Add an optional AI executive narrative to the ROI board pack.
+
+Backend:
+1. Add config key `Roi:GenerateBoardPackNarrative` (default: false).
+2. In the board-pack generation path (PilotsBoardPackController.cs or RoiController.cs board-pack endpoint):
+   - When config is true, after assembling the structured data, call `IAgentCompletionClient` (ModelTier.Fast if TB-179 available, else default):
+     System: "You are an enterprise architecture advisor writing a 4-sentence executive summary for a board pack. Be concrete. Do not round up claims. Use the exact numbers provided."
+     User: JSON of { totalSavingsUsd, roiPercent, realRunCount, topFindingCategory, governanceComplianceRate, confidenceLabel }
+   - Prefix board-pack Markdown with the narrative under `## Executive summary`.
+   - If the LLM call fails, skip gracefully (structural content renders as normal).
+3. Add unit tests: config true → `## Executive summary` present; config false → absent; LLM failure → structural content only.
+
+Frontend:
+4. Add a toggle "Include AI executive summary (uses 1 Ask call)" to the board-pack download button (appends `?generateNarrative=true`).
+5. Show a loading spinner while the narrative generates (~2–4 seconds).
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Pilots/PilotsBoardPackController.cs` or `RoiController.cs`
+- Board-pack download component in `archlucid-ui`
+
+**Cross-ref:** TB-179 (multi-model tiering — fast-path prerequisite for cost safety), `AI_LEVERAGE_ROADMAP.md`.
+
+---
+
+## TB-242 — ROI model freshness CI guard
+
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-05
+**Priority:** P2
+**Size estimate:** XS
+
+**Problem:**
+
+`ROI_MODEL.md §8` states "last reviewed 2026-04-17" and references "locked 2026 prices" — now over 6 weeks stale. The §8.1 subscription cost table references `PRICING_PHILOSOPHY.md §5` but inline numbers may have drifted. A founder who presents the ROI model in a sponsor meeting using the inline numbers risks quoting prices that don't match the current order form.
+
+**What to do:**
+
+```
+1. Create scripts/ci/check_roi_model_freshness.py:
+   - Read docs/go-to-market/ROI_MODEL.md
+   - Extract the "Last reviewed:" date (regex: r"Last reviewed:\s+(\d{4}-\d{2}-\d{2})")
+   - If date is >90 days ago: print warning and exit 0 (warn only — non-blocking)
+   - If date is missing: print error and exit 0 (warn only)
+
+2. Add to .github/workflows/ci.yml as "Check ROI model freshness" warn-only step.
+
+3. Update docs/go-to-market/ROI_MODEL.md:
+   - Change "Last reviewed: 2026-04-17" to "Last reviewed: 2026-06-02"
+   - Add line after "Last reviewed": "Pricing reference: `PRICING_PHILOSOPHY.md §5` — verify §8–9 inline numbers match before any sponsor conversation."
+```
+
+**Affected files / projects:**
+
+- `scripts/ci/check_roi_model_freshness.py` (new)
+- `.github/workflows/ci.yml`
+- `docs/go-to-market/ROI_MODEL.md`
+
+**Cross-ref:** `check_reference_customer_status.py` (same pattern), `PRICING_PHILOSOPHY.md §5`.
+
+---
+
+## TB-243 — Sponsor proof delivery tracking event
+
+**Source assessment:** `docs/assessments/ProofOfROIReadiness_06022026.MD` §ROI-06
+**Priority:** P2
+**Size estimate:** S
+
+**Problem:**
+
+The product generates first-value PDFs and proof packages but has no record of whether the output was ever delivered to a sponsor. An operator who generates the PDF but never sends it is invisible. A `SponsorEvidencePackSentEvent` audit event after the operator explicitly marks evidence as sent would give the CS team an actionable signal: "proof generated but not delivered" vs "proof generated and delivered."
+
+**What to do:**
+
+```
+Add a sponsor proof delivery tracking event.
+
+Backend:
+1. Add `SponsorEvidencePackSent = 79` to `AuditEventType.cs` (or wherever the 78 typed audit events are defined).
+2. Create `POST /v1/pilots/runs/{runId}/sponsor-pack-sent` in `PilotsController.cs`:
+   - Optional body: `{ "recipientEmail": "optional", "deliveryMethod": "email|download|meeting" }`
+   - Validates run exists and is committed (409 if not committed)
+   - Writes `SponsorEvidencePackSent` audit event via `IAuditRepository`
+   - Returns 204 No Content
+3. Add unit tests: valid committed run → 204 + audit event written; uncommitted run → 409.
+
+Frontend:
+4. In `RunDetailFirstScreenProofStatus.tsx`, after "Download PDF" button:
+   - Add secondary button "Mark as sent to sponsor"
+   - On click: `POST /v1/pilots/runs/{runId}/sponsor-pack-sent` with `deliveryMethod: "email"`
+   - On success: show `StatusTag "Sent to sponsor"` with UTC timestamp
+   - On error: inline error toast (non-blocking)
+5. Vitest test: renders after download, calls endpoint on click, shows badge on success.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Auditing/AuditEventType.cs`
+- `ArchLucid.Api/Controllers/Pilots/PilotsController.cs`
+- `archlucid-ui/src/components/reviews/RunDetailFirstScreenProofStatus.tsx`
+
+**Cross-ref:** `IAuditRepository`, TB-228 (tenant health admin — `SponsorEvidencePackSent` feeds `OperatorStickinessSignals`), TB-225 (CS-06 RLS fix on snapshot reader).
+
+---
+
+## TB-215 — Evidence upload integrated into review wizard (P1)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
+**Problem:** The seven-step wizard creates a review but does not prompt for evidence upload. Evaluators who miss Phase C2 must circle back to the review-detail page to upload their Azure extractor ZIP — a discoverability gap that adds friction to the 15-minute path.
+
+**Cursor prompt:**
+```
+Add an optional evidence upload step to the architecture request wizard.
+
+1. In archlucid-ui/src/app/runs/new/ (locate the step components array or NewRunWizardClient.tsx), add a new optional step between the Preset step and Identity step: "Evidence (optional)".
+
+2. Step content:
+   - Heading: "Upload Azure evidence (optional)"
+   - Dropzone: drag-and-drop or browse for .zip files only.
+   - Help text: "Run the Azure extractor in your subscription to generate this file. See AZURE_EXTRACTOR.md."
+   - Link: "No evidence file? Use demo data instead — outputs will be labeled Simulator."
+   - Secondary button: "Skip and use demo data" — advances wizard without uploading.
+   - If a file is dropped, store it as pendingEvidenceFile in wizard state.
+
+3. After review is created (POST /v1/architecture/request returns runId), if pendingEvidenceFile is set, automatically upload it via POST /v1/azure-extractor/upload before navigating to the tracking step.
+
+4. If upload fails, show an inline error in the tracking step with a retry option — do not block review creation.
+
+5. Add Vitest tests: step renders dropzone; skip advances without upload; upload is called after review created when file is present; upload failure shows inline error without blocking.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/runs/new/` (wizard step components, `NewRunWizardClient.tsx` or equivalent)
+- `archlucid-ui/src/components/` (new `EvidenceUploadWizardStep.tsx` component)
+
+**Cross-ref:** TB-156 (API proxy startup diagnostics), `AZURE_EXTRACTOR.md`, `FIRST_PILOT_OPERATOR_PATH.md` Phase C2, TB-238 (wizard baseline capture — Proof-of-ROI).
+
+---
+
+## TB-216 — `archlucid try --sponsor-packet` one-shot command (P1)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
+**Problem:** `archlucid try` produces a committed run id but a sponsor-ready proof folder requires two additional commands (`pilot proof-packet <runId>` + manual directory review). A `--sponsor-packet` flag closes this to a single invocation.
+
+**Cursor prompt:**
+```
+Extend `archlucid try` to support a --sponsor-packet flag.
+
+In ArchLucid.Cli/Commands/ (find the try command — likely TryCommand.cs or equivalent):
+
+1. Add --sponsor-packet boolean flag (default false) and --out <dir> optional output directory (default: artifacts/try-sponsor-packet/<runId>).
+
+2. When --sponsor-packet is specified, after the review is committed:
+   a. Print "Generating sponsor proof packet…"
+   b. Call the same logic as pilot proof-packet <runId> --out <dir> (reuse PilotProofPacketCommand internals, do not duplicate).
+   c. Print the output directory path and: "Sponsor packet ready → <dir>/proof-summary.md"
+   d. Optionally open the directory (only when running interactively, guard with --no-open flag).
+
+3. Update docs/runbooks/FIRST_VALUE_20_MINUTES.md §Path step 3 to show the one-command alternative:
+   "Step 3 (combined): archlucid try --sponsor-packet --out artifacts/proof → proof-summary.md"
+
+4. Update docs/onboarding/EVALUATOR_WORKBOOK.md §First commands to show the combined command.
+
+5. Add a unit test: --sponsor-packet invokes proof-packet logic with the correct run id.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Cli/Commands/TryCommand.cs` (or equivalent)
+- `ArchLucid.Cli/Commands/PilotProofPacketCommand.cs`
+- `docs/runbooks/FIRST_VALUE_20_MINUTES.md`
+- `docs/onboarding/EVALUATOR_WORKBOOK.md`
+
+**Cross-ref:** `PilotProofPacketCommand`, `scripts/collect-first-pilot-proof.ps1`, TB-217 (demo seed preflight), TB-238 (wizard baseline capture).
+
+---
+
+## TB-217 — Demo seed auto-apply on startup when `Demo:AnonymousViewer:Enabled` (P1)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
+**Problem:** `DemoExplainController.cs` returns 404 when `POST /v1/demo/seed` has not been applied. In any freshly deployed demo environment the seed must be applied manually — a silent first-impression failure for buyers who visit `/demo/explain` before a human runs the seed command.
+
+**Cursor prompt:**
+```
+Auto-apply the demo seed on startup when Demo:AnonymousViewer:Enabled is true.
+
+1. In the API startup / hosted service pipeline (look for IHostedService registrations or startup background tasks):
+   Create DemoSeedStartupHostedService.cs:
+   - Reads Demo:AnonymousViewer:Enabled from IConfiguration.
+   - If true: calls IDemoSeedService.SeedAsync() (or the equivalent used by DemoController.cs).
+   - Logs "Demo seed applied on startup" at Information, or "Demo seed skipped (AnonymousViewer disabled)" when false.
+   - Catches and logs any seed failure at Warning without crashing startup — seed failure is non-fatal.
+   - Registers as AddHostedService<DemoSeedStartupHostedService>() in the composition root.
+
+2. Update docs/go-to-market/DEMO_WORKSPACES.md §Setup:
+   "When Demo:AnonymousViewer:Enabled = true, the Contoso seed is applied automatically on startup.
+   Manual POST /v1/demo/seed is no longer required."
+
+3. Add unit tests: calls seed when config is true; skips when false; logs but does not throw on seed failure.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/` (new `DemoSeedStartupHostedService.cs`)
+- `ArchLucid.Api/Program.cs` or composition root (service registration)
+- `docs/go-to-market/DEMO_WORKSPACES.md`
+
+**Cross-ref:** `DemoController.cs`, `DemoExplainController.cs`, `Demo:AnonymousViewer:Enabled` config, TB-218 (demo viewer CTA).
+
+---
+
+## TB-218 — Demo viewer "Start your own review" CTA (P2)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
+**Problem:** The anonymous demo viewer at `/demo/explain` shows committed demo data but has no forward CTA. A buyer who sees the demo and wants to proceed must manually navigate to `/runs/new` — the conversion path from passive demo viewer to active evaluator is unguided.
+
+**Cursor prompt:**
+```
+Add a "Start your own review" CTA to the demo explain page.
+
+In archlucid-ui, find the demo explain page component (/demo/explain route — search for DemoExplainController reference or the route in app/(marketing) or app/(operator)):
+
+1. At the bottom of the demo findings/artifacts view, add a sticky footer or prominently placed card:
+   - Heading: "Ready to run this on your own architecture?"
+   - Body: "Upload your Azure evidence file to get a review like this in about 15 minutes."
+   - Primary button: "Start a new review →" — navigates to /runs/new?preset=greenfield
+   - Secondary link: "See what you need first" — links to in-app help panel referencing EVALUATOR_WORKBOOK.md
+
+2. The CTA is visible without scrolling on desktop (sticky bottom bar or fixed bottom card).
+
+3. On mobile, the CTA collapses to a "Start your review" floating action button.
+
+4. Add a DemoExplainConversionCtaCard component with a Vitest test: renders CTA, primary button href is /runs/new?preset=greenfield.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/` (demo explain page — `/demo/explain` route component)
+- `archlucid-ui/src/components/DemoExplainConversionCtaCard.tsx` (new)
+
+**Cross-ref:** `DemoExplainController.cs`, TB-217 (demo seed preflight), TB-219 (wizard preset deep-link), `BUYER_ORIENTATION_ONE_SCREEN.md`.
+
+---
+
+## TB-219 — Wizard preset deep-link from self-qualification docs (P2)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
+**Problem:** `SHOULD_YOU_EVALUATE.md` Q4 routes buyers to "Start with Pilot" via a link to the UI root. An evaluator arrives at the homepage with no wizard pre-selection. Adding `?preset=greenfield` support to `/runs/new` allows external docs to carry evaluation context directly into the wizard step 1.
+
+**Cursor prompt:**
+```
+Add query param preset support to the wizard and update self-qualification links.
+
+1. In archlucid-ui/src/app/runs/new/ (or NewRunWizardClient.tsx), read searchParams.get("preset") on mount:
+   - "greenfield" → auto-select "Greenfield web app" preset (step 1)
+   - "modernize" → auto-select "Modernize legacy system"
+   - "blank" → auto-select "Blank (advanced)"
+   - Any other value or missing → show preset selection as normal (no auto-select)
+
+2. In docs/go-to-market/SHOULD_YOU_EVALUATE.md, update Q4 decision tree:
+   - "Start with Pilot" → link to /runs/new?preset=greenfield with text "Start with Pilot (pre-fills greenfield preset)"
+   - "Start with Operate" → unchanged (links to /governance)
+
+3. In docs/onboarding/EVALUATOR_WORKBOOK.md §Session flow step 1, add:
+   "Quick start: your-pilot-url/runs/new?preset=greenfield pre-fills the greenfield template."
+
+4. Add Vitest tests: ?preset=greenfield → greenfield preset selected on mount; missing/unknown param → no preset pre-selected.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/runs/new/` (wizard step 1 or `NewRunWizardClient.tsx`)
+- `docs/go-to-market/SHOULD_YOU_EVALUATE.md`
+- `docs/onboarding/EVALUATOR_WORKBOOK.md`
+
+**Cross-ref:** TB-218 (demo viewer CTA uses same `/runs/new?preset=greenfield` link), TB-169 (pilot-first progressive disclosure).
+
+---
+
+## TB-220 — Wizard-to-commit OTel histogram (P2)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
+**Problem:** `FIRST_VALUE_20_MINUTES.md` claims a 15-minute path to sponsor-safe artifact. This claim is aspirational — no OTel metric measures actual elapsed time from wizard submission to committed manifest. Without this data the ArchLucid team cannot verify the claim, identify where evaluators stall, or set a data-backed improvement target.
+
+**Cursor prompt:**
+```
+Add an OTel histogram for wizard-to-committed-manifest wall-clock time.
+
+Backend:
+1. In ArchitectureRequest (or the domain model for runs), add nullable string RequestSource. 
+   Wizard-created runs set this to "wizard". CLI runs set it to "cli" or leave null.
+   Update ArchitectureRequestDto and POST /v1/architecture/request to accept and persist requestSource.
+
+2. In the commit endpoint handler (POST /v1/architecture/run/{runId}/commit, likely in AuthorityController.cs or ArchitectureController.cs):
+   After a successful commit:
+   a. If run.RequestSource == "wizard", compute elapsed: committedUtc - run.CreatedAt (both UTC).
+   b. Record histogram: meter.CreateHistogram<double>("archlucid.pilot.wizard_to_committed_minutes", unit: "min", description: "Wall-clock minutes from wizard submit to first committed manifest")
+      Tags: execution_mode (Simulator/Real), preset_used (greenfield/modernize/blank/unknown)
+   c. Only record when both timestamps are available.
+
+Frontend:
+3. In the wizard's final submit step (NewRunWizardClient.tsx or equivalent), add "requestSource": "wizard" to the POST /v1/architecture/request body.
+
+Documentation:
+4. Add archlucid.pilot.wizard_to_committed_minutes to docs/library/OBSERVABILITY.md OTel metrics table.
+5. Add a row to PILOT_SUCCESS_SCORECARD.md §2.4 Operational metrics:
+   | Wizard-to-committed wall-clock | archlucid.pilot.wizard_to_committed_minutes | p50/p95 |
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Domain/` or `ArchLucid.Application/` (add `RequestSource` to run/request model)
+- `ArchLucid.Api/Controllers/` (commit endpoint — add histogram recording)
+- `archlucid-ui/src/app/runs/new/` (add `requestSource: "wizard"` to submit body)
+- `docs/library/OBSERVABILITY.md`
+- `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md`
+
+**Cross-ref:** TB-215 (wizard evidence upload — both touch wizard submit), TB-216 (`archlucid try --sponsor-packet` — related TTV measurement), `FIRST_VALUE_20_MINUTES.md`.
 
 ---

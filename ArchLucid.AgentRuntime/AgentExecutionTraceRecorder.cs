@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -147,6 +148,13 @@ public sealed class AgentExecutionTraceRecorder(
             ? AgentExecutionTraceModelMetadata.UnspecifiedModelVersion
             : modelVersion.Trim();
 
+        string systemPromptContentSha256 = string.IsNullOrWhiteSpace(promptRepro?.SystemPromptContentSha256Hex)
+            ? AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(systemPrompt)
+            : promptRepro.SystemPromptContentSha256Hex;
+
+        string systemPromptContentHash =
+            AgentPromptCanonicalHasher.ContentHashPrefix16FromSha256Hex(systemPromptContentSha256);
+
         string storeSystem = systemPrompt;
         string storeUser = userPrompt;
         string storeRaw = rawResponse;
@@ -177,7 +185,8 @@ public sealed class AgentExecutionTraceRecorder(
             FailureReasonCode = failureReasonCode,
             PromptTemplateId = promptRepro?.TemplateId,
             PromptTemplateVersion = promptRepro?.TemplateVersion,
-            SystemPromptContentSha256 = promptRepro?.SystemPromptContentSha256Hex,
+            SystemPromptContentSha256 = systemPromptContentSha256,
+            SystemPromptContentHash = systemPromptContentHash,
             PromptReleaseLabel = promptRepro?.ReleaseLabel,
             InputTokenCount = inputTokenCount,
             OutputTokenCount = outputTokenCount,

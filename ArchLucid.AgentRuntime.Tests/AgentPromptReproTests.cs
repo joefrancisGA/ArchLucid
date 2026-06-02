@@ -12,6 +12,27 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class AgentPromptReproTests
 {
     [SkippableFact]
+    public void ContentHashPrefix16_same_prompt_same_hash()
+    {
+        const string prompt = "You are the ArchLucid Topology Agent.";
+
+        AgentPromptCanonicalHasher.ContentHashPrefix16(prompt)
+            .Should()
+            .Be(AgentPromptCanonicalHasher.ContentHashPrefix16(prompt));
+    }
+
+    [SkippableFact]
+    public void ContentHashPrefix16_one_character_change_produces_different_hash()
+    {
+        const string promptA = "You are the ArchLucid Topology Agent.";
+        const string promptB = "You are the ArchLucid Topology Agents.";
+
+        AgentPromptCanonicalHasher.ContentHashPrefix16(promptA)
+            .Should()
+            .NotBe(AgentPromptCanonicalHasher.ContentHashPrefix16(promptB));
+    }
+
+    [SkippableFact]
     public void CanonicalHasher_ignores_crlf_vs_lf()
     {
         const string a = "line1\nline2";

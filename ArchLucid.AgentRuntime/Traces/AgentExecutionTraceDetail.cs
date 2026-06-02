@@ -62,6 +62,12 @@ public sealed class AgentExecutionTraceDetail
         set;
     }
 
+    public string? SystemPromptContentHash
+    {
+        get;
+        set;
+    }
+
     public string? PromptReleaseLabel
     {
         get;
@@ -143,6 +149,7 @@ public sealed class AgentExecutionTraceDetail
             PromptTemplateId = trace.PromptTemplateId,
             PromptTemplateVersion = trace.PromptTemplateVersion,
             SystemPromptContentSha256 = trace.SystemPromptContentSha256,
+            SystemPromptContentHash = trace.SystemPromptContentHash,
             PromptReleaseLabel = trace.PromptReleaseLabel,
             FullSystemPromptBlobKey = trace.FullSystemPromptBlobKey,
             FullUserPromptBlobKey = trace.FullUserPromptBlobKey,
@@ -170,6 +177,7 @@ public sealed class AgentExecutionTraceDetail
         trace.PromptTemplateId = PromptTemplateId;
         trace.PromptTemplateVersion = PromptTemplateVersion;
         trace.SystemPromptContentSha256 = SystemPromptContentSha256;
+        trace.SystemPromptContentHash = SystemPromptContentHash;
         trace.PromptReleaseLabel = PromptReleaseLabel;
         trace.FullSystemPromptBlobKey = FullSystemPromptBlobKey;
         trace.FullUserPromptBlobKey = FullUserPromptBlobKey;
