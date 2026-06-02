@@ -306,6 +306,34 @@ export function SidebarNav() {
     setNavDisclosurePathOverride(false);
   }, [pathname]);
 
+  // Reload with persisted "Show all features" must restore full progressive disclosure, not only the pilot filter.
+  useEffect(() => {
+    if (demoUi || buyerPolishedShell || !mounted) {
+      return;
+    }
+
+    if (!navAllFeaturesExpanded) {
+      return;
+    }
+
+    if (!showExtended) {
+      setShowExtended(true);
+    }
+
+    if (!showAdvanced) {
+      setShowAdvanced(true);
+    }
+  }, [
+    buyerPolishedShell,
+    demoUi,
+    mounted,
+    navAllFeaturesExpanded,
+    showAdvanced,
+    showExtended,
+    setShowAdvanced,
+    setShowExtended,
+  ]);
+
   function setGroupOpen(groupId: string, value: boolean): void {
     setOpenByGroup((prev) => ({ ...prev, [groupId]: value }));
 
@@ -759,9 +787,11 @@ export function SidebarNav() {
               setNavAllFeaturesExpanded(next);
 
               if (next) {
-                // Expanding: save the current preset so we can restore it on collapse,
-                // then upgrade to full so the newly-revealed links aren't stripped by the preset filter.
+                // Expanding: one-click full sidebar — tiers, preset, and first-run path suppression.
+                setNavDisclosurePathOverride(true);
                 setPreExpandPresetId(shellPresetId);
+                setShowExtended(true);
+                setShowAdvanced(true);
 
                 if (effectiveShellPresetId !== "full") {
                   persistShellPreset("full");
@@ -769,6 +799,10 @@ export function SidebarNav() {
               } else {
                 // Collapsing: restore the preset that was active before expansion so
                 // "Fewer sidebar links" actually removes links rather than doing nothing.
+                setNavDisclosurePathOverride(false);
+                setShowExtended(false);
+                setShowAdvanced(false);
+
                 if (shellPresetId === "full") {
                   persistShellPreset(preExpandPresetId);
                 }
@@ -856,8 +890,11 @@ export function SidebarNav() {
           <Settings2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
           Sidebar layout
         </Button>
-        {mounted && shellPresetId !== "full" && !buyerPolishedShell ? (
-          <p className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200">
+        {mounted && shellPresetId !== "full" && !buyerPolishedShell && !navAllFeaturesExpanded ? (
+          <p
+            className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-700 dark:text-neutral-200"
+            data-testid="sidebar-nav-preset-hint"
+          >
             Navigation preset ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}) hides some links.{" "}
             <strong className="font-semibold text-neutral-900 dark:text-neutral-50">Show all features</strong> switches to
             Full navigator; or open{" "}
@@ -868,6 +905,7 @@ export function SidebarNav() {
           </p>
         ) : null}
 
+        {!navAllFeaturesExpanded ? (
         <Button
           type="button"
           variant="outline"
@@ -897,6 +935,7 @@ export function SidebarNav() {
             ? NAV_DISCLOSURE.advancedOperationsSidebar.hide
             : NAV_DISCLOSURE.advancedOperationsSidebar.show}
         </Button>
+        ) : null}
       </div>
       ) : null}
 
