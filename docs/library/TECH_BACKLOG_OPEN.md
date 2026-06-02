@@ -8,6 +8,7 @@
 
 | Cluster | IDs |
 | --- | --- |
+| Cross-tenant isolation test matrix | **TB-078** |
 | Architecture.Tests gap closure | **TB-030** |
 | Backfill / jobs operational hardening | **TB-085** – **TB-090** |
 | Tenancy defense-in-depth | **TB-076**, **TB-077** |
@@ -23,9 +24,7 @@
 
 ## P1 — security / tenancy (next engineering batch)
 
-| ID | Title |
-| --- | --- |
-| TB-078 | Cross-tenant isolation integration test matrix (residual wiring) |
+_(None — TB-071–TB-078 closed; see architecture stragglers below.)_
 
 ## Real-mode / eval (owner or credentialed CI)
 

@@ -3759,7 +3759,7 @@ Residual risk in **SingleCatalog** / dev if run gate is skipped or connection ta
 
 ## TB-078 — Cross-tenant isolation integration test matrix
 
-**Status (2026-05-31):** **Done (V1 matrix)** — snapshot IDOR (`SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `ScopedSnapshotReadIdorIntegrationTests`); indexing scope (`RetrievalIndexingScopeValidatorTests`); ApiKey/header binding (`ScopeIdentityBindingIntegrationTests`); Azure Search OData filter unit tests (`AzureSearchTenantScopeFilterBuilderTests`).
+**Status (2026-06-01, Batch 5E):** **Done** — V1 matrix tests (persistence snapshot IDOR, API scope/IDOR, retrieval indexing + Azure Search filter); CI drift guard `test_cross_tenant_isolation_matrix_batch.py`; pen-test runbook cross-ref in [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md).
 
 **Source:** Multi-tenancy and blast-radius audit (2026-05-27). `TenantIsolationSmokeTests` cover API + SQL under header-scoped isolation but not several audit-identified gaps.
 

@@ -38,6 +38,18 @@ Explicit **out-of-scope** items remain vendor platform pen-test ownership (Azure
 4. **RBAC / policy boundary fuzzing** — attempt cross-role access with representative JWT + API-key principals.
 5. **RLS bypass attempts** — confirm fail-closed scope application on tenant-scoped tables per documented session context rules.
 
+## Automated isolation regression matrix (TB-078)
+
+Owner pen-test manual probes should align with the CI-backed **V1 cross-tenant isolation matrix**:
+
+| Layer | Representative tests |
+| --- | --- |
+| Persistence (SingleCatalog IDOR) | `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `SqlContextSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `SqlGraphSnapshotRepositoryScopeIsolationSqlIntegrationTests` |
+| API ingress / scope binding | `ScopedSnapshotReadIdorIntegrationTests`, `ScopeIdentityBindingIntegrationTests`, `TenantIsolationSmokeTests` |
+| Retrieval write + search filter | `RetrievalIndexingScopeValidatorTests`, `AzureSearchTenantScopeFilterBuilderTests` |
+
+Drift guard: `scripts/ci/tests/test_cross_tenant_isolation_matrix_batch.py` (CI **Cross-tenant isolation matrix drift guards**). Evidence rollup: `python scripts/ci/report_tenant_retrieval_boundary_proof.py`.
+
 ## Tools
 
 | Tool | Role |

@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 80.34%
+# ArchLucid Assessment – (A) Headline Readiness: 80.42%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-01.
 
-Rescore note: Through **80.24%** (5C); batch **5D TB-011/TB-030** INV-004/012/013 architecture guards + Architecture.Tests gap closure → **80.34%** (+1 Architectural Integrity, +1 Correctness capped). G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
+Rescore note: Through **80.34%** (5D); batch **5E TB-078** cross-tenant isolation matrix CI wiring + pen-test cross-ref → **80.42%** (+1 Trustworthiness capped). G-REAL/TB-140 owner-blocked; **TB-170 (docs)** links separate.
 
 ## Executive Summary
 
@@ -58,7 +58,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Executive Value Visibility | 78 | 4 | 2.69% | 88 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
-| Trustworthiness | 80 | 3 | 2.05% | 63 |
+| Trustworthiness | 81 | 3 | 2.08% | 57 |
 | Interoperability | 66 | 2 | 1.14% | 68 |
 | Architectural Integrity | 82 | 3 | 2.10% | 54 |
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
