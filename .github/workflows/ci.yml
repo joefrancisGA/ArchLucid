@@ -403,6 +403,9 @@ jobs:
       - name: Adoption batch 5AD drift guards (TB-216)
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ad.py"
 
+      - name: Adoption batch 5AE drift guards (TB-217)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ae.py"
+
       - name: Hot path performance budgets guard
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 

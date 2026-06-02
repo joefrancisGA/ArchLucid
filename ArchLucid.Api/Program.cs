@@ -95,6 +95,7 @@ public partial class Program
         builder.Services.Configure<ArchitectureRunCreationPayloadLimitsOptions>(
             builder.Configuration.GetSection(ArchitectureRunCreationPayloadLimitsOptions.SectionName));
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
+        builder.Services.AddHostedService<DemoSeedStartupHostedService>();
 
         if (hostingRole == ArchLucidHostingRole.Api)
         {

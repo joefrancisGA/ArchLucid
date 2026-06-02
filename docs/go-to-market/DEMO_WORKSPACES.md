@@ -16,6 +16,14 @@
 
 ---
 
+## Setup (anonymous demo viewer)
+
+When **`Demo:AnonymousViewer:Enabled = true`**, the Contoso trusted-baseline seed is applied automatically on API startup (`DemoSeedStartupHostedService`). A fresh demo host serves **`GET /v1/demo/explain`** without a manual **`POST /v1/demo/seed`** or **`archlucid try`** first. Seed failure is logged at **Warning** and does **not** crash startup — retry with the manual seed endpoint if `/demo/explain` still returns 404.
+
+Requires **`Demo:Enabled = true`** alongside **`Demo:AnonymousViewer:Enabled`**. Development compose stacks may also seed via **`Demo:SeedOnStartup`** (see **[`DEMO_QUICKSTART.md`](DEMO_QUICKSTART.md)**); both paths are idempotent.
+
+---
+
 ## Staging / production URLs (patterns and owner-owned hosts)
 
 Repositories **must not bake in** unpublished customer hostnames. Use this pattern everywhere; release managers paste the **`{OPERATOR_ORIGIN}`** your environment actually serves (matching operator UI HTTPS origin).
