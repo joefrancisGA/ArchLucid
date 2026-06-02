@@ -8,7 +8,8 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
-import { askArchLucidStream, getConversationMessages, listConversationThreads } from "@/lib/conversation-api";
+import { getConversationMessages, listConversationThreads } from "@/lib/conversation-api";
+import { useAskStream } from "@/hooks/useAskStream";
 import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -36,7 +37,12 @@ export function AskPageContent() {
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
-  const [streamingAssistantContent, setStreamingAssistantContent] = useState<string | null>(null);
+  const {
+    tokens: streamingAssistantContent,
+    isStreaming: askStreaming,
+    ask: askStream,
+    reset: resetAskStream,
+  } = useAskStream();
   const [compareOpen, setCompareOpen] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
@@ -196,7 +202,7 @@ export function AskPageContent() {
     }
 
     setLoading(true);
-    setStreamingAssistantContent("");
+    resetAskStream();
     const pendingUserMessage: ConversationMessage = {
       messageId: `pending-user-${Date.now()}`,
       threadId: tid || "pending",
@@ -208,45 +214,34 @@ export function AskPageContent() {
     setMessages((previous) => [...previous, pendingUserMessage]);
 
     try {
-      const result = await askArchLucidStream(
-        {
-          threadId: tid || undefined,
-          runId: rid || undefined,
-          question: q,
-          baseRunId: useCompare ? base : undefined,
-          targetRunId: useCompare ? target : undefined,
-        },
-        {
-          onToken: (text) => {
-            setStreamingAssistantContent((previous) => (previous ?? "") + text);
-          },
-          onDone: (response) => {
-            setSelectedThreadId(response.threadId);
-            setStreamingAssistantContent(null);
-          },
-          onError: (detail) => {
-            setStreamingAssistantContent(null);
-            setActionFailure(uiFailureFromMessage(detail));
-          },
-        },
-      );
+      const { response: result, error: streamError } = await askStream({
+        threadId: tid || undefined,
+        runId: rid || undefined,
+        question: q,
+        baseRunId: useCompare ? base : undefined,
+        targetRunId: useCompare ? target : undefined,
+      });
 
       if (result === null) {
         setMessages((previous) => previous.filter((m) => m.messageId !== pendingUserMessage.messageId));
+        setActionFailure(
+          uiFailureFromMessage(streamError ?? "Ask stream did not complete. Try again or check your connection."),
+        );
 
         return;
       }
 
+      setSelectedThreadId(result.threadId);
       setQuestion("");
       await loadThreads();
       await loadMessages(result.threadId);
     } catch (e) {
-      setStreamingAssistantContent(null);
+      resetAskStream();
       setMessages((previous) => previous.filter((m) => m.messageId !== pendingUserMessage.messageId));
       setActionFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
-      setStreamingAssistantContent(null);
+      resetAskStream();
     }
   }
 
@@ -325,7 +320,7 @@ export function AskPageContent() {
   const listDateFormatter = isBuyerPolishedOperatorShellEnv()
     ? formatConversationListDatePolished
     : formatConversationListDate;
-  const askDisabled = loading || question.trim().length === 0 || runMissing;
+  const askDisabled = loading || askStreaming || question.trim().length === 0 || runMissing;
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
   const showPostAssistantFollowUps =
     buyerPolishedShell &&
@@ -413,12 +408,12 @@ export function AskPageContent() {
           showRunDeepLinkPrompts={showRunDeepLinkPrompts}
           runMissing={runMissing}
           onMergePromptLine={mergePromptLine}
-          loading={loading}
+          loading={loading || askStreaming}
           askDisabled={askDisabled}
           onAsk={onAsk}
           actionFailure={actionFailure}
           messages={messages}
-          streamingAssistantContent={streamingAssistantContent}
+          streamingAssistantContent={streamingAssistantContent.length > 0 ? streamingAssistantContent : null}
           askAssistantGroundingLinks={askAssistantGroundingLinks}
           showPostAssistantFollowUps={showPostAssistantFollowUps}
         />

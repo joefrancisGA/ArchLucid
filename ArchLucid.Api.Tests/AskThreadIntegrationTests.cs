@@ -24,7 +24,7 @@ public sealed class AskThreadIntegrationTests
 
     private static HttpClient CreateScopedClient(AlertLifecycleWebAppFactory factory)
     {
-        HttpClient client = CreateScopedClient(factory);
+        HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         return client;
