@@ -63,6 +63,27 @@ def test_score_committed_agent_result_invalid_json_is_parse_failure():
     assert float(scored["structural_ratio"]) == pytest.approx(0.0)
 
 
+def test_meets_expected_honors_message_field_on_recordings():
+    mod = _load_eval_agent_corpus()
+    actual = [
+        {
+            "category": "Topology",
+            "severity": "Medium",
+            "message": "App Service is not configured to use Managed Identity for Key Vault access.",
+        },
+    ]
+    rule = {
+        "category": "Topology",
+        "minimumSeverity": "Medium",
+        "evidenceMustContain": ["managed identity", "key vault"],
+    }
+
+    ok, who = mod._meets_expected(actual, rule)
+
+    assert ok is True
+    assert who
+
+
 def test_evaluate_quality_evidence_real_mode_skips_when_env_unset(monkeypatch):
     mod = _load_eval_agent_corpus()
     monkeypatch.delenv("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", raising=False)

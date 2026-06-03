@@ -65,11 +65,13 @@ def _norm_severity(raw: str | None) -> int:
 
 
 def _combined_text(finding: Mapping[str, Any]) -> str:
+    # Recordings use `detail` (most scenarios) or `message` (legacy/azure-saas slice).
     parts = [
         str(finding.get("category") or ""),
         str(finding.get("severity") or ""),
         str(finding.get("title") or ""),
         str(finding.get("detail") or ""),
+        str(finding.get("message") or ""),
     ]
     blob = " ".join(parts)
     return blob.strip().lower()
