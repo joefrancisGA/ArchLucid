@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Diagnostics;
@@ -17,6 +18,8 @@ using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Models;
 
 using ArchLucid.Retrieval.Chunking;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Services.Ask;
 
@@ -36,8 +39,12 @@ public sealed class AskService(
     IRetrievalQueryService retrievalQuery,
     IRetrievalDocumentBuilder retrievalDocumentBuilder,
     IRetrievalIndexingService retrievalIndexingService,
+    IOptionsMonitor<AskComparisonNarrativeOptions> askComparisonNarrativeOptions,
     ILogger<AskService> logger) : IAskService
 {
+    private readonly IOptionsMonitor<AskComparisonNarrativeOptions> _askComparisonNarrativeOptions =
+        askComparisonNarrativeOptions ?? throw new ArgumentNullException(nameof(askComparisonNarrativeOptions));
+
     private const int HistoryTake = 40;
 
     private static readonly JsonSerializerOptions JsonRead = new()
@@ -112,6 +119,7 @@ public sealed class AskService(
         ArgumentNullException.ThrowIfNull(onAnswerTokenAsync);
 
         AskPreparedContext prepared = await PrepareAskContextAsync(request, scope, ct);
+        string? comparisonNarrative = await TryBuildComparisonNarrativeAsync(prepared, ct);
         string userPrompt = BuildUserPrompt(prepared);
         StreamingJsonAnswerExtractor extractor = new();
 
@@ -142,10 +150,16 @@ public sealed class AskService(
             logger.LogWarning(ex, "LLM streaming failed for Ask (ThreadId={ThreadId}); returning fallback response.",
                 LogSanitizer.Sanitize(prepared.Thread.ThreadId.ToString()));
 
-            return await PersistFallbackResponseAsync(prepared, ct);
+            AskResponse streamFallback = await PersistFallbackResponseAsync(prepared, ct);
+            streamFallback.ComparisonNarrative = comparisonNarrative;
+
+            return streamFallback;
         }
 
-        return await FinalizeAskResponseAsync(prepared, raw, ct);
+        AskResponse streamResponse = await FinalizeAskResponseAsync(prepared, raw, ct);
+        streamResponse.ComparisonNarrative = comparisonNarrative;
+
+        return streamResponse;
     }
 
     /// <inheritdoc />
@@ -353,12 +367,21 @@ public sealed class AskService(
 
     private async Task<string?> TryBuildComparisonNarrativeAsync(AskPreparedContext prepared, CancellationToken ct)
     {
+        if (!_askComparisonNarrativeOptions.CurrentValue.GenerateComparisonNarrative)
+            return null;
+
         if (!prepared.BaseRunId.HasValue || !prepared.TargetRunId.HasValue || prepared.ComparisonResult is null)
+            return null;
+
+        ComparisonNarrativeSummaryBuilder.ComparisonNarrativeSummary summary =
+            ComparisonNarrativeSummaryBuilder.Build(prepared.ComparisonResult);
+
+        if (summary.TotalDeltaCount <= 0)
             return null;
 
         string userPrompt =
             "Structured comparison delta JSON:\n" +
-            JsonSerializer.Serialize(prepared.ComparisonResult, ContractJson.CamelCaseIgnoreNullCompact);
+            JsonSerializer.Serialize(summary, ContractJson.CamelCaseIgnoreNullCompact);
 
         try
         {

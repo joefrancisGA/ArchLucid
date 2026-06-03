@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 82.67%
+# ArchLucid Assessment – (A) Headline Readiness: 82.77%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **82.62%** (5AK); batch **5AL TB-239** (executive ROI history run-mode label on trend chart) → **82.67%** (+1 Proof-of-ROI). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **82.67%** (5AL); batches **5AN TB-240** (executive ROI invariant regression guards) and **5AM TB-224** (AI compare narrative on compare + Ask) → **82.77%** (+1 Proof-of-ROI, +1 Stickiness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -53,7 +53,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Stickiness | 74 | 6 | 3.83% | 156 |
 | Time-to-Value | 86 | 7 | 5.19% | 98 |
 | Marketability | 85 | 8 | 5.86% | 120 |
-| Proof-of-ROI Readiness | 78 | 5 | 3.36% | 110 |
+| Proof-of-ROI Readiness | 79 | 5 | 3.41% | 105 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
 | Executive Value Visibility | 78 | 4 | 2.69% | 88 |
 | Usability | 72 | 3 | 1.86% | 84 |
@@ -137,9 +137,9 @@ Classification: Fixable in v1.
 
 ### Stickiness
 
-Score: 74. Weight: 6. Weighted impact: 3.83%. Weighted deficiency signal: 156.
+Score: 75. Weight: 6. Weighted impact: 3.88%. Weighted deficiency signal: 150.
 
-Justification: Stickiness is supported by repeat reviews, compare, replay, graph, governance, audit, policy packs, executive ROI summary, learning signals, and proof workflows. Batch **5AK** closes **TB-223** — `/governance/dashboard` now surfaces `GET /v1/governance/decisions-needed-summary` as a six-tile **Decisions needed** KPI card (parallel fetch, 30-second refresh, empty state, waiver-expiry caution accent) so operators see open governance actions without drilling into APIs. The gap is that recurring operating habits are not yet fully closed in the product UI: RAG grounding, tool calls, run-level remediation, and recurring review safety are still backlog items.
+Justification: Stickiness is supported by repeat reviews, compare, replay, graph, governance, audit, policy packs, executive ROI summary, learning signals, and proof workflows. Batch **5AK** closes **TB-223** — `/governance/dashboard` now surfaces `GET /v1/governance/decisions-needed-summary` as a six-tile **Decisions needed** KPI card (parallel fetch, 30-second refresh, empty state, waiver-expiry caution accent) so operators see open governance actions without drilling into APIs. Batch **5AM** closes **TB-224** — compare loads an optional **✦ AI narrative** via `POST /v1/ask` (`ComparisonNarrative` on `AskResponse`, gated by `Ask:GenerateComparisonNarrative`, compact delta JSON prompt) so run-to-run deltas read as progress reports instead of spreadsheet diffs. The gap is that recurring operating habits are not yet fully closed in the product UI: RAG grounding, tool calls, run-level remediation, and recurring review safety are still backlog items.
 
 Tradeoffs: V1 can sell the first review without a complete operating loop. Retention and expansion need the product to become a weekly architecture habit, not just a report generator.
 
@@ -173,9 +173,9 @@ Classification: v1 for copy/proof discipline; public references and market-facin
 
 ### Proof-of-ROI Readiness
 
-Score: 78. Weight: 5. Weighted impact: 3.36%. Weighted deficiency signal: 110.
+Score: 79. Weight: 5. Weighted impact: 3.41%. Weighted deficiency signal: 105.
 
-Justification: ROI model, scorecard, first-value reports, executive ROI summary, pilot deltas, and ROI basis labels exist. Batch **5AJ** closes **TB-238** — the full architecture wizard adds an optional **Baseline metrics** step that persists review-cycle hours via `PUT /v1/tenant/baseline` (with confidence note and skip) so first-value reports can label ROI inputs **buyer-provided** instead of defaulting to low-confidence placeholders. Batch **5AL** closes **TB-239** — `GET /v1/roi/executive-summary/history` now returns per-period `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, and `IsMixedMode` (pro-rated from `StructuralExecutionMode`); the executive ROI trend chart shows mixed-mode footnote, per-bar tooltips, and a **Simulator-only** badge when a month has no Real runs. Remaining weakness: multiple KPI/waiver/cost fields still need canonicalization (**TB-240** regression guard and broader KPI unification).
+Justification: ROI model, scorecard, first-value reports, executive ROI summary, pilot deltas, and ROI basis labels exist. Batch **5AJ** closes **TB-238** — the full architecture wizard adds an optional **Baseline metrics** step that persists review-cycle hours via `PUT /v1/tenant/baseline` (with confidence note and skip) so first-value reports can label ROI inputs **buyer-provided** instead of defaulting to low-confidence placeholders. Batch **5AL** closes **TB-239** — `GET /v1/roi/executive-summary/history` now returns per-period `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, and `IsMixedMode` (pro-rated from `StructuralExecutionMode`); the executive ROI trend chart shows mixed-mode footnote, per-bar tooltips, and a **Simulator-only** badge when a month has no Real runs. Batch **5AN** closes **TB-240** — `ExecutiveRoiSummaryInvariantTests` regression-guards TB-151/152 executive summary mapping, TB-149 waiver window parity with decisions-needed, TB-103 orphan single-pipeline counting, and TB-155 live waiver refresh over cached ROI. Remaining weakness: broader KPI canonicalization across all executive surfaces.
 
 Tradeoffs: ROI humility protects trust but weakens sales punch until actual pilot data is captured.
 

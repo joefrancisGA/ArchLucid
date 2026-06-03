@@ -86,6 +86,8 @@ public static partial class ServiceCollectionExtensions
         RegisterRunExplanationSummaryService(services, configuration);
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<ArchLucid.Core.Llm.IAgentCompletionClient, JsonCompletionClientAdapter>();
+        services.Configure<AskComparisonNarrativeOptions>(
+            configuration.GetSection(AskComparisonNarrativeOptions.SectionPath));
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IPreCommitGovernanceBlockExplainer, PreCommitGovernanceBlockExplainer>();
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();

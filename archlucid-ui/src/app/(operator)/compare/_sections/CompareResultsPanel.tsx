@@ -283,7 +283,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             data-testid="compare-ask-narrative-banner"
           >
             <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-200">
-              Architecture comparison narrative
+              ✦ AI narrative
             </p>
             <p className="m-0 whitespace-pre-wrap">{comparisonNarrative}</p>
           </div>

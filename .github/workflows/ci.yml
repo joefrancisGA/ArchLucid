@@ -3,7 +3,7 @@
 #   Tier 0.x â€” OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
 #               Runs parallel with Terraform validate; dotnet-fast-core needs it â†’ drift fails before corset guards.
 #   Tier 0.9 — guards-pre-corset (text/Python guards; no solution build)
-#   Tier 1 — .NET fast core (corset): restore, build, Suite=Core tests (SBOM/coverage HTML in Tier 1.0)
+#   Tier 1 — .NET fast core (corset): build once + parallel Suite=Core test shards (SBOM/coverage HTML in Tier 1.0)
 #   Tier 1.0 — dotnet-fast-core-artifacts (full CI): CycloneDX SBOM + ReportGenerator from corset Cobertura
 #   Tier 1a â€” Named agent gates (branch protection): prompt-injection regression (Python + dotnet test);
 #             offline agent regression (eval corpus + prompt JSON baseline); parallel after gitleaks
@@ -426,6 +426,12 @@ jobs:
 
       - name: Adoption batch 5AL drift guards (TB-239)
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5al.py"
+
+      - name: Adoption batch 5AN drift guards (TB-240)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5an.py"
+
+      - name: Adoption batch 5AM drift guards (TB-224)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5am.py"
 
       - name: Hot path performance budgets guard
         run: python scripts/ci/assert_hot_path_performance_budgets.py
@@ -1086,8 +1092,8 @@ jobs:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
         run: bash scripts/ci/run_guards_pre_corset.sh
 
-  dotnet-fast-core:
-    name: ".NET: fast core (corset)"
+  dotnet-fast-core-build:
+    name: ".NET: fast core — build"
     needs:
       - gitleaks
       - doc-markdown-links
@@ -1099,8 +1105,7 @@ jobs:
       - terraform-validate-public-stacks
       - guards-pre-corset
     runs-on: ubuntu-latest
-    # Suite=Core + coverlet on a cold runner often exceeds 60m; 120m avoids false timeouts (build + test in one job).
-    timeout-minutes: 120
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v5
         with:
@@ -1120,43 +1125,99 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Restore
-        run: dotnet restore ArchLucid.sln
+      - name: Cache Release obj + NuGet (for parallel test shards)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            **/obj
+          key: corset-build-${{ github.sha }}-${{ hashFiles('Directory.Packages.props', 'global.json') }}
+          restore-keys: |
+            corset-build-${{ hashFiles('Directory.Packages.props', 'global.json') }}-
 
-      - name: Vulnerable package audit (block High/Critical only)
-        run: python3 scripts/ci/assert_nuget_no_high_critical_vulnerabilities.py
+      - name: Restore, audit, build, CLI config lint
+        run: bash scripts/ci/run_dotnet_fast_core_build.sh
 
-      - name: NuGet vulnerability gate unit tests
-        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_nuget_no_high_critical_vulnerabilities.py"
+  dotnet-fast-core-test:
+    name: ".NET: fast core — test (${{ matrix.shard_label }})"
+    needs: dotnet-fast-core-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard_id: api
+            shard_label: Api.Tests
+          - shard_id: host-application
+            shard_label: Application + runtime + host
+          - shard_id: data-core
+            shard_label: Core + persistence stack
+          - shard_id: surface-misc
+            shard_label: Contracts + integrations + misc
+    steps:
+      - uses: actions/checkout@v5
 
-      - name: Build (Release)
-        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
 
-      - name: CLI â€” config lint (auth traps only; avoids production-like overlays)
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-        run: dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --no-build -c Release -- config lint
-      # Prompt-injection executable regression + eval corpus live in dedicated jobs (ci-agent-prompt-injection-regression,
-      # ci-agent-offline-regression) so branch protection can require them by exact check name.
+      - name: Restore cached Release obj + NuGet
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            **/obj
+          key: corset-build-${{ github.sha }}-${{ hashFiles('Directory.Packages.props', 'global.json') }}
+          restore-keys: |
+            corset-build-${{ hashFiles('Directory.Packages.props', 'global.json') }}-
+
+      - name: Rebuild solution (incremental from cache)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
       # OpenApiContractSnapshotTests excluded via DOTNET_FAST_CORE_TEST_FILTER; job openapi-contract-snapshot already gates drift.
-      # ArchLucid.Api.Client regenerates from that CI baseline snapshot on build (NSwag); Generated/ is gitignored.
-      # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
-      # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).
-      - name: Test â€” fast core (with coverage)
+      - name: Test — fast core shard (with coverage)
         if: github.event_name != 'pull_request'
-        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "${{ env.DOTNET_FAST_CORE_TEST_FILTER }}" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
+        env:
+          ARCHLUCID_FAST_CORE_COLLECT_COVERAGE: "1"
+        run: bash scripts/ci/run_fast_core_corset_shard.sh "${{ matrix.shard_id }}"
 
       - uses: actions/upload-artifact@v6
         if: github.event_name != 'pull_request'
         with:
-          name: coverage-fast-core
+          name: coverage-fast-core-${{ matrix.shard_id }}
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-      - name: Test â€” fast core (PR trimmed â€” no coverage collection)
+      - name: Test — fast core shard (PR trimmed — no coverage collection)
         if: github.event_name == 'pull_request'
-        run: dotnet test ArchLucid.sln --no-build -c Release --filter "${{ env.DOTNET_FAST_CORE_TEST_FILTER }}"
+        run: bash scripts/ci/run_fast_core_corset_shard.sh "${{ matrix.shard_id }}"
+
+  # Branch protection / downstream `needs` target: fails when build or any test shard fails.
+  dotnet-fast-core:
+    name: ".NET: fast core (corset)"
+    needs:
+      - dotnet-fast-core-build
+      - dotnet-fast-core-test
+    if: always() && needs.dotnet-fast-core-build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Assert all fast core shards passed
+        run: |
+          if [ "${{ needs.dotnet-fast-core-test.result }}" != "success" ]; then
+            echo "::error::Fast core test shard(s) failed or were cancelled."
+            exit 1
+          fi
+          echo "Fast core corset completed (build + all shards)."
 
 
   dotnet-fast-core-artifacts:
