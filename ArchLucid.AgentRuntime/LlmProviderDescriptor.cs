@@ -1,3 +1,5 @@
+using ArchLucid.Core.Llm;
+
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
@@ -11,6 +13,26 @@ public sealed record LlmProviderDescriptor(
     Uri? ApiBaseUri,
     LlmProviderAuthScheme AuthScheme)
 {
+    /// <summary>Vendor enum for factory routing (TB-193).</summary>
+    public LlmProviderType ProviderType => MapProviderType(ProviderKind);
+
+    private static LlmProviderType MapProviderType(string providerKind)
+    {
+        if (string.Equals(providerKind, "azure-openai", StringComparison.OrdinalIgnoreCase))
+            return LlmProviderType.AzureOpenAi;
+
+        if (string.Equals(providerKind, "anthropic", StringComparison.OrdinalIgnoreCase))
+            return LlmProviderType.Anthropic;
+
+        if (string.Equals(providerKind, "openai-compatible", StringComparison.OrdinalIgnoreCase))
+            return LlmProviderType.LocalOllama;
+
+        if (string.Equals(providerKind, "bedrock", StringComparison.OrdinalIgnoreCase))
+            return LlmProviderType.GoogleGemini;
+
+        return LlmProviderType.Unknown;
+    }
+
     /// <summary>Azure OpenAI–compatible resource base URL and chat deployment name.</summary>
     public static LlmProviderDescriptor ForAzureOpenAi(Uri apiBase, string deploymentOrModelId)
     {

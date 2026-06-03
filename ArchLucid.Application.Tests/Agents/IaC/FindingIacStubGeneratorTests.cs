@@ -87,6 +87,7 @@ public sealed class FindingIacStubGeneratorTests
         ArchitectureFinding findingWithEvidence = persisted[0].Findings.Single(f => f.FindingId == "finding-1");
         ArchitectureFinding findingWithoutEvidence = persisted[0].Findings.Single(f => f.FindingId == "finding-2");
         findingWithEvidence.IacStub.Should().NotBeNullOrWhiteSpace();
+        findingWithEvidence.IacStub.Should().Contain("AI-generated stub");
         findingWithoutEvidence.IacStub.Should().BeNull();
     }
 }

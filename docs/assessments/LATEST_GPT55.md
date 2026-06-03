@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 85.02%
+# ArchLucid Assessment – (A) Headline Readiness: 85.37%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **84.67%** (5BM–5BO); batches **5BP TB-185** (per-finding Ask inline), **5BQ TB-186** (run summary one-pager export, feature-flagged), **5BR TB-195** (Ask conversation context compression, opt-in) → **85.02%** (+2 AI/Agent Readiness, +1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **85.02%** (5BP–5BR); batches **5BS TB-187** (architecture request draft assist), **5BT TB-193** (LLM provider factory scaffold), **5BU TB-188** (finding IaC stub generator, feature-flagged) → **85.37%** (+2 AI/Agent Readiness, +1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -46,8 +46,8 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
-| Cutting-Edge AI Technology | 78 | 8 | 5.38% | 176 |
-| AI/Agent Readiness | 81 | 8 | 5.59% | 152 |
+| Cutting-Edge AI Technology | 79 | 8 | 5.45% | 168 |
+| AI/Agent Readiness | 83 | 8 | 5.73% | 136 |
 | Stickiness | 79 | 6 | 4.14% | 126 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
 | Marketability | 90 | 8 | 6.24% | 80 |
@@ -89,9 +89,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 ### AI/Agent Readiness
 
-Score: 79. Weight: 8. Weighted impact: 5.45%. Weighted deficiency signal: 168.
+Score: 83. Weight: 8. Weighted impact: 5.73%. Weighted deficiency signal: 136.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). Batch **5BM** closes **TB-184** — `PreCommitGovernanceBlockExplainer` surfaces `blockExplanation` on governance 409 ProblemDetails when `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). Batch **5BM** closes **TB-184** — `PreCommitGovernanceBlockExplainer` surfaces `blockExplanation` on governance 409 ProblemDetails when `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false). Batch **5BP** closes **TB-185** — per-finding Ask inline. Batch **5BQ** closes **TB-186** — executive one-pager export (feature-flagged). Batch **5BS** closes **TB-187** — `POST /v1/architecture/request/draft` with wizard **Suggest fields**. Batch **5BU** closes **TB-188** — post-commit IaC stubs on findings (feature-flagged). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 
@@ -101,9 +101,9 @@ Classification: Fixable in v1 for release-candidate evidence. Stronger unattende
 
 ### Cutting-Edge AI Technology
 
-Score: 78. Weight: 8. Weighted impact: 5.38%. Weighted deficiency signal: 176.
+Score: 79. Weight: 8. Weighted impact: 5.45%. Weighted deficiency signal: 168.
 
-Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation. Batch **5W** closes **TB-191** — `SystemPromptContentHash` on traces for prompt-forensics queries. Batch **5BO** closes **TB-194** — `GET /v1/admin/rag-health` and `/admin/rag-health` expose per-corpus chunk counts, last-indexed timestamps, embedding dimension, and stale flags from `RetrievalCorpusFreshnessSummary`. Batch **5BR** closes **TB-195** — opt-in `Ask:ConversationContext:CompressionEnabled` multi-turn history compression via `IConversationContextCompressor` (fail-open). It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
+Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation. Batch **5W** closes **TB-191** — `SystemPromptContentHash` on traces for prompt-forensics queries. Batch **5BO** closes **TB-194** — `GET /v1/admin/rag-health` and `/admin/rag-health` expose per-corpus chunk counts, last-indexed timestamps, embedding dimension, and stale flags from `RetrievalCorpusFreshnessSummary`. Batch **5BR** closes **TB-195** — opt-in `Ask:ConversationContext:CompressionEnabled` multi-turn history compression via `IConversationContextCompressor` (fail-open). Batch **5BT** closes **TB-193** — `ILlmProviderFactory` + `LlmProviderType` scaffold with `DefaultLlmProviderFactory` (Azure-only V1; non-Azure providers deferred V2). It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
 
 Tradeoffs: Conservative fail-open retrieval and optional judges keep runs resilient and affordable. They reduce confidence when the user needs formal "this answer is grounded" guarantees.
 

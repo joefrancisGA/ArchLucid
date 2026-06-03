@@ -32,6 +32,7 @@ using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Resilience;
@@ -1481,5 +1482,8 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddScoped<IAgentCompletionClient>(static sp =>
             sp.GetRequiredService<IAgentTierCompletionRouter>().DefaultCompletionClient);
+
+        services.AddScoped<ILlmProviderFactory>(static sp =>
+            new DefaultLlmProviderFactory(sp.GetRequiredService<IAgentCompletionClient>()));
     }
 }

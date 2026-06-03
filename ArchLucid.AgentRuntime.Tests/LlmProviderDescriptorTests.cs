@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using ArchLucid.Core.Llm;
+
+using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -13,6 +15,7 @@ public sealed class LlmProviderDescriptorTests
         LlmProviderDescriptor d = LlmProviderDescriptor.ForAzureOpenAi(uri, "my-deployment");
 
         d.ProviderKind.Should().Be("azure-openai");
+        d.ProviderType.Should().Be(LlmProviderType.AzureOpenAi);
         d.ModelId.Should().Be("my-deployment");
         d.ApiBaseUri.Should().Be(uri);
         d.AuthScheme.Should().Be(LlmProviderAuthScheme.ApiKey);

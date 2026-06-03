@@ -18,10 +18,13 @@ public sealed class FindingIacStubGenerator(
     IScopeContextProvider scopeContextProvider,
     ILogger<FindingIacStubGenerator> logger) : IFindingIacStubGenerator
 {
+    private const string IacStubDisclaimerLine = "// AI-generated stub — review before use";
+
     private const string SystemPrompt =
         "You are a senior cloud infrastructure engineer. " +
         "Given an architecture finding and evidence references, return ONLY minimal Azure Bicep that addresses the finding. " +
-        "Do not include markdown fences, prose, comments, or explanation.";
+        "The first line must be exactly: " + IacStubDisclaimerLine + " " +
+        "Do not include markdown fences or prose after the Bicep.";
 
     private readonly IAgentCompletionClient _completionClient = completionClient
                                                                 ?? throw new ArgumentNullException(nameof(completionClient));
@@ -64,7 +67,7 @@ public sealed class FindingIacStubGenerator(
                 if (string.IsNullOrWhiteSpace(stub))
                     continue;
 
-                finding.IacStub = stub.Trim();
+                finding.IacStub = EnsureDisclaimerLine(stub.Trim());
                 anyFindingUpdated = true;
             }
 
@@ -78,6 +81,14 @@ public sealed class FindingIacStubGenerator(
             return;
 
         await _agentResultRepository.CreateManyAsync(updatedResults, cancellationToken);
+    }
+
+    private static string EnsureDisclaimerLine(string stub)
+    {
+        if (stub.StartsWith(IacStubDisclaimerLine, StringComparison.Ordinal))
+            return stub;
+
+        return IacStubDisclaimerLine + Environment.NewLine + stub;
     }
 
     private static bool HasEvidenceReferences(ArchitectureFinding finding)
