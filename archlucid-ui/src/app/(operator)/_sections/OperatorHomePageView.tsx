@@ -32,6 +32,7 @@ import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboar
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { BUYER_HOME_SETUP_SECTION_HEADING } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
+import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
@@ -48,13 +49,16 @@ function HomeSectionHeading(props: { readonly id?: string; readonly children: st
 }
 
 function OperatorHomeReviewsGrid() {
+  const fullOperatorShell = isOperatorExperienceFullShellEnv();
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
       <div className="min-w-0 space-y-4">
         <RunsDashboardPanel hideHeading />
-        <OperatorCorePilotDiagnosticsChecklist />
-        <AfterCorePilotChecklistHint />
+        {fullOperatorShell ? <OperatorCorePilotDiagnosticsChecklist /> : null}
+        {fullOperatorShell ? <AfterCorePilotChecklistHint /> : null}
 
+        {fullOperatorShell ? (
         <OperationalMetricsGate>
           <AcceleratorChooserCard />
           <div className="space-y-4" data-testid="operator-home-post-commit-surfaces">
@@ -80,8 +84,9 @@ function OperatorHomeReviewsGrid() {
 
           <HomeMaturityLayerCards />
         </OperationalMetricsGate>
+        ) : null}
 
-        <BeforeAfterDeltaPanel />
+        {fullOperatorShell ? <BeforeAfterDeltaPanel /> : null}
       </div>
 
       <aside
@@ -97,18 +102,22 @@ function OperatorHomeReviewsGrid() {
 function BuyerPolishedHomePageBody() {
   return (
     <>
-      <section
-        aria-label="Review package status and proof"
-        className="space-y-4"
-        data-testid="operator-home-proof-section"
-      >
+      <section aria-label="Your first architecture review" className="space-y-4" data-testid="operator-home-hero-section">
+        <WelcomeBanner />
         <SampleFirstReviewPackageCard buyerPolishedShell={true} />
+      </section>
+
+      <section aria-labelledby="operator-home-reviews-heading" className="space-y-4">
+        <HomeSectionHeading id="operator-home-reviews-heading">Your reviews</HomeSectionHeading>
         <RunsDashboardPanel />
-        <BeforeAfterDeltaPanel />
       </section>
 
       <section aria-label="Recommended review journey" data-testid="operator-home-journey-section">
         <BuyerGoldenJourneyStrip />
+      </section>
+
+      <section aria-labelledby="operator-home-readiness-heading" className="space-y-3">
+        <FirstPilotReadinessCockpit />
       </section>
 
       <section
@@ -117,23 +126,23 @@ function BuyerPolishedHomePageBody() {
         data-testid="operator-home-setup-section"
       >
         <HomeSectionHeading id="buyer-home-setup-heading">{BUYER_HOME_SETUP_SECTION_HEADING}</HomeSectionHeading>
-        <CorePilotBuyerStepHint />
-        <WelcomeBanner />
+        <CorePilotChecklist variant="compact" />
         <FirstPilotOperatingRail />
-        <LlmUsageBandHint />
       </section>
     </>
   );
 }
 
 function OperatorHomePageBody() {
+  const fullOperatorShell = isOperatorExperienceFullShellEnv();
+
   return (
     <>
       {/* Zone 1: primary actions */}
       <div className="space-y-4">
-        <OperatorCoArchitectHomeStrip />
         <WelcomeBanner />
         <SampleFirstReviewPackageCard buyerPolishedShell={false} />
+        {fullOperatorShell ? <OperatorCoArchitectHomeStrip /> : null}
       </div>
 
       {/* Zone 2: your reviews */}
@@ -145,25 +154,27 @@ function OperatorHomePageBody() {
       {/* Zone 3: workspace readiness (collapsed by default) */}
       <section aria-labelledby="operator-home-readiness-heading" className="space-y-3">
         <HomeSectionHeading id="operator-home-readiness-heading">Workspace readiness</HomeSectionHeading>
-        <PilotRoiBaselineReadinessCard />
+        {fullOperatorShell ? <PilotRoiBaselineReadinessCard /> : null}
         <FirstPilotReadinessCockpit />
       </section>
 
       {/* Zone 4: getting started and checklists */}
       <section aria-labelledby="operator-home-started-heading" className="space-y-4">
         <HomeSectionHeading id="operator-home-started-heading">Get started</HomeSectionHeading>
-        <PilotStartHereStrip />
-        <CorePilotNextStepsCard />
+        {fullOperatorShell ? <PilotStartHereStrip /> : null}
+        {fullOperatorShell ? <CorePilotNextStepsCard /> : null}
         <div id="core-pilot-checklist-anchor">
-          <CorePilotChecklist />
+          <CorePilotChecklist variant={fullOperatorShell ? "full" : "compact"} />
         </div>
         <FirstPilotOperatingRail />
-        <div className="max-w-prose space-y-3">
-          <FirstWeekRouteGuidance variant="home" />
-          <OperatorHomeGuidanceLinks>
-            <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First pilot operator path — full walkthrough" />
-          </OperatorHomeGuidanceLinks>
-        </div>
+        {fullOperatorShell ? (
+          <div className="max-w-prose space-y-3">
+            <FirstWeekRouteGuidance variant="home" />
+            <OperatorHomeGuidanceLinks>
+              <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First pilot operator path — full walkthrough" />
+            </OperatorHomeGuidanceLinks>
+          </div>
+        ) : null}
       </section>
     </>
   );

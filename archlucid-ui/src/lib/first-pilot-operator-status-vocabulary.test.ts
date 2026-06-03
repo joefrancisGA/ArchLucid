@@ -20,7 +20,7 @@ describe("first-pilot-operator-status-vocabulary", () => {
     expect(mapReadinessStatusToEnterpriseKind("attention")).toBe("needs-attention");
     expect(mapReadinessStatusToEnterpriseKind("unknown")).toBe("neutral");
     expect(mapReadinessStatusToStatusTagLabel("unknown")).toBe("Pending");
-    expect(mapReadinessStatusToStatusTagLabel("attention")).toBe("Needs attention");
+    expect(mapReadinessStatusToStatusTagLabel("attention")).toBe("Action needed");
   });
 
   it("documents the shared vocabulary strings", () => {

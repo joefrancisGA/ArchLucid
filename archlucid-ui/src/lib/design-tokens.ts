@@ -39,26 +39,49 @@ export const OPERATOR_LAYOUT = {
   sectionHeadingMargin: "mb-3",
 } as const;
 
+/**
+ * Four-tier operator typography (home + governance surfaces).
+ * Prefer these over ad-hoc `text-xs` / `text-[10px]` on composed pages.
+ * @see globals.css `.text-title` … `.text-meta` utilities (same scale)
+ */
+export const OPERATOR_TYPE_SCALE = {
+  /** Page hero / primary card headline (18px). */
+  title: "text-lg font-semibold leading-snug tracking-tight text-al-text-primary",
+  /** Major in-card titles (16px). */
+  cardTitle: "text-base font-semibold leading-snug text-al-text-primary",
+  /** Zone / table group / tab labels (14px). */
+  section: "text-sm font-semibold leading-snug text-al-text-primary",
+  /** Default readable copy and table body (13px). */
+  body: "text-[13px] font-normal leading-relaxed text-al-text-primary",
+  /** Helper lines, captions, secondary table context (12px). */
+  meta: "text-xs font-normal leading-snug text-al-text-secondary",
+  /** Timestamps, KPI labels, dense metadata (11px). */
+  micro: "text-[11px] font-normal leading-snug text-al-text-secondary",
+} as const;
+
 /** Zone headings on operator/buyer home — sentence case (no `uppercase` transform). */
-export const OPERATOR_HOME_SECTION_HEADING =
-  "m-0 text-sm font-semibold text-neutral-600 dark:text-neutral-300";
+export const OPERATOR_HOME_SECTION_HEADING = `m-0 ${OPERATOR_TYPE_SCALE.section} text-neutral-600 dark:text-neutral-300`;
 
 /** Subsection labels inside home disclosure cards — sentence case. */
-export const OPERATOR_HOME_SUBSECTION_LABEL =
-  "m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400";
+export const OPERATOR_HOME_SUBSECTION_LABEL = `m-0 ${OPERATOR_TYPE_SCALE.section} text-neutral-600 dark:text-neutral-400`;
+
+/** Page-level actions (primary/secondary CTAs). */
+export const OPERATOR_BUTTON_PAGE_CLASS = "h-9 px-4 text-[13px] font-medium";
+
+/** Compact actions in tables and dense cards. */
+export const OPERATOR_BUTTON_COMPACT_CLASS = "h-7 px-3 text-xs font-medium";
 
 export const OPERATOR_TYPOGRAPHY = {
-  pageTitle: "text-xl font-semibold tracking-tight text-al-text-primary",
-  sectionTitle:
-    "text-xs font-semibold uppercase tracking-wide text-al-text-secondary",
-  /** In-card or inline subsection headings (not uppercase section labels). */
-  cardTitle: "text-sm font-semibold text-al-text-primary",
-  body: "text-sm leading-relaxed text-al-text-primary",
-  meta: "text-sm text-al-text-secondary",
-  label: "text-xs text-al-text-secondary",
-  /** Status chips and compact metadata badges (11–12px). Do not use arbitrary `text-[10px]` on operator surfaces. */
-  badge: "text-[11px] font-semibold leading-tight",
-  dataValue: "text-sm font-medium tabular-nums text-al-text-primary",
+  pageTitle: OPERATOR_TYPE_SCALE.title,
+  /** Legacy uppercase section labels — prefer {@link OPERATOR_TYPE_SCALE.section} on home. */
+  sectionTitle: `${OPERATOR_TYPE_SCALE.section} text-al-text-secondary`,
+  cardTitle: OPERATOR_TYPE_SCALE.cardTitle,
+  body: OPERATOR_TYPE_SCALE.body,
+  meta: OPERATOR_TYPE_SCALE.meta,
+  label: OPERATOR_TYPE_SCALE.meta,
+  /** Status chips (11px). Do not use arbitrary `text-[10px]` on operator surfaces. */
+  badge: "text-[11px] font-medium leading-none",
+  dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,
   /** Dashboard / metric tiles only — not page titles. */
   kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",
 } as const;
@@ -95,23 +118,24 @@ export const DESIGN_TOKENS = {
     rowHover:
       "transition-colors hover:border-neutral-300 hover:bg-[var(--al-layer-hover)] dark:hover:border-neutral-700 dark:hover:bg-neutral-800/80",
     chip:
-      "inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2 py-0.5 text-xs font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600",
+      `inline-flex rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-1 ${OPERATOR_TYPOGRAPHY.badge} text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600`,
     asidePanel: "rounded-lg border border-neutral-200 bg-al-surface-raised p-4 shadow-sm dark:border-neutral-800",
     navActive:
       "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] font-semibold text-al-text-primary dark:bg-neutral-800/80",
   },
   table: {
     shell: "w-full overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800",
-    table: "w-full border-collapse text-sm",
+    table: "w-full border-collapse text-[13px]",
     headRow: "border-b border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900",
     headCell:
-      "px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-al-text-secondary",
+      "px-3 py-2.5 text-left text-[11px] font-semibold leading-snug text-al-text-secondary",
     body: "divide-y divide-neutral-100 dark:divide-neutral-800",
     row: "outline-none transition-colors hover:bg-[var(--al-layer-hover)] dark:hover:bg-neutral-800/80",
     rowSelected:
       "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] dark:bg-neutral-800/80",
-    cell: "px-3 py-2 align-top text-sm text-al-text-primary",
-    cellSecondary: "text-xs text-al-text-secondary",
+    cell: "px-3 py-3 align-top text-[13px] leading-snug text-al-text-primary",
+    cellSecondary: "text-[13px] leading-snug text-al-text-secondary",
+    rowLabel: `${OPERATOR_TYPE_SCALE.body} font-semibold`,
   },
 } as const;
 
@@ -133,7 +157,7 @@ export type EnterpriseStatusKind =
 
 export const ENTERPRISE_STATUS_LABELS: Readonly<Record<EnterpriseStatusKind, string>> = {
   ready: "Ready",
-  "needs-attention": "Needs attention",
+  "needs-attention": "Action needed",
   blocked: "Blocked",
   approved: "Approved",
   "approved-with-monitoring": "Approved with monitoring",
@@ -143,7 +167,7 @@ export const ENTERPRISE_STATUS_LABELS: Readonly<Record<EnterpriseStatusKind, str
 };
 
 const STATUS_TAG_BASE =
-  "inline-flex max-w-full items-center rounded-sm border px-2 py-0.5 text-xs font-medium leading-tight";
+  `inline-flex max-w-full min-h-[20px] items-center rounded-sm border px-2 py-0.5 ${OPERATOR_TYPOGRAPHY.badge}`;
 
 export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
   switch (kind) {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BarChart3, Search, Shield } from "lucide-react";
 
-import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
+import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 
@@ -23,9 +23,9 @@ function LayerCard({ icon, title, items, href }: LayerCardProps) {
     >
       <div className="mb-2 flex items-center gap-2">
         {icon}
-        <h2 className="m-0 text-sm font-semibold text-al-text-primary">{title}</h2>
+        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{title}</h2>
       </div>
-      <ul className="m-0 list-disc space-y-1 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
+      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}

@@ -152,6 +152,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ICorePilotTeamChecklistRepository, InMemoryCorePilotTeamChecklistRepository>();
         services.AddSingleton<IRlsSessionContextApplicator, InMemoryRlsSessionContextApplicator>();
         services.AddSingleton<IOperatorStickinessSnapshotReader, InMemoryOperatorStickinessSnapshotReader>();
+        services.AddSingleton<IAdminTenantHealthReader, InMemoryAdminTenantHealthReader>();
         services.AddSingleton<IFindingFeedbackRepository, InMemoryFindingFeedbackRepository>();
         services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
         services.AddSingleton<IRiskExceptionRepository, NoOpRiskExceptionRepository>();

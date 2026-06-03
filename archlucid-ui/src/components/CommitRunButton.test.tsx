@@ -101,7 +101,9 @@ describe("CommitRunButton", () => {
     const dialog = await screen.findByRole("alertdialog");
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
 
-    expect(await screen.findByTestId("commit-governance-block-explanation")).toHaveTextContent(
+    const explanation = await screen.findByTestId("commit-governance-block-explanation");
+    expect(explanation).toHaveTextContent(/AI-assisted/i);
+    expect(explanation).toHaveTextContent(
       "Add a private endpoint before finalizing.",
     );
   });

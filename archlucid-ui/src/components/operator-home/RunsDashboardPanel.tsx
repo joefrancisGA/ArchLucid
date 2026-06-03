@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { listRunsByProjectPaged, restoreArchitectureRequest } from "@/lib/api";
 import {
   ARCHITECTURE_REVIEW_LABELS,
@@ -26,7 +25,7 @@ import {
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
-import { BUYER_HOME_FILTER_ACTION_NEEDED, BUYER_GOVERNANCE_MONITORING_BADGE, BUYER_GOVERNANCE_MONITORING_HINT } from "@/lib/buyer-home-status-copy";
+import { BUYER_HOME_FILTER_ACTION_NEEDED, BUYER_GOVERNANCE_MONITORING_BADGE } from "@/lib/buyer-home-status-copy";
 import { buyerFilterChipActiveClass } from "@/lib/buyer-shell-home-present";
 import {
   BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK,
@@ -37,7 +36,12 @@ import {
   BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_HOME_SECTION_HEADING,
+  OPERATOR_SURFACE_CARD_CLASS,
+  OPERATOR_TYPOGRAPHY,
+  OPERATOR_TYPE_SCALE,
+} from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -93,26 +97,14 @@ function RunGovernanceWarningIndicator({ buyerPolishedShell }: { buyerPolishedSh
   const title = buyerPolishedShell
     ? BUYER_GOVERNANCE_MONITORING_BADGE
     : RUNS_DASHBOARD_LABELS.governanceWarningTitle;
-  const hint = buyerPolishedShell
-    ? BUYER_GOVERNANCE_MONITORING_HINT
-    : RUNS_DASHBOARD_LABELS.governanceWarningHint;
   const badgeClass = buyerPolishedShell
     ? "shrink-0 border-neutral-300 bg-neutral-50 text-[0.6rem] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-300"
     : "shrink-0 border-amber-600/40 bg-al-surface-raised text-[0.6rem] font-semibold text-al-text-primary dark:border-amber-700/50";
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge variant="outline" className={badgeClass} data-testid="run-governance-warning-indicator">
-            {title}
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs text-sm">
-          <p>{hint}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Badge variant="outline" className={badgeClass} data-testid="run-governance-warning-indicator">
+      {title}
+    </Badge>
   );
 }
 
@@ -335,7 +327,8 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                 aria-selected={tab === id}
                 data-testid={`runs-dashboard-tab-${id}`}
                 className={cn(
-                  "border-b-2 border-transparent bg-transparent px-0 py-0.5 text-xs font-semibold",
+                  "border-b-2 border-transparent bg-transparent px-0 py-0.5",
+                  OPERATOR_TYPE_SCALE.section,
                   tab === id
                     ? "border-teal-700 text-teal-900 dark:border-teal-300 dark:text-teal-200"
                     : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100",
@@ -348,7 +341,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               </button>
             ))}
           </div>
-          <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
             {tab === "recent" && buyerPolishedShell ? BUYER_RUNS_DASHBOARD_RECENT_LABEL : tab === "recent" ? RUNS_DASHBOARD_LABELS.latestInWorkspace : null}
             {tab === "attention"
               ? buyerPolishedShell
@@ -357,7 +350,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               : null}
             {tab === "outcomes" ? RUNS_DASHBOARD_LABELS.reviewOutcomes : null}
           </CardTitle>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
             {tab === "recent"
               ? buyerPolishedShell
                 ? BUYER_RUNS_DASHBOARD_RECENT_SUMMARY
@@ -375,7 +368,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
               : null}
           </p>
         </CardHeader>
-        <CardContent className="space-y-3 px-3 pb-3 text-sm">
+        <CardContent className={cn("space-y-3 px-3 pb-3", OPERATOR_TYPE_SCALE.body)}>
           <div
             className="flex flex-wrap items-center gap-x-2 gap-y-2"
             data-testid="runs-dashboard-filters"
@@ -389,7 +382,11 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   data-testid="runs-dashboard-governance-warnings-only"
                   aria-pressed={governanceWarningsOnly}
                   onClick={() => { setGovernanceWarningsOnly((v) => !v); }}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${buyerFilterChipActiveClass(governanceWarningsOnly)}`}
+                  className={cn(
+                    "inline-flex min-h-[22px] items-center gap-1.5 rounded-full border px-3 py-1 transition-colors",
+                    OPERATOR_TYPOGRAPHY.badge,
+                    buyerFilterChipActiveClass(governanceWarningsOnly),
+                  )}
                 >
                   <span aria-hidden="true">{governanceWarningsOnly ? "✕" : "+"}</span>
                   {BUYER_HOME_FILTER_ACTION_NEEDED}
@@ -399,7 +396,11 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   data-testid="runs-dashboard-show-archived"
                   aria-pressed={showArchived}
                   onClick={() => { setShowArchived((v) => !v); }}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${buyerFilterChipActiveClass(showArchived)}`}
+                  className={cn(
+                    "inline-flex min-h-[22px] items-center gap-1.5 rounded-full border px-3 py-1 transition-colors",
+                    OPERATOR_TYPOGRAPHY.badge,
+                    buyerFilterChipActiveClass(showArchived),
+                  )}
                 >
                   <span aria-hidden="true">{showArchived ? "✕" : "+"}</span>
                   Archived
@@ -462,13 +463,13 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   className={cn("space-y-3 px-3 py-3", OPERATOR_SURFACE_CARD_CLASS)}
                   data-testid="operator-home-showcase-demo-banner"
                 >
-                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
                     {SHOWCASE_BUYER_REVIEW_TITLE}
                   </p>
-                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                     Completed example review · Approved with monitoring
                   </p>
-                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                  <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                     {buyerSafeHighlight ? (
                       <>
                         Start with the finalized manifest or the public walkthrough — technical workspace detail stays
@@ -535,8 +536,8 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                     className={cn("space-y-3 px-3 py-3", OPERATOR_SURFACE_CARD_CLASS)}
                     data-testid="operator-home-getting-started"
                   >
-                    <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
-                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Getting started</p>
+                    <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                       Open the full review package above to walk a governed Claims Intake review end to end.
                     </p>
                     <div className="flex flex-wrap items-center gap-2">
@@ -558,7 +559,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   className={cn("space-y-2 p-3", OPERATOR_SURFACE_CARD_CLASS)}
                   data-testid="runs-dashboard-buyer-proof-summary"
                 >
-                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Decision: Package finalized</p>
+                  <p className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Decision: Package finalized</p>
                   <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">Governance approval: Approved with monitoring</p>
                   <p className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
                     {BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(
@@ -590,7 +591,10 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                         <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <Link
                             href={`/reviews/${encodeURIComponent(run.runId)}`}
-                            className="min-w-0 text-sm font-semibold text-teal-900 underline decoration-teal-300/80 hover:text-teal-950 dark:text-teal-100 dark:hover:text-teal-50"
+                            className={cn(
+                              "min-w-0 font-semibold text-teal-900 underline decoration-teal-300/80 hover:text-teal-950 dark:text-teal-100 dark:hover:text-teal-50",
+                              OPERATOR_TYPE_SCALE.body,
+                            )}
                           >
                             {runListPrimaryTitle(run)}
                           </Link>
@@ -713,7 +717,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   ) : null}
 
                   {deltaStatus === "error" ? (
-                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                       Review outcomes are unavailable right now. Try again later or open the reviews list.
                     </p>
                   ) : null}
@@ -736,14 +740,14 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   ) : null}
 
                   {deltaStatus === "ready" && outcomesWindow === 0 ? (
-                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                       After your first finalized review, this panel will show manifests finalized, findings surfaced, and
                       average time to finalization.
                     </p>
                   ) : null}
 
                   {deltaStatus === "ready" && deltaData !== null && outcomesWindow === null ? (
-                    <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                       Review outcomes summary is incomplete. Try again later.
                     </p>
                   ) : null}
@@ -769,29 +773,19 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
           data-testid="example-request-panel"
         >
           <CardHeader className="space-y-1 px-3 pb-2 pt-3">
-            <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Example request</CardTitle>
+            <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>Example request</CardTitle>
             <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
               {OPERATOR_HOME_EXAMPLE_DESCRIPTION}
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2 px-3 pb-3">
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button asChild variant="outline" size="sm" className="h-8">
-                    <Link
-                      href={`/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}
-                    >
-                      Use this example
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs text-left">
-                  Opens the new-review wizard with a prefilled healthcare-claims scenario for exploration — not a customer
-                  record.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Button asChild variant="outline" size="sm" className="h-8">
+              <Link
+                href={`/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}
+              >
+                Use this example
+              </Link>
+            </Button>
             <Button asChild variant="primary" size="sm" className="h-8">
               <Link href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
                 See completed output

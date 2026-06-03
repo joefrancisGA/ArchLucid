@@ -63,6 +63,22 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "AdminAuthority",
         },
         {
+          href: "/admin/tenant-health",
+          label: "Tenant health",
+          title: "Tenant health — engagement, governance, and pilot funnel stage per scope",
+          icon: BarChart3,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
+          href: "/admin/rag-health",
+          label: "RAG health",
+          title: "RAG health — per-corpus index freshness and embedding dimension",
+          icon: BookOpen,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
+        {
           href: "/admin/configuration",
           label: "Configuration",
           title: "Configuration — catalog summary (masked secrets) plus environment health config-lint dashboard",

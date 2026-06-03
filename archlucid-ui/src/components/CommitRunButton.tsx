@@ -142,7 +142,7 @@ export function CommitRunButton({ runId, disabled, commitBlockedReason = null }:
               className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 p-4 text-sm"
               data-testid="commit-governance-block-explanation"
             >
-              <p className="m-0 font-semibold">Why governance blocked finalization</p>
+              <p className="m-0 font-semibold">AI-assisted: why governance blocked finalization</p>
               <p className="m-0 mt-2 leading-relaxed">{error.problem.blockExplanation}</p>
             </div>
           ) : null}

@@ -7,10 +7,14 @@ import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvid
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
-import { BUYER_EXAMPLE_WORKSPACE_TOOLTIP, BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL } from "@/lib/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  BUYER_SCOPE_LIST_UNAVAILABLE,
+  BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL,
+  BUYER_SCOPE_SWITCHER_INTRO,
+  BUYER_WORKSPACE_DISPLAY_NAME,
+} from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   clearOperatorScopeStorage,
@@ -22,7 +26,7 @@ import {
   writeOperatorScopeToStorage,
 } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
+import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 const WORKSPACES_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspaces}`;
@@ -94,6 +98,14 @@ function parseWorkspacesList(json: unknown): WorkspaceOption[] {
   return out;
 }
 
+function demoClaimsIntakeWorkspaceOption(): WorkspaceOption {
+  return {
+    workspaceId: DEV_SCOPE_WORKSPACE_ID,
+    name: BUYER_WORKSPACE_DISPLAY_NAME,
+    projects: [{ projectId: DEV_SCOPE_PROJECT_ID, name: "Primary project" }],
+  };
+}
+
 /**
  * Header control: show current workspace/project, persist scope to `localStorage`, and send scope on `/api/proxy` requests
  * (see `getEffectiveBrowserProxyScopeHeaders`).
@@ -150,8 +162,16 @@ export function ScopeSwitcher() {
       const json: unknown = await res.json();
       const parsed = parseWorkspacesList(json);
       if (parsed.length === 0) {
+        if (isNextPublicDemoMode() || isBuyerPolishedOperatorShellEnv()) {
+          setWorkspaces([demoClaimsIntakeWorkspaceOption()]);
+          setListError(null);
+
+          return;
+        }
+
         setWorkspaces(null);
-        setListError("The workspace list response was empty; scope selection stays read-only.");
+        setListError(BUYER_SCOPE_LIST_UNAVAILABLE);
+
         return;
       }
       setWorkspaces(parsed);
@@ -183,27 +203,26 @@ export function ScopeSwitcher() {
     return null;
   }
 
-  if (polishedShell && isDefaultDevScope) {
+  if (polishedShell) {
+    const displayLabel =
+      isDefaultDevScope ? workspaceLabel : `${workspaceLabel} — ${projectLabel}`;
+
     return (
       <span className="inline-flex max-w-[min(22rem,46vw)] shrink items-center gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="inline-flex min-w-0 max-w-[min(22rem,46vw)] shrink cursor-default items-center gap-2">
-              <span
-                data-testid="operator-scope-switcher-trigger"
-                className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
-                title={BUYER_EXAMPLE_WORKSPACE_TOOLTIP}
-                aria-label={`Active workspace — ${BUYER_EXAMPLE_WORKSPACE_TOOLTIP}`}
-              >
-                {workspaceLabel}
-              </span>
-              <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
-                {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
-              </span>
+        <span className="inline-flex min-w-0 max-w-[min(22rem,46vw)] shrink cursor-default items-center gap-2">
+          <span
+            data-testid="operator-scope-switcher-trigger"
+            className="inline-flex min-w-0 max-w-[min(18rem,38vw)] shrink truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+            aria-label={`Active workspace: ${displayLabel}`}
+          >
+            {displayLabel}
+          </span>
+          {isDefaultDevScope ? (
+            <span className="shrink-0 rounded border border-neutral-300 bg-neutral-50 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
+              {BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL}
             </span>
-          </TooltipTrigger>
-          <TooltipContent sideOffset={6}>{BUYER_EXAMPLE_WORKSPACE_TOOLTIP}</TooltipContent>
-        </Tooltip>
+          ) : null}
+        </span>
       </span>
     );
   }
@@ -241,20 +260,11 @@ export function ScopeSwitcher() {
           className="absolute right-0 top-full z-[60] mt-1 w-[min(22rem,calc(100vw-2rem))] space-y-3 p-3 shadow-lg"
           data-testid="operator-scope-switcher-panel"
         >
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">Choose the workspace and project for API scope headers (tenant / workspace / project RLS slice).</p>
-          <div className="space-y-1 text-xs text-neutral-500 dark:text-neutral-400">
-            <p className="m-0 break-all">
-              <span className="text-neutral-600 dark:text-neutral-500">x-tenant-id:</span> {tenantId}
-            </p>
-            <p className="m-0 break-all">
-              <span className="text-neutral-600 dark:text-neutral-500">x-workspace-id:</span> {workspaceId}
-            </p>
-            <p className="m-0 break-all">
-              <span className="text-neutral-600 dark:text-neutral-500">x-project-id:</span> {projectId}
-            </p>
-          </div>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
+            {isNextPublicDemoMode() ? BUYER_SCOPE_SWITCHER_INTRO : "Choose the workspace and project for this session."}
+          </p>
           {listError !== null ? (
-            <p className="m-0 text-xs text-amber-800 dark:text-amber-200" data-testid="operator-scope-list-note">
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" data-testid="operator-scope-list-note">
               {listError}
             </p>
           ) : null}
@@ -279,11 +289,10 @@ export function ScopeSwitcher() {
                           size="sm"
                           className="h-8 w-full justify-start"
                           onClick={() => {
-                            if (!isNonEmptyId(tenantId)) {
-                              return;
-                            }
+                            const scopeTenantId = isNonEmptyId(tenantId) ? tenantId.trim() : DEV_SCOPE_TENANT_ID;
+
                             applyScope({
-                              tenantId: tenantId.trim(),
+                              tenantId: scopeTenantId,
                               workspaceId: ws.workspaceId,
                               projectId: pr.projectId,
                               workspaceLabel: ws.name,

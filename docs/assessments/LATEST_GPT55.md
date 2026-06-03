@@ -1,6 +1,6 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 84.32%
+# ArchLucid Assessment – (A) Headline Readiness: 84.67%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
@@ -46,9 +46,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
-| Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
-| AI/Agent Readiness | 78 | 8 | 5.38% | 176 |
-| Stickiness | 78 | 6 | 4.03% | 132 |
+| Cutting-Edge AI Technology | 77 | 8 | 5.31% | 184 |
+| AI/Agent Readiness | 79 | 8 | 5.45% | 168 |
+| Stickiness | 79 | 6 | 4.14% | 126 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
 | Marketability | 90 | 8 | 6.24% | 80 |
 | Correctness | 86 | 8 | 5.93% | 112 |
@@ -89,9 +89,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 ### AI/Agent Readiness
 
-Score: 78. Weight: 8. Weighted impact: 5.38%. Weighted deficiency signal: 176.
+Score: 79. Weight: 8. Weighted impact: 5.45%. Weighted deficiency signal: 168.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). Batch **5BM** closes **TB-184** — `PreCommitGovernanceBlockExplainer` surfaces `blockExplanation` on governance 409 ProblemDetails when `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 
@@ -101,9 +101,9 @@ Classification: Fixable in v1 for release-candidate evidence. Stronger unattende
 
 ### Cutting-Edge AI Technology
 
-Score: 76. Weight: 8. Weighted impact: 5.24%. Weighted deficiency signal: 192.
+Score: 77. Weight: 8. Weighted impact: 5.31%. Weighted deficiency signal: 184.
 
-Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation. Batch **5W** closes **TB-191** — `SystemPromptContentHash` on traces for prompt-forensics queries. It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
+Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation. Batch **5W** closes **TB-191** — `SystemPromptContentHash` on traces for prompt-forensics queries. Batch **5BO** closes **TB-194** — `GET /v1/admin/rag-health` and `/admin/rag-health` expose per-corpus chunk counts, last-indexed timestamps, embedding dimension, and stale flags from `RetrievalCorpusFreshnessSummary`. It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
 
 Tradeoffs: Conservative fail-open retrieval and optional judges keep runs resilient and affordable. They reduce confidence when the user needs formal "this answer is grounded" guarantees.
 
@@ -137,9 +137,9 @@ Classification: Fixable in v1.
 
 ### Stickiness
 
-Score: 75. Weight: 6. Weighted impact: 3.88%. Weighted deficiency signal: 150.
+Score: 79. Weight: 6. Weighted impact: 4.14%. Weighted deficiency signal: 126.
 
-Justification: Stickiness is supported by repeat reviews, compare, replay, graph, governance, audit, policy packs, executive ROI summary, learning signals, and proof workflows. Batch **5AK** closes **TB-223** — `/governance/dashboard` now surfaces `GET /v1/governance/decisions-needed-summary` as a six-tile **Decisions needed** KPI card (parallel fetch, 30-second refresh, empty state, waiver-expiry caution accent) so operators see open governance actions without drilling into APIs. Batch **5AM** closes **TB-224** — compare loads an optional **✦ AI narrative** via `POST /v1/ask` (`ComparisonNarrative` on `AskResponse`, gated by `Ask:GenerateComparisonNarrative`, compact delta JSON prompt) so run-to-run deltas read as progress reports instead of spreadsheet diffs. The gap is that recurring operating habits are not yet fully closed in the product UI: RAG grounding, tool calls, run-level remediation, and recurring review safety are still backlog items.
+Justification: Stickiness is supported by repeat reviews, compare, replay, graph, governance, audit, policy packs, executive ROI summary, learning signals, and proof workflows. Batch **5AK** closes **TB-223** — `/governance/dashboard` now surfaces `GET /v1/governance/decisions-needed-summary` as a six-tile **Decisions needed** KPI card (parallel fetch, 30-second refresh, empty state, waiver-expiry caution accent) so operators see open governance actions without drilling into APIs. Batch **5AM** closes **TB-224** — compare loads an optional **✦ AI narrative** via `POST /v1/ask` (`ComparisonNarrative` on `AskResponse`, gated by `Ask:GenerateComparisonNarrative`, compact delta JSON prompt) so run-to-run deltas read as progress reports instead of spreadsheet diffs. Batch **5BN** closes **TB-228** — `GET /v1/admin/tenant-health` and `/admin/tenant-health` expose engagement, governance, funnel stage, and 7-day activity for internal CS triage. The gap is that recurring operating habits are not yet fully closed in the product UI: RAG grounding, tool calls, run-level remediation, and recurring review safety are still backlog items.
 
 Tradeoffs: V1 can sell the first review without a complete operating loop. Retention and expansion need the product to become a weekly architecture habit, not just a report generator.
 

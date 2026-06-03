@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /**
  * Compact five-step golden path for buyer-polished home — one primary narrative instead of many equal-weight CTAs.
@@ -15,12 +17,12 @@ export function BuyerGoldenJourneyStrip() {
       aria-label="Recommended review journey"
       className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-3"
     >
-      <p className="m-0 text-xs font-semibold text-teal-900 dark:text-teal-200">Review journey</p>
-      <p className="m-0 mt-2 max-w-prose text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0", OPERATOR_TYPE_SCALE.section, "text-teal-900 dark:text-teal-200")}>Review journey</p>
+      <p className={cn("m-0 mt-2 max-w-prose", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
         Follow the finalized review package from executive decision through signed manifest, evidence graph, governance
         approval, and audit trail.
       </p>
-      <ol className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0 text-sm">
+      <ol className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-2 p-0", OPERATOR_TYPE_SCALE.body)}>
         {steps.map((item) => (
           <li key={item.step} className="min-w-0">
             <Link

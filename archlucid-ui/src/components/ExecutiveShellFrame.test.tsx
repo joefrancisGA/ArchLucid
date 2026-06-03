@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/executive/dashboard",
+  usePathname: () => "/dashboard",
 }));
 
 vi.mock("@/components/AuthPanel", () => ({
@@ -27,7 +27,7 @@ describe("ExecutiveShellFrame", () => {
       </ExecutiveShellFrame>,
     );
 
-    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/executive/dashboard");
+    expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/dashboard");
     expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
   });
 

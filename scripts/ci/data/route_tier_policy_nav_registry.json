@@ -32,6 +32,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminCustomerSuccessController.cs",
+      "class_name": "AdminCustomerSuccessController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminFleetLlmCogsController.cs",
       "class_name": "AdminFleetLlmCogsController",
       "route_template": "v{version:apiVersion}/admin/operational",
@@ -86,6 +96,16 @@
       "class_name": "AdminQualityGateDiagnosticsController",
       "route_template": "v{version:apiVersion}/admin/diagnostics",
       "normalized_prefix": "/v1/admin/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/AdminRagHealthController.cs",
+      "class_name": "AdminRagHealthController",
+      "route_template": "v{version:apiVersion}/admin",
+      "normalized_prefix": "/v1/admin",
       "commercial_tier": "none",
       "class_policy": "AdminAuthority",
       "exemption": null,

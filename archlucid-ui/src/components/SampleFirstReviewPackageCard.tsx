@@ -11,7 +11,9 @@ import {
   BUYER_HOME_SAMPLE_PACKAGE_LEAD,
   BUYER_HOME_SECONDARY_CTA,
 } from "@/lib/buyer-polish-copy";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { cn } from "@/lib/utils";
 
 const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
@@ -42,7 +44,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
           <div className="flex flex-wrap items-center gap-2">
             <h2
               id="sample-first-review-heading"
-              className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50"
+              className={cn("m-0", OPERATOR_TYPE_SCALE.title, "text-neutral-900 dark:text-neutral-50")}
             >
               {BUYER_HOME_SAMPLE_PACKAGE_HEADLINE}
             </h2>
@@ -52,28 +54,40 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
           {buyerPolished === true ? (
             <>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600">
+                <span
+                  className={cn(
+                    "inline-flex min-h-[20px] items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 dark:border-neutral-600",
+                    OPERATOR_TYPOGRAPHY.badge,
+                    "text-al-text-primary",
+                  )}
+                >
                   Approved with monitoring
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                <span className={OPERATOR_TYPE_SCALE.meta}>
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored risk
                 </span>
               </div>
-              <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 mt-2 max-w-2xl", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                 {BUYER_HOME_SAMPLE_PACKAGE_LEAD}
               </p>
             </>
           ) : (
             <>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 text-xs font-semibold text-al-text-primary dark:border-neutral-600">
+                <span
+                  className={cn(
+                    "inline-flex min-h-[20px] items-center rounded-full border border-neutral-300 bg-al-surface-raised px-2.5 py-0.5 dark:border-neutral-600",
+                    OPERATOR_TYPOGRAPHY.badge,
+                    "text-al-text-primary",
+                  )}
+                >
                   Approved with monitoring
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                <span className={OPERATOR_TYPE_SCALE.meta}>
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored residual risk · audit evidence ready
                 </span>
               </div>
-              <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <p className={cn("m-0 mt-2 max-w-2xl", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
                 {BUYER_HOME_SAMPLE_PACKAGE_LEAD}
               </p>
             </>
@@ -91,14 +105,14 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
                 </dd>
               </div>
               <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
-                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Decisions</dt>
-                <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+                <dt className={OPERATOR_TYPE_SCALE.micro}>Decisions</dt>
+                <dd className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-50")}>
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount}
                 </dd>
               </div>
               <div className="rounded-lg border border-neutral-200 px-2 py-2 dark:border-neutral-800">
-                <dt className="text-[11px] text-neutral-500 dark:text-neutral-400">Monitored risks</dt>
-                <dd className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+                <dt className={OPERATOR_TYPE_SCALE.micro}>Monitored risks</dt>
+                <dd className={cn("m-0", OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-50")}>
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount}
                 </dd>
               </div>
@@ -109,7 +123,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               {buyerPolished === true ? (
                 <>
-                  <Button asChild variant="primary" size="lg" className="h-11 min-h-[44px] px-7 text-base shadow-sm">
+                  <Button asChild variant="primary" className="shadow-sm">
                     <Link href={sampleReviewHref} onClick={recordSampleOpened}>
                       {BUYER_HOME_PRIMARY_CTA}
                     </Link>
@@ -131,7 +145,7 @@ export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirst
 
             {buyerPolished === true ? (
               <div className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2">
-                <Button asChild variant="outline" size="lg" className="h-11 min-h-[44px] px-7 text-base">
+                <Button asChild variant="outline">
                   <Link href="/reviews/new">
                     {BUYER_HOME_SECONDARY_CTA}
                   </Link>

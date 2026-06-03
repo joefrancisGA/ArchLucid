@@ -13,10 +13,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { getPilotScorecard } from "@/lib/api";
 import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipal } from "@/lib/current-principal";
-import {
-  FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE,
-  resolveFirstPilotCommandCenterPhase,
-} from "@/lib/first-pilot-command-center-phase";
+import { resolveFirstPilotCommandCenterPhase } from "@/lib/first-pilot-command-center-phase";
 import {
   FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND,
   FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE,
@@ -33,16 +30,16 @@ import {
   readFirstPilotEvidenceAcknowledged,
 } from "@/lib/first-pilot-operating-rail-status";
 import {
+  BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK,
+  BUYER_COMMAND_CENTER_RECOMMENDED_HEADING,
+} from "@/lib/buyer-home-status-copy";
+import {
   applyBuyerPolishedCommandCenterPhase,
-  shellEnterpriseStatusTagClass,
+  isBuyerShellHomePresentation,
   shellReadinessCountPhrase,
   shellReadinessStatusTagLabel,
-  shellSponsorDispositionLabel,
 } from "@/lib/buyer-shell-home-present";
-import {
-  mapReadinessStatusToEnterpriseKind,
-  mapSponsorDispositionToEnterpriseKind,
-} from "@/lib/first-pilot-operator-status-vocabulary";
+import { mapReadinessStatusToEnterpriseKind } from "@/lib/first-pilot-operator-status-vocabulary";
 import { fetchAdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
@@ -343,6 +340,13 @@ export function FirstPilotReadinessCockpit() {
   );
 
   const probesLoading = pendingProbes > 0;
+  const curatedHome = isBuyerShellHomePresentation();
+  const reviewPackageHref =
+    commitCtx.firstCommittedRunId !== null
+      ? `/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}`
+      : commitCtx.latestRunId !== null
+        ? `/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
+        : "/reviews?projectId=default";
 
   return (
     <OperatorHomeDisclosureSection
@@ -358,67 +362,75 @@ export function FirstPilotReadinessCockpit() {
         <FirstPilotReadinessCockpitLoadingBody />
       ) : (
         <>
-          <ReadinessStatusCountsBar rows={rows} />
-
-      <div className="mb-4">
-        <FirstPilotProofStatusStrip />
-      </div>
-
-      <article
-        className={cn("mb-4 rounded-lg border p-4", DESIGN_TOKENS.surface.card)}
-        data-testid="first-pilot-command-center-phase"
-        data-phase={commandCenter.phase}
-      >
-        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Next action</p>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <StatusTag
-            kind="neutral"
-            label={FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE[commandCenter.phase]}
-          />
-          <StatusTag kind="in-progress" label={commandCenter.headline} />
-          <StatusTag
-            kind={mapSponsorDispositionToEnterpriseKind(commandCenter.sponsorDisposition)}
-            label={shellSponsorDispositionLabel(commandCenter.sponsorDisposition)}
-            className={shellEnterpriseStatusTagClass(
-              mapSponsorDispositionToEnterpriseKind(commandCenter.sponsorDisposition),
+          <article
+            className={cn("mb-4 rounded-lg border p-4", DESIGN_TOKENS.surface.card)}
+            data-testid="first-pilot-command-center-phase"
+            data-phase={commandCenter.phase}
+          >
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {curatedHome ? BUYER_COMMAND_CENTER_RECOMMENDED_HEADING : "Recommended next step"}
+            </p>
+            {curatedHome ? null : (
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.meta)}>{commandCenter.headline}</p>
             )}
-          />
-        </div>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{commandCenter.summary}</p>
-        <Button variant="primary" size="sm" className="mt-3" asChild>
-          <Link href={commandCenter.href} data-testid="first-pilot-command-center-next-action">
-            {commandCenter.cta}
-          </Link>
-        </Button>
-        {commandCenter.phase === "sponsor-packet-send" || commandCenter.phase === "sponsor-packet-hold" ? (
-          <div className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.label)}>
-            <p className="m-0">{FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE}</p>
-            <FirstPilotTechnicalCommandDisclosure commands={[FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND]} />
-          </div>
-        ) : null}
-      </article>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{commandCenter.summary}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Button variant="primary" size="sm" asChild>
+                <Link href={commandCenter.href} data-testid="first-pilot-command-center-next-action">
+                  {commandCenter.cta}
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={reviewPackageHref}>{BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK}</Link>
+              </Button>
+            </div>
+            {!curatedHome
+              && (commandCenter.phase === "sponsor-packet-send" || commandCenter.phase === "sponsor-packet-hold") ? (
+              <div className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.meta)}>
+                <p className="m-0">{FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE}</p>
+                <FirstPilotTechnicalCommandDisclosure commands={[FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND]} />
+              </div>
+            ) : null}
+          </article>
 
-      <div className="space-y-5">
-        {READINESS_GROUPS.map((groupDef) => (
-          <FirstPilotReadinessGroupTable
-            key={groupDef.group}
-            group={groupDef.group}
-            groupLabel={groupDef.label}
-            rows={rows}
-          />
-        ))}
-      </div>
+          <OperatorHomeDisclosureSection
+            title="View readiness details"
+            storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails}
+            defaultExpanded={false}
+            collapsedSummary={collapsedReadinessSummary(pendingProbes, rows)}
+            sectionClassName="shadow-none"
+            bodyClassName="mt-0"
+          >
+            <ReadinessStatusCountsBar rows={rows} />
 
-      <OperatorHomeDisclosureSection
-        title="Assistant readiness diagnostics"
-        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.assistantDiagnostics}
-        defaultExpanded={false}
-        collapsedSummary="AI quality proof signals for assistant readiness."
-        sectionClassName="mt-4 shadow-none"
-        bodyClassName="mt-0"
-      >
-        <OperatorAiQualityProofCard embedded />
-      </OperatorHomeDisclosureSection>
+            {curatedHome ? null : (
+              <div className="mb-4 mt-4">
+                <FirstPilotProofStatusStrip />
+              </div>
+            )}
+
+            <div className="space-y-5">
+              {READINESS_GROUPS.map((groupDef) => (
+                <FirstPilotReadinessGroupTable
+                  key={groupDef.group}
+                  group={groupDef.group}
+                  groupLabel={groupDef.label}
+                  rows={rows}
+                />
+              ))}
+            </div>
+
+            <OperatorHomeDisclosureSection
+              title="Assistant readiness diagnostics"
+              storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.assistantDiagnostics}
+              defaultExpanded={false}
+              collapsedSummary="AI quality proof signals for assistant readiness."
+              sectionClassName="mt-4 shadow-none"
+              bodyClassName="mt-0"
+            >
+              <OperatorAiQualityProofCard embedded />
+            </OperatorHomeDisclosureSection>
+          </OperatorHomeDisclosureSection>
         </>
       )}
     </OperatorHomeDisclosureSection>

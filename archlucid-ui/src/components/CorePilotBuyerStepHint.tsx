@@ -12,14 +12,20 @@ import {
 } from "@/lib/core-pilot-commit-progress";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 type Phase = "loading" | "ready";
 
 function StepBadge({ label }: { label: string }) {
   return (
     <span
-      className="inline-block shrink-0 rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-semibold text-teal-800 dark:bg-teal-900/50 dark:text-teal-300"
+      className={cn(
+        "inline-block shrink-0 min-h-[20px] rounded-full bg-teal-100 px-2.5 py-0.5 text-teal-800 dark:bg-teal-900/50 dark:text-teal-300",
+        OPERATOR_TYPOGRAPHY.badge,
+        "font-semibold",
+      )}
       data-testid="core-pilot-buyer-step-badge"
     >
       {label}
@@ -148,7 +154,7 @@ export function CorePilotBuyerStepHint() {
     >
       <div className="flex flex-wrap items-center gap-2 gap-y-1">
         <StepBadge label={badge} />
-        <p className="m-0 flex-1 text-sm leading-snug text-neutral-700 dark:text-neutral-300">
+        <p className={cn("m-0 flex-1", OPERATOR_TYPE_SCALE.body, "text-neutral-700 dark:text-neutral-300")}>
           {buyerHintBody(progress, latestRunId, firstCommittedRunId)}
         </p>
       </div>

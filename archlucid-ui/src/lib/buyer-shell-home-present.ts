@@ -5,6 +5,9 @@ import {
   BUYER_COMMAND_CENTER_HOLD_SUMMARY_BASELINES,
   BUYER_COMMAND_CENTER_HOLD_SUMMARY_BLOCKERS,
   BUYER_COMMAND_CENTER_HOLD_SUMMARY_PERMISSION,
+  BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK,
+  BUYER_COMMAND_CENTER_RECOMMENDED_HEADING,
+  BUYER_COMMAND_CENTER_REVIEW_READY_SUMMARY,
   BUYER_CONFIG_EVIDENCE_UNAVAILABLE,
   BUYER_READINESS_UNAVAILABLE,
   BUYER_SPONSOR_DISPOSITION_DEFERRED,
@@ -122,16 +125,16 @@ export function shellSponsorDispositionLabel(disposition: FirstPilotSponsorDispo
   if (!isBuyerShellHomePresentation()) {
     switch (disposition) {
       case "send":
-        return "Sponsor send";
+        return BUYER_SPONSOR_DISPOSITION_SEND;
 
       case "hold":
-        return "Sponsor hold";
+        return "Business owner review needed";
 
       case "readiness-only":
-        return "Readiness only";
+        return BUYER_SPONSOR_DISPOSITION_READINESS;
 
       case "deferred":
-        return "Deferred scope";
+        return BUYER_SPONSOR_DISPOSITION_DEFERRED;
 
       default: {
         const exhaustive: never = disposition;
@@ -172,6 +175,15 @@ export function applyBuyerPolishedCommandCenterPhase(
 ): FirstPilotCommandCenterPhaseSummary {
   if (!isBuyerShellHomePresentation()) {
     return phase;
+  }
+
+  if (phase.phase === "sponsor-packet-send" && input.baselinesEntered) {
+    return {
+      ...phase,
+      headline: "Review package ready",
+      summary: BUYER_COMMAND_CENTER_REVIEW_READY_SUMMARY,
+      cta: BUYER_COMMAND_CENTER_HOLD_CTA_BASELINES,
+    };
   }
 
   if (phase.phase !== "sponsor-packet-hold") {

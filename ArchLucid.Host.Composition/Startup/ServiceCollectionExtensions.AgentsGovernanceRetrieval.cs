@@ -71,6 +71,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<GenerateIacStubsOptions>(configuration.GetSection(GenerateIacStubsOptions.SectionPath));
         services.Configure<RerankFindingsOptions>(configuration.GetSection(RerankFindingsOptions.SectionPath));
+        services.Configure<ExplainGovernanceBlocksOptions>(configuration.GetSection(ExplainGovernanceBlocksOptions.SectionPath));
         services.Configure<EvidenceSummarizationOptions>(
             configuration.GetSection(EvidenceSummarizationOptions.SectionPath));
         services.AddScoped<IEvidenceSummarizationService, EvidenceSummarizationService>();

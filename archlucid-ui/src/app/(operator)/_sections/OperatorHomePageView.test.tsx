@@ -9,9 +9,14 @@ vi.mock("@/components/SampleFirstReviewPackageCard", () => ({
   SampleFirstReviewPackageCard: () => <div data-testid="home-block-sample-package" />,
 }));
 
-vi.mock("@/components/CorePilotBuyerStepHint", () => ({
-  CorePilotBuyerStepHint: () => <div data-testid="home-block-buyer-step-hint" />,
-}));
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isOperatorExperienceFullShellEnv: vi.fn(() => true),
+  };
+});
 
 vi.mock("@/components/operator-home/RunsDashboardPanel", () => ({
   RunsDashboardPanel: () => <div data-testid="home-block-runs-dashboard" />,
@@ -76,31 +81,29 @@ function sectionBlockOrder(sectionTestId: string): string[] {
 }
 
 describe("OperatorHomePageView", () => {
-  it("orders buyer-polished home as proof, journey, then setup workflow", () => {
+  it("orders buyer-polished home as hero, reviews, journey, readiness, then setup", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: true }} />);
 
-    expect(screen.getByTestId("operator-home-proof-section")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-hero-section")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-journey-section")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-setup-section")).toBeInTheDocument();
+    expect(screen.getByTestId("home-block-readiness-cockpit")).toBeInTheDocument();
 
-    expect(sectionBlockOrder("operator-home-proof-section")).toEqual([
+    expect(sectionBlockOrder("operator-home-hero-section")).toEqual([
+      "home-block-welcome",
       "home-block-sample-package",
-      "home-block-runs-dashboard",
-      "home-block-before-after",
     ]);
     expect(sectionBlockOrder("operator-home-journey-section")).toEqual(["home-block-journey"]);
     expect(sectionBlockOrder("operator-home-setup-section")).toEqual([
-      "home-block-buyer-step-hint",
-      "home-block-welcome",
+      "home-block-checklist",
       "home-block-operating-rail",
-      "home-block-llm-hint",
     ]);
 
-    const proofSection = screen.getByTestId("operator-home-proof-section");
+    const heroSection = screen.getByTestId("operator-home-hero-section");
     const journeySection = screen.getByTestId("operator-home-journey-section");
     const setupSection = screen.getByTestId("operator-home-setup-section");
 
-    expect(proofSection.compareDocumentPosition(journeySection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(heroSection.compareDocumentPosition(journeySection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(journeySection.compareDocumentPosition(setupSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -112,11 +115,13 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByTestId("home-block-readiness-cockpit")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-runs-dashboard")).toBeInTheDocument();
 
+    const welcome = screen.getByTestId("home-block-welcome");
     const samplePackage = screen.getByTestId("home-block-sample-package");
     const operatingRail = screen.getByTestId("home-block-operating-rail");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const nextSteps = screen.getByTestId("home-block-next-steps");
 
+    expect(welcome.compareDocumentPosition(samplePackage) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(samplePackage.compareDocumentPosition(operatingRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(operatingRail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(nextSteps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

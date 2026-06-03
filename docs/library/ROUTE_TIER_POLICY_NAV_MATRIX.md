@@ -68,19 +68,21 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:159 -->
+<!-- route-tier-policy-nav-registry-count:161 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
 | `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /settings/api-keys |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
+| `Admin/AdminCustomerSuccessController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminFleetLlmCogsController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AdminIdentityProviderDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
 | `Admin/AdminIntegrationsController.cs` | `/v1/admin/integrations` | none | AdminAuthority |  |  |
 | `Admin/AdminLlmCostTuningController.cs` | `/v1/admin` | none | AdminAuthority | /settings/tenant-cost |  |
 | `Admin/AdminLlmMonthlyDollarBudgetStatusController.cs` | `/v1/admin` | none | ExecuteAuthority |  |  |
 | `Admin/AdminQualityGateDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
+| `Admin/AdminRagHealthController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminTenantsController.cs` | `/v1/admin/tenants` | none | PlatformTenantDeletionAuthority | /admin/users |  |
 | `Admin/AdminTrialFunnelOperationalController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AuditController.cs` | `/v1/audit` | none | ReadAuthority | /audit |  |

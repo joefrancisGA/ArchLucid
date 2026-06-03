@@ -82,6 +82,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IRunStateTransitionService runStateTransitionService,
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
+    IOptions<ExplainGovernanceBlocksOptions> explainGovernanceBlocksOptions,
     ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler reviewCompletedEventHandler,
     IAuthorityQueryService authorityQueryService,
     IProvenanceGraphAccessService provenanceGraphAccessService,
@@ -133,6 +134,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IOptions<RerankFindingsOptions> _rerankFindingsOptions =
         rerankFindingsOptions ?? throw new ArgumentNullException(nameof(rerankFindingsOptions));
+
+    private readonly IOptions<ExplainGovernanceBlocksOptions> _explainGovernanceBlocksOptions =
+        explainGovernanceBlocksOptions ?? throw new ArgumentNullException(nameof(explainGovernanceBlocksOptions));
 
     private readonly ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler _reviewCompletedEventHandler =
         reviewCompletedEventHandler ?? throw new ArgumentNullException(nameof(reviewCompletedEventHandler));
@@ -759,6 +763,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         string goldenManifestWireJson,
         CancellationToken cancellationToken)
     {
+        if (!_explainGovernanceBlocksOptions.Value.Enabled)
+            return gateResult;
+
         string manifestExcerpt = TruncateForGovernanceExplanation(goldenManifestWireJson);
         if (manifestExcerpt.Length == 0)
             return gateResult;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  OPERATOR_TYPE_SCALE,
   OPERATOR_TYPOGRAPHY,
   operatorConfidenceSurface,
   operatorSemanticBadge,
@@ -27,16 +28,24 @@ describe("design-tokens TB-115 surfaces", () => {
 });
 
 describe("design-tokens TB-119 typography", () => {
-  it("page titles cap at text-xl with weight + tracking", () => {
-    expect(OPERATOR_TYPOGRAPHY.pageTitle).toContain("text-xl");
-    expect(OPERATOR_TYPOGRAPHY.pageTitle).toContain("font-semibold");
+  it("four-tier scale uses 18/16/13/12/11px steps", () => {
+    expect(OPERATOR_TYPE_SCALE.title).toContain("text-lg");
+    expect(OPERATOR_TYPE_SCALE.cardTitle).toContain("text-base");
+    expect(OPERATOR_TYPE_SCALE.section).toContain("text-sm");
+    expect(OPERATOR_TYPE_SCALE.body).toContain("text-[13px]");
+    expect(OPERATOR_TYPE_SCALE.meta).toContain("text-xs");
+    expect(OPERATOR_TYPE_SCALE.micro).toContain("text-[11px]");
+  });
+
+  it("page titles align with title tier (18px)", () => {
+    expect(OPERATOR_TYPOGRAPHY.pageTitle).toBe(OPERATOR_TYPE_SCALE.title);
     expect(OPERATOR_TYPOGRAPHY.pageTitle).not.toContain("text-2xl");
   });
 
-  it("section titles use size + weight + case, not color alone", () => {
-    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("text-xs");
+  it("section titles use 13px semibold without uppercase", () => {
+    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("text-sm");
     expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("font-semibold");
-    expect(OPERATOR_TYPOGRAPHY.sectionTitle).toContain("uppercase");
+    expect(OPERATOR_TYPOGRAPHY.sectionTitle).not.toContain("uppercase");
   });
 
   it("KPI values use mono tabular scale separate from page titles", () => {
@@ -45,8 +54,8 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPOGRAPHY.kpiValue).toContain("tabular-nums");
   });
 
-  it("badge typography uses 11px semibold scale for status chips", () => {
+  it("badge typography uses 11px medium scale for status chips", () => {
     expect(OPERATOR_TYPOGRAPHY.badge).toContain("text-[11px]");
-    expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-semibold");
+    expect(OPERATOR_TYPOGRAPHY.badge).toContain("font-medium");
   });
 });

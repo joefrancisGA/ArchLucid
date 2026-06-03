@@ -4,16 +4,9 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   ARCHITECTURE_REVIEW_LABELS,
   PIPELINE_STATUS_LABELS,
-  PIPELINE_STATUS_TOOLTIPS,
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export type RunPipelineLabel =
   | "Finalized"
@@ -59,20 +52,6 @@ function buyerPipelineStatusDisplayLabel(label: RunPipelineLabel): string {
   }
 }
 
-function getTooltipContent(label: RunPipelineLabel): string {
-  switch (label) {
-    case PIPELINE_STATUS_LABELS.finalized:
-      return PIPELINE_STATUS_TOOLTIPS.finalized;
-    case PIPELINE_STATUS_LABELS.readyToFinalize:
-      return PIPELINE_STATUS_TOOLTIPS.readyToFinalize;
-    case PIPELINE_STATUS_LABELS.inPipeline:
-      return PIPELINE_STATUS_TOOLTIPS.inPipeline;
-    case PIPELINE_STATUS_LABELS.starting:
-      return PIPELINE_STATUS_TOOLTIPS.starting;
-    default:
-      return "";
-  }
-}
 
 export type RunStatusBadgeProps = {
   run: RunSummary;
@@ -87,26 +66,14 @@ export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const internal = deriveRunListPipelineLabel(run);
   const displayLabel = buyerPolished ? buyerPipelineStatusDisplayLabel(internal) : internal;
-  const tooltipContent = getTooltipContent(internal);
 
   const pill = (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="inline-block cursor-help">
-            <StatusPill
-              status={displayLabel}
-              domain="pipeline"
-              className={cn("shrink-0", className)}
-              ariaLabel={`${ARCHITECTURE_REVIEW_LABELS.pipelineStatusAriaPrefix}: ${displayLabel}`}
-            />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs text-sm">
-          <p>{tooltipContent}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <StatusPill
+      status={displayLabel}
+      domain="pipeline"
+      className={cn("shrink-0", className)}
+      ariaLabel={`${ARCHITECTURE_REVIEW_LABELS.pipelineStatusAriaPrefix}: ${displayLabel}`}
+    />
   );
 
   if (buyerPolished && run.hasGovernanceWarnings === true && run.hasGoldenManifest === true) {

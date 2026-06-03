@@ -2,7 +2,6 @@
 
 import type { RunSummary } from "@/types/authority";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,6 @@ type StageDef = {
   key: StageKey;
   label: string;
   present: boolean;
-  tooltip: string;
 };
 
 function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
@@ -67,59 +65,30 @@ function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
   const graphPresentShowcaseFallback =
     buyerPolished === true && canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
 
-  const graphSnapshotsOk =
+  const graphPresent =
     run.hasGraphSnapshot === true ||
     graphPresentShowcaseFallback === true;
-
-  const graphTooltip =
-    buyerPolished === true
-      ? `Evidence graph — structured decision trace for this review (provenance and relationships). ${
-          graphSnapshotsOk === true
-            ? run.hasGraphSnapshot === true
-              ? "Snapshot recorded."
-              : "Buyer walkthrough ships a seeded traceability viewer for this sample package."
-            : "Not yet generated."
-        }`
-      : `Graph — structured architecture / linkage snapshot. ${
-          run.hasGraphSnapshot === true ? "Present." : "Not yet generated."
-        }`;
-
-  const findingsTooltip = buyerPolished
-    ? "Evidence-linked findings — monitored risks and decisions anchor to retrieved sources for auditability in this package. " +
-      (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured.")
-    : "Evidence-linked findings — risks and architecture decisions traced to snapshots, artifacts, and graph relationships. " +
-      (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured.");
 
   return [
     {
       key: "context",
       label: "Context",
       present: run.hasContextSnapshot === true,
-      tooltip:
-        "Context — architecture inputs and constraints captured as a snapshot for this review. " +
-        (run.hasContextSnapshot === true ? "Present." : "Not yet captured."),
     },
     {
       key: "graph",
       label: "Graph",
-      present:
-        run.hasGraphSnapshot === true ||
-        graphPresentShowcaseFallback === true,
-      tooltip: graphTooltip,
+      present: graphPresent,
     },
     {
       key: "findings",
       label: "Findings",
       present: run.hasFindingsSnapshot === true,
-      tooltip: findingsTooltip,
     },
     {
       key: "manifest",
       label: "Manifest",
       present: run.hasGoldenManifest === true,
-      tooltip:
-        "Manifest — finalized reviewed manifest (golden). " +
-        (run.hasGoldenManifest === true ? "Present." : "Not yet finalized."),
     },
   ];
 }
@@ -167,24 +136,16 @@ export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = 
       >
         {stages.map((stage) => (
           <li key={stage.key}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  title={undefined}
-                  className={cn(
-                    "inline-flex cursor-help items-center rounded-full border px-2 py-px text-[10px] font-semibold uppercase tracking-wide",
-                    stage.present
-                      ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
-                      : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
-                  )}
-                >
-                  {stageChipLabel(stage, buyerPolished)}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs">
-                {stage.tooltip}
-              </TooltipContent>
-            </Tooltip>
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full border px-2 py-px text-[10px] font-semibold uppercase tracking-wide",
+                stage.present
+                  ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
+                  : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
+              )}
+            >
+              {stageChipLabel(stage, buyerPolished)}
+            </span>
           </li>
         ))}
       </ul>

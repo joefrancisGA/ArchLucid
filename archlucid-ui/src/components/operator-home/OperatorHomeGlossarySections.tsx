@@ -5,7 +5,6 @@ import { Check, FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
 import type { ComponentType } from "react";
 import { Fragment } from "react";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type PipelineStepStatus = "not-started" | "current" | "completed";
@@ -19,8 +18,6 @@ type PipelineStepConfig = {
   href: string;
   shortcut?: string;
   linkAccessibleName?: string;
-  /** Explains the Finalize step when the label alone is too abstract. */
-  tooltip?: string;
 };
 
 const PIPELINE_STEPS: PipelineStepConfig[] = [
@@ -50,8 +47,6 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     label: "Finalize Manifest",
     description: "Finalize the reviewed manifest and export artifacts.",
     href: "/reviews?projectId=default",
-    tooltip:
-      "Finalizing records the reviewed manifest as the authoritative output for this review. You can still compare, export, and revisit its artifacts afterward.",
   },
   {
     step: 4,

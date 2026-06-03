@@ -16,7 +16,7 @@ import {
   mapReadinessStatusToEnterpriseKind,
   mapReadinessStatusToStatusTagLabel,
 } from "@/lib/first-pilot-operator-status-vocabulary";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 
 type FirstPilotReadinessGroupTableProps = {
   readonly groupLabel: string;
@@ -36,7 +36,7 @@ export function FirstPilotReadinessGroupTable(props: FirstPilotReadinessGroupTab
 
   return (
     <section aria-labelledby={headingId}>
-      <h3 id={headingId} className={`mb-2 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}>
+      <h3 id={headingId} className={`mb-2 ${OPERATOR_TYPE_SCALE.section}`}>
         {props.groupLabel}
       </h3>
       <EnterpriseTable ariaLabel={`${props.groupLabel} readiness`}>
@@ -51,7 +51,7 @@ export function FirstPilotReadinessGroupTable(props: FirstPilotReadinessGroupTab
         <EnterpriseTableBody>
           {groupRows.map((row) => (
             <EnterpriseTableRow key={row.id}>
-              <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.cardTitle}>{row.label}</EnterpriseTableCell>
+              <EnterpriseTableCell className={DESIGN_TOKENS.table.rowLabel}>{row.label}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 <StatusTag
                   kind={mapReadinessStatusToEnterpriseKind(row.status)}
@@ -60,7 +60,7 @@ export function FirstPilotReadinessGroupTable(props: FirstPilotReadinessGroupTab
               </EnterpriseTableCell>
               <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>{row.summary}</EnterpriseTableCell>
               <EnterpriseTableCell>
-                <Button variant="link" size="sm" className="h-auto px-0" asChild>
+                <Button variant="link" size="sm" className="h-7 px-0 text-xs" asChild>
                   <Link href={row.href}>{row.cta}</Link>
                 </Button>
               </EnterpriseTableCell>

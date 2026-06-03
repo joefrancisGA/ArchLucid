@@ -14,6 +14,8 @@ import {
 } from "@/lib/core-pilot-checklist-storage";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 /** Anchor ids in docs/CORE_PILOT.md walkthrough (section 3) — keep aligned with headings. */
 const CORE_PILOT_HELP_HASH_FRAGMENTS = [
@@ -24,8 +26,14 @@ const CORE_PILOT_HELP_HASH_FRAGMENTS = [
   "manifest-review",
 ] as const;
 
+type CorePilotChecklistProps = {
+  /** Home page: titles only; full descriptions live in the Core Pilot guide. */
+  readonly variant?: "full" | "compact";
+};
+
 /** Operator-home checklist: manual "mark complete" synced with `archlucid-pilot-checklist` and legacy step keys. */
-export function CorePilotChecklist() {
+export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
+  const checklistVariant = props.variant ?? "full";
   const [hydrated, setHydrated] = useState(false);
   const [stepsDone, setStepsDone] = useState<boolean[]>(() =>
     Array.from({ length: CORE_PILOT_STEP_COUNT }, () => false),
@@ -75,6 +83,27 @@ export function CorePilotChecklist() {
   }
 
   const allDone = stepsDone.every(Boolean);
+  const compact = checklistVariant === "compact";
+
+  if (compact) {
+    return (
+      <OperatorHomeDisclosureSection
+        title="First review checklist"
+        titleId="core-pilot-checklist-heading"
+        sectionTestId="core-pilot-checklist"
+        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}
+        defaultExpanded={false}
+        collapsedSummary={`${CORE_PILOT_STEP_COUNT} steps to your first architecture review package.`}
+      >
+        <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>
+          {CORE_PILOT_STEPS.map((step) => (
+            <li key={step.title}>{step.title}</li>
+          ))}
+        </ul>
+        <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open checklist" className="mt-3 inline-block" />
+      </OperatorHomeDisclosureSection>
+    );
+  }
 
   return (
     <OperatorHomeDisclosureSection
@@ -87,7 +116,7 @@ export function CorePilotChecklist() {
     >
       <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Open Core Pilot guide" className="mb-3 inline-block" />
 
-      <p className="m-0 mb-3 text-sm text-neutral-600 dark:text-neutral-400">
+      <p className={cn("m-0 mb-3", OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>
         Work through the {CORE_PILOT_STEP_COUNT} steps from an empty tenant to your first architecture review package
         — check each when you have done it.
       </p>
@@ -105,7 +134,7 @@ export function CorePilotChecklist() {
               <div className="flex flex-wrap items-start gap-2">
                 <Link
                   href={step.primaryHref}
-                  className="text-sm font-semibold text-blue-700 underline-offset-2 hover:underline dark:text-blue-400"
+                  className={cn(OPERATOR_TYPOGRAPHY.body, "font-semibold text-blue-700 underline-offset-2 hover:underline dark:text-blue-400")}
                 >
                   {step.title}
                 </Link>
@@ -115,7 +144,7 @@ export function CorePilotChecklist() {
                   label={`Core Pilot guide, step ${index + 1}`}
                 />
               </div>
-              <p className="m-0 mt-1 text-sm text-neutral-700 dark:text-neutral-300">{step.shortBody}</p>
+              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>{step.shortBody}</p>
               <div className="mt-2 flex items-center gap-2">
                 <input
                   id={checkboxId}

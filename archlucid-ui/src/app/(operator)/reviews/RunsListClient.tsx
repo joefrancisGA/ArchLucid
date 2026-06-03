@@ -21,7 +21,6 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
@@ -698,26 +697,7 @@ export function RunsListClient({
                                     <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
                                       {title}
                                     </span>
-                                    <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="inline-flex shrink-0 cursor-help">
-              <RunStatusBadge run={run} />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-xs">
-            {buyerPolished ? (
-              <>
-                Packaging status from snapshots: finalized review package, pre-final while findings await a finalized signed manifest,
-                or early pipeline before findings are ready.
-              </>
-            ) : (
-              <>
-                Pipeline phase derived from snapshots: finalized manifest, findings ready to finalize, still executing, or
-                just starting.
-              </>
-            )}
-          </TooltipContent>
-        </Tooltip>
+                                    <RunStatusBadge run={run} />
                                   </div>
                                   {buyerPolished ? (() => {
                                     const meta = buyerDemoPackageCardMeta(run.runId);

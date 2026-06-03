@@ -49,6 +49,13 @@ export const BUYER_COMMAND_CENTER_HOLD_CTA_BASELINES = "Add ROI baseline";
 
 export const BUYER_COMMAND_CENTER_HOLD_CTA_BLOCKERS = "Review approval steps";
 
+export const BUYER_COMMAND_CENTER_RECOMMENDED_HEADING = "Recommended next step";
+
+export const BUYER_COMMAND_CENTER_REVIEW_READY_SUMMARY =
+  "The review package is ready. Add ROI assumptions before sharing the sponsor package.";
+
+export const BUYER_COMMAND_CENTER_OPEN_REVIEW_LINK = "Open review package";
+
 export const BUYER_STATUS_READY = "Ready";
 
 export const BUYER_STATUS_ACTION_NEEDED = "Action needed";

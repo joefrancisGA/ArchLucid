@@ -9,6 +9,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
 import type { FirstPilotOperatingRailSignals } from "@/lib/first-pilot-operating-rail-status";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { applyHomeReadinessRowPresentation } from "@/lib/home-readiness-row-present";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 export type FirstPilotReadinessStatus = "ready" | "attention" | "blocked" | "unknown";
@@ -85,7 +86,7 @@ export function buildFirstPilotReadinessRows(input: {
     : "/reviews?projectId=default";
   const configLintCopy = mapConfigLintReadinessForShell({ canAdmin, lint: input.configLint });
 
-  return [
+  return applyHomeReadinessRowPresentation([
     {
       id: "api-ready",
       label: "API and platform readiness",
@@ -239,5 +240,5 @@ export function buildFirstPilotReadinessRows(input: {
       href: "/reviews/new",
       cta: "Start second review",
     },
-  ];
+  ]);
 }

@@ -173,7 +173,7 @@ export function WelcomeBanner() {
         ) : null}
         <div className={cn(DESIGN_TOKENS.surface.card, "px-4 py-3")}>
           <h2 className={cn("mb-1", OPERATOR_TYPOGRAPHY.body, "font-semibold")}>New here?</h2>
-          <p className="mb-3 text-sm text-neutral-700 dark:text-neutral-300">
+          <p className={cn("mb-3", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>
             Take a quick 6-step tour to see how a review goes from upload to architecture snapshot.
           </p>
           <OptInTourLauncher buttonVariant="outline" />
@@ -241,7 +241,9 @@ export function WelcomeBanner() {
             </span>
           ) : null}
           <h2 className={cn("mb-1", OPERATOR_TYPOGRAPHY.pageTitle)}>{headingText}</h2>
-          <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
+          <p className={cn("mt-0 max-w-lg", OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>
+            {subheadingText}
+          </p>
 
           {buyerPolishedShell ? null : (
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
