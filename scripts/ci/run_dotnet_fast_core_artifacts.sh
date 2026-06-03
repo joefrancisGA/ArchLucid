@@ -4,7 +4,7 @@
 #
 # Expects:
 #   - Restored/built tree optional for SBOM (script restores/builds Api project)
-#   - Cobertura files under RUNNER_TEMP/coverage-fast-core (downloaded from corset artifact)
+#   - Cobertura files under RUNNER_TEMP/coverage-fast-core (merged from corset shard artifacts coverage-fast-core-*)
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

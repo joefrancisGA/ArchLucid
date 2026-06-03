@@ -1244,7 +1244,8 @@ jobs:
 
       - uses: actions/download-artifact@v6
         with:
-          name: coverage-fast-core
+          pattern: coverage-fast-core-*
+          merge-multiple: true
           path: ${{ runner.temp }}/coverage-fast-core
 
       - name: SBOM and coverage HTML
