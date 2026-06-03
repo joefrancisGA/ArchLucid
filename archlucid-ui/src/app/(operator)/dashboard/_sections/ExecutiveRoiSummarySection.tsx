@@ -53,6 +53,21 @@ export function ExecutiveRoiSummarySection() {
     triggerGoldenManifestMarkdownDownload(markdown, executiveSummaryMarkdownFilename());
   }, [data]);
 
+  const onDownloadBoardPack = useCallback(async () => {
+    setBoardPackBusy(true);
+
+    try {
+      await downloadExecutiveRoiBoardPack({
+        format: "md",
+        generateNarrative: includeBoardPackNarrative,
+      });
+    } catch (e: unknown) {
+      showError("Board pack download failed", e instanceof Error ? e.message : String(e));
+    } finally {
+      setBoardPackBusy(false);
+    }
+  }, [includeBoardPackNarrative]);
+
   const onDownloadCsv = useCallback(async () => {
     try {
       const response = await fetch(

@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:250 -->
+<!-- audit-core-const-count:251 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -300,6 +300,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RiskExceptionRenewed` | `RiskExceptionRenewed` | `GovernanceStickinessController` (`POST /v1/governance/risk-exceptions/{riskExceptionId}/renew`); `RiskExceptionService` |
 | `RiskExceptionExpired` | `RiskExceptionExpired` | `RiskExceptionService` (expires active waivers past `ExpiresAtUtc` when listed) |
 | `ArchitectureReviewRecurrenceScheduleCreated` | `ArchitectureReviewRecurrenceScheduleCreated` | `GovernanceStickinessController` (`POST /v1/governance/recurrence-schedules`) |
+| `ArchitectureReviewRecurrenceScheduleUpdated` | `ArchitectureReviewRecurrenceScheduleUpdated` | `GovernanceStickinessController` (`PUT /v1/governance/recurrence-schedules/{scheduleId}`) |
 | `ArchitectureReviewRecurrenceTriggered` | `ArchitectureReviewRecurrenceTriggered` | `RecurringArchitectureReviewTriggerService` |
 | `AuthTokenDiagnosticRequested` | `Auth.TokenDiagnosticRequested` | `AdminAuthDiagnosticsController` (`POST /v1/admin/auth/diagnose-token`) |
 | `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |

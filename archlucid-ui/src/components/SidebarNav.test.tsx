@@ -187,12 +187,16 @@ describe("SidebarNav (primary navigation)", () => {
     expect(within(nav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "Show 2 more destinations in Review work" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show 3 more destinations in Review work" }));
 
     expect(screen.queryByRole("dialog", { name: "Sidebar layout" })).toBeNull();
     expect(within(nav).getByRole("link", { name: "Risk register" })).toHaveAttribute(
       "href",
       "/governance/findings",
+    );
+    expect(within(nav).getByRole("link", { name: "Risk exceptions" })).toHaveAttribute(
+      "href",
+      "/governance/risk-exceptions",
     );
     expect(within(nav).getByRole("link", { name: "Scorecard" })).toHaveAttribute("href", "/scorecard");
   });
