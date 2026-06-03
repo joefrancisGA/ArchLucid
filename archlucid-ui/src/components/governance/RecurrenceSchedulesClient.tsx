@@ -34,9 +34,52 @@ function truncateRunId(runId: string): string {
   return `${normalized.slice(0, 8)}…${normalized.slice(-4)}`;
 }
 
+type RecurrenceStatusPresentation = {
+  kind: "ready" | "needs-attention" | "danger" | "muted";
+  label: string;
+  title?: string;
+};
+
+function recurrenceRunStatusPresentation(
+  schedule: ArchitectureReviewRecurrenceSchedule,
+): RecurrenceStatusPresentation {
+  const lastStatus = schedule.lastRunStatus?.trim().toLowerCase() ?? "never";
+  const failures = schedule.consecutiveFailureCount ?? 0;
+
+  if (!schedule.isEnabled && failures >= 5) {
+    return {
+      kind: "danger",
+      label: "Auto-disabled",
+      title:
+        schedule.lastErrorMessage ??
+        "Auto-disabled after repeated failures — re-enable when the source run is healthy.",
+    };
+  }
+
+  if (lastStatus === "failed") {
+    return {
+      kind: "danger",
+      label: failures > 0 ? `Failed (${failures})` : "Failed",
+      title: schedule.lastErrorMessage ?? undefined,
+    };
+  }
+
+  if (lastStatus === "succeeded") {
+    return { kind: "ready", label: "Last run OK" };
+  }
+
+  return { kind: "muted", label: "Never run" };
+}
+
 function scheduleStatusKind(
   schedule: ArchitectureReviewRecurrenceSchedule,
 ): "ready" | "needs-attention" {
+  const runStatus = recurrenceRunStatusPresentation(schedule);
+
+  if (runStatus.kind === "danger") {
+    return "needs-attention";
+  }
+
   if (!schedule.isEnabled) {
     return "needs-attention";
   }
@@ -147,6 +190,8 @@ export default function RecurrenceSchedulesClient() {
           ) : (
             schedules.map((schedule) => {
               const statusKind = scheduleStatusKind(schedule);
+              const runStatus = recurrenceRunStatusPresentation(schedule);
+              const autoDisabled = !schedule.isEnabled && (schedule.consecutiveFailureCount ?? 0) >= 5;
 
               return (
                 <EnterpriseTableRow key={schedule.scheduleId}>
@@ -163,25 +208,43 @@ export default function RecurrenceSchedulesClient() {
                   <EnterpriseTableCell>{formatUtcLabel(schedule.nextRunUtc)}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <StatusTag
-                      kind={statusKind === "ready" ? "ready" : "needs-attention"}
-                      label={statusKind === "ready" ? "Ready" : "Needs attention"}
+                      kind={
+                        runStatus.kind === "ready"
+                          ? "ready"
+                          : runStatus.kind === "danger"
+                            ? "needs-attention"
+                            : runStatus.kind === "muted"
+                              ? "needs-attention"
+                              : statusKind === "ready"
+                                ? "ready"
+                                : "needs-attention"
+                      }
+                      label={runStatus.label}
+                      title={runStatus.title}
                     />
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={busyId === schedule.scheduleId}
-                      onClick={() => void toggleEnabled(schedule)}
-                      data-testid={`recurrence-toggle-${schedule.scheduleId}`}
-                    >
-                      {busyId === schedule.scheduleId
-                        ? "Saving…"
-                        : schedule.isEnabled
-                          ? "Disable"
-                          : "Enable"}
-                    </Button>
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={busyId === schedule.scheduleId}
+                        onClick={() => void toggleEnabled(schedule)}
+                        data-testid={`recurrence-toggle-${schedule.scheduleId}`}
+                      >
+                        {busyId === schedule.scheduleId
+                          ? "Saving…"
+                          : schedule.isEnabled
+                            ? "Disable"
+                            : "Enable"}
+                      </Button>
+                      {autoDisabled ? (
+                        <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                          Auto-disabled after repeated failures — re-enable when ready.
+                        </span>
+                      ) : null}
+                    </div>
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               );

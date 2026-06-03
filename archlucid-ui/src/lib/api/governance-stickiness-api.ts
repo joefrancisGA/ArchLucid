@@ -94,6 +94,21 @@ export type ArchitectureReviewRecurrenceSchedule = {
   nextRunUtc?: string | null;
   lastTriggeredUtc?: string | null;
   lastTriggeredRunId?: string | null;
+  lastRunStatus?: string | null;
+  lastErrorMessage?: string | null;
+  consecutiveFailureCount?: number;
+};
+
+export type GovernanceReviewAwaitingActionItem = {
+  runId: string;
+  name: string;
+  executedUtc?: string | null;
+  sourceRunId: string;
+  newFindingCount: number;
+};
+
+export type GovernanceReviewsAwaitingActionResponse = {
+  items: GovernanceReviewAwaitingActionItem[];
 };
 
 export type RealizedValueSummary = {
@@ -200,6 +215,10 @@ export async function renewRiskException(
     `${governanceBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
     body,
   );
+}
+
+export async function getGovernanceReviewsAwaitingAction(): Promise<GovernanceReviewsAwaitingActionResponse> {
+  return apiGet<GovernanceReviewsAwaitingActionResponse>(`${governanceBase()}/reviews-awaiting-action`);
 }
 
 export async function getGovernanceDecisionsNeededSummary(

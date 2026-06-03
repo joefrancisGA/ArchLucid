@@ -30,6 +30,7 @@ using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Application.Marketing;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Planning;
@@ -260,6 +261,12 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(RoiCostEvidenceFreshnessOptions.SectionPath));
         services.AddScoped<ResourceCoverageReportService>();
         services.AddScoped<IExecutiveReportsSummaryService, ExecutiveReportsSummaryService>();
+        services.Configure<RecurrenceCompletionNotificationOptions>(
+            configuration.GetSection(RecurrenceCompletionNotificationOptions.SectionName));
+        services.AddScoped<IRecurrenceCompletionRecipientResolver, RecurrenceCompletionRecipientResolver>();
+        services.AddScoped<IRecurrenceCompletionEmailDispatcher, RecurrenceCompletionEmailDispatcher>();
+        services.AddScoped<IRecurrenceCompletionNotificationService, RecurrenceCompletionNotificationService>();
+        services.AddScoped<IReviewsAwaitingActionQueryService, ReviewsAwaitingActionQueryService>();
         services.AddScoped<IRecurringArchitectureReviewTriggerService, RecurringArchitectureReviewTriggerService>();
         services
             .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(

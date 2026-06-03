@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { DESIGN_TOKENS } from "@/lib/design-tokens";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/GovernanceReviewsAwaitingNavBadge";
 import { NAV_GROUPS, flattenNavLinks } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
@@ -621,6 +621,7 @@ export function SidebarNav() {
                     >
                       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
                       {link.label}
+                      {link.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null}
                     </Link>
                   );
                 })}

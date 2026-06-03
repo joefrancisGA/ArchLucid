@@ -98,6 +98,12 @@ public static class AuditEventTypes
     /// <summary>Recurring architecture review schedule fired and started a follow-up run (TB-059–062).</summary>
     public const string ArchitectureReviewRecurrenceTriggered = "ArchitectureReviewRecurrenceTriggered";
 
+    /// <summary>Recurrence completion email + delta notification dispatched (TB-261).</summary>
+    public const string ArchitectureReviewRecurrenceNotified = "ArchitectureReviewRecurrenceNotified";
+
+    /// <summary>Recurrence schedule auto-disabled after repeated failures (TB-262).</summary>
+    public const string ArchitectureReviewRecurrenceAutoDisabled = "ArchitectureReviewRecurrenceAutoDisabled";
+
     /// <summary>Operator muted a finding for the active review (durable <c>dbo.FindingRecords</c> row).</summary>
     public const string FindingMuted = "FindingMuted";
 

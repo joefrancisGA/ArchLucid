@@ -23,13 +23,15 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
             (
                 ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
-                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc
+                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
+                LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
             )
             VALUES
             (
                 @ScheduleId, @TenantId, @WorkspaceId, @ProjectId, @SourceRunId,
                 @Name, @CronExpression, @IsEnabled, @CreatedUtc, @CreatedByUserId,
-                @LastTriggeredUtc, @LastTriggeredRunId, @NextRunUtc
+                @LastTriggeredUtc, @LastTriggeredRunId, @NextRunUtc,
+                @LastRunStatus, @LastErrorMessage, @ConsecutiveFailureCount
             );
             """;
 
@@ -49,7 +51,10 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
                 IsEnabled = @IsEnabled,
                 LastTriggeredUtc = @LastTriggeredUtc,
                 LastTriggeredRunId = @LastTriggeredRunId,
-                NextRunUtc = @NextRunUtc
+                NextRunUtc = @NextRunUtc,
+                LastRunStatus = @LastRunStatus,
+                LastErrorMessage = @LastErrorMessage,
+                ConsecutiveFailureCount = @ConsecutiveFailureCount
             WHERE ScheduleId = @ScheduleId;
             """;
 
@@ -66,7 +71,8 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
             SELECT TOP (@Take)
                 ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
-                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc
+                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
+                LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
             FROM dbo.ArchitectureReviewRecurrenceSchedules
             WHERE IsEnabled = 1
               AND NextRunUtc IS NOT NULL
@@ -94,7 +100,8 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
             SELECT
                 ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
-                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc
+                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
+                LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
             FROM dbo.ArchitectureReviewRecurrenceSchedules
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -120,7 +127,8 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
             SELECT
                 ScheduleId, TenantId, WorkspaceId, ProjectId, SourceRunId,
                 Name, CronExpression, IsEnabled, CreatedUtc, CreatedByUserId,
-                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc
+                LastTriggeredUtc, LastTriggeredRunId, NextRunUtc,
+                LastRunStatus, LastErrorMessage, ConsecutiveFailureCount
             FROM dbo.ArchitectureReviewRecurrenceSchedules
             WHERE ScheduleId = @ScheduleId;
             """;

@@ -3,7 +3,9 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { FirstPilotOperatingRail } from "@/components/FirstPilotOperatingRail";
+import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
 import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
+import { ReviewsAwaitingActionCard } from "@/components/governance/ReviewsAwaitingActionCard";
 import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
@@ -109,6 +111,7 @@ function BuyerPolishedHomePageBody() {
         data-testid="operator-home-hero-section"
       >
         <div className="min-w-0 space-y-4">
+          <FirstValueReachedCallout />
           <WelcomeBanner />
           <CorePilotBuyerStepHint />
           <BeforeAfterDeltaPanel />
@@ -153,7 +156,9 @@ function OperatorHomePageBody() {
     <>
       {/* Zone 1: primary actions */}
       <div className="space-y-4">
+        <FirstValueReachedCallout />
         <WelcomeBanner />
+        <ReviewsAwaitingActionCard />
         <SampleFirstReviewPackageCard buyerPolishedShell={false} />
         {fullOperatorShell ? <OperatorCoArchitectHomeStrip /> : null}
       </div>

@@ -95,7 +95,7 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
         RuleFor(x => x.RequestSource)
             .MaximumLength(32).WithMessage("RequestSource must not exceed 32 characters.")
             .Must(source => source is null || WizardPilotRequestSourceValues.IsKnown(source))
-            .WithMessage("RequestSource must be 'wizard' or 'cli' when provided.");
+            .WithMessage("RequestSource must be 'wizard', 'cli', or 'recurrence' when provided.");
 
         RuleFor(x => x.WizardPresetUsed)
             .MaximumLength(32).WithMessage("WizardPresetUsed must not exceed 32 characters.");

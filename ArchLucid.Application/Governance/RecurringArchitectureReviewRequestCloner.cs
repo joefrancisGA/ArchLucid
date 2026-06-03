@@ -25,6 +25,7 @@ public static class RecurringArchitectureReviewRequestCloner
             requestId = requestId[..64];
 
         clone.RequestId = requestId;
+        clone.RequestSource = "recurrence";
         clone.Description =
             $"{source.Description.Trim()} (scheduled follow-up from run {sourceRunId:N} at {triggeredAtUtc:u})";
 

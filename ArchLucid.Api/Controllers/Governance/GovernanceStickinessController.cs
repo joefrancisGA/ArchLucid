@@ -38,6 +38,7 @@ public sealed class GovernanceStickinessController(
     IArchitectureReviewRecurrenceScheduleRepository recurrenceScheduleRepository,
     IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator,
     IGovernanceDigestDecisionNeededComposer governanceDigestDecisionNeededComposer,
+    IReviewsAwaitingActionQueryService reviewsAwaitingActionQueryService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -56,6 +57,17 @@ public sealed class GovernanceStickinessController(
             projectId ?? scope.ProjectId,
             Math.Clamp(maxRows, 1, 500),
             cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("reviews-awaiting-action")]
+    [ProducesResponseType(typeof(GovernanceReviewsAwaitingActionResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetReviewsAwaitingAction(CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        GovernanceReviewsAwaitingActionResponse response =
+            await reviewsAwaitingActionQueryService.ListAsync(scope, cancellationToken);
 
         return Ok(response);
     }

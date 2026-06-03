@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 86.90%
+# ArchLucid Assessment – (A) Headline Readiness: 87.35%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
-Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
+Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-03.
 
-Rescore note: Through **86.52%** (5CD); batches **5CE–5CH** — **TB-056** (traceability drift closure), **TB-254** (buyer FAQ JSON-LD), **TB-255/256** (PilotStrict faithfulness), **TB-258/259** (trial preseed cap + tests) → **86.90%** (+2 Traceability, +2 Correctness, +2 Time-to-Value, +1 Marketability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **86.90%** (5CH); batches **5CI–5CK** — **TB-261/262** (recurrence notify + schedule health), **TB-263** (reviews-awaiting-action inbox), **TB-257** (adversarial resistance floor), **TB-260** (first-value callout) → **87.35%** (+4 Stickiness, +2 Correctness, +1 Time-to-Value). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -48,13 +48,13 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | --- | ---: | ---: | ---: | ---: |
 | Cutting-Edge AI Technology | 79 | 8 | 5.45% | 168 |
 | AI/Agent Readiness | 84 | 8 | 5.79% | 128 |
-| Stickiness | 79 | 6 | 4.14% | 126 |
+| Stickiness | 83 | 6 | 4.35% | 102 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
 | Marketability | 93 | 8 | 6.45% | 56 |
-| Correctness | 86 | 8 | 5.93% | 112 |
+| Correctness | 88 | 8 | 6.07% | 96 |
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
-| Time-to-Value | 88 | 7 | 5.31% | 84 |
+| Time-to-Value | 89 | 7 | 5.37% | 77 |
 | Executive Value Visibility | 82 | 4 | 2.86% | 72 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |

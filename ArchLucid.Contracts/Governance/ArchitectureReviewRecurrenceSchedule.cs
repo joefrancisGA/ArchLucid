@@ -82,4 +82,23 @@ public sealed class ArchitectureReviewRecurrenceSchedule
         get;
         set;
     } = string.Empty;
+
+    /// <summary><see cref="RecurrenceRunStatuses" /> value for the last trigger attempt (TB-262).</summary>
+    public string LastRunStatus
+    {
+        get;
+        set;
+    } = RecurrenceRunStatuses.Never;
+
+    public string? LastErrorMessage
+    {
+        get;
+        set;
+    }
+
+    public int ConsecutiveFailureCount
+    {
+        get;
+        set;
+    }
 }
