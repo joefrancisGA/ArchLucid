@@ -16,9 +16,14 @@ export const OPERATOR_CO_ARCHITECT_HOME_STRIP_ARIA_LABEL =
 export const OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY =
   "Create, finalize, and review architecture packages with evidence, findings, governance approval, and audit-ready decision records.";
 
+export const OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY_BUYER =
+  "Create a new review from evidence, describe the architecture, or continue a review package already in progress.";
+
 export const OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY = "Create from evidence";
 
 export const OPERATOR_CO_ARCHITECT_CTA_DESCRIBE_SECONDARY = "Describe the architecture";
+
+export const OPERATOR_CO_ARCHITECT_CTA_OPEN_EXISTING = "Open existing review";
 
 export const OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER =
   "Guided questions refine scope and evidence until your first review package is ready to finalize.";
