@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 85.37%
+# ArchLucid Assessment – (A) Headline Readiness: 85.72%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **85.02%** (5BP–5BR); batches **5BS TB-187** (architecture request draft assist), **5BT TB-193** (LLM provider factory scaffold), **5BU TB-188** (finding IaC stub generator, feature-flagged) → **85.37%** (+2 AI/Agent Readiness, +1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **85.37%** (5BS–5BU); batches **5BV TB-189** (policy-pack draft assist, drift closure), **5BW TB-250** (authority pipeline stage timeline in run detail), **5BX TB-251** (retrieval indexing outbox, drift closure) → **85.72%** (+1 AI/Agent Readiness, +2 Traceability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -47,7 +47,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
 | Cutting-Edge AI Technology | 79 | 8 | 5.45% | 168 |
-| AI/Agent Readiness | 83 | 8 | 5.73% | 136 |
+| AI/Agent Readiness | 84 | 8 | 5.79% | 128 |
 | Stickiness | 79 | 6 | 4.14% | 126 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
 | Marketability | 90 | 8 | 6.24% | 80 |
@@ -67,7 +67,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Maintainability | 74 | 2 | 1.28% | 52 |
 | Architectural Integrity | 83 | 3 | 2.13% | 51 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
-| Traceability | 84 | 3 | 2.17% | 48 |
+| Traceability | 86 | 3 | 2.22% | 42 |
 | Auditability | 77 | 2 | 1.32% | 46 |
 | Reliability | 78 | 2 | 1.34% | 44 |
 | Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
@@ -353,9 +353,9 @@ Classification: v1 for correctness-impacting duplication; v1.1 for broader clean
 
 ### Traceability
 
-Score: 84. Weight: 3. Weighted impact: 2.17%. Weighted deficiency signal: 48.
+Score: 86. Weight: 3. Weighted impact: 2.22%. Weighted deficiency signal: 42.
 
-Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Run detail now includes structured tool-invocation forensics with execute-gated redacted raw preview (TB-110). Remaining gaps are inline provenance summary (TB-111) and consistent retrieval grounding surfacing when records are sparse.
+Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Batch **5BW** closes **TB-250** — `dbo.RunStageOutcomes` plus `GET /v1/architecture/run/{runId}/stage-timeline` and a collapse-by-default **Pipeline stages** section on operator run detail so authority stage durations/outcomes are visible without leaving for Jaeger/Tempo. Batch **5BX** closes **TB-251** (retrieval indexing outbox + processor; drift guard). Run detail already includes structured tool-invocation forensics (TB-110). Remaining gaps: inline provenance summary (TB-111) and consistent retrieval grounding surfacing when records are sparse.
 
 Tradeoffs: Traceability can overwhelm operators if not summarized.
 

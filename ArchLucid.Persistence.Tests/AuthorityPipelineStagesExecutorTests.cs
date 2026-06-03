@@ -12,6 +12,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -749,6 +750,27 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(e => e.TryEnrichAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IRunStageOutcomesRepository> stageOutcomes = new();
+        stageOutcomes
+            .Setup(r => r.RecordStageStartedAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection>(),
+                It.IsAny<System.Data.IDbTransaction>()))
+            .Returns(Task.CompletedTask);
+        stageOutcomes
+            .Setup(r => r.RecordStageCompletedAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection>(),
+                It.IsAny<System.Data.IDbTransaction>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IOptionsMonitor<CosmosDbOptions>> cosmosDb = new();
         cosmosDb.SetupGet(m => m.CurrentValue).Returns(new CosmosDbOptions());
 
@@ -773,6 +795,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             cosmosDb.Object,
             apPipeline.Object,
             snapshotConfidence.Object,
+            stageOutcomes.Object,
             NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision, audit);
     }
 

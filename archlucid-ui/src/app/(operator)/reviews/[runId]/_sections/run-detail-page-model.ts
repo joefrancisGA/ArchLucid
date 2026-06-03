@@ -5,6 +5,7 @@ import type { RunSavingsSummaryModel } from "@/lib/run-savings-summary-model";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import type { FindingWireSnapshot, QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
+import type { StageTimelineSummary } from "@/types/stage-timeline";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 export type RunDetailChangesSinceLastReviewBanner = {
@@ -41,6 +42,7 @@ export type RunDetailPageModel = {
   readonly explanationFailure: ApiLoadFailureState | null;
   readonly pipelineTimelineForUi: PipelineTimelineItem[] | null;
   readonly pipelineTimelineFailure: ApiLoadFailureState | null;
+  readonly stageTimelineForUi: StageTimelineSummary[];
   readonly runDetailNavSections: RunDetailSection[];
   readonly findingCountDisplay: number | null;
   readonly warningCountDisplay: number | null;

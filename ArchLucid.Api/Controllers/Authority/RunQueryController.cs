@@ -29,6 +29,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
@@ -75,7 +76,8 @@ public sealed class RunQueryController(
     IConfiguration configuration,
     IAuditService auditService,
     ExportFormatterService exportFormatter,
-    IFindingsSnapshotRepository findingsSnapshotRepository) : ControllerBase
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    IRunStageOutcomesRepository runStageOutcomesRepository) : ControllerBase
 {
     /// <summary>
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
@@ -145,6 +147,32 @@ public sealed class RunQueryController(
         RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
 
         return Ok(estimate);
+    }
+
+    /// <summary>Authority pipeline stage start/end outcomes for operator run investigation (TB-250).</summary>
+    [HttpGet("run/{runId}/stage-timeline")]
+    [ProducesResponseType(typeof(IReadOnlyList<StageTimelineSummary>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunStageTimeline(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
+        if (!TryParseRunId(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? run = await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (run is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IReadOnlyList<StageTimelineSummary> timeline =
+            await runStageOutcomesRepository.ListByRunIdAsync(runGuid, cancellationToken);
+
+        return Ok(timeline);
     }
 
     /// <summary>Keyset list of relational finding metadata for <paramref name="runId" />.</summary>

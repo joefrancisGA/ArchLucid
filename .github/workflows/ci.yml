@@ -532,6 +532,15 @@ jobs:
       - name: AI readiness batch 5BU drift guards (TB-188)
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bu.py"
 
+      - name: AI readiness batch 5BV drift guards (TB-189)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bv.py"
+
+      - name: Traceability batch 5BW drift guards (TB-250)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5bw.py"
+
+      - name: Traceability batch 5BX drift guards (TB-251)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5bx.py"
+
       - name: Check GTM placeholder tokens (warn-only)
         run: python scripts/ci/check_gtm_placeholder_tokens.py
 

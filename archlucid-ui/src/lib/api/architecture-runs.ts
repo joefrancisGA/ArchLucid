@@ -21,6 +21,7 @@ import type {
   AgentOutputEvaluationSummaryPayload,
   RunRetrievalGroundingPayload,
 } from "@/types/agent-forensics";
+import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 export type RunToolInvocationForensicsPayload = components["schemas"]["RunToolInvocationForensicsResponse"];
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
@@ -202,6 +203,13 @@ export async function recordRunOperatorGovernanceDisposition(
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
   return apiGet<DecisionProvenanceGraph>(`/v1/authority/runs/${runId}/provenance`);
+}
+
+/** Authority pipeline stage outcomes (`GET /v1/architecture/run/{runId}/stage-timeline`, TB-250). */
+export async function getRunStageTimeline(runId: string): Promise<StageTimelineSummary[]> {
+  return apiGet<StageTimelineSummary[]>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/stage-timeline`,
+  );
 }
 
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */

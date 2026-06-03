@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Persistence.Graph;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -44,6 +45,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IOptionsMonitor<CosmosDbOptions> cosmosDbOptionsMonitor,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     IFindingsSnapshotEvaluationConfidenceEnricher findingsSnapshotEvaluationConfidenceEnricher,
+    IRunStageOutcomesRepository runStageOutcomesRepository,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
     private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
@@ -109,6 +111,9 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IRunStageOutcomesRepository _runStageOutcomesRepository =
+        runStageOutcomesRepository ?? throw new ArgumentNullException(nameof(runStageOutcomesRepository));
 
     private static readonly string[] PipelineStageSequence =
     [
@@ -424,6 +429,10 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         long startTicks = Stopwatch.GetTimestamp();
         string outcome = "success";
+        DateTime stageStartedUtc = TimeProvider.System.UtcNowDateTime();
+        IArchLucidUnitOfWork stageUow = ctx.UnitOfWork;
+
+        await RecordStageStartedAsync(ctx.Run.RunId, stageName, stageStartedUtc, stageUow, ct);
 
         try
         {
@@ -497,6 +506,30 @@ public sealed class AuthorityPipelineStagesExecutor(
         }
         finally
         {
+            DateTime stageCompletedUtc = TimeProvider.System.UtcNowDateTime();
+            string persistedOutcome = MapStageOutcomeStatus(outcome);
+
+            try
+            {
+                await RecordStageCompletedAsync(
+                    ctx.Run.RunId,
+                    stageName,
+                    persistedOutcome,
+                    stageCompletedUtc,
+                    stageUow,
+                    ct);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+
+                    _logger.LogWarning(
+                        ex,
+                        "Failed to persist authority pipeline stage outcome: RunId={RunId}, Stage={Stage}",
+                        ctx.Run.RunId,
+                        stageName);
+            }
+
             double elapsedMs = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
             ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds.Record(
                 elapsedMs,
@@ -504,6 +537,68 @@ public sealed class AuthorityPipelineStagesExecutor(
                 new KeyValuePair<string, object?>("outcome", outcome));
         }
     }
+
+    private async Task RecordStageStartedAsync(
+        Guid runId,
+        string stageName,
+        DateTime startedUtc,
+        IArchLucidUnitOfWork uow,
+        CancellationToken ct)
+    {
+        if (uow.SupportsExternalTransaction)
+        {
+            await _runStageOutcomesRepository.RecordStageStartedAsync(
+                runId,
+                stageName,
+                startedUtc,
+                ct,
+                uow.Connection,
+                uow.Transaction);
+
+            return;
+        }
+
+        await _runStageOutcomesRepository.RecordStageStartedAsync(runId, stageName, startedUtc, ct);
+    }
+
+    private async Task RecordStageCompletedAsync(
+        Guid runId,
+        string stageName,
+        string outcomeStatus,
+        DateTime completedUtc,
+        IArchLucidUnitOfWork uow,
+        CancellationToken ct)
+    {
+        if (uow.SupportsExternalTransaction)
+        {
+            await _runStageOutcomesRepository.RecordStageCompletedAsync(
+                runId,
+                stageName,
+                outcomeStatus,
+                completedUtc,
+                ct,
+                uow.Connection,
+                uow.Transaction);
+
+            return;
+        }
+
+        await _runStageOutcomesRepository.RecordStageCompletedAsync(
+            runId,
+            stageName,
+            outcomeStatus,
+            completedUtc,
+            ct);
+    }
+
+    private static string MapStageOutcomeStatus(string executorOutcome) =>
+        executorOutcome switch
+        {
+            "success" => "succeeded",
+            "error" => "failed",
+            "skipped_checkpoint" => "skipped",
+            _ => "failed",
+        };
 
     private async Task UpdateRunAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)
     {

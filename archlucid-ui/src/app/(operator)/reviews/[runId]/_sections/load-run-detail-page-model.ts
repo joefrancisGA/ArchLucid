@@ -8,6 +8,7 @@ import {
   getRunDetail,
   getRunExplanationSummary,
   getRunPipelineTimeline,
+  getRunStageTimeline,
   getRunSummary,
   listArtifacts,
   listRunsByProject,
@@ -58,6 +59,7 @@ import {
 } from "@/lib/showcase-static-demo";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
+import type { StageTimelineSummary } from "@/types/stage-timeline";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 import { buildRunDetailNavSections } from "./build-run-detail-nav-sections";
@@ -254,6 +256,14 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     ? pipelineTimeline?.filter((e) => isTimelineMilestoneEvent(e.eventType)) ?? null
     : pipelineTimeline;
 
+  let stageTimelineForUi: StageTimelineSummary[] = [];
+
+  try {
+    stageTimelineForUi = await getRunStageTimeline(runId);
+  } catch {
+    stageTimelineForUi = [];
+  }
+
   if (manifestId) {
     try {
       const rawSummary: unknown = await getManifestSummary(manifestId);
@@ -436,6 +446,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     explanationFailure,
     pipelineTimelineForUi,
     pipelineTimelineFailure,
+    stageTimelineForUi,
     runDetailNavSections,
     findingCountDisplay,
     warningCountDisplay,

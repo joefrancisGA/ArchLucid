@@ -42,6 +42,7 @@ import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySecti
 import { RunDetailOperatorPipelineToolsCollapsible } from "./RunDetailOperatorPipelineToolsCollapsible";
 import { RunDetailOperatorTechnicalFooter } from "./RunDetailOperatorTechnicalFooter";
 import { RunDetailPipelineTimelineSection } from "./RunDetailPipelineTimelineSection";
+import { RunDetailPipelineStagesSection } from "./RunDetailPipelineStagesSection";
 import { RunDetailPreFinalizedEmptyState } from "./RunDetailPreFinalizedEmptyState";
 import { RunDetailGovernanceAlerts } from "@/components/reviews/RunDetailGovernanceAlerts";
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";
@@ -291,6 +292,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         pipelineTimelineFailure={m.pipelineTimelineFailure}
         pipelineTimelineForUi={m.pipelineTimelineForUi}
+      />
+
+      <RunDetailPipelineStagesSection
+        stageTimeline={m.stageTimelineForUi}
+        otelTraceId={m.resolvedDetail.run.otelTraceId ?? m.runDetailTraceId}
       />
 
       {m.resolvedDetail.run.graphSnapshotId ? (
