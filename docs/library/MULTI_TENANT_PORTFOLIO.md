@@ -1,6 +1,6 @@
-# Multi-tenant portfolio (cross-tenant ROI)
+> **Scope:** Operator cookbook — multi-tenant portfolio rollup (`GET /v1/roi/cross-tenant-portfolio`), Entra directory-key prerequisites, k-anonymity, and Portfolio Dashboard (`/portfolio`) troubleshooting for platform administrators.
 
-**Audience:** Platform administrators and enterprise operators with portfolio-wide Entra access.
+# Multi-tenant portfolio (cross-tenant ROI)
 
 ## What it is
 
