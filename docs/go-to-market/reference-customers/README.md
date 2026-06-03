@@ -45,6 +45,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 
 ## How to add a real reference
 
+0. **Workflow docs (TB-229):** Use [`REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md`](../REFERENCE_CUSTOMER_FIRST_CONTACT_TEMPLATE.md) for the initial ask and [`REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md`](../REFERENCE_CUSTOMER_TRACKING_CHECKLIST.md) for steps **a–h** from pilot-complete through **Published**.
 1. **Copy** [`EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md`](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) to a new file named `<CUSTOMER_SLUG>_CASE_STUDY.md` (lowercase-hyphen-or-underscore slug; no spaces).
 2. **Find/replace** every `<<CUSTOMER_NAME>>`, `<<TIER>>`, `<<DESIGN_PARTNER_TERM_START>>` and any other `<<...>>` placeholder with the real value. The existing pattern is intentional — it lets a sales engineer one-shot the substitution from a single deal-close email.
 3. **Add a row** to the table above, with `Status: Drafting`.

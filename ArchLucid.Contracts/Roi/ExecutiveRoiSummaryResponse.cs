@@ -148,6 +148,13 @@ public sealed class ExecutiveRoiSummaryResponse
         get;
         set;
     }
+
+    /// <summary>UTC timestamp of the earliest committed golden manifest for the tenant (TB-248 sponsor pilot badge).</summary>
+    public DateTime? FirstCommitUtc
+    {
+        get;
+        set;
+    }
 }
 
 /// <summary>ROI snapshot for the newest committed run of a single system.</summary>

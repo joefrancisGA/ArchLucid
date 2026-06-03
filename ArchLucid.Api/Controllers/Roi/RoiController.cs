@@ -97,12 +97,17 @@ public sealed class RoiController(
     [HttpGet("cross-tenant-portfolio")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<CrossTenantPortfolioSummaryResponse>> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
     {
         string? directoryKey = RoleSyncService.TryDirectoryObjectKey(User);
         if (string.IsNullOrWhiteSpace(directoryKey))
         {
-            return Forbid();
+            return Problem(
+                title: "Portfolio directory key not configured",
+                detail: "This tenant does not have a portfolio directory object key configured. Contact your ArchLucid administrator to enable cross-tenant portfolio access.",
+                statusCode: StatusCodes.Status403Forbidden,
+                type: "https://archlucid.net/errors/portfolio-key-not-configured");
         }
 
         CrossTenantPortfolioSummaryResponse body = await _executiveRoiSummaryService.GetCrossTenantPortfolioSummaryAsync(directoryKey, cancellationToken).ConfigureAwait(false);

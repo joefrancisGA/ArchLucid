@@ -13,6 +13,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Tenancy;
 
@@ -37,6 +38,7 @@ public sealed class ExecutiveRoiSummaryService(
     ITenantSettingsRepository tenantSettingsRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     ITenantCostSettingsRepository tenantCostSettingsRepository,
+    IPilotScorecardMetricsReader pilotScorecardMetricsReader,
     IOptions<ValueReportComputationOptions> valueReportComputationOptions,
     ILogger<ExecutiveRoiSummaryService> logger) : IExecutiveRoiSummaryService
 {
@@ -50,6 +52,9 @@ public sealed class ExecutiveRoiSummaryService(
 
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly IScimUserRepository _scimUserRepository = scimUserRepository ?? throw new ArgumentNullException(nameof(scimUserRepository));
+
+    private readonly IPilotScorecardMetricsReader _pilotScorecardMetricsReader =
+        pilotScorecardMetricsReader ?? throw new ArgumentNullException(nameof(pilotScorecardMetricsReader));
 
     private readonly ILogger<ExecutiveRoiSummaryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -182,6 +187,11 @@ public sealed class ExecutiveRoiSummaryService(
 
         int staleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(riskRegister);
 
+        PilotScorecardTenantMetrics pilotMetrics =
+            await _pilotScorecardMetricsReader.GetAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        DateTime? firstCommitUtc = pilotMetrics.FirstCommitUtc?.UtcDateTime;
+
         return new ExecutiveRoiSummaryResponse
         {
             TotalEstimatedUsdSavings = totalSavings,
@@ -204,6 +214,7 @@ public sealed class ExecutiveRoiSummaryService(
             StaleArchitectureRiskCount = staleArchitectureRiskCount,
             OrphanCandidates = orphanCandidates,
             BusinessImpactCategoryCounts = businessImpactCategoryCounts,
+            FirstCommitUtc = firstCommitUtc,
         };
     }
 

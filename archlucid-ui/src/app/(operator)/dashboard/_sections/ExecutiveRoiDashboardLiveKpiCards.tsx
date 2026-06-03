@@ -15,6 +15,7 @@ import {
   presentExecutiveKpiCount,
 } from "@/lib/executive-roi-kpi-display";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { computePilotDayNumber } from "@/lib/executive-pilot-day";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
@@ -129,9 +130,18 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
     savingsPricingBasis: state.summary?.savingsPricingBasis,
     staleAfterDays: state.summary?.costEvidenceStaleAfterDays,
   });
+  const pilotDayNumber = computePilotDayNumber(state.summary?.firstCommitUtc);
 
   return (
     <>
+      {pilotDayNumber !== null ? (
+        <p
+          className="m-0 text-sm text-neutral-600 dark:text-neutral-400 sm:col-span-2 lg:col-span-3"
+          data-testid="exec-kpi-pilot-day-badge"
+        >
+          Day {pilotDayNumber} of your ArchLucid pilot
+        </p>
+      ) : null}
       <Card data-testid="exec-kpi-resolved-30d">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">

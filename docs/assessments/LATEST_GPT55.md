@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.38%
+# ArchLucid Assessment – (A) Headline Readiness: 83.58%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **83.14%** (5AU–5AW); batches **5AX TB-244** (KPI drill-through links), **5AY TB-247** (scorecard recommended actions), **5AZ TB-245** (ROI trend SVG chart) → **83.38%** (+2 Executive Value Visibility). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **83.38%** (5AX–5AZ); batches **5BA TB-248** (pilot day badge), **5BB TB-249** (portfolio 403 guidance), **5BC TB-229** (reference-customer workflow docs) → **83.58%** (+1 Executive Value, +1 Marketability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -50,12 +50,12 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
 | Stickiness | 78 | 6 | 4.03% | 132 |
 | Adoption Friction | 77 | 6 | 4.04% | 138 |
-| Marketability | 85 | 8 | 5.86% | 120 |
+| Marketability | 86 | 8 | 5.95% | 112 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
 | Time-to-Value | 86 | 7 | 5.19% | 98 |
-| Executive Value Visibility | 81 | 4 | 2.79% | 76 |
+| Executive Value Visibility | 82 | 4 | 2.86% | 72 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
 | Interoperability | 66 | 2 | 1.14% | 68 |

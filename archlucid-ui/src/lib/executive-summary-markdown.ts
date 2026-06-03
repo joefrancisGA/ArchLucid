@@ -59,6 +59,7 @@ export type ExecutiveRoiSummary = {
   businessImpactCategoryCounts?: ExecutiveBusinessImpactCategoryCounts;
   expiringWaiversCount14Days?: number;
   orphanCandidates?: ExecutiveOrphanCandidateSummary;
+  firstCommitUtc?: string | null;
 };
 
 export type ExecutiveOrphanCandidateSummary = {

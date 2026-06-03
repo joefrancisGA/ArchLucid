@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 
@@ -15,6 +15,8 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 
 describe("ExecutiveRoiDashboardLiveKpiCards", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-01T12:00:00.000Z"));
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -24,6 +26,7 @@ describe("ExecutiveRoiDashboardLiveKpiCards", () => {
           newlyDiscoveredFindingsCount30Days: 2,
           realizedValue: { findingsRemediatedCount30Days: 1 },
           costEvidenceFreshnessStatus: "Fresh",
+          firstCommitUtc: "2026-05-02T00:00:00.000Z",
         }),
       } as Response),
     );
@@ -49,5 +52,13 @@ describe("ExecutiveRoiDashboardLiveKpiCards", () => {
       EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers,
     );
     expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  it("shows pilot day badge when firstCommitUtc is present", async () => {
+    render(<ExecutiveRoiDashboardLiveKpiCards />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("exec-kpi-pilot-day-badge")).toHaveTextContent("Day 30 of your ArchLucid pilot");
+    });
   });
 });
