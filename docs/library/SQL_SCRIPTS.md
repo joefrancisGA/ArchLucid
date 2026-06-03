@@ -112,6 +112,36 @@ Read the file top-down; major comment banners include:
 - **Brownfield / existing databases** that already ran **`001`** keep the normal incremental path; the baseline file is **not** executed.
 - Baseline scripts are **not** part of the “latest ten rollback” CI guard (only root **`NNN_*.sql`** forward files are).
 
+#### 4.0.1 `GreenfieldBaselineMigrationRunner` decision flow (TB-069)
+
+Use this sequence when debugging shared CI catalogs or empty journals — the runner is the repair layer **before** DbUp applies **`051+`**.
+
+```mermaid
+sequenceDiagram
+    participant DM as DatabaseMigrator.Run
+    participant GB as GreenfieldBaselineMigrationRunner
+    participant DB as SQL catalog
+    participant DU as DbUp (051+)
+
+    DM->>GB: TryApplyBaselineAndStampThrough050
+    alt SchemaVersions already has 001_InitialSchema
+        GB-->>DM: no-op (brownfield incremental path)
+    else Journal missing 001 or tenant tables absent
+        GB->>DB: Detect ArchitectureRequests / Runs / AuditEvents
+        alt Full greenfield (no tenant tables)
+            GB->>DB: Replay embedded 001..050 in order
+        else Tenant present but AuditEvents missing
+            GB->>DB: Replay from 017 or 035..050 (sparse-stamp repair)
+        else Duplicate-table SqlException on 001 or 017_GovernanceWorkflow
+            GB->>DB: Stamp + optional 017..050 / 035..050 repair
+        end
+        GB->>DB: INSERT SchemaVersions rows through 050
+    end
+    DM->>DU: Continue at 051+ only
+```
+
+**Post-stamp verification:** integration tests in `JournalDriftBaselineRepairSqlIntegrationTests` and `GreenfieldBaselineMigrationRunnerTests` assert ordering, duplicate-name handling, and journal repair — not a second full schema diff in production.
+
 ### 4.1 Mechanics
 
 - Scripts are **`EmbeddedResource`** in **ArchLucid.Persistence** (`Migrations\*.sql` plus `Migrations\Baseline\*.sql` — consolidated `Scripts\ArchLucid.sql` is never picked up by DbUp).

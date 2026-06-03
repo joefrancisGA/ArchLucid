@@ -1,8 +1,17 @@
-/* Tables required by Dapper contract tests that are not created by DbUp migrations.
-   Intentionally excludes FK hardening from ArchiForge.sql (e.g. ContextSnapshots -> Runs,
-   GraphSnapshots -> ContextSnapshots, ComparisonRecords -> ArchitectureRuns) so integration
-   tests can seed rows without full authority-chain parents. Production deployments apply
-   the full ArchiForge.sql via API schema bootstrap. */
+/*
+  Persistence contract-test supplement (TB-070).
+
+  Applied after DbUp on isolated test catalogs — NOT a substitute for production DDL in
+  ArchLucid.Persistence/Scripts/ArchLucid.sql or incremental Migrations/*.sql.
+
+  Intentional divergences from production ArchLucid.sql:
+  - Omits FK hardening between ContextSnapshots, GraphSnapshots, and Runs so tests can seed
+    rows without a full authority parent chain.
+  - Nullable JSON columns on FindingsSnapshots / ContextSnapshots for guard-path tests.
+  - Extra tables (AuditEvents, ProvenanceSnapshots, Conversation*) when migrations omit them.
+*/
+
+/* Tables required by Dapper contract tests that are not created by DbUp migrations. */
 
 /* Append-only audit stream (no UPDATE/DELETE from application code). */
 IF OBJECT_ID('dbo.AuditEvents', 'U') IS NULL
@@ -86,7 +95,7 @@ END;
 GO
 
 /* Integration tests only: allow NULL legacy JSON columns to exercise repository IsNullOrWhiteSpace guards.
-   Production ArchiForge.sql keeps NOT NULL for brownfield inserts; test catalog applies this supplement after DbUp. */
+   Production ArchLucid.sql keeps NOT NULL for brownfield inserts; test catalog applies this supplement after DbUp. */
 IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.FindingsSnapshots ALTER COLUMN FindingsJson NVARCHAR(MAX) NULL;

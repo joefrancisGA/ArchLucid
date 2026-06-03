@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 87.35%
+# ArchLucid Assessment – (A) Headline Readiness: 87.45%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-03.
 
-Rescore note: Through **86.90%** (5CH); batches **5CI–5CK** — **TB-261/262** (recurrence notify + schedule health), **TB-263** (reviews-awaiting-action inbox), **TB-257** (adversarial resistance floor), **TB-260** (first-value callout) → **87.35%** (+4 Stickiness, +2 Correctness, +1 Time-to-Value). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **87.35%** (5CK); batches **5CL–5CM** — **TB-019/020** (signup attribution + marketing JSON-LD/Clarity kill-switch docs), **TB-069/070** (baseline runner sequence doc + persistence supplement hygiene) → **87.45%** (+1 Marketability, +2 Maintainability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -50,7 +50,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | AI/Agent Readiness | 84 | 8 | 5.79% | 128 |
 | Stickiness | 83 | 6 | 4.35% | 102 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
-| Marketability | 93 | 8 | 6.45% | 56 |
+| Marketability | 94 | 8 | 6.52% | 48 |
 | Correctness | 88 | 8 | 6.07% | 96 |
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
@@ -64,7 +64,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Decision Velocity | 71 | 2 | 1.22% | 58 |
 | Trustworthiness | 82 | 3 | 2.12% | 54 |
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
-| Maintainability | 74 | 2 | 1.28% | 52 |
+| Maintainability | 76 | 2 | 1.31% | 48 |
 | Architectural Integrity | 83 | 3 | 2.13% | 51 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
 | Traceability | 90 | 3 | 2.33% | 30 |
@@ -161,9 +161,9 @@ Classification: Fixable in v1 for the starter-pack chooser and validation; broad
 
 ### Marketability
 
-Score: 93. Weight: 8. Weighted impact: 6.45%. Weighted deficiency signal: 56.
+Score: 94. Weight: 8. Weighted impact: 6.52%. Weighted deficiency signal: 48.
 
-Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5CF** closes **TB-254** — buyer `/faq` rendered from `MARKETING_FAQ_ITEMS` with `FAQPage` JSON-LD (no ratings). Batch **5CC** closes **TB-252** — committed raster `og-default.png` / PWA icons via `generate-brand-raster.mjs` (fixes broken LinkedIn/social previews and Apple/PWA icons) plus warn-only `check_referenced_static_assets.py`. Batch **5CC** closes **TB-253** — buyer-facing root and per-page Open Graph/Twitter metadata on `welcome`, `pricing`, `why`, and `see-it` via `marketing-open-graph.ts` (removes operator-jargon social cards). Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Batch **5BJ** closes **TB-237** — public `/pricing` early-adopter framing plus `PRICING_PHILOSOPHY.md` transparent early-access principle. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
+Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5CF** closes **TB-254** — buyer `/faq` rendered from `MARKETING_FAQ_ITEMS` with `FAQPage` JSON-LD (no ratings). Batch **5CC** closes **TB-252** — committed raster `og-default.png` / PWA icons via `generate-brand-raster.mjs` (fixes broken LinkedIn/social previews and Apple/PWA icons) plus warn-only `check_referenced_static_assets.py`. Batch **5CC** closes **TB-253** — buyer-facing root and per-page Open Graph/Twitter metadata on `welcome`, `pricing`, `why`, and `see-it` via `marketing-open-graph.ts` (removes operator-jargon social cards). Batch **5CL** closes **TB-019** — first-touch UTM cookie → `x-archlucid-first-touch` → `MarketingAttributionService` + migration 220 + conversion telemetry buckets; and **TB-020** — `MarketingJsonLd`, consent-gated Clarity, `NEXT_PUBLIC_ARCHLUCID_MARKETING_ANALYTICS_DISABLED` documented in `CONFIGURATION_REFERENCE.md`. Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Batch **5BJ** closes **TB-237** — public `/pricing` early-adopter framing plus `PRICING_PHILOSOPHY.md` transparent early-access principle. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
 
 Tradeoffs: Service-led marketability is narrower but more credible than pretending mature PLG SaaS. It also means founder capacity can become a bottleneck.
 
@@ -341,9 +341,9 @@ Classification: v1 for evidence/copy precision; `(B)` for formal assurance.
 
 ### Maintainability
 
-Score: 74. Weight: 2. Weighted impact: 1.28%. Weighted deficiency signal: 52.
+Score: 76. Weight: 2. Weighted impact: 1.31%. Weighted deficiency signal: 48.
 
-Justification: The repo is modular and heavily documented, with tests, scripts, invariants, DDL discipline, and central package management. Batch **5I** closes **TB-012** Wave C architecture guards (**INV-007/008/009**), reducing invariant drift risk. Maintainability is still pressured by breadth: many projects, many docs, duplicate read models, legacy terminology, and a large backlog.
+Justification: The repo is modular and heavily documented, with tests, scripts, invariants, DDL discipline, and central package management. Batch **5I** closes **TB-012** Wave C architecture guards (**INV-007/008/009**), reducing invariant drift risk. Batch **5CM** closes **TB-070** — `PersistenceContractSupplement.sql` documents intentional divergences from production `ArchLucid.sql` (no retired `ArchiForge` references); and **TB-069** — `SQL_SCRIPTS.md` §4.0.1 sequence diagram for `GreenfieldBaselineMigrationRunner` sparse-stamp repair. Maintainability is still pressured by breadth: many projects, many docs, duplicate read models, legacy terminology, and a large backlog.
 
 Tradeoffs: Modularity and explicit docs are good. Too many surfaces make change impact harder.
 

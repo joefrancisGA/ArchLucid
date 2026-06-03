@@ -79,6 +79,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-261 – TB-263** were added 2026-06-03 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06032026.MD`, score 74/100, COMMERCIAL weight 6/116). They close the recurrence re-engagement loop and harden schedule trust: recurrence completion notification + drift delta (**TB-261**, P1 — `RecurringArchitectureReviewTriggerService` executes the scheduled run and writes only an `ArchitectureReviewRecurrenceTriggered` audit event with no notification consumer, so the user who scheduled the review is never told it ran and sees no "N new findings" delta), recurrence schedule failure health + auto-disable (**TB-262**, P1 — `ArchitectureReviewRecurrenceSchedule` has no `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount`, and the failure path still sets `LastTriggeredUtc`, so a chronically-failing schedule looks healthy and never auto-disables), and a "reviews awaiting your action" inbox surface (**TB-263**, P2 — recurrence runs are executed but not committed and have no inbox/badge, so they orphan). These do not duplicate the now-complete **TB-222–TB-228** (06-02 Stickiness cluster — recurrence UI, decisions-needed KPI, compare narrative, RLS fix, risk-exceptions page, multi-run proof, tenant-health admin); that pass built the recurrence UI and governance surfaces but left the loop silent and the schedules without failure health.
 
+**TB-264 – TB-266** were added 2026-06-03 from an independent first-principles **Differentiability** quality assessment (`docs/assessments/Differentiability_06032026.MD`, score 80/100, COMMERCIAL weight 4/116). They harden the proof-backed `/why` differentiation surface — the product's most defensible positioning artifact — on the two axes inside this quality's own definition (verifiable proof + claim discipline): competitor-baseline citation discipline (**TB-264**, P1 — 3 of the 5 benchmarked rows quantify the competitor side ("2–6 skilled hours", "8–20 DBA/engineering hours", "half a day per release") with `citation = "first-party assertion (no external citation yet)"`; `assert_why_rows_have_evidence.py` only checks fields are non-empty, so an unsourced *quantified* competitor claim ships next to fully-cited ArchLucid rows), a named generic-AI contrast on the public `/why` front door (**TB-265**, P2 — the front-door rows contrast only against "incumbent diagram-and-doc stacks"; the generic-AI contrast exists in `DIFFERENTIATION_PROOF_PACKET.md` but not on the buyer-facing surface), and a cohort-claim integrity guard (**TB-266**, P2 — flagship claim #4 cites `GoldenCohortBaselineConstants`, a zeroed placeholder SHA until an owner lock run, with no CI guard tying the public claim to the real lock state). These do not duplicate the Marketability cluster **TB-229–TB-237** (messaging/social-proof/funnel) or **TB-252–254** (raster assets, OG metadata, FAQ schema); TB-264–266 target the differentiation *proof discipline* specifically. The golden-cohort baseline lock itself and any third-party competitive study are owner actions excluded from `(A)`.
+
+**TB-267 – TB-269** were added 2026-06-03 from an independent first-principles **Executive Value Visibility** re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`, score 83/100 — up from 70 on 06-02 because the entire prior cluster TB-239/241/243/244–249 is now Done; COMMERCIAL weight 4/116). They close the remaining executive route-group + narrative gaps: an `/executive/dashboard` route under executive chrome (**TB-267**, P2 — `ExecutiveShellFrame`'s "Dashboard" nav links to `/dashboard`, which renders `ExecutiveRoiDashboardPageView` under the *operator* shell with the full sidebar; the `(executive)` group has only `reviews` + `scorecard`, so a sponsor in the clean executive chrome is dumped into the operator UI), an in-product deterministic executive narrative summary line (**TB-268**, P2 — the live dashboard/scorecard show tiles + a recommended-actions list but no synthesized "this period: N reviews, M findings, ~$X/H hours saved; top action: …" sentence; the TB-241 AI narrative exists only on the gated board-pack export), and a dashboard ROI trend window selector matching the scorecard's 30d/quarter/all (**TB-269**, P3 — `ExecutiveRoiTrendSection` is a fixed window). These do not duplicate the now-Done **TB-244–249** EVV cluster; TB-246 added the nav *link* but never created the executive-chrome dashboard *route* (TB-267), and TB-247 added a recommended-actions *list* but not a synthesized narrative *line* (TB-268). Enabling the TB-241 AI narrative by default remains owner validation, excluded from `(A)`.
+
 **TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard — partial-failure surfacing and sentinel exclusion were already shipped).
 
 **TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
@@ -176,6 +180,12 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-261 | Recurrence completion notification + drift delta — compute new/resolved/severity delta vs source (or prior triggered) run; in-app + email via existing dispatch path linking `/reviews/{runId}` + compare view; gate `Stickiness:RecurrenceCompletionNotification:Enabled` (default true); new `ArchitectureReviewRecurrenceNotified` audit + matrix row + const bump; recipients = `CreatedByUserId` + admin/sponsor; tests | **Done (2026-06-03 batch 5CI)** — email + audit + delta; `test_stickiness_batch_5ci.py` | M |
 | TB-262 | Recurrence schedule failure health + auto-disable — add `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount` to `ArchitectureReviewRecurrenceSchedule` (+ migration in 3 SQL files); set on success/failure in the trigger; at 5 consecutive failures set `IsEnabled=false` + new `ArchitectureReviewRecurrenceAutoDisabled` audit; surface StatusTag + last-error + re-enable affordance on `/governance/recurrence-schedules`; tests | **Done (2026-06-03 batch 5CI)** — migration 243 + trigger/UI health; failure tests | M |
 | TB-263 | "Reviews awaiting your action" inbox — `GET /v1/governance/reviews-awaiting-action` returning executed-but-uncommitted recurrence runs (tag clones `requestSource="recurrence"`); card on `OperatorHomePageView` + governance nav count badge + "Review & commit" action + empty state; RLS-respected query; tests | **Done (2026-06-03 batch 5CK)** — endpoint + inbox card + nav badge; `test_stickiness_batch_5ck.py` | M |
+| TB-264 | Competitor-baseline citation discipline guard — extend `scripts/ci/assert_why_rows_have_evidence.py` so any `competitorBaseline` cell containing a numeric quantity (regex: digits + `hour`/`day`/`week`/`%`/range dash) must carry a non-placeholder external `citation` (HTTPS, not the `first-party assertion` phrase) OR be reworded as explicitly illustrative ("illustrative, not benchmarked"); reword the 3 unsourced quantified rows in `why-archlucid-comparison.ts` + `WhyArchLucidPackBuilder.cs` (keep byte-for-row sync); pytest for pass/fail cases | Differentiability P1 — 3 of 5 benchmarked rows quantify competitor cost with no source; the guard only checks non-empty, so unsourced numbers ship next to fully-cited ArchLucid evidence, undercutting the verifiable-proof + claim-discipline core of this quality | S |
+| TB-265 | Named generic-AI contrast on public `/why` — promote the existing `DIFFERENTIATION_PROOF_PACKET.md` "Generic AI assistant" contrast into the buyer-facing surface: a 6th front-door contrast block (or a dedicated "vs a chat assistant" section) on `WhyArchlucidMarketingView` + a `marketing-faq.ts` Q&A ("How is this different from using ChatGPT/Copilot?"), framed honestly (persisted manifest, audit ledger, governance gate, evidence chain vs a non-durable chat session); Vitest | Differentiability P2 — front-door rows contrast only vs "incumbent diagram-and-doc stacks"; the most common real alternative (general LLM chat) is absent from the buyer surface | S |
+| TB-266 | Cohort-claim integrity guard — new `scripts/ci/assert_why_cohort_claim_locked.py` that fails (or forces an "(baseline lock pending)" annotation) when `/why` claim #4 asserts deterministic drift detection while `GoldenCohortBaselineConstants` fingerprints are still the zeroed placeholder; wire as a `/why` CI step; pytest | Differentiability P2 — flagship claim #4 can publicly assert a locked golden cohort while fingerprints are placeholders; closes a latent overclaim path without requiring the owner lock run itself | S |
+| TB-267 | `/executive/dashboard` route under executive chrome — new `(executive)/executive/dashboard/page.tsx` rendering `ExecutiveRoiDashboardPageView` inside `ExecutiveShellFrame` (thin provider wrapper if dashboard sections need operator-nav context); repoint the `ExecutiveShellFrame` "Dashboard" nav `<Link>` from `/dashboard` to `/executive/dashboard`; update active-route highlight + Vitest | Executive Value Visibility P2 — the executive "Dashboard" nav dumps a sponsor into the full operator shell (`/dashboard`); no executive-chrome dashboard route exists | M |
+| TB-268 | In-product executive narrative summary line — `buildExecutiveValueNarrative` helper deriving a plain-language synthesis ("This period: {reviews} reviews, {findings} findings, ~${savings}/{hours} h saved; top action: {topRecommendedAction}") from the already-loaded `pilot-value-report` + recommended-actions data; render atop `ExecutiveScorecardClient` (and the dashboard) above the tiles; deterministic (no LLM); unit + Vitest | Executive Value Visibility P2 — live surfaces show tiles + an actions list but no synthesized story; the TB-241 AI narrative is export-only and gated default-off | S |
+| TB-269 | Dashboard ROI trend window selector — add a 30d/quarter/all/year range selector to `ExecutiveRoiTrendSection` matching `ExecutiveScorecardClient`'s control; thread the selected window to the history fetch; Vitest | Executive Value Visibility P3 — dashboard trend is a fixed window and can't be reconciled with the scorecard's selectable range | S |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -209,8 +219,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-088 | Container jobs per-entity isolation | **Done (2026-06-01)** — `TrialLifecycleArchLucidJob`, `AdvisoryDueScheduleProcessResult` | S |
 | TB-089 | Digest ledger-before-send | **Done (2026-06-01)** — verified + `DigestEmailDispatcherIdempotencyTests` | S |
 | TB-090 | Backfill.Cli — `--output-json` report + per-stage timing | **Done (2026-05-31)** — extended with quarantine fields in JSON (2026-06-01) | XS |
-| TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | Maintainability — complex drift-repair runner with no post-stamp schema verification | M |
-| TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | Test hygiene — supplement references retired `ArchiForge.sql`; can drift from latest migrations | XS |
+| TB-069 | Simplify `GreenfieldBaselineMigrationRunner` sparse-stamp path | **Done (2026-06-03 batch 5CM)** — `SQL_SCRIPTS.md` §4.0.1 mermaid decision flow + existing `GreenfieldBaselineMigrationRunnerTests` / `JournalDriftBaselineRepairSqlIntegrationTests`; `test_maintainability_batch_5cm.py` | M |
+| TB-070 | `PersistenceContractSupplement.sql` stale refs + test catalog parity | **Done (2026-06-03 batch 5CM)** — `ArchLucid.sql` header + divergence comments; `test_maintainability_batch_5cm.py` | XS |
 | TB-156 | `start-local-api-and-ui.ps1` — strict preflight + `/api/proxy/health/live` E2E gate; no browser on failure | **Done (2026-05-31)** — `scripts/start-local-api-and-ui.ps1` E2E proxy gate | S |
 | TB-157 | API connectivity toasts — distinguish ArchLucid API unreachable vs Ask/assistant stream failures | **Done (2026-05-31)** — `api-error-toast-policy.ts` + tests | XS |
 | TB-106 | RunDetailPageView — enrich authority `RunDetailDto` with cost estimate, trust evidence card, and `results[]` | **Done (2026-05-31)** — `AuthorityRunDetailOperatorEnricher` on `GetRunDetail`; explanation-trace fallback label when `results[]` empty | M |
@@ -273,8 +283,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-146 | Redirect-stub ban + canonical target resolution in registry | **Done (2026-06-01)** — registry + stub rejection test | XS |
 | TB-147 | CI drift guard — no customer-facing GitHub blob links in product UI | **Done (2026-06-01)** — `customer-facing-github-blob-guard.test.ts` | S |
 | TB-148 | Role-gated optional “View source on GitHub” footer | **Done (2026-06-01)** — `HelpTopicSourceFooter` | XS |
-| TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | Paid + organic honesty — **`SEO_AND_PAID_ACQUISITION.md`** data flow requires measurable **`TenantProvisioningService`** outcomes; avoids raw-UTM metric cardinality explosions | M |
-| TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | SERP + honest analytics posture | S–M |
+| TB-019 | Signup marketing attribution + server-side conversion (UTM survive funnel → provision success → telemetry/SQL) | **Done (2026-06-03 batch 5CL)** — first-touch cookie → `x-archlucid-first-touch`, `MarketingAttributionService`, migration 220, `MarketingAttributionServiceTests`; `test_marketability_batch_5cl.py` | M |
+| TB-020 | Public marketing SEO — `SoftwareApplication` + trust `FAQPage` JSON-LD; consent-gated Clarity (`NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID`); CSP (`clarity.ms`, `c.bing.com`); privacy §2.4 — DPIA / server kill-switch mirror optional | **Done (2026-06-03 batch 5CL)** — `MarketingJsonLd`, consent + `NEXT_PUBLIC_ARCHLUCID_MARKETING_ANALYTICS_DISABLED`, `CONFIGURATION_REFERENCE.md` marketing keys; `test_marketability_batch_5cl.py` | S–M |
 
 ---
 
@@ -7755,3 +7765,194 @@ Surface recurrence-triggered runs that are executed-but-not-committed as an acti
 - Tests
 
 **Cross-ref:** TB-261 (notification drives the user to this inbox), TB-223 (`DecisionsNeededSummaryCard` — adjacent governance surface).
+
+---
+
+## TB-264 — Competitor-baseline citation discipline guard (P1)
+
+**Source:** Differentiability quality assessment (`docs/assessments/Differentiability_06032026.MD`), 2026-06-03.
+**Problem:** The public `/why` differentiation surface (`why-archlucid-comparison.ts` ↔ `WhyArchLucidPackBuilder.cs`, kept byte-for-row in sync by CI) is the product's most defensible positioning artifact — every ArchLucid claim is cited to a repo file or external URL. But **3 of the 5 rows quantify the *competitor* side with no source**: "reconstructing one architecture review cycle ... often costs **2–6 skilled hours**", "**8–20 DBA/engineering hours** per new tenant", and "**half a day per release**" — each carrying `citation = "first-party assertion (no external citation yet)"`. The existing guard `assert_why_rows_have_evidence.py` only checks that fields are **non-empty**, so an unsourced *quantified* competitor-cost claim ships right next to fully-cited ArchLucid evidence. For a quality defined by *verifiable proof and claim discipline*, that is the highest-leverage integrity gap.
+
+**Cursor prompt:**
+```
+Tighten the /why differentiation claim-discipline guard so quantified competitor claims must be sourced.
+
+1. Extend scripts/ci/assert_why_rows_have_evidence.py: for each row, if competitorBaseline matches a
+   numeric-quantity regex (digits adjacent to hour|hours|day|days|week|weeks|% , or an N–M range dash),
+   then REQUIRE one of:
+     (a) citation starts with "https://" (a real external source), OR
+     (b) competitorBaseline contains the explicit literal "illustrative, not benchmarked".
+   Otherwise fail with a row-indexed error. Keep the existing non-empty checks.
+2. Reword the 3 currently-unsourced quantified rows so they pass via (b): append "(illustrative,
+   not benchmarked)" and remove the "first-party assertion (no external citation yet)" numeric framing,
+   OR replace the number with a qualitative statement. Apply the SAME edit to BOTH
+   archlucid-ui/src/marketing/why-archlucid-comparison.ts and
+   ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs so check_why_archlucid_comparison_sync.py stays green.
+3. pytest tests/ci for the guard: a numeric+placeholder row fails; a numeric+https row passes; a
+   numeric+"illustrative, not benchmarked" row passes; a non-numeric row passes.
+4. Run the existing /why sync + alignment guards locally to confirm byte-for-row parity.
+```
+
+**Affected files / projects:**
+
+- `scripts/ci/assert_why_rows_have_evidence.py`
+- `archlucid-ui/src/marketing/why-archlucid-comparison.ts`
+- `ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs`
+- `tests/ci/` (pytest)
+
+**Cross-ref:** TB-266 (same `/why` claim surface — cohort lock), `check_why_archlucid_comparison_sync.py` (parity guard that must stay green).
+
+---
+
+## TB-265 — Named generic-AI contrast on the public `/why` surface (P2)
+
+**Source:** Differentiability quality assessment (`docs/assessments/Differentiability_06032026.MD`), 2026-06-03.
+**Problem:** The buyer-facing `/why` front-door rows contrast ArchLucid only against "incumbent diagram-and-doc stacks." The most common *real* alternative a buyer is already using — a general LLM chat assistant / coding copilot — is contrasted only in the internal-leaning `DIFFERENTIATION_PROOF_PACKET.md` ("Generic AI assistant" column), not on the public surface. The honest contrast (ArchLucid persists a committed manifest, typed audit ledger, pre-commit governance gate, and a traversable evidence chain that a chat session does not) already exists in docs and just needs to reach the buyer.
+
+**Cursor prompt:**
+```
+Add a buyer-facing "vs a chat assistant" differentiation contrast to the public /why surface.
+
+1. In WhyArchlucidMarketingView.tsx, add a clearly-labeled section "ArchLucid vs a general AI chat assistant"
+   with 4-5 contrast points sourced from DIFFERENTIATION_PROOF_PACKET.md ("Generic AI assistant" column):
+   durable committed manifest vs chat transcript; typed audit trail vs none; pre-commit governance gate vs
+   none; evidence refs + provenance graph vs hallucination risk; repeatable sponsor export vs copy-paste.
+   Keep copy aligned with WHAT_NOT_TO_PROMISE.md (no pejorative vendor names; factual).
+2. Add one entry to marketing-faq.ts (pairs with TB-254): Q "How is ArchLucid different from using
+   ChatGPT or Copilot for architecture review?" A: factual paragraph + link to /why.
+3. Vitest: the /why view renders the chat-assistant contrast section with the expected number of points;
+   the FAQ array contains the new question.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(marketing)/why/WhyArchlucidMarketingView.tsx`
+- `archlucid-ui/src/lib/marketing-faq.ts` (depends on TB-254)
+- Vitest
+
+**Cross-ref:** TB-254 (FAQ schema/array — same file), `docs/go-to-market/DIFFERENTIATION_PROOF_PACKET.md` (source copy).
+
+---
+
+## TB-266 — Cohort-claim integrity guard (P2)
+
+**Source:** Differentiability quality assessment (`docs/assessments/Differentiability_06032026.MD`), 2026-06-03.
+**Problem:** Flagship `/why` claim #4 asserts "**deterministic drift detection**" and cites `GoldenCohortBaselineConstants` + `assert_golden_cohort_baseline_locked.py`. But those fingerprints ship as a **zeroed placeholder SHA** until an owner-approved baseline lock run replaces them. There is **no CI guard tying the public claim to the lock state**, so the differentiation pack can publicly assert a locked, drift-detecting cohort while the baseline is still placeholders. The baseline lock itself is owner action (out of `(A)`), but gating/annotating the *public claim* on the real lock state is engineering-actionable and closes a latent overclaim.
+
+**Cursor prompt:**
+```
+Tie the public /why "deterministic drift detection" claim to the real golden-cohort lock state.
+
+1. Add scripts/ci/assert_why_cohort_claim_locked.py: read GoldenCohortBaselineConstants (the fingerprint
+   constant(s)); if they are still the zeroed placeholder, REQUIRE that the /why claim-#4 row text in
+   why-archlucid-comparison.ts contains a "(baseline lock pending)" qualifier; if fingerprints are real
+   (non-zero), REQUIRE the qualifier is ABSENT. Fail with a clear message otherwise.
+2. Wire it as a step in the existing /why CI guard group in ci.yml (next to assert_why_rows_have_evidence).
+3. Reuse the placeholder-detection logic from assert_golden_cohort_baseline_locked.py (import/share, do not
+   duplicate the zero-SHA definition).
+4. pytest: placeholder + no-qualifier fails; placeholder + qualifier passes; real-fingerprint + qualifier
+   fails; real-fingerprint + no-qualifier passes.
+```
+
+**Affected files / projects:**
+
+- `scripts/ci/assert_why_cohort_claim_locked.py` (new)
+- `.github/workflows/ci.yml` (`/why` guard group)
+- `archlucid-ui/src/marketing/why-archlucid-comparison.ts` + `WhyArchLucidPackBuilder.cs` (qualifier text, kept in sync)
+- `scripts/ci/assert_golden_cohort_baseline_locked.py` (share zero-SHA detection)
+- `tests/ci/` (pytest)
+
+**Cross-ref:** TB-264 (same `/why` claim-discipline surface), `GoldenCohortBaselineConstants.cs`, `assert_golden_cohort_baseline_locked.py`.
+
+---
+
+## TB-267 — `/executive/dashboard` route under executive chrome (P2)
+
+**Source:** Executive Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
+**Problem:** `ExecutiveShellFrame` (the minimal sponsor chrome — wordmark, auth, theme, no operator sidebar) has a "Dashboard" nav `<Link href="/dashboard">`. But `/dashboard` is in the **operator** route group and renders `ExecutiveRoiDashboardPageView` under the **full operator shell** (sidebar + operator nav). The `(executive)` route group contains only `reviews` and `scorecard`. So a sponsor working inside the clean executive chrome who clicks "Dashboard" is thrown into the operator UI. TB-246 added the *link* but the executive-chrome dashboard *route* was never created.
+
+**Cursor prompt:**
+```
+Give the executive route group its own dashboard so the "Dashboard" nav stays in executive chrome.
+
+1. Create archlucid-ui/src/app/(executive)/executive/dashboard/page.tsx that renders the same
+   ExecutiveRoiDashboardPageView used by /dashboard, but inside the (executive) layout (ExecutiveShellFrame).
+   Reuse the existing page sections — do NOT fork the dashboard component. If ExecutiveRoiDashboardPageView
+   depends on operator-nav context providers, add the minimal provider wrapper in the (executive) layout or
+   a thin local wrapper; do not pull in the operator sidebar.
+2. In archlucid-ui/src/components/ExecutiveShellFrame.tsx, change the "Dashboard" Link href from
+   "/dashboard" to "/executive/dashboard" and update the active-route check
+   (pathname.startsWith("/executive/dashboard")).
+3. Keep /dashboard working for operators (do not remove it).
+4. Vitest: ExecutiveShellFrame "Dashboard" link href === "/executive/dashboard" and is marked active on
+   that route; a render test that the new page mounts ExecutiveRoiDashboardPageView.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(executive)/executive/dashboard/page.tsx` (new)
+- `archlucid-ui/src/app/(executive)/layout.tsx` (provider wrapper if needed)
+- `archlucid-ui/src/components/ExecutiveShellFrame.tsx`
+- Vitest
+
+**Cross-ref:** TB-246 (added the nav link — this completes it), `ExecutiveRoiDashboardPageView.tsx`.
+
+---
+
+## TB-268 — In-product executive narrative summary line (P2)
+
+**Source:** Executive Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
+**Problem:** The live dashboard and scorecard now show KPI tiles and a recommended-actions list, but neither opens with a plain-language synthesis sentence. A sponsor still assembles the story from tiles. The AI executive narrative (TB-241) exists only on the **board-pack export** and is gated default-off, so the in-product surfaces have no "what happened / what it's worth / what to do" line.
+
+**Cursor prompt:**
+```
+Add a deterministic (no-LLM) executive narrative summary line to the live executive surfaces.
+
+1. Create archlucid-ui/src/lib/executive-value-narrative.ts exporting buildExecutiveValueNarrative(input)
+   -> string, where input = { reviewsCount, findingsCount, estimatedSavingsUsd?|estimatedHours, topAction? }.
+   Produce e.g.: "This period: 4 reviews, 27 findings, ~$18,400 saved. Top action: resolve 3 critical
+   security findings." Omit any clause whose value is null/0; if no committed runs, return a neutral
+   "No committed reviews in this range yet." Keep wording aligned with WHAT_NOT_TO_PROMISE.md.
+2. Render the line as a prominent <p> at the top of ExecutiveScorecardClient (above the tiles), reusing the
+   already-loaded report + recommendedActions[0]. Add the same line atop ExecutiveRoiDashboardPageView using
+   the executive-summary data it already fetches.
+3. Unit tests for buildExecutiveValueNarrative (full, partial, zero cases) + Vitest that the scorecard renders
+   the narrative line.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/lib/executive-value-narrative.ts` (new)
+- `archlucid-ui/src/app/(executive)/executive/scorecard/ExecutiveScorecardClient.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiDashboardPageView.tsx`
+- Unit + Vitest
+
+**Cross-ref:** TB-247 (recommended-actions — source of the top action), TB-241 (AI board-pack narrative — export-only complement).
+
+---
+
+## TB-269 — Dashboard ROI trend window selector (P3)
+
+**Source:** Executive Value Visibility re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`), 2026-06-03.
+**Problem:** `ExecutiveRoiTrendSection` renders a fixed historical window, while `ExecutiveScorecardClient` has a 30d/quarter/all selector. A sponsor cannot reconcile the dashboard trend with the scorecard's selected range or look at year-over-year.
+
+**Cursor prompt:**
+```
+Add a time-window selector to the dashboard ROI trend section.
+
+1. In ExecutiveRoiTrendSection.tsx, add a 30d / quarter / all / year <select> (mirror the control and
+   labels in ExecutiveScorecardClient). Thread the selected window into the history fetch
+   (GET /v1/roi/executive-summary/history) — if the endpoint only supports a fixed window, pass the range
+   and filter client-side, and open a follow-up note for a server-side window param.
+2. Default to the existing window so current behavior is unchanged when untouched.
+3. Vitest: changing the selector refetches/refilters and the chart reflects the new range; default render
+   matches today's window.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiTrendSection.tsx`
+- `archlucid-ui/src/app/(operator)/dashboard/_sections/ExecutiveRoiSavingsTrendSvgChart.tsx` (consumes the points)
+- Vitest
+
+**Cross-ref:** TB-245 (the SVG chart this selector drives), `ExecutiveScorecardClient.tsx` (selector pattern to mirror).

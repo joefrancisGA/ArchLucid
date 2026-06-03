@@ -10,6 +10,17 @@ This document lists operator-facing configuration **keys** (colon paths or envir
 |-----|---------|---------|
 | `ArchLucid:Testing:SimulateLlmBudgetExhausted` | `false` | When `true` and the host is **not** Production, monthly LLM dollar budget enforcement treats the tenant as hard-capped before real usage is evaluated — use to demo budget-exhaustion UX without SQL manipulation. Ignored in Production. See [`LLM_COST_ESTIMATION.md`](../runbooks/LLM_COST_ESTIMATION.md). |
 
+## Public marketing site (`archlucid-ui`, build-time)
+
+These keys are **not** in `ConfigurationKeyCatalog` (Next.js `NEXT_PUBLIC_*` only). They apply to the **`(marketing)`** subtree and signup funnel — see **TB-019** / **TB-020** and [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md).
+
+| Key | Default | Purpose |
+|-----|---------|---------|
+| `NEXT_PUBLIC_ARCHLUCID_CLARITY_PROJECT_ID` | *(empty)* | Microsoft Clarity project id. Empty disables the Clarity loader even when the user grants consent. |
+| `NEXT_PUBLIC_ARCHLUCID_MARKETING_ANALYTICS_DISABLED` | *(unset)* | When `true`, kill-switch: no Clarity script, no analytics consent offer (TB-020 server-side mirror for ops drills). |
+
+Signup first-touch uses a first-party cookie (`marketing-first-touch.ts`) propagated as **`x-archlucid-first-touch`** on provisioning — not an env var.
+
 ## Tooling
 
 - Validate locally: `archlucid config check` (add `--no-api` to skip the API snapshot; use global `--json` for machine-readable output; exit `0` when all *required* keys for the current mode are set, exit `4` when not).
