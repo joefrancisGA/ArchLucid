@@ -1,6 +1,8 @@
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   formatSqlBackupPrimaryRegionLabel,
@@ -63,12 +65,18 @@ export async function ExecutiveSqlBackupRegionVerificationCard() {
         >
           {verificationStatusIcon(verification.verified)}
           <div className="min-w-0 space-y-1">
-            <p
-              className="font-mono text-xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50"
-              data-testid="sql-backup-verification-region-name"
+            <Link
+              href={EXECUTIVE_KPI_DRILL_THROUGH.sqlBackupRegion}
+              data-testid="kpi-tile-sql-backup-region-link"
+              className="block rounded-sm text-inherit no-underline outline-none transition-shadow cursor-pointer hover:ring-2 hover:ring-primary/30 focus-visible:ring-2 focus-visible:ring-primary/40"
             >
-              {regionLabel}
-            </p>
+              <p
+                className="font-mono text-xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50"
+                data-testid="sql-backup-verification-region-name"
+              >
+                {regionLabel}
+              </p>
+            </Link>
             {redundancyLine !== null ? (
               <p className="text-xs text-neutral-600 dark:text-neutral-400">{redundancyLine}</p>
             ) : null}

@@ -46,5 +46,6 @@ describe("ExecutiveRoiTrendSection", () => {
       /Chart includes both Real and Simulator runs/i,
     );
     expect(screen.getByTestId("exec-roi-trend-simulator-only")).toHaveTextContent("Simulator-only");
+    expect(screen.getByTestId("exec-roi-trend-svg-chart")).toBeInTheDocument();
   });
 });

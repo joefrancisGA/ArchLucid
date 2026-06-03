@@ -7,6 +7,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
+import { ExecutiveRoiSavingsTrendSvgChart } from "./ExecutiveRoiSavingsTrendSvgChart";
+
 type HistoryPoint = {
   snapshotUtc: string;
   totalEstimatedUsdSavings: number;
@@ -31,11 +33,10 @@ function chartIncludesMixedMode(points: HistoryPoint[]): boolean {
   return points.some((point) => point.isMixedMode);
 }
 
-function buildSavingsBarTitle(point: HistoryPoint): string {
-  const total = Math.round(point.totalEstimatedUsdSavings).toLocaleString();
-  const realSavings = Math.round(point.realModeSavingsUsd).toLocaleString();
+function buildCriticalBarTitle(point: HistoryPoint): string {
+  const monthLabel = formatMonth(point.snapshotUtc);
 
-  return `$${total} total · ${point.realRunCount} Real runs · ${point.simulatorRunCount} Simulator runs · $${realSavings} Real-mode savings`;
+  return `${point.criticalSecurityFindings} critical findings — ${monthLabel} · ${point.realRunCount} Real · ${point.simulatorRunCount} Simulator`;
 }
 
 function isSimulatorOnlyPeriod(point: HistoryPoint): boolean {
@@ -83,7 +84,6 @@ export function ExecutiveRoiTrendSection() {
     };
   }, []);
 
-  const maxSavings = Math.max(...points.map((point) => point.totalEstimatedUsdSavings), 1);
   const maxCritical = Math.max(...points.map((point) => point.criticalSecurityFindings), 1);
   const showMixedModeFootnote = chartIncludesMixedMode(points);
 
@@ -112,11 +112,17 @@ export function ExecutiveRoiTrendSection() {
         ) : null}
         {!loading && !error && points.length > 0 ? (
           <div className="space-y-4" data-testid="exec-roi-trend-chart">
+            <ExecutiveRoiSavingsTrendSvgChart
+              points={points.map((point) => ({
+                snapshotUtc: point.snapshotUtc,
+                totalEstimatedUsdSavings: point.totalEstimatedUsdSavings,
+              }))}
+            />
             <div>
-              <div className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">Estimated USD savings</div>
+              <div className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">Critical security findings</div>
               <div className="flex items-end gap-2">
                 {points.map((point) => (
-                  <div key={`savings-${point.snapshotUtc}`} className="flex flex-1 flex-col items-center gap-1">
+                  <div key={`critical-${point.snapshotUtc}`} className="flex flex-1 flex-col items-center gap-1">
                     {isSimulatorOnlyPeriod(point) ? (
                       <StatusTag
                         kind="needs-attention"
@@ -126,24 +132,9 @@ export function ExecutiveRoiTrendSection() {
                       />
                     ) : null}
                     <div
-                      className="w-full rounded-sm bg-emerald-500/80"
-                      style={{ height: `${Math.max(8, Math.round((point.totalEstimatedUsdSavings / maxSavings) * 120))}px` }}
-                      title={buildSavingsBarTitle(point)}
-                    />
-                    <span className="text-[10px] text-neutral-500">{formatMonth(point.snapshotUtc)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">Critical security findings</div>
-              <div className="flex items-end gap-2">
-                {points.map((point) => (
-                  <div key={`critical-${point.snapshotUtc}`} className="flex flex-1 flex-col items-center gap-1">
-                    <div
                       className="w-full rounded-sm bg-amber-500/80"
                       style={{ height: `${Math.max(8, Math.round((point.criticalSecurityFindings / maxCritical) * 120))}px` }}
-                      title={`${point.criticalSecurityFindings} critical findings · ${point.realRunCount} Real · ${point.simulatorRunCount} Simulator`}
+                      title={buildCriticalBarTitle(point)}
                     />
                     <span className="text-[10px] text-neutral-500">{formatMonth(point.snapshotUtc)}</span>
                   </div>
@@ -155,7 +146,7 @@ export function ExecutiveRoiTrendSection() {
                 className="m-0 text-xs text-neutral-600 dark:text-neutral-400"
                 data-testid="exec-roi-trend-mixed-mode-footnote"
               >
-                Chart includes both Real and Simulator runs. Hover savings bars for Real-mode savings attribution.
+                Chart includes both Real and Simulator runs. Hover savings bars for exact monthly savings.
               </p>
             ) : null}
           </div>

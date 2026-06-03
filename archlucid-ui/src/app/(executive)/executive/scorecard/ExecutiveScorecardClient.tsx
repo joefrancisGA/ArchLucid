@@ -10,8 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getComplianceDriftTrend } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { isApiRequestError } from "@/lib/api-request-error";
+import {
+  buildExecutiveScorecardRecommendedActions,
+  type ExecutiveScorecardRecommendedAction,
+} from "@/lib/executive-scorecard-recommended-actions";
+import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { formatHours, hoursSurfaced } from "@/lib/roi-assumptions";
@@ -91,8 +98,26 @@ type ScorecardState =
       driftPoints: ComplianceDriftTrendPoint[];
       precommitBlocks: number;
       precommitBlocksExact: boolean;
+      recommendedActions: ExecutiveScorecardRecommendedAction[];
     }
   | { status: "error"; message: string; problem: ApiProblemDetails | null; correlationId: string | null };
+
+async function fetchExecutiveRoiSummaryForScorecard(): Promise<ExecutiveRoiSummary | null> {
+  try {
+    const response = await fetch(
+      `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`,
+      mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as ExecutiveRoiSummary;
+  } catch {
+    return null;
+  }
+}
 
 export function ExecutiveScorecardClient() {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
@@ -108,14 +133,22 @@ export function ExecutiveScorecardClient() {
       const report = await fetchPilotValueReportJson(fromUtc, toUtc);
       const driftFrom = fromUtc ?? report.fromUtc;
 
-      const [driftPoints, blocked] = await Promise.all([
+      const [driftPoints, blocked, executiveSummary] = await Promise.all([
         getComplianceDriftTrend(driftFrom, report.toUtc, 1440),
         countAuditEventsInWindow({
           eventType: "GovernancePreCommitBlocked",
           fromUtcIso: report.fromUtc,
           toUtcIso: report.toUtc,
         }),
+        fetchExecutiveRoiSummaryForScorecard(),
       ]);
+
+      const driftTotal = sumDriftChanges(driftPoints);
+      const recommendedActions = buildExecutiveScorecardRecommendedActions({
+        complianceDriftChangeCount: driftTotal,
+        orphanCandidates: executiveSummary?.orphanCandidates,
+        committedRunsTimeline: report.committedRunsTimeline,
+      });
 
       setState({
         status: "ready",
@@ -123,6 +156,7 @@ export function ExecutiveScorecardClient() {
         driftPoints,
         precommitBlocks: blocked.count,
         precommitBlocksExact: blocked.exact,
+        recommendedActions,
       });
     } catch (e: unknown) {
       if (isApiRequestError(e)) {
@@ -231,7 +265,7 @@ export function ExecutiveScorecardClient() {
     );
   }
 
-  const { report, driftPoints, precommitBlocks, precommitBlocksExact } = state;
+  const { report, driftPoints, precommitBlocks, precommitBlocksExact, recommendedActions } = state;
   const reviewsCount = report.totalRunsCommitted;
   const findingsTotal = report.totalFindings;
   const hoursRoi = hoursSurfaced({
@@ -352,6 +386,36 @@ export function ExecutiveScorecardClient() {
           </CardContent>
         </Card>
       </div>
+
+      <Card
+        className="border border-neutral-200 shadow-sm dark:border-neutral-800"
+        data-testid="executive-scorecard-recommended-actions"
+      >
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base text-neutral-900 dark:text-neutral-100">Recommended actions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 pt-0">
+          {recommendedActions.length === 0 ? (
+            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">No actions needed — all signals are healthy.</p>
+          ) : (
+            <ul className="m-0 list-none space-y-4 p-0">
+              {recommendedActions.map((action) => (
+                <li key={action.id} className="space-y-1 border-b border-neutral-100 pb-4 last:border-0 last:pb-0 dark:border-neutral-800">
+                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{action.headline}</p>
+                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{action.explanation}</p>
+                  <Link
+                    href={action.href}
+                    className="text-sm font-medium text-blue-700 underline dark:text-blue-400"
+                    data-testid={`executive-scorecard-action-${action.id}`}
+                  >
+                    View →
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <CollapsibleSection title="About these metrics" defaultOpen={false}>
         <ul className="m-0 list-disc space-y-2 ps-5 text-sm text-neutral-700 dark:text-neutral-300">

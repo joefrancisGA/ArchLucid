@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { getGovernanceDecisionsNeededSummary } from "@/lib/api/governance-stickiness-api";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -140,9 +142,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {resolved.display}
-          </p>
+          <KpiTileDrillThroughLink
+            href={EXECUTIVE_KPI_DRILL_THROUGH.resolvedFindings30d}
+            testId="kpi-tile-resolved-30d-link"
+          >
+            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              {resolved.display}
+            </p>
+          </KpiTileDrillThroughLink>
           <KpiFootnote text={resolved.footnote} />
         </CardContent>
       </Card>
@@ -157,9 +164,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {discovered.display}
-          </p>
+          <KpiTileDrillThroughLink
+            href={EXECUTIVE_KPI_DRILL_THROUGH.newlyDiscoveredFindings30d}
+            testId="kpi-tile-discovered-30d-link"
+          >
+            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              {discovered.display}
+            </p>
+          </KpiTileDrillThroughLink>
           <KpiFootnote text={discovered.footnote} />
         </CardContent>
       </Card>
@@ -177,9 +189,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {staleRisks.display}
-          </p>
+          <KpiTileDrillThroughLink
+            href={EXECUTIVE_KPI_DRILL_THROUGH.staleArchitectureRisks}
+            testId="kpi-tile-stale-risks-link"
+          >
+            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              {staleRisks.display}
+            </p>
+          </KpiTileDrillThroughLink>
           <KpiFootnote text={staleRisks.footnote} />
         </CardContent>
       </Card>
@@ -197,9 +214,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {decisionsNeeded.display}
-          </p>
+          <KpiTileDrillThroughLink
+            href={EXECUTIVE_KPI_DRILL_THROUGH.decisionsNeeded}
+            testId="kpi-tile-decisions-needed-link"
+          >
+            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              {decisionsNeeded.display}
+            </p>
+          </KpiTileDrillThroughLink>
           <KpiFootnote text={decisionsNeeded.footnote} />
         </CardContent>
       </Card>
@@ -214,9 +236,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {expiringWaivers.display}
-          </p>
+          <KpiTileDrillThroughLink
+            href={EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers}
+            testId="kpi-tile-expiring-waivers-link"
+          >
+            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              {expiringWaivers.display}
+            </p>
+          </KpiTileDrillThroughLink>
           <KpiFootnote text={expiringWaivers.footnote} />
         </CardContent>
       </Card>
@@ -231,9 +258,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            {remediated.display}
-          </p>
+          <KpiTileDrillThroughLink
+            href={EXECUTIVE_KPI_DRILL_THROUGH.findingsRemediated30d}
+            testId="kpi-tile-remediated-30d-link"
+          >
+            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+              {remediated.display}
+            </p>
+          </KpiTileDrillThroughLink>
           <KpiFootnote text={remediated.footnote} />
         </CardContent>
       </Card>
@@ -248,9 +280,14 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
-            {costFreshness.display}
-          </p>
+          <KpiTileDrillThroughLink
+            href={EXECUTIVE_KPI_DRILL_THROUGH.costEvidenceFreshness}
+            testId="kpi-tile-cost-evidence-freshness-link"
+          >
+            <p className="font-mono text-4xl font-semibold tabular-nums text-al-text-primary">
+              {costFreshness.display}
+            </p>
+          </KpiTileDrillThroughLink>
           <KpiFootnote text={costFreshness.footnote} runbookHref={costFreshness.runbookHref} />
         </CardContent>
       </Card>

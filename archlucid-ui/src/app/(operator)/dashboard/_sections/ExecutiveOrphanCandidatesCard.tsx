@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
@@ -109,9 +111,14 @@ export function ExecutiveOrphanCandidatesCard() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-          {data.count}
-        </p>
+        <KpiTileDrillThroughLink
+          href={EXECUTIVE_KPI_DRILL_THROUGH.orphanCandidates}
+          testId="kpi-tile-orphan-candidates-link"
+        >
+          <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            {data.count}
+          </p>
+        </KpiTileDrillThroughLink>
         {data.count > 0 ? (
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
             Estimated savings: {formatUsd(data.savings)}/yr

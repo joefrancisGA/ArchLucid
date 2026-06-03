@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InspectorPanel } from "@/components/InspectorPanel";
@@ -243,6 +244,8 @@ export function RunsListClient({
   totalCount,
   nextCursor = null,
 }: RunsListClientProps) {
+  const searchParams = useSearchParams();
+  const listContextFilter = searchParams.get("filter");
   const safeRuns = useMemo(() => {
     const filtered = runs.filter((run) => {
       if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
@@ -475,6 +478,23 @@ export function RunsListClient({
 
   return (
     <div className="mt-4 space-y-4">
+      {listContextFilter === "orphan-candidates" ? (
+        <div
+          className="rounded-lg border border-teal-200 bg-teal-50/80 px-4 py-3 text-sm text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+          role="status"
+          data-testid="runs-list-orphan-candidates-filter-banner"
+        >
+          <p className="m-0 font-medium">Orphan candidates</p>
+          <p className="m-0 mt-1 leading-snug">
+            Showing reviews in context for orphan-candidate ROI evidence. Open a committed review&apos;s artifacts for{" "}
+            <span className="font-mono text-xs">orphan-candidates.json</span>, or return to the{" "}
+            <Link href="/dashboard" className="font-medium underline">
+              executive dashboard
+            </Link>{" "}
+            KPI tile.
+          </p>
+        </div>
+      ) : null}
       {buyerPolished && totalCount <= 1 ? null : buyerPolished ? (
         buyerCollapseFilters ? (
           <details className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">

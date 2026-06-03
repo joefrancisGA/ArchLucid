@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -66,6 +66,18 @@ export type { GovernanceFindingQueueRecordKind, GovernanceFindingQueueRow } from
 type RiskRegisterFilter = "all" | "stale" | "waiver-expiring";
 
 const WAIVER_EXPIRING_WINDOW_DAYS = 14;
+
+function riskRegisterFilterFromQuery(raw: string | null): RiskRegisterFilter {
+  if (raw === "stale") {
+    return "stale";
+  }
+
+  if (raw === "waiver-expiring") {
+    return "waiver-expiring";
+  }
+
+  return "all";
+}
 
 function matchesRiskRegisterFilter(row: GovernanceFindingQueueRow, filter: RiskRegisterFilter): boolean {
   if (filter === "all") {
@@ -398,10 +410,17 @@ function GovernanceFindingsBuyerMobileRow(props: { readonly row: GovernanceFindi
  * Findings hub: cross-run queue from explainability aggregates, plus a deterministic PHI sample row in public demo mode.
  */
 export default function GovernanceFindingsQueueClient() {
+  const searchParams = useSearchParams();
   const [rows, setRows] = useState<GovernanceFindingQueueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [registerFilter, setRegisterFilter] = useState<RiskRegisterFilter>("all");
+  const [registerFilter, setRegisterFilter] = useState<RiskRegisterFilter>(() =>
+    riskRegisterFilterFromQuery(searchParams.get("filter")),
+  );
+
+  useEffect(() => {
+    setRegisterFilter(riskRegisterFilterFromQuery(searchParams.get("filter")));
+  }, [searchParams]);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const displayedRows = useMemo(
     () => rows.filter((row) => matchesRiskRegisterFilter(row, registerFilter)),
