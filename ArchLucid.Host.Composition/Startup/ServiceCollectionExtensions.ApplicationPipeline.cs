@@ -314,6 +314,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IPolicyPackDraftService, PolicyPackDraftService>();
+        services.Configure<GenerateRunSummaryOptions>(
+            configuration.GetSection(GenerateRunSummaryOptions.SectionPath));
         services.AddScoped<IRunSummaryOnePagerExportService, RunSummaryOnePagerExportService>();
         services.AddScoped<IAgentExecutorResolver, DefaultAgentExecutorResolver>();
         services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();

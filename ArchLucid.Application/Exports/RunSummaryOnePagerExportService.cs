@@ -6,13 +6,17 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Exports;
 
 public sealed class RunSummaryOnePagerExportService(
     IRunDetailQueryService runDetailQueryService,
-    IAgentCompletionClient completionClient) : IRunSummaryOnePagerExportService
+    IAgentCompletionClient completionClient,
+    IOptionsMonitor<GenerateRunSummaryOptions> generateRunSummaryOptions) : IRunSummaryOnePagerExportService
 {
     private const string ExecutiveSummaryPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -25,9 +29,15 @@ public sealed class RunSummaryOnePagerExportService(
     private readonly IAgentCompletionClient _completionClient =
         completionClient ?? throw new ArgumentNullException(nameof(completionClient));
 
+    private readonly IOptionsMonitor<GenerateRunSummaryOptions> _generateRunSummaryOptions =
+        generateRunSummaryOptions ?? throw new ArgumentNullException(nameof(generateRunSummaryOptions));
+
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!_generateRunSummaryOptions.CurrentValue.Enabled)
+            throw new ConflictException("Run summary export is disabled. Enable AgentRuntime:GenerateRunSummary.");
 
         ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runId.Trim(), cancellationToken);
 

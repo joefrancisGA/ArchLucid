@@ -10,6 +10,8 @@ import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingTrustChip } from "@/components/FindingTrustChip";
 import { FindingFeedbackThumbs } from "@/components/FindingFeedbackThumbs";
+import { MessageCircle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -256,6 +258,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                         aria-pressed={askFindingId === f.findingId}
                         title="Ask about this finding"
                       >
+                        <MessageCircle className="mr-1 h-3.5 w-3.5" aria-hidden />
                         Ask
                       </Button>
                       {f.iacStub !== null && f.iacStub !== undefined && f.iacStub.length > 0 ? (

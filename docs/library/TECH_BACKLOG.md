@@ -71,6 +71,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-229 – TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0→1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `EXECUTIVE_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (**TB-236**, DEFERRED — owner action, PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131–134** (commercial packaging), **TB-141–142** (proof cohort / demo assets), **TB-162–164** (trust center, procurement pack), or **TB-170–176** (proof pack chooser/metadata).
 
+**TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix) — all of which remain open and address the same quality dimension.
+
 **TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
 
 **TB-238 – TB-243** were added 2026-06-02 from an independent first-principles **Proof-of-ROI Readiness** quality assessment (`docs/assessments/ProofOfROIReadiness_06022026.MD`, score 72/100, COMMERCIAL weight 5/116). They address: baseline capture prompt in pilot wizard (**TB-238**, P1), executive ROI history run-mode label (**TB-239**, P1), executive ROI surface data quality regression guard (**TB-240**, P1), board-pack AI executive narrative (**TB-241**, P2), ROI model freshness CI guard (**TB-242**, P2), and sponsor proof delivery tracking event (**TB-243**, P2). These do not duplicate **TB-103–105** (orphan-candidate dual pipeline / waiver window / bucket bucketing), **TB-149–155** (data consistency defect fixes), **TB-062** (executive dashboard KPI replacement), or **TB-186** (run summary one-pager). TB-240 specifically adds regression-guard tests that verify TB-103/TB-149/TB-151/TB-152/TB-155 fixes hold; it is a guard, not a duplicate of those fixes.
@@ -97,8 +99,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-182 | `Write-AiReadinessPosture.ps1` — automate production of `ai-readiness-posture.json` from evidence artifacts | AI/Agent Readiness P1 — every pilot delivery currently requires manual JSON fill; schema stable | Done (2026-06-01) |
 | TB-183 | Findings priority re-ranker — `IFindingPriorityReranker` + `PriorityRank` column + `?orderBy=priority` param, feature-flagged | **Done (2026-06-02 batch 5BL)** — post-commit `FindingPriorityReranker` + migration `180_FindingRecords_PriorityRank.sql` + `RunQueryController` `orderBy=priority`; `AgentRuntime:RerankFindings:Enabled`; `test_adoption_batch_5bl.py` | M |
 | TB-184 | Governance-block explainer — AI explanation on 409 `GovernanceBlockResult` via `IAgentCompletionClient`, feature-flagged | **Done (2026-06-02 batch 5BM)** — `PreCommitGovernanceBlockExplainer` + `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false) + `blockExplanation` ProblemDetails + commit UI; `test_ai_readiness_batch_5bm.py` | S |
-| TB-185 | Per-finding conversational explainer — `AskAboutFindingAsync` + `POST /v1/architecture/finding/{findingId}/ask` + inline UI chat icon | AI/Agent Readiness P2 — operators cannot ask "why?" inline without copying finding context manually | M |
-| TB-186 | Run summary one-pager auto-generator — `RunSummaryOnePager` export variant + `GET /v1/architecture/run/{runId}/export/summary`, feature-flagged | AI/Agent Readiness P2 — no CFO-ready artifact in one click; every sponsor packet requires manual export + edit | M |
+| TB-185 | Per-finding conversational explainer — `AskAboutFindingAsync` + `POST /v1/architecture/finding/{findingId}/ask` + inline UI chat icon | **Done (2026-06-02 batch 5BP)** — `ArchitectureFindingAskController` + `FindingAskInlinePanel` + `MessageCircle` Ask control on `QuickDecisionSummary`; `test_ai_readiness_batch_5bp.py` | M |
+| TB-186 | Run summary one-pager auto-generator — `RunSummaryOnePager` export variant + `GET /v1/architecture/run/{runId}/export/summary`, feature-flagged | **Done (2026-06-02 batch 5BQ)** — `AgentRuntime:GenerateRunSummary:Enabled` (default false) + export endpoint guard + AI disclaimer in template + run detail download; `test_ai_readiness_batch_5bq.py` | M |
 | TB-187 | AI-assisted architecture request authoring — `POST /v1/architecture/request/draft` + pre-fill UI button | AI/Agent Readiness P2 — blank-page tax on first run; pure assistive, no changes to run contract | M |
 | TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; add `LlmJudgeBudget` sub-cap (~200k tokens/day, isolated from run-execution quota) as prerequisite | AI/Agent Readiness P2 — sub-cap design resolved 2026-06-01 (PQ-AI-02); implement sub-cap first, then extend judge coverage | M |
 | TB-188 | Findings-to-IaC stub generator — `IFindingIacStubGenerator` + `IacStub` nullable property on `ArchitectureFinding`, feature-flagged | AI/Agent Readiness P3 — closes "what do I do now?" gap; finding → Bicep snippet with disclaimer | M |
@@ -107,7 +109,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-192 | Dynamic evidence summarization before context overflow — `IEvidenceSummarizationService` using `ModelTier.Fast`; counts against tenant run-execution quota (not a separate sub-cap — PQ-CEAT-02 resolved 2026-06-02); invoked by `ContextLengthGuardAgentCompletionClient` before hard truncation; `AgentExecution:EvidenceSummarization:Enabled=false` (opt-in); fail-open | **Done (2026-06-02 batch 5V)** — `EvidenceSummarizationService` + guard integration + `LlmEvidenceSummarized` audit; `EvidenceSummarizationServiceDependencyTests` + `test_cutting_edge_batch_5v.py` | M |
 | TB-193 | LLM provider abstraction factory scaffold — `ILlmProviderFactory` + `LlmProviderDescriptor.ProviderType` enum (`AzureOpenAi`, `Anthropic`, `GoogleGemini`, `LocalOllama`); `DefaultLlmProviderFactory` wraps existing Azure OpenAI client; architecture test for interface isolation; **no concrete non-Azure provider implementations** (V2 per PQ-CEAT-01 resolved 2026-06-02 — Azure-native mandate ADR 0020) | Cutting-Edge AI Technology P2 — scaffold decouples interface from Azure OpenAI implementation; concrete providers require separate owner ADR | M |
 | TB-194 | RAG corpus operator monitoring panel — `GET /v1/admin/rag-health` returning per-`CorpusKind` chunk counts, last-indexed-at, embedding dim, stale flag; UI panel under `/admin/rag-health`; Playwright smoke test | **Done (2026-06-02 batch 5BO)** — `AdminRagHealthController` + `/admin/rag-health` UI; `test_cutting_edge_batch_5bo.py` | S–M |
-| TB-195 | Multi-turn Ask conversation context compression — `IConversationContextCompressor` using `ModelTier.Fast`; keep last N turns verbatim, compress older turns; `Ask:ConversationContext:CompressionEnabled=false` (opt-in); fail-open | Cutting-Edge AI Technology P2 — long pilot analyst sessions can exhaust context budget before current question is appended | M |
+| TB-195 | Multi-turn Ask conversation context compression — `IConversationContextCompressor` using `ModelTier.Fast`; keep last N turns verbatim, compress older turns; `Ask:ConversationContext:CompressionEnabled=false` (opt-in); fail-open | **Done (2026-06-02 batch 5BR)** — `ConversationContextCompressor` + `Ask:ConversationContext` options + `AskService` history compression; `test_cutting_edge_batch_5br.py` | M |
 | TB-207 | Token-claims diagnostic — `POST /v1/admin/auth/diagnose-token` + `archlucid auth test-token --bearer` — decode JWT payload without signature validation; pipe through `ArchLucidRoleClaimsTransformation`; return `resolvedRoles[]`, `unmappedValues[]`, `warnings[]`; Admin auth required; durable `Auth.TokenDiagnosticRequested` audit event | **Done (2026-06-02 batch 5X)** — `TokenClaimsDiagnosticService` + admin endpoint + CLI + `AuthTokenDiagnosticRequested` audit; `test_adoption_batch_5x.py` | M |
 | TB-208 | CLI as dotnet global tool + self-contained binaries — `<PackAsTool>true</PackAsTool>` in `ArchLucid.Cli.csproj`; GitHub Actions publish job for win-x64/linux-x64/osx-x64 `PublishSingleFile=true`; `docs/engineering/CLI_INSTALL.md`; update `OPERATOR_QUICKSTART.md` | **Done (2026-06-02 batch 5Y)** — `publish-cli.yml` + `CLI_INSTALL.md` + operator quickstart link; `test_adoption_batch_5y.py` | S |
 | TB-209 | `archlucid request create --from-file <path>` — reads JSON file, POSTs to `POST /v1/architecture/request`, prints run ID; optional `--request-id` override; replace `curl` example in `OPERATOR_QUICKSTART.md` reference architecture section | **Done (2026-06-02 batch 5Z)** — `RequestCreateCommand` + `ArchitectureRequestFileParser` + operator quickstart CLI section; `test_adoption_batch_5z.py` | S |
@@ -152,6 +154,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-247 | "Top 3 actions" section on executive scorecard — add a "Recommended actions" card to `ExecutiveScorecardClient.tsx` that derives 1–3 plain-language recommendations from loaded data (highest-drift policy, largest orphan cost bucket, most overdue review); unit tests for derivation logic | **Done (2026-06-02 batch 5AY)** — recommended-actions card + derivation module; `test_adoption_batch_5ay.py` | M |
 | TB-248 | "Day N since first commit" badge on executive KPI strip — compute `N = (today - firstCommitUtc).TotalDays` and add "Day {N} of your ArchLucid pilot" display below the savings KPI tile in `ExecutiveRoiDashboardLiveKpiCards.tsx`; read `FirstCommitUtc` from ROI summary endpoint; unit test | **Done (2026-06-02 batch 5BA)** — `FirstCommitUtc` on executive summary + pilot day badge; `test_adoption_batch_5ba.py` | S |
 | TB-249 | Cross-tenant portfolio graceful 403 — in `RoiController.GetCrossTenantPortfolioSummaryAsync` return a structured `ProblemDetails` with user-facing guidance when directory object key is missing (403); update `PortfolioPageView.tsx` to display the guidance text rather than a blank/silent error; create `docs/library/MULTI_TENANT_PORTFOLIO.md` | **Done (2026-06-02 batch 5BB)** — ProblemDetails 403 + portfolio UI card + doc; `test_adoption_batch_5bb.py` | S |
+| TB-250 | Authority pipeline stage timeline in operator UI — add `dbo.RunStageOutcomes` (migration); write rows at stage start/end in `AuthorityPipelineStagesExecutor`; expose `GET /v1/architecture/run/{runId}/stage-timeline` returning `StageTimelineSummary[]` (name, startedUtc, completedUtc, outcomeStatus, durationMs); add collapse-by-default "Pipeline stages" section to `/reviews/{runId}` with `StatusTag` per stage and OTel deep-link when `OtelTraceId` present; unit + integration tests | Traceability P1 — authority stage durations and outcomes are OTel-only; operators investigating slow or failed runs must leave the product to open a separate observability backend | M |
+| TB-251 | Retrieval indexing at-least-once outbox — `dbo.RetrievalIndexOutbox` migration (OutboxId, RunId, CreatedUtc, ProcessedUtc, AttemptCount, LastError); insert row after manifest commit in `ManifestFinalizationService`; `RetrievalIndexOutboxWorker : BackgroundService` polls every 30 s, calls `IRetrievalRunCompletionIndexer`, marks processed or increments AttemptCount; emit `AuditEventTypes.RetrievalIndexingFailed` at AttemptCount = 5; add constant + matrix row; unit tests | Traceability P2 — `PROVENANCE_INDEXING.md` hardening backlog item; indexer throws post-commit → search/RAG silently lags; no retry, no dead-letter, no operator signal | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -7106,3 +7110,131 @@ Unit tests:
 - `docs/library/MULTI_TENANT_PORTFOLIO.md` (new file)
 
 **Cross-ref:** TB-244–248 (other EVV items — same executive route group), `EXECUTIVE_SPONSOR_BRIEF.md`.
+
+---
+
+## TB-250 — Authority pipeline stage timeline in operator UI run detail (P1)
+
+**Source:** Traceability quality assessment (`docs/assessments/Traceability_06032026.MD`), 2026-06-03.
+**Problem:** Authority pipeline stage spans (`context_ingestion`, `graph`, `findings`, `decisions`, `manifest`, `artifacts`) are emitted only as OTel spans. An operator investigating a slow or failed run must leave the product and open a separate observability backend (Jaeger/Tempo). This gap has been noted in quality assessments since April 2026 and has no prior TB. It is the highest-deficiency gap in the Traceability authority-pipeline-UI sub-dimension.
+
+**Cursor prompt:**
+```
+Add an authority pipeline stage timeline to the operator run detail page.
+
+Backend — new table and DTO:
+1. Add migration dbo.RunStageOutcomes:
+   CREATE TABLE dbo.RunStageOutcomes (
+     RunId       NVARCHAR(64)  NOT NULL,
+     StageName   NVARCHAR(64)  NOT NULL,
+     StartedUtc  DATETIME2     NOT NULL,
+     CompletedUtc DATETIME2    NULL,
+     OutcomeStatus NVARCHAR(32) NOT NULL DEFAULT 'running', -- 'running' | 'succeeded' | 'failed' | 'skipped'
+     CONSTRAINT PK_RunStageOutcomes PRIMARY KEY (RunId, StageName)
+   );
+   CREATE INDEX IX_RunStageOutcomes_RunId ON dbo.RunStageOutcomes (RunId);
+
+2. Add DTO StageTimelineSummary { string StageName, DateTime? StartedUtc, DateTime? CompletedUtc,
+   string OutcomeStatus, long? DurationMs } (compute DurationMs = (CompletedUtc - StartedUtc).TotalMilliseconds when both non-null).
+
+3. In AuthorityPipelineStagesExecutor (or equivalent authority orchestrator), before each
+   stage call INSERT a row (OutcomeStatus = "running"); after completion UPDATE OutcomeStatus to
+   "succeeded" or "failed". Use a try/finally pattern so failures still update the row.
+   Use IRunStageOutcomesRepository (new interface) injected via DI.
+
+Backend — API:
+4. Add GET /v1/architecture/run/{runId}/stage-timeline to the appropriate controller.
+   Return StageTimelineSummary[] ordered by StartedUtc ASC.
+   Require at least ReadAuth; no PII in this response.
+   Alternatively, include as stageTimeline?: StageTimelineSummary[] in the existing run detail response.
+
+Frontend:
+5. In /reviews/{runId}, add a "Pipeline stages" section (collapse closed by default) after the
+   existing run summary header:
+   - For each stage: show stage name, DurationMs formatted as "N.N s" or "NNN ms", and a
+     StatusTag component with appropriate variant (success/danger/warning/pending) mapping
+     succeeded → success, failed → danger, running → warning, skipped → muted.
+   - When the parent run has an OtelTraceId, render an "Open in trace viewer →" external link
+     pointing to /traces/{otelTraceId}?service=archlucid or the configured trace URL.
+   - If stageTimeline is empty or absent, hide the section entirely.
+
+Tests:
+6. Unit: DurationMs computed correctly from two UTC timestamps; null CompletedUtc → DurationMs null.
+7. Integration: GET .../stage-timeline returns at least one stage for a completed authority run.
+8. Frontend Vitest: stages array renders correct count of stage rows; failed stage shows danger StatusTag.
+```
+
+**Affected files / projects:**
+
+- New migration (`dbo.RunStageOutcomes`)
+- `ArchLucid.Core/` or `ArchLucid.Application/` (new `IRunStageOutcomesRepository` + `StageTimelineSummary` DTO)
+- `ArchLucid.Application/Runs/` (authority pipeline orchestrator — stage write hooks)
+- `ArchLucid.Api/Controllers/` (new endpoint or existing run detail controller)
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/` (new "Pipeline stages" section)
+
+**Cross-ref:** TB-052 (`RuleAuditTracePayload` snapshot IDs — same authority run detail surface), TB-054 (unified decision API — same run detail page), `docs/library/CANONICAL_PIPELINE.md`.
+
+---
+
+## TB-251 — Retrieval indexing at-least-once outbox (P2)
+
+**Source:** Traceability quality assessment (`docs/assessments/Traceability_06032026.MD`), 2026-06-03.
+**Problem:** `PROVENANCE_INDEXING.md` explicitly lists "Outbox + worker for post-commit indexing (at-least-once delivery)" in its hardening backlog. If `IRetrievalRunCompletionIndexer` throws after a successful manifest commit, the provenance search index silently lags. There is no retry job, no dead-letter queue, and no operator-facing signal. Operators or governance leads querying provenance search may receive stale results with no indication that indexing failed.
+
+**Cursor prompt:**
+```
+Add at-least-once delivery to post-commit retrieval indexing.
+
+1. Add migration dbo.RetrievalIndexOutbox:
+   CREATE TABLE dbo.RetrievalIndexOutbox (
+     OutboxId      UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() CONSTRAINT PK_RetrievalIndexOutbox PRIMARY KEY,
+     RunId         NVARCHAR(64)     NOT NULL,
+     CreatedUtc    DATETIME2        NOT NULL DEFAULT SYSUTCDATETIME(),
+     ProcessedUtc  DATETIME2        NULL,
+     AttemptCount  INT              NOT NULL DEFAULT 0,
+     LastAttemptUtc DATETIME2       NULL,
+     LastError     NVARCHAR(2048)   NULL
+   );
+   CREATE FILTERED INDEX IX_RetrievalIndexOutbox_Unprocessed
+     ON dbo.RetrievalIndexOutbox (CreatedUtc ASC) WHERE ProcessedUtc IS NULL;
+
+2. In ManifestFinalizationService (or the commit orchestrator), after the manifest transaction
+   commits successfully, INSERT a row into dbo.RetrievalIndexOutbox for the RunId.
+   Use a non-throwing try/catch so indexing failures do not strand commit state.
+
+3. Create RetrievalIndexOutboxWorker : BackgroundService:
+   - Runs every 30 seconds (configurable via IOptions<RetrievalIndexOutboxOptions>).
+   - Queries up to 10 rows WHERE ProcessedUtc IS NULL AND AttemptCount < 5, ORDER BY CreatedUtc ASC.
+   - For each row: calls IRetrievalRunCompletionIndexer.IndexRunAsync(runId, cancellationToken).
+     On success: UPDATE ProcessedUtc = SYSUTCDATETIME().
+     On failure: UPDATE AttemptCount += 1, LastAttemptUtc = SYSUTCDATETIME(), LastError = ex.Message[:2048].
+   - When AttemptCount reaches 5 after an update, emit AuditEventTypes.RetrievalIndexingFailed
+     via IAuditService (DataJson: { runId, attemptCount, lastError }).
+
+4. Add AuditEventTypes.RetrievalIndexingFailed to ArchLucid.Core/Audit/AuditEventTypes.cs.
+   Add the corresponding row to docs/library/AUDIT_COVERAGE_MATRIX.md (under the durable audit table).
+   Update the <!-- audit-core-const-count:N --> CI anchor in AUDIT_COVERAGE_MATRIX.md.
+
+5. Register IRetrievalIndexOutboxRepository and RetrievalIndexOutboxWorker in ArchLucid.Host.Core DI.
+
+6. Update docs/runbooks/PROVENANCE_INDEXING.md: mark the "Outbox + worker" hardening item as resolved
+   and reference this TB.
+
+Unit tests:
+7. Indexer throws on first poll → outbox row has AttemptCount = 1, LastError populated.
+8. Five consecutive failures → AttemptCount = 5 and RetrievalIndexingFailed audit event emitted.
+9. Indexer succeeds → ProcessedUtc non-null.
+10. Worker skips rows with AttemptCount >= 5 (already exhausted).
+```
+
+**Affected files / projects:**
+
+- New migration (`dbo.RetrievalIndexOutbox`)
+- `ArchLucid.Core/Audit/AuditEventTypes.cs` (new constant)
+- `ArchLucid.Application/Retrieval/` (new `IRetrievalIndexOutboxRepository`, `RetrievalIndexOutboxWorker`, `RetrievalIndexOutboxOptions`)
+- `ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.cs` (insert outbox row after commit)
+- `ArchLucid.Host.Core/` (DI registration)
+- `docs/library/AUDIT_COVERAGE_MATRIX.md`
+- `docs/runbooks/PROVENANCE_INDEXING.md`
+
+**Cross-ref:** TB-037 (`DecisionProvenanceSnapshot` persistence — same post-commit integrity theme), `docs/runbooks/PROVENANCE_INDEXING.md`.

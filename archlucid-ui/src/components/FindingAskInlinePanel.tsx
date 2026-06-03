@@ -78,7 +78,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
 
   return (
     <CollapsibleSection title="Ask about this finding" defaultOpen={props.defaultOpen === true}>
-      <div className="space-y-4">
+      <div className="finding-ask-inline-panel space-y-4">
           {turns.length > 0 ? (
             <ol className="m-0 list-none space-y-4 p-0">
               {turns.map((turn, index) => (

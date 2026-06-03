@@ -514,6 +514,15 @@ jobs:
       - name: Cutting-edge batch 5BO drift guards (TB-194)
         run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5bo.py"
 
+      - name: AI readiness batch 5BP drift guards (TB-185)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bp.py"
+
+      - name: AI readiness batch 5BQ drift guards (TB-186)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bq.py"
+
+      - name: Cutting-edge batch 5BR drift guards (TB-195)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5br.py"
+
       - name: Check GTM placeholder tokens (warn-only)
         run: python scripts/ci/check_gtm_placeholder_tokens.py
 

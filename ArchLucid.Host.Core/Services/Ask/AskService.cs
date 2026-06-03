@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.Ask;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Ask;
@@ -40,10 +41,18 @@ public sealed class AskService(
     IRetrievalDocumentBuilder retrievalDocumentBuilder,
     IRetrievalIndexingService retrievalIndexingService,
     IOptionsMonitor<AskComparisonNarrativeOptions> askComparisonNarrativeOptions,
+    IConversationContextCompressor conversationContextCompressor,
+    IOptionsMonitor<ConversationContextOptions> conversationContextOptions,
     ILogger<AskService> logger) : IAskService
 {
     private readonly IOptionsMonitor<AskComparisonNarrativeOptions> _askComparisonNarrativeOptions =
         askComparisonNarrativeOptions ?? throw new ArgumentNullException(nameof(askComparisonNarrativeOptions));
+
+    private readonly IConversationContextCompressor _conversationContextCompressor =
+        conversationContextCompressor ?? throw new ArgumentNullException(nameof(conversationContextCompressor));
+
+    private readonly IOptionsMonitor<ConversationContextOptions> _conversationContextOptions =
+        conversationContextOptions ?? throw new ArgumentNullException(nameof(conversationContextOptions));
 
     private const int HistoryTake = 40;
 
@@ -192,7 +201,7 @@ public sealed class AskService(
 
         IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
         IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
-        string historyText = BuildConversationHistory(priorMessages);
+        string historyText = await BuildHistoryTextAsync(priorMessages, ct);
 
         Contracts.Findings.FindingInspectResponse? finding = await findingInspectReadRepository.GetInspectAsync(scope, findingId, ct);
 
@@ -277,7 +286,7 @@ public sealed class AskService(
 
         IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
         IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, question);
-        string historyText = BuildConversationHistory(priorMessages);
+        string historyText = await BuildHistoryTextAsync(priorMessages, ct);
 
         RunDetailDto? detail = await query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
         if (detail?.GoldenManifest is null)
@@ -635,6 +644,35 @@ public sealed class AskService(
             return messages.Take(messages.Count - 1).ToList();
 
         return messages;
+    }
+
+    private async Task<string> BuildHistoryTextAsync(
+        IReadOnlyList<ConversationMessage> priorMessages,
+        CancellationToken ct)
+    {
+        ConversationContextOptions opts = _conversationContextOptions.CurrentValue;
+
+        if (!opts.CompressionEnabled || priorMessages.Count <= opts.MaxVerbatimTurns)
+            return BuildConversationHistory(priorMessages);
+
+        CompressedConversationContext compressed = await _conversationContextCompressor.CompressAsync(
+            priorMessages,
+            opts.MaxTurnsToKeepVerbatim,
+            ct);
+
+        List<ConversationMessage> promptMessages = [];
+
+        if (!string.IsNullOrWhiteSpace(compressed.CompressedSummary))
+        {
+            promptMessages.Add(new ConversationMessage
+            {
+                Role = ConversationMessageRole.Assistant,
+                Content = "[Compressed prior context] " + compressed.CompressedSummary
+            });
+        }
+
+        promptMessages.AddRange(compressed.RecentVerbatim);
+        return BuildConversationHistory(promptMessages);
     }
 
     private static string BuildConversationHistory(IReadOnlyList<ConversationMessage> messages)

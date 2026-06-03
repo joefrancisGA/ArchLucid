@@ -8,6 +8,7 @@ using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Application.Ask;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Core.Retrieval;
@@ -232,6 +233,9 @@ public sealed class AskServiceComparisonNarrativeTests
             .Setup(monitor => monitor.CurrentValue)
             .Returns(new AskComparisonNarrativeOptions { GenerateComparisonNarrative = generateComparisonNarrative });
 
+        Mock<IOptionsMonitor<ConversationContextOptions>> contextOptions = new();
+        contextOptions.Setup(monitor => monitor.CurrentValue).Returns(new ConversationContextOptions());
+
         AskService sut = new(
             authority.Object,
             provenance.Object,
@@ -243,6 +247,8 @@ public sealed class AskServiceComparisonNarrativeTests
             Mock.Of<IRetrievalDocumentBuilder>(),
             Mock.Of<IRetrievalIndexingService>(),
             askOptions.Object,
+            Mock.Of<IConversationContextCompressor>(),
+            contextOptions.Object,
             NullLogger<AskService>.Instance);
 
         return (sut, llm);

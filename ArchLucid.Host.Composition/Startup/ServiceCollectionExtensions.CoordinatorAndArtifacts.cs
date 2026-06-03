@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Application.Ask;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Explanation;
@@ -88,6 +89,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ArchLucid.Core.Llm.IAgentCompletionClient, JsonCompletionClientAdapter>();
         services.Configure<AskComparisonNarrativeOptions>(
             configuration.GetSection(AskComparisonNarrativeOptions.SectionPath));
+        services.Configure<ConversationContextOptions>(
+            configuration.GetSection(ConversationContextOptions.SectionPath));
+        services.AddScoped<IConversationContextCompressor, ConversationContextCompressor>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IPreCommitGovernanceBlockExplainer, PreCommitGovernanceBlockExplainer>();
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();

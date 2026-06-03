@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 84.67%
+# ArchLucid Assessment – (A) Headline Readiness: 85.02%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **83.93%** (5BG–5BI); batches **5BJ TB-237** (pricing early-adopter framing), **5BK TB-212** (Content Safety hosted-prod Terraform), **5BL TB-183** (findings priority re-ranker drift closure) → **84.32%** (+1 Marketability, +1 Adoption Friction, +1 AI/Agent Readiness). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **84.67%** (5BM–5BO); batches **5BP TB-185** (per-finding Ask inline), **5BQ TB-186** (run summary one-pager export, feature-flagged), **5BR TB-195** (Ask conversation context compression, opt-in) → **85.02%** (+2 AI/Agent Readiness, +1 Cutting-Edge AI Technology). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -46,8 +46,8 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
-| Cutting-Edge AI Technology | 77 | 8 | 5.31% | 184 |
-| AI/Agent Readiness | 79 | 8 | 5.45% | 168 |
+| Cutting-Edge AI Technology | 78 | 8 | 5.38% | 176 |
+| AI/Agent Readiness | 81 | 8 | 5.59% | 152 |
 | Stickiness | 79 | 6 | 4.14% | 126 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
 | Marketability | 90 | 8 | 6.24% | 80 |
@@ -101,9 +101,9 @@ Classification: Fixable in v1 for release-candidate evidence. Stronger unattende
 
 ### Cutting-Edge AI Technology
 
-Score: 77. Weight: 8. Weighted impact: 5.31%. Weighted deficiency signal: 184.
+Score: 78. Weight: 8. Weighted impact: 5.38%. Weighted deficiency signal: 176.
 
-Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation. Batch **5W** closes **TB-191** — `SystemPromptContentHash` on traces for prompt-forensics queries. Batch **5BO** closes **TB-194** — `GET /v1/admin/rag-health` and `/admin/rag-health` expose per-corpus chunk counts, last-indexed timestamps, embedding dimension, and stale flags from `RetrievalCorpusFreshnessSummary`. It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
+Justification: The system uses modern AI-adjacent patterns: Azure OpenAI, structured JSON/schema response, RAG, Azure AI Search path, faithfulness scoring, retrieval IR harness, semantic reranking, redaction, budgets, quality gates, and model drift guards. Batch **5M** adds adversarial Critic evaluation posture with empty-findings gate signaling. Batch **5N** ships streaming Ask SSE end-to-end (`POST /v1/ask/stream`, `AskStreamAsync`, `useAskStream`). Batch **5V** closes **TB-192** — opt-in LLM evidence summarization before context-length hard truncation. Batch **5W** closes **TB-191** — `SystemPromptContentHash` on traces for prompt-forensics queries. Batch **5BO** closes **TB-194** — `GET /v1/admin/rag-health` and `/admin/rag-health` expose per-corpus chunk counts, last-indexed timestamps, embedding dimension, and stale flags from `RetrievalCorpusFreshnessSummary`. Batch **5BR** closes **TB-195** — opt-in `Ask:ConversationContext:CompressionEnabled` multi-turn history compression via `IConversationContextCompressor` (fail-open). It is not merely a chat wrapper. The weakness is uneven productization: several high-end capabilities exist as gated, optional, or partially operator-driven controls rather than a single unavoidable production posture.
 
 Tradeoffs: Conservative fail-open retrieval and optional judges keep runs resilient and affordable. They reduce confidence when the user needs formal "this answer is grounded" guarantees.
 

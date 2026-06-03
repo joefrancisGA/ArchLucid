@@ -4,6 +4,7 @@ using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Application.Ask;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Interfaces;
@@ -86,6 +87,9 @@ public sealed class AskServiceAskAboutFindingTests
         Mock<IOptionsMonitor<AskComparisonNarrativeOptions>> askOptions = new();
         askOptions.Setup(monitor => monitor.CurrentValue).Returns(new AskComparisonNarrativeOptions());
 
+        Mock<IOptionsMonitor<ConversationContextOptions>> contextOptions = new();
+        contextOptions.Setup(monitor => monitor.CurrentValue).Returns(new ConversationContextOptions());
+
         AskService sut = new(
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IProvenanceQueryService>(),
@@ -97,6 +101,8 @@ public sealed class AskServiceAskAboutFindingTests
             Mock.Of<IRetrievalDocumentBuilder>(),
             Mock.Of<IRetrievalIndexingService>(),
             askOptions.Object,
+            Mock.Of<IConversationContextCompressor>(),
+            contextOptions.Object,
             NullLogger<AskService>.Instance);
 
         AskResponse response = await sut.AskAboutFindingAsync(
