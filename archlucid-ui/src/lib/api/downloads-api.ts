@@ -1,6 +1,7 @@
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
+  apiPostNoContent,
   ensureOidcBearerReady,
   getBearerToken,
   isBrowser,
@@ -274,6 +275,15 @@ function parseFilenameFromContentDisposition(header: string | null): string | nu
  * the Markdown sibling (`ReadAuthority`, no Standard-tier gate) so the post-commit CTA stays one-click.
  * Throws {@link ApiRequestError}-shaped error on non-2xx responses.
  */
+/** POST `/v1/pilots/runs/{runId}/sponsor-pack-sent` — records sponsor delivery in the audit trail (TB-243). */
+export async function markSponsorPackSent(
+  runId: string,
+  body?: { readonly recipientEmail?: string; readonly deliveryMethod?: string },
+): Promise<void> {
+  const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-pack-sent`;
+  await apiPostNoContent(path, body ?? { deliveryMethod: "email" });
+}
+
 export async function downloadFirstValueReportPdf(runId: string): Promise<void> {
   if (!isBrowser()) {
     throw new Error("downloadFirstValueReportPdf is only supported in the browser.");

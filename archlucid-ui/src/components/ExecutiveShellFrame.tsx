@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
@@ -18,7 +19,19 @@ export type ExecutiveShellFrameProps = {
 /**
  * Minimal authenticated chrome for the executive route group: wordmark, operator link, auth, theme — no sidebar.
  */
+function executiveNavLinkClassName(isActive: boolean): string {
+  const base = "shrink-0 text-neutral-700 dark:text-neutral-300";
+
+  if (!isActive) {
+    return base;
+  }
+
+  return `${base} font-semibold underline underline-offset-4`;
+}
+
 export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
+  const pathname = usePathname();
+
   return (
     <TooltipProvider delayDuration={200}>
       <ShellReadySurface className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
@@ -40,6 +53,26 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
               </Button>
               <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-700 dark:text-neutral-300">
                 <Link href="/executive/reviews">Risk reviews</Link>
+              </Button>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={executiveNavLinkClassName(pathname.startsWith("/executive/dashboard"))}
+              >
+                <Link href="/executive/dashboard" data-testid="executive-shell-nav-dashboard">
+                  Dashboard
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={executiveNavLinkClassName(pathname.startsWith("/executive/scorecard"))}
+              >
+                <Link href="/executive/scorecard" data-testid="executive-shell-nav-scorecard">
+                  Scorecard
+                </Link>
               </Button>
               <span className="hidden text-neutral-400 sm:inline dark:text-neutral-600" aria-hidden>
                 |

@@ -343,6 +343,75 @@ public sealed class PilotsController(
         }
     }
 
+    /// <summary>
+    ///     Records that the operator delivered sponsor evidence for a committed run (audit-only; TB-243).
+    /// </summary>
+    [HttpPost("runs/{runId}/sponsor-pack-sent")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> PostSponsorPackSent(
+        string runId,
+        [FromBody] SponsorPackSentPostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound);
+        }
+
+        if (!detail.IsCommitted)
+        {
+            return this.ConflictProblem(
+                "Sponsor pack delivery can only be recorded after the review is committed.",
+                ProblemTypes.Conflict);
+        }
+
+        string deliveryMethod = body?.DeliveryMethod?.Trim() ?? "email";
+
+        if (deliveryMethod.Length > 64)
+        {
+            deliveryMethod = deliveryMethod[..64];
+        }
+
+        string? recipientEmail = body?.RecipientEmail?.Trim();
+
+        if (recipientEmail is not null && recipientEmail.Length > 320)
+        {
+            recipientEmail = recipientEmail[..320];
+        }
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+        string payload = JsonSerializer.Serialize(
+            new
+            {
+                runId = detail.Run.RunId,
+                recipientEmail,
+                deliveryMethod,
+                recordedUtc = TimeProvider.System.GetUtcNow()
+            });
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.SponsorEvidencePackSent,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = payload,
+            },
+            cancellationToken);
+
+        return NoContent();
+    }
+
     /// <summary>JSON pilot scorecard for the current tenant scope (UTC window).</summary>
     [HttpPost("scorecard")]
     [Produces("application/json")]

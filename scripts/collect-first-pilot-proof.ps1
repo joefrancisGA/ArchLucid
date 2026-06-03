@@ -8,10 +8,16 @@
   CLI preflight, data-consistency readiness, and committed-run evidence collection.
   A missing RunId is a warning, not a blocking failure, so operators can use this
   script before and after the first committed review.
+
+  Multi-run stickiness (TB-227): pass -RunNumber 2+ with -CompareBaseRunId (prior committed
+  run) and -RunId (current run) to capture compare, governance, and risk-register snapshots
+  under pilot-proof-run{N}/ inside the timestamped proof folder.
 #>
 param(
     [string] $BaseUrl = '',
     [string] $RunId = '',
+    [int] $RunNumber = 1,
+    [string] $CompareBaseRunId = '',
     [string] $OutputDirectory = 'artifacts/first-pilot-proof',
     [string] $BearerToken = '',
     [string] $ApiKey = '',
@@ -43,6 +49,9 @@ $root = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'FirstPilotCommercialNextStep.ps1')
 . (Join-Path $PSScriptRoot 'FirstPilotCommercialCloseout.ps1')
 . (Join-Path $PSScriptRoot 'FirstPilotWorkflowHandoff.ps1')
+. (Join-Path $PSScriptRoot 'FirstPilotMultiRunStickinessProof.ps1')
+
+Assert-FirstPilotMultiRunParameters -RunNumber $RunNumber -RunId $RunId -CompareBaseRunId $CompareBaseRunId
 
 if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
     $BaseUrl = $env:ARCHLUCID_API_URL
@@ -2840,10 +2849,38 @@ $commandCenterPaths = Write-FirstPilotCommandCenterArtifacts -ProofDirectory $pr
 Add-ProofArtifact -Name 'first-pilot-command-center.json' -Path $commandCenterPaths.jsonPath -Purpose 'Single phased go/no-go command center (JSON) — primary first-pilot status surface.'
 Add-ProofArtifact -Name 'first-pilot-command-center.md' -Path $commandCenterPaths.mdPath -Purpose 'Single phased go/no-go command center (Markdown) aligned to FIRST_PILOT_OPERATOR_PATH labels.'
 
+$script:stickinessSignals = $null
+
+if ($RunNumber -ge 2 -and -not [string]::IsNullOrWhiteSpace($RunId)) {
+    try {
+        $stickinessRollup = Write-FirstPilotMultiRunStickinessArtifacts `
+            -ProofDirectory $proofDir `
+            -RunNumber $RunNumber `
+            -NormalizedBase $normalizedBase `
+            -Headers $headers `
+            -RunId $RunId `
+            -CompareBaseRunId $CompareBaseRunId
+
+        if ($null -ne $stickinessRollup) {
+            $script:stickinessSignals = $stickinessRollup.stickinessSignals
+            Add-ProofArtifact -Name "compare-run$($RunNumber - 1)-to-run$RunNumber.json" -Path (Join-Path "pilot-proof-run$RunNumber" "compare-run$($RunNumber - 1)-to-run$RunNumber.json") -Purpose 'Run-to-run authority compare snapshot for repeat-review stickiness proof.'
+            Add-ProofArtifact -Name "decisions-needed-summary-run$RunNumber.json" -Path (Join-Path "pilot-proof-run$RunNumber" "decisions-needed-summary-run$RunNumber.json") -Purpose 'Governance decisions-needed snapshot at repeat-review collection time.'
+            Add-ProofArtifact -Name "risk-register-run$RunNumber.json" -Path (Join-Path "pilot-proof-run$RunNumber" "risk-register-run$RunNumber.json") -Purpose 'Risk register snapshot at repeat-review collection time.'
+            Add-ProofFinding -Disposition 'PASS' -Name 'multi-run-stickiness' -Detail "Captured repeat-review stickiness bundle under pilot-proof-run$RunNumber (compare + governance + risk register)." -Remediation ''
+        }
+    }
+    catch {
+        Add-ProofFinding -Disposition 'WARN' -Name 'multi-run-stickiness' -Detail "Repeat-review stickiness collection failed: $($_.Exception.Message)" -Remediation 'Verify RunId and CompareBaseRunId are committed in scope, then rerun with -RunNumber and -CompareBaseRunId.'
+    }
+}
+
 $summary = [ordered]@{
     formatVersion             = '1.2'
     generatedUtc              = $timestamp
     baseUrl                   = $normalizedBase
+    runNumber                 = $RunNumber
+    compareBaseRunId          = if ([string]::IsNullOrWhiteSpace($CompareBaseRunId)) { $null } else { $CompareBaseRunId.Trim() }
+    stickinessSignals         = $script:stickinessSignals
     runId                     = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
     sponsorHandoffMode        = [bool]$SponsorHandoff
     productionLikeHostedPilot = [bool]$ProductionLikeHostedPilot

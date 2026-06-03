@@ -7,6 +7,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
   return {
     ...actual,
     downloadFirstValueReportPdf: vi.fn(),
+    markSponsorPackSent: vi.fn(),
   };
 });
 
@@ -14,7 +15,7 @@ vi.mock("@/lib/sponsor-banner-telemetry", () => ({
   recordSponsorBannerFirstCommitBadge: vi.fn(),
 }));
 
-import { downloadFirstValueReportPdf } from "@/lib/api";
+import { downloadFirstValueReportPdf, markSponsorPackSent } from "@/lib/api";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import { EmailRunToSponsorBanner } from "./EmailRunToSponsorBanner";
@@ -536,5 +537,23 @@ describe("EmailRunToSponsorBanner", () => {
     });
 
     expect(screen.queryByTestId("email-run-to-sponsor-sponsor-docx")).toBeNull();
+  });
+
+  it("records sponsor delivery and shows sent badge on success", async () => {
+    vi.mocked(markSponsorPackSent).mockResolvedValue(undefined);
+
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("email-run-to-sponsor-mark-sent"));
+
+    await waitFor(() => {
+      expect(markSponsorPackSent).toHaveBeenCalledWith("run-42", { deliveryMethod: "email" });
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-sent-badge")).toHaveTextContent("Sent to sponsor");
   });
 });

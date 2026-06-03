@@ -342,6 +342,9 @@ public static class AuditEventTypes
     /// <summary>Operator generated the one-click sponsor proof ZIP for a committed run (Batch B item 5).</summary>
     public const string SponsorProofPackGenerated = "SponsorProofPackGenerated";
 
+    /// <summary>Operator marked sponsor evidence as delivered (<c>POST /v1/pilots/runs/{runId}/sponsor-pack-sent</c>, TB-243).</summary>
+    public const string SponsorEvidencePackSent = "SponsorEvidencePackSent";
+
     /// <summary>Core Pilot team checklist step upsert (<c>PUT …/tenant/core-pilot-checklist</c>).</summary>
     public const string CorePilotTeamChecklistUpdated = "CorePilotTeamChecklistUpdated";
 

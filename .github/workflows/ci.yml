@@ -451,6 +451,15 @@ jobs:
       - name: Adoption batch 5AT drift guards (TB-242)
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5at.py"
 
+      - name: Adoption batch 5AU drift guards (TB-227)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5au.py"
+
+      - name: Adoption batch 5AV drift guards (TB-243)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5av.py"
+
+      - name: Adoption batch 5AW drift guards (TB-246)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5aw.py"
+
       - name: Check ROI model freshness (warn-only)
         run: python scripts/ci/check_roi_model_freshness.py docs/go-to-market/ROI_MODEL.md
 

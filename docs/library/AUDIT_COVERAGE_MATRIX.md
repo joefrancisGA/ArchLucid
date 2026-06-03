@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:249 -->
+<!-- audit-core-const-count:250 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -395,6 +395,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `PilotScorecardBaselinesUpdated` | `PilotScorecardBaselinesUpdated` | `PilotInProductScorecardService` (`PUT /v1/pilots/scorecard/baselines`) |
 | `PilotCloseoutRecorded` | `PilotCloseoutRecorded` | `PilotsController` (`POST /v1/pilots/closeout`) |
 | `SponsorProofPackGenerated` | `SponsorProofPackGenerated` | `PilotsController` (`GET /v1/pilots/runs/{runId}/sponsor-proof-pack.zip`) |
+| `SponsorEvidencePackSent` | `SponsorEvidencePackSent` | `PilotsController` (`POST /v1/pilots/runs/{runId}/sponsor-pack-sent`) |
 | `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistUpdated` | `CorePilotTeamChecklistController` (`PUT …/tenant/core-pilot-checklist`) |
 | `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
 | `GovernanceSelfApprovalBlocked` | `GovernanceSelfApprovalBlocked` | `GovernanceWorkflowService` |

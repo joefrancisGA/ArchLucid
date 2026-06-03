@@ -35,6 +35,19 @@ When ArchLucid hosts extraction against customer subscriptions via workload iden
 - Live Stripe checkout or Marketplace drawdown (owner-gated)
 - MCP retrieval tools (later)
 
+## Repeat review (run 2+)
+
+After a second committed review, capture comparison-enriched stickiness proof:
+
+```powershell
+.\scripts\collect-first-pilot-proof.ps1 `
+  -RunId '<second-committed-run-id>' `
+  -RunNumber 2 `
+  -CompareBaseRunId '<first-committed-run-id>'
+```
+
+See [`docs/library/REPEAT_REVIEW_LOOP.md`](../library/REPEAT_REVIEW_LOOP.md) for the full second-review checklist.
+
 ## Related
 
 - [`runbooks/PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) — symptom index when stuck mid-pilot

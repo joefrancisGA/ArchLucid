@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.02%
+# ArchLucid Assessment – (A) Headline Readiness: 83.14%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **82.90%** (5AO–5AQ); batches **5AR** (TB-223 waivers tile → risk-exceptions), **5AS TB-226** (risk exceptions management page), **5AT TB-242** (ROI model freshness guard) → **83.02%** (+1 Stickiness, +1 Proof-of-ROI). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **83.02%** (5AR–5AT); batches **5AU** (TB-227 multi-run proof script), **5AV TB-243** (sponsor pack sent audit + CTA), **5AW TB-246** (executive shell dashboard/scorecard nav) → **83.14%** (+1 Stickiness, +1 Proof-of-ROI, +1 Executive Value). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -48,14 +48,14 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | --- | ---: | ---: | ---: | ---: |
 | Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
 | AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
-| Stickiness | 77 | 6 | 3.98% | 138 |
+| Stickiness | 78 | 6 | 4.03% | 132 |
 | Adoption Friction | 77 | 6 | 4.04% | 138 |
 | Marketability | 85 | 8 | 5.86% | 120 |
 | Correctness | 86 | 8 | 5.93% | 112 |
-| Proof-of-ROI Readiness | 81 | 5 | 3.49% | 95 |
+| Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
 | Time-to-Value | 86 | 7 | 5.19% | 98 |
-| Executive Value Visibility | 78 | 4 | 2.69% | 88 |
+| Executive Value Visibility | 79 | 4 | 2.72% | 84 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
 | Interoperability | 66 | 2 | 1.14% | 68 |

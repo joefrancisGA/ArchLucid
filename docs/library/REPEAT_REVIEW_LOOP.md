@@ -50,7 +50,7 @@
 - [ ] Compare output attached or linked in sponsor narrative.
 - [ ] At least one stickiness signal improved or explained (cycle time, governance, repeated category, prior decision reuse).
 - [ ] ROI basis remains **buyer-provided** or **defaulted** with labels — not demo-derived outcome claims.
-- [ ] Proof disposition SEND or explicit HOLD with remediation — re-run [`collect-first-pilot-proof.ps1`](../../scripts/collect-first-pilot-proof.ps1).
+- [ ] Proof disposition SEND or explicit HOLD with remediation — re-run [`collect-first-pilot-proof.ps1`](../../scripts/collect-first-pilot-proof.ps1) with **`-RunNumber 2`**, **`-RunId`** (second committed review), and **`-CompareBaseRunId`** (first committed review) so compare, governance, and risk-register snapshots land under `pilot-proof-run2/` with `stickinessSignals` in `go-no-go-summary.json`.
 
 **Not required:** V1.1 connectors, MCP, automated planning beyond existing materialization endpoints.
 

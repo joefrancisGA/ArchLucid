@@ -9,8 +9,10 @@ import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportA
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
   downloadFirstValueReportPdf,
+  markSponsorPackSent,
   getArchitecturePackageDocxUrl,
   getArtifactDownloadUrl,
   getBundleDownloadUrl,
@@ -89,6 +91,9 @@ export function EmailRunToSponsorBanner({
   curatedSampleRun = false,
 }: EmailRunToSponsorBannerProps) {
   const [busy, setBusy] = useState(false);
+  const [markSentBusy, setMarkSentBusy] = useState(false);
+  const [sentToSponsorUtc, setSentToSponsorUtc] = useState<string | null>(null);
+  const [markSentError, setMarkSentError] = useState<string | null>(null);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -240,6 +245,22 @@ export function EmailRunToSponsorBanner({
       window.clearTimeout(timer);
     };
   }, [proofGate.status]);
+
+  async function onMarkSentToSponsor(): Promise<void> {
+    setMarkSentBusy(true);
+    setMarkSentError(null);
+
+    try {
+      await markSponsorPackSent(runId, { deliveryMethod: "email" });
+      setSentToSponsorUtc(new Date().toISOString());
+    }
+    catch (e: unknown) {
+      setMarkSentError(e instanceof Error ? e.message : "Could not record sponsor delivery.");
+    }
+    finally {
+      setMarkSentBusy(false);
+    }
+  }
 
   async function onDownloadPdf(): Promise<void> {
     setBusy(true);
@@ -537,6 +558,25 @@ export function EmailRunToSponsorBanner({
             </FunnelTelemetryExportAnchor>
           </Button>
         ) : null}
+        {sentToSponsorUtc !== null ? (
+          <StatusTag
+            kind="ready"
+            label="Sent to sponsor"
+            title={`Recorded at ${sentToSponsorUtc}`}
+            data-testid="email-run-to-sponsor-sent-badge"
+          />
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={markSentBusy}
+            onClick={() => void onMarkSentToSponsor()}
+            data-testid="email-run-to-sponsor-mark-sent"
+          >
+            {markSentBusy ? "Recording…" : "Mark as sent to sponsor"}
+          </Button>
+        )}
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
           {blockSponsorPdfForAiGate
             ? "PDF export stays disabled until PilotStrict AI readiness signals pass for this run."
@@ -620,6 +660,12 @@ export function EmailRunToSponsorBanner({
           />
         )}
       </div>
+
+      {markSentError !== null ? (
+        <p className="m-0 mt-2 text-xs font-medium text-amber-800 dark:text-amber-200" role="alert">
+          {markSentError}
+        </p>
+      ) : null}
 
       {error !== null ? (
         <div className="mt-2">
