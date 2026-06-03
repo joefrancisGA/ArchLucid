@@ -8,6 +8,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { escapeRegExpSource } from "./helpers/escape-reg-exp-source";
+import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
@@ -131,7 +132,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       page
         .getByRole("main")
         .first()
-        .getByRole("heading", { name: /Claims Intake Modernization Review Package/i }),
+        .getByRole("heading", { name: new RegExp(escapeRegExpSource(SHOWCASE_BUYER_REVIEW_TITLE), "i") }),
     ).toBeVisible();
 
     await page.goto("/reviews/new");

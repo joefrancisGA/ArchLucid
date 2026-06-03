@@ -363,9 +363,8 @@ public sealed class GovernanceStickinessController(
             existing.CronExpression = cron;
         }
 
-        existing.NextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(
-            cron,
-            TimeProvider.System.UtcNowDateTime());
+        DateTime updateNow = TimeProvider.System.GetUtcNow().UtcDateTime;
+        existing.NextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(cron, updateNow);
 
         await recurrenceScheduleRepository.UpdateAsync(existing, cancellationToken);
 

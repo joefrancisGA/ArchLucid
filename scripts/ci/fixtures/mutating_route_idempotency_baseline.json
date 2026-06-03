@@ -159,6 +159,7 @@
     "POST /v1/pilots/closeout": "unclassified",
     "POST /v1/pilots/runs/{runId}/first-value-report.pdf": "unclassified",
     "POST /v1/pilots/runs/{runId}/sponsor-one-pager": "unclassified",
+    "POST /v1/pilots/runs/{runId}/sponsor-pack-sent": "unclassified",
     "POST /v1/pilots/scorecard": "unclassified",
     "POST /v1/policy-packs": "unclassified",
     "POST /v1/policy-packs/assignments/{assignmentId}/archive": "unclassified",
