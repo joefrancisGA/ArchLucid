@@ -1195,6 +1195,7 @@ function Write-QuoteToProofPacketMarkdown {
     $lines.Add("| Data consistency readiness | $DataConsistencyStatus | ``data-consistency-readiness/`` |")
     $lines.Add("| AI quality proof | $aiQualityStatus | ``go-no-go-summary.json`` · ``aiQualityProof`` |")
     $lines.Add("| Consolidated AI readiness gate | $(Resolve-FindingDisposition -Name 'ai-readiness-gate') | ``ai-readiness-gate.json`` · ``go-no-go-summary.json`` · ``aiReadinessGate`` |")
+    $lines.Add("| AI readiness posture (TB-167) | $(Resolve-FindingDisposition -Name 'ai-readiness-posture') | ``ai-readiness-posture.json`` · ``ai-readiness-posture.md`` |")
     $lines.Add("| Live UI-SQL parity | $(Resolve-FindingDisposition -Name 'live-ui-sql-parity') | ``live-ui-sql-parity-result.json`` (when supplied) |")
     $lines.Add("| Commercial conversion checklist | MANUAL | [`COMMERCIAL_CONVERSION_CHECKLIST.md`](../../docs/go-to-market/COMMERCIAL_CONVERSION_CHECKLIST.md) after PASS disposition |")
     $lines.Add("| Selected tier + order form | MANUAL | [`ORDER_FORM_TEMPLATE.md`](../../docs/go-to-market/ORDER_FORM_TEMPLATE.md) after tier is agreed |")
@@ -2312,6 +2313,52 @@ function Add-PilotAcceptanceThresholdFinding {
     Add-ProofFinding -Disposition $proofDisposition -Name 'pilot-acceptance-thresholds' -Detail "Pilot acceptance HOLD ($quality) — resolve gates before sponsor commercial close." -Remediation 'See pilot-acceptance-thresholds.md and PILOT_ACCEPTANCE_THRESHOLDS.md.' -TriageCard 'FP-T018'
 }
 
+function Add-AiReadinessPostureFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $jsonPath = Join-Path $ProofDirectory 'ai-readiness-posture.json'
+    $mdPath = Join-Path $ProofDirectory 'ai-readiness-posture.md'
+    $writerScript = Join-Path $PSScriptRoot 'Write-AiReadinessPosture.ps1'
+    $retrievalIrInProof = Join-Path $ProofDirectory 'retrieval-ir-report.md'
+    $retrievalIrArg = 'docs/quality/retrieval-ir-report.md'
+
+    if (Test-Path -LiteralPath $retrievalIrInProof) {
+        $retrievalIrArg = $retrievalIrInProof
+    }
+
+    & $writerScript `
+        -JsonOut $jsonPath `
+        -MarkdownOut $mdPath `
+        -RetrievalIrReport $retrievalIrArg `
+        2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'ai-readiness-posture.json' -Path 'ai-readiness-posture.json' -Purpose 'Sponsor-safe AI readiness posture (execution mode, quality gate, retrieval, budget).'
+    Add-ProofArtifact -Name 'ai-readiness-posture.md' -Path 'ai-readiness-posture.md' -Purpose 'Human-readable AI readiness posture for sponsor and procurement packets.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'ai-readiness-posture' -Detail 'AI readiness posture artifact was not generated.' -Remediation 'Run scripts/Write-AiReadinessPosture.ps1 or repair collect-first-pilot-proof wiring.'
+        return
+    }
+
+    $payload = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    $overallLevel = [string]$payload.overallReadinessLevel
+    $qualityOutcome = [string]$payload.qualityGate.outcome
+
+    if ($qualityOutcome -eq 'HOLD') {
+        $proofDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+        Add-ProofFinding -Disposition $proofDisposition -Name 'ai-readiness-posture' -Detail "AI readiness posture HOLD ($overallLevel) — quality gate blocked; use simulator-only sponsor language until resolved." -Remediation 'See ai-readiness-posture.md and docs/go-to-market/AI_READINESS_POSTURE.md.' -TriageCard 'FP-T005'
+        return
+    }
+
+    if ($overallLevel -eq 'SIMULATOR_ONLY') {
+        Add-ProofFinding -Disposition 'PASS' -Name 'ai-readiness-posture' -Detail 'AI readiness posture SIMULATOR_ONLY — sponsor materials must use simulator-only claim language.' -Remediation 'Run Invoke-RealLlmEvidenceGate.ps1 before claiming real-mode evidence.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'ai-readiness-posture' -Detail "AI readiness posture documented ($overallLevel)." -Remediation ''
+}
+
 function Add-CommercialCloseoutConsistencyFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -2923,6 +2970,7 @@ $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryJsonPath -
 
 Add-QuoteToProofReadinessFinding -ProofDirectory $proofDir
 Add-PilotAcceptanceThresholdFinding -ProofDirectory $proofDir
+Add-AiReadinessPostureFinding -ProofDirectory $proofDir
 Add-CommercialCloseoutConsistencyFinding -ProofDirectory $proofDir
 Add-TierFitValidationFinding -ProofDirectory $proofDir
 

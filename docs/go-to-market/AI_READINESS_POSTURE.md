@@ -134,13 +134,13 @@ The `sponsorSafeSummary` paragraph must:
 .\scripts\Invoke-RealLlmEvidenceGate.ps1
 
 # Step 2: Generate the AI readiness posture JSON from evidence outputs.
-# (Script: scripts/Write-AiReadinessPosture.ps1 — see Section 5.3 for status)
+.\scripts\Write-AiReadinessPosture.ps1
 
-# Step 3: Include artifact in first-pilot proof bundle.
+# Step 3: Include artifact in first-pilot proof bundle (also runs Write-AiReadinessPosture.ps1 into the proof folder).
 .\scripts\collect-first-pilot-proof.ps1
 ```
 
-### 5.2 Manual path (when automated script is not yet available)
+### 5.2 Manual path (when release evidence inputs are missing)
 
 1. Fill in `ai-readiness-posture.json` using the schema in Section 2.
 2. Source execution mode from `artifacts/release/real-llm-evidence-gate.json` or operator knowledge.
@@ -152,7 +152,7 @@ The `sponsorSafeSummary` paragraph must:
 
 ### 5.3 Script status
 
-`scripts/Write-AiReadinessPosture.ps1` is planned for V1.1. For V1 pilots, use the manual path above. The schema is stable; the automation assembles the same fields.
+`scripts/Write-AiReadinessPosture.ps1` is **shipped (TB-182 / TB-167)**. `scripts/collect-first-pilot-proof.ps1` invokes it and emits `ai-readiness-posture.json` / `.md` on every proof folder. Use the manual path in §5.2 only when release inputs are absent and you need a one-off posture file.
 
 ---
 

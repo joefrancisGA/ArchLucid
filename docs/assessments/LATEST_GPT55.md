@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 87.60%
+# ArchLucid Assessment – (A) Headline Readiness: 87.75%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-03.
 
-Rescore note: Through **87.45%** (5CM); batches **5CN–5CO** — **TB-264/265/266** (differentiability citation guard + vs-chat contrast + cohort-claim CI), **TB-267/268/269** (executive dashboard route, value narrative, ROI trend range) → **87.60%** (+2 Differentiability, +2 Executive Value Visibility). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **87.60%** (5CO); batch **5CP** — **TB-158** (pilot acceptance thresholds in proof collect), **TB-167** (`ai-readiness-posture` artifacts on every proof folder) → **87.75%** (+2 Proof-of-ROI Readiness, +1 AI/Agent Readiness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -47,12 +47,12 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
 | Cutting-Edge AI Technology | 79 | 8 | 5.45% | 168 |
-| AI/Agent Readiness | 84 | 8 | 5.79% | 128 |
+| AI/Agent Readiness | 85 | 8 | 5.86% | 120 |
 | Stickiness | 83 | 6 | 4.35% | 102 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
 | Marketability | 94 | 8 | 6.52% | 48 |
 | Correctness | 88 | 8 | 6.07% | 96 |
-| Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
+| Proof-of-ROI Readiness | 84 | 5 | 3.62% | 80 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
 | Time-to-Value | 89 | 7 | 5.37% | 77 |
 | Executive Value Visibility | 84 | 4 | 2.93% | 64 |
@@ -89,9 +89,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 ### AI/Agent Readiness
 
-Score: 84. Weight: 8. Weighted impact: 5.79%. Weighted deficiency signal: 128.
+Score: 85. Weight: 8. Weighted impact: 5.86%. Weighted deficiency signal: 120.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). Batch **5BM** closes **TB-184** — `PreCommitGovernanceBlockExplainer` surfaces `blockExplanation` on governance 409 ProblemDetails when `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false). Batch **5BP** closes **TB-185** — per-finding Ask inline. Batch **5BQ** closes **TB-186** — executive one-pager export (feature-flagged). Batch **5BS** closes **TB-187** — `POST /v1/architecture/request/draft` with wizard **Suggest fields**. Batch **5BU** closes **TB-188** — post-commit IaC stubs on findings (feature-flagged). Batch **5BY** closes **TB-190** — isolated `LlmJudgeDailyTokenBudgetTracker` (~200k tokens/day UTC), `LlmBudgetPeriod.JudgeDaily` persistence, and rubric judge eligibility for **Cost** and **Compliance** (fail-open when cap exhausted). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5CP** closes **TB-167** — `Write-AiReadinessPosture.ps1` emits `ai-readiness-posture.json`/`.md` on every `collect-first-pilot-proof.ps1` run alongside the consolidated gate. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). Batch **5BM** closes **TB-184** — `PreCommitGovernanceBlockExplainer` surfaces `blockExplanation` on governance 409 ProblemDetails when `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false). Batch **5BP** closes **TB-185** — per-finding Ask inline. Batch **5BQ** closes **TB-186** — executive one-pager export (feature-flagged). Batch **5BS** closes **TB-187** — `POST /v1/architecture/request/draft` with wizard **Suggest fields**. Batch **5BU** closes **TB-188** — post-commit IaC stubs on findings (feature-flagged). Batch **5BY** closes **TB-190** — isolated `LlmJudgeDailyTokenBudgetTracker` (~200k tokens/day UTC), `LlmBudgetPeriod.JudgeDaily` persistence, and rubric judge eligibility for **Cost** and **Compliance** (fail-open when cap exhausted). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 
@@ -173,9 +173,9 @@ Classification: v1 for copy/proof discipline; public references and market-facin
 
 ### Proof-of-ROI Readiness
 
-Score: 79. Weight: 5. Weighted impact: 3.41%. Weighted deficiency signal: 105.
+Score: 84. Weight: 5. Weighted impact: 3.62%. Weighted deficiency signal: 80.
 
-Justification: ROI model, scorecard, first-value reports, executive ROI summary, pilot deltas, and ROI basis labels exist. Batch **5AJ** closes **TB-238** — the full architecture wizard adds an optional **Baseline metrics** step that persists review-cycle hours via `PUT /v1/tenant/baseline` (with confidence note and skip) so first-value reports can label ROI inputs **buyer-provided** instead of defaulting to low-confidence placeholders. Batch **5AL** closes **TB-239** — `GET /v1/roi/executive-summary/history` now returns per-period `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, and `IsMixedMode` (pro-rated from `StructuralExecutionMode`); the executive ROI trend chart shows mixed-mode footnote, per-bar tooltips, and a **Simulator-only** badge when a month has no Real runs. Batch **5AN** closes **TB-240** — `ExecutiveRoiSummaryInvariantTests` regression-guards TB-151/152 executive summary mapping, TB-149 waiver window parity with decisions-needed, TB-103 orphan single-pipeline counting, and TB-155 live waiver refresh over cached ROI. Remaining weakness: broader KPI canonicalization across all executive surfaces.
+Justification: ROI model, scorecard, first-value reports, executive ROI summary, pilot deltas, and ROI basis labels exist. Batch **5CP** closes **TB-158** — `PILOT_ACCEPTANCE_THRESHOLDS.md` plus automated `pilot-acceptance-thresholds` artifacts in first-pilot proof collect (PASS/HOLD/DEFERRED_SCOPE without ad hoc founder interpretation). Batch **5AJ** closes **TB-238** — the full architecture wizard adds an optional **Baseline metrics** step that persists review-cycle hours via `PUT /v1/tenant/baseline` (with confidence note and skip) so first-value reports can label ROI inputs **buyer-provided** instead of defaulting to low-confidence placeholders. Batch **5AL** closes **TB-239** — `GET /v1/roi/executive-summary/history` now returns per-period `RealRunCount`, `SimulatorRunCount`, `RealModeSavingsUsd`, and `IsMixedMode` (pro-rated from `StructuralExecutionMode`); the executive ROI trend chart shows mixed-mode footnote, per-bar tooltips, and a **Simulator-only** badge when a month has no Real runs. Batch **5AN** closes **TB-240** — `ExecutiveRoiSummaryInvariantTests` regression-guards TB-151/152 executive summary mapping, TB-149 waiver window parity with decisions-needed, TB-103 orphan single-pipeline counting, and TB-155 live waiver refresh over cached ROI. Remaining weakness: broader KPI canonicalization across all executive surfaces.
 
 Tradeoffs: ROI humility protects trust but weakens sales punch until actual pilot data is captured.
 
