@@ -7678,6 +7678,32 @@ BEGIN
 END;
 GO
 
+/* ---- DbUp 241 parity: LLM judge daily tenant token window (see Migrations/241_LlmJudgeDailyTenantTokenWindowState.sql) ---- */
+
+IF OBJECT_ID(N'dbo.LlmJudgeDailyTenantTokenWindowState', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.LlmJudgeDailyTenantTokenWindowState
+    (
+        TenantId               UNIQUEIDENTIFIER NOT NULL,
+        UtcDay                 DATE             NOT NULL,
+        TotalTokens            BIGINT           NOT NULL
+            CONSTRAINT DF_LlmJudgeDailyTenantTokenWindowState_Tokens DEFAULT (0),
+        ReservedAssumedTokens  BIGINT           NOT NULL
+            CONSTRAINT DF_LlmJudgeDailyTenantTokenWindowState_ReservedAssumedTokens DEFAULT (0),
+        WarnedApproaching      BIT              NOT NULL
+            CONSTRAINT DF_LlmJudgeDailyTenantTokenWindowState_Warned DEFAULT (0),
+        LastUpdatedUtc         DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_LlmJudgeDailyTenantTokenWindowState_Lku DEFAULT SYSUTCDATETIME(),
+        RowVersion             ROWVERSION       NOT NULL,
+        CONSTRAINT PK_LlmJudgeDailyTenantTokenWindowState PRIMARY KEY CLUSTERED (TenantId, UtcDay),
+        CONSTRAINT CK_LlmJudgeDailyTenantTokenWindowState_TokensNonNegative CHECK (TotalTokens >= 0)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_LlmJudgeDailyTenantTokenWindowState_LastUpdatedUtc
+        ON dbo.LlmJudgeDailyTenantTokenWindowState (LastUpdatedUtc DESC);
+END;
+GO
+
 /* ---- DbUp 159 parity: commit-run idempotency + project role assignments (see Migrations/159_CommitRunIdempotency_ProjectRoleAssignments.sql) ---- */
 
 IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NULL

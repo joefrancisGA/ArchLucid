@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 85.72%
+# ArchLucid Assessment – (A) Headline Readiness: 86.07%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **85.37%** (5BS–5BU); batches **5BV TB-189** (policy-pack draft assist, drift closure), **5BW TB-250** (authority pipeline stage timeline in run detail), **5BX TB-251** (retrieval indexing outbox, drift closure) → **85.72%** (+1 AI/Agent Readiness, +2 Traceability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **85.72%** (5BV–5BX); batch **5BY** — **TB-190** (isolated judge daily sub-cap + Cost/Compliance rubric judge), **TB-052** / **TB-054** (decisioning explainability drift closure) → **86.07%** (+1 AI/Agent Readiness, +2 Traceability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -67,7 +67,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Maintainability | 74 | 2 | 1.28% | 52 |
 | Architectural Integrity | 83 | 3 | 2.13% | 51 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
-| Traceability | 86 | 3 | 2.22% | 42 |
+| Traceability | 88 | 3 | 2.28% | 36 |
 | Auditability | 77 | 2 | 1.32% | 46 |
 | Reliability | 78 | 2 | 1.34% | 44 |
 | Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
@@ -89,9 +89,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 ### AI/Agent Readiness
 
-Score: 83. Weight: 8. Weighted impact: 5.73%. Weighted deficiency signal: 136.
+Score: 84. Weight: 8. Weighted impact: 5.79%. Weighted deficiency signal: 128.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). Batch **5BM** closes **TB-184** — `PreCommitGovernanceBlockExplainer` surfaces `blockExplanation` on governance 409 ProblemDetails when `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false). Batch **5BP** closes **TB-185** — per-finding Ask inline. Batch **5BQ** closes **TB-186** — executive one-pager export (feature-flagged). Batch **5BS** closes **TB-187** — `POST /v1/architecture/request/draft` with wizard **Suggest fields**. Batch **5BU** closes **TB-188** — post-commit IaC stubs on findings (feature-flagged). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). Batch **5BM** closes **TB-184** — `PreCommitGovernanceBlockExplainer` surfaces `blockExplanation` on governance 409 ProblemDetails when `AgentRuntime:ExplainGovernanceBlocks:Enabled` (default false). Batch **5BP** closes **TB-185** — per-finding Ask inline. Batch **5BQ** closes **TB-186** — executive one-pager export (feature-flagged). Batch **5BS** closes **TB-187** — `POST /v1/architecture/request/draft` with wizard **Suggest fields**. Batch **5BU** closes **TB-188** — post-commit IaC stubs on findings (feature-flagged). Batch **5BY** closes **TB-190** — isolated `LlmJudgeDailyTokenBudgetTracker` (~200k tokens/day UTC), `LlmBudgetPeriod.JudgeDaily` persistence, and rubric judge eligibility for **Cost** and **Compliance** (fail-open when cap exhausted). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 
@@ -353,9 +353,9 @@ Classification: v1 for correctness-impacting duplication; v1.1 for broader clean
 
 ### Traceability
 
-Score: 86. Weight: 3. Weighted impact: 2.22%. Weighted deficiency signal: 42.
+Score: 88. Weight: 3. Weighted impact: 2.28%. Weighted deficiency signal: 36.
 
-Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Batch **5BW** closes **TB-250** — `dbo.RunStageOutcomes` plus `GET /v1/architecture/run/{runId}/stage-timeline` and a collapse-by-default **Pipeline stages** section on operator run detail so authority stage durations/outcomes are visible without leaving for Jaeger/Tempo. Batch **5BX** closes **TB-251** (retrieval indexing outbox + processor; drift guard). Run detail already includes structured tool-invocation forensics (TB-110). Remaining gaps: inline provenance summary (TB-111) and consistent retrieval grounding surfacing when records are sparse.
+Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Batch **5BW** closes **TB-250** — `dbo.RunStageOutcomes` plus `GET /v1/architecture/run/{runId}/stage-timeline` and a collapse-by-default **Pipeline stages** section on operator run detail so authority stage durations/outcomes are visible without leaving for Jaeger/Tempo. Batch **5BX** closes **TB-251** (retrieval indexing outbox + processor; drift guard). Batch **5BY** / **5BZ** close **TB-052** (rule audit snapshot IDs + prompt refs on `RuleAuditTracePayload`) and **TB-054** (unified `RunDecisionExplainabilityDto` on run detail). Run detail already includes structured tool-invocation forensics (TB-110). Remaining gaps: inline provenance summary (TB-111) and consistent retrieval grounding surfacing when records are sparse.
 
 Tradeoffs: Traceability can overwhelm operators if not summarized.
 

@@ -84,7 +84,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
             if (!_rows.TryGetValue(key, out Row? row) || !row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
                 return Task.FromResult(new LlmTenantBudgetReserveResult { ConcurrencyConflict = true });
 
-            if (request.Period == LlmBudgetPeriod.Daily)
+            if (request.Period is LlmBudgetPeriod.Daily or LlmBudgetPeriod.JudgeDaily)
             {
                 if (request.ReserveTokens < 1)
                     return Task.FromResult(new LlmTenantBudgetReserveResult { NewState = ToModel(row) });
@@ -180,7 +180,7 @@ public sealed class InMemoryLlmTenantBudgetRepository : ILlmTenantBudgetReposito
             if (!_rows.TryGetValue(key, out Row? row) || !row.RowVersionBytes.AsSpan().SequenceEqual(request.ExpectedRowVersion))
                 return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });
 
-            if (request.Period == LlmBudgetPeriod.Daily)
+            if (request.Period is LlmBudgetPeriod.Daily or LlmBudgetPeriod.JudgeDaily)
             {
                 if (request.ReleaseReservedTokens > row.ReservedTokens)
                     return Task.FromResult(new LlmTenantBudgetSettleResult { ConcurrencyConflict = true });

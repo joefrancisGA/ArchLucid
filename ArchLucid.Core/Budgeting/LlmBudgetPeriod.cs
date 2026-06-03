@@ -5,5 +5,8 @@ public enum LlmBudgetPeriod
 {
     Daily,
 
-    Monthly
+    Monthly,
+
+    /// <summary>UTC-day token cap for LLM-as-judge completions only (isolated from <see cref="Daily" /> run-execution pool).</summary>
+    JudgeDaily
 }

@@ -71,6 +71,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-229 – TB-237** were added 2026-06-02 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06022026.MD`, score 65/100, COMMERCIAL weight 8/116). They address: reference-customer first-contact workflow (**TB-229**, P1), GTM collateral placeholder audit and CI guard (**TB-230**, P1), Stage 0→1 claim-readiness status tracker and proof run log (**TB-231**, P1), LinkedIn publishing calendar (**TB-232**, P2), demo video storyboard (**TB-233**, P2), `SHOULD_YOU_EVALUATE.md` ICP enrichment (**TB-234**, P2), `EXECUTIVE_ONE_EMAIL_KIT.md` creation (**TB-235**, P2), demo video production (**TB-236**, DEFERRED — owner action, PQ-MKT-03 resolved V1.1), and pricing page early-adopter framing (**TB-237**, P2). These do not duplicate **TB-131–134** (commercial packaging), **TB-141–142** (proof cohort / demo assets), **TB-162–164** (trust center, procurement pack), or **TB-170–176** (proof pack chooser/metadata).
 
+**TB-252 – TB-254** were added 2026-06-03 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06032026.MD`, score 75/100, COMMERCIAL weight 8/116). They address: generate/commit raster brand assets and fix broken references (**TB-252**, P1 — `og-default.png` and `icon-192.png` are referenced in `layout.tsx`, `manifest.webmanifest`, and an e2e fixture but only SVG variants exist; social cards on LinkedIn — the #1 channel — render with no preview image, and the PWA/Apple icons are broken), buyer-facing Open Graph / Twitter metadata (**TB-253**, P1 — the social-share description is operator jargon that violates `POSITIONING.md §7` on every shared link), and `FAQPage` JSON-LD plus buyer-relevant FAQ expansion (**TB-254**, P2 — free Google rich-result lever; `/faq` currently emits no structured data and has only 3 operator-focused Q&A). These do not duplicate prior Marketability items **TB-229–TB-237** (06-02, all Done except DEFERRED TB-236) or **TB-020** (existing marketing JSON-LD). Owner-action GTM execution (published references, live checkout, SOC 2 CPA) remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
+
 **TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix) — all of which remain open and address the same quality dimension.
 
 **TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
@@ -102,7 +104,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-185 | Per-finding conversational explainer — `AskAboutFindingAsync` + `POST /v1/architecture/finding/{findingId}/ask` + inline UI chat icon | **Done (2026-06-02 batch 5BP)** — `ArchitectureFindingAskController` + `FindingAskInlinePanel` + `MessageCircle` Ask control on `QuickDecisionSummary`; `test_ai_readiness_batch_5bp.py` | M |
 | TB-186 | Run summary one-pager auto-generator — `RunSummaryOnePager` export variant + `GET /v1/architecture/run/{runId}/export/summary`, feature-flagged | **Done (2026-06-02 batch 5BQ)** — `AgentRuntime:GenerateRunSummary:Enabled` (default false) + export endpoint guard + AI disclaimer in template + run detail download; `test_ai_readiness_batch_5bq.py` | M |
 | TB-187 | AI-assisted architecture request authoring — `POST /v1/architecture/request/draft` + pre-fill UI button | **Done (2026-06-02 batch 5BS)** — `ArchitectureRequestDraftService` + wizard **Suggest fields** + `wizard-ai-suggested-fields`; `test_ai_readiness_batch_5bs.py` | M |
-| TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; add `LlmJudgeBudget` sub-cap (~200k tokens/day, isolated from run-execution quota) as prerequisite | AI/Agent Readiness P2 — sub-cap design resolved 2026-06-01 (PQ-AI-02); implement sub-cap first, then extend judge coverage | M |
+| TB-190 | LLM-as-judge coverage extension — extend judge to Cost and Compliance agents; add `LlmJudgeBudget` sub-cap (~200k tokens/day, isolated from run-execution quota) as prerequisite | **Done (2026-06-03 batch 5BY)** — `LlmJudgeDailyTokenBudgetTracker`, migration 241, Cost/Compliance eligibility, `test_ai_readiness_batch_5by.py` | M |
 | TB-188 | Findings-to-IaC stub generator — `IFindingIacStubGenerator` + `IacStub` nullable property on `ArchitectureFinding`, feature-flagged | **Done (2026-06-02 batch 5BU)** — post-commit `FindingIacStubGenerator` + `AgentRuntime:GenerateIacStubs` + `FindingIacStubPanel`; `test_ai_readiness_batch_5bu.py` | M |
 | TB-189 | AI policy-pack drafting assistant — `POST /v1/governance/policy-pack/draft` with few-shot bundled-pack examples + UI draft panel | **Done (2026-06-02 batch 5BV)** — `PolicyPackDraftService` + `PolicyRuleAuthoringWizard` draft panel; `test_ai_readiness_batch_5bv.py` | M |
 | TB-191 | Prompt template content-hash pinning on runs — add `SystemPromptContentHash` (first 16 hex of SHA-256) to `dbo.AgentExecutionTraces` + `AgentExecutionTraceDto`; compute in `AgentExecutionTraceRecorder` | **Done (2026-06-02 batch 5W)** — `SystemPromptContentHash` column + recorder canonical hash + OpenAPI surface; `AgentPromptReproTests` + `test_cutting_edge_batch_5w.py` | S |
@@ -156,6 +158,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-249 | Cross-tenant portfolio graceful 403 — in `RoiController.GetCrossTenantPortfolioSummaryAsync` return a structured `ProblemDetails` with user-facing guidance when directory object key is missing (403); update `PortfolioPageView.tsx` to display the guidance text rather than a blank/silent error; create `docs/library/MULTI_TENANT_PORTFOLIO.md` | **Done (2026-06-02 batch 5BB)** — ProblemDetails 403 + portfolio UI card + doc; `test_adoption_batch_5bb.py` | S |
 | TB-250 | Authority pipeline stage timeline in operator UI — add `dbo.RunStageOutcomes` (migration); write rows at stage start/end in `AuthorityPipelineStagesExecutor`; expose `GET /v1/architecture/run/{runId}/stage-timeline` returning `StageTimelineSummary[]` (name, startedUtc, completedUtc, outcomeStatus, durationMs); add collapse-by-default "Pipeline stages" section to `/reviews/{runId}` with `StatusTag` per stage and OTel deep-link when `OtelTraceId` present; unit + integration tests | **Done (2026-06-02 batch 5BW)** — migration `240_RunStageOutcomes.sql` + `RunDetailPipelineStagesSection`; `test_traceability_batch_5bw.py` | M |
 | TB-251 | Retrieval indexing at-least-once outbox — `dbo.RetrievalIndexOutbox` migration (OutboxId, RunId, CreatedUtc, ProcessedUtc, AttemptCount, LastError); insert row after manifest commit in `ManifestFinalizationService`; `RetrievalIndexOutboxWorker : BackgroundService` polls every 30 s, calls `IRetrievalRunCompletionIndexer`, marks processed or increments AttemptCount; emit `AuditEventTypes.RetrievalIndexingFailed` at AttemptCount = 5; add constant + matrix row; unit tests | **Done (2026-06-02 batch 5BX)** — `dbo.RetrievalIndexingOutbox` + `RetrievalIndexingOutboxProcessor` + lease/dead-letter (DbUp 019/219); `test_traceability_batch_5bx.py` | M |
+| TB-252 | Generate/commit raster brand assets + fix broken references — `generate-brand-raster.mjs` rasterizes `og-default.svg`→`og-default.png` (1200×630), `icon.svg`→`icon-192.png`/`icon-512.png`; wire to `prebuild`; commit PNGs; add `icon-512` maskable to `manifest.webmanifest`; warn-only CI guard `check_referenced_static_assets.py` asserting every `/logo/*.png` reference in `layout.tsx`/manifest exists; unit test output dimensions | Marketability P1 — `og-default.png` + `icon-192.png` referenced in `layout.tsx`, `manifest.webmanifest`, and an e2e fixture but only SVG variants exist; LinkedIn (#1 channel) shares render no preview image; PWA + Apple icons broken | M |
+| TB-253 | Buyer-facing Open Graph / Twitter metadata — replace operator-jargon `openGraph`/`twitter` description in `layout.tsx` with the positioning-seam buyer line; add `marketing-open-graph.ts` helper; set per-page OG/Twitter on `welcome`/`pricing`/`why`/`see-it`; Vitest asserts descriptions are buyer copy and exclude "Operator UI" | Marketability P1 — social-share description is internal vocabulary violating `POSITIONING.md §7` on every shared link; marketing pages do not override the root OG, so all inherit the jargon | S |
+| TB-254 | `FAQPage` JSON-LD + buyer FAQ expansion — `marketing-faq.ts` with `MARKETING_FAQ_ITEMS` (3 existing + 5 buyer-relevant from existing docs, no new claims); render `/faq` from the array; add `buildFaqPageLd` next to `marketing-json-ld.ts` and inject `FAQPage` ld+json (no ratings); unit + Vitest | Marketability P2 — `/faq` emits no structured data (free Google rich-result lever) and has only 3 operator-focused Q&A; weak for a coined-category product reliant on shares + SERP rich results | S |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -2909,6 +2914,8 @@ Operators and replay tooling cannot distinguish calibrated uncertainty from raw 
 
 ## TB-052 — `RuleAuditTracePayload` — snapshot IDs + prompt refs
 
+**Status:** **Done (2026-06-03 batch 5BY drift closure)** — fields on `RuleAuditTracePayload`; `RuleBasedDecisionEngine` + `RuleAuditTracePromptRefAggregator`; `test_traceability_batch_5by.py`.
+
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Authority pipeline persists `RuleAuditTracePayload` with rule set identity and applied/rejected finding IDs; manifest carries snapshot IDs separately.
 
 **Problem:**
@@ -2972,6 +2979,8 @@ An operator with only the rule audit trace cannot join it to the **exact** conte
 ---
 
 ## TB-054 — Unified run decision explainability API (authority audit + V2 nodes)
+
+**Status:** **Done (2026-06-03 batch 5BZ drift closure)** — `RunDecisionExplainabilityDto`, `RunDecisionExplainabilityBuilder`, run detail UI; `test_traceability_batch_5bz.py`.
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). Production authority runs persist `RuleAuditTracePayload`; `DecisionNode` rows are materialized **post-commit** via `EnsureDecisionEngineV2NodesMaterializedAsync` and are not the same record as rule audit.
 
@@ -7238,3 +7247,130 @@ Unit tests:
 - `docs/runbooks/PROVENANCE_INDEXING.md`
 
 **Cross-ref:** TB-037 (`DecisionProvenanceSnapshot` persistence — same post-commit integrity theme), `docs/runbooks/PROVENANCE_INDEXING.md`.
+
+---
+
+## TB-252 — Generate and commit raster brand assets; fix broken references (P1)
+
+**Source:** Marketability quality assessment (`docs/assessments/Marketability_06032026.MD`), 2026-06-03.
+**Problem:** `archlucid-ui/src/app/layout.tsx` references `/logo/og-default.png` (Open Graph + Twitter image) and `/logo/icon-192.png` (Apple touch icon), and `public/manifest.webmanifest` references `/logo/icon-192.png` (PWA install icon), and `e2e/live-api-whitelabel-export.spec.ts` reads `public/logo/icon-192.png` as a fixture — but **only SVG variants exist** in `public/logo/` (`og-default.svg`, `icon.svg`). Open Graph and Twitter Card images must be raster (PNG/JPG); LinkedIn, X, Slack, and Facebook ignore SVG. Because LinkedIn is the stated #1 acquisition channel, every shared `archlucid.net` link renders with no preview image. The PWA install icon and iOS home-screen icon are also broken, and the whitelabel-export e2e fixture is missing.
+
+**Cursor prompt:**
+```
+The app references raster brand assets that do not exist (only SVG variants are present in
+archlucid-ui/public/logo/). Open Graph / Twitter Card images and PWA/Apple icons must be raster.
+
+1. Add a generation script archlucid-ui/scripts/generate-brand-raster.mjs that uses `sharp`
+   (already transitively available via Next.js image optimization; add as devDependency if missing)
+   to rasterize the existing SVGs into PNGs:
+   - public/logo/og-default.svg  -> public/logo/og-default.png  at 1200x630
+   - public/logo/icon.svg         -> public/logo/icon-192.png    at 192x192
+   - public/logo/icon.svg         -> public/logo/icon-512.png    at 512x512 (for PWA maskable)
+   If og-default.svg is not 1200x630 aspect, render it centered on a #1E3A5F background canvas
+   (the themeColor) at 1200x630.
+
+2. Add an npm script "generate:brand-raster": "node scripts/generate-brand-raster.mjs" and call it
+   from prebuild so CI always materializes the PNGs.
+
+3. Add public/logo/og-default.png, icon-192.png, icon-512.png to git (do NOT gitignore generated brand assets).
+
+4. In manifest.webmanifest, add the icon-512.png entry (purpose "any maskable") alongside the 192.
+
+5. Verify the e2e fixture archlucid-ui/e2e/live-api-whitelabel-export.spec.ts resolves
+   public/logo/icon-192.png after generation.
+
+6. Add a warn-only CI guard scripts/ci/check_referenced_static_assets.py that scans
+   layout.tsx and manifest.webmanifest for /logo/*.png references and asserts each file exists
+   in public/logo/.
+
+7. Vitest/unit: assert generate-brand-raster output dimensions for og-default.png (1200x630)
+   and icon-192.png (192x192).
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/scripts/generate-brand-raster.mjs` (new)
+- `archlucid-ui/public/logo/` (new committed PNGs: `og-default.png`, `icon-192.png`, `icon-512.png`)
+- `archlucid-ui/package.json` (prebuild hook + script + `sharp` devDependency if missing)
+- `archlucid-ui/public/manifest.webmanifest`
+- `scripts/ci/check_referenced_static_assets.py` (new, warn-only)
+
+**Cross-ref:** TB-253 (buyer-facing OG metadata — the raster image these reference must exist), `archlucid-ui/src/app/layout.tsx`.
+
+---
+
+## TB-253 — Buyer-facing Open Graph / Twitter metadata (P1)
+
+**Source:** Marketability quality assessment (`docs/assessments/Marketability_06032026.MD`), 2026-06-03.
+**Problem:** The root `openGraph.description` / `twitter.description` in `archlucid-ui/src/app/layout.tsx` is operator jargon — "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance" — shown on every shared link. This violates `POSITIONING.md §7` (buyer vocabulary vs. internal vocabulary). Marketing pages set a page-level `description` but do not override `openGraph`, so all shared marketing links inherit the jargon. The marketing JSON-LD (`marketing-json-ld.ts`) already carries the correct buyer-facing copy — Open Graph is the lone outlier.
+
+**Cursor prompt:**
+```
+The social-share metadata uses internal operator vocabulary. Replace it with buyer-facing copy and
+add per-page Open Graph overrides for the key marketing routes.
+
+1. In archlucid-ui/src/app/layout.tsx, change openGraph.description and twitter.description to a
+   buyer-facing line that matches the positioning seam, e.g.:
+   "Defensible architecture, on demand - turn scattered architecture evidence into a prioritized,
+    evidence-linked review package with traceability and exportable proof."
+   Keep openGraph.title and twitter.title as "ArchLucid".
+
+2. Add a helper archlucid-ui/src/lib/marketing-open-graph.ts exporting buildMarketingOpenGraph(
+   title, description, pathname) returning a Metadata["openGraph"] object using
+   getSiteMetadataBaseUrl() for absolute URLs and /logo/og-default.png as the image.
+
+3. In each of these pages' metadata, set openGraph (and twitter) via the helper with page-specific copy:
+   - (marketing)/welcome/page.tsx  -> "Defensible architecture, on demand."
+   - (marketing)/pricing/page.tsx  -> pricing-focused buyer line
+   - (marketing)/why/page.tsx      -> differentiation line
+   - (marketing)/see-it/page.tsx   -> proof/demo line
+
+4. Vitest: assert welcome and pricing metadata.openGraph.description are the buyer strings and do NOT
+   contain "Operator UI".
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/app/layout.tsx`
+- `archlucid-ui/src/lib/marketing-open-graph.ts` (new)
+- `archlucid-ui/src/app/(marketing)/{welcome,pricing,why,see-it}/page.tsx`
+
+**Cross-ref:** TB-252 (raster OG image must exist for these to render), `POSITIONING.md §7`, `archlucid-ui/src/lib/marketing-json-ld.ts` (already buyer-facing — align copy).
+
+---
+
+## TB-254 — `FAQPage` JSON-LD + buyer-relevant FAQ expansion (P2)
+
+**Source:** Marketability quality assessment (`docs/assessments/Marketability_06032026.MD`), 2026-06-03.
+**Problem:** `archlucid-ui/src/app/(marketing)/faq/page.tsx` emits no `FAQPage` structured data and has only 3 operator-focused Q&A. `FAQPage` JSON-LD produces expandable rich results in Google SERPs — a free organic-discovery lever that partially offsets the coined-category (zero search volume) problem. For a product whose discovery depends on shares and SERP rich-results, this is a missed lever.
+
+**Cursor prompt:**
+```
+Add FAQPage structured data and expand the FAQ with buyer-relevant questions.
+
+1. Create archlucid-ui/src/lib/marketing-faq.ts exporting MARKETING_FAQ_ITEMS: { question, answer }[]
+   with the 3 existing entries plus 5 buyer-relevant ones derived from existing docs (no new claims):
+   - "What is an Architecture Proof Engine?" (POSITIONING.md / brand-category.ts)
+   - "How is ArchLucid different from LeanIX or Backstage?" (COMPETITIVE_POSITIONING.md)
+   - "Does ArchLucid change my infrastructure?" (advisory-only Terraform; no apply/destroy)
+   - "How does pricing work?" (tiers + early-adopter framing; link /pricing)
+   - "Is my data isolated per tenant?" (tenant isolation; link /trust)
+   Keep answers factual and aligned with WHAT_NOT_TO_PROMISE.md.
+
+2. Refactor (marketing)/faq/page.tsx to render from MARKETING_FAQ_ITEMS and add a FAQPage JSON-LD
+   <script type="application/ld+json"> built from the same array (mirror the MarketingJsonLd pattern;
+   do not emit ratings).
+
+3. Add a buildFaqPageLd(items) helper next to marketing-json-ld.ts; unit test it returns
+   @type "FAQPage" with mainEntity Question/acceptedAnswer pairs matching the array length.
+
+4. Vitest: faq page renders one <section> per FAQ item and exactly one FAQPage ld+json script.
+```
+
+**Affected files / projects:**
+
+- `archlucid-ui/src/lib/marketing-faq.ts` (new)
+- `archlucid-ui/src/lib/marketing-json-ld.ts` (add `buildFaqPageLd`)
+- `archlucid-ui/src/app/(marketing)/faq/page.tsx`
+
+**Cross-ref:** TB-020 (existing marketing `SoftwareApplication` JSON-LD), `archlucid-ui/src/components/MarketingJsonLd.tsx` (pattern source).

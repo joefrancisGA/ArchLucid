@@ -2,6 +2,8 @@ using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -94,8 +96,23 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
         Mock<IOptionsMonitor<AgentExecutionOptions>> execOpts = new();
         execOpts.Setup(o => o.CurrentValue).Returns(new AgentExecutionOptions { Mode = "Real" });
 
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        });
+
+        Mock<IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>> judgeBudgetOpts = new();
+        judgeBudgetOpts.Setup(o => o.CurrentValue).Returns(new LlmJudgeDailyTokenBudgetOptions { Enabled = true });
+        LlmJudgeDailyTokenBudgetTracker judgeBudgetTracker =
+            new(judgeBudgetOpts.Object, new InMemoryLlmTenantBudgetRepository());
+
         return new AgentOutputFaithfulnessEvaluator(
             provider.GetRequiredService<IServiceScopeFactory>(),
+            scopeProvider.Object,
+            judgeBudgetTracker,
             faithOpts.Object,
             gateOpts.Object,
             execOpts.Object,

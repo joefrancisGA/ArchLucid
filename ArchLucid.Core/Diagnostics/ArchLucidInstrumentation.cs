@@ -234,6 +234,12 @@ public static class ArchLucidInstrumentation
             "archlucid_llm_quota_exceeded_total",
             description: "LLM calls rejected by tenant token quota or daily budget before outbound completion.");
 
+    /// <summary>Judge paths skipped fail-open when the isolated judge UTC-day token pool is exhausted (TB-190).</summary>
+    public static readonly Counter<long> LlmJudgeBudgetExhaustedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_judge_budget_exhausted_total",
+            description: "LLM-as-judge or faithfulness judge skipped because the judge daily token sub-cap was exhausted.");
+
     /// <summary>Half-open probe results (labels: <c>gate</c>, <c>outcome</c>=success|failure|cancelled).</summary>
     public static readonly Counter<long> CircuitBreakerProbeOutcomes =
         AppMeter.CreateCounter<long>(

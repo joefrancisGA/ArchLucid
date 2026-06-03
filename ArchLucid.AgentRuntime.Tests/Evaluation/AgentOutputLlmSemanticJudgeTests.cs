@@ -1,6 +1,8 @@
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -18,8 +20,8 @@ public sealed class AgentOutputLlmSemanticJudgeTests
     [Theory]
     [InlineData(AgentType.Topology, true)]
     [InlineData(AgentType.Critic, true)]
-    [InlineData(AgentType.Cost, false)]
-    [InlineData(AgentType.Compliance, false)]
+    [InlineData(AgentType.Cost, true)]
+    [InlineData(AgentType.Compliance, true)]
     public void IsLlmJudgeEligibleAgentType_matches_product_rule(AgentType agentType, bool expected) =>
         AgentOutputLlmSemanticJudge.IsLlmJudgeEligibleAgentType(agentType).Should().Be(expected);
 
@@ -39,15 +41,19 @@ public sealed class AgentOutputLlmSemanticJudgeTests
     }
 
     [Fact]
-    public async Task TryJudgeAsync_skips_cost_agent_without_calling_completion()
+    public async Task TryJudgeAsync_returns_null_when_judge_budget_exhausted_without_calling_completion()
     {
         Mock<IAgentCompletionClient> client = new();
-        AgentOutputLlmSemanticJudge judge = CreateJudge(client.Object, enabled: true, mode: "Real");
+        Mock<ILlmJudgeBudgetTracker> budget = new();
+        budget.Setup(b => b.TryPeekWithinBudgetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
+        AgentOutputLlmSemanticJudge judge = CreateJudge(client.Object, enabled: true, mode: "Real", budget.Object);
 
         AgentOutputLlmJudgeParsedResult? result =
             await judge.TryJudgeAsync("trace-1", "{}", AgentType.Cost, CancellationToken.None);
 
         result.Should().BeNull();
+        budget.Verify(b => b.RecordBudgetExhausted(), Times.Once);
         client.Verify(
             c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -77,7 +83,8 @@ public sealed class AgentOutputLlmSemanticJudgeTests
     private static AgentOutputLlmSemanticJudge CreateJudge(
         IAgentCompletionClient completionClient,
         bool enabled,
-        string mode)
+        string mode,
+        ILlmJudgeBudgetTracker? judgeBudget = null)
     {
         ServiceCollection services = [];
         services.AddKeyedSingleton<IAgentCompletionClient>(
@@ -87,14 +94,34 @@ public sealed class AgentOutputLlmSemanticJudgeTests
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
 
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        });
+
+        ILlmJudgeBudgetTracker budget = judgeBudget ?? CreateOpenJudgeBudgetTracker();
+
         IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOpts = MockJudgeOptions(enabled);
         IOptionsMonitor<AgentExecutionOptions> execOpts = MockExecOptions(mode);
 
         return new AgentOutputLlmSemanticJudge(
             scopeFactory,
+            scopeProvider.Object,
+            budget,
             judgeOpts,
             execOpts,
             NullLogger<AgentOutputLlmSemanticJudge>.Instance);
+    }
+
+    private static ILlmJudgeBudgetTracker CreateOpenJudgeBudgetTracker()
+    {
+        Mock<IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>> opts = new();
+        opts.Setup(o => o.CurrentValue).Returns(new LlmJudgeDailyTokenBudgetOptions { Enabled = true });
+
+        return new LlmJudgeDailyTokenBudgetTracker(opts.Object, new InMemoryLlmTenantBudgetRepository());
     }
 
     private static IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> MockJudgeOptions(bool enabled)

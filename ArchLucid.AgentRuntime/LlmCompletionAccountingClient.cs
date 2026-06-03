@@ -52,6 +52,12 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
     private readonly ILlmCostEstimator _costEstimator;
 
+    private readonly bool _useJudgeDailyCapOnly;
+
+    private readonly IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>? _judgeDailyBudgetOptions;
+
+    private readonly LlmJudgeDailyTokenBudgetTracker? _judgeDailyBudgetTracker;
+
     public LlmCompletionAccountingClient(
         IAgentCompletionClient inner,
         LlmTokenQuotaWindowTracker quotaTracker,
@@ -68,7 +74,10 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         LlmMonthlyTenantDollarBudgetTracker monthlyDollarBudgetTracker,
         ILlmCostEstimator costEstimator,
         IAuditService auditService,
-        ILogger<LlmCompletionAccountingClient> logger)
+        ILogger<LlmCompletionAccountingClient> logger,
+        bool useJudgeDailyCapOnly = false,
+        IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>? judgeDailyBudgetOptions = null,
+        LlmJudgeDailyTokenBudgetTracker? judgeDailyBudgetTracker = null)
     {
         ArgumentNullException.ThrowIfNull(inner);
         ArgumentNullException.ThrowIfNull(quotaTracker);
@@ -103,6 +112,16 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         _costEstimator = costEstimator;
         _auditService = auditService;
         _logger = logger;
+        _useJudgeDailyCapOnly = useJudgeDailyCapOnly;
+
+        if (useJudgeDailyCapOnly)
+        {
+            ArgumentNullException.ThrowIfNull(judgeDailyBudgetOptions);
+            ArgumentNullException.ThrowIfNull(judgeDailyBudgetTracker);
+        }
+
+        _judgeDailyBudgetOptions = judgeDailyBudgetOptions;
+        _judgeDailyBudgetTracker = judgeDailyBudgetTracker;
     }
 
     /// <inheritdoc />
@@ -124,7 +143,14 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
         try
         {
-            if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
+            if (_useJudgeDailyCapOnly)
+            {
+                if (_judgeDailyBudgetOptions!.CurrentValue.Enabled)
+                    dailyReserved = await _judgeDailyBudgetTracker!
+                        .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
+                        .ConfigureAwait(false);
+            }
+            else if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
                 dailyReserved = await _dailyTenantBudgetTracker
                     .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
                     .ConfigureAwait(false);
@@ -139,7 +165,11 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         }
         catch (LlmTokenQuotaExceededException)
         {
-            ArchLucidInstrumentation.LlmQuotaExceededTotal.Add(1);
+            if (_useJudgeDailyCapOnly)
+                _judgeDailyBudgetTracker!.RecordBudgetExhausted();
+            else
+                ArchLucidInstrumentation.LlmQuotaExceededTotal.Add(1);
+
             throw;
         }
 
@@ -178,9 +208,18 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
             if (!consumed)
             {
-                await _dailyTenantBudgetTracker
-                    .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
-                    .ConfigureAwait(false);
+                if (_useJudgeDailyCapOnly)
+                {
+                    await _judgeDailyBudgetTracker!
+                        .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    await _dailyTenantBudgetTracker
+                        .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, dailyReserved, CancellationToken.None)
+                        .ConfigureAwait(false);
+                }
 
                 await _monthlyDollarBudgetTracker
                     .ReleasePendingReservationIfAnyAsync(scope.TenantId, providerKind, monthlyReserved, overageActive, CancellationToken.None)
@@ -192,17 +231,32 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
                 _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
 
-                await _dailyTenantBudgetTracker
-                    .RecordUsageAndMaybeWarnAsync(
-                        scope.TenantId,
-                        providerKind,
-                        _scopeProvider,
-                        _auditService,
-                        promptTok,
-                        completionTok,
-                        dailyReserved,
-                        CancellationToken.None)
-                    .ConfigureAwait(false);
+                if (_useJudgeDailyCapOnly)
+                {
+                    await _judgeDailyBudgetTracker!
+                        .RecordUsageAsync(
+                            scope.TenantId,
+                            providerKind,
+                            promptTok,
+                            completionTok,
+                            dailyReserved,
+                            CancellationToken.None)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    await _dailyTenantBudgetTracker
+                        .RecordUsageAndMaybeWarnAsync(
+                            scope.TenantId,
+                            providerKind,
+                            _scopeProvider,
+                            _auditService,
+                            promptTok,
+                            completionTok,
+                            dailyReserved,
+                            CancellationToken.None)
+                        .ConfigureAwait(false);
+                }
 
                 await _monthlyDollarBudgetTracker
                     .RecordUsageAndMaybeWarnAsync(

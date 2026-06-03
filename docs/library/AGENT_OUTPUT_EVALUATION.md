@@ -107,12 +107,12 @@ IAgentOutputSemanticEvaluator.Evaluate(traceId, parsedResultJson, agentType) →
 
 Registered as **singleton** (`IAgentOutputSemanticEvaluator → CompositeAgentOutputSemanticEvaluator`).
 
-### LLM-as-judge (opt-in; Topology + Critic only)
+### LLM-as-judge (opt-in; Topology, Critic, Cost, Compliance)
 
 - **Configuration:** **`ArchLucid:Agents:LlmJudge`** (canonical). Legacy **`ArchLucid:AgentOutput:LlmSemanticJudge`** is still bound first; any overlapping keys under **`Agents:LlmJudge`** win.
 - **Default:** **`Enabled: false`**. Operators opt in explicitly.
-- **Accounting:** Judge completions use **`LlmCompletionAccountingClient`** on a dedicated inner **`AzureOpenAiCompletionClient`** (JSON object mode — not the AgentResult **`json_schema`** path). Token usage, **`LlmTokenQuota`**, daily tenant windows, and **`LlmMonthlyTenantDollarBudget`** apply **the same way as agent batch completions**. There is **no separate judge budget bucket** or sub-cap; judge calls consume the shared tenant pool.
-- **Agent coverage:** Only **`AgentType.Topology`** and **`AgentType.Critic`** invoke the judge. **Cost** and **Compliance** stay **heuristic-only** to limit spend under that shared cap.
+- **Accounting:** Judge completions use **`LlmCompletionAccountingClient`** on a dedicated inner **`AzureOpenAiCompletionClient`** (JSON object mode — not the AgentResult **`json_schema`** path). **`LlmTokenQuota`** and **`LlmMonthlyTenantDollarBudget`** still apply; judge calls debit the isolated **`ArchLucid:Agents:LlmJudge:Budget`** UTC-day pool (default 200k tokens/day), **not** **`LlmDailyTenantBudget`**. Exhaustion fails open and increments **`archlucid_llm_judge_budget_exhausted_total`**.
+- **Agent coverage:** **`AgentType.Topology`**, **`Critic`**, **`Cost`**, and **`Compliance`** invoke the rubric judge when enabled (TB-190).
 - **Simulator:** When **`SkipWhenSimulator`** is **true** (default) and **`AgentExecution:Mode`** is **Simulator**, the judge is skipped.
 
 ### Critic adversarial posture (TB-177)
@@ -125,7 +125,7 @@ Registered as **singleton** (`IAgentOutputSemanticEvaluator → CompositeAgentOu
 
 - **Configuration:** **`ArchLucid:Agents:LlmFaithfulness`** (`AgentOutputLlmFaithfulnessOptions`).
 - **Defaults:** CLR default **`Enabled: false`**. **`appsettings.Staging.json`** and **`appsettings.Production.json`** set **`Enabled: true`** (owner 2026-05-25) so hosted SaaS real-mode runs emit **`archlucid_agent_output_llm_faithfulness_score`** without per-tenant opt-in. Development / base **`appsettings.json`** remain off unless overridden.
-- **Accounting:** Uses **`AgentOutputLlmJudgeCompletionServiceKey`** completion client; token usage shares the tenant LLM budget pool (same as **`LlmJudge`**).
+- **Accounting:** Shares the **`AgentOutputLlmJudgeCompletionServiceKey`** chain and the same isolated judge UTC-day sub-cap as the rubric judge.
 - **Simulator:** Skipped when **`SkipWhenSimulator`** is **true** (default) and execution mode is **Simulator**.
 - **Requires:** **`AgentOutput:QualityGate:Enabled`** and a non-empty evidence package blob.
 

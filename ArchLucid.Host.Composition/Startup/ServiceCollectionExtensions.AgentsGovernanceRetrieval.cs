@@ -216,6 +216,16 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmDailyTenantTokenWindowOptions>(
             configuration.GetSection(LlmDailyTenantTokenWindowOptions.SectionName));
         services.AddScoped<LlmDailyTenantBudgetTracker>();
+        services.AddOptions<LlmJudgeDailyTokenBudgetOptions>()
+            .Bind(configuration.GetSection(LlmJudgeDailyTokenBudgetOptions.LegacySectionPath))
+            .Bind(configuration.GetSection(LlmJudgeDailyTokenBudgetOptions.SectionPath));
+        services.PostConfigure<LlmJudgeDailyTokenBudgetOptions>(static o =>
+        {
+            o.HardCutoffTokensPerUtcDay = Math.Max(1L, o.HardCutoffTokensPerUtcDay);
+            o.AssumedMaxTotalTokensPerRequest = Math.Clamp(o.AssumedMaxTotalTokensPerRequest, 1, 2_000_000);
+        });
+        services.AddScoped<LlmJudgeDailyTokenBudgetTracker>();
+        services.AddScoped<ILlmJudgeBudgetTracker>(static sp => sp.GetRequiredService<LlmJudgeDailyTokenBudgetTracker>());
         services.Configure<LlmMonthlyTenantDollarBudgetOptions>(
             configuration.GetSection(LlmMonthlyTenantDollarBudgetOptions.SectionName));
         services.AddScoped<LlmMonthlyTenantDollarBudgetTracker>();
@@ -1106,8 +1116,8 @@ public static partial class ServiceCollectionExtensions
     }
 
     /// <summary>
-    ///     Judge-only chain: non-schema Azure JSON completions + content safety + the same accounting stack as agents (shared
-    ///     quota/monthly pool — no separate judge budget). Omits completion response caching and per-run cost guard (agent batch only).
+    ///     Judge-only chain: non-schema Azure JSON completions + content safety + accounting with the isolated judge UTC-day token
+    ///     pool (not the run-execution daily cap). Omits completion response caching and per-run cost guard (agent batch only).
     /// </summary>
     private static IAgentCompletionClient BuildAgentOutputSemanticJudgeCompletionChain(IServiceProvider sp)
     {
@@ -1186,6 +1196,9 @@ public static partial class ServiceCollectionExtensions
         IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyBudgetOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>>();
         LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
+        IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions> judgeDailyBudgetOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>>();
+        LlmJudgeDailyTokenBudgetTracker judgeDailyBudgetTracker = sp.GetRequiredService<LlmJudgeDailyTokenBudgetTracker>();
         IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>>();
         LlmMonthlyTenantDollarBudgetTracker monthlyDollarTracker =
@@ -1210,7 +1223,10 @@ public static partial class ServiceCollectionExtensions
             monthlyDollarTracker,
             sp.GetRequiredService<ILlmCostEstimator>(),
             auditService,
-            accountingLogger);
+            accountingLogger,
+            useJudgeDailyCapOnly: true,
+            judgeDailyBudgetOptions: judgeDailyBudgetOpts,
+            judgeDailyBudgetTracker: judgeDailyBudgetTracker);
 
         CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
         ILogger<CircuitBreakingAgentCompletionClient> breakerLogger =

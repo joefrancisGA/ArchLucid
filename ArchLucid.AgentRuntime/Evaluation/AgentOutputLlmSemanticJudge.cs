@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,12 +16,20 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 /// <summary>Rubric-based semantic judge using the same accounted LLM completion pipeline as agents (opt-in; Topology + Critic only).</summary>
 public sealed class AgentOutputLlmSemanticJudge(
     IServiceScopeFactory scopeFactory,
+    IScopeContextProvider scopeContextProvider,
+    ILlmJudgeBudgetTracker judgeBudgetTracker,
     IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOptions,
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
     ILogger<AgentOutputLlmSemanticJudge> logger) : IAgentOutputLlmSemanticJudge
 {
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ILlmJudgeBudgetTracker _judgeBudgetTracker =
+        judgeBudgetTracker ?? throw new ArgumentNullException(nameof(judgeBudgetTracker));
 
     private readonly IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> _judgeOptions =
         judgeOptions ?? throw new ArgumentNullException(nameof(judgeOptions));
@@ -34,8 +43,8 @@ public sealed class AgentOutputLlmSemanticJudge(
     /// <summary>
     ///     Null when disabled, Cost/Compliance agent, Simulator mode (optional),
     ///     keyed <see cref="IAgentCompletionClient" /> is not registered, or the completion fails. When enabled, completions
-    ///     run through <see cref="LlmCompletionAccountingClient" /> — same tenant quota and monthly pool as agent completions (no
-    ///     separate judge budget bucket).
+    ///     run through <see cref="LlmCompletionAccountingClient" /> with the isolated judge UTC-day token pool (not the run-execution
+    ///     daily cap); monthly dollar and sliding-window quotas still apply.
     /// </summary>
     public async Task<AgentOutputLlmJudgeParsedResult?> TryJudgeAsync(
         string traceId,
@@ -53,6 +62,15 @@ public sealed class AgentOutputLlmSemanticJudge(
 
         if (!IsLlmJudgeEligibleAgentType(agentType))
             return null;
+
+        Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
+
+        if (!await _judgeBudgetTracker.TryPeekWithinBudgetAsync(tenantId, cancellationToken).ConfigureAwait(false))
+        {
+            _judgeBudgetTracker.RecordBudgetExhausted();
+
+            return null;
+        }
 
         AgentExecutionOptions exec = _agentExecutionOptions.CurrentValue;
 
@@ -104,11 +122,10 @@ public sealed class AgentOutputLlmSemanticJudge(
     }
 
     /// <summary>
-    ///     Product rule: only Topology and Critic run the rubric judge; Cost and Compliance stay heuristic-only to limit spend and
-    ///     doubles under the shared monthly pool.
+    ///     Product rule: Topology, Critic, Cost, and Compliance run the rubric judge when enabled (TB-190 judge sub-cap).
     /// </summary>
     internal static bool IsLlmJudgeEligibleAgentType(AgentType agentType) =>
-        agentType is AgentType.Topology or AgentType.Critic;
+        agentType is AgentType.Topology or AgentType.Critic or AgentType.Cost or AgentType.Compliance;
 
     private async Task<AgentOutputLlmJudgeParsedResult?> TryInvokeJudgeSampleAsync(
         AgentOutputLlmSemanticJudgeOptions judgeOpts,
@@ -241,6 +258,10 @@ public sealed class AgentOutputLlmSemanticJudge(
                 "This agent proposes topology/service relationships — penalize hand-wavy claims without evidence references and diagrams that contradict stated relationships.",
             AgentType.Critic =>
                 "This agent challenges other agents' proposals — reward constructive challenge grounded in the JSON; penalize empty pushback or claims without evidence.",
+            AgentType.Cost =>
+                "This agent estimates cost and FinOps impact — penalize dollar figures, SKU counts, or savings claims without evidenceRefs; reward conservative ranges tied to cited inputs.",
+            AgentType.Compliance =>
+                "This agent maps regulatory and control posture — penalize control IDs, framework assertions, or risk ratings without evidenceRefs; reward precise citations to supplied evidence.",
             _ => "Agent role: " + agentType + "."
         };
 

@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,8 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 /// </summary>
 public sealed class AgentOutputFaithfulnessEvaluator(
     IServiceScopeFactory scopeFactory,
+    IScopeContextProvider scopeContextProvider,
+    ILlmJudgeBudgetTracker judgeBudgetTracker,
     IOptionsMonitor<AgentOutputLlmFaithfulnessOptions> faithfulnessOptions,
     IOptionsMonitor<AgentOutputQualityGateOptions> qualityGateOptions,
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
@@ -23,6 +26,12 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 {
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ILlmJudgeBudgetTracker _judgeBudgetTracker =
+        judgeBudgetTracker ?? throw new ArgumentNullException(nameof(judgeBudgetTracker));
 
     private readonly IOptionsMonitor<AgentOutputLlmFaithfulnessOptions> _faithfulnessOptions =
         faithfulnessOptions ?? throw new ArgumentNullException(nameof(faithfulnessOptions));
@@ -67,6 +76,15 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 
         if (string.IsNullOrWhiteSpace(index.FullBlob))
             return null;
+
+        Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
+
+        if (!await _judgeBudgetTracker.TryPeekWithinBudgetAsync(tenantId, cancellationToken).ConfigureAwait(false))
+        {
+            _judgeBudgetTracker.RecordBudgetExhausted();
+
+            return null;
+        }
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
 
