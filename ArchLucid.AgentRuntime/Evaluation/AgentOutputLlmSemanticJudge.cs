@@ -17,7 +17,6 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public sealed class AgentOutputLlmSemanticJudge(
     IServiceScopeFactory scopeFactory,
     IScopeContextProvider scopeContextProvider,
-    ILlmJudgeBudgetTracker judgeBudgetTracker,
     IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOptions,
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
     ILogger<AgentOutputLlmSemanticJudge> logger) : IAgentOutputLlmSemanticJudge
@@ -27,9 +26,6 @@ public sealed class AgentOutputLlmSemanticJudge(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly ILlmJudgeBudgetTracker _judgeBudgetTracker =
-        judgeBudgetTracker ?? throw new ArgumentNullException(nameof(judgeBudgetTracker));
 
     private readonly IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> _judgeOptions =
         judgeOptions ?? throw new ArgumentNullException(nameof(judgeOptions));
@@ -65,11 +61,17 @@ public sealed class AgentOutputLlmSemanticJudge(
 
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
-        if (!await _judgeBudgetTracker.TryPeekWithinBudgetAsync(tenantId, cancellationToken).ConfigureAwait(false))
+        await using (AsyncServiceScope budgetScope = _scopeFactory.CreateAsyncScope())
         {
-            _judgeBudgetTracker.RecordBudgetExhausted();
+            ILlmJudgeBudgetTracker judgeBudgetTracker =
+                budgetScope.ServiceProvider.GetRequiredService<ILlmJudgeBudgetTracker>();
 
-            return null;
+            if (!await judgeBudgetTracker.TryPeekWithinBudgetAsync(tenantId, cancellationToken).ConfigureAwait(false))
+            {
+                judgeBudgetTracker.RecordBudgetExhausted();
+
+                return null;
+            }
         }
 
         AgentExecutionOptions exec = _agentExecutionOptions.CurrentValue;

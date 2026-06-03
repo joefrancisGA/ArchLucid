@@ -76,8 +76,14 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
         bool qualityGateEnabled,
         bool faithfulnessEnabled)
     {
+        Mock<IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>> judgeBudgetOpts = new();
+        judgeBudgetOpts.Setup(o => o.CurrentValue).Returns(new LlmJudgeDailyTokenBudgetOptions { Enabled = true });
+        LlmJudgeDailyTokenBudgetTracker judgeBudgetTracker =
+            new(judgeBudgetOpts.Object, new InMemoryLlmTenantBudgetRepository());
+
         ServiceCollection services = new();
         services.AddKeyedSingleton(AgentOutputLlmJudgeCompletionServiceKey.Value, client);
+        services.AddScoped<ILlmJudgeBudgetTracker>(_ => judgeBudgetTracker);
         ServiceProvider provider = services.BuildServiceProvider();
 
         Mock<IOptionsMonitor<AgentOutputLlmFaithfulnessOptions>> faithOpts = new();
@@ -104,15 +110,9 @@ public sealed class AgentOutputFaithfulnessEvaluatorTests
             ProjectId = ScopeIds.DefaultProject
         });
 
-        Mock<IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>> judgeBudgetOpts = new();
-        judgeBudgetOpts.Setup(o => o.CurrentValue).Returns(new LlmJudgeDailyTokenBudgetOptions { Enabled = true });
-        LlmJudgeDailyTokenBudgetTracker judgeBudgetTracker =
-            new(judgeBudgetOpts.Object, new InMemoryLlmTenantBudgetRepository());
-
         return new AgentOutputFaithfulnessEvaluator(
             provider.GetRequiredService<IServiceScopeFactory>(),
             scopeProvider.Object,
-            judgeBudgetTracker,
             faithOpts.Object,
             gateOpts.Object,
             execOpts.Object,

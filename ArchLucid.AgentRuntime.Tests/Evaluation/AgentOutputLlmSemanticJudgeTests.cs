@@ -86,10 +86,13 @@ public sealed class AgentOutputLlmSemanticJudgeTests
         string mode,
         ILlmJudgeBudgetTracker? judgeBudget = null)
     {
+        ILlmJudgeBudgetTracker budgetTracker = judgeBudget ?? CreateOpenJudgeBudgetTracker();
+
         ServiceCollection services = [];
         services.AddKeyedSingleton<IAgentCompletionClient>(
             AgentOutputLlmJudgeCompletionServiceKey.Value,
             (_, _) => completionClient);
+        services.AddScoped<ILlmJudgeBudgetTracker>(_ => budgetTracker);
 
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
@@ -102,15 +105,12 @@ public sealed class AgentOutputLlmSemanticJudgeTests
             ProjectId = ScopeIds.DefaultProject
         });
 
-        ILlmJudgeBudgetTracker budget = judgeBudget ?? CreateOpenJudgeBudgetTracker();
-
         IOptionsMonitor<AgentOutputLlmSemanticJudgeOptions> judgeOpts = MockJudgeOptions(enabled);
         IOptionsMonitor<AgentExecutionOptions> execOpts = MockExecOptions(mode);
 
         return new AgentOutputLlmSemanticJudge(
             scopeFactory,
             scopeProvider.Object,
-            budget,
             judgeOpts,
             execOpts,
             NullLogger<AgentOutputLlmSemanticJudge>.Instance);

@@ -18,7 +18,6 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public sealed class AgentOutputFaithfulnessEvaluator(
     IServiceScopeFactory scopeFactory,
     IScopeContextProvider scopeContextProvider,
-    ILlmJudgeBudgetTracker judgeBudgetTracker,
     IOptionsMonitor<AgentOutputLlmFaithfulnessOptions> faithfulnessOptions,
     IOptionsMonitor<AgentOutputQualityGateOptions> qualityGateOptions,
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
@@ -29,9 +28,6 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly ILlmJudgeBudgetTracker _judgeBudgetTracker =
-        judgeBudgetTracker ?? throw new ArgumentNullException(nameof(judgeBudgetTracker));
 
     private readonly IOptionsMonitor<AgentOutputLlmFaithfulnessOptions> _faithfulnessOptions =
         faithfulnessOptions ?? throw new ArgumentNullException(nameof(faithfulnessOptions));
@@ -79,14 +75,17 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
-        if (!await _judgeBudgetTracker.TryPeekWithinBudgetAsync(tenantId, cancellationToken).ConfigureAwait(false))
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+
+        ILlmJudgeBudgetTracker judgeBudgetTracker =
+            scope.ServiceProvider.GetRequiredService<ILlmJudgeBudgetTracker>();
+
+        if (!await judgeBudgetTracker.TryPeekWithinBudgetAsync(tenantId, cancellationToken).ConfigureAwait(false))
         {
-            _judgeBudgetTracker.RecordBudgetExhausted();
+            judgeBudgetTracker.RecordBudgetExhausted();
 
             return null;
         }
-
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
 
         IAgentCompletionClient client;
 
