@@ -114,6 +114,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   onboarding: "Onboarding",
   findings: "Risk register",
   decisionRegister: "Decision register",
+  recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   scorecard: "Scorecard",
   alerts: "Alerts",

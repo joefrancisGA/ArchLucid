@@ -11,11 +11,16 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.CustomerSuccess;
 
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent reader.")]
-public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory connectionFactory)
+public sealed class SqlOperatorStickinessSnapshotReader(
+    IReadOnlyDbConnectionFactory connectionFactory,
+    IRlsSessionContextApplicator rlsSessionContextApplicator)
     : IOperatorStickinessSnapshotReader
 {
-    private readonly ISqlConnectionFactory _connectionFactory =
+    private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+
+    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
+        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
 
     public async Task<OperatorStickinessSignals> GetOperatorSignalsAsync(
         Guid tenantId,
@@ -63,6 +68,9 @@ public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory co
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await _rlsSessionContextApplicator
+            .ApplyAsync(connection, tenantId, workspaceId, projectId, cancellationToken)
+            .ConfigureAwait(false);
 
         OperatorSignalsRow row = await connection.QuerySingleAsync<OperatorSignalsRow>(
             new CommandDefinition(
@@ -171,95 +179,48 @@ public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory co
     // COUNT_BIG returns bigint; cap to int range for domain model compatibility.
     private static int ToInt(long v) => v > int.MaxValue ? int.MaxValue : (int)v;
 
-    private static DateTime? ToNullableUtcDateTime(DateTime? utc)
+    internal static DateTime? ToNullableUtcDateTimeForTests(object? value) => ToNullableUtcDateTime(value);
+
+    private static DateTime? ToNullableUtcDateTime(object? value)
     {
-        if (utc is null)
+        if (value is null or DBNull)
             return null;
 
-        return DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc);
+        if (value is DateTime dt)
+            return DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+
+        return null;
     }
 
     private sealed class OperatorSignalsRow
     {
-        public long TotalRuns
-        {
-            get;
-            init;
-        }
+        public long TotalRuns { get; init; }
 
-        public long CommittedRuns
-        {
-            get;
-            init;
-        }
+        public long CommittedRuns { get; init; }
 
-        public Guid? LatestRunId
-        {
-            get;
-            init;
-        }
+        public Guid? LatestRunId { get; init; }
 
-        public long Comparisons30D
-        {
-            get;
-            init;
-        }
+        public long Comparisons30D { get; init; }
 
-        public long GovPending
-        {
-            get;
-            init;
-        }
+        public long GovPending { get; init; }
     }
 
     private sealed class FunnelRow
     {
-        public DateTime? FirstRunUtc
-        {
-            get;
-            init;
-        }
+        public object? FirstRunUtc { get; init; }
 
-        public DateTime? FirstManifestUtc
-        {
-            get;
-            init;
-        }
+        public object? FirstManifestUtc { get; init; }
 
-        public DateTime? FirstComparisonUtc
-        {
-            get;
-            init;
-        }
+        public object? FirstComparisonUtc { get; init; }
 
-        public DateTime? FirstDownloadUtc
-        {
-            get;
-            init;
-        }
+        public object? FirstDownloadUtc { get; init; }
 
-        public DateTime? FirstReplayUtc
-        {
-            get;
-            init;
-        }
+        public object? FirstReplayUtc { get; init; }
 
-        public long TotalRuns
-        {
-            get;
-            init;
-        }
+        public long TotalRuns { get; init; }
 
-        public long CommittedRuns
-        {
-            get;
-            init;
-        }
+        public long CommittedRuns { get; init; }
 
-        public long PlSignals90D
-        {
-            get;
-            init;
-        }
+        public long PlSignals90D { get; init; }
     }
 }

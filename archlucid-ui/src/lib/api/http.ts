@@ -285,6 +285,28 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
   notifyIfIdempotencyReplayed(response);
 }
 
+/** PUTs a JSON body to the ArchLucid API and returns the parsed response. Throws on HTTP errors. */
+export async function apiPutJson<T>(path: string, body: unknown): Promise<T> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest(path);
+  const h = withCorrelationHeaders(headers);
+  h.set("Content-Type", "application/json");
+  const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text);
+  }
+
+  notifyIfIdempotencyReplayed(response);
+
+  if (text.length === 0) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
+}
+
 /** PUTs a JSON body to the ArchLucid API and expects no response body. Throws on HTTP errors. */
 export async function apiPutNoContent(path: string, body: unknown): Promise<void> {
   await ensureOidcBearerReady();

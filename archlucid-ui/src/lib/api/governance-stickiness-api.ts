@@ -1,4 +1,4 @@
-import { apiGet, apiPostJson, apiPostNoContent, apiPutNoContent } from "@/lib/api-client";
+import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 
 export type FindingDispositionKind =
@@ -222,6 +222,20 @@ export async function createArchitectureReviewRecurrenceSchedule(body: {
 
 export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {
   return apiGet<ArchitectureReviewRecurrenceSchedule[]>(`${governanceBase()}/recurrence-schedules`);
+}
+
+export async function updateArchitectureReviewRecurrenceSchedule(
+  scheduleId: string,
+  body: {
+    isEnabled?: boolean;
+    name?: string;
+    cronExpression?: string;
+  },
+): Promise<ArchitectureReviewRecurrenceSchedule> {
+  return apiPutJson<ArchitectureReviewRecurrenceSchedule>(
+    `${governanceBase()}/recurrence-schedules/${encodeURIComponent(scheduleId)}`,
+    body,
+  );
 }
 
 export async function upsertRealizedValueAttestation(body: UpsertRealizedValueAttestationRequest): Promise<void> {

@@ -5,7 +5,7 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CompareToBaselineCta } from "@/components/CompareToBaselineCta";
 import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
-import { RunDetailRecurrenceScheduleCard } from "@/components/RunDetailRecurrenceScheduleCard";
+import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
@@ -321,7 +321,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       {m.manifestId ? (
         <>
           <RunDetailWhatsNextSection runId={m.routeRunId} />
-          <RunDetailRecurrenceScheduleCard runId={m.routeRunId} />
+          <RecurrenceSchedulePostCommitCard
+            runId={m.routeRunId}
+            hasStickinessPrompt={Boolean(m.manifestId) && m.buyerPolishedArtifactTable !== true}
+          />
           <PostCommitHabitLoopCard
             runId={m.routeRunId}
             showCompareCta={m.canShowCompareReviewButton}

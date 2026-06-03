@@ -8,6 +8,7 @@ export {
   apiGetJsonWithTrace,
   apiPostJson,
   apiPostNoContent,
+  apiPutJson,
   apiPutNoContent,
   ensureOidcBearerReady,
   fetchArchLucidJson,

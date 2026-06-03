@@ -1,7 +1,10 @@
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Roi;
 
@@ -10,7 +13,9 @@ public sealed class ExecutiveRoiBoardPackExporter(
     IExecutiveRoiSummaryService executiveRoiSummaryService,
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeProvider,
-    ExecutiveRoiBoardPackPdfBuilder pdfBuilder) : IExecutiveRoiBoardPackExporter
+    ExecutiveRoiBoardPackPdfBuilder pdfBuilder,
+    ExecutiveRoiBoardPackNarrativeBuilder narrativeBuilder,
+    IOptionsMonitor<RoiBoardPackNarrativeOptions> narrativeOptions) : IExecutiveRoiBoardPackExporter
 {
     private readonly IExecutiveRoiSummaryService _executiveRoiSummaryService =
         executiveRoiSummaryService ?? throw new ArgumentNullException(nameof(executiveRoiSummaryService));
@@ -24,10 +29,17 @@ public sealed class ExecutiveRoiBoardPackExporter(
     private readonly ExecutiveRoiBoardPackPdfBuilder _pdfBuilder =
         pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
 
+    private readonly ExecutiveRoiBoardPackNarrativeBuilder _narrativeBuilder =
+        narrativeBuilder ?? throw new ArgumentNullException(nameof(narrativeBuilder));
+
+    private readonly IOptionsMonitor<RoiBoardPackNarrativeOptions> _narrativeOptions =
+        narrativeOptions ?? throw new ArgumentNullException(nameof(narrativeOptions));
+
     /// <inheritdoc />
     public async Task<ExecutiveRoiBoardPackExportResult> ExportAsync(
         ExecutiveRoiBoardPackFormat format,
         string? traceId,
+        bool generateNarrative = false,
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -37,6 +49,12 @@ public sealed class ExecutiveRoiBoardPackExporter(
         string tenantName = await ResolveTenantDisplayNameAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
         DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
         string markdown = ExecutiveRoiBoardPackMarkdownBuilder.Build(tenantName, generatedUtc, summary, traceId);
+
+        if (generateNarrative && _narrativeOptions.CurrentValue.GenerateBoardPackNarrative)
+        {
+            string? narrative = await _narrativeBuilder.TryBuildNarrativeAsync(summary, cancellationToken).ConfigureAwait(false);
+            markdown = ExecutiveRoiBoardPackNarrativeBuilder.PrefixMarkdown(markdown, narrative);
+        }
 
         if (format == ExecutiveRoiBoardPackFormat.Pdf)
         {

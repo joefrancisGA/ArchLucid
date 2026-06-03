@@ -63,7 +63,8 @@ public sealed class RoiController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetExecutiveSummaryBoardPackAsync(
         [FromQuery] string? format,
-        CancellationToken cancellationToken)
+        [FromQuery] bool generateNarrative = false,
+        CancellationToken cancellationToken = default)
     {
         if (!TryParseBoardPackFormat(format, out ExecutiveRoiBoardPackFormat parsedFormat))
             return this.BadRequestProblem("format must be md or pdf.", ProblemTypes.ValidationFailed);
@@ -71,7 +72,7 @@ public sealed class RoiController(
         string? traceId = Activity.Current?.TraceId.ToString();
 
         ExecutiveRoiBoardPackExportResult export = await _boardPackExporter
-            .ExportAsync(parsedFormat, traceId, cancellationToken)
+            .ExportAsync(parsedFormat, traceId, generateNarrative, cancellationToken)
             .ConfigureAwait(false);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();

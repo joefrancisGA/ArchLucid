@@ -248,7 +248,10 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IScopeContextProvider>(),
                 sp.GetRequiredService<IOptionsMonitor<ExecutiveRoiCacheWarmupOptions>>()));
         services.AddScoped<ExecutiveRoiBoardPackPdfBuilder>();
+        services.AddScoped<ExecutiveRoiBoardPackNarrativeBuilder>();
         services.AddScoped<IExecutiveRoiBoardPackExporter, ExecutiveRoiBoardPackExporter>();
+        services.Configure<RoiBoardPackNarrativeOptions>(
+            configuration.GetSection(RoiBoardPackNarrativeOptions.SectionPath));
         services.Configure<ExecutiveRoiCacheWarmupOptions>(
             configuration.GetSection(ExecutiveRoiCacheWarmupOptions.SectionPath));
         services.Configure<ExecutiveRoiSavingsGaugeOptions>(

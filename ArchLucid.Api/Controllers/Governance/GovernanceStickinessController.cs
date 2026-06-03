@@ -323,6 +323,71 @@ public sealed class GovernanceStickinessController(
         return Ok(schedules);
     }
 
+    [HttpPut("recurrence-schedules/{scheduleId:guid}")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ArchitectureReviewRecurrenceSchedule), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateRecurrenceSchedule(
+        Guid scheduleId,
+        [FromBody] UpdateArchitectureReviewRecurrenceScheduleRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ArchitectureReviewRecurrenceSchedule? existing =
+            await recurrenceScheduleRepository.GetByIdAsync(scheduleId, cancellationToken);
+
+        if (existing is null)
+            return NotFound();
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (existing.TenantId != scope.TenantId
+            || existing.WorkspaceId != scope.WorkspaceId
+            || existing.ProjectId != scope.ProjectId)
+            return NotFound();
+
+        if (request.IsEnabled.HasValue)
+            existing.IsEnabled = request.IsEnabled.Value;
+
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            existing.Name = request.Name.Trim();
+
+        string cron = existing.CronExpression;
+
+        if (!string.IsNullOrWhiteSpace(request.CronExpression))
+        {
+            cron = request.CronExpression.Trim();
+            existing.CronExpression = cron;
+        }
+
+        existing.NextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(
+            cron,
+            TimeProvider.System.UtcNowDateTime);
+
+        await recurrenceScheduleRepository.UpdateAsync(existing, cancellationToken);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureReviewRecurrenceScheduleUpdated,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    existing.ScheduleId,
+                    existing.TenantId,
+                    existing.WorkspaceId,
+                    existing.ProjectId,
+                    existing.CronExpression,
+                    existing.IsEnabled,
+                }),
+            },
+            cancellationToken);
+
+        return Ok(existing);
+    }
+
     [HttpGet("realized-value/attestation")]
     [ProducesResponseType(typeof(RealizedValueAttestationResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRealizedValueAttestation(

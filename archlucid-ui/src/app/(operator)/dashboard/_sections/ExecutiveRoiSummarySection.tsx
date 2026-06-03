@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { downloadExecutiveRoiBoardPack } from "@/lib/api/executive-roi-board-pack-api";
+
 import { Button } from "@/components/ui/button";
 import {
   buildExecutiveSummaryMarkdown,
@@ -39,6 +41,8 @@ function formatUsd(value: number): string {
 export function ExecutiveRoiSummarySection() {
   const [data, setData] = useState<ExecutiveRoiSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [boardPackBusy, setBoardPackBusy] = useState(false);
+  const [includeBoardPackNarrative, setIncludeBoardPackNarrative] = useState(false);
   const onDownloadExecutiveSummary = useCallback(() => {
     if (data === null) {
       return;
@@ -197,7 +201,26 @@ export function ExecutiveRoiSummarySection() {
           >
             Download executive summary (Markdown)
           </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={boardPackBusy}
+            onClick={() => void onDownloadBoardPack()}
+            data-testid="exec-roi-board-pack-download-button"
+          >
+            {boardPackBusy ? "Board pack…" : "Download board pack (Markdown)"}
+          </Button>
         </div>
+        <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+          <input
+            type="checkbox"
+            checked={includeBoardPackNarrative}
+            onChange={(e) => setIncludeBoardPackNarrative(e.target.checked)}
+            data-testid="exec-roi-board-pack-narrative-toggle"
+          />
+          Include AI executive summary (uses 1 fast LLM call when enabled in API config)
+        </label>
         <CardDescription className="text-xs">
           Latest committed run per system in this workspace. Data from{" "}
           <span className="font-mono">GET /v1/roi/executive-summary</span>.

@@ -1,9 +1,16 @@
 using ArchLucid.Core.CustomerSuccess;
+using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Persistence.CustomerSuccess;
 
 public sealed class InMemoryOperatorStickinessSnapshotReader : IOperatorStickinessSnapshotReader
 {
+    // DI parity with SQL reader; in-memory host has no session context to apply.
+    public InMemoryOperatorStickinessSnapshotReader(IRlsSessionContextApplicator applicator)
+    {
+        ArgumentNullException.ThrowIfNull(applicator);
+    }
+
     public Task<OperatorStickinessSignals> GetOperatorSignalsAsync(
         Guid tenantId,
         Guid workspaceId,

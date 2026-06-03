@@ -410,6 +410,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IRoiBulletinAggregateReader, SqlRoiBulletinAggregateReader>();
         services.AddScoped<ITenantCustomerSuccessRepository, SqlTenantCustomerSuccessRepository>();
         services.AddScoped<ICorePilotTeamChecklistRepository, SqlCorePilotTeamChecklistRepository>();
+        services.AddScoped<IRlsSessionContextApplicator, SqlRlsSessionContextApplicator>();
         services.AddScoped<IOperatorStickinessSnapshotReader, SqlOperatorStickinessSnapshotReader>();
         services.AddScoped<IFindingFeedbackRepository, SqlFindingFeedbackRepository>();
         services.AddScoped<IFindingReviewTrailRepository, SqlFindingReviewTrailRepository>();

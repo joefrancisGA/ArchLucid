@@ -93,6 +93,8 @@ public static class AuditEventTypes
     /// <summary>Operator created a TB-062 architecture review recurrence schedule.</summary>
     public const string ArchitectureReviewRecurrenceScheduleCreated = "ArchitectureReviewRecurrenceScheduleCreated";
 
+    public const string ArchitectureReviewRecurrenceScheduleUpdated = "ArchitectureReviewRecurrenceScheduleUpdated";
+
     /// <summary>Recurring architecture review schedule fired and started a follow-up run (TB-059–062).</summary>
     public const string ArchitectureReviewRecurrenceTriggered = "ArchitectureReviewRecurrenceTriggered";
 

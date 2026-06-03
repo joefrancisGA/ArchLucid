@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 82.77%
+# ArchLucid Assessment – (A) Headline Readiness: 82.90%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **82.67%** (5AL); batches **5AN TB-240** (executive ROI invariant regression guards) and **5AM TB-224** (AI compare narrative on compare + Ask) → **82.77%** (+1 Proof-of-ROI, +1 Stickiness). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **82.77%** (5AM/5AN); batches **5AO TB-222** (recurrence scheduling UI), **5AP TB-225** (CS-06 RLS on stickiness reader), **5AQ TB-241** (board-pack AI executive narrative) → **82.90%** (+1 Stickiness, +1 Trustworthiness, +1 Proof-of-ROI). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -46,46 +46,46 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
-| AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
 | Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
-| Correctness | 86 | 8 | 5.93% | 112 |
+| AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
+| Stickiness | 76 | 6 | 3.93% | 144 |
 | Adoption Friction | 77 | 6 | 4.04% | 138 |
-| Stickiness | 74 | 6 | 3.83% | 156 |
-| Time-to-Value | 86 | 7 | 5.19% | 98 |
 | Marketability | 85 | 8 | 5.86% | 120 |
+| Correctness | 86 | 8 | 5.93% | 112 |
 | Proof-of-ROI Readiness | 79 | 5 | 3.41% | 105 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
+| Time-to-Value | 86 | 7 | 5.19% | 98 |
 | Executive Value Visibility | 78 | 4 | 2.69% | 88 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
-| Trustworthiness | 81 | 3 | 2.08% | 57 |
 | Interoperability | 66 | 2 | 1.14% | 68 |
-| Architectural Integrity | 83 | 3 | 2.13% | 51 |
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
-| Decision Velocity | 71 | 2 | 1.22% | 58 |
 | Data Consistency | 70 | 2 | 1.21% | 60 |
-| Maintainability | 74 | 2 | 1.28% | 52 |
-| Traceability | 84 | 3 | 2.17% | 48 |
+| Decision Velocity | 71 | 2 | 1.22% | 58 |
+| Trustworthiness | 82 | 3 | 2.12% | 54 |
 | Compliance Readiness | 73 | 2 | 1.26% | 54 |
+| Maintainability | 74 | 2 | 1.28% | 52 |
+| Architectural Integrity | 83 | 3 | 2.13% | 51 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
-| Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
-| Reliability | 78 | 2 | 1.34% | 44 |
+| Traceability | 84 | 3 | 2.17% | 48 |
 | Auditability | 77 | 2 | 1.32% | 46 |
-| Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |
+| Reliability | 78 | 2 | 1.34% | 44 |
+| Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
 | Explainability | 80 | 2 | 1.38% | 40 |
+| Policy and Governance Alignment | 81 | 2 | 1.39% | 38 |
 | Cognitive Load | 66 | 1 | 0.57% | 34 |
 | Customer Self-Sufficiency | 68 | 1 | 0.59% | 32 |
-| Deployability | 71 | 1 | 0.61% | 29 |
 | Scalability | 70 | 1 | 0.60% | 30 |
+| Deployability | 71 | 1 | 0.61% | 29 |
 | Manageability | 71 | 1 | 0.61% | 29 |
 | Performance | 71 | 1 | 0.61% | 29 |
-| Availability | 74 | 1 | 0.64% | 26 |
 | Extensibility | 72 | 1 | 0.62% | 28 |
 | Cost-Effectiveness | 73 | 1 | 0.63% | 27 |
-| Testability | 78 | 1 | 0.67% | 22 |
+| Availability | 74 | 1 | 0.64% | 26 |
 | Supportability | 76 | 1 | 0.66% | 24 |
-| Template and Accelerator Richness | 82 | 1 | 0.71% | 18 |
+| Testability | 78 | 1 | 0.67% | 22 |
 | Documentation | 78 | 1 | 0.67% | 22 |
+| Template and Accelerator Richness | 82 | 1 | 0.71% | 18 |
 
 ### AI/Agent Readiness
 

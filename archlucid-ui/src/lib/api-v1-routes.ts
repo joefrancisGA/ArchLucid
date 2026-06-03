@@ -32,6 +32,7 @@ export const ApiV1Routes = {
   analyticsRoi: "v1/analytics/roi",
   /** Cross-run executive ROI summary (latest run per system, savings rollup, top issues). */
   roiExecutiveSummary: "v1/roi/executive-summary",
+  roiExecutiveSummaryBoardPack: "v1/roi/executive-summary/board-pack",
   /** Cross-tenant portfolio ROI summary (aggregates across all accessible tenants, enforces k-anonymity). */
   roiCrossTenantPortfolio: "v1/roi/cross-tenant-portfolio",
   /** Sponsor evidence bundle (Standard tier): explainability completeness, deltas, governance counts. */

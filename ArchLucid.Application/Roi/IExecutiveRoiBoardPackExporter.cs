@@ -8,5 +8,6 @@ public interface IExecutiveRoiBoardPackExporter
     Task<ExecutiveRoiBoardPackExportResult> ExportAsync(
         ExecutiveRoiBoardPackFormat format,
         string? traceId,
+        bool generateNarrative = false,
         CancellationToken cancellationToken = default);
 }
