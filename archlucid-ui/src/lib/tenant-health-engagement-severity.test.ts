@@ -4,14 +4,14 @@ import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-seve
 
 describe("engagementScoreSeverityKind", () => {
   it("maps low engagement to Critical", () => {
-    expect(engagementScoreSeverityKind(10)).toBe("Critical");
+    expect(engagementScoreSeverityKind(10)).toBe("critical");
   });
 
   it("maps mid engagement to Medium", () => {
-    expect(engagementScoreSeverityKind(45)).toBe("Medium");
+    expect(engagementScoreSeverityKind(45)).toBe("medium");
   });
 
   it("maps high engagement to Low", () => {
-    expect(engagementScoreSeverityKind(80)).toBe("Low");
+    expect(engagementScoreSeverityKind(80)).toBe("low");
   });
 });
