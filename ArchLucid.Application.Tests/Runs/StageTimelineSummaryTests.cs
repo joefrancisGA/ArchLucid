@@ -1,5 +1,7 @@
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 
+using FluentAssertions;
+
 namespace ArchLucid.Application.Tests.Runs;
 
 /// <summary>TB-250 stage timeline duration derivation.</summary>

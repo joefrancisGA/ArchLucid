@@ -101,6 +101,8 @@ export function OperatorHomeGlossarySections() {
 type ActionCardProps = PipelineStepConfig & {
   /** Optional stepper state for future pipeline UX; omitted = all steps use the default “current” emphasis. */
   pipelineStatus?: PipelineStepStatus;
+  /** Optional buyer-polished hint shown on hover/focus. */
+  tooltip?: string;
 };
 
 function StepIndicator({ step, pipelineStatus }: { step: 1 | 2 | 3 | 4; pipelineStatus?: PipelineStepStatus }) {
