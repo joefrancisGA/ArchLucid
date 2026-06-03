@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
@@ -49,28 +49,28 @@ jobs:
           npx playwright install --with-deps chromium
           MOCK_E2E_SKIP_NEXT_BUILD=1 npm run screenshots:all
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: deep-reg-mock-screenshots-all-routes
           path: archlucid-ui/public/screenshots/all-routes
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: deep-reg-mock-playwright-report
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: deep-reg-mock-test-results
           path: archlucid-ui/test-results
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: deep-reg-mock-blob-report

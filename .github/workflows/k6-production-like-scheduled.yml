@@ -31,9 +31,9 @@ jobs:
           --health-start-period 20s
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5.2.0
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
           cache: true
@@ -76,7 +76,7 @@ jobs:
 
       - name: Upload production-like artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: k6-production-like-summaries
           path: |
