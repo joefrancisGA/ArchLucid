@@ -2526,8 +2526,8 @@ jobs:
           load: true
           provenance: false
           sbom: false
-          cache-from: type=gha,scope=ui-docker-smoke
-          cache-to: type=gha,scope=ui-docker-smoke,mode=max
+          cache-from: type=gha,scope=ui-docker-smoke-v2
+          cache-to: type=gha,scope=ui-docker-smoke-v2,mode=max
 
       - name: Build Operator UI image (read-only GHA cache)
         if: steps.gha_cache_write.outputs.enabled != 'true'
@@ -2539,7 +2539,7 @@ jobs:
           load: true
           provenance: false
           sbom: false
-          cache-from: type=gha,scope=ui-docker-smoke
+          cache-from: type=gha,scope=ui-docker-smoke-v2
 
       - name: Install Trivy CLI
         uses: ./.github/actions/install-trivy
