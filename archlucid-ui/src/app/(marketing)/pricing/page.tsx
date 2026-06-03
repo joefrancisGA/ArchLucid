@@ -13,10 +13,15 @@ import {
   CUSTOM_POLICY_PACK_TIER_INTEREST_LABEL,
 } from "@/lib/marketing-custom-policy-pack-authoring";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import {
+  MARKETING_PRICING_OG_DESCRIPTION,
+  buildMarketingSocialMetadata,
+} from "@/lib/marketing-open-graph";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description: `ArchLucid ${BRAND_CATEGORY} — packaging and pricing overview — request a demo or quote.`,
+  ...buildMarketingSocialMetadata("Pricing", MARKETING_PRICING_OG_DESCRIPTION, "/pricing"),
   other: {
     "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
   },

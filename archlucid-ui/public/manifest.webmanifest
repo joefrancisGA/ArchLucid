@@ -1,7 +1,7 @@
 {
   "name": "ArchLucid",
   "short_name": "ArchLucid",
-  "description": "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
+  "description": "Defensible architecture, on demand — evidence-linked architecture review with traceability and exportable proof.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1E3A5F",

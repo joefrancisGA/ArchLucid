@@ -3,6 +3,10 @@ import Link from "next/link";
 
 import { MarketingProofChainStrip } from "@/components/marketing/MarketingProofChainStrip";
 import { BUYER_OUTCOME_LED_VALUE_PROPOSITION } from "@/lib/buyer-polish-copy";
+import {
+  MARKETING_SEE_IT_OG_DESCRIPTION,
+  buildMarketingSocialMetadata,
+} from "@/lib/marketing-open-graph";
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { normalizeSeeItMarketingPayload } from "./normalize-see-it-payload";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
@@ -11,8 +15,12 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "ArchLucid · See it in 30 seconds",
-  description:
-    "No-install look at a sample healthcare architecture review package: executive summary, signed manifest, evidence trail, and governance-ready outputs.",
+  description: MARKETING_SEE_IT_OG_DESCRIPTION,
+  ...buildMarketingSocialMetadata(
+    "See it in 30 seconds",
+    MARKETING_SEE_IT_OG_DESCRIPTION,
+    "/see-it",
+  ),
   robots: { index: true, follow: true },
   other: {
     "data-demo": "true",

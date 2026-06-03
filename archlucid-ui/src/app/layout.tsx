@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 
 import "./globals.css";
@@ -15,8 +16,7 @@ export const metadata: Metadata = {
     default: "ArchLucid operator shell",
     template: "%s · ArchLucid",
   },
-  description:
-    "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
+  description: MARKETING_ROOT_OG_DESCRIPTION,
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
@@ -27,8 +27,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     siteName: "ArchLucid",
     title: "ArchLucid",
-    description:
-      "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
+    description: MARKETING_ROOT_OG_DESCRIPTION,
     images: [
       {
         url: "/logo/og-default.png",
@@ -41,8 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ArchLucid",
-    description:
-      "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
+    description: MARKETING_ROOT_OG_DESCRIPTION,
     images: ["/logo/og-default.png"],
   },
 };

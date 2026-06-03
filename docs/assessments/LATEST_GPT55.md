@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 86.07%
+# ArchLucid Assessment – (A) Headline Readiness: 86.35%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **85.72%** (5BV–5BX); batch **5BY** — **TB-190** (isolated judge daily sub-cap + Cost/Compliance rubric judge), **TB-052** / **TB-054** (decisioning explainability drift closure) → **86.07%** (+1 AI/Agent Readiness, +2 Traceability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **86.07%** (5BY); batch **5CC** — **TB-252** (committed raster OG/PWA icons + asset CI guard), **TB-253** (buyer-facing Open Graph/Twitter + per-page marketing overrides) → **86.35%** (+2 Marketability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -50,7 +50,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | AI/Agent Readiness | 84 | 8 | 5.79% | 128 |
 | Stickiness | 79 | 6 | 4.14% | 126 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
-| Marketability | 90 | 8 | 6.24% | 80 |
+| Marketability | 92 | 8 | 6.39% | 64 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
@@ -161,9 +161,9 @@ Classification: Fixable in v1 for the starter-pack chooser and validation; broad
 
 ### Marketability
 
-Score: 90. Weight: 8. Weighted impact: 6.24%. Weighted deficiency signal: 80.
+Score: 92. Weight: 8. Weighted impact: 6.39%. Weighted deficiency signal: 64.
 
-Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Batch **5BJ** closes **TB-237** — public `/pricing` early-adopter framing plus `PRICING_PHILOSOPHY.md` transparent early-access principle. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
+Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5CC** closes **TB-252** — committed raster `og-default.png` / PWA icons via `generate-brand-raster.mjs` (fixes broken LinkedIn/social previews and Apple/PWA icons) plus warn-only `check_referenced_static_assets.py`. Batch **5CC** closes **TB-253** — buyer-facing root and per-page Open Graph/Twitter metadata on `welcome`, `pricing`, `why`, and `see-it` via `marketing-open-graph.ts` (removes operator-jargon social cards). Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Batch **5BJ** closes **TB-237** — public `/pricing` early-adopter framing plus `PRICING_PHILOSOPHY.md` transparent early-access principle. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
 
 Tradeoffs: Service-led marketability is narrower but more credible than pretending mature PLG SaaS. It also means founder capacity can become a bottleneck.
 

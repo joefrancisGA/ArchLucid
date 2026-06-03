@@ -73,6 +73,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-252 – TB-254** were added 2026-06-03 from an independent first-principles **Marketability** quality assessment (`docs/assessments/Marketability_06032026.MD`, score 75/100, COMMERCIAL weight 8/116). They address: generate/commit raster brand assets and fix broken references (**TB-252**, P1 — `og-default.png` and `icon-192.png` are referenced in `layout.tsx`, `manifest.webmanifest`, and an e2e fixture but only SVG variants exist; social cards on LinkedIn — the #1 channel — render with no preview image, and the PWA/Apple icons are broken), buyer-facing Open Graph / Twitter metadata (**TB-253**, P1 — the social-share description is operator jargon that violates `POSITIONING.md §7` on every shared link), and `FAQPage` JSON-LD plus buyer-relevant FAQ expansion (**TB-254**, P2 — free Google rich-result lever; `/faq` currently emits no structured data and has only 3 operator-focused Q&A). These do not duplicate prior Marketability items **TB-229–TB-237** (06-02, all Done except DEFERRED TB-236) or **TB-020** (existing marketing JSON-LD). Owner-action GTM execution (published references, live checkout, SOC 2 CPA) remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
 
+**TB-255 – TB-257** were added 2026-06-03 from an independent first-principles **Correctness** quality assessment (`docs/assessments/Correctness_06032026.MD`, score 82/100, ENGINEERING weight 8/116). They harden the deterministic evidence-faithfulness / hallucination-resistance layer that gates the strictest (PilotStrict, sponsor-facing) run mode: minimum token-overlap density so a single shared word no longer marks a claim/finding "supported" (**TB-255**, P1 — `AgentResultEvidenceFaithfulnessChecker.HasTokenOverlap` is first-match-wins, inflating `SupportRatio`), distinguish "no checkable content" from perfect faithfulness (**TB-256**, P1 — `totalChecked == 0` returns `SupportRatio = 1.0`, so a content-free output can never be rejected on the PilotStrict faithfulness floor), and expand the adversarial hallucination corpus from one inform-only scenario to an enforced nightly resistance floor (**TB-257**, P2). These do not duplicate the now-complete **TB-196–TB-206** (06-02 Correctness cluster, all Done) — those fixed numeric/atomicity/coverage defects; TB-255–257 target the faithfulness heuristic and its regression guard specifically. They also do not duplicate **TB-049/RAG-V1-011** (retrieval IR eval — different layer).
+
 **TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix) — all of which remain open and address the same quality dimension.
 
 **TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
@@ -158,9 +160,12 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-249 | Cross-tenant portfolio graceful 403 — in `RoiController.GetCrossTenantPortfolioSummaryAsync` return a structured `ProblemDetails` with user-facing guidance when directory object key is missing (403); update `PortfolioPageView.tsx` to display the guidance text rather than a blank/silent error; create `docs/library/MULTI_TENANT_PORTFOLIO.md` | **Done (2026-06-02 batch 5BB)** — ProblemDetails 403 + portfolio UI card + doc; `test_adoption_batch_5bb.py` | S |
 | TB-250 | Authority pipeline stage timeline in operator UI — add `dbo.RunStageOutcomes` (migration); write rows at stage start/end in `AuthorityPipelineStagesExecutor`; expose `GET /v1/architecture/run/{runId}/stage-timeline` returning `StageTimelineSummary[]` (name, startedUtc, completedUtc, outcomeStatus, durationMs); add collapse-by-default "Pipeline stages" section to `/reviews/{runId}` with `StatusTag` per stage and OTel deep-link when `OtelTraceId` present; unit + integration tests | **Done (2026-06-02 batch 5BW)** — migration `240_RunStageOutcomes.sql` + `RunDetailPipelineStagesSection`; `test_traceability_batch_5bw.py` | M |
 | TB-251 | Retrieval indexing at-least-once outbox — `dbo.RetrievalIndexOutbox` migration (OutboxId, RunId, CreatedUtc, ProcessedUtc, AttemptCount, LastError); insert row after manifest commit in `ManifestFinalizationService`; `RetrievalIndexOutboxWorker : BackgroundService` polls every 30 s, calls `IRetrievalRunCompletionIndexer`, marks processed or increments AttemptCount; emit `AuditEventTypes.RetrievalIndexingFailed` at AttemptCount = 5; add constant + matrix row; unit tests | **Done (2026-06-02 batch 5BX)** — `dbo.RetrievalIndexingOutbox` + `RetrievalIndexingOutboxProcessor` + lease/dead-letter (DbUp 019/219); `test_traceability_batch_5bx.py` | M |
-| TB-252 | Generate/commit raster brand assets + fix broken references — `generate-brand-raster.mjs` rasterizes `og-default.svg`→`og-default.png` (1200×630), `icon.svg`→`icon-192.png`/`icon-512.png`; wire to `prebuild`; commit PNGs; add `icon-512` maskable to `manifest.webmanifest`; warn-only CI guard `check_referenced_static_assets.py` asserting every `/logo/*.png` reference in `layout.tsx`/manifest exists; unit test output dimensions | Marketability P1 — `og-default.png` + `icon-192.png` referenced in `layout.tsx`, `manifest.webmanifest`, and an e2e fixture but only SVG variants exist; LinkedIn (#1 channel) shares render no preview image; PWA + Apple icons broken | M |
-| TB-253 | Buyer-facing Open Graph / Twitter metadata — replace operator-jargon `openGraph`/`twitter` description in `layout.tsx` with the positioning-seam buyer line; add `marketing-open-graph.ts` helper; set per-page OG/Twitter on `welcome`/`pricing`/`why`/`see-it`; Vitest asserts descriptions are buyer copy and exclude "Operator UI" | Marketability P1 — social-share description is internal vocabulary violating `POSITIONING.md §7` on every shared link; marketing pages do not override the root OG, so all inherit the jargon | S |
+| TB-252 | Generate/commit raster brand assets + fix broken references — `generate-brand-raster.mjs` rasterizes `og-default.svg`→`og-default.png` (1200×630), `icon.svg`→`icon-192.png`/`icon-512.png`; wire to `prebuild`; commit PNGs; add `icon-512` maskable to `manifest.webmanifest`; warn-only CI guard `check_referenced_static_assets.py` asserting every `/logo/*.png` reference in `layout.tsx`/manifest exists; unit test output dimensions | **Done (2026-06-03 batch 5CC)** — committed PNGs, `prebuild`, `check_referenced_static_assets.py`, Vitest dimensions | M |
+| TB-253 | Buyer-facing Open Graph / Twitter metadata — replace operator-jargon `openGraph`/`twitter` description in `layout.tsx` with the positioning-seam buyer line; add `marketing-open-graph.ts` helper; set per-page OG/Twitter on `welcome`/`pricing`/`why`/`see-it`; Vitest asserts descriptions are buyer copy and exclude "Operator UI" | **Done (2026-06-03 batch 5CC)** — `marketing-open-graph.ts`, per-page overrides, `test_marketability_batch_5cc.py` | S |
 | TB-254 | `FAQPage` JSON-LD + buyer FAQ expansion — `marketing-faq.ts` with `MARKETING_FAQ_ITEMS` (3 existing + 5 buyer-relevant from existing docs, no new claims); render `/faq` from the array; add `buildFaqPageLd` next to `marketing-json-ld.ts` and inject `FAQPage` ld+json (no ratings); unit + Vitest | Marketability P2 — `/faq` emits no structured data (free Google rich-result lever) and has only 3 operator-focused Q&A; weak for a coined-category product reliant on shares + SERP rich results | S |
+| TB-255 | Minimum token-overlap density in faithfulness checker — replace boolean `HasTokenOverlap` in `AgentResultEvidenceFaithfulnessChecker.cs` with a `CountTokenOverlap`/`MeetsOverlapThreshold` density check (default ≥2 distinct content tokens AND ≥30% density); apply to claims and to finding description+recommendation; thresholds configurable via options; unit tests for single-token-fail, density-pass, boundary | Correctness P1 — first-match-wins overlap marks a fabricated claim/finding "supported" on one shared word, inflating `SupportRatio`, which gates `PilotStrict` rejection (the sponsor-facing mode) | S |
+| TB-256 | Distinguish "no checkable content" from perfect faithfulness — add `HasCheckableContent` to `AgentResultEvidenceFaithfulnessReport`; make the empty/parse-fail/`totalChecked==0` paths return `HasCheckableContent=false` + `SupportRatio=0.0` (not `1.0`); in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` treat `!HasCheckableContent` as failing the PilotStrict floor; audit all `SupportRatio` readers; unit tests | Correctness P1 — `totalChecked==0` returns `SupportRatio=1.0`, so a content-free/evasive output can never be rejected on the PilotStrict faithfulness floor | S |
+| TB-257 | Expand adversarial hallucination corpus + enforce resistance floor — add 3 adversarial scenarios (fabricated SKU, invented compliance framework, phantom dependency) under `tests/eval-corpus/adversarial/`; register in `manifest.json`; new `scripts/ci/assert_hallucination_resistance.py` (reuse `eval_agent_corpus.py` scoring) asserting each adversarial result scores non-"accepted"; wire as blocking step in `golden-cohort-expanded-nightly.yml`; pytest guard; doc update | Correctness P2 — one inform-only adversarial scenario today; no merge/nightly-enforced contract that fabricated anchors are flagged, for the highest-risk dimension on an 8-weight quality | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -7374,3 +7379,133 @@ Add FAQPage structured data and expand the FAQ with buyer-relevant questions.
 - `archlucid-ui/src/app/(marketing)/faq/page.tsx`
 
 **Cross-ref:** TB-020 (existing marketing `SoftwareApplication` JSON-LD), `archlucid-ui/src/components/MarketingJsonLd.tsx` (pattern source).
+
+---
+
+## TB-255 — Minimum token-overlap density in faithfulness checker (P1)
+
+**Source:** Correctness quality assessment (`docs/assessments/Correctness_06032026.MD`), 2026-06-03.
+**Problem:** `AgentResultEvidenceFaithfulnessChecker.HasTokenOverlap` returns `true` as soon as **any one** ≥4-char, non-stopword, non-numeric token appears anywhere in the evidence blob. A fabricated finding is scored "supported" when it shares a single incidental word (e.g., "deploy", "router") with the evidence. This inflates `report.SupportRatio`, which **directly gates `PilotStrict` rejection** in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` (`if (report.SupportRatio < floor) gateOutcome = Rejected`). The strictest, sponsor-facing mode is the one most weakened, and the deterministic checker is the always-on layer (embedding/LLM-judge layers are optional/budget-gated).
+
+**Cursor prompt:**
+```
+Harden AgentResultEvidenceFaithfulnessChecker so a single shared token no longer marks a
+claim/finding as "supported".
+
+1. In ArchLucid.AgentRuntime/Evaluation/AgentResultEvidenceFaithfulnessChecker.cs, replace the
+   boolean HasTokenOverlap with an overlap-density check:
+   - Add private static (int matched, int total) CountTokenOverlap(string text, string blobLowercase)
+     that tokenizes `text` via the existing CollectTokens, counts distinct content tokens present in
+     the blob (Ordinal Contains), and returns (matched, total).
+   - Add private static bool MeetsOverlapThreshold(int matched, int total): returns
+     total == 0 ? false : matched >= 2 && (double)matched / total >= 0.30.
+2. Replace both HasTokenOverlap call sites (claim overlap; finding text) with the density check.
+   For findings, compute density over description + " " + recommendation so a recommendation-only
+   overlap still counts.
+3. Make the thresholds configurable but defaulted: add MinOverlapTokenCount (default 2) and
+   MinOverlapRatio (default 0.30) to the faithfulness options type (or a new
+   AgentResultEvidenceFaithfulnessOptions) and inject via IOptions; keep the static helpers pure by
+   passing the two ints in.
+4. Unit tests in ArchLucid.AgentRuntime.Tests:
+   - One shared token in a long fabricated finding -> NOT supported.
+   - Finding whose description shares >=30% and >=2 distinct content tokens -> supported.
+   - Claim with refs resolving to a cited blob that shares >=2 tokens -> supported.
+   - Threshold boundary: exactly 2 tokens / exactly 30% -> supported.
+5. Re-run AgentOutputEvaluator / golden-fixture tests; if a committed golden AgentResult now drops
+   below its prompt_regression_baseline.json floor, that is a TRUE signal — do not lower the baseline;
+   confirm whether the golden fixture itself is weakly grounded and note it in the PR.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.AgentRuntime/Evaluation/AgentResultEvidenceFaithfulnessChecker.cs`
+- Faithfulness options type (existing or new `AgentResultEvidenceFaithfulnessOptions`)
+- `ArchLucid.AgentRuntime.Tests/`
+
+**Cross-ref:** TB-256 (same file — empty-content faithfulness), `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` (consumer), `docs/library/AGENT_OUTPUT_EVALUATION.md`.
+
+---
+
+## TB-256 — Distinguish "no checkable content" from perfect faithfulness (P1)
+
+**Source:** Correctness quality assessment (`docs/assessments/Correctness_06032026.MD`), 2026-06-03.
+**Problem:** When an `AgentResult` has no recognizable `claims` and no `findings`, `AgentResultEvidenceFaithfulnessChecker.Evaluate` returns `SupportRatio = 1.0` (the `totalChecked == 0` path). A degenerate/evasive output is rated maximally faithful. In `PilotStrict`, `1.0 < floor` is always false, so the faithfulness floor can never reject a content-free result — the gate's faithfulness arm is silently bypassed exactly when there is nothing to verify. (Structural validation separately requires a non-empty findings array, but the faithfulness contract is consumed independently and its `1.0` is semantically wrong for "no checkable content.")
+
+**Cursor prompt:**
+```
+Fix AgentResultEvidenceFaithfulnessChecker so an AgentResult with no checkable claims/findings is not
+scored as perfectly faithful.
+
+1. In AgentResultEvidenceFaithfulnessReport, add a bool HasCheckableContent property
+   (claimsChecked + findingsChecked > 0). Keep SupportRatio for backward compatibility.
+2. In AgentResultEvidenceFaithfulnessChecker.Evaluate:
+   - The two early-return paths (null/whitespace JSON; non-object root) and the totalChecked == 0 path
+     must return HasCheckableContent = false and SupportRatio = 0.0 (not 1.0).
+   - Keep the json:parse catch returning 0.0 / HasCheckableContent = false.
+3. In ArchLucid.AgentRuntime/Evaluation/AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness:
+   - When pilotStrict and a faithfulness floor is configured, treat !report.HasCheckableContent the
+     same as failing the floor (gateOutcome = Rejected). Add a comment explaining why empty content
+     cannot pass the floor.
+   - Still set semanticScore.AgentResultFaithfulnessSupportRatio = report.SupportRatio for telemetry.
+4. Audit other readers of SupportRatio (grep AgentResultFaithfulnessSupportRatio and
+   AgentResultEvidenceFaithfulnessReport) to ensure none assumed 1.0 == good for empty content.
+5. Unit tests:
+   - Empty findings + empty claims -> HasCheckableContent false, SupportRatio 0.0.
+   - PilotStrict + faithfulness floor + no checkable content -> gate Rejected.
+   - Non-empty supported finding -> HasCheckableContent true, ratio as before (regression).
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.AgentRuntime/Evaluation/AgentResultEvidenceFaithfulnessChecker.cs`
+- `AgentResultEvidenceFaithfulnessReport`
+- `ArchLucid.AgentRuntime/Evaluation/AgentOutputTraceQualityEvaluator.cs`
+- `ArchLucid.AgentRuntime.Tests/`
+
+**Cross-ref:** TB-255 (same file — overlap density), `RealLlmOutputStructuralValidator` (separate non-empty-findings guard — complementary, not duplicate).
+
+---
+
+## TB-257 — Expand adversarial hallucination corpus + enforce resistance floor (P2)
+
+**Source:** Correctness quality assessment (`docs/assessments/Correctness_06032026.MD`), 2026-06-03.
+**Problem:** There is exactly one adversarial scenario (`tests/eval-corpus/adversarial/hallucination-detection/scenario.json`, fabricated "Helios Quantum Router" SKU + "SOC-9001-Zeta Prime" framework), it runs in `simulator` mode, and its own notes say it only *warns*. `eval_agent_corpus.py` is inform-only by default. So there is no merge-blocking or nightly-enforcing contract asserting that fabricated-anchor inputs are flagged — for the single highest-risk correctness dimension on an 8-weight quality.
+
+**Cursor prompt:**
+```
+Strengthen hallucination-resistance regression coverage from one inform-only scenario to an
+enforced contract.
+
+1. Under tests/eval-corpus/adversarial/, add 3 new scenarios mirroring the existing
+   hallucination-detection/scenario.json shape (schemaVersion, id, metadata, inputSummary,
+   recording, qualityEvidence simulator, expectedFindings, unexpectedFindings):
+   - fabricated-sku: an invented Azure SKU not in inventory/pricing.
+   - invented-compliance-framework: a non-existent control framework cited as mandatory.
+   - phantom-dependency: a service dependency present in NO evidence source.
+   Each needs a sibling recordings/<id>.findings.json and an agent-result.simulator.json that, by
+   design, FAILS grounding (omit/mismatch evidenceRefs) so the faithfulness path must flag it.
+   Register all new scenario + result paths in tests/eval-corpus/manifest.json and, if listed there,
+   scripts/ci/agent-reference-baselines.json.
+2. Add scripts/ci/assert_hallucination_resistance.py that loads the adversarial scenarios, runs them
+   through eval_agent_corpus.py's scoring (import and reuse the existing scoring functions; do not
+   fork), and asserts each adversarial agent-result yields a non-"accepted" quality-gate outcome
+   (warned or rejected). Exit non-zero on any adversarial result that scores "accepted".
+3. Wire assert_hallucination_resistance.py into .github/workflows/golden-cohort-expanded-nightly.yml
+   as a blocking step. Do NOT add it to the fast PR lane; document it in
+   docs/library/AGENT_EVAL_CORPUS.md.
+4. Add scripts/ci/tests/test_assert_hallucination_resistance.py with a passing fixture (well-grounded
+   result -> accepted, guard passes) and a failing fixture (fabricated result scored accepted ->
+   guard exits non-zero).
+5. Update docs/library/AGENT_EVAL_CORPUS.md to describe the adversarial subset and the enforced floor.
+```
+
+**Affected files / projects:**
+
+- `tests/eval-corpus/adversarial/**` (3 new scenarios + recordings + simulator results)
+- `tests/eval-corpus/manifest.json`
+- `scripts/ci/assert_hallucination_resistance.py` (new)
+- `scripts/ci/tests/test_assert_hallucination_resistance.py` (new)
+- `.github/workflows/golden-cohort-expanded-nightly.yml`
+- `docs/library/AGENT_EVAL_CORPUS.md`
+
+**Cross-ref:** TB-255 / TB-256 (the heuristic these scenarios exercise), `scripts/ci/eval_agent_corpus.py`.
