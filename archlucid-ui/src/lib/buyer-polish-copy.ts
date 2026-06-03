@@ -107,6 +107,10 @@ export const BUYER_MARKETING_PRICING_PAGE_INTRO =
 export const BUYER_SALES_LED_V1_PRICING_NOTE =
   "V1 is sold through guided evaluation and procurement — request a quote for packaging, fair-use limits, and diligence artifacts. List tiers illustrate scope; they are not a live marketplace checkout.";
 
+/** Early-access pricing transparency — below tier grid on public /pricing. */
+export const BUYER_EARLY_ADOPTER_PRICING_NOTE =
+  "Early adopter pricing. Current prices reflect ArchLucid's early-access period. List prices are intentionally set at approximately 50% of fair value to reward early adopters who help us build our first reference cases. Prices will increase as we publish independent security attestations and customer case studies — your rate is locked for the life of your initial subscription.";
+
 /** Outcome-led value proposition for marketing/demo surfaces (one problem, one proof package). */
 export const BUYER_OUTCOME_LED_VALUE_PROPOSITION =
   "Cut architecture review cycle time with an evidence-backed proof package — signed manifest, findings, audit trail, and sponsor-ready readout — not a chat transcript.";
@@ -148,6 +152,12 @@ export const BUYER_AUDIT_DOWNLOAD_CTA = "Download governance evidence package";
 export const BUYER_VIEWING_AS_DEMO_ROLE = "Role: Architecture reviewer";
 
 export const BUYER_SCOPE_SAMPLE_WORKSPACE_LABEL = "Sample workspace";
+
+export const BUYER_SCOPE_SWITCHER_INTRO =
+  "This walkthrough uses the Claims Intake sample workspace. Switching live tenant scope is not required.";
+
+export const BUYER_SCOPE_LIST_UNAVAILABLE =
+  "Workspace directory is unavailable in this environment. The sample workspace remains active for the demonstration.";
 
 export const BUYER_APPROVED_WITH_MONITORING_DEFINITION =
   "Approved for implementation planning; one residual risk accepted with active monitoring; no blocking issues.";

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BILLING_TIER_FEATURE_BULLETS } from "@/lib/billing-plan-tier-features";
-import { BUYER_PRICING_FAIR_USE_OVERAGE_NOTE } from "@/lib/buyer-polish-copy";
+import { BUYER_EARLY_ADOPTER_PRICING_NOTE, BUYER_PRICING_FAIR_USE_OVERAGE_NOTE } from "@/lib/buyer-polish-copy";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import type { PricingDoc } from "@/lib/pricing-types";
 import { looksStripeHostedTestCheckoutUrl, resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
@@ -263,6 +263,12 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
               </li>
             ))}
           </ul>
+          <p
+            className="mt-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+            data-testid="pricing-early-adopter-framing"
+          >
+            {BUYER_EARLY_ADOPTER_PRICING_NOTE}
+          </p>
           <p className="mt-8 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
             Roadmap-oriented diligence topics (for example enterprise directory lifecycle) are summarized in the{" "}
             <Link className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300" href="/faq#pricing-roadmap-notes">

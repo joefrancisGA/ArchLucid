@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.93%
+# ArchLucid Assessment – (A) Headline Readiness: 84.32%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **83.78%** (5BD–5BF); batches **5BG TB-233** (demo video storyboard), **5BH TB-234** (SHOULD_YOU_EVALUATE ICP enrichment), **5BI TB-235** (executive one-email pilot kit) → **83.93%** (+1 Marketability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **83.93%** (5BG–5BI); batches **5BJ TB-237** (pricing early-adopter framing), **5BK TB-212** (Content Safety hosted-prod Terraform), **5BL TB-183** (findings priority re-ranker drift closure) → **84.32%** (+1 Marketability, +1 Adoption Friction, +1 AI/Agent Readiness). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -47,10 +47,10 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Quality | Score | Weight | Weighted impact | Weighted deficiency signal |
 | --- | ---: | ---: | ---: | ---: |
 | Cutting-Edge AI Technology | 76 | 8 | 5.24% | 192 |
-| AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
+| AI/Agent Readiness | 78 | 8 | 5.38% | 176 |
 | Stickiness | 78 | 6 | 4.03% | 132 |
-| Adoption Friction | 77 | 6 | 4.04% | 138 |
-| Marketability | 89 | 8 | 6.17% | 88 |
+| Adoption Friction | 78 | 6 | 4.09% | 132 |
+| Marketability | 90 | 8 | 6.24% | 80 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
@@ -89,9 +89,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 
 ### AI/Agent Readiness
 
-Score: 77. Weight: 8. Weighted impact: 5.31%. Weighted deficiency signal: 184.
+Score: 78. Weight: 8. Weighted impact: 5.38%. Weighted deficiency signal: 176.
 
-Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
+Justification: The repo has real agent infrastructure: structured `AgentResult` schema validation, PilotStrict quality gates, semantic and faithfulness scoring, RAG grounding, retrieval IR work, real-mode evidence capture, and golden-cohort mechanics. Batch **5M–5T** close **TB-177–180** (adversarial Critic, streaming Ask, tiered orchestration, calibrated confidence). Batch **5U** closes **TB-181** — nightly `template-eval-harness` cron with JSON summary artifact and warning annotations (inform-only V1). Batch **5BL** closes **TB-183** — post-commit `IFindingPriorityReranker`, `PriorityRank` persistence, and `?orderBy=priority` on run findings (feature-flagged via `AgentRuntime:RerankFindings`). The gap is that full real-mode confidence is not yet uniformly release-blocking across the complete Topology/Cost/Compliance/Critic path; current live evidence explicitly records topology-only acceptable evidence and says full quad-agent merge remains follow-up.
 
 Tradeoffs: Keeping live LLM gates optional protects CI cost and flakiness. It also means release confidence still depends on disciplined operator evidence capture.
 
@@ -125,9 +125,9 @@ Classification: v1 must-fix for the highest-risk customer-visible values before 
 
 ### Adoption Friction
 
-Score: 77. Weight: 6. Weighted impact: 4.04%. Weighted deficiency signal: 138.
+Score: 78. Weight: 6. Weighted impact: 4.09%. Weighted deficiency signal: 132.
 
-Justification: There is a strong first-pilot operator path, 20-minute first-value guide, proof packets, release smoke, and a clear Pilot vs Operate boundary. Batch **5X** closes **TB-207** — admin `POST /v1/admin/auth/diagnose-token` and `archlucid auth test-token --bearer` for JWT role-claim triage after SSO 403s. Batch **5Y** closes **TB-208** — `PackAsTool` CLI, **Publish CLI** workflow (NuGet + self-contained win/linux/osx binaries), and `CLI_INSTALL.md` linked from operator quickstart. Batch **5Z** closes **TB-209** — `archlucid request create --from-file` posts template JSON to `/v1/architecture/request` and prints `RunId`, replacing hand-rolled curl in operator quickstart. Batch **5AA** closes **TB-210** — `PILOT_PREREQUISITES.md` (per-profile Azure checklist, illustrative cost table, Azure AI Search blocking callout) plus `Test-ArchLucidPrerequisites.ps1` linked from operator path and configuration reference. Batch **5AB** closes **TB-211** — canonical `SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` (detection, OpenSSL generation, zero-downtime rotation, rollback) linked from configuration reference. Batch **5AC** closes **TB-213** — `quality_gate_warn_only_in_real_production_like` lint (advisory for Real+WarnOnly; **HOLD** under `production-like-hosted-pilot` profile). Batch **5AD** closes **TB-216** — `archlucid try --sponsor-packet [--out <dir>]` reuses `PilotProofPacketCommand.WriteFolderAsync` after commit so evaluators reach `proof-summary.md` without a separate run-id lookup. But the path still demands SQL/auth/API/worker/proof/quality/procurement awareness. Product help still exposes repo paths and GitHub links in user-visible places. Some local failure states are confusing, including API/proxy outage toasts framed as AI assistant failures.
+Justification: There is a strong first-pilot operator path, 20-minute first-value guide, proof packets, release smoke, and a clear Pilot vs Operate boundary. Batch **5X** closes **TB-207** — admin `POST /v1/admin/auth/diagnose-token` and `archlucid auth test-token --bearer` for JWT role-claim triage after SSO 403s. Batch **5Y** closes **TB-208** — `PackAsTool` CLI, **Publish CLI** workflow (NuGet + self-contained win/linux/osx binaries), and `CLI_INSTALL.md` linked from operator quickstart. Batch **5Z** closes **TB-209** — `archlucid request create --from-file` posts template JSON to `/v1/architecture/request` and prints `RunId`, replacing hand-rolled curl in operator quickstart. Batch **5AA** closes **TB-210** — `PILOT_PREREQUISITES.md` (per-profile Azure checklist, illustrative cost table, Azure AI Search blocking callout) plus `Test-ArchLucidPrerequisites.ps1` linked from operator path and configuration reference. Batch **5AB** closes **TB-211** — canonical `SAML_SP_CERTIFICATE_ROTATION_RUNBOOK.md` (detection, OpenSSL generation, zero-downtime rotation, rollback) linked from configuration reference. Batch **5AC** closes **TB-213** — `quality_gate_warn_only_in_real_production_like` lint (advisory for Real+WarnOnly; **HOLD** under `production-like-hosted-pilot` profile). Batch **5BK** closes **TB-212** — `deploy/hosted-prod-terraform` Content Safety consumed/create modules alongside existing OpenAI and Search composition (`azure_content_safety_container_app_env`, `IAC_RUNTIME_PARITY.md`). Batch **5AD** closes **TB-216** — `archlucid try --sponsor-packet [--out <dir>]` reuses `PilotProofPacketCommand.WriteFolderAsync` after commit so evaluators reach `proof-summary.md` without a separate run-id lookup. But the path still demands SQL/auth/API/worker/proof/quality/procurement awareness. Product help still exposes repo paths and GitHub links in user-visible places. Some local failure states are confusing, including API/proxy outage toasts framed as AI assistant failures.
 
 Tradeoffs: A sophisticated enterprise product cannot hide all setup. But the first pilot should make the next step obvious and error causes precise.
 
@@ -161,9 +161,9 @@ Classification: Fixable in v1 for the starter-pack chooser and validation; broad
 
 ### Marketability
 
-Score: 89. Weight: 8. Weighted impact: 6.17%. Weighted deficiency signal: 88.
+Score: 90. Weight: 8. Weighted impact: 6.24%. Weighted deficiency signal: 80.
 
-Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
+Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Batch **5BJ** closes **TB-237** — public `/pricing` early-adopter framing plus `PRICING_PHILOSOPHY.md` transparent early-access principle. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
 
 Tradeoffs: Service-led marketability is narrower but more credible than pretending mature PLG SaaS. It also means founder capacity can become a bottleneck.
 

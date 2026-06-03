@@ -10,6 +10,7 @@
 | Azure Blob (artifacts) | `Storage:*` | `infra/terraform/prod` | **Required** when not InMemory | â€” |
 | Azure OpenAI | `AzureOpenAI:*`, `ArchLucid:Agents:*` | `deploy/hosted-prod-terraform` + `infra/terraform-container-apps` (consumed account; **TB-093**) | **Required** (hosted SaaS LLM) | **Done TB-093** (2026-06-01); TB-080 MI auth |
 | Azure AI Search | `Retrieval:VectorIndex=AzureSearch`, `Retrieval:AzureSearch:*` | `deploy/hosted-prod-terraform` + `terraform-container-apps` `azure_search_*` (consumed service; **TB-096**) | **Required** on production-like profiles | **Done TB-096** (2026-06-01); TB-071 client |
+| Azure AI Content Safety | `ArchLucid:ContentSafety:*` | `deploy/hosted-prod-terraform` (consumed account; **TB-212**) | **Required** on Production/Staging | **Done TB-212** (2026-06-02); ApiKey via Key Vault |
 | Redis (cache) | `HotPathCache:RedisConnectionString` | `infra/terraform-redis` | Optional (multi-replica / Redis provider) | **Done TB-094** (2026-06-01) |
 | Cosmos (graph) | `Cosmos:*` | â€” | Optional (InMemory/SQL paths exist) | TB-095 |
 | Service Bus | `ServiceBus:*` | `infra/terraform-servicebus` | Optional (outbox) | **Done TB-099** diagnostics (2026-06-01) |
@@ -19,7 +20,7 @@
 ## Apply order (operator)
 
 1. `infra/terraform-private` (network + Key Vault private endpoint when enabled)
-2. `deploy/hosted-prod-terraform` (or `infra/terraform/prod` when present) â€” API host, worker, SQL, storage, ACR/image source, Azure OpenAI, and Azure AI Search for production-like profiles
+2. `deploy/hosted-prod-terraform` (or `infra/terraform/prod` when present) â€” API host, worker, SQL, storage, ACR/image source, Azure OpenAI, Azure AI Search, and Azure AI Content Safety for production-like profiles
 3. Focused validation roots/modules, only when intentionally validating OpenAI/Search in isolation or using a customer-provided landing-zone dependency
 4. Configure appsettings / Container Apps env per [`CONTAINERIZATION.md`](CONTAINERIZATION.md)
 

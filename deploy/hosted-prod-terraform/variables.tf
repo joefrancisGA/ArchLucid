@@ -291,3 +291,56 @@ variable "artifact_storage_account_id" {
   description = "Artifact storage account resource id for diagnostic settings (TB-099)."
   default     = null
 }
+
+variable "content_safety_compose_mode" {
+  type        = string
+  description = "existing | create — production-like stacks consume a platform-owned Content Safety account (existing). create is for dev/lab only."
+  default     = "existing"
+
+  validation {
+    condition     = contains(["create", "existing"], var.content_safety_compose_mode)
+    error_message = "content_safety_compose_mode must be create or existing."
+  }
+}
+
+variable "content_safety_account_name" {
+  type        = string
+  description = "Azure AI Content Safety account name when content_safety_compose_mode = create."
+  default     = null
+}
+
+variable "content_safety_custom_subdomain_name" {
+  type        = string
+  description = "Custom subdomain for Content Safety (required when creating account)."
+  default     = null
+}
+
+variable "content_safety_sku_name" {
+  type        = string
+  description = "Azure AI Content Safety SKU."
+  default     = "S0"
+}
+
+variable "content_safety_public_network_access_enabled" {
+  type        = bool
+  description = "Prefer false with private endpoints in production-like stacks."
+  default     = false
+}
+
+variable "content_safety_existing_resource_id" {
+  type        = string
+  description = "Full ARM id of the platform-owned Microsoft.CognitiveServices/accounts resource when content_safety_compose_mode = existing."
+  default     = ""
+}
+
+variable "content_safety_existing_endpoint" {
+  type        = string
+  description = "HTTPS endpoint for the consumed account (maps to ArchLucid:ContentSafety:Endpoint)."
+  default     = ""
+}
+
+variable "content_safety_expected_location" {
+  type        = string
+  description = "Required Azure region for consumed Content Safety (production-like pilot default US East = eastus)."
+  default     = "eastus"
+}

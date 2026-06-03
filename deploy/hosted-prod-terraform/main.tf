@@ -51,6 +51,20 @@ resource "azurerm_search_service" "search" {
   public_network_access_enabled = var.search_public_network_access_enabled
 }
 
+resource "azurerm_cognitive_account" "content_safety" {
+  count = var.content_safety_compose_mode == "create" ? 1 : 0
+
+  name                = var.content_safety_account_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.prod.name
+  kind                = "ContentSafety"
+  sku_name            = var.content_safety_sku_name
+  tags                = var.tags
+
+  custom_subdomain_name         = var.content_safety_custom_subdomain_name
+  public_network_access_enabled = var.content_safety_public_network_access_enabled
+}
+
 data "azurerm_key_vault" "existing" {
   count = var.key_vault_name != null ? 1 : 0
 

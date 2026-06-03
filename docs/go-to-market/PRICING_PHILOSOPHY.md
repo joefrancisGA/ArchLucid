@@ -29,6 +29,7 @@
 | **Predictable for buyer budgeting** | Enterprise procurement needs a number they can put in a PO. Avoid pure consumption pricing that creates forecasting anxiety. |
 | **Expansion-friendly** | Revenue should grow as the customer gets more value — more teams, more workspaces, more governance adoption — without requiring a full re-negotiation. |
 | **Competitive with manual review cost** | The ROI model shows ~$294K annual savings for a 6-architect team. Pricing should be a small fraction of that value (typically 10–20% of value delivered). |
+| **Transparent early-access framing** | Buyers who understand why the price is low are more likely to convert, not less. The discount stack is an honest early-adopter signal, not a distress indicator. |
 
 ---
 
