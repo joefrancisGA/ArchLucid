@@ -75,7 +75,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-255 – TB-257** were added 2026-06-03 from an independent first-principles **Correctness** quality assessment (`docs/assessments/Correctness_06032026.MD`, score 82/100, ENGINEERING weight 8/116). They harden the deterministic evidence-faithfulness / hallucination-resistance layer that gates the strictest (PilotStrict, sponsor-facing) run mode: minimum token-overlap density so a single shared word no longer marks a claim/finding "supported" (**TB-255**, P1 — `AgentResultEvidenceFaithfulnessChecker.HasTokenOverlap` is first-match-wins, inflating `SupportRatio`), distinguish "no checkable content" from perfect faithfulness (**TB-256**, P1 — `totalChecked == 0` returns `SupportRatio = 1.0`, so a content-free output can never be rejected on the PilotStrict faithfulness floor), and expand the adversarial hallucination corpus from one inform-only scenario to an enforced nightly resistance floor (**TB-257**, P2). These do not duplicate the now-complete **TB-196–TB-206** (06-02 Correctness cluster, all Done) — those fixed numeric/atomicity/coverage defects; TB-255–257 target the faithfulness heuristic and its regression guard specifically. They also do not duplicate **TB-049/RAG-V1-011** (retrieval IR eval — different layer).
 
-**TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix) — all of which remain open and address the same quality dimension.
+**TB-258 – TB-260** were added 2026-06-03 from an independent first-principles **Time-to-Value** quality assessment (`docs/assessments/TimeToValue_06032026.MD`, score 79/100, COMMERCIAL weight 7/116). They harden the trial first-value delivery engine and close the value-realization loop: harden the trial architecture preseed executor (**TB-258**, P1 — `TrialArchitecturePreseedExecutor.TryProcessTenantAsync` has no try/catch, no attempt cap, and no failure audit event; because the pending query re-polls any tenant whose `TrialWelcomeRunId` is still NULL, any preseed failure — including the non-Guid run-id `return` path — re-creates/re-executes/re-commits a brand-new run every poll cycle forever, burning agent/quota cost with no operator signal), test the trial first-value delivery path (**TB-259**, P1 — `TrialArchitecturePreseedExecutor` and `TrialArchitecturePreseedHostedService` are both at 0% coverage per `COVERAGE_GAP_ANALYSIS.md` #130/#49), and a "first value reached" user confirmation (**TB-260**, P2 — TTV is measured via TB-220 + `TrialFirstManifestCommittedUtc` but never surfaced to the trial user). These do not duplicate the now-complete **TB-215–TB-220** (06-02 Time-to-Value cluster — getting a run started, wizard, demo seed, telemetry) or DEFERRED **TB-221** (hosted self-serve trial, V1.1 commerce). The hosted self-serve trial / live checkout remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
+
+**TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** remains open on the same quality dimension.
 
 **TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
 
@@ -166,6 +168,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-255 | Minimum token-overlap density in faithfulness checker — replace boolean `HasTokenOverlap` in `AgentResultEvidenceFaithfulnessChecker.cs` with a `CountTokenOverlap`/`MeetsOverlapThreshold` density check (default ≥2 distinct content tokens AND ≥30% density); apply to claims and to finding description+recommendation; thresholds configurable via options; unit tests for single-token-fail, density-pass, boundary | Correctness P1 — first-match-wins overlap marks a fabricated claim/finding "supported" on one shared word, inflating `SupportRatio`, which gates `PilotStrict` rejection (the sponsor-facing mode) | S |
 | TB-256 | Distinguish "no checkable content" from perfect faithfulness — add `HasCheckableContent` to `AgentResultEvidenceFaithfulnessReport`; make the empty/parse-fail/`totalChecked==0` paths return `HasCheckableContent=false` + `SupportRatio=0.0` (not `1.0`); in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` treat `!HasCheckableContent` as failing the PilotStrict floor; audit all `SupportRatio` readers; unit tests | Correctness P1 — `totalChecked==0` returns `SupportRatio=1.0`, so a content-free/evasive output can never be rejected on the PilotStrict faithfulness floor | S |
 | TB-257 | Expand adversarial hallucination corpus + enforce resistance floor — add 3 adversarial scenarios (fabricated SKU, invented compliance framework, phantom dependency) under `tests/eval-corpus/adversarial/`; register in `manifest.json`; new `scripts/ci/assert_hallucination_resistance.py` (reuse `eval_agent_corpus.py` scoring) asserting each adversarial result scores non-"accepted"; wire as blocking step in `golden-cohort-expanded-nightly.yml`; pytest guard; doc update | Correctness P2 — one inform-only adversarial scenario today; no merge/nightly-enforced contract that fabricated anchors are flagged, for the highest-risk dimension on an 8-weight quality | M |
+| TB-258 | Harden trial preseed executor — migration adds `TrialArchitecturePreseedAttemptCount`/`...FailedUtc`/`...LastError` to `dbo.Tenants`; `IncrementTrialArchitecturePreseedAttemptAsync` (cap 5 → set FailedUtc); exclude exhausted/failed tenants from the pending query; wrap `TryProcessTenantAsync` create/execute/commit in try/catch (increment, no rethrow); treat non-Guid run-id as failure; emit new `TrialArchitecturePreseedFailed` audit at cap + matrix row + const-count bump; tests | Time-to-Value P1 — no try/catch, no cap, no failure signal; any preseed failure re-creates/executes/commits a new run every poll cycle forever, burning agent/quota cost and never delivering first value | M |
+| TB-259 | Test the trial first-value delivery path — `TrialArchitecturePreseedExecutorTests` (happy path, no-workspace, tenant-not-found, vertical flow-through, TB-258 failure paths) + `TrialArchitecturePreseedHostedServiceTests` (multi-tenant poll, one-tenant-throws batch resilience, empty list); both currently 0% coverage | Time-to-Value P1 — `TrialArchitecturePreseedExecutor` (#130) and `TrialArchitecturePreseedHostedService` (#49) are at 0.00 coverage per `COVERAGE_GAP_ANALYSIS.md`; a regression silently breaks first value for 100% of new signups | M |
+| TB-260 | "First value reached" user confirmation — ensure trial-status response exposes `trialFirstManifestCommittedUtc` + `trialWelcomeRunId`; new `FirstValueReachedCallout.tsx` dismissible success callout linking `/reviews/{trialWelcomeRunId}` rendered atop `OperatorHomePageView` when committed; localStorage dismissal; Vitest | Time-to-Value P2 — TTV is measured (TB-220) and `TrialFirstManifestCommittedUtc` stored, but the trial user gets no explicit value-realization moment | S |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -2542,6 +2547,8 @@ Only the **final** attempt is passed to `IAgentExecutionTraceRecorder.RecordAsyn
 
 ## TB-037 — Production write path for `DecisionProvenanceSnapshot`
 
+**Status:** **Done (2026-06-03 batch 5CD drift closure)** — `ProvenanceGraphAccessService` snapshot read/write + post-commit `TryMaterializeSnapshotAsync`; `ProvenanceGraphAccessServiceTests`; `test_traceability_batch_5cd.py`.
+
 **Source:** Replay / provenance completeness audit (2026-05-26). `DecisionProvenanceSnapshot` table and `IProvenanceSnapshotRepository.SaveAsync` exist; production code rebuilds the graph on read.
 
 **Problem:**
@@ -3017,6 +3024,8 @@ Operators hitting `GET …/decisions` or trace endpoints see **either** rule-aud
 ---
 
 ## TB-055 — Propagate `AgentResult.ReasoningTrace` into `Finding` explainability
+
+**Status:** **Done (2026-06-03 batch 5CD drift closure)** — `ReasoningTraceBounds`, `FindingFactory`, migration 227, `FindingFactoryTests`; `test_traceability_batch_5cd.py`.
 
 **Source:** Decisioning explainability and uncertainty audit (2026-05-27). LLM agent forensics exist on `AgentResult` but are not copied into durable findings.
 
@@ -7509,3 +7518,124 @@ enforced contract.
 - `docs/library/AGENT_EVAL_CORPUS.md`
 
 **Cross-ref:** TB-255 / TB-256 (the heuristic these scenarios exercise), `scripts/ci/eval_agent_corpus.py`.
+
+---
+
+## TB-258 — Harden the trial preseed executor: failure handling, attempt cap, failure signal (P1)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06032026.MD`), 2026-06-03.
+**Problem:** `ListTenantIdsPendingTrialArchitecturePreseedAsync` re-polls any tenant where `TrialWelcomeRunId IS NULL AND TrialStatus = Active`. `TrialArchitecturePreseedExecutor.TryProcessTenantAsync` has **no try/catch**, marks completion only on full success, and its non-Guid `runId` path (`Guid.TryParseExact` false) `return`s without completing. Any failure (transient commit error, a vertical that errors, or the non-Guid path) therefore leaves `TrialWelcomeRunId` NULL, so the tenant is re-polled next cycle and **creates + executes + commits a brand-new run again — indefinitely** — burning agent/simulator cost and run quota, never delivering first value, with **no `TrialArchitecturePreseedFailed` audit event or metric** so the owner has no signal a trial is stuck.
+
+**Cursor prompt:**
+```
+Make the trial architecture preseed fail safely instead of re-running forever.
+
+1. Migration: add to dbo.Tenants:
+   - TrialArchitecturePreseedAttemptCount INT NOT NULL DEFAULT 0
+   - TrialArchitecturePreseedFailedUtc DATETIMEOFFSET NULL
+   - TrialArchitecturePreseedLastError NVARCHAR(2048) NULL
+   Add to ArchLucid.sql AND ArchLucid_Unified_Schema.sql AND ArchLucid.System.sql (single-DDL-per-db rule).
+
+2. In ITenantRepository / DapperTenantRepository add:
+   - IncrementTrialArchitecturePreseedAttemptAsync(Guid tenantId, string lastError, CancellationToken)
+     -> AttemptCount += 1, LastError = left(2048), and when AttemptCount >= 5 set
+        TrialArchitecturePreseedFailedUtc = SYSUTCDATETIME().
+   - Update ListTenantIdsPendingTrialArchitecturePreseedAsync WHERE to also require
+     TrialArchitecturePreseedFailedUtc IS NULL AND TrialArchitecturePreseedAttemptCount < 5
+     (so exhausted tenants stop being polled).
+   Mirror in InMemoryTenantRepository.
+
+3. In TrialArchitecturePreseedExecutor.TryProcessTenantAsync:
+   - Wrap the create/execute/commit block in try/catch. On exception (or the non-Guid runId path),
+     call IncrementTrialArchitecturePreseedAttemptAsync with the error/message and RETURN (do not rethrow),
+     so one bad tenant cannot stall the batch.
+   - When AttemptCount reaches 5, emit AuditEventTypes.TrialArchitecturePreseedFailed (new constant) and
+     ArchLucidInstrumentation.RecordTrialSignupFailure("preseed","exhausted").
+   - Treat the non-Guid runId path as a failure (increment), not a silent success-less return.
+
+4. Add the AuditEventTypes.TrialArchitecturePreseedFailed constant; add a row to
+   docs/library/AUDIT_COVERAGE_MATRIX.md and bump the <!-- audit-core-const-count:N --> anchor.
+
+5. Tests (ArchLucid.Application.Tests):
+   - Commit throws -> AttemptCount incremented, TrialWelcomeRunId still null, no rethrow.
+   - 5th failure -> TrialArchitecturePreseedFailedUtc set + TrialArchitecturePreseedFailed audit emitted.
+   - Exhausted tenant no longer returned by ListTenantIdsPendingTrialArchitecturePreseedAsync.
+   - Happy path -> MarkTrialArchitecturePreseedCompletedAsync called once (regression).
+```
+
+**Affected files / projects:**
+
+- Migration (`ArchLucid.sql`, `ArchLucid_Unified_Schema.sql`, `ArchLucid.System.sql`)
+- `ArchLucid.Core/Tenancy/ITenantRepository.cs`
+- `ArchLucid.Persistence/Tenancy/DapperTenantRepository.cs`, `InMemoryTenantRepository.cs`
+- `ArchLucid.Application/TrialArchitecturePreseedExecutor.cs`
+- `ArchLucid.Core/Audit/AuditEventTypes.cs`
+- `docs/library/AUDIT_COVERAGE_MATRIX.md`
+- `ArchLucid.Application.Tests/`
+
+**Cross-ref:** TB-259 (tests should assert this behavior), `ArchLucid.Host.Core/Hosted/TrialArchitecturePreseedHostedService.cs`.
+
+---
+
+## TB-259 — Cover the trial first-value delivery path with tests (P1)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06032026.MD`), 2026-06-03.
+**Problem:** Per `COVERAGE_GAP_ANALYSIS.md`, `TrialArchitecturePreseedExecutor` (#130, 0.00, 47 LOC) and `TrialArchitecturePreseedHostedService` (#49, 0.00, 42 LOC) are completely untested — the exact components that produce every new trial's first committed run. A regression breaks first value for 100% of signups, undetected by the suite.
+
+**Cursor prompt:**
+```
+Add coverage for the trial first-value delivery path.
+
+1. ArchLucid.Application.Tests/TrialArchitecturePreseedExecutorTests:
+   - Happy path: create/execute/commit orchestrators mocked -> CreateRunAsync, ExecuteRunAsync,
+     CommitRunAsync each called once; MarkTrialArchitecturePreseedCompletedAsync called with parsed Guid.
+   - No workspace -> returns early, no orchestrator calls.
+   - Tenant not found -> returns early.
+   - Vertical flows through: assert TrialVerticalWelcomeRequestFactory uses tenant.IndustryVertical.
+   - (After TB-258) failure-path assertions per that ticket.
+2. ArchLucid.Host.Core.Tests/TrialArchitecturePreseedHostedServiceTests:
+   - Poll returns 2 pending tenant ids -> executor invoked once per id.
+   - Executor throws for one id -> the other id is still processed (batch resilience).
+   - Empty pending list -> no executor calls; service completes a cycle cleanly.
+   Use the host-election lease test seam already used by other hosted-service tests.
+3. Wire any new fixtures into the existing coverage gates; do not lower thresholds.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Application.Tests/`
+- `ArchLucid.Host.Core.Tests/`
+
+**Cross-ref:** TB-258 (shared failure behavior), `COVERAGE_GAP_ANALYSIS.md` #49 + #130.
+
+---
+
+## TB-260 — "First value reached" user confirmation (P2)
+
+**Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06032026.MD`), 2026-06-03.
+**Problem:** TTV is measured (`archlucid.pilot.wizard_to_committed_minutes`, TB-220) and `TrialFirstManifestCommittedUtc` is persisted, but the trial user never sees an explicit value-realization moment ("Your first review committed — open it"). Closing that loop is a high-leverage TTV/stickiness micro-feature that reuses data already stored.
+
+**Cursor prompt:**
+```
+Show the trial user an explicit first-value confirmation using data already persisted.
+
+1. Backend: ensure the trial-status response (GET /v1/tenant/trial-status) exposes
+   trialFirstManifestCommittedUtc and trialWelcomeRunId (add to the DTO + mapper if missing).
+2. Frontend: add archlucid-ui/src/components/FirstValueReachedCallout.tsx that, when
+   trialFirstManifestCommittedUtc is non-null, renders a dismissible success callout:
+   "Your first architecture review is ready - open it" with a primary link to
+   /reviews/{trialWelcomeRunId} and a secondary "What this means" help link.
+   Persist dismissal in localStorage (key archlucid_first_value_callout_dismissed_v1).
+3. Render it at the top of OperatorHomePageView (above WelcomeBanner) only when present and not dismissed.
+4. Vitest: callout renders with correct deep-link when trialFirstManifestCommittedUtc set; renders
+   nothing when null; stays hidden after dismissal.
+```
+
+**Affected files / projects:**
+
+- Trial-status DTO / mapper (if the fields are not already exposed)
+- `archlucid-ui/src/components/FirstValueReachedCallout.tsx` (new)
+- `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx`
+- Vitest tests
+
+**Cross-ref:** TB-220 (wizard-to-commit telemetry), `archlucid-ui/src/components/TrialWelcomeRunDeepLink.tsx` (existing deep-link — align navigation).

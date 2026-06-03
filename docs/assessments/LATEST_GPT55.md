@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 86.35%
+# ArchLucid Assessment – (A) Headline Readiness: 86.52%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **86.07%** (5BY); batch **5CC** — **TB-252** (committed raster OG/PWA icons + asset CI guard), **TB-253** (buyer-facing Open Graph/Twitter + per-page marketing overrides) → **86.35%** (+2 Marketability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **86.35%** (5CC); batch **5CD** — **TB-037** (provenance snapshot materialization drift closure), **TB-055** (`ReasoningTrace` on findings drift closure) → **86.52%** (+2 Traceability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -353,9 +353,9 @@ Classification: v1 for correctness-impacting duplication; v1.1 for broader clean
 
 ### Traceability
 
-Score: 88. Weight: 3. Weighted impact: 2.28%. Weighted deficiency signal: 36.
+Score: 90. Weight: 3. Weighted impact: 2.33%. Weighted deficiency signal: 30.
 
-Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Batch **5BW** closes **TB-250** — `dbo.RunStageOutcomes` plus `GET /v1/architecture/run/{runId}/stage-timeline` and a collapse-by-default **Pipeline stages** section on operator run detail so authority stage durations/outcomes are visible without leaving for Jaeger/Tempo. Batch **5BX** closes **TB-251** (retrieval indexing outbox + processor; drift guard). Batch **5BY** / **5BZ** close **TB-052** (rule audit snapshot IDs + prompt refs on `RuleAuditTracePayload`) and **TB-054** (unified `RunDecisionExplainabilityDto` on run detail). Run detail already includes structured tool-invocation forensics (TB-110). Remaining gaps: inline provenance summary (TB-111) and consistent retrieval grounding surfacing when records are sparse.
+Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Batch **5BW** closes **TB-250** — `dbo.RunStageOutcomes` plus `GET /v1/architecture/run/{runId}/stage-timeline` and a collapse-by-default **Pipeline stages** section on operator run detail so authority stage durations/outcomes are visible without leaving for Jaeger/Tempo. Batch **5BX** closes **TB-251** (retrieval indexing outbox + processor; drift guard). Batch **5BY** / **5BZ** close **TB-052** (rule audit snapshot IDs + prompt refs on `RuleAuditTracePayload`) and **TB-054** (unified `RunDecisionExplainabilityDto` on run detail). Batch **5CD** closes **TB-037** — `ProvenanceGraphAccessService` persists `DecisionProvenanceSnapshot` after commit with revision-hash cache hits — and **TB-055** — bounded `ReasoningTrace` copied into `Finding` explainability (migration 227). Run detail already includes structured tool-invocation forensics (TB-110) and inline provenance summary (TB-111). Remaining gap: **TB-056** partial-failure surfacing on manifests when engines fail mid-orchestration.
 
 Tradeoffs: Traceability can overwhelm operators if not summarized.
 
