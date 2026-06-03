@@ -8,6 +8,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Tenancy;
 
@@ -120,6 +121,7 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             tenantSettings.Object,
             findingsSnapshots.Object,
             tenantCostSettings.Object,
+            Mock.Of<IPilotScorecardMetricsReader>(),
             Options.Create(new ValueReportComputationOptions()),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 

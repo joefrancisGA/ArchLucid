@@ -11,6 +11,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Tenancy;
 
@@ -155,6 +156,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             CreateEmptyTenantSettingsRepository(),
             findingsSnapshots.Object,
             tenantCostSettings.Object,
+            Mock.Of<IPilotScorecardMetricsReader>(),
             Microsoft.Extensions.Options.Options.Create(new Core.Configuration.ValueReportComputationOptions()),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 

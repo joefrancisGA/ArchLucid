@@ -8,7 +8,6 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures";
 import { escapeRegExpSource } from "./helpers/escape-reg-exp-source";
-import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 
 const claimsShowcasePath = "/showcase/claims-intake-modernization";
 
@@ -127,13 +126,8 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     page,
   }) => {
     await page.goto("/");
-    /** Mock E2E uses buyer-polished demo: `/reviews/new` is de-emphasized (golden path is the showcase package). */
-    await expect(
-      page
-        .getByRole("main")
-        .first()
-        .getByRole("heading", { name: new RegExp(escapeRegExpSource(SHOWCASE_BUYER_REVIEW_TITLE), "i") }),
-    ).toBeVisible();
+    /** Mock E2E uses buyer-polished demo: home surfaces the featured package proof summary, not a review-title heading. */
+    await expect(page.getByTestId("runs-dashboard-buyer-proof-summary")).toBeVisible();
 
     await page.goto("/reviews/new");
     await expect(page).toHaveURL(/\/reviews\/new/);

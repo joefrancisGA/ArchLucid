@@ -15,8 +15,6 @@ vi.mock("@/lib/api/governance-stickiness-api", () => ({
 
 describe("ExecutiveRoiDashboardLiveKpiCards", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-06-01T12:00:00.000Z"));
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -30,6 +28,11 @@ describe("ExecutiveRoiDashboardLiveKpiCards", () => {
         }),
       } as Response),
     );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it("renders drill-through links with expected hrefs", async () => {
@@ -55,9 +58,12 @@ describe("ExecutiveRoiDashboardLiveKpiCards", () => {
   });
 
   it("shows pilot day badge when firstCommitUtc is present", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-01T12:00:00.000Z"));
+
     render(<ExecutiveRoiDashboardLiveKpiCards />);
 
-    await waitFor(() => {
+    await vi.waitFor(() => {
       expect(screen.getByTestId("exec-kpi-pilot-day-badge")).toHaveTextContent("Day 30 of your ArchLucid pilot");
     });
   });
