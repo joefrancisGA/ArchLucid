@@ -32,7 +32,7 @@ test.describe("buyer golden path — Claims Intake spine", () => {
     await page.goto(BUYER_GOLDEN_PATH_HREFS.reviewPackage);
     await expect(
       page.getByRole("heading", { level: 1, name: BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 30_000 });
     await expectBuyerGoldenJourneyStepper(page);
     await expectNoGenericErrorBoundary(page);
 

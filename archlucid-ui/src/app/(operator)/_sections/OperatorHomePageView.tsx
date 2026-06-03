@@ -10,6 +10,7 @@ import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { OperatorHomeGuidanceLinks } from "@/components/operator-home/OperatorHomeGuidanceLinks";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
+import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { AcceleratorChooserCard } from "@/components/operator-home/AcceleratorChooserCard";
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
@@ -102,9 +103,21 @@ function OperatorHomeReviewsGrid() {
 function BuyerPolishedHomePageBody() {
   return (
     <>
-      <section aria-label="Your first architecture review" className="space-y-4" data-testid="operator-home-hero-section">
-        <WelcomeBanner />
-        <SampleFirstReviewPackageCard buyerPolishedShell={true} />
+      <section
+        aria-label="Your first architecture review"
+        className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start"
+        data-testid="operator-home-hero-section"
+      >
+        <div className="min-w-0 space-y-4">
+          <WelcomeBanner />
+          <CorePilotBuyerStepHint />
+          <BeforeAfterDeltaPanel />
+          <OperatorCoArchitectHomeStrip buyerPolishedShell />
+          <SampleFirstReviewPackageCard buyerPolishedShell={true} />
+        </div>
+        <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start" aria-label="Sample package shortcuts">
+          <SamplePackageShortcutsCard />
+        </aside>
       </section>
 
       <section aria-labelledby="operator-home-reviews-heading" className="space-y-4">

@@ -12,9 +12,14 @@ import {
   gotoRunDetailForMockFixtureRun,
   openBuyerRunDetailArchitectureReviewBoardDeliverables,
 } from "./helpers/operator-journey";
+import { registerDefaultRunManifestArtifactRoutes } from "./helpers/register-operator-api-routes";
+
+/** Buyer-polished run detail H1 from {@link fixtureRunDetail} description via `buyerFacingReviewTitleFromSummary`. */
+const FIXTURE_RUN_DETAIL_HEADING = /Claims Intake Modernization — integration boundaries/i;
 
 test.describe("operator journey — run detail to manifest and back", () => {
   test("reviews fixture run, opens manifest, returns to run (mock API only)", async ({ page }) => {
+    await registerDefaultRunManifestArtifactRoutes(page);
     await gotoRunDetailForMockFixtureRun(page);
 
     await expect(page).toHaveURL(new RegExp(encodeURIComponent(FIXTURE_RUN_ID)));
@@ -22,7 +27,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: /Claims Intake Modernization — integration boundaries/i,
+        name: FIXTURE_RUN_DETAIL_HEADING,
       }),
     ).toBeVisible();
 
@@ -65,7 +70,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: /Claims Intake Modernization — integration boundaries/i,
+        name: FIXTURE_RUN_DETAIL_HEADING,
       }),
     ).toBeVisible();
 
