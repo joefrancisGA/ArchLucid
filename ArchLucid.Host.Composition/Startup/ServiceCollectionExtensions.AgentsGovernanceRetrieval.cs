@@ -34,7 +34,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
-using IAgentCompletionClient = ArchLucid.Core.Llm.IAgentCompletionClient;
+using IAgentCompletionClient = ArchLucid.AgentRuntime.IAgentCompletionClient;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Safety;

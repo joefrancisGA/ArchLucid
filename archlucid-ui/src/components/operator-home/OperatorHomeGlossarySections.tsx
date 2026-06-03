@@ -5,6 +5,7 @@ import { Check, FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
 import type { ComponentType } from "react";
 import { Fragment } from "react";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type PipelineStepStatus = "not-started" | "current" | "completed";
