@@ -12,10 +12,15 @@ import { getComplianceDriftTrend } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { ExecutiveValueNarrativeBanner } from "@/components/ExecutiveValueNarrativeBanner";
 import {
   buildExecutiveScorecardRecommendedActions,
   type ExecutiveScorecardRecommendedAction,
 } from "@/lib/executive-scorecard-recommended-actions";
+import {
+  type ExecutiveTimeRange,
+  windowForExecutiveRange,
+} from "@/lib/executive-time-range";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -29,34 +34,7 @@ import type { PilotValueReportJson } from "@/types/pilot-value-report";
 /** Used when severity-weighted ROI hours round to zero but committed runs exist. */
 const AVERAGE_MANUAL_REVIEW_HOURS = 3;
 
-export type ExecutiveScorecardTimeRange = "30d" | "quarter" | "all";
-
-function rollingBounds(days: number): { fromUtc: string; toUtc: string } {
-  const to = new Date();
-  const from = new Date(to);
-
-  from.setUTCDate(from.getUTCDate() - days);
-
-  return { fromUtc: from.toISOString(), toUtc: to.toISOString() };
-}
-
-function windowForRange(range: ExecutiveScorecardTimeRange): { fromUtc: string | null; toUtc: string } {
-  const toUtc = new Date().toISOString();
-
-  if (range === "30d") {
-    const b = rollingBounds(30);
-
-    return { fromUtc: b.fromUtc, toUtc: b.toUtc };
-  }
-
-  if (range === "quarter") {
-    const b = rollingBounds(90);
-
-    return { fromUtc: b.fromUtc, toUtc: b.toUtc };
-  }
-
-  return { fromUtc: null, toUtc };
-}
+export type ExecutiveScorecardTimeRange = ExecutiveTimeRange;
 
 function sumDriftChanges(points: ComplianceDriftTrendPoint[]): number {
   return points.reduce((sum, p) => {
@@ -127,7 +105,7 @@ export function ExecutiveScorecardClient() {
   const load = useCallback(async (selected: ExecutiveScorecardTimeRange) => {
     setState({ status: "loading" });
 
-    const { fromUtc, toUtc } = windowForRange(selected);
+    const { fromUtc, toUtc } = windowForExecutiveRange(selected);
 
     try {
       const report = await fetchPilotValueReportJson(fromUtc, toUtc);
@@ -292,6 +270,8 @@ export function ExecutiveScorecardClient() {
         </p>
       </header>
 
+      <ExecutiveValueNarrativeBanner timeRange={range} />
+
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-xs">
           <label htmlFor="scorecard-time-range" className="mb-1 block text-sm font-medium text-neutral-800 dark:text-neutral-200">
@@ -306,6 +286,7 @@ export function ExecutiveScorecardClient() {
           >
             <option value="30d">Last 30 days</option>
             <option value="quarter">Last quarter (90 days)</option>
+            <option value="year">Last year</option>
             <option value="all">All time</option>
           </select>
           <p id="scorecard-time-range-help" className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">

@@ -27,6 +27,14 @@ describe("WhyArchlucidMarketingView", () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
+  it("renders vs chat assistant contrast section (TB-265)", () => {
+    const { getByTestId } = render(
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+    );
+
+    expect(getByTestId("why-vs-chat-assistant")).toBeInTheDocument();
+  });
+
   it("renders proof pack download targeting the proxied PDF endpoint", () => {
     const { getByTestId } = render(
       <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,

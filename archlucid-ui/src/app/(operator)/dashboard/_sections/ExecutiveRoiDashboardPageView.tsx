@@ -1,4 +1,6 @@
+import { ExecutiveValueNarrativeBanner } from "@/components/ExecutiveValueNarrativeBanner";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
+import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 
 import { ExecutiveComplianceDriftTrendSection } from "./ExecutiveComplianceDriftTrendSection";
@@ -12,13 +14,23 @@ import { SponsorExportsSection } from "./SponsorExportsSection";
 import { ExecutiveSqlBackupRegionVerificationCard } from "./ExecutiveSqlBackupRegionVerificationCard";
 import { BusinessImpactSummaryWidget } from "./BusinessImpactSummaryWidget";
 
-export function ExecutiveRoiDashboardPageView() {
+export type ExecutiveRoiDashboardPageViewProps = {
+  readonly surface?: "operator" | "executive";
+};
+
+export function ExecutiveRoiDashboardPageView({ surface = "operator" }: ExecutiveRoiDashboardPageViewProps) {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const isExecutiveSurface = surface === "executive";
+  const defaultTrendRange: ExecutiveTimeRange = "quarter";
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-4 py-4">
       <ExecutiveDashboardBaselineWarningBanner />
-      <OperatorWelcomeOnboarding />
+      {isExecutiveSurface ? (
+        <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} />
+      ) : (
+        <OperatorWelcomeOnboarding />
+      )}
       <header className="space-y-2">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">
           {v.pageTitle}
@@ -49,7 +61,7 @@ export function ExecutiveRoiDashboardPageView() {
       <ExecutiveComplianceDriftTrendSection />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ExecutiveRoiTrendSection />
+        <ExecutiveRoiTrendSection defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
         <ExecutiveRoiEnvironmentSavingsSection />
       </div>
     </div>

@@ -805,6 +805,9 @@ jobs:
       - name: "/why differentiation rows â€” non-empty evidence fields"
         run: python scripts/ci/assert_why_rows_have_evidence.py
 
+      - name: "/why golden-cohort claim â€” baseline lock disclosure"
+        run: python scripts/ci/assert_why_cohort_claim_locked.py
+
       - name: Mutating controller actions â€” audit LogAsync guard
         run: python scripts/ci/assert_controller_mutations_have_audit.py
 

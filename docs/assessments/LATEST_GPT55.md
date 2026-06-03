@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 87.45%
+# ArchLucid Assessment – (A) Headline Readiness: 87.60%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-03.
 
-Rescore note: Through **87.35%** (5CK); batches **5CL–5CM** — **TB-019/020** (signup attribution + marketing JSON-LD/Clarity kill-switch docs), **TB-069/070** (baseline runner sequence doc + persistence supplement hygiene) → **87.45%** (+1 Marketability, +2 Maintainability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **87.45%** (5CM); batches **5CN–5CO** — **TB-264/265/266** (differentiability citation guard + vs-chat contrast + cohort-claim CI), **TB-267/268/269** (executive dashboard route, value narrative, ROI trend range) → **87.60%** (+2 Differentiability, +2 Executive Value Visibility). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -55,9 +55,9 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
 | Time-to-Value | 89 | 7 | 5.37% | 77 |
-| Executive Value Visibility | 82 | 4 | 2.86% | 72 |
+| Executive Value Visibility | 84 | 4 | 2.93% | 64 |
 | Usability | 72 | 3 | 1.86% | 84 |
-| Differentiability | 82 | 4 | 2.83% | 72 |
+| Differentiability | 84 | 4 | 2.93% | 64 |
 | Interoperability | 66 | 2 | 1.14% | 68 |
 | Azure Compatibility and SaaS Deployment Readiness | 68 | 2 | 1.17% | 64 |
 | Data Consistency | 70 | 2 | 1.21% | 60 |
@@ -197,9 +197,9 @@ Classification: v1 for manual handoff polish; V1.1 for first-party connectors.
 
 ### Executive Value Visibility
 
-Score: 78. Weight: 4. Weighted impact: 2.69%. Weighted deficiency signal: 88.
+Score: 84. Weight: 4. Weighted impact: 2.93%. Weighted deficiency signal: 64.
 
-Justification: Sponsor brief, first-value PDF, value report, executive ROI summary, dashboard sections, demo proof routes, and quote-to-proof packet are present. Risks remain around KPI correctness, stale cached values, and UI surfaces that require too much operator interpretation.
+Justification: Sponsor brief, first-value PDF, value report, executive ROI summary, dashboard sections, demo proof routes, and quote-to-proof packet are present. Batch **5CO** closes **TB-267** — `/executive/dashboard` under executive chrome (nav no longer dumps sponsors into operator `/dashboard`); **TB-268** — deterministic `buildExecutiveValueNarrative` on scorecard and executive dashboard; **TB-269** — ROI trend time-range selector aligned with scorecard (30d/quarter/year/all, client-filtered history). Risks remain around KPI correctness and stale cached values on some operator surfaces.
 
 Tradeoffs: Executive summaries can oversell if generated from weak baselines. The current label discipline is valuable but needs stricter enforcement.
 
@@ -221,9 +221,9 @@ Classification: v1 for confusing failures and help links; v1.1 for deeper UX pol
 
 ### Differentiability
 
-Score: 82. Weight: 4. Weighted impact: 2.83%. Weighted deficiency signal: 72.
+Score: 84. Weight: 4. Weighted impact: 2.93%. Weighted deficiency signal: 64.
 
-Justification: ArchLucid is well differentiated from generic AI: structured evidence, manifests, governance, audit, replay, comparison, policy packs, and proof outputs. Differentiability would be stronger with more buyer-visible proof packets from real environments, but those owner-output cohorts are deferred and not scored.
+Justification: ArchLucid is well differentiated from generic AI: structured evidence, manifests, governance, audit, replay, comparison, policy packs, and proof outputs. Batch **5CN** closes **TB-264** — quantified `/why` competitor baselines must cite HTTPS sources or use **illustrative, not benchmarked** wording; **TB-265** — public `/why` vs-chat-assistant section + FAQ entry; **TB-266** — `assert_why_cohort_claim_locked.py` + **(baseline lock pending)** disclosure while cohort fingerprints are placeholders. Differentiability would be stronger with more buyer-visible proof packets from real environments, but those owner-output cohorts are deferred and not scored.
 
 Tradeoffs: Deep architecture proof is harder to explain than generic "AI assistant" copy. The current category framing is good.
 

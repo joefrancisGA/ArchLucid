@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import {
+  type ExecutiveTimeRange,
+  filterHistoryPointsByRange,
+} from "@/lib/executive-time-range";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { ExecutiveRoiSavingsTrendSvgChart } from "./ExecutiveRoiSavingsTrendSvgChart";
@@ -43,9 +47,34 @@ function isSimulatorOnlyPeriod(point: HistoryPoint): boolean {
   return point.realRunCount === 0 && point.simulatorRunCount > 0;
 }
 
-/** Six-month executive ROI savings and critical-finding trend chart. */
-export function ExecutiveRoiTrendSection() {
-  const [points, setPoints] = useState<HistoryPoint[]>([]);
+export type ExecutiveRoiTrendSectionProps = {
+  readonly defaultTimeRange?: ExecutiveTimeRange;
+  readonly showTimeRangeSelector?: boolean;
+};
+
+function trendRangeLabel(range: ExecutiveTimeRange): string {
+  if (range === "30d") {
+    return "last 30 days";
+  }
+
+  if (range === "quarter") {
+    return "last quarter";
+  }
+
+  if (range === "year") {
+    return "last year";
+  }
+
+  return "all available months";
+}
+
+/** Executive ROI savings and critical-finding trend chart (API returns ~6 months; UI can filter). */
+export function ExecutiveRoiTrendSection({
+  defaultTimeRange = "quarter",
+  showTimeRangeSelector = false,
+}: ExecutiveRoiTrendSectionProps) {
+  const [allPoints, setAllPoints] = useState<HistoryPoint[]>([]);
+  const [timeRange, setTimeRange] = useState<ExecutiveTimeRange>(defaultTimeRange);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -66,7 +95,7 @@ export function ExecutiveRoiTrendSection() {
         const json = (await response.json()) as { points?: HistoryPoint[] };
 
         if (!cancelled) {
-          setPoints(json.points ?? []);
+          setAllPoints(json.points ?? []);
         }
       } catch {
         if (!cancelled) {
@@ -84,17 +113,45 @@ export function ExecutiveRoiTrendSection() {
     };
   }, []);
 
+  const points = useMemo(
+    () => filterHistoryPointsByRange(allPoints, timeRange),
+    [allPoints, timeRange],
+  );
+
   const maxCritical = Math.max(...points.map((point) => point.criticalSecurityFindings), 1);
   const showMixedModeFootnote = chartIncludesMixedMode(points);
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">ROI trend (last 6 months)</CardTitle>
-        <CardDescription className="text-xs">
-          Estimated USD savings and critical security findings over time from{" "}
-          <span className="font-mono">GET /v1/roi/executive-summary/history</span>.
-        </CardDescription>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <CardTitle className="text-base">ROI trend ({trendRangeLabel(timeRange)})</CardTitle>
+            <CardDescription className="text-xs">
+              Estimated USD savings and critical security findings over time from{" "}
+              <span className="font-mono">GET /v1/roi/executive-summary/history</span>.
+            </CardDescription>
+          </div>
+          {showTimeRangeSelector ? (
+            <div className="shrink-0">
+              <label htmlFor="exec-roi-trend-range" className="mb-1 block text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                Time range
+              </label>
+              <select
+                id="exec-roi-trend-range"
+                data-testid="exec-roi-trend-time-range"
+                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+                value={timeRange}
+                onChange={(event) => setTimeRange(event.target.value as ExecutiveTimeRange)}
+              >
+                <option value="30d">Last 30 days</option>
+                <option value="quarter">Last quarter</option>
+                <option value="year">Last year</option>
+                <option value="all">All time</option>
+              </select>
+            </div>
+          ) : null}
+        </div>
       </CardHeader>
       <CardContent>
         {loading ? (

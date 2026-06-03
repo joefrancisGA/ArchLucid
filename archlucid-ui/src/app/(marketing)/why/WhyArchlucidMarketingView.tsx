@@ -7,6 +7,7 @@ import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
 import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-comparison";
+import { MARKETING_GENERIC_AI_CONTRAST_POINTS } from "@/lib/marketing-generic-ai-contrast";
 
 function renderWhyVerifyLink(link: WhyVerifyLink): ReactNode {
   const className =
@@ -89,6 +90,39 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           Multi-agent execution sits behind those outcomes so teams move faster without losing the governed record CFOs and
           regulators expect.
+        </p>
+      </section>
+
+      <section className="mt-12" aria-labelledby="why-vs-chat-assistant-heading" data-testid="why-vs-chat-assistant">
+        <h2 id="why-vs-chat-assistant-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          vs a chat assistant (ChatGPT, Copilot, Claude)
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+          Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it
+          persists a committed review package, governance gate, and audit trail a session cannot replace.
+        </p>
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          {MARKETING_GENERIC_AI_CONTRAST_POINTS.map((point) => (
+            <li
+              key={point.label}
+              className="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+            >
+              <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-100">{point.label}</p>
+              <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">
+                <span className="font-medium text-teal-800 dark:text-teal-300">ArchLucid:</span> {point.archlucid}
+              </p>
+              <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
+                <span className="font-medium">Typical chat:</span> {point.genericAi}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+          More detail:{" "}
+          <Link className="text-sky-700 underline underline-offset-2 dark:text-sky-400" href="/faq">
+            FAQ — vs ChatGPT/Copilot
+          </Link>
+          .
         </p>
       </section>
 

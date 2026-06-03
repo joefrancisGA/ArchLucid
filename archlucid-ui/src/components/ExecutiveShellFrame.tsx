@@ -62,7 +62,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
                   pathname === "/dashboard" || pathname.startsWith("/executive/dashboard"),
                 )}
               >
-                <Link href="/dashboard" data-testid="executive-shell-nav-dashboard">
+                <Link href="/executive/dashboard" data-testid="executive-shell-nav-dashboard">
                   Dashboard
                 </Link>
               </Button>
