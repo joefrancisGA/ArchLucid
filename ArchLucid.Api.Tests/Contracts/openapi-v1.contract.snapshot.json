@@ -3186,6 +3186,10 @@
       },
       "ArchitectureReviewRecurrenceSchedule": {
         "properties": {
+          "consecutiveFailureCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "createdByUserId": {
             "type": "string"
           },
@@ -3198,6 +3202,15 @@
           },
           "isEnabled": {
             "type": "boolean"
+          },
+          "lastErrorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastRunStatus": {
+            "type": "string"
           },
           "lastTriggeredRunId": {
             "format": "uuid",
@@ -10417,6 +10430,44 @@
           },
           "winningVersion": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GovernanceReviewAwaitingActionItem": {
+        "properties": {
+          "executedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "newFindingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceRunId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GovernanceReviewsAwaitingActionResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GovernanceReviewAwaitingActionItem"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -19605,6 +19656,44 @@
         },
         "type": "object"
       },
+      "StageTimelineSummary": {
+        "properties": {
+          "completedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "durationMs": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ]
+          },
+          "outcomeStatus": {
+            "type": "string"
+          },
+          "stageName": {
+            "type": "string"
+          },
+          "startedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "completedUtc",
+          "durationMs",
+          "outcomeStatus",
+          "stageName",
+          "startedUtc"
+        ],
+        "type": "object"
+      },
       "StringSegment": {
         "properties": {
           "buffer": {
@@ -20616,8 +20705,25 @@
           "tier": {
             "$ref": "#/components/schemas/TenantTier"
           },
+          "trialArchitecturePreseedAttemptCount": {
+            "format": "int32",
+            "type": "integer"
+          },
           "trialArchitecturePreseedEnqueuedUtc": {
             "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trialArchitecturePreseedFailedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trialArchitecturePreseedLastError": {
             "type": [
               "null",
               "string"
@@ -37409,6 +37515,134 @@
         ]
       }
     },
+    "/v1/architecture/run/{runId}/stage-timeline": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StageTimelineSummary"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StageTimelineSummary"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StageTimelineSummary"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "RunQuery"
+        ]
+      }
+    },
     "/v1/architecture/run/{runId}/tool-invocation-forensics": {
       "get": {
         "parameters": [
@@ -48919,6 +49153,35 @@
               }
             },
             "description": "Not Found"
+          }
+        },
+        "tags": [
+          "GovernanceStickiness"
+        ]
+      }
+    },
+    "/v1/governance/reviews-awaiting-action": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceReviewsAwaitingActionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceReviewsAwaitingActionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceReviewsAwaitingActionResponse"
+                }
+              }
+            },
+            "description": "OK"
           }
         },
         "tags": [
