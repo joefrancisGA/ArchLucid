@@ -26,6 +26,10 @@ vi.mock("@/components/BeforeAfterDeltaPanel", () => ({
   BeforeAfterDeltaPanel: () => <div data-testid="home-block-before-after" />,
 }));
 
+vi.mock("@/components/CorePilotBuyerStepHint", () => ({
+  CorePilotBuyerStepHint: () => <div data-testid="home-block-core-pilot-hint" />,
+}));
+
 vi.mock("@/components/BuyerGoldenJourneyStrip", () => ({
   BuyerGoldenJourneyStrip: () => <div data-testid="home-block-journey" />,
 }));
@@ -91,6 +95,9 @@ describe("OperatorHomePageView", () => {
 
     expect(sectionBlockOrder("operator-home-hero-section")).toEqual([
       "home-block-welcome",
+      "home-block-core-pilot-hint",
+      "home-block-before-after",
+      "home-block-co-architect",
       "home-block-sample-package",
     ]);
     expect(sectionBlockOrder("operator-home-journey-section")).toEqual(["home-block-journey"]);
