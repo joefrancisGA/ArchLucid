@@ -1,6 +1,6 @@
-# Reference-customer first-contact template
+> **Scope:** Go-to-market — copy-paste first-contact email after a successful pilot for founder, sales, and customer success; not a legal commitment or published case study.
 
-**Audience:** Founder, sales, customer success — first outreach after a successful pilot.
+# Reference-customer first-contact template
 
 **Pricing context:** Reference participation unlocks the standing **−15% reference discount** described in [PRICING_PHILOSOPHY.md §4.1](PRICING_PHILOSOPHY.md#41-reference-customer-discount-standardized-2026-04-21). Do not promise publication until written approval is on file.
 

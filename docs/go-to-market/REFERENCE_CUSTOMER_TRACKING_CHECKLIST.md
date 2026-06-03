@@ -1,6 +1,6 @@
-# Reference-customer tracking checklist
+> **Scope:** Go-to-market — operational checklist from pilot-complete to **Published** reference customer for owner, sales, and customer success; not a substitute for the per-customer README status table.
 
-**Audience:** Owner, sales, customer success — operational steps from pilot-complete to **Published**.
+# Reference-customer tracking checklist
 
 Canonical status table: [reference-customers/README.md](reference-customers/README.md).
 
