@@ -709,6 +709,46 @@
         },
         "type": "object"
       },
+      "AdminRagCorpusHealthItem": {
+        "properties": {
+          "chunkCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "corpusKind": {
+            "type": "string"
+          },
+          "embeddingDimension": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "isStale": {
+            "type": "boolean"
+          },
+          "lastIndexedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AdminRagHealthResponse": {
+        "properties": {
+          "corpora": {
+            "items": {
+              "$ref": "#/components/schemas/AdminRagCorpusHealthItem"
+            },
+            "type": "array"
+          },
+          "embeddingModelId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AdminSamlOperationalHealthResponse": {
         "properties": {
           "idpMetadataDiagnosticSummary": {
@@ -739,6 +779,68 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "AdminTenantHealthListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AdminTenantHealthSummaryItem"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "AdminTenantHealthSummaryItem": {
+        "properties": {
+          "commitsLast7d": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "engagementScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "governanceScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "lastActivityUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pilotFunnelStage": {
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runsLast7d": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"
@@ -24571,6 +24673,45 @@
         ]
       }
     },
+    "/v1/admin/rag-health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRagHealthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "AdminRagHealth"
+        ]
+      }
+    },
     "/v1/admin/roi-bulletin-preview": {
       "get": {
         "parameters": [
@@ -25504,6 +25645,45 @@
         },
         "tags": [
           "SupportBundle"
+        ]
+      }
+    },
+    "/v1/admin/tenant-health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTenantHealthListResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "AdminCustomerSuccess"
         ]
       }
     },
@@ -61395,6 +61575,9 @@
       "name": "AdminAuthDiagnostics"
     },
     {
+      "name": "AdminCustomerSuccess"
+    },
+    {
       "name": "AdminFleetLlmCogs"
     },
     {
@@ -61411,6 +61594,9 @@
     },
     {
       "name": "AdminQualityGateDiagnostics"
+    },
+    {
+      "name": "AdminRagHealth"
     },
     {
       "name": "AdminTenants"

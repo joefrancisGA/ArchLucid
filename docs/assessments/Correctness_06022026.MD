@@ -1,3 +1,5 @@
+> **Scope:** Evaluator — independent first-principles Correctness quality assessment; not a buyer-facing status report.
+
 # Correctness Solution Quality Assessment — 78.75/100 (78.75%)
 
 **Assessment date:** 2026-06-02  

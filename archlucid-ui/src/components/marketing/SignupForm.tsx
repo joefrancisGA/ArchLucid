@@ -16,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { InlineInfoTooltip } from "@/components/InlineInfoTooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { readFirstTouchCookie, serializeFirstTouchHeader } from "@/lib/marketing-first-touch";
 import {
@@ -192,6 +193,7 @@ export function SignupForm() {
   });
 
   return (
+    <TooltipProvider delayDuration={200}>
     <FormProvider {...form}>
       <form className="mx-auto max-w-lg space-y-5" onSubmit={onSubmit} noValidate>
         <div>
@@ -331,39 +333,25 @@ export function SignupForm() {
 
           <fieldset className="mt-3 space-y-3" aria-labelledby="signup-baseline-heading">
             <legend className="sr-only">Baseline review-cycle</legend>
-            <TooltipProvider delayDuration={200}>
-              <div className="flex items-start gap-2">
-                <input
-                  id="signup-baseline-model"
-                  type="radio"
-                  className="mt-1"
-                  checked={baselineChoice === "model_default"}
-                  onChange={() => setBaselineChoice("model_default")}
-                  data-testid="signup-baseline-choice-model"
+            <div className="flex items-start gap-2">
+              <input
+                id="signup-baseline-model"
+                type="radio"
+                className="mt-1"
+                checked={baselineChoice === "model_default"}
+                onChange={() => setBaselineChoice("model_default")}
+                data-testid="signup-baseline-choice-model"
+              />
+              <div className="flex items-center gap-1">
+                <label htmlFor="signup-baseline-model" className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                  Use model default (modeled estimate)
+                </label>
+                <InlineInfoTooltip
+                  label="Use model default (modeled estimate)"
+                  hint="No tenant-specific hours recorded. The operator dashboard shows measured time to finalization; the 'before' baseline uses the conservative default from the ROI model until you supply hours."
                 />
-                <div>
-                  <label htmlFor="signup-baseline-model" className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                    Use model default (modeled estimate)
-                  </label>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        className="ml-1 align-middle text-xs text-teal-800 underline dark:text-teal-300"
-                        aria-label="Explain model default baseline"
-                      >
-                        What this means
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs text-xs leading-snug">
-                      We record that you stayed on the modeled baseline path (no tenant-specific hours). The operator
-                      dashboard still shows measured time to finalization; the &quot;before&quot; line uses the conservative
-                      default from the ROI model until you supply hours.
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
               </div>
-            </TooltipProvider>
+            </div>
 
             <div className="flex items-start gap-2">
               <input
@@ -441,5 +429,6 @@ export function SignupForm() {
         </p>
       </form>
     </FormProvider>
+    </TooltipProvider>
   );
 }

@@ -42,7 +42,7 @@ vi.mock("@/lib/operator-scope-storage", async (importOriginal) => {
   };
 });
 
-import { BUYER_EXAMPLE_WORKSPACE_TOOLTIP } from "@/lib/buyer-polish-copy";
+import { BUYER_WORKSPACE_DISPLAY_NAME } from "@/lib/buyer-polish-copy";
 
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 
@@ -111,7 +111,7 @@ describe("ScopeSwitcher — buyer-polished shell", () => {
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
     expect(trigger).toHaveTextContent("Claims Intake Workspace");
-    expect(trigger).toHaveAttribute("aria-label", `Active workspace — ${BUYER_EXAMPLE_WORKSPACE_TOOLTIP}`);
+    expect(trigger).toHaveAttribute("aria-label", `Active workspace: ${BUYER_WORKSPACE_DISPLAY_NAME}`);
     expect(screen.queryByTestId("operator-scope-switcher-panel")).not.toBeInTheDocument();
 
     fireEvent.click(trigger);
