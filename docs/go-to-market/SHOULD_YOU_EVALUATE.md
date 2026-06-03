@@ -26,11 +26,28 @@ Work through the questions in order.
 - **Yes** → [Start with the Operate layer evaluation](/governance).
 - **No** → [Start with Pilot (pre-fills greenfield preset)](/reviews/new?preset=greenfield) — request → commit → review.
 
+**Q5.** Does your team have at least 3 architects or engineers who regularly author architecture decisions?
+
+- **No** → ArchLucid may be early — try a single pilot review to validate fit.
+- **Yes** → You are well-positioned for a full pilot.
+
 ## 15-minute evaluation path
 
-**Hosted SaaS:** Sign up at [archlucid.net](https://archlucid.net) → quick scan → review findings → commit manifest (about 15 minutes).
+**Hosted SaaS:** Sign up at [archlucid.net/trial](https://archlucid.net/trial) → quick scan → review findings → commit manifest.
 
-**Self-hosted:** From the repo root run `dotnet run --project ArchLucid.Cli -- try` → review the output → decide on a longer pilot (about 15 minutes).
+If sign-up is not yet available, [request a guided demo](https://archlucid.net/contact).
+
+**Self-hosted:** From the repo root: `archlucid doctor && archlucid new --quick-scan` → review findings (about 15 minutes).
+
+## Strong fit signals
+
+You are likely a strong fit if:
+
+- Your last architecture review involved ≥2 weeks of preparation time
+- You have had a compliance finding surface in production rather than during design
+- You are Azure-primary or planning to be within 6 months
+- Your organization has a formal architecture review board or CAB
+- You need to produce audit-trail evidence for a regulator, insurer, or CTO sign-off
 
 ## Next reads
 
