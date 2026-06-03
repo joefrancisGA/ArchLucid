@@ -289,6 +289,8 @@ public static partial class ServiceCollectionExtensions
             o.EmbeddingMaxChunkUtf16Length = Math.Clamp(o.EmbeddingMaxChunkUtf16Length, 128, 8192);
             int maxOverlap = Math.Max(0, o.EmbeddingMaxChunkUtf16Length - 1);
             o.EmbeddingChunkOverlapUtf16 = Math.Clamp(o.EmbeddingChunkOverlapUtf16, 0, maxOverlap);
+            o.MinDistinctOverlapTokens = Math.Clamp(o.MinDistinctOverlapTokens, 1, 32);
+            o.MinOverlapDensityRatio = Math.Clamp(o.MinOverlapDensityRatio, 0.0, 1.0);
         });
         services.AddSingleton<IAgentResultEmbeddingFaithfulnessScorer, AgentResultEmbeddingFaithfulnessScorer>();
         services.AddSingleton<HeuristicAgentOutputSemanticEvaluator>();

@@ -2,21 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { buildFaqPageLd } from "@/lib/marketing-faq-json-ld";
+import { MARKETING_FAQ_ITEMS } from "@/lib/marketing-faq";
+import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 
-/** Anchors referenced from `/welcome` hero (#30 bulk upload, #31 demo workspaces). */
 export const metadata: Metadata = {
   title: "FAQ · ArchLucid",
-  description: `Short product answers for ArchLucid (${BRAND_CATEGORY}) evaluators — bulk upload limits and demo workspaces.`,
+  description: `Product FAQ for ArchLucid (${BRAND_CATEGORY}) — evidence upload, trials, assurance, and buyer diligence.`,
   robots: { index: true, follow: true },
-  other: {
-    "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
-  },
 };
 
 export default function MarketingFaqPage(): ReactNode {
+  const faqLd = buildFaqPageLd(getSiteMetadataBaseUrl().origin);
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+
       <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Product FAQ</h1>
       <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         Quick answers for visitors evaluating ArchLucid as an {BRAND_CATEGORY} platform.
@@ -27,36 +30,12 @@ export default function MarketingFaqPage(): ReactNode {
         </Link>
       </p>
 
-      <section id="bulk-upload-30-files" className="mt-10 scroll-mt-20">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Bulk evidence upload — file limit</h2>
-        <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          In the operator run view, bulk evidence upload accepts up to{" "}
-          <strong className="font-semibold text-neutral-900 dark:text-neutral-100">30 files</strong> per batch (product
-          cap in the upload UI). For larger corpora, split batches or use your integration path per workspace policy.
-        </p>
-      </section>
-
-      <section id="demo-workspaces" className="mt-10 scroll-mt-20">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Demo workspaces</h2>
-        <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Hosted trials and product-tour seeds provision a{" "}
-          <strong className="font-semibold text-neutral-900 dark:text-neutral-100">synthetic workspace</strong> with
-          fabricated architecture context (for example the Contoso-style product tour) so you can explore analysis,
-          findings, and governance flows without connecting production systems. The public self-demo link lands on a
-          committed synthetic review run for the same purpose — not customer data.
-        </p>
-      </section>
-
-      <section id="pricing-roadmap-notes" className="mt-10 scroll-mt-20">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Pricing roadmap notes (diligence)</h2>
-        <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Items below are not committed ship dates on today&apos;s packaged tier cards — request specifics during procurement
-          conversations.
-        </p>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          <li>SCIM provisioning for directory-synchronized lifecycle</li>
-        </ul>
-      </section>
+      {MARKETING_FAQ_ITEMS.map((item) => (
+        <section key={item.id} id={item.id} className="mt-10 scroll-mt-20">
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">{item.question}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{item.answer}</p>
+        </section>
+      ))}
     </main>
   );
 }

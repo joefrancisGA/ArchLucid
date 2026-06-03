@@ -101,7 +101,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             Options.Create(new AgentConfidenceCalibrationOptions { Enabled = false }),
             referenceEvaluator,
             archFindingConfidence.Object,
-            new AgentResultEvidenceFaithfulnessChecker(),
+            new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             embeddingFaithfulness.Object,
             llmFaithfulness.Object,
             new NoOpAgentOutputEvaluationRepository(),

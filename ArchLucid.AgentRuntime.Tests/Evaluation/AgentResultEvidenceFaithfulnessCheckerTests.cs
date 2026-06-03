@@ -1,8 +1,11 @@
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
@@ -10,7 +13,8 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentResultEvidenceFaithfulnessCheckerTests
 {
-    private readonly AgentResultEvidenceFaithfulnessChecker _sut = new();
+    private readonly AgentResultEvidenceFaithfulnessChecker _sut = new(
+        Options.Create(new AgentFaithfulnessOptions()));
 
     [Fact]
     public void Evaluate_all_claims_and_findings_supported_when_refs_overlap_catalog()
@@ -65,5 +69,65 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
         AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
 
         report.SupportRatio.Should().BeLessThan(1.0);
+    }
+
+    [Fact]
+    public void Evaluate_empty_json_object_has_no_checkable_content_and_zero_ratio()
+    {
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate("{}", new AgentEvidencePackage());
+
+        report.HasCheckableContent.Should().BeFalse();
+        report.SupportRatio.Should().Be(0.0);
+    }
+
+    [Fact]
+    public void Evaluate_single_token_overlap_fails_density_threshold()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes","evidenceRefs":["pattern-a"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("claim:overlap");
+    }
+
+    [Fact]
+    public void Evaluate_two_token_overlap_meets_default_density_threshold()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes cluster nodes","evidenceRefs":["pattern-a"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(1.0);
     }
 }

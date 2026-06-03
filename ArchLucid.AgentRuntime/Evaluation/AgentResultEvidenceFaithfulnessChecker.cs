@@ -3,6 +3,9 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Configuration;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -11,7 +14,8 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 ///     Token rules mirror <see cref="ArchLucid.Decisioning.Findings.ExplanationFaithfulnessChecker"/> intent (>=4 chars,
 ///     stopword filter). This is a grounding heuristic, not legal-grade truth verification.
 /// </remarks>
-public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenceFaithfulnessChecker
+public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfulnessOptions> faithfulnessOptions)
+    : IAgentResultEvidenceFaithfulnessChecker
 {
     private const int MinTokenLength = 4;
     private const int MaxUnsupportedListed = 32;
@@ -27,23 +31,27 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
         "included", "related", "overall", "several", "another", "other", "same", "well", "high", "low"
     };
 
+    private readonly IOptions<AgentFaithfulnessOptions> _faithfulnessOptions =
+        faithfulnessOptions ?? throw new ArgumentNullException(nameof(faithfulnessOptions));
+
     /// <inheritdoc />
     public AgentResultEvidenceFaithfulnessReport Evaluate(string parsedResultJson, AgentEvidencePackage evidencePackage)
     {
         ArgumentNullException.ThrowIfNull(evidencePackage);
 
         if (string.IsNullOrWhiteSpace(parsedResultJson))
-            return new AgentResultEvidenceFaithfulnessReport(0, 0, 0, 0, 1.0, []);
+            return EmptyReport([]);
 
         try
         {
             using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
 
             if (doc.RootElement.ValueKind != JsonValueKind.Object)
-                return new AgentResultEvidenceFaithfulnessReport(0, 0, 0, 0, 1.0, []);
+                return EmptyReport([]);
 
             AgentEvidenceGroundingIndex.Index index = AgentEvidenceGroundingIndex.Build(evidencePackage);
             string fullBlob = index.FullBlob;
+            AgentFaithfulnessOptions options = _faithfulnessOptions.Value;
 
             int claimsChecked = 0;
             int claimsSupported = 0;
@@ -76,7 +84,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
 
                     string blobForOverlap = string.IsNullOrEmpty(citedBlob) ? fullBlob : citedBlob;
 
-                    if (HasTokenOverlap(claimText, blobForOverlap))
+                    if (MeetsOverlapThreshold(claimText, blobForOverlap, options))
 
                         claimsSupported++;
 
@@ -110,7 +118,8 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
                          Enum.TryParse(category, ignoreCase: true, out Contracts.Common.AgentType _));
 
                     bool textOk =
-                        HasTokenOverlap(description, fullBlob) || HasTokenOverlap(recommendation, fullBlob);
+                        MeetsOverlapThreshold(description, fullBlob, options)
+                        || MeetsOverlapThreshold(recommendation, fullBlob, options);
 
                     if (categoryOk && textOk)
 
@@ -125,7 +134,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
             int totalChecked = claimsChecked + findingsChecked;
 
             if (totalChecked == 0)
-                return new AgentResultEvidenceFaithfulnessReport(0, 0, 0, 0, 1.0, unsupported);
+                return EmptyReport(unsupported);
 
             int totalSupported = claimsSupported + findingsSupported;
             double ratio = (double)totalSupported / totalChecked;
@@ -144,6 +153,9 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
         }
     }
 
+    private static AgentResultEvidenceFaithfulnessReport EmptyReport(IReadOnlyList<string> unsupported) =>
+        new(0, 0, 0, 0, 0.0, unsupported);
+
     private static void PushUnsupported(string id, List<string> unsupported)
     {
         if (unsupported.Count >= MaxUnsupportedListed)
@@ -153,19 +165,22 @@ public sealed class AgentResultEvidenceFaithfulnessChecker : IAgentResultEvidenc
         unsupported.Add(id);
     }
 
-    private static bool HasTokenOverlap(string text, string blobLowercase)
+    private static bool MeetsOverlapThreshold(string text, string blobLowercase, AgentFaithfulnessOptions options)
     {
         if (string.IsNullOrWhiteSpace(text) || string.IsNullOrEmpty(blobLowercase))
             return false;
 
-        foreach (string token in CollectTokens(text))
-        {
-            if (blobLowercase.Contains(token, StringComparison.Ordinal))
+        List<string> tokens = CollectTokens(text);
 
-                return true;
-        }
+        if (tokens.Count == 0)
+            return false;
 
-        return false;
+        int matched = tokens.Count(token => blobLowercase.Contains(token, StringComparison.Ordinal));
+        int minDistinct = Math.Max(1, options.MinDistinctOverlapTokens);
+        double minDensity = Math.Clamp(options.MinOverlapDensityRatio, 0.0, 1.0);
+        double density = matched / (double)tokens.Count;
+
+        return matched >= minDistinct && density >= minDensity - 1e-9;
     }
 
     private static List<string> CollectTokens(string blob)

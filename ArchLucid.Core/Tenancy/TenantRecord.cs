@@ -171,6 +171,24 @@ public sealed class TenantRecord
         init;
     }
 
+    public int TrialArchitecturePreseedAttemptCount
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? TrialArchitecturePreseedFailedUtc
+    {
+        get;
+        init;
+    }
+
+    public string? TrialArchitecturePreseedLastError
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     ///     First committed authority run id (32-char hex as <see cref="Guid" />) after trial bootstrap — drives operator
     ///     deep link.

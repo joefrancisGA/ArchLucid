@@ -192,7 +192,17 @@ public static class AgentOutputTraceQualityEvaluator
 
         semanticScore.AgentResultFaithfulnessSupportRatio = report.SupportRatio;
 
-        if (!pilotStrict || options.PilotStrictMinAgentResultFaithfulnessSupportRatio is not { } floor)
+        if (!pilotStrict)
+            return;
+
+        if (!report.HasCheckableContent)
+        {
+            gateOutcome = AgentOutputQualityGateOutcome.Rejected;
+
+            return;
+        }
+
+        if (options.PilotStrictMinAgentResultFaithfulnessSupportRatio is not { } floor)
             return;
 
         if (report.SupportRatio < floor)

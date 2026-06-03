@@ -7,4 +7,8 @@ public sealed record AgentResultEvidenceFaithfulnessReport(
     int FindingsChecked,
     int FindingsSupported,
     double SupportRatio,
-    IReadOnlyList<string> UnsupportedIds);
+    IReadOnlyList<string> UnsupportedIds)
+{
+    /// <summary>False when there was no checkable claim/finding content (TB-256).</summary>
+    public bool HasCheckableContent => ClaimsChecked + FindingsChecked > 0;
+}

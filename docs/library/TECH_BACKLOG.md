@@ -77,7 +77,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-258 – TB-260** were added 2026-06-03 from an independent first-principles **Time-to-Value** quality assessment (`docs/assessments/TimeToValue_06032026.MD`, score 79/100, COMMERCIAL weight 7/116). They harden the trial first-value delivery engine and close the value-realization loop: harden the trial architecture preseed executor (**TB-258**, P1 — `TrialArchitecturePreseedExecutor.TryProcessTenantAsync` has no try/catch, no attempt cap, and no failure audit event; because the pending query re-polls any tenant whose `TrialWelcomeRunId` is still NULL, any preseed failure — including the non-Guid run-id `return` path — re-creates/re-executes/re-commits a brand-new run every poll cycle forever, burning agent/quota cost with no operator signal), test the trial first-value delivery path (**TB-259**, P1 — `TrialArchitecturePreseedExecutor` and `TrialArchitecturePreseedHostedService` are both at 0% coverage per `COVERAGE_GAP_ANALYSIS.md` #130/#49), and a "first value reached" user confirmation (**TB-260**, P2 — TTV is measured via TB-220 + `TrialFirstManifestCommittedUtc` but never surfaced to the trial user). These do not duplicate the now-complete **TB-215–TB-220** (06-02 Time-to-Value cluster — getting a run started, wizard, demo seed, telemetry) or DEFERRED **TB-221** (hosted self-serve trial, V1.1 commerce). The hosted self-serve trial / live checkout remains excluded from `(A)` per `Assessment-Scope-V1_1.mdc`.
 
-**TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** remains open on the same quality dimension.
+**TB-261 – TB-263** were added 2026-06-03 from an independent first-principles **Stickiness** quality assessment (`docs/assessments/Stickiness_06032026.MD`, score 74/100, COMMERCIAL weight 6/116). They close the recurrence re-engagement loop and harden schedule trust: recurrence completion notification + drift delta (**TB-261**, P1 — `RecurringArchitectureReviewTriggerService` executes the scheduled run and writes only an `ArchitectureReviewRecurrenceTriggered` audit event with no notification consumer, so the user who scheduled the review is never told it ran and sees no "N new findings" delta), recurrence schedule failure health + auto-disable (**TB-262**, P1 — `ArchitectureReviewRecurrenceSchedule` has no `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount`, and the failure path still sets `LastTriggeredUtc`, so a chronically-failing schedule looks healthy and never auto-disables), and a "reviews awaiting your action" inbox surface (**TB-263**, P2 — recurrence runs are executed but not committed and have no inbox/badge, so they orphan). These do not duplicate the now-complete **TB-222–TB-228** (06-02 Stickiness cluster — recurrence UI, decisions-needed KPI, compare narrative, RLS fix, risk-exceptions page, multi-run proof, tenant-health admin); that pass built the recurrence UI and governance surfaces but left the loop silent and the schedules without failure health.
+
+**TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard — partial-failure surfacing and sentinel exclusion were already shipped).
 
 **TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
 
@@ -164,13 +166,16 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-251 | Retrieval indexing at-least-once outbox — `dbo.RetrievalIndexOutbox` migration (OutboxId, RunId, CreatedUtc, ProcessedUtc, AttemptCount, LastError); insert row after manifest commit in `ManifestFinalizationService`; `RetrievalIndexOutboxWorker : BackgroundService` polls every 30 s, calls `IRetrievalRunCompletionIndexer`, marks processed or increments AttemptCount; emit `AuditEventTypes.RetrievalIndexingFailed` at AttemptCount = 5; add constant + matrix row; unit tests | **Done (2026-06-02 batch 5BX)** — `dbo.RetrievalIndexingOutbox` + `RetrievalIndexingOutboxProcessor` + lease/dead-letter (DbUp 019/219); `test_traceability_batch_5bx.py` | M |
 | TB-252 | Generate/commit raster brand assets + fix broken references — `generate-brand-raster.mjs` rasterizes `og-default.svg`→`og-default.png` (1200×630), `icon.svg`→`icon-192.png`/`icon-512.png`; wire to `prebuild`; commit PNGs; add `icon-512` maskable to `manifest.webmanifest`; warn-only CI guard `check_referenced_static_assets.py` asserting every `/logo/*.png` reference in `layout.tsx`/manifest exists; unit test output dimensions | **Done (2026-06-03 batch 5CC)** — committed PNGs, `prebuild`, `check_referenced_static_assets.py`, Vitest dimensions | M |
 | TB-253 | Buyer-facing Open Graph / Twitter metadata — replace operator-jargon `openGraph`/`twitter` description in `layout.tsx` with the positioning-seam buyer line; add `marketing-open-graph.ts` helper; set per-page OG/Twitter on `welcome`/`pricing`/`why`/`see-it`; Vitest asserts descriptions are buyer copy and exclude "Operator UI" | **Done (2026-06-03 batch 5CC)** — `marketing-open-graph.ts`, per-page overrides, `test_marketability_batch_5cc.py` | S |
-| TB-254 | `FAQPage` JSON-LD + buyer FAQ expansion — `marketing-faq.ts` with `MARKETING_FAQ_ITEMS` (3 existing + 5 buyer-relevant from existing docs, no new claims); render `/faq` from the array; add `buildFaqPageLd` next to `marketing-json-ld.ts` and inject `FAQPage` ld+json (no ratings); unit + Vitest | Marketability P2 — `/faq` emits no structured data (free Google rich-result lever) and has only 3 operator-focused Q&A; weak for a coined-category product reliant on shares + SERP rich results | S |
-| TB-255 | Minimum token-overlap density in faithfulness checker — replace boolean `HasTokenOverlap` in `AgentResultEvidenceFaithfulnessChecker.cs` with a `CountTokenOverlap`/`MeetsOverlapThreshold` density check (default ≥2 distinct content tokens AND ≥30% density); apply to claims and to finding description+recommendation; thresholds configurable via options; unit tests for single-token-fail, density-pass, boundary | Correctness P1 — first-match-wins overlap marks a fabricated claim/finding "supported" on one shared word, inflating `SupportRatio`, which gates `PilotStrict` rejection (the sponsor-facing mode) | S |
-| TB-256 | Distinguish "no checkable content" from perfect faithfulness — add `HasCheckableContent` to `AgentResultEvidenceFaithfulnessReport`; make the empty/parse-fail/`totalChecked==0` paths return `HasCheckableContent=false` + `SupportRatio=0.0` (not `1.0`); in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` treat `!HasCheckableContent` as failing the PilotStrict floor; audit all `SupportRatio` readers; unit tests | Correctness P1 — `totalChecked==0` returns `SupportRatio=1.0`, so a content-free/evasive output can never be rejected on the PilotStrict faithfulness floor | S |
+| TB-254 | `FAQPage` JSON-LD + buyer FAQ expansion — `marketing-faq.ts` with `MARKETING_FAQ_ITEMS` (3 existing + 5 buyer-relevant from existing docs, no new claims); render `/faq` from the array; add `buildFaqPageLd` next to `marketing-json-ld.ts` and inject `FAQPage` ld+json (no ratings); unit + Vitest | **Done (2026-06-03 batch 5CF)** — `marketing-faq.ts`, `marketing-faq-json-ld.ts`, `/faq` JSON-LD; `test_marketability_batch_5cf.py` | S |
+| TB-255 | Minimum token-overlap density in faithfulness checker — replace boolean `HasTokenOverlap` in `AgentResultEvidenceFaithfulnessChecker.cs` with a `CountTokenOverlap`/`MeetsOverlapThreshold` density check (default ≥2 distinct content tokens AND ≥30% density); apply to claims and to finding description+recommendation; thresholds configurable via options; unit tests for single-token-fail, density-pass, boundary | **Done (2026-06-03 batch 5CG)** — `MeetsOverlapThreshold` + `AgentFaithfulnessOptions`; `test_correctness_batch_5cg.py` | S |
+| TB-256 | Distinguish "no checkable content" from perfect faithfulness — add `HasCheckableContent` to `AgentResultEvidenceFaithfulnessReport`; make the empty/parse-fail/`totalChecked==0` paths return `HasCheckableContent=false` + `SupportRatio=0.0` (not `1.0`); in `AgentOutputTraceQualityEvaluator.ApplyAgentResultEvidenceFaithfulness` treat `!HasCheckableContent` as failing the PilotStrict floor; audit all `SupportRatio` readers; unit tests | **Done (2026-06-03 batch 5CG)** — `HasCheckableContent` + PilotStrict reject path; `test_correctness_batch_5cg.py` | S |
 | TB-257 | Expand adversarial hallucination corpus + enforce resistance floor — add 3 adversarial scenarios (fabricated SKU, invented compliance framework, phantom dependency) under `tests/eval-corpus/adversarial/`; register in `manifest.json`; new `scripts/ci/assert_hallucination_resistance.py` (reuse `eval_agent_corpus.py` scoring) asserting each adversarial result scores non-"accepted"; wire as blocking step in `golden-cohort-expanded-nightly.yml`; pytest guard; doc update | Correctness P2 — one inform-only adversarial scenario today; no merge/nightly-enforced contract that fabricated anchors are flagged, for the highest-risk dimension on an 8-weight quality | M |
-| TB-258 | Harden trial preseed executor — migration adds `TrialArchitecturePreseedAttemptCount`/`...FailedUtc`/`...LastError` to `dbo.Tenants`; `IncrementTrialArchitecturePreseedAttemptAsync` (cap 5 → set FailedUtc); exclude exhausted/failed tenants from the pending query; wrap `TryProcessTenantAsync` create/execute/commit in try/catch (increment, no rethrow); treat non-Guid run-id as failure; emit new `TrialArchitecturePreseedFailed` audit at cap + matrix row + const-count bump; tests | Time-to-Value P1 — no try/catch, no cap, no failure signal; any preseed failure re-creates/executes/commits a new run every poll cycle forever, burning agent/quota cost and never delivering first value | M |
-| TB-259 | Test the trial first-value delivery path — `TrialArchitecturePreseedExecutorTests` (happy path, no-workspace, tenant-not-found, vertical flow-through, TB-258 failure paths) + `TrialArchitecturePreseedHostedServiceTests` (multi-tenant poll, one-tenant-throws batch resilience, empty list); both currently 0% coverage | Time-to-Value P1 — `TrialArchitecturePreseedExecutor` (#130) and `TrialArchitecturePreseedHostedService` (#49) are at 0.00 coverage per `COVERAGE_GAP_ANALYSIS.md`; a regression silently breaks first value for 100% of new signups | M |
+| TB-258 | Harden trial preseed executor — migration adds `TrialArchitecturePreseedAttemptCount`/`...FailedUtc`/`...LastError` to `dbo.Tenants`; `IncrementTrialArchitecturePreseedAttemptAsync` (cap 5 → set FailedUtc); exclude exhausted/failed tenants from the pending query; wrap `TryProcessTenantAsync` create/execute/commit in try/catch (increment, no rethrow); treat non-Guid run-id as failure; emit new `TrialArchitecturePreseedFailed` audit at cap + matrix row + const-count bump; tests | **Done (2026-06-03 batch 5CH)** — migration 242, executor hardening, audit + matrix; `test_adoption_batch_5ch.py` | M |
+| TB-259 | Test the trial first-value delivery path — `TrialArchitecturePreseedExecutorTests` (happy path, no-workspace, tenant-not-found, vertical flow-through, TB-258 failure paths) + `TrialArchitecturePreseedHostedServiceTests` (multi-tenant poll, one-tenant-throws batch resilience, empty list); both currently 0% coverage | **Done (2026-06-03 batch 5CH)** — `TrialArchitecturePreseedExecutorTests`, `TrialArchitecturePreseedHostedServiceTests`; `test_adoption_batch_5ch.py` | M |
 | TB-260 | "First value reached" user confirmation — ensure trial-status response exposes `trialFirstManifestCommittedUtc` + `trialWelcomeRunId`; new `FirstValueReachedCallout.tsx` dismissible success callout linking `/reviews/{trialWelcomeRunId}` rendered atop `OperatorHomePageView` when committed; localStorage dismissal; Vitest | Time-to-Value P2 — TTV is measured (TB-220) and `TrialFirstManifestCommittedUtc` stored, but the trial user gets no explicit value-realization moment | S |
+| TB-261 | Recurrence completion notification + drift delta — compute new/resolved/severity delta vs source (or prior triggered) run; in-app + email via existing dispatch path linking `/reviews/{runId}` + compare view; gate `Stickiness:RecurrenceCompletionNotification:Enabled` (default true); new `ArchitectureReviewRecurrenceNotified` audit + matrix row + const bump; recipients = `CreatedByUserId` + admin/sponsor; tests | Stickiness P1 — `RecurringArchitectureReviewTriggerService` writes only an audit event; the recurrence loop has no return edge so the user is never re-engaged | M |
+| TB-262 | Recurrence schedule failure health + auto-disable — add `LastRunStatus`/`LastErrorMessage`/`ConsecutiveFailureCount` to `ArchitectureReviewRecurrenceSchedule` (+ migration in 3 SQL files); set on success/failure in the trigger; at 5 consecutive failures set `IsEnabled=false` + new `ArchitectureReviewRecurrenceAutoDisabled` audit; surface StatusTag + last-error + re-enable affordance on `/governance/recurrence-schedules`; tests | Stickiness P1 — schedule has no failure status and the failure path still sets `LastTriggeredUtc`, so chronically-failing schedules look healthy and never auto-disable (trust erosion) | M |
+| TB-263 | "Reviews awaiting your action" inbox — `GET /v1/governance/reviews-awaiting-action` returning executed-but-uncommitted recurrence runs (tag clones `requestSource="recurrence"`); card on `OperatorHomePageView` + governance nav count badge + "Review & commit" action + empty state; RLS-respected query; tests | Stickiness P2 — recurrence runs execute but are never committed and have no inbox/badge, so they orphan and the habit does not convert to a committed review | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -7639,3 +7644,114 @@ Show the trial user an explicit first-value confirmation using data already pers
 - Vitest tests
 
 **Cross-ref:** TB-220 (wizard-to-commit telemetry), `archlucid-ui/src/components/TrialWelcomeRunDeepLink.tsx` (existing deep-link — align navigation).
+
+---
+
+## TB-261 — Recurrence completion notification + drift delta (P1)
+
+**Source:** Stickiness quality assessment (`docs/assessments/Stickiness_06032026.MD`), 2026-06-03.
+**Problem:** `RecurringArchitectureReviewTriggerService.TriggerScheduleAsync` executes the cloned scheduled run and writes only an `ArchitectureReviewRecurrenceTriggered` audit event — which has **no notification consumer anywhere**. The user who scheduled a recurring review to be re-engaged is never told a review ran and never sees "N new / N resolved findings since last review." The weekly executive summary cannot cover it because that selects the latest *committed* run and recurrence runs are executed-but-not-committed (TB-263). The product's most important stickiness mechanism is a loop with no return edge.
+
+**Cursor prompt:**
+```
+Close the recurrence re-engagement loop with a completion notification + drift delta.
+
+1. After a successful recurrence execute in RecurringArchitectureReviewTriggerService.TriggerScheduleAsync,
+   compute a lightweight delta vs schedule.SourceRunId (or the prior LastTriggeredRunId if present):
+   newFindingCount, resolvedFindingCount, netSeverityDelta. Reuse the existing compare/delta service used
+   by the compare UI (do NOT reimplement); if it requires a committed target, compute against the executed
+   run's findings snapshot.
+2. Add an in-app notification + an email via the existing notification/email dispatch path used by the
+   weekly executive summary (reuse IEmailDispatcher / the notifications module; do not add a new transport):
+   subject "Your scheduled architecture review is ready - {newFindingCount} new finding(s)", body linking to
+   /reviews/{runId} and the compare view /reviews/{runId}/compare?base={sourceRunId}.
+   Gate behind a new option Stickiness:RecurrenceCompletionNotification:Enabled (default true).
+3. Emit a new audit event ArchitectureReviewRecurrenceNotified (constant + AUDIT_COVERAGE_MATRIX row +
+   const-count anchor bump).
+4. Recipients = the schedule's CreatedByUserId plus tenant Admin/Sponsor mailboxes (reuse the weekly-summary
+   recipient lookup).
+5. Tests: delta computed for source-vs-new; notification dispatched once on success; not dispatched when the
+   option is disabled; recipient resolution covers CreatedByUserId + admins.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/Governance/RecurringArchitectureReviewTriggerService.cs`
+- Notifications / email module (reuse weekly-summary dispatch path)
+- `ArchLucid.Core/Audit/AuditEventTypes.cs`
+- `docs/library/AUDIT_COVERAGE_MATRIX.md`
+- New options type (`Stickiness:RecurrenceCompletionNotification`)
+- Tests (`ArchLucid.Application.Tests/`)
+
+**Cross-ref:** TB-224 (compare narrative — reuse delta), TB-263 (awaiting-review inbox), `WeeklyExecutiveSummaryDeliveryScanner` (recipient/dispatch pattern).
+
+---
+
+## TB-262 — Recurrence schedule failure health + auto-disable (P1)
+
+**Source:** Stickiness quality assessment (`docs/assessments/Stickiness_06032026.MD`), 2026-06-03.
+**Problem:** `ArchitectureReviewRecurrenceSchedule` tracks `LastTriggeredUtc` / `LastTriggeredRunId` / `NextRunUtc` / `IsEnabled` but has **no `LastRunStatus`, `LastErrorMessage`, or `ConsecutiveFailureCount`**. On failure the trigger's catch block still sets `LastTriggeredUtc` and advances `NextRunUtc`, so the `/governance/recurrence-schedules` management page shows a recent "last triggered" timestamp while runs are actually failing. There is no attempt cap and no auto-disable — a permanently-broken schedule fails forever, invisibly, while the customer believes recurring reviews are running.
+
+**Cursor prompt:**
+```
+Add failure health to architecture review recurrence schedules.
+
+1. Add to ArchitectureReviewRecurrenceSchedule: LastRunStatus (string: "succeeded"|"failed"|"never"),
+   LastErrorMessage (string?), ConsecutiveFailureCount (int). Migration adds the columns to the recurrence
+   schedule table in ArchLucid.sql + ArchLucid_Unified_Schema.sql + ArchLucid.System.sql.
+   Map in Dapper + InMemory repositories.
+2. In RecurringArchitectureReviewTriggerService:
+   - On success: LastRunStatus="succeeded", ConsecutiveFailureCount=0, LastErrorMessage=null.
+   - On failure (catch): LastRunStatus="failed", ConsecutiveFailureCount += 1,
+     LastErrorMessage = left(ex.Message,2048); keep LastTriggeredRunId null for the failed window so UI can
+     distinguish.
+   - When ConsecutiveFailureCount >= 5, set IsEnabled = false and emit a new audit event
+     ArchitectureReviewRecurrenceAutoDisabled (constant + matrix row + count bump).
+3. Surface on /governance/recurrence-schedules: a StatusTag per row (success/danger/muted), last error tooltip,
+   and an "Auto-disabled after repeated failures - re-enable" affordance when IsEnabled is false due to failures.
+4. Tests: failure increments + sets status/error; 5th consecutive failure sets IsEnabled=false + audit;
+   a success resets the counter; Vitest for the status column + re-enable affordance.
+```
+
+**Affected files / projects:**
+
+- `ArchLucid.Contracts/Governance/ArchitectureReviewRecurrenceSchedule.cs`
+- Migration (`ArchLucid.sql`, `ArchLucid_Unified_Schema.sql`, `ArchLucid.System.sql`)
+- `ArchLucid.Persistence/Governance/DapperArchitectureReviewRecurrenceScheduleRepository.cs`, `InMemoryArchitectureReviewRecurrenceScheduleRepository.cs`
+- `ArchLucid.Application/Governance/RecurringArchitectureReviewTriggerService.cs`
+- `ArchLucid.Core/Audit/AuditEventTypes.cs`, `docs/library/AUDIT_COVERAGE_MATRIX.md`
+- `archlucid-ui/src/app/(operator)/governance/recurrence-schedules/` page
+- Tests
+
+**Cross-ref:** TB-222 (the management page this extends), TB-258 (same failure-health pattern for trial preseed).
+
+---
+
+## TB-263 — "Reviews awaiting your action" inbox surface (P2)
+
+**Source:** Stickiness quality assessment (`docs/assessments/Stickiness_06032026.MD`), 2026-06-03.
+**Problem:** The recurrence trigger calls `ExecuteRunAsync` but never `CommitRunAsync`, leaving an executed run that requires a human commit (a defensible governance choice). But there is **no inbox/badge** listing recurrence-triggered runs awaiting action — the run is invisible unless the operator happens to navigate to it, so the habit rarely converts into a committed review.
+
+**Cursor prompt:**
+```
+Surface recurrence-triggered runs that are executed-but-not-committed as an actionable inbox.
+
+1. Backend: add GET /v1/governance/reviews-awaiting-action returning runs in the scope that are
+   executed but not committed AND whose requestSource indicates recurrence (tag recurrence clones in
+   RecurringArchitectureReviewRequestCloner with requestSource="recurrence"). DTO: runId, name, executedUtc,
+   sourceRunId, newFindingCount (reuse TB-261 delta if available).
+2. Frontend: add a "Reviews awaiting your action" card to OperatorHomePageView and a count badge on the
+   governance nav entry; each row links to /reviews/{runId} with a "Review & commit" primary action.
+   Empty state when none.
+3. Tests: endpoint returns only executed-uncommitted recurrence runs in scope (RLS respected);
+   Vitest for the card rows + badge count + empty state.
+```
+
+**Affected files / projects:**
+
+- New endpoint + query (governance controller + read model)
+- `ArchLucid.Application/Governance/RecurringArchitectureReviewRequestCloner` (requestSource tag)
+- `archlucid-ui/src/app/(operator)/_sections/OperatorHomePageView.tsx` + governance nav
+- Tests
+
+**Cross-ref:** TB-261 (notification drives the user to this inbox), TB-223 (`DecisionsNeededSummaryCard` — adjacent governance surface).

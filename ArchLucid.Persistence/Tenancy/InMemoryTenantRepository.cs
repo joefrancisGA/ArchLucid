@@ -973,6 +973,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 .Where(static t =>
                     t.TrialArchitecturePreseedEnqueuedUtc is not null
                     && t.TrialWelcomeRunId is null
+                    && t.TrialArchitecturePreseedFailedUtc is null
+                    && t.TrialArchitecturePreseedAttemptCount < 5
                     && string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
                 .OrderBy(static t => t.TrialArchitecturePreseedEnqueuedUtc)
                 .Take(Math.Clamp(take, 1, 50))
@@ -997,6 +999,29 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         }
 
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<int> IncrementTrialArchitecturePreseedAttemptAsync(Guid tenantId, string lastError, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+                return Task.FromResult(0);
+
+            int nextAttempt = existing.TrialArchitecturePreseedAttemptCount + 1;
+            DateTimeOffset? failedUtc = nextAttempt >= 5 ? TimeProvider.System.GetUtcNow() : existing.TrialArchitecturePreseedFailedUtc;
+
+            _byId[tenantId] = CopyTenant(
+                existing,
+                trialArchitecturePreseedAttemptCount: nextAttempt,
+                trialArchitecturePreseedFailedUtc: failedUtc,
+                trialArchitecturePreseedLastError: lastError);
+
+            return Task.FromResult(nextAttempt);
+        }
     }
 
     public Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)
@@ -1135,6 +1160,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         string? trialStatus = null,
         DateTimeOffset? trialExpiresUtc = null,
         DateTimeOffset? trialArchitecturePreseedEnqueuedUtc = null,
+        int? trialArchitecturePreseedAttemptCount = null,
+        DateTimeOffset? trialArchitecturePreseedFailedUtc = null,
+        string? trialArchitecturePreseedLastError = null,
         Guid? trialWelcomeRunId = null,
         DateTimeOffset? trialFirstManifestCommittedUtc = null,
         int? enterpriseSeatsUsedOverride = null,
@@ -1174,6 +1202,12 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = source.TrialSampleRunId,
             TrialArchitecturePreseedEnqueuedUtc =
                 trialArchitecturePreseedEnqueuedUtc ?? source.TrialArchitecturePreseedEnqueuedUtc,
+            TrialArchitecturePreseedAttemptCount =
+                trialArchitecturePreseedAttemptCount ?? source.TrialArchitecturePreseedAttemptCount,
+            TrialArchitecturePreseedFailedUtc =
+                trialArchitecturePreseedFailedUtc ?? source.TrialArchitecturePreseedFailedUtc,
+            TrialArchitecturePreseedLastError =
+                trialArchitecturePreseedLastError ?? source.TrialArchitecturePreseedLastError,
             TrialWelcomeRunId = trialWelcomeRunId ?? source.TrialWelcomeRunId,
             TrialFirstManifestCommittedUtc = trialFirstManifestCommittedUtc ?? source.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = source.BaselineReviewCycleHours,

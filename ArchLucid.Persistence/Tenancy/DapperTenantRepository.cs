@@ -44,7 +44,9 @@ public sealed class DapperTenantRepository(
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
                                   BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
                                   CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
@@ -74,7 +76,9 @@ public sealed class DapperTenantRepository(
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
                                   BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
                                   CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
@@ -102,7 +106,9 @@ public sealed class DapperTenantRepository(
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
                                   BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
                                   CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
@@ -130,7 +136,9 @@ public sealed class DapperTenantRepository(
                                   OffboardedUtc, ErasureEligibleUtc, LegalHoldUntilUtc, LegalHoldReason, LegalHoldSetByUserId, LegalHoldSetUtc,
                                   TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                   TrialStatus, TrialSampleRunId,
-                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialArchitecturePreseedAttemptCount,
+                                  TrialArchitecturePreseedFailedUtc, TrialArchitecturePreseedLastError,
+                                  TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
                                   BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
                                   CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
@@ -715,6 +723,8 @@ public sealed class DapperTenantRepository(
                            FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
                            WHERE TrialArchitecturePreseedEnqueuedUtc IS NOT NULL
                              AND TrialWelcomeRunId IS NULL
+                             AND TrialArchitecturePreseedFailedUtc IS NULL
+                             AND TrialArchitecturePreseedAttemptCount < 5
                              AND TrialStatus = @Active
                            ORDER BY TrialArchitecturePreseedEnqueuedUtc ASC;
                            """;
@@ -750,6 +760,43 @@ public sealed class DapperTenantRepository(
                 Id = tenantId,
                 WelcomeRunId = welcomeRunId
             }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<int> IncrementTrialArchitecturePreseedAttemptAsync(Guid tenantId, string lastError, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET TrialArchitecturePreseedAttemptCount = TrialArchitecturePreseedAttemptCount + 1,
+                               TrialArchitecturePreseedLastError = @LastError,
+                               TrialArchitecturePreseedFailedUtc = CASE
+                                   WHEN TrialArchitecturePreseedAttemptCount + 1 >= 5 THEN SYSUTCDATETIME()
+                                   ELSE TrialArchitecturePreseedFailedUtc
+                               END
+                           OUTPUT INSERTED.TrialArchitecturePreseedAttemptCount
+                           WHERE Id = @Id;
+                           """;
+
+        string trimmedError = string.IsNullOrWhiteSpace(lastError)
+            ? "unknown"
+            : lastError.Trim();
+
+        if (trimmedError.Length > 2048)
+            trimmedError = trimmedError[..2048];
+
+        int attemptCount = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Id = tenantId,
+                    LastError = trimmedError
+                },
+                cancellationToken: ct));
+
+        return attemptCount;
     }
 
     /// <inheritdoc />
@@ -1470,6 +1517,24 @@ public sealed class DapperTenantRepository(
             init;
         }
 
+        public int TrialArchitecturePreseedAttemptCount
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? TrialArchitecturePreseedFailedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? TrialArchitecturePreseedLastError
+        {
+            get;
+            init;
+        }
+
         public Guid? TrialWelcomeRunId
         {
             get;
@@ -1582,6 +1647,9 @@ public sealed class DapperTenantRepository(
                 TrialStatus = TrialStatus,
                 TrialSampleRunId = TrialSampleRunId,
                 TrialArchitecturePreseedEnqueuedUtc = TrialArchitecturePreseedEnqueuedUtc,
+                TrialArchitecturePreseedAttemptCount = TrialArchitecturePreseedAttemptCount,
+                TrialArchitecturePreseedFailedUtc = TrialArchitecturePreseedFailedUtc,
+                TrialArchitecturePreseedLastError = TrialArchitecturePreseedLastError,
                 TrialWelcomeRunId = TrialWelcomeRunId,
                 TrialFirstManifestCommittedUtc = TrialFirstManifestCommittedUtc,
                 BaselineReviewCycleHours = BaselineReviewCycleHours,

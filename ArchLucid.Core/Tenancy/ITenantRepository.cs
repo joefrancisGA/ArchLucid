@@ -151,6 +151,12 @@ public interface ITenantRepository
     Task MarkTrialArchitecturePreseedCompletedAsync(Guid tenantId, Guid welcomeRunId, CancellationToken ct);
 
     /// <summary>
+    ///     Records a failed pre-seed attempt; returns the new attempt count. Sets <c>TrialArchitecturePreseedFailedUtc</c>
+    ///     when the cap (5) is reached.
+    /// </summary>
+    Task<int> IncrementTrialArchitecturePreseedAttemptAsync(Guid tenantId, string lastError, CancellationToken ct);
+
+    /// <summary>
     ///     Increments <c>EnterpriseSeatsUsed</c> when a SCIM user becomes <c>Active=true</c> and the tenant has a finite
     ///     <c>EnterpriseSeatsLimit</c>.
     /// </summary>

@@ -562,6 +562,9 @@ public static class AuditEventTypes
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
 
+    /// <summary>Trial architecture pre-seed exhausted attempts without delivering a welcome run (TB-258).</summary>
+    public const string TrialArchitecturePreseedFailed = "TrialArchitecturePreseedFailed";
+
     /// <summary>Admin initiated hosted billing checkout for trial conversion.</summary>
     public const string BillingCheckoutInitiated = "BillingCheckoutInitiated";
 

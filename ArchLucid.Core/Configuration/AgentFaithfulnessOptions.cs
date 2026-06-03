@@ -23,4 +23,18 @@ public sealed class AgentFaithfulnessOptions
         get;
         set;
     } = 64;
+
+    /// <summary>Minimum distinct content tokens that must overlap evidence (TB-255).</summary>
+    public int MinDistinctOverlapTokens
+    {
+        get;
+        set;
+    } = 2;
+
+    /// <summary>Minimum fraction of distinct content tokens that must match evidence (TB-255).</summary>
+    public double MinOverlapDensityRatio
+    {
+        get;
+        set;
+    } = 0.30;
 }

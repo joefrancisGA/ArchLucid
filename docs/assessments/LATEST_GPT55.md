@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 86.52%
+# ArchLucid Assessment – (A) Headline Readiness: 86.90%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **86.35%** (5CC); batch **5CD** — **TB-037** (provenance snapshot materialization drift closure), **TB-055** (`ReasoningTrace` on findings drift closure) → **86.52%** (+2 Traceability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **86.52%** (5CD); batches **5CE–5CH** — **TB-056** (traceability drift closure), **TB-254** (buyer FAQ JSON-LD), **TB-255/256** (PilotStrict faithfulness), **TB-258/259** (trial preseed cap + tests) → **86.90%** (+2 Traceability, +2 Correctness, +2 Time-to-Value, +1 Marketability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -50,11 +50,11 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | AI/Agent Readiness | 84 | 8 | 5.79% | 128 |
 | Stickiness | 79 | 6 | 4.14% | 126 |
 | Adoption Friction | 78 | 6 | 4.09% | 132 |
-| Marketability | 92 | 8 | 6.39% | 64 |
+| Marketability | 93 | 8 | 6.45% | 56 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
-| Time-to-Value | 86 | 7 | 5.19% | 98 |
+| Time-to-Value | 88 | 7 | 5.31% | 84 |
 | Executive Value Visibility | 82 | 4 | 2.86% | 72 |
 | Usability | 72 | 3 | 1.86% | 84 |
 | Differentiability | 82 | 4 | 2.83% | 72 |
@@ -67,7 +67,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | Maintainability | 74 | 2 | 1.28% | 52 |
 | Architectural Integrity | 83 | 3 | 2.13% | 51 |
 | Procurement Readiness | 75 | 2 | 1.29% | 50 |
-| Traceability | 88 | 3 | 2.28% | 36 |
+| Traceability | 90 | 3 | 2.33% | 30 |
 | Auditability | 77 | 2 | 1.32% | 46 |
 | Reliability | 78 | 2 | 1.34% | 44 |
 | Commercial Packaging Readiness | 79 | 2 | 1.35% | 42 |
@@ -113,9 +113,9 @@ Classification: Mostly fixable in v1. Graph-RAG, agentic retrieval, fine-tuning,
 
 ### Correctness
 
-Score: 86. Weight: 8. Weighted impact: 5.93%. Weighted deficiency signal: 112.
+Score: 88. Weight: 8. Weighted impact: 6.07%. Weighted deficiency signal: 96.
 
-Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5L** adds DB-level `UX_AgentResults_RunId_TaskId` with HTTP **409** on concurrent duplicate agent-result submits (**TB-201**). Batch **5Q** closes **TB-204** (rule audit action-specific finding sets). Batch **5R** closes **TB-196** — run-level LLM cost aggregation forwards persisted `ReasoningTokenCount` to `ILlmCostEstimator`, fixing systematic underreporting on o-series/reasoning deployments. Remaining Correctness backlog: executive KPI semantic unification (assessment §Correctness recommendations).
+Justification: Correctness is supported by OpenAPI snapshot tests, SQL-backed full regression, contract tests, data consistency probes, golden fixtures, quality gates, and release smoke. Batch **5L** adds DB-level `UX_AgentResults_RunId_TaskId` with HTTP **409** on concurrent duplicate agent-result submits (**TB-201**). Batch **5Q** closes **TB-204** (rule audit action-specific finding sets). Batch **5R** closes **TB-196** — run-level LLM cost aggregation forwards persisted `ReasoningTokenCount` to `ILlmCostEstimator`, fixing systematic underreporting on o-series/reasoning deployments. Batch **5CG** closes **TB-255** (token-overlap density in `AgentResultEvidenceFaithfulnessChecker`) and **TB-256** (`HasCheckableContent` + PilotStrict reject when no checkable claims/findings). Remaining Correctness backlog: executive KPI semantic unification and adversarial corpus CI floor (**TB-257**).
 
 Tradeoffs: The system has many read surfaces because it has grown into a broad product. That creates useful product depth but increases semantic drift risk.
 
@@ -149,9 +149,9 @@ Classification: Core reliability pieces are v1. Wider habit-loop polish is v1.1 
 
 ### Time-to-Value
 
-Score: 86. Weight: 7. Weighted impact: 5.19%. Weighted deficiency signal: 98.
+Score: 88. Weight: 7. Weighted impact: 5.31%. Weighted deficiency signal: 84.
 
-Justification: First value is well documented: health, review creation, execute/commit, proof packet, sponsor ZIP. Demo workspaces and starter proof packs exist. Batch **5N** closes **TB-178** (streaming Ask SSE) so the interactive discovery loop renders tokens incrementally instead of blocking on full LLM completion. Batch **5AD** closes **TB-216** — `archlucid try --sponsor-packet` collapses demo-up through sponsor `proof-summary.md` into one CLI invocation (shared proof-packet writer; default `artifacts/try-sponsor-packet/<runId>`). Batch **5AE** closes **TB-217** — `DemoSeedStartupHostedService` auto-applies Contoso seed on startup when `Demo:AnonymousViewer:Enabled` is true so `/demo/explain` works on freshly deployed demo hosts without manual `POST /v1/demo/seed`. Batch **5AF** closes **TB-218** — `/demo/explain` sticky conversion CTA (`DemoExplainConversionCtaCard`) routes evaluators to `/reviews/new?preset=greenfield` with evaluator-workbook help. Batch **5AG** closes **TB-219** — `?preset=greenfield|modernize|blank` on `/reviews/new` auto-applies the matching wizard preset (full wizard skips step 0; quick mode honors `initialPresetId`) so self-qualification docs and demo CTAs carry evaluation context into step 1. Batch **5AH** closes **TB-220** — wizard-created runs stamp `requestSource=wizard` and first commit records `archlucid.pilot.wizard_to_committed_minutes` (tags `execution_mode`, `preset_used`) so the 15-minute first-value claim is measurable instead of aspirational. Batch **5AI** closes **TB-215** — full wizard adds an optional evidence-upload step with post-create auto-upload to `POST /v1/azure-extractor/upload`, so Phase C2 no longer requires a separate rediscovery trip to review detail. The issue is not lack of path; it is path density and the need to choose the correct accelerator, evidence source, auth mode, and proof disposition.
+Justification: First value is well documented: health, review creation, execute/commit, proof packet, sponsor ZIP. Demo workspaces and starter proof packs exist. Batch **5CH** closes **TB-258** (trial preseed attempt cap, failure columns, `TrialArchitecturePreseedFailed` audit) and **TB-259** (executor + hosted-service unit tests). Batch **5N** closes **TB-178** (streaming Ask SSE) so the interactive discovery loop renders tokens incrementally instead of blocking on full LLM completion. Batch **5AD** closes **TB-216** — `archlucid try --sponsor-packet` collapses demo-up through sponsor `proof-summary.md` into one CLI invocation (shared proof-packet writer; default `artifacts/try-sponsor-packet/<runId>`). Batch **5AE** closes **TB-217** — `DemoSeedStartupHostedService` auto-applies Contoso seed on startup when `Demo:AnonymousViewer:Enabled` is true so `/demo/explain` works on freshly deployed demo hosts without manual `POST /v1/demo/seed`. Batch **5AF** closes **TB-218** — `/demo/explain` sticky conversion CTA (`DemoExplainConversionCtaCard`) routes evaluators to `/reviews/new?preset=greenfield` with evaluator-workbook help. Batch **5AG** closes **TB-219** — `?preset=greenfield|modernize|blank` on `/reviews/new` auto-applies the matching wizard preset (full wizard skips step 0; quick mode honors `initialPresetId`) so self-qualification docs and demo CTAs carry evaluation context into step 1. Batch **5AH** closes **TB-220** — wizard-created runs stamp `requestSource=wizard` and first commit records `archlucid.pilot.wizard_to_committed_minutes` (tags `execution_mode`, `preset_used`) so the 15-minute first-value claim is measurable instead of aspirational. Batch **5AI** closes **TB-215** — full wizard adds an optional evidence-upload step with post-create auto-upload to `POST /v1/azure-extractor/upload`, so Phase C2 no longer requires a separate rediscovery trip to review detail. The issue is not lack of path; it is path density and the need to choose the correct accelerator, evidence source, auth mode, and proof disposition.
 
 Tradeoffs: The repo correctly avoids pretending that demo-derived output is buyer proof. That honesty adds steps but protects trust.
 
@@ -161,9 +161,9 @@ Classification: Fixable in v1 for the starter-pack chooser and validation; broad
 
 ### Marketability
 
-Score: 92. Weight: 8. Weighted impact: 6.39%. Weighted deficiency signal: 64.
+Score: 93. Weight: 8. Weighted impact: 6.45%. Weighted deficiency signal: 56.
 
-Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5CC** closes **TB-252** — committed raster `og-default.png` / PWA icons via `generate-brand-raster.mjs` (fixes broken LinkedIn/social previews and Apple/PWA icons) plus warn-only `check_referenced_static_assets.py`. Batch **5CC** closes **TB-253** — buyer-facing root and per-page Open Graph/Twitter metadata on `welcome`, `pricing`, `why`, and `see-it` via `marketing-open-graph.ts` (removes operator-jargon social cards). Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Batch **5BJ** closes **TB-237** — public `/pricing` early-adopter framing plus `PRICING_PHILOSOPHY.md` transparent early-access principle. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
+Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5CF** closes **TB-254** — buyer `/faq` rendered from `MARKETING_FAQ_ITEMS` with `FAQPage` JSON-LD (no ratings). Batch **5CC** closes **TB-252** — committed raster `og-default.png` / PWA icons via `generate-brand-raster.mjs` (fixes broken LinkedIn/social previews and Apple/PWA icons) plus warn-only `check_referenced_static_assets.py`. Batch **5CC** closes **TB-253** — buyer-facing root and per-page Open Graph/Twitter metadata on `welcome`, `pricing`, `why`, and `see-it` via `marketing-open-graph.ts` (removes operator-jargon social cards). Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Batch **5BG** closes **TB-233** — `DEMO_VIDEO_STORYBOARD.md` with shot table and pre/post checklists (TB-236 production remains owner-deferred). Batch **5BH** closes **TB-234** — `SHOULD_YOU_EVALUATE.md` Q5, trial/contact eval path, and strong-fit signals. Batch **5BI** closes **TB-235** — pilot closeout block in `EXECUTIVE_ONE_EMAIL_KIT.md` with `<<PILOT_OUTCOME>>`, four attachments, and follow-up timing. Batch **5BJ** closes **TB-237** — public `/pricing` early-adopter framing plus `PRICING_PHILOSOPHY.md` transparent early-access principle. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
 
 Tradeoffs: Service-led marketability is narrower but more credible than pretending mature PLG SaaS. It also means founder capacity can become a bottleneck.
 
@@ -355,7 +355,7 @@ Classification: v1 for correctness-impacting duplication; v1.1 for broader clean
 
 Score: 90. Weight: 3. Weighted impact: 2.33%. Weighted deficiency signal: 30.
 
-Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Batch **5BW** closes **TB-250** — `dbo.RunStageOutcomes` plus `GET /v1/architecture/run/{runId}/stage-timeline` and a collapse-by-default **Pipeline stages** section on operator run detail so authority stage durations/outcomes are visible without leaving for Jaeger/Tempo. Batch **5BX** closes **TB-251** (retrieval indexing outbox + processor; drift guard). Batch **5BY** / **5BZ** close **TB-052** (rule audit snapshot IDs + prompt refs on `RuleAuditTracePayload`) and **TB-054** (unified `RunDecisionExplainabilityDto` on run detail). Batch **5CD** closes **TB-037** — `ProvenanceGraphAccessService` persists `DecisionProvenanceSnapshot` after commit with revision-hash cache hits — and **TB-055** — bounded `ReasoningTrace` copied into `Finding` explainability (migration 227). Run detail already includes structured tool-invocation forensics (TB-110) and inline provenance summary (TB-111). Remaining gap: **TB-056** partial-failure surfacing on manifests when engines fail mid-orchestration.
+Justification: The product’s traceability story is strong: manifests, evidence refs, explainability traces, provenance graph, audit events, correlation IDs, export bundles, and requirement-test traceability. Batch **5BW** closes **TB-250** — `dbo.RunStageOutcomes` plus `GET /v1/architecture/run/{runId}/stage-timeline` and a collapse-by-default **Pipeline stages** section on operator run detail so authority stage durations/outcomes are visible without leaving for Jaeger/Tempo. Batch **5BX** closes **TB-251** (retrieval indexing outbox + processor; drift guard). Batch **5BY** / **5BZ** close **TB-052** (rule audit snapshot IDs + prompt refs on `RuleAuditTracePayload`) and **TB-054** (unified `RunDecisionExplainabilityDto` on run detail). Batch **5CD** closes **TB-037** — `ProvenanceGraphAccessService` persists `DecisionProvenanceSnapshot` after commit with revision-hash cache hits — and **TB-055** — bounded `ReasoningTrace` copied into `Finding` explainability (migration 227). Run detail already includes structured tool-invocation forensics (TB-110) and inline provenance summary (TB-111). Batch **5CE** closes **TB-056** drift (manifest engine-failure warnings, partial-failure metric, sentinel exclusion in completeness analyzer).
 
 Tradeoffs: Traceability can overwhelm operators if not summarized.
 
