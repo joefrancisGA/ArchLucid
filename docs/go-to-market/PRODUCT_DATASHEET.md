@@ -121,4 +121,4 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 
 **ArchLucid** — *Defensible architecture, on demand. Every recommendation traced. Every decision governed.*
 
-*Contact: [placeholder — add sales contact or URL]*
+**Get started:** [archlucid.net](https://archlucid.net) · [Request a demo or quote](https://archlucid.net/contact)

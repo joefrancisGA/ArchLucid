@@ -1,12 +1,12 @@
 > **Scope:** Rolling weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Committed assessment snapshot (GPT-5.5 rescore track); not a buyer-facing claim document.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.58%
+# ArchLucid Assessment – (A) Headline Readiness: 83.78%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-02.
 
-Rescore note: Through **83.38%** (5AX–5AZ); batches **5BA TB-248** (pilot day badge), **5BB TB-249** (portfolio 403 guidance), **5BC TB-229** (reference-customer workflow docs) → **83.58%** (+1 Executive Value, +1 Marketability). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **83.58%** (5BA–5BC); batches **5BD TB-230** (GTM placeholder audit + CI guard), **5BE TB-231** (claim-readiness status + proof run log), **5BF TB-232** (LinkedIn publishing calendar) → **83.78%** (+2 Marketability). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -50,7 +50,7 @@ Ordered from most urgent to least urgent by weighted deficiency signal.
 | AI/Agent Readiness | 77 | 8 | 5.31% | 184 |
 | Stickiness | 78 | 6 | 4.03% | 132 |
 | Adoption Friction | 77 | 6 | 4.04% | 138 |
-| Marketability | 86 | 8 | 5.95% | 112 |
+| Marketability | 88 | 8 | 6.10% | 96 |
 | Correctness | 86 | 8 | 5.93% | 112 |
 | Proof-of-ROI Readiness | 82 | 5 | 3.53% | 90 |
 | Workflow Embeddedness | 66 | 3 | 1.71% | 102 |
@@ -161,9 +161,9 @@ Classification: Fixable in v1 for the starter-pack chooser and validation; broad
 
 ### Marketability
 
-Score: 82. Weight: 8. Weighted impact: 5.66%. Weighted deficiency signal: 144.
+Score: 88. Weight: 8. Weighted impact: 6.10%. Weighted deficiency signal: 96.
 
-Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Marketability is weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
+Justification: Positioning is crisp: "Defensible architecture, on demand" and "Architecture Proof Engine." The service-led offer menu is commercially realistic, and the product has proof-centered demo/sponsor surfaces. Batch **5BD** closes **TB-230** — buyer datasheet and evaluation paths link to archlucid.net/contact; `check_gtm_placeholder_tokens.py` warn-only CI and `PLACEHOLDER_AUDIT.md` track remaining template tokens. Batch **5BE** closes **TB-231** — operational `CLAIM_READINESS_STATUS.md` and `PROOF_PACKET_RUN_LOG.md` linked from `GTM_BACKLOG.md` so G1–G6 gates are updatable after each pilot. Batch **5BF** closes **TB-232** — `LINKEDIN_PUBLISHING_SCHEDULE.md` for M-10–M-15 execution. Marketability is still weakened by reliance on founder/service-led motion and limited external proof, but those external proof items are deferred and not headline-scored.
 
 Tradeoffs: Service-led marketability is narrower but more credible than pretending mature PLG SaaS. It also means founder capacity can become a bottleneck.
 

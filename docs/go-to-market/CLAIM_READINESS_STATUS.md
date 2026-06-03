@@ -1,0 +1,31 @@
+> **Scope:** Operational G1–G6 status for proof-gated GTM stages. Update after each pilot or release review; not a public marketing page.
+
+# Claim readiness status
+
+**Current authorized stage:** Stage 0 — Controlled pilots
+
+**Last reviewed:** 2026-06-02
+
+## Gate table
+
+| Gate | Signal | Current status | Evidence link | Blocking dependency | Who unblocks |
+| --- | --- | --- | --- | --- | --- |
+| **G1** | Execution-mode honesty | **HOLD** | Run-detail + proof-packet spot check | Unlabeled/mixed mode in any sponsor export | Engineering — verify all sponsor surfaces label Real/Simulator/Fallback/Mixed |
+| **G2** | ROI source integrity | **PASS** | [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md), proof-packet ROI table | — | — |
+| **G3** | Tenant isolation provable | **PASS** | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md); TB-071/072/073 in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) | — | — |
+| **G4** | Repeatable proof packet | **HOLD** | [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md) | 0 of 3 qualifying real runs logged | Founder/operator — run `collect-first-pilot-proof.ps1` per real pilot |
+| **G5** | Live AI evidence | **HOLD** | [`GOLDEN_COHORT_REAL_LLM_GATE.md`](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md) | Owner credentials for credentialed real-LLM run | **Owner** — archive golden-cohort evidence (non-CI-gating) |
+| **G6** | Procurement posture honest | **PASS** | `python scripts/build_procurement_pack.py --dry-run --deal-ready`; deferred items stated in trust pack | — | — |
+
+## Stage exit criteria
+
+- **Stage 1 — Evidence-backed selling** is authorized when **G1–G4** are all **PASS** for **≥3** distinct real pilot runs (see [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md)).
+- **Stage 2 — Broad GTM / scale claims** requires **G1–G6** all **PASS** plus ≥1 permissioned public reference (owner-deferred per `V1_DEFERRED.md`).
+
+## Session workflow
+
+1. Score gates using [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md) or pilot review notes.
+2. Update this table and the proof run log in the same PR or ops note.
+3. Do not advance marketing claims past the highest fully-passed stage ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)).
+
+**Cross-refs:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout · [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md)

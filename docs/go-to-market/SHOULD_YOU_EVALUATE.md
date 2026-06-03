@@ -13,7 +13,7 @@ Work through the questions in order.
 
 **Q2.** Do you run workloads on Azure (or plan to within 6 months)?
 
-- **No** → ArchLucid V1 targets Azure workloads. Contact us for multi-cloud roadmap.
+- **No** → ArchLucid V1 targets Azure workloads. If your workloads are on AWS or GCP, [contact us](https://archlucid.net/contact) about our multi-cloud roadmap.
 - **Yes** → Continue.
 
 **Q3.** Do you spend 20+ hours per architecture review cycle?

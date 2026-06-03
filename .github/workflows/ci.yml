@@ -478,6 +478,18 @@ jobs:
       - name: Adoption batch 5BC drift guards (TB-229)
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bc.py"
 
+      - name: Adoption batch 5BD drift guards (TB-230)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bd.py"
+
+      - name: Adoption batch 5BE drift guards (TB-231)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5be.py"
+
+      - name: Adoption batch 5BF drift guards (TB-232)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bf.py"
+
+      - name: Check GTM placeholder tokens (warn-only)
+        run: python scripts/ci/check_gtm_placeholder_tokens.py
+
       - name: Check ROI model freshness (warn-only)
         run: python scripts/ci/check_roi_model_freshness.py docs/go-to-market/ROI_MODEL.md
 

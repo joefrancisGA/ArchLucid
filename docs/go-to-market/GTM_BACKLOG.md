@@ -77,6 +77,7 @@ Treat each as **PASS / HOLD**. A single HOLD on G1–G4 blocks Stage 1; a HOLD o
 2. Convert HOLDs into the corresponding engineering improvement (assessment **`LATEST.md` §9**) or owner action.
 3. Use early pilots **deliberately** to manufacture G1–G4 evidence — the pilots are the proof factory, not just revenue.
 4. Do **not** advance claims ahead of the gate; pace marketing copy to the highest fully-passed stage.
+5. Maintain operational trackers: **[`CLAIM_READINESS_STATUS.md`](CLAIM_READINESS_STATUS.md)** (G1–G6 PASS/HOLD) and **[`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md)** (per-run G4 evidence).
 
 **Cross-refs:** **[`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)** (claim guardrails), **[`COMMERCIAL_DECISION_PACKET.md`](COMMERCIAL_DECISION_PACKET.md)** (pilot deliverables), **[`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md)** (improvement IDs + impact), **`V1_DEFERRED.md` §6b–§6c** (deferred commerce/assurance).
 
