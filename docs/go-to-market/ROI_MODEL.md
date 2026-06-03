@@ -7,7 +7,9 @@
 
 **Audience:** Pilot champions, enterprise architects, and engineering leaders who need to justify an ArchLucid purchase to their CFO or procurement team.
 
-**Last reviewed:** 2026-04-17
+**Last reviewed:** 2026-06-02
+
+**Pricing reference:** [`PRICING_PHILOSOPHY.md` §5](PRICING_PHILOSOPHY.md) — verify §8–9 inline numbers match before any sponsor conversation.
 
 **Grounding rule:** Value claims are mapped to shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md). Estimates are conservative. Adjust all numbers to your organization's actuals.
 

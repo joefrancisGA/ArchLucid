@@ -46,7 +46,7 @@ export function buildDecisionsNeededTiles(summary: GovernanceDecisionsNeededSumm
       key: "waiversExpiringWithin14Days",
       label: "Waivers expiring (14d)",
       count: summary.waiversExpiringWithin14Days,
-      href: "/governance/findings",
+      href: "/governance/risk-exceptions",
       cautionAccent: summary.waiversExpiringWithin14Days > 0,
     },
     {

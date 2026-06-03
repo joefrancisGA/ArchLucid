@@ -102,6 +102,14 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          href: "/governance/risk-exceptions",
+          label: OPERATOR_NAV_LINK_LABELS.riskExceptions,
+          title: "Risk exceptions — active waivers, renewals, and revocations",
+          icon: AlertCircle,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/help",
           label: OPERATOR_NAV_LINK_LABELS.help,
           title: "Help — using ArchLucid and reference documentation",
