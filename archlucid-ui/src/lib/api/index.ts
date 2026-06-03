@@ -9,6 +9,7 @@ export {
   apiGet,
   apiPostJson,
   apiPostNoContent,
+  apiPutJson,
   apiPutNoContent,
   extractTraceId,
   fetchArchLucidJson,

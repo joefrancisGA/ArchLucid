@@ -26,6 +26,8 @@ import {
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { BUYER_HOME_FILTER_ACTION_NEEDED, BUYER_GOVERNANCE_MONITORING_BADGE, BUYER_GOVERNANCE_MONITORING_HINT } from "@/lib/buyer-home-status-copy";
+import { buyerFilterChipActiveClass } from "@/lib/buyer-shell-home-present";
 import {
   BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL,
@@ -35,7 +37,7 @@ import {
   BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
   BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING,
 } from "@/lib/buyer-polish-copy";
-import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -87,21 +89,27 @@ function runsDashboardTabLabel(tabId: TabId, buyerPolishedShell: boolean): strin
   return buyerPolishedShell ? BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION : RUNS_DASHBOARD_LABELS.tabOutcomes;
 }
 
-function RunGovernanceWarningIndicator() {
+function RunGovernanceWarningIndicator({ buyerPolishedShell }: { buyerPolishedShell: boolean }) {
+  const title = buyerPolishedShell
+    ? BUYER_GOVERNANCE_MONITORING_BADGE
+    : RUNS_DASHBOARD_LABELS.governanceWarningTitle;
+  const hint = buyerPolishedShell
+    ? BUYER_GOVERNANCE_MONITORING_HINT
+    : RUNS_DASHBOARD_LABELS.governanceWarningHint;
+  const badgeClass = buyerPolishedShell
+    ? "shrink-0 border-neutral-300 bg-neutral-50 text-[0.6rem] font-semibold text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-300"
+    : "shrink-0 border-amber-600/40 bg-al-surface-raised text-[0.6rem] font-semibold text-al-text-primary dark:border-amber-700/50";
+
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Badge
-            variant="outline"
-            className="shrink-0 border-amber-600/40 bg-al-surface-raised text-[0.6rem] font-semibold text-al-text-primary dark:border-amber-700/50"
-            data-testid="run-governance-warning-indicator"
-          >
-            {RUNS_DASHBOARD_LABELS.governanceWarningTitle}
+          <Badge variant="outline" className={badgeClass} data-testid="run-governance-warning-indicator">
+            {title}
           </Badge>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs text-sm">
-          <p>{RUNS_DASHBOARD_LABELS.governanceWarningHint}</p>
+          <p>{hint}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -112,7 +120,9 @@ function RunListRowBadges({ run, className }: { run: RunSummary; className?: str
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <RunStatusBadge run={run} className={className} />
-      {run.hasGovernanceWarnings === true ? <RunGovernanceWarningIndicator /> : null}
+      {run.hasGovernanceWarnings === true ? (
+        <RunGovernanceWarningIndicator buyerPolishedShell={isBuyerPolishedOperatorShellEnv()} />
+      ) : null}
     </div>
   );
 }
@@ -307,10 +317,7 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
   return (
     <section aria-labelledby="runs-dashboard-heading" data-onboarding="tour-runs-dashboard">
       {!hideHeading ? (
-        <h3
-          id="runs-dashboard-heading"
-          className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
-        >
+        <h3 id="runs-dashboard-heading" className={cn("mb-3", OPERATOR_HOME_SECTION_HEADING)}>
           {buyerPolishedShell ? BUYER_RUNS_DASHBOARD_SECTION_HEADING : RUNS_DASHBOARD_LABELS.sectionHeading}
         </h3>
       ) : null}
@@ -382,25 +389,17 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                   data-testid="runs-dashboard-governance-warnings-only"
                   aria-pressed={governanceWarningsOnly}
                   onClick={() => { setGovernanceWarningsOnly((v) => !v); }}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    governanceWarningsOnly
-                      ? "border-amber-600/40 bg-al-surface-raised text-al-text-primary dark:border-amber-700/50"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600"
-                  }`}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${buyerFilterChipActiveClass(governanceWarningsOnly)}`}
                 >
                   <span aria-hidden="true">{governanceWarningsOnly ? "✕" : "+"}</span>
-                  Needs attention
+                  {BUYER_HOME_FILTER_ACTION_NEEDED}
                 </button>
                 <button
                   type="button"
                   data-testid="runs-dashboard-show-archived"
                   aria-pressed={showArchived}
                   onClick={() => { setShowArchived((v) => !v); }}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    showArchived
-                      ? "border-neutral-500 bg-neutral-100 text-neutral-800 dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-200"
-                      : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:border-neutral-600"
-                  }`}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${buyerFilterChipActiveClass(showArchived)}`}
                 >
                   <span aria-hidden="true">{showArchived ? "✕" : "+"}</span>
                   Archived
@@ -503,17 +502,17 @@ export function RunsDashboardPanel({ hideHeading = false }: RunsDashboardPanelPr
                           <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Review package</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href={getShowcaseManifestHref()}>Finalized manifest</Link>
+                          <Link href={getShowcaseManifestHref()}>View finalized manifest</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
                           <Link
                             href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
                           >
-                            Primary finding
+                            View primary finding
                           </Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
-                          <Link href={getShowcaseWalkthroughHref()}>Showcase (read-only)</Link>
+                          <Link href={getShowcaseWalkthroughHref()}>View showcase</Link>
                         </Button>
                       </>
                     )}

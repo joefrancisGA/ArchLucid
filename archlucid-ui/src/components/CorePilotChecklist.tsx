@@ -112,7 +112,7 @@ export function CorePilotChecklist() {
                 <OperatorHomeGuidanceLink
                   helpSlug="core-pilot"
                   hashFragment={hashFragment}
-                  label={`Core Pilot guide — step ${index + 1}`}
+                  label={`Core Pilot guide, step ${index + 1}`}
                 />
               </div>
               <p className="m-0 mt-1 text-sm text-neutral-700 dark:text-neutral-300">{step.shortBody}</p>

@@ -1,5 +1,5 @@
 import type { AdminConfigLintSummary } from "@/lib/fetch-admin-config-lint";
-import { mapConfigLintReadiness } from "@/lib/map-config-lint-readiness";
+import { mapConfigLintReadinessForShell, shellHealthReadinessSummary } from "@/lib/buyer-shell-home-present";
 import type { CurrentPrincipal } from "@/lib/current-principal";
 import {
   FIRST_PILOT_READINESS_REVIEW_PERMISSIONS_CTA,
@@ -83,7 +83,7 @@ export function buildFirstPilotReadinessRows(input: {
   const committedRunHref = input.signals.firstCommittedRunId
     ? `/reviews/${encodeURIComponent(input.signals.firstCommittedRunId)}`
     : "/reviews?projectId=default";
-  const configLintCopy = mapConfigLintReadiness({ canAdmin, lint: input.configLint });
+  const configLintCopy = mapConfigLintReadinessForShell({ canAdmin, lint: input.configLint });
 
   return [
     {
@@ -91,9 +91,7 @@ export function buildFirstPilotReadinessRows(input: {
       label: "API and platform readiness",
       group: "platform" as const,
       status: statusFromHealth(input.healthStatus, input.healthLoadFailed),
-      summary: input.healthLoadFailed
-        ? "Readiness could not be loaded; open system status to inspect the environment."
-        : `Health reports ${input.healthStatus ?? "unknown"}.`,
+      summary: shellHealthReadinessSummary(input.healthLoadFailed, input.healthStatus),
       href: "/health",
       cta: FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA,
     },
@@ -184,7 +182,7 @@ export function buildFirstPilotReadinessRows(input: {
           ? "Capture review hours, reviews per quarter, and loaded architect cost before sponsor export."
           : "ROI baselines are available for review. Editing requires elevated access.",
       href: "/scorecard#roi-baselines",
-      cta: "Enter ROI baselines",
+      cta: "Add ROI baseline",
     },
     {
       id: "procurement-classification",
@@ -193,7 +191,7 @@ export function buildFirstPilotReadinessRows(input: {
       status: "attention",
       summary: "Procurement evidence package has not been generated yet.",
       href: "/trust",
-      cta: "Generate procurement package",
+      cta: "Generate package",
     },
     {
       id: "sponsor-packet",

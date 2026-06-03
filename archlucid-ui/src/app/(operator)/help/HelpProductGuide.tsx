@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BUYER_HOME_PRIMARY_CTA } from "@/lib/buyer-polish-copy";
+import { BUYER_HELP_EXECUTIVE_STEP_CTA } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { inAppHelpHref, listProductDocumentationEntries } from "@/lib/product-documentation-registry";
@@ -30,7 +30,7 @@ export function HelpProductGuide() {
           <ol className="m-0 list-decimal space-y-1.5 pl-5">
             <li>
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={getShowcaseExecutiveHref()}>
-                {BUYER_HOME_PRIMARY_CTA}
+                {BUYER_HELP_EXECUTIVE_STEP_CTA}
               </Link>{" "}
               — start with the business decision and monitored risks.
             </li>

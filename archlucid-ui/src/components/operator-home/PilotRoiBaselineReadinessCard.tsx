@@ -6,6 +6,12 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
+import {
+  OPERATOR_ROI_ESTIMATE_ADD_CTA,
+  OPERATOR_ROI_ESTIMATE_DISMISS_CTA,
+  OPERATOR_ROI_ESTIMATE_PENDING_BODY,
+  OPERATOR_ROI_ESTIMATE_PENDING_HEADLINE,
+} from "@/lib/buyer-home-status-copy";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   dismissPilotRoiBaselineReadinessCard,
@@ -55,21 +61,19 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
   }
 
   const bannerClass =
-    "flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border px-3 py-2 text-sm";
+    "flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900/50";
 
   if (dismissed) {
     return (
       <section
         aria-label="ROI baseline readiness"
-        className={`${bannerClass} border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900/50`}
+        className={bannerClass}
         data-testid="pilot-roi-baseline-readiness-compact"
       >
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">ROI baseline not set</p>
-        <p className="m-0 text-neutral-600 dark:text-neutral-400">
-          Set a baseline to estimate time saved after your first review.
-        </p>
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{OPERATOR_ROI_ESTIMATE_PENDING_HEADLINE}</p>
+        <p className="m-0 text-neutral-600 dark:text-neutral-400">{OPERATOR_ROI_ESTIMATE_PENDING_BODY}</p>
         <Button type="button" size="sm" variant="outline" className="h-7 shrink-0" onClick={openPilotBaselineWizard}>
-          Set baseline
+          {OPERATOR_ROI_ESTIMATE_ADD_CTA}
         </Button>
       </section>
     );
@@ -78,13 +82,11 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
   return (
     <section
       aria-label="ROI baseline readiness"
-      className={`${bannerClass} border-amber-600/30 bg-amber-50/60 dark:border-amber-700/40 dark:bg-amber-950/20`}
+      className={bannerClass}
       data-testid="pilot-roi-baseline-readiness-card"
     >
-      <p className="m-0 font-medium text-amber-950 dark:text-amber-100">ROI baseline not set</p>
-      <p className="m-0 text-amber-900/80 dark:text-amber-200/80">
-        Set a baseline to estimate time saved after your first review.
-      </p>
+      <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{OPERATOR_ROI_ESTIMATE_PENDING_HEADLINE}</p>
+      <p className="m-0 text-neutral-600 dark:text-neutral-400">{OPERATOR_ROI_ESTIMATE_PENDING_BODY}</p>
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <Button
           type="button"
@@ -94,7 +96,7 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
           data-testid="pilot-roi-baseline-readiness-set"
           onClick={openPilotBaselineWizard}
         >
-          Set baseline
+          {OPERATOR_ROI_ESTIMATE_ADD_CTA}
         </Button>
         <Button
           type="button"
@@ -104,13 +106,13 @@ export function PilotRoiBaselineReadinessCard(): React.JSX.Element | null {
           data-testid="pilot-roi-baseline-readiness-skip"
           onClick={dismissPrompt}
         >
-          Skip
+          {OPERATOR_ROI_ESTIMATE_DISMISS_CTA}
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-7 w-7 shrink-0 text-amber-800/60 hover:text-amber-950 dark:text-amber-200/60 dark:hover:text-amber-100"
+          className="h-7 w-7 shrink-0 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
           aria-label="Dismiss ROI baseline prompt"
           data-testid="pilot-roi-baseline-readiness-dismiss"
           onClick={dismissPrompt}

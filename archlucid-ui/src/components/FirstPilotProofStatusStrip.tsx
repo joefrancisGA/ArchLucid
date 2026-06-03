@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { FirstPilotTechnicalCommandDisclosure } from "@/components/FirstPilotTechnicalCommandDisclosure";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import {
-  FIRST_PILOT_PROOF_NOT_RUN_COPY,
+  firstPilotProofNotRunCopy,
   FIRST_PILOT_PROOF_REFRESH_CLI_COMMAND,
   FIRST_PILOT_PROOF_REFRESH_SNAPSHOT_COMMAND,
   FIRST_PILOT_PROOF_STATUS_UNAVAILABLE,
@@ -91,7 +91,7 @@ export function FirstPilotProofStatusStrip() {
         className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50/80 p-3 text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-400"
         data-testid="first-pilot-proof-status-strip"
       >
-        <p className="m-0">{FIRST_PILOT_PROOF_NOT_RUN_COPY}</p>
+        <p className="m-0">{firstPilotProofNotRunCopy()}</p>
         <p className="m-0 mt-2">
           <Link href="/health" className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300">
             {FIRST_PILOT_READINESS_SYSTEM_STATUS_CTA}

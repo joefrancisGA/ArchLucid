@@ -13,15 +13,21 @@ export const BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL = "Review change details
 
 export const BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY = "Change compared reviews";
 
+export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
+  "Start with a completed architecture review package";
+
 export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
   "Completed architecture review package with signed manifest, evidence trail, and audit record.";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
-  "Open the executive summary for board-ready outcomes, or explore the full review package including signed manifest, evidence trail, governance approval, and audit trail.";
+  "Review a completed sample package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
-export const BUYER_HOME_PRIMARY_CTA = "Open executive summary";
+export const BUYER_HOME_PRIMARY_CTA = "Open sample review package";
 
-export const BUYER_HOME_SECONDARY_CTA = "View full review package";
+export const BUYER_HOME_SECONDARY_CTA = "Create from evidence";
+
+/** Help guide step 1 — executive-first walkthrough (distinct from home hero CTA). */
+export const BUYER_HELP_EXECUTIVE_STEP_CTA = "Open executive summary";
 
 export const BUYER_HOME_SETUP_SECTION_HEADING = "Start a new review";
 
@@ -160,7 +166,7 @@ export const BUYER_RUNS_DASHBOARD_TAB_APPROVED = "Approved";
 
 export const BUYER_RUNS_DASHBOARD_TAB_UNDER_MONITORING = "Approved with monitoring";
 
-export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Needs attention";
+export const BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION = "Action needed";
 
 export const BUYER_ASK_INPUT_PLACEHOLDER = "Ask about this review package…";
 

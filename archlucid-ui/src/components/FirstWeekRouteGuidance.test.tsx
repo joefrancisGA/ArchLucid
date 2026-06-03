@@ -42,7 +42,7 @@ describe("FirstWeekRouteGuidance", () => {
   it("renders home guidance with recommended first-session summary", () => {
     render(<FirstWeekRouteGuidance variant="home" />);
 
-    expect(screen.getByText("Recommended first-session path")).toBeInTheDocument();
+    expect(screen.getByText("Recommended first session path")).toBeInTheDocument();
     expect(screen.queryByText(/Use this when:/)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start new review" })).toHaveAttribute("href", "/reviews/new");
   });

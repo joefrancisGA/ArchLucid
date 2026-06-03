@@ -19,7 +19,7 @@ async function expandNextStepsCardIfMinimized(): Promise<void> {
     expect(ready).toBe(true);
   });
 
-  const expandButton = screen.queryByRole("button", { name: "Expand Recommended first-session path" });
+  const expandButton = screen.queryByRole("button", { name: "Expand Recommended first session path" });
 
   if (expandButton === null) {
     return;

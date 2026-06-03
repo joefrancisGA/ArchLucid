@@ -1,3 +1,6 @@
+import { BUYER_PILOT_EVIDENCE_PENDING } from "@/lib/buyer-home-status-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
 /** Operator-safe proof/diagnostics messaging — CLI details stay behind disclosures. */
 
 export const FIRST_PILOT_PROOF_STATUS_UNAVAILABLE =
@@ -5,6 +8,14 @@ export const FIRST_PILOT_PROOF_STATUS_UNAVAILABLE =
 
 export const FIRST_PILOT_PROOF_NOT_RUN_COPY =
   "Pilot proof has not been collected yet. Finalize a review, then open diagnostics to refresh.";
+
+export function firstPilotProofNotRunCopy(): string {
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return BUYER_PILOT_EVIDENCE_PENDING;
+  }
+
+  return FIRST_PILOT_PROOF_NOT_RUN_COPY;
+}
 
 export const FIRST_PILOT_SPONSOR_PROOF_DIAGNOSTICS_LINE =
   "Open diagnostics to run the proof check after finalize.";

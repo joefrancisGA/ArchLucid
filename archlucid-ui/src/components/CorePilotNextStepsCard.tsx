@@ -201,7 +201,7 @@ export function CorePilotNextStepsCard() {
   if (pilotState === "has-run") {
     return (
       <OperatorHomeDisclosureSection
-        title="Recommended first-session path"
+        title="Recommended first session path"
         titleId="core-pilot-next-steps"
         sectionTestId="core-pilot-next-steps"
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath}
@@ -259,7 +259,7 @@ export function CorePilotNextStepsCard() {
 
   return (
     <OperatorHomeDisclosureSection
-      title="Recommended first-session path"
+      title="Recommended first session path"
       titleId="core-pilot-next-steps"
       sectionTestId="core-pilot-next-steps"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.recommendedFirstSessionPath}

@@ -478,7 +478,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 {CORE_PILOT_WORKFLOW_SUMMARY_LINE}
               </p>
               <details className="m-0 mt-2 rounded-md border border-neutral-200/90 bg-neutral-50 px-3 py-2.5 dark:border-neutral-700 dark:bg-neutral-900/55">
-                <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                <summary className="cursor-pointer text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">
                   First session coaching
                 </summary>
                 <p className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400">

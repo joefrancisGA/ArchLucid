@@ -4,7 +4,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BarChart3, Search, Shield } from "lucide-react";
 
+import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 
 type LayerCardProps = {
   icon: ReactNode;
@@ -51,7 +53,7 @@ export function HomeMaturityLayerCards() {
     <section aria-labelledby="maturity-layers-heading">
       <h3
         id="maturity-layers-heading"
-        className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
+        className={cn("mb-3", OPERATOR_HOME_SECTION_HEADING)}
       >
         Explore when ready
       </h3>

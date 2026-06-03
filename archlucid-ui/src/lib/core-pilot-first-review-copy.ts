@@ -3,10 +3,9 @@
  */
 export const CORE_PILOT_FIRST_REVIEW_HEADING = "Create a governed architecture review package";
 
-export const CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT =
-  "First-review checklist";
+export const CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT = "First review checklist";
 
-export const CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON = "Show first-review checklist";
+export const CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON = "Show first review checklist";
 
 /** Right-rail heading when a run exists — shortcuts into the curated sample package. */
 export const OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING = "Sample package shortcuts";

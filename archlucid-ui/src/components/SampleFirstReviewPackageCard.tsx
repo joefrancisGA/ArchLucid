@@ -3,22 +3,26 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY } from "@/lib/operator-co-architect-copy";
-import { BUYER_HOME_PRIMARY_CTA, BUYER_HOME_SAMPLE_PACKAGE_LEAD, BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE, BUYER_HOME_SECONDARY_CTA } from "@/lib/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-  SHOWCASE_STATIC_DEMO_RUN_ID,
-  SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
-} from "@/lib/showcase-static-demo";
+  BUYER_HOME_PRIMARY_CTA,
+  BUYER_HOME_SAMPLE_PACKAGE_HEADLINE,
+  BUYER_HOME_SAMPLE_PACKAGE_LEAD,
+  BUYER_HOME_SECONDARY_CTA,
+} from "@/lib/buyer-polish-copy";
+import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 
 const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
+type SampleFirstReviewPackageCardProps = {
+  /** Must match the home layout branch from {@link OperatorHomePageView} — do not re-read env in this card (hydration). */
+  readonly buyerPolishedShell: boolean;
+};
+
 /** First-session shortcut: opens the curated sample review package before the real-input wizard. */
-export function SampleFirstReviewPackageCard() {
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+export function SampleFirstReviewPackageCard({ buyerPolishedShell }: SampleFirstReviewPackageCardProps) {
+  const buyerPolished = buyerPolishedShell;
 
   function recordSampleOpened(): void {
     recordCorePilotRailChecklistStep(3);
@@ -40,7 +44,7 @@ export function SampleFirstReviewPackageCard() {
               id="sample-first-review-heading"
               className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50"
             >
-              {buyerPolished === true ? SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE : "Start with a completed architecture review package"}
+              {BUYER_HOME_SAMPLE_PACKAGE_HEADLINE}
             </h2>
 
           </div>
@@ -55,7 +59,6 @@ export function SampleFirstReviewPackageCard() {
                   {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · {SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} monitored risk
                 </span>
               </div>
-              <p className="m-0 mt-1 text-sm text-neutral-500 dark:text-neutral-400">{BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE}</p>
               <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {BUYER_HOME_SAMPLE_PACKAGE_LEAD}
               </p>
@@ -71,17 +74,11 @@ export function SampleFirstReviewPackageCard() {
                 </span>
               </div>
               <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before
-                filling out the real-input wizard.
+                {BUYER_HOME_SAMPLE_PACKAGE_LEAD}
               </p>
             </>
           )}
 
-          {buyerPolished === true ? null : (
-            <p className="m-0 mt-2 text-xs text-amber-800 dark:text-amber-300">
-              Illustrative sample review — use it to understand output shape, not as customer ROI evidence.
-            </p>
-          )}
         </div>
 
         <div className="shrink-0 space-y-3 lg:min-w-64">
@@ -113,7 +110,7 @@ export function SampleFirstReviewPackageCard() {
               {buyerPolished === true ? (
                 <>
                   <Button asChild variant="primary" size="lg" className="h-11 min-h-[44px] px-7 text-base shadow-sm">
-                    <Link href={getShowcaseExecutiveHref()} onClick={recordSampleOpened}>
+                    <Link href={sampleReviewHref} onClick={recordSampleOpened}>
                       {BUYER_HOME_PRIMARY_CTA}
                     </Link>
                   </Button>
@@ -122,7 +119,7 @@ export function SampleFirstReviewPackageCard() {
                 <>
                   <Button asChild variant="primary" className="h-9">
                     <Link href={sampleReviewHref} onClick={recordSampleOpened}>
-                      Open sample review package
+                      {BUYER_HOME_PRIMARY_CTA}
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="h-9">
@@ -135,7 +132,7 @@ export function SampleFirstReviewPackageCard() {
             {buyerPolished === true ? (
               <div className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2">
                 <Button asChild variant="outline" size="lg" className="h-11 min-h-[44px] px-7 text-base">
-                  <Link href={sampleReviewHref} onClick={recordSampleOpened}>
+                  <Link href="/reviews/new">
                     {BUYER_HOME_SECONDARY_CTA}
                   </Link>
                 </Button>

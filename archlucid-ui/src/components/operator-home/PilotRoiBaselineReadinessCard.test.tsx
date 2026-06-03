@@ -37,9 +37,9 @@ describe("PilotRoiBaselineReadinessCard", () => {
     render(<PilotRoiBaselineReadinessCard />);
 
     expect(screen.getByTestId("pilot-roi-baseline-readiness-card")).toBeInTheDocument();
-    expect(screen.getByText("ROI baseline not set")).toBeInTheDocument();
+    expect(screen.getByText("ROI estimate pending")).toBeInTheDocument();
     expect(
-      screen.getByText(/estimate time saved after your first review/i),
+      screen.getByText(/Add estimated effort and cost assumptions/i),
     ).toBeInTheDocument();
   });
 
@@ -56,7 +56,7 @@ describe("PilotRoiBaselineReadinessCard", () => {
     window.removeEventListener(PILOT_BASELINE_WIZARD_OPEN_EVENT, listener);
   });
 
-  it("shows compact row after Skip for now", async () => {
+  it("shows compact row after dismiss for this review", async () => {
     render(<PilotRoiBaselineReadinessCard />);
     fireEvent.click(screen.getByTestId("pilot-roi-baseline-readiness-skip"));
 

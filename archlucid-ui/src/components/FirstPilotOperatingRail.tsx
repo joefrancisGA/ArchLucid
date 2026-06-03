@@ -164,9 +164,7 @@ export function FirstPilotOperatingRail() {
               aria-current={status === "current" ? "step" : undefined}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className={cn("tabular-nums uppercase tracking-wide", OPERATOR_TYPOGRAPHY.label)}>
-                  Step {index + 1}
-                </span>
+                <span className={cn("tabular-nums", OPERATOR_TYPOGRAPHY.label)}>Step {index + 1}</span>
                 <StatusTag
                   kind={mapOperatingRailStepToEnterpriseKind(status)}
                   label={mapOperatingRailStepToStatusTagLabel(status)}

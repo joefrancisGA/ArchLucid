@@ -17,6 +17,7 @@ import {
   CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE,
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
 } from "@/lib/core-pilot-first-review-copy";
+import { OPERATOR_HOME_SUBSECTION_LABEL } from "@/lib/design-tokens";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator-home-disclosure-storage";
 
 /**
@@ -72,7 +73,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
   return (
     <OperatorHomeDisclosureSection
-      title="First architecture review checklist (signals + steps)"
+      title="First review checklist"
       sectionTestId="core-pilot-diagnostics-checklist"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.diagnosticsChecklist}
       defaultExpanded={false}
@@ -90,7 +91,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
         {CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE}
       </p>
       <section aria-labelledby="core-pilot-signals-heading" className="mt-4">
-        <h3 id="core-pilot-signals-heading" className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+        <h3 id="core-pilot-signals-heading" className={OPERATOR_HOME_SUBSECTION_LABEL}>
           Server-tracked onboarding signals (this deployment)
         </h3>
 
@@ -108,7 +109,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
         {rates !== null ? (
           <dl className="m-0 mt-3 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
-              <dt className="text-[10px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Sessions</dt>
+              <dt className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400">Sessions</dt>
               <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">{rates.firstSessionCompletedTotal}</dd>
             </div>
             <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
@@ -116,7 +117,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
               <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">{rates.firstRunCommittedTotal}</dd>
             </div>
             <div className="rounded-md border border-neutral-200 px-2 py-2 dark:border-neutral-700">
-              <dt className="text-[10px] uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Conversion</dt>
+              <dt className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400">Conversion</dt>
               <dd className="m-0 text-lg font-bold text-neutral-900 dark:text-neutral-100">
                 {rates.firstSessionCompletedTotal > 0
                   ? `${Math.round(rates.firstRunCommittedPerSessionRatio * 100)}%`
@@ -186,7 +187,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
         </ol>
 
         <p className="m-0 mt-3 text-[11px] text-neutral-500 dark:text-neutral-400">
-          The sidebar <strong className="font-medium text-neutral-700 dark:text-neutral-300">first-review checklist</strong>
+          The sidebar <strong className="font-medium text-neutral-700 dark:text-neutral-300">first review checklist</strong>
           {": "}
           checkbox progress is stored locally; finalization milestones also appear in server counters above once the pipeline persists.
         </p>
@@ -198,7 +199,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
             href="#first-run-workflow-panel"
             className="inline-flex rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-teal-200 dark:hover:bg-neutral-900"
           >
-            Jump to first-review checklist
+            Jump to first review checklist
           </Link>
         </div>
       </section>

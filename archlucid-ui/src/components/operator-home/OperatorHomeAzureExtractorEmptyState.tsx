@@ -44,7 +44,7 @@ export function OperatorHomeAzureExtractorEmptyState() {
         <Button asChild variant="outline" size="sm" className="h-8">
           <Link href="/onboarding">
             <FileSearch className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-            First-review checklist
+            First review checklist
           </Link>
         </Button>
         <Button asChild variant="outline" size="sm" className="h-8">

@@ -16,7 +16,6 @@ import { loadCurrentPrincipal, shellBootstrapReadPrincipal, type CurrentPrincipa
 import {
   FIRST_PILOT_COMMAND_CENTER_OPERATOR_PATH_PHASE,
   resolveFirstPilotCommandCenterPhase,
-  type FirstPilotCommandCenterPhaseSummary,
 } from "@/lib/first-pilot-command-center-phase";
 import {
   FIRST_PILOT_SPONSOR_PROOF_CLI_COMMAND,
@@ -33,6 +32,13 @@ import {
   readFirstPilotDeferredBuyerRequirements,
   readFirstPilotEvidenceAcknowledged,
 } from "@/lib/first-pilot-operating-rail-status";
+import {
+  applyBuyerPolishedCommandCenterPhase,
+  shellEnterpriseStatusTagClass,
+  shellReadinessCountPhrase,
+  shellReadinessStatusTagLabel,
+  shellSponsorDispositionLabel,
+} from "@/lib/buyer-shell-home-present";
 import {
   mapReadinessStatusToEnterpriseKind,
   mapSponsorDispositionToEnterpriseKind,
@@ -85,24 +91,6 @@ function firstBlockingRow(rows: readonly FirstPilotReadinessRow[]): FirstPilotRe
   return rows.find((row) => row.status === "blocked" || row.status === "attention" || row.status === "unknown") ?? null;
 }
 
-function sponsorDispositionLabel(disposition: FirstPilotCommandCenterPhaseSummary["sponsorDisposition"]): string {
-  switch (disposition) {
-    case "send":
-      return "Sponsor send";
-    case "hold":
-      return "Sponsor hold";
-    case "readiness-only":
-      return "Readiness only";
-    case "deferred":
-      return "Deferred scope";
-    default: {
-      const exhaustive: never = disposition;
-
-      return exhaustive;
-    }
-  }
-}
-
 function buildReadinessStatusCounts(rows: readonly FirstPilotReadinessRow[]): ReadinessStatusCounts {
   return rows.reduce<ReadinessStatusCounts>(
     (acc, row) => {
@@ -119,16 +107,16 @@ function formatReadinessCountsSummary(rows: readonly FirstPilotReadinessRow[]): 
   const parts: string[] = [];
 
   if (counts.ready > 0)
-    parts.push(`${String(counts.ready)} ready`);
+    parts.push(shellReadinessCountPhrase("ready", counts.ready));
 
   if (counts.attention > 0)
-    parts.push(`${String(counts.attention)} needs attention`);
+    parts.push(shellReadinessCountPhrase("attention", counts.attention));
 
   if (counts.unknown > 0)
-    parts.push(`${String(counts.unknown)} pending`);
+    parts.push(shellReadinessCountPhrase("unknown", counts.unknown));
 
   if (counts.blocked > 0)
-    parts.push(`${String(counts.blocked)} blocked`);
+    parts.push(shellReadinessCountPhrase("blocked", counts.blocked));
 
   return parts.join(" · ") || "Workspace readiness loading…";
 }
@@ -155,10 +143,10 @@ function ReadinessStatusCountsBar({ rows }: { readonly rows: readonly FirstPilot
 
   const parts: CountPart[] = (
     [
-      { label: "ready", status: "ready", count: counts.ready },
-      { label: "needs attention", status: "attention", count: counts.attention },
-      { label: "pending", status: "unknown", count: counts.unknown },
-      { label: "blocked", status: "blocked", count: counts.blocked },
+      { label: shellReadinessStatusTagLabel("ready").toLowerCase(), status: "ready", count: counts.ready },
+      { label: shellReadinessStatusTagLabel("attention").toLowerCase(), status: "attention", count: counts.attention },
+      { label: shellReadinessStatusTagLabel("unknown").toLowerCase(), status: "unknown", count: counts.unknown },
+      { label: shellReadinessStatusTagLabel("blocked").toLowerCase(), status: "blocked", count: counts.blocked },
     ] satisfies CountPart[]
   ).filter((p) => p.count > 0);
 
@@ -341,13 +329,16 @@ export function FirstPilotReadinessCockpit() {
     && scorecard?.baselines?.baselineArchitectHourlyCost !== undefined;
   const commandCenter = useMemo(
     () =>
-      resolveFirstPilotCommandCenterPhase({
-        signals,
-        baselinesEntered,
-        canExecute,
-        hasBlockingRow: blocker !== null,
-        deferredBuyerRequirements: readFirstPilotDeferredBuyerRequirements(),
-      }),
+      applyBuyerPolishedCommandCenterPhase(
+        resolveFirstPilotCommandCenterPhase({
+          signals,
+          baselinesEntered,
+          canExecute,
+          hasBlockingRow: blocker !== null,
+          deferredBuyerRequirements: readFirstPilotDeferredBuyerRequirements(),
+        }),
+        { baselinesEntered },
+      ),
     [signals, baselinesEntered, canExecute, blocker],
   );
 
@@ -378,7 +369,7 @@ export function FirstPilotReadinessCockpit() {
         data-testid="first-pilot-command-center-phase"
         data-phase={commandCenter.phase}
       >
-        <p className={cn("m-0 font-semibold uppercase tracking-wide", OPERATOR_TYPOGRAPHY.label)}>Next action</p>
+        <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>Next action</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <StatusTag
             kind="neutral"
@@ -387,7 +378,10 @@ export function FirstPilotReadinessCockpit() {
           <StatusTag kind="in-progress" label={commandCenter.headline} />
           <StatusTag
             kind={mapSponsorDispositionToEnterpriseKind(commandCenter.sponsorDisposition)}
-            label={sponsorDispositionLabel(commandCenter.sponsorDisposition)}
+            label={shellSponsorDispositionLabel(commandCenter.sponsorDisposition)}
+            className={shellEnterpriseStatusTagClass(
+              mapSponsorDispositionToEnterpriseKind(commandCenter.sponsorDisposition),
+            )}
           />
         </div>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>{commandCenter.summary}</p>

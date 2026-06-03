@@ -39,6 +39,14 @@ export const OPERATOR_LAYOUT = {
   sectionHeadingMargin: "mb-3",
 } as const;
 
+/** Zone headings on operator/buyer home — sentence case (no `uppercase` transform). */
+export const OPERATOR_HOME_SECTION_HEADING =
+  "m-0 text-sm font-semibold text-neutral-600 dark:text-neutral-300";
+
+/** Subsection labels inside home disclosure cards — sentence case. */
+export const OPERATOR_HOME_SUBSECTION_LABEL =
+  "m-0 text-xs font-semibold text-neutral-600 dark:text-neutral-400";
+
 export const OPERATOR_TYPOGRAPHY = {
   pageTitle: "text-xl font-semibold tracking-tight text-al-text-primary",
   sectionTitle:

@@ -31,6 +31,7 @@ import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { BUYER_HOME_SETUP_SECTION_HEADING } from "@/lib/buyer-polish-copy";
+import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
 
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 
@@ -40,10 +41,7 @@ type OperatorHomePageViewProps = {
 
 function HomeSectionHeading(props: { readonly id?: string; readonly children: string }) {
   return (
-    <h2
-      id={props.id}
-      className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
-    >
+    <h2 id={props.id} className={OPERATOR_HOME_SECTION_HEADING}>
       {props.children}
     </h2>
   );
@@ -68,10 +66,7 @@ function OperatorHomeReviewsGrid() {
 
           <section aria-labelledby="operational-metrics-heading">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <h3
-                id="operational-metrics-heading"
-                className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
-              >
+              <h3 id="operational-metrics-heading" className={OPERATOR_HOME_SECTION_HEADING}>
                 Operational metrics
               </h3>
 
@@ -107,7 +102,7 @@ function BuyerPolishedHomePageBody() {
         className="space-y-4"
         data-testid="operator-home-proof-section"
       >
-        <SampleFirstReviewPackageCard />
+        <SampleFirstReviewPackageCard buyerPolishedShell={true} />
         <RunsDashboardPanel />
         <BeforeAfterDeltaPanel />
       </section>
@@ -138,7 +133,7 @@ function OperatorHomePageBody() {
       <div className="space-y-4">
         <OperatorCoArchitectHomeStrip />
         <WelcomeBanner />
-        <SampleFirstReviewPackageCard />
+        <SampleFirstReviewPackageCard buyerPolishedShell={false} />
       </div>
 
       {/* Zone 2: your reviews */}
@@ -166,7 +161,7 @@ function OperatorHomePageBody() {
         <div className="max-w-prose space-y-3">
           <FirstWeekRouteGuidance variant="home" />
           <OperatorHomeGuidanceLinks>
-            <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
+            <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First pilot operator path — full walkthrough" />
           </OperatorHomeGuidanceLinks>
         </div>
       </section>

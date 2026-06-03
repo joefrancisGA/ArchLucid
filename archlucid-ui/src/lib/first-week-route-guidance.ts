@@ -1,4 +1,4 @@
-export const FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY = "Recommended first-session path";
+export const FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY = "Recommended first session path";
 
 export type FirstWeekRouteGuidanceVariant =
   | "home"
