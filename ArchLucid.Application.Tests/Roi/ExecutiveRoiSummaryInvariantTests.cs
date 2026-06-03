@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

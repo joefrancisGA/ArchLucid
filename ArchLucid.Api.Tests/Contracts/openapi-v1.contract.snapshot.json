@@ -3011,6 +3011,12 @@
           "requestId": {
             "type": "string"
           },
+          "requestSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "requiredCapabilities": {
             "items": {
               "type": "string"
@@ -3031,6 +3037,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "wizardPresetUsed": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -7777,6 +7789,25 @@
       "ExecutiveRoiHistoryPoint": {
         "properties": {
           "criticalSecurityFindings": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "isMixedMode": {
+            "type": "boolean"
+          },
+          "realModeSavingsUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "realRunCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "simulatorRunCount": {
             "format": "int32",
             "type": "integer"
           },

@@ -101,6 +101,16 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
     expect(greenfieldCard).toBeTruthy();
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
 
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2: Evidence \(optional\)/);
+    });
+
+    fireEvent.click(screen.getByTestId("wizard-evidence-upload-skip-demo"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 3: Identity & goals/);
+    });
+
     expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME);
 
     expect((screen.getByLabelText("Description") as HTMLTextAreaElement).value).toBe(OPERATOR_HOME_EXAMPLE_DESCRIPTION);
