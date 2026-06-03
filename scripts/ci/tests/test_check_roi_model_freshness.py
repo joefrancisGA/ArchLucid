@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime as dt
 import unittest
 
-from scripts.ci.check_roi_model_freshness import check_last_reviewed, extract_last_reviewed
+from check_roi_model_freshness import check_last_reviewed, extract_last_reviewed  # noqa: E402
 
 
 class TestCheckRoiModelFreshness(unittest.TestCase):
