@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
@@ -59,14 +58,13 @@ describe("FirstValueReachedCallout", () => {
   });
 
   it("stays hidden after dismissal", async () => {
-    const user = userEvent.setup();
     render(<FirstValueReachedCallout />);
 
     await waitFor(() => {
       expect(screen.getByTestId("first-value-reached-callout")).toBeInTheDocument();
     });
 
-    await user.click(screen.getByTestId("first-value-reached-dismiss"));
+    fireEvent.click(screen.getByTestId("first-value-reached-dismiss"));
     expect(window.localStorage.getItem(DISMISS_KEY)).toBe("1");
 
     render(<FirstValueReachedCallout />);

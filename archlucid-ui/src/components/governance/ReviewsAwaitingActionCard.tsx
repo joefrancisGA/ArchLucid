@@ -63,7 +63,7 @@ export function ReviewsAwaitingActionCard() {
   return (
     <Card className="border-neutral-200 dark:border-neutral-800" data-testid="reviews-awaiting-action-card">
       <CardContent className="space-y-3 p-4">
-        <h3 className={OPERATOR_TYPOGRAPHY.subheading}>Reviews awaiting your action</h3>
+        <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviews awaiting your action</h3>
         <ul className="m-0 list-none space-y-3 p-0">
           {items.map((item) => {
             const runHex = item.runId.replace(/-/g, "");
