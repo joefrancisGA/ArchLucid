@@ -31,6 +31,12 @@ const CATALOG: Record<string, CatalogEntry> = {
       "The versioned, finalized design record for an architecture review—the source of truth for governance, comparison, and artifacts.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
+  review_package: {
+    term: "Review package",
+    definition:
+      "A governed architecture review with manifest, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+    docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
+  },
   findings: {
     term: "Finding",
     glossaryMatch: "Finding",

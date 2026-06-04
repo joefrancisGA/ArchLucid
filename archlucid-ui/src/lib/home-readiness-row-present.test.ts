@@ -24,6 +24,6 @@ describe("home-readiness-row-present", () => {
     const roi = applyHomeReadinessRowPresentation(rows).find((row) => row.id === "roi-baselines");
 
     expect(roi?.label).toBe("ROI assumptions");
-    expect(roi?.cta).toBe("Add assumptions");
+    expect(roi?.cta).toBe("Add ROI assumptions");
   });
 });

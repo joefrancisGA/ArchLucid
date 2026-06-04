@@ -15,6 +15,7 @@ public static class DataConsistencyOrphanProbeRegistry
         Background("ContextSnapshots", "ContextSnapshotsRunId"),
         Background("GraphSnapshots", "GraphSnapshotsRunId"),
         Background("ArtifactBundles", "ArtifactBundlesRunId"),
+        Background("RunStageOutcomes", "RunStageOutcomesRunId"),
         Background("RetrievalGroundingTrace", "RetrievalGroundingTraceRunId"),
         OptOut(
             "DecisioningTraces",

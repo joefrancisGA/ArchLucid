@@ -205,10 +205,15 @@ public sealed class ExecutiveRoiSummaryInvariantTests
         Mock<IOptionsMonitor<ExecutiveRoiCacheWarmupOptions>> options = new();
         options.Setup(monitor => monitor.CurrentValue).Returns(new ExecutiveRoiCacheWarmupOptions { CacheTtlSeconds = 300 });
 
+        Mock<IArchitectureRiskRegisterService> architectureRiskRegister = new();
+        architectureRiskRegister
+            .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
         CachingExecutiveRoiSummaryService cachedRoi = new(
             innerService,
             riskExceptions.Object,
-            Mock.Of<IArchitectureRiskRegisterService>(),
+            architectureRiskRegister.Object,
             cache.Object,
             scopeProvider.Object,
             options.Object);
@@ -330,10 +335,15 @@ public sealed class ExecutiveRoiSummaryInvariantTests
         Mock<IOptionsMonitor<ExecutiveRoiCacheWarmupOptions>> options = new();
         options.Setup(monitor => monitor.CurrentValue).Returns(new ExecutiveRoiCacheWarmupOptions { CacheTtlSeconds = 300 });
 
+        Mock<IArchitectureRiskRegisterService> architectureRiskRegisterForCache = new();
+        architectureRiskRegisterForCache
+            .Setup(service => service.GetRegisterAsync(TenantId, ProjectId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse());
+
         CachingExecutiveRoiSummaryService sut = new(
             innerService,
             riskExceptions.Object,
-            Mock.Of<IArchitectureRiskRegisterService>(),
+            architectureRiskRegisterForCache.Object,
             cache.Object,
             scopeProvider.Object,
             options.Object);

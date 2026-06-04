@@ -7,6 +7,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Runs.Telemetry;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class WizardPilotCommitTelemetryTests
 {
     [Theory]

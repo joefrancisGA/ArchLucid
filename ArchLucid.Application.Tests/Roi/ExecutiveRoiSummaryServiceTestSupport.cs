@@ -121,7 +121,7 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
             tenantSettings.Object,
             findingsSnapshots.Object,
             tenantCostSettings.Object,
-            Mock.Of<IPilotScorecardMetricsReader>(),
+            CreateDefaultPilotScorecardMetricsReader(),
             Options.Create(new ValueReportComputationOptions()),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 
@@ -146,5 +146,15 @@ internal static class ExecutiveRoiSummaryServiceTestSupport
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(resolvedScope);
 
         return new ExecutiveRoiTenantPricingContextResolver(repository.Object, scopeProvider.Object);
+    }
+
+    internal static IPilotScorecardMetricsReader CreateDefaultPilotScorecardMetricsReader()
+    {
+        Mock<IPilotScorecardMetricsReader> reader = new();
+        reader
+            .Setup(metricsReader => metricsReader.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PilotScorecardTenantMetrics());
+
+        return reader.Object;
     }
 }

@@ -102,6 +102,7 @@ public sealed class TrialArchitecturePreseedExecutor(
         }
     }
 
+    [InformationalAudit]
     private async Task RecordPreseedFailureAsync(
         Guid tenantId,
         TenantWorkspaceLink link,

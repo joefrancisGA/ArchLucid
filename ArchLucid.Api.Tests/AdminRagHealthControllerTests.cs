@@ -1,7 +1,6 @@
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Contracts.Admin;
-using ArchLucid.Retrieval.Embedding;
-using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Core.Admin;
 
 using FluentAssertions;
 
@@ -18,24 +17,26 @@ public sealed class AdminRagHealthControllerTests
     [SkippableFact]
     public void GetRagHealth_returns_corpus_rows_with_embedding_dimension()
     {
-        Mock<IRetrievalDocumentIndexCatalog> catalog = new();
-        catalog
-            .Setup(c => c.GetCorpusFreshnessSummaries())
-            .Returns(
+        AdminRagHealthResponse expected = new()
+        {
+            EmbeddingModelId = "text-embedding-3-small",
+            Corpora =
             [
-                new RetrievalCorpusFreshnessSummary
+                new AdminRagCorpusHealthItem
                 {
                     CorpusKind = "PolicyPack",
-                    DocumentCount = 4,
-                    LastIndexedUtc = DateTimeOffset.UtcNow.AddHours(-1)
-                }
-            ]);
+                    ChunkCount = 4,
+                    LastIndexedUtc = DateTimeOffset.UtcNow.AddHours(-1),
+                    EmbeddingDimension = 1536,
+                    IsStale = false,
+                },
+            ],
+        };
 
-        Mock<IEmbeddingModelIdentity> embedding = new();
-        embedding.Setup(e => e.ModelId).Returns("text-embedding-3-small");
-        embedding.Setup(e => e.ExpectedDimension).Returns(1536);
+        Mock<IAdminRagHealthQuery> query = new();
+        query.Setup(q => q.GetRagHealth()).Returns(expected);
 
-        AdminRagHealthController sut = new(catalog.Object, embedding.Object);
+        AdminRagHealthController sut = new(query.Object);
 
         ActionResult<AdminRagHealthResponse> result = sut.GetRagHealth();
 

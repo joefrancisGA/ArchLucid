@@ -1,6 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -14,11 +16,15 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence")]
-public sealed class ReferenceEvidenceAdminController(IReferenceEvidenceAdminExportService exportService)
-    : ControllerBase
+public sealed class ReferenceEvidenceAdminController(
+    IReferenceEvidenceAdminExportService exportService,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private readonly IReferenceEvidenceAdminExportService _exportService =
         exportService ?? throw new ArgumentNullException(nameof(exportService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <summary>
     ///     ZIP containing <c>pilot-run-deltas.json</c>, first-value Markdown/PDF, optional sponsor one-pager, and a README.
@@ -34,8 +40,14 @@ public sealed class ReferenceEvidenceAdminController(IReferenceEvidenceAdminExpo
         [FromQuery] bool includeDemo = false,
         CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? forbid = RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope(tenantId, scope);
+
+        if (forbid is not null)
+            return forbid;
+
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
-        byte[]? zip = await _exportService.BuildZipAsync(tenantId, includeDemo, baseForLinks, cancellationToken);
+        byte[]? zip = await _exportService.BuildZipAsync(scope.TenantId, includeDemo, baseForLinks, cancellationToken);
 
         if (zip is null || zip.Length == 0)
         {

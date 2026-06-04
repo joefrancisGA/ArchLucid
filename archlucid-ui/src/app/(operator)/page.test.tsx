@@ -112,11 +112,11 @@ describe("HomePage (55R smoke — landing)", () => {
   it("renders Reviews panel, maturity layer cards, and workflow panel", async () => {
     render(<HomePage />);
 
-    expect(screen.getByRole("heading", { name: "Your review packages" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your reviews" })).toBeInTheDocument();
     expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
     expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
     expect(screen.getByText("Search & Insights")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open sample review package" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open the example review package" })).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );

@@ -156,7 +156,7 @@ public sealed class ExecutiveRoiBackgroundTenantRollupIsolationTests
             CreateEmptyTenantSettingsRepository(),
             findingsSnapshots.Object,
             tenantCostSettings.Object,
-            Mock.Of<IPilotScorecardMetricsReader>(),
+            ExecutiveRoiSummaryServiceTestSupport.CreateDefaultPilotScorecardMetricsReader(),
             Microsoft.Extensions.Options.Options.Create(new Core.Configuration.ValueReportComputationOptions()),
             NullLogger<ExecutiveRoiSummaryService>.Instance);
 

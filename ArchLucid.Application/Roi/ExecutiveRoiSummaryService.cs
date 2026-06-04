@@ -187,10 +187,10 @@ public sealed class ExecutiveRoiSummaryService(
 
         int staleArchitectureRiskCount = StaleArchitectureRiskCountCalculator.CountStale(riskRegister);
 
-        PilotScorecardTenantMetrics pilotMetrics =
+        PilotScorecardTenantMetrics? pilotMetrics =
             await _pilotScorecardMetricsReader.GetAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
-        DateTime? firstCommitUtc = pilotMetrics.FirstCommitUtc?.UtcDateTime;
+        DateTime? firstCommitUtc = pilotMetrics?.FirstCommitUtc?.UtcDateTime;
 
         return new ExecutiveRoiSummaryResponse
         {

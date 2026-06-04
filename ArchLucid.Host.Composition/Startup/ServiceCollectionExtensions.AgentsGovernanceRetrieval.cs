@@ -48,6 +48,8 @@ using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Core.Admin;
+using ArchLucid.Retrieval.Admin;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Citations;
 using ArchLucid.Retrieval.Embedding;
@@ -877,6 +879,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<PriorManifestChunker>();
         services.AddScoped<IRetrievalDocumentBuilder, RetrievalDocumentBuilder>();
         services.AddSingleton<IRetrievalDocumentIndexCatalog, InMemoryRetrievalDocumentIndexCatalog>();
+        services.AddScoped<IAdminRagHealthQuery, AdminRagHealthQuery>();
         services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();
         services.AddScoped<AssignedPolicyPackRulePackIdResolver>();
         services.AddSingleton<IRetrievalCitationFormatter, RetrievalCitationFormatter>();

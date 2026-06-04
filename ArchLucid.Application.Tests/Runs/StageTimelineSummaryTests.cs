@@ -5,6 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Application.Tests.Runs;
 
 /// <summary>TB-250 stage timeline duration derivation.</summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class StageTimelineSummaryTests
 {
     [Fact]

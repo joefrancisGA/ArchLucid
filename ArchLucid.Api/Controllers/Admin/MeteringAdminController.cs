@@ -1,6 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Metering;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -14,9 +16,14 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/metering")]
-public sealed class MeteringAdminController(IUsageMeteringService metering) : ControllerBase
+public sealed class MeteringAdminController(
+    IUsageMeteringService metering,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private readonly IUsageMeteringService _metering = metering ?? throw new ArgumentNullException(nameof(metering));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <summary>
     ///     Aggregated usage for a tenant between <paramref name="periodStart" /> (inclusive) and
@@ -36,8 +43,14 @@ public sealed class MeteringAdminController(IUsageMeteringService metering) : Co
                 "periodEnd must be greater than periodStart.",
                 ProblemTypes.ValidationFailed);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? forbid = RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope(tenantId, scope);
+
+        if (forbid is not null)
+            return forbid;
+
         IReadOnlyList<TenantUsageSummary> rows =
-            await _metering.GetSummaryAsync(tenantId, periodStart, periodEnd, cancellationToken);
+            await _metering.GetSummaryAsync(scope.TenantId, periodStart, periodEnd, cancellationToken);
 
         return Ok(rows);
     }

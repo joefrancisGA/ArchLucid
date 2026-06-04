@@ -59,6 +59,16 @@ public static class DataConsistencyOrphanProbeSql
                                                    WHERE r.RunId = ab.RunId);
                                                """;
 
+    /// <summary>Orphan <c>RunStageOutcomes</c> rows whose <c>RunId</c> is missing from <c>dbo.Runs</c>.</summary>
+    public const string RunStageOutcomesRunId = """
+                                                SELECT COUNT_BIG(1)
+                                                FROM dbo.RunStageOutcomes rso
+                                                WHERE NOT EXISTS (
+                                                    SELECT 1
+                                                    FROM dbo.Runs r
+                                                    WHERE r.RunId = rso.RunId);
+                                                """;
+
     /// <summary>Orphan <c>RetrievalGroundingTrace</c> rows whose <c>RunId</c> is missing from <c>dbo.Runs</c>.</summary>
     public const string RetrievalGroundingTraceRunId = """
                                                       SELECT COUNT_BIG(1)

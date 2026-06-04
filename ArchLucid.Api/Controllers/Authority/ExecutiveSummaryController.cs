@@ -1,6 +1,8 @@
+using ArchLucid.Api.Security;
 using ArchLucid.Application.ExecutiveSummary;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -18,8 +20,12 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("api/authority/executive-summary")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class ExecutiveSummaryController(IExecutiveSummaryService executiveSummaryService) : ControllerBase
+public sealed class ExecutiveSummaryController(
+    IExecutiveSummaryService executiveSummaryService,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     /// <summary>
     ///     Aggregates raw architectural findings into three high-level scores: Security Posture, Tech Debt Risk, and Compliance Alignment.
     /// </summary>
@@ -29,7 +35,15 @@ public sealed class ExecutiveSummaryController(IExecutiveSummaryService executiv
         [FromRoute] Guid tenantId,
         CancellationToken cancellationToken)
     {
-        ExecutiveSummaryResponse response = await executiveSummaryService.GenerateSummaryAsync(tenantId, cancellationToken);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? forbid = RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope(tenantId, scope);
+
+        if (forbid is not null)
+            return forbid;
+
+        ExecutiveSummaryResponse response =
+            await executiveSummaryService.GenerateSummaryAsync(scope.TenantId, cancellationToken);
+
         return Ok(response);
     }
 }
