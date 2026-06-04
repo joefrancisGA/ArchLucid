@@ -15,8 +15,8 @@ public class ReviewCompletedEventHandler(ILogger<ReviewCompletedEventHandler> lo
     {
         logger.LogInformation(
             "Intent to send completion email for RunId={RunId}, ProjectId={ProjectId}",
-            @event.RunId,
-            @event.ProjectId); // lgtm[cs/log-forging] RunId and ProjectId are Guid value types.
+            @event.RunId, // lgtm[cs/log-forging]
+            @event.ProjectId);
         return Task.CompletedTask;
     }
 }
