@@ -10,11 +10,15 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 class TestCuttingEdgeBatch5BO(unittest.TestCase):
     def test_tb_194_admin_rag_health_endpoint(self) -> None:
-        path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin" / "AdminRagHealthController.cs"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("rag-health", text)
-        self.assertIn("GetCorpusFreshnessSummaries", text)
-        self.assertIn("IsStale", text)
+        controller_path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin" / "AdminRagHealthController.cs"
+        controller_text = controller_path.read_text(encoding="utf-8")
+        self.assertIn("rag-health", controller_text)
+        self.assertIn("IAdminRagHealthQuery", controller_text)
+
+        query_path = REPO_ROOT / "ArchLucid.Retrieval" / "Admin" / "AdminRagHealthQuery.cs"
+        query_text = query_path.read_text(encoding="utf-8")
+        self.assertIn("GetCorpusFreshnessSummaries", query_text)
+        self.assertIn("IsStale", query_text)
 
     def test_tb_194_admin_ui_page(self) -> None:
         path = (
