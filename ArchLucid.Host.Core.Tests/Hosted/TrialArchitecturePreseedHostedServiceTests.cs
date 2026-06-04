@@ -16,6 +16,7 @@ using ArchLucid.Host.Core.Hosted;
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -58,6 +59,7 @@ public sealed class TrialArchitecturePreseedHostedServiceTests
                     Tier = TenantTier.Free,
                     CreatedUtc = DateTimeOffset.UtcNow,
                     TrialStatus = TrialLifecycleStatus.Active,
+                    IndustryVertical = "Healthcare",
                 });
 
         Mock<IArchitectureRunCreateOrchestrator> create = new();
@@ -86,6 +88,7 @@ public sealed class TrialArchitecturePreseedHostedServiceTests
             .Returns(Task.CompletedTask);
 
         ServiceCollection services = [];
+        services.AddSingleton<ILogger<TrialArchitecturePreseedExecutor>>(NullLogger<TrialArchitecturePreseedExecutor>.Instance);
         services.AddScoped(_ => tenants.Object);
         services.AddScoped<TrialArchitecturePreseedExecutor>();
         services.AddScoped(_ => create.Object);
@@ -115,7 +118,7 @@ public sealed class TrialArchitecturePreseedHostedServiceTests
 
         using CancellationTokenSource cts = new();
         await sut.StartAsync(cts.Token);
-        await Task.Delay(2000, CancellationToken.None);
+        await Task.Delay(7000, CancellationToken.None);
         await cts.CancelAsync();
         await sut.StopAsync(CancellationToken.None);
 

@@ -36,7 +36,7 @@ public sealed class AskServiceComparisonNarrativeTests
     {
         Guid baseRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid targetRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-        (AskService sut, Mock<IAgentCompletionClient> llm) = CreateSut(
+        (AskService sut, Mock<IAgentCompletionClient> llm, ScopeContext scope) = CreateSut(
             generateComparisonNarrative: false,
             baseRunId,
             targetRunId,
@@ -50,7 +50,7 @@ public sealed class AskServiceComparisonNarrativeTests
                 TargetRunId = targetRunId,
                 RunId = targetRunId,
             },
-            CreateScope(),
+            scope,
             CancellationToken.None);
 
         response.ComparisonNarrative.Should().BeNull();
@@ -64,7 +64,7 @@ public sealed class AskServiceComparisonNarrativeTests
     {
         Guid baseRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         Guid targetRunId = Guid.Parse("44444444-4444-4444-4444-444444444444");
-        (AskService sut, Mock<IAgentCompletionClient> llm) = CreateSut(
+        (AskService sut, Mock<IAgentCompletionClient> llm, ScopeContext scope) = CreateSut(
             generateComparisonNarrative: true,
             baseRunId,
             targetRunId,
@@ -94,7 +94,7 @@ public sealed class AskServiceComparisonNarrativeTests
                 TargetRunId = targetRunId,
                 RunId = targetRunId,
             },
-            CreateScope(),
+            scope,
             CancellationToken.None);
 
         response.ComparisonNarrative.Should().Be("Security posture improved; one new cost risk remains.");
@@ -108,7 +108,7 @@ public sealed class AskServiceComparisonNarrativeTests
     {
         Guid baseRunId = Guid.Parse("55555555-5555-5555-5555-555555555555");
         Guid targetRunId = Guid.Parse("66666666-6666-6666-6666-666666666666");
-        (AskService sut, Mock<IAgentCompletionClient> llm) = CreateSut(
+        (AskService sut, Mock<IAgentCompletionClient> llm, ScopeContext scope) = CreateSut(
             generateComparisonNarrative: true,
             baseRunId,
             targetRunId,
@@ -137,7 +137,7 @@ public sealed class AskServiceComparisonNarrativeTests
                 TargetRunId = targetRunId,
                 RunId = targetRunId,
             },
-            CreateScope(),
+            scope,
             CancellationToken.None);
 
         response.ComparisonNarrative.Should().BeNull();
@@ -154,7 +154,7 @@ public sealed class AskServiceComparisonNarrativeTests
             ProjectId = Guid.NewGuid(),
         };
 
-    private static (AskService Service, Mock<IAgentCompletionClient> Llm) CreateSut(
+    private static (AskService Service, Mock<IAgentCompletionClient> Llm, ScopeContext Scope) CreateSut(
         bool generateComparisonNarrative,
         Guid baseRunId,
         Guid targetRunId,
@@ -251,7 +251,7 @@ public sealed class AskServiceComparisonNarrativeTests
             contextOptions.Object,
             NullLogger<AskService>.Instance);
 
-        return (sut, llm);
+        return (sut, llm, scope);
     }
 
     private static ManifestDocument CreateManifest(Guid runId) =>
