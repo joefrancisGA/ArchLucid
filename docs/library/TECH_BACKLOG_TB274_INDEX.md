@@ -1,4 +1,4 @@
-> **Scope:** Engineering index for TB-274 security/platform register (BE-001…BE-061, SEC-001…SEC-035). Eight SEC/BE pairs count once for fix scope; both IDs may remain in planning notes.
+> **Scope:** Contributor-reference — engineering index for TB-274 security/platform register (BE-001…BE-061, SEC-001…SEC-035). Eight SEC/BE pairs count once for fix scope; both IDs may remain in planning notes.
 
 # TB-274 register index
 

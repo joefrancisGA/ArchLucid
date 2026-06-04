@@ -48,13 +48,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
       }),
     ).toBeVisible();
 
-    // Copy differs by buyer-polished vs full-operator shell; use stable test id from {@link CollapsibleSection}.
-    const verificationAppendix = page.getByTestId("manifest-verification-appendix");
-
-    await expect(verificationAppendix).toBeVisible();
-    await verificationAppendix.locator("summary").click();
-    await expect(page.getByText(FIXTURE_MANIFEST_ID)).toBeVisible();
-
+    // Buyer-polished shell hides raw manifest UUID; operator summary and bundle href remain stable.
     await expect(
       page.getByText(/Finalized reviewed manifest for Claims Intake Modernization/),
     ).toBeVisible();
@@ -63,7 +57,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await Promise.all([
       page.waitForURL(`**/reviews/${FIXTURE_RUN_ID}**`, { waitUntil: "commit" }),
-      page.getByRole("link", { name: "Open review" }).click(),
+      page.getByRole("link", { name: "Open review" }).first().click(),
     ]);
 
     await expect(page).toHaveURL(new RegExp(encodeURIComponent(FIXTURE_RUN_ID)));

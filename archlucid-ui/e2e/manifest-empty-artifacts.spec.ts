@@ -25,9 +25,10 @@ test.describe("operator journey — manifest empty artifact list", () => {
       }),
     ).toBeVisible();
 
-    // Manifest ID lives under a collapsed <details> in the summary panel; label varies by shell — use stable test id.
-    await page.getByTestId("manifest-verification-appendix").locator("summary").first().click();
-    await expect(page.getByText(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)).toBeVisible();
+    // Buyer-polished shell hides raw manifest UUID in the verification appendix; assert stable operator summary copy.
+    await expect(
+      page.getByText(/E2E fixture: golden manifest summary is present/i),
+    ).toBeVisible();
 
     await expect(page.getByText("Artifact list could not be loaded.", { exact: true })).toHaveCount(0);
     await expect(page.getByText("Deliverables list could not be loaded.", { exact: true })).toHaveCount(0);
@@ -38,8 +39,14 @@ test.describe("operator journey — manifest empty artifact list", () => {
       hasText: /No artifacts listed for this manifest|No deliverables listed yet/,
     });
     await expect(emptyRegion).toBeVisible();
-    await expect(emptyRegion.getByText(/valid empty result/)).toBeVisible();
-    await expect(emptyRegion.getByText(/Bundle ZIP may return 404/)).toBeVisible();
+    await expect(
+      emptyRegion.getByText(
+        /valid empty result|Download is being prepared when your workspace publishes a bundle for this review/i,
+      ),
+    ).toBeVisible();
+    await expect(
+      emptyRegion.getByText(/Bundle ZIP may return 404|Download is being prepared when your workspace publishes a bundle/i),
+    ).toBeVisible();
 
     // Buyer-polished shell: bundle CTA lives in collapsed `manifest-buyer-bundle-download` details.
     const buyerBundleDetails = page.getByTestId("manifest-buyer-bundle-download");
