@@ -40,6 +40,7 @@ public sealed class Tier2ConnectionController(
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [ProducesResponseType(typeof(Tier2ConnectionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

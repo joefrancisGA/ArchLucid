@@ -94,10 +94,10 @@
     "POST /v1/auth/trial/local/verify-email": "operator-documented-safe-retry",
     "POST /v1/authority/replay": "operator-documented-safe-retry",
     "POST /v1/authority/runs/{runId}/disposition": "explicit-idempotency-key",
-    "POST /v1/azure-extractor/connections": "unclassified",
-    "POST /v1/azure-extractor/upload": "unclassified",
-    "POST /v1/azure-extractor/upload-sessions": "unclassified",
-    "POST /v1/azure-extractor/upload-sessions/{sessionId}/complete": "unclassified",
+    "POST /v1/azure-extractor/connections": "operator-documented-safe-retry",
+    "POST /v1/azure-extractor/upload": "operator-documented-safe-retry",
+    "POST /v1/azure-extractor/upload-sessions": "operator-documented-safe-retry",
+    "POST /v1/azure-extractor/upload-sessions/{sessionId}/complete": "operator-documented-safe-retry",
     "POST /v1/billing/webhooks/marketplace": "inbound-webhook-pipeline",
     "POST /v1/billing/webhooks/stripe": "inbound-webhook-pipeline",
     "POST /v1/composite-alert-rules": "unclassified",
@@ -194,7 +194,7 @@
     "PUT /scim/v2/Users/{id}": "naturally-idempotent",
     "PUT /v1/admin/roles/{roleId}": "naturally-idempotent",
     "PUT /v1/admin/settings/agent-output-quality-gate-mode": "naturally-idempotent",
-    "PUT /v1/azure-extractor/upload-sessions/{sessionId}/chunks/{chunkIndex}": "naturally-idempotent",
+    "PUT /v1/azure-extractor/upload-sessions/{sessionId}/chunks/{chunkIndex}": "operator-documented-safe-retry",
     "PUT /v1/billing/wallet": "naturally-idempotent",
     "PUT /v1/governance/realized-value/attestation": "naturally-idempotent",
     "PUT /v1/governance/recurrence-schedules/{scheduleId}": "naturally-idempotent",
@@ -204,5 +204,5 @@
     "PUT /v1/tenant/core-pilot-checklist": "naturally-idempotent",
     "PUT /v1/tenant/cost-settings": "naturally-idempotent"
   },
-  "unclassifiedRouteCount": 81
+  "unclassifiedRouteCount": 77
 }

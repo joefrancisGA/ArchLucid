@@ -47,6 +47,7 @@ public sealed class AzureExtractorUploadController(
     ///     Optional query <c>runId</c> associates the package with an architecture review run in the current workspace
     ///     scope. Do not decorate <see cref="IFormFile" /> with <c>[FromForm]</c> (Swashbuckle OpenAPI constraint).
     /// </remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("upload")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("multipart/form-data")]
@@ -122,6 +123,7 @@ public sealed class AzureExtractorUploadController(
     ///     Starts a chunked extractor ingest session (requires ArtifactLargePayload BlobProvider AzureBlob or Local).
     ///     Upload raw ZIP fragments with <see cref="UploadChunkAsync" />, then call <see cref="CompleteChunkUploadAsync" />.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("upload-sessions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("application/json")]
@@ -210,6 +212,7 @@ public sealed class AzureExtractorUploadController(
     }
 
     /// <summary>Assembles staged chunks and runs the same ingest pipeline as <see cref="UploadAsync" />.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("upload-sessions/{sessionId:guid}/complete")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

@@ -1,6 +1,7 @@
+using System.IO.Compression;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
-
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
@@ -137,6 +138,54 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     [SkippableFact]
+    public async Task Tenant_b_cannot_upload_extractor_to_tenant_a_run_sql_tb274()
+    {
+        await AssertCrossTenantRouteDeniedAsync(
+            "azure extractor upload with foreign runId",
+            static async (client, runId) =>
+            {
+                using MultipartFormDataContent form = BuildExtractorUploadForm(BuildValidExtractorZip());
+                return await client.PostAsync($"/v1/azure-extractor/upload?runId={runId}", form);
+            },
+            allowIngestRejection: true);
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_download_tenant_a_extractor_package_sql_tb274()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        Guid packageId;
+        using (HttpClient clientA = factory.CreateClient())
+        {
+            WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+            using MultipartFormDataContent form = BuildExtractorUploadForm(BuildValidExtractorZip());
+            HttpResponseMessage upload = await clientA.PostAsync("/v1/azure-extractor/upload", form);
+            await upload.EnsureSuccessForTestAsync();
+            using System.Text.Json.JsonDocument doc =
+                System.Text.Json.JsonDocument.Parse(await upload.Content.ReadAsStringAsync());
+            packageId = doc.RootElement.GetProperty("packageId").GetGuid();
+        }
+
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        HttpResponseMessage response =
+            await clientB.GetAsync($"/v1/azure-extractor/packages/{packageId:D}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound, because: "foreign package id must not resolve in tenant B scope.");
+    }
+
+    [SkippableFact]
     public async Task Tenant_b_cannot_download_tenant_a_run_artifact_bundle_sql_tb073()
     {
         await AssertCrossTenantRouteDeniedAsync(
@@ -241,7 +290,8 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
 
     private static async Task AssertCrossTenantRouteDeniedAsync(
         string routeFamily,
-        Func<HttpClient, string, Task<HttpResponseMessage>> send)
+        Func<HttpClient, string, Task<HttpResponseMessage>> send,
+        bool allowIngestRejection = false)
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
@@ -261,12 +311,61 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
 
         HttpResponseMessage response = await send(clientB, seed.RunId);
 
+        HttpStatusCode[] allowed =
+            allowIngestRejection
+                ?
+                [
+                    HttpStatusCode.NotFound,
+                    HttpStatusCode.Forbidden,
+                    HttpStatusCode.BadRequest,
+                    HttpStatusCode.UnprocessableEntity
+                ]
+                : [HttpStatusCode.NotFound, HttpStatusCode.Forbidden];
+
         response.StatusCode.Should().BeOneOf(
-            [HttpStatusCode.NotFound, HttpStatusCode.Forbidden],
+            allowed,
             because: $"{routeFamily} must not resolve for cross-tenant run id.");
 
         string body = await response.Content.ReadAsStringAsync();
         body.Should().NotContain(seed.RequestId, because: "cross-tenant denial must not leak tenant A request id.");
+    }
+
+    private static MultipartFormDataContent BuildExtractorUploadForm(byte[] zipBody)
+    {
+        ByteArrayContent content = new(zipBody);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+        MultipartFormDataContent form = new();
+        form.Add(content, name: "file", fileName: "azure-package.zip");
+
+        return form;
+    }
+
+    private static byte[] BuildValidExtractorZip()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+            using (StreamWriter sw = new(manifest.Open()))
+            {
+                sw.Write(
+                    """
+                    {"schemaVersion":1,"scriptVersion":"1.0.0-tests","collectionTimestamp":"2026-05-06T12:00:00Z",
+                    "subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    "scope":"/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
+                    """);
+            }
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+            using (StreamWriter rw = new(resources.Open()))
+            {
+                rw.Write("[]");
+            }
+        }
+
+        return ms.ToArray();
     }
 
     private static async Task<CrossTenantRunSeed> SeedTenantARunAsync(GreenfieldSqlApiFactory factory)

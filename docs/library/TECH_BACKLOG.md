@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-01 (after batch **5DP-mutating-posture-p1**). **~32 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-01 (after batch **5DQ-trust-ingest-p0**). **~30 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -27,7 +27,7 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~33** |
+| **Total (unique)** | **~32** |
 
 **Trustworthiness (6):** remaining TB-274 SEC/BE register rows (ingest/webhook class gaps, internal replay). **TB-273 / BDA-001…150** and **TB-082 / TB-091–102** are **Done**. **Next recommended batch:** **5DQ-trust-ingest-p0** (ingest URL / extractor upload posture + IDOR) or **TB-138** real-LLM golden-cohort CI promotion (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
