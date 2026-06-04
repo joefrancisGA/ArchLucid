@@ -89,9 +89,6 @@ public static class CriticalConfigurationValidator
 
     private static void CollectDemoEnabledProductionErrors(IConfiguration configuration, List<string> errors)
     {
-        if (!configuration.GetValue("Demo:Enabled", false))
-            return;
-
         string? aspNetEnv =
             configuration["ASPNETCORE_ENVIRONMENT"]?.Trim()
             ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Trim();
@@ -107,8 +104,18 @@ public static class CriticalConfigurationValidator
         if (!productionProfile)
             return;
 
-        errors.Add(
-            "Demo:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
-            + "(in-product demo paths must not run on production-profile hosts).");
+        if (configuration.GetValue("Demo:Enabled", false))
+        {
+            errors.Add(
+                "Demo:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
+                + "(in-product demo paths must not run on production-profile hosts).");
+        }
+
+        if (configuration.GetValue("Demo:AnonymousViewer:Enabled", false))
+        {
+            errors.Add(
+                "Demo:AnonymousViewer:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
+                + "(anonymous demo viewer must not run on production-profile hosts).");
+        }
     }
 }

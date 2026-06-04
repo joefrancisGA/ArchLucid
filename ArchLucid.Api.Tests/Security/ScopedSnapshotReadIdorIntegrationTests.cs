@@ -149,6 +149,15 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
                     $"/v1/admin/metering/tenants/{tenantId:D}/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
     }
 
+    [SkippableFact]
+    public async Task Tenant_b_cannot_generate_tenant_a_value_report_sql_tb274()
+    {
+        await AssertCrossTenantTenantRouteDeniedAsync(
+            "value report generate",
+            static (client, tenantId) =>
+                client.PostAsync($"/v1/value-report/{tenantId:D}/generate", content: null));
+    }
+
     private static async Task AssertCrossTenantTenantRouteDeniedAsync(
         string routeFamily,
         Func<HttpClient, Guid, Task<HttpResponseMessage>> send)

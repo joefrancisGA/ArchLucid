@@ -7,7 +7,7 @@ using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Security;
 
 using Asp.Versioning;
 
@@ -172,9 +172,7 @@ public sealed class TrialLocalIdentityAuthController(
         if (auth is null)
             return Unauthorized();
 
-        Guid tenantId = body.TenantId ?? ScopeIds.DefaultTenant;
-        Guid workspaceId = body.WorkspaceId ?? ScopeIds.DefaultWorkspace;
-        Guid projectId = body.ProjectId ?? ScopeIds.DefaultProject;
+        (Guid tenantId, Guid workspaceId, Guid projectId) = TrialLocalJwtScopeDefaults.Resolve();
 
         TrialLocalIdentityOptions local = _trialOptions.Value.LocalIdentity;
         int lifetimeSeconds = Math.Clamp(local.AccessTokenLifetimeMinutes, 5, 24 * 60) * 60;

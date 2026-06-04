@@ -131,6 +131,24 @@ public sealed class CriticalConfigurationValidatorTests
     }
 
     [Fact]
+    public void CollectErrors_reports_anonymous_viewer_on_production_profile()
+    {
+        IConfiguration configuration = BuildConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ArchLucid"] =
+                    "Server=.;Database=CriticalConfigurationValidatorTests;Trusted_Connection=True;TrustServerCertificate=True",
+                ["AgentExecution:Mode"] = "Simulator",
+                ["Demo:AnonymousViewer:Enabled"] = "true",
+                ["ASPNETCORE_ENVIRONMENT"] = "Production",
+            });
+
+        IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(configuration);
+
+        errors.Should().ContainSingle(error => error.Contains("Demo:AnonymousViewer:Enabled", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void CollectErrors_allows_demo_enabled_when_not_production_profile()
     {
         IConfiguration configuration = BuildConfiguration(
