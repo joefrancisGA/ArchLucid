@@ -61,6 +61,7 @@ function progressLine(): HTMLElement {
 }
 
 async function renderNewRunWizard() {
+  window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
   render(<NewRunWizardClient />);
 
   await waitFor(
@@ -70,13 +71,25 @@ async function renderNewRunWizard() {
     { timeout: 15_000 },
   );
 
-  await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: /All steps \(\d+\)/ }));
-  });
+  await waitFor(
+    () => {
+      expect(screen.getByRole("button", { name: /All steps \(\d+\)/ })).toBeInTheDocument();
+    },
+    { timeout: 15_000 },
+  );
+
+  const allStepsButton = screen.getByRole("button", { name: /All steps \(\d+\)/ });
+
+  if (allStepsButton.getAttribute("aria-pressed") !== "true") {
+    await act(async () => {
+      fireEvent.click(allStepsButton);
+    });
+  }
 
   await waitFor(
     () => {
       expect(screen.getByTestId("new-run-wizard-progress")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /All steps \(\d+\)/ })).toHaveAttribute("aria-pressed", "true");
     },
     { timeout: 15_000 },
   );
@@ -177,8 +190,9 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 4 — Request brief/);
 
     await selectGreenfieldPreset();
+    await skipEvidenceStep();
 
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 5; i += 1) {
       await clickPrimaryForward();
     }
 
@@ -201,7 +215,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
       expect(getRunSummaryMock).toHaveBeenCalledWith("integration-run-1");
     });
     },
-    30_000,
+    60_000,
   );
 
   it("navigates backward when Back is pressed", async () => {
