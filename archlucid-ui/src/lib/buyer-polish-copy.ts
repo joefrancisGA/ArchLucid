@@ -209,6 +209,14 @@ export const BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR =
 
 export const BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP = "Showing the selected time range.";
 
+export const BUYER_EXECUTIVE_SCORECARD_DRIFT_TREND_INSUFFICIENT =
+  "Not enough data in this range yet.";
+
+export const BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY =
+  "No actions needed for the current period.";
+
+export const BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK = "Review this action →";
+
 export const BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews";
 
 export const BUYER_GRAPH_FILTER_SUMMARY = "Filter by evidence type, decision, or risk";

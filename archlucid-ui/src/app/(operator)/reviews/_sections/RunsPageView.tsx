@@ -16,7 +16,7 @@ import { RunsPageBuyerHelpTip } from "@/components/RunsPageBuyerHelpTip";
 import { SeedSampleReviewButton } from "@/components/SeedSampleReviewButton";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
-import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
@@ -154,9 +154,7 @@ export function RunsPageView(props: Props) {
             <strong className="font-semibold">New review</strong> (or onboarding), run the pipeline, finalize, then review the package on
             architecture review detail (see the{" "}
             <a
-              href={toDocsBlobUrl("/docs/CORE_PILOT.md")}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={resolveInAppDocHref("/docs/CORE_PILOT.md")}
               className="font-medium text-teal-800 underline dark:text-teal-300"
             >
               {BUYER_RUNS_GETTING_STARTED_GUIDE}

@@ -29,6 +29,10 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
     title: "Findings resolved (30 days)",
     description: "Accepted, remediated, or approved in trailing window",
   },
+  findingsRemediated30dMetric: {
+    title: "Findings remediated (30 days)",
+    description: "Disposition workflow evidence in trailing window",
+  },
   newlyDiscoveredFindings30dMetric: {
     title: "Findings discovered (30 days)",
     description: "New risks on committed runs in trailing window",

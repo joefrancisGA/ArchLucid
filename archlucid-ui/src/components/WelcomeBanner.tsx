@@ -273,7 +273,7 @@ export function WelcomeBanner() {
                   { id: "actionable-findings", label: "Actionable findings" as const, Icon: Target },
                   {
                     id: "artifact-bundle",
-                    label: <GlossaryTooltip termKey="artifact_bundle">artifact bundle</GlossaryTooltip>,
+                    label: <GlossaryTooltip termKey="artifact_bundle">Artifact bundle</GlossaryTooltip>,
                     Icon: Package,
                   },
                   { id: "review-trail", label: "Review trail" as const, Icon: ClipboardCheck },

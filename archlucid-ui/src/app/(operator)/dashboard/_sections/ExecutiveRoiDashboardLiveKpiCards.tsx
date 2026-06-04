@@ -270,10 +270,12 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
       <Card data-testid="exec-kpi-remediated-30d">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-            Findings remediated (30d)
+            {buyerPolished ? v.findingsRemediated30dMetric.title : "Findings remediated (30d)"}
           </CardTitle>
           <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">
-            Computed from disposition workflow evidence
+            {buyerPolished
+              ? v.findingsRemediated30dMetric.description
+              : "Computed from disposition workflow evidence"}
           </CardDescription>
         </CardHeader>
         <CardContent>

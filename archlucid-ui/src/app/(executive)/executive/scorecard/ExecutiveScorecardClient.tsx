@@ -25,6 +25,9 @@ import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
+  BUYER_EXECUTIVE_SCORECARD_DRIFT_TREND_INSUFFICIENT,
+  BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY,
+  BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK,
   BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -49,9 +52,11 @@ function sumDriftChanges(points: ComplianceDriftTrendPoint[]): number {
   }, 0);
 }
 
-function driftTrendLabel(points: ComplianceDriftTrendPoint[]): string {
+function driftTrendLabel(points: ComplianceDriftTrendPoint[], buyerPolished: boolean): string {
   if (points.length < 2) {
-    return "Trend: not enough buckets in range";
+    return buyerPolished
+      ? BUYER_EXECUTIVE_SCORECARD_DRIFT_TREND_INSUFFICIENT
+      : "Trend: not enough buckets in range";
   }
 
   const mid = Math.floor(points.length / 2);
@@ -260,8 +265,8 @@ export function ExecutiveScorecardClient() {
   const estimatedHours =
     hoursRoi > 0 ? hoursRoi : reviewsCount * AVERAGE_MANUAL_REVIEW_HOURS;
   const driftTotal = sumDriftChanges(driftPoints);
-  const driftTrend = driftTrendLabel(driftPoints);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const driftTrend = driftTrendLabel(driftPoints, buyerPolished);
 
   return (
     <div className="space-y-6" data-testid="executive-scorecard">
@@ -391,7 +396,11 @@ export function ExecutiveScorecardClient() {
         </CardHeader>
         <CardContent className="space-y-4 pt-0">
           {recommendedActions.length === 0 ? (
-            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">No actions needed — all signals are healthy.</p>
+            <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+              {buyerPolished
+                ? BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY
+                : "No actions needed — all signals are healthy."}
+            </p>
           ) : (
             <ul className="m-0 list-none space-y-4 p-0">
               {recommendedActions.map((action) => (
@@ -403,7 +412,7 @@ export function ExecutiveScorecardClient() {
                     className="text-sm font-medium text-blue-700 underline dark:text-blue-400"
                     data-testid={`executive-scorecard-action-${action.id}`}
                   >
-                    View →
+                    {buyerPolished ? BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK : "View →"}
                   </Link>
                 </li>
               ))}

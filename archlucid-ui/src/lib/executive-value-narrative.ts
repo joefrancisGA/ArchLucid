@@ -6,6 +6,8 @@ export type BuildExecutiveValueNarrativeInput = {
   readonly estimatedHoursSaved: number;
   readonly estimatedUsdSavings: number | null;
   readonly topRecommendedAction: ExecutiveScorecardRecommendedAction | null;
+  /** When true, hours saved are labeled as an estimate (buyer-polished shell). */
+  readonly qualifyEstimatedHours?: boolean;
 };
 
 function formatUsdCompact(value: number): string {
@@ -31,8 +33,13 @@ export function buildExecutiveValueNarrative(input: BuildExecutiveValueNarrative
       ? ` Top action: ${input.topRecommendedAction.headline}.`
       : "";
 
+  const hoursFragment =
+    input.qualifyEstimatedHours === true
+      ? `~${hoursRounded} h saved (estimated)`
+      : `${hoursRounded} h saved`;
+
   return (
     `This period: ${input.reviewsCount} ${reviewsLabel}, ${input.findingsCount} ${findingsLabel}, ` +
-    `${savingsFragment}${hoursRounded} h saved.${topActionFragment}`
+    `${savingsFragment}${hoursFragment}.${topActionFragment}`
   );
 }

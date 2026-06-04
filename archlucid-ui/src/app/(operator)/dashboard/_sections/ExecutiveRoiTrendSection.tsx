@@ -39,8 +39,12 @@ function chartIncludesMixedMode(points: HistoryPoint[]): boolean {
   return points.some((point) => point.isMixedMode);
 }
 
-function buildCriticalBarTitle(point: HistoryPoint): string {
+function buildCriticalBarTitle(point: HistoryPoint, buyerPolished: boolean): string {
   const monthLabel = formatMonth(point.snapshotUtc);
+
+  if (buyerPolished) {
+    return `${point.criticalSecurityFindings} critical findings — ${monthLabel}`;
+  }
 
   return `${point.criticalSecurityFindings} critical findings — ${monthLabel} · ${point.realRunCount} Real · ${point.simulatorRunCount} Simulator`;
 }
@@ -200,7 +204,7 @@ export function ExecutiveRoiTrendSection({
                     <div
                       className="w-full rounded-sm bg-amber-500/80"
                       style={{ height: `${Math.max(8, Math.round((point.criticalSecurityFindings / maxCritical) * 120))}px` }}
-                      title={buildCriticalBarTitle(point)}
+                      title={buildCriticalBarTitle(point, buyerPolished)}
                     />
                     <span className="text-[10px] text-neutral-500">{formatMonth(point.snapshotUtc)}</span>
                   </div>

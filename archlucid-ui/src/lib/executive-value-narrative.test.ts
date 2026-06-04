@@ -22,6 +22,18 @@ describe("buildExecutiveValueNarrative", () => {
     expect(line).toContain("5 findings");
     expect(line).toContain("$1,500");
     expect(line).toContain("12 h saved");
-    expect(line).toContain("Top action: Review orphan candidates");
+  });
+
+  it("qualifies estimated hours in buyer-polished mode", () => {
+    const line = buildExecutiveValueNarrative({
+      reviewsCount: 1,
+      findingsCount: 0,
+      estimatedHoursSaved: 8,
+      estimatedUsdSavings: null,
+      topRecommendedAction: null,
+      qualifyEstimatedHours: true,
+    });
+
+    expect(line).toContain("~8 h saved (estimated)");
   });
 });

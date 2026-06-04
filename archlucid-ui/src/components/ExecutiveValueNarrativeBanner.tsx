@@ -9,6 +9,7 @@ import {
 } from "@/lib/executive-scorecard-recommended-actions";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { buildExecutiveValueNarrative } from "@/lib/executive-value-narrative";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   type ExecutiveTimeRange,
   windowForExecutiveRange,
@@ -91,6 +92,7 @@ export function ExecutiveValueNarrativeBanner({ timeRange }: ExecutiveValueNarra
           estimatedHoursSaved: estimatedHours,
           estimatedUsdSavings: executiveSummary?.totalEstimatedUsdSavings ?? null,
           topRecommendedAction: recommendedActions[0] ?? null,
+          qualifyEstimatedHours: isBuyerPolishedOperatorShellEnv(),
         }),
       );
     } catch {

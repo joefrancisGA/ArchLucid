@@ -392,7 +392,6 @@ export function RunsListClient({
 
   const listNarrowingActive =
     filterText.trim().length > 0 || (buyerPolished === true && buyerPackageScope !== "all");
-  const soleVisibleRun = filteredSorted.length === 1 ? filteredSorted[0] ?? null : null;
   const showBuyerPackageCards =
     buyerPolished === true &&
     pages === 1 &&
@@ -403,10 +402,7 @@ export function RunsListClient({
     filteredSorted.length,
     safeRuns.length,
     listNarrowingActive,
-    {
-      buyerPolished,
-      soleVisibleRun,
-    },
+    { buyerPolished },
   );
 
   const runsSortControl = (
@@ -795,7 +791,7 @@ export function RunsListClient({
             {paginationAnnouncement}
           </div>
           {showBuyerPackageCards ? null : buyerPolished && pages === 1 && totalCount === 1 ? (
-            <p className="m-0 mt-5 text-sm text-neutral-600 dark:text-neutral-400">1 finalized review package</p>
+            <p className="m-0 mt-5 text-sm text-neutral-600 dark:text-neutral-400">1 review on this page</p>
           ) : (
             <nav
               className="mt-5 flex flex-wrap items-center gap-4 text-sm"

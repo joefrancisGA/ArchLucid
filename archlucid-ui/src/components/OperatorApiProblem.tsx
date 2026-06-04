@@ -4,6 +4,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -62,6 +64,13 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
   });
   const Callout = variant === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
   const trimmedCorrelation = correlationId?.trim();
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const troubleshootingHref = buyerPolished
+    ? resolveInAppDocHref("/docs/runbooks/TROUBLESHOOTING.md")
+    : toDocsBlobUrl("/docs/runbooks/TROUBLESHOOTING.md");
+  const triageHref = buyerPolished
+    ? resolveInAppDocHref("/docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md")
+    : toDocsBlobUrl("/docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md");
 
   return (
     <Callout>
@@ -84,11 +93,19 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
       ) : null}
       <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
         Recovery:{" "}
-        <a className="underline" href={toDocsBlobUrl("/docs/runbooks/TROUBLESHOOTING.md")} rel="noopener noreferrer" target="_blank">
+        <a
+          className="underline"
+          href={troubleshootingHref}
+          {...(buyerPolished ? {} : { rel: "noopener noreferrer", target: "_blank" })}
+        >
           Troubleshooting runbook
         </a>
         {" · "}
-        <a className="underline" href={toDocsBlobUrl("/docs/runbooks/FIRST_PILOT_TRIAGE_CARDS.md")} rel="noopener noreferrer" target="_blank">
+        <a
+          className="underline"
+          href={triageHref}
+          {...(buyerPolished ? {} : { rel: "noopener noreferrer", target: "_blank" })}
+        >
           First-pilot triage cards
         </a>
       </p>
