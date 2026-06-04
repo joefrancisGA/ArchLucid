@@ -1374,9 +1374,74 @@
           },
           "traces": {
             "items": {
-              "$ref": "#/components/schemas/AgentExecutionTrace"
+              "$ref": "#/components/schemas/AgentExecutionTraceSummary"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "AgentExecutionTraceSummary": {
+        "properties": {
+          "agentType": {
+            "$ref": "#/components/schemas/AgentType"
+          },
+          "blobUploadFailed": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "inputTokenCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "modelDeploymentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "outputTokenCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "parseSucceeded": {
+            "type": "boolean"
+          },
+          "qualityRejected": {
+            "type": "boolean"
+          },
+          "qualityWarning": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "traceId": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -21560,9 +21625,6 @@
         "properties": {
           "userId": {
             "format": "uuid",
-            "type": "string"
-          },
-          "verificationToken": {
             "type": "string"
           }
         },
