@@ -20,10 +20,15 @@ import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getBundleDownloadUrl } from "@/lib/api";
 import {
+  BUYER_MANIFEST_AUTHORITY_SUMMARY,
+  BUYER_MANIFEST_DOWNLOAD_PREPARING,
+  BUYER_MANIFEST_HEADLINE_SUFFIX,
+  BUYER_MANIFEST_NO_DELIVERABLES_YET,
   BUYER_MANIFEST_SECTION_DECISION,
   BUYER_MANIFEST_SECTION_DILIGENCE,
   BUYER_MANIFEST_SECTION_DOWNLOADS,
   BUYER_MANIFEST_SECTION_EVIDENCE,
+  BUYER_MANIFEST_TOP_RISK_CTA,
   BUYER_SIGNED_DECISION_RECORD_LABEL,
 } from "@/lib/buyer-polish-copy";
 import {
@@ -152,7 +157,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
               }
             >
               {primaryFindingHref
-                ? "View PHI minimization risk and evidence"
+                ? BUYER_MANIFEST_TOP_RISK_CTA
                 : buyerPolishedLayout
                   ? "View findings on review"
                   : "Open review findings"}
@@ -212,7 +217,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         {" · "}
         <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
           {buyerPolishedLayout === true && showcasePackage === true
-            ? "Signed decision record for this package"
+            ? BUYER_SIGNED_DECISION_RECORD_LABEL
             : "Manifest"}
         </span>
         {showcasePackage === true && buyerPolishedLayout !== true ? (
@@ -236,7 +241,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         <div>
           <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">
             {showcaseBuyerManifestHeadline === true
-              ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — Claims Intake Modernization Review Package`
+              ? `${BUYER_SIGNED_DECISION_RECORD_LABEL} — ${BUYER_MANIFEST_HEADLINE_SUFFIX}`
               : buyerPolishedLayout
                 ? BUYER_SIGNED_DECISION_RECORD_LABEL
                 : "Finalized Architecture Manifest"}
@@ -284,8 +289,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             What this signed decision record proves
           </h2>
           <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-            This signed decision record is the authoritative reviewed architecture record for the Claims Intake
-            Modernization package — decisions, findings, and downloadable deliverables.
+            {BUYER_MANIFEST_AUTHORITY_SUMMARY}
           </p>
         </section>
       ) : null}
@@ -403,18 +407,9 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           )}
 
           {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length === 0 && (
-            <OperatorEmptyState title={buyerPolishedLayout ? "No deliverables listed yet" : "No artifacts listed for this manifest"}>
+            <OperatorEmptyState title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : "No artifacts listed for this manifest"}>
               {buyerPolishedLayout ? (
-                <>
-                  <p className="m-0">
-                    The overview loaded, but no individual files are listed yet. Try the ZIP if your workspace publishes a
-                    bundle for this review.
-                  </p>
-                  <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                    This is a <strong>valid empty result</strong> (the deliverables list succeeded with zero items), not an
-                    artifact-list failure. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
-                  </p>
-                </>
+                <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
               ) : (
                 <>
                   <p className="m-0">

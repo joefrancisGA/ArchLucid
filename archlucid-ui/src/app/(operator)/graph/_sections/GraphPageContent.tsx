@@ -10,6 +10,7 @@ import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { BUYER_GRAPH_PAGE_LEAD } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -362,9 +363,11 @@ export function GraphPageContent() {
   );
 
   const leadIntro =
-    demoUi || buyerPolishedShell
-      ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed manifest outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
-      : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
+    buyerPolishedShell
+      ? BUYER_GRAPH_PAGE_LEAD
+      : demoUi
+        ? `Interactive ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} for the selected review. Shows reviewed context, policy basis, architecture analysis, prioritized findings, mitigation decisions, finalized signed manifest outputs, and deliverables for ${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE}.`
+        : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
   const pageTitle = buyerPolishedShell ? "Decision traceability graph" : BUYER_SURFACE_VOCABULARY.evidenceGraph;
 
@@ -464,18 +467,25 @@ export function GraphPageContent() {
         </>
       ) : null}
 
-      <GraphModeAuxiliaryFields
-        mode={mode}
-        graphMainColumnMaxClass={graphMainColumnMaxClass}
-        decisionId={decisionId}
-        onDecisionIdChange={setDecisionId}
-        nodeId={nodeId}
-        onNodeIdChange={setNodeId}
-        depth={depth}
-        onDepthChange={setDepth}
-      />
+      {buyerPolishedShell ? null : (
+        <GraphModeAuxiliaryFields
+          mode={mode}
+          graphMainColumnMaxClass={graphMainColumnMaxClass}
+          decisionId={decisionId}
+          onDecisionIdChange={setDecisionId}
+          nodeId={nodeId}
+          onNodeIdChange={setNodeId}
+          depth={depth}
+          onDepthChange={setDepth}
+        />
+      )}
 
-      <GraphFetchStatusAlerts loading={loading} loadFailure={loadFailure} malformedMessage={malformedMessage} />
+      <GraphFetchStatusAlerts
+        loading={loading}
+        loadFailure={loadFailure}
+        malformedMessage={malformedMessage}
+        buyerPolishedShell={buyerPolishedShell}
+      />
 
       {showIdleCard ? (
         <GraphIdlePlaceholder graphIdlePreset={graphIdlePreset} buyerPolishedShell={buyerPolishedShell} />

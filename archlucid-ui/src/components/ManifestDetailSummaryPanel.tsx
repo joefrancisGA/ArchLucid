@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { getBundleDownloadUrl } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY, BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_EXAMPLE_COUNT_SUFFIX,
+  BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY,
+  BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
+  BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP,
+} from "@/lib/buyer-polish-copy";
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT,
@@ -182,11 +187,15 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
       sectionTestId="manifest-verification-appendix"
     >
       <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
-        <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
-        <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
-          <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
-          <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
-        </dd>
+        {buyerPolishedLayout !== true ? (
+          <>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
+            <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
+              <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
+              <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
+            </dd>
+          </>
+        ) : null}
         {summary.manifestHash ? (
           <>
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Hash</dt>
@@ -265,7 +274,9 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Evidence trail anchors</p>
-              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">{SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT}</p>
+              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">
+                {SHOWCASE_STATIC_DEMO_GRAPH_LINKED_RECORD_COUNT} {BUYER_EXAMPLE_COUNT_SUFFIX}
+              </p>
               <Link
                 href={`/graph?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
                 className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
@@ -275,7 +286,9 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             </div>
             <div className="rounded-lg border border-neutral-200 bg-white p-3 text-sm shadow-sm dark:border-neutral-700 dark:bg-neutral-950">
               <p className="m-0 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Audit events</p>
-              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">{SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT}</p>
+              <p className="m-0 mt-1 text-xl font-semibold tracking-tight text-al-text-primary">
+                {SHOWCASE_STATIC_DEMO_AUDIT_TRAIL_EVENT_COUNT} {BUYER_EXAMPLE_COUNT_SUFFIX}
+              </p>
               <Link
                 href={`/audit?runId=${encodeURIComponent(canonicalizeDemoRunId(summary.runId))}`}
                 className="m-0 mt-2 inline-block text-xs font-medium text-teal-800 underline dark:text-teal-300"
@@ -302,7 +315,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">{BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button variant="primary" size="sm" asChild>
-                <a href={getBundleDownloadUrl(summary.manifestId)}>Download finalized review package</a>
+                <a href={getBundleDownloadUrl(summary.manifestId)}>{BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP}</a>
               </Button>
             </div>
           </div>

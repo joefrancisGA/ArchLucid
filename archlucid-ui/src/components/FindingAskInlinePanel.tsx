@@ -8,7 +8,9 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer-polish-copy";
 import { askAboutFinding } from "@/lib/api/finding-ask-api";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
@@ -79,6 +81,9 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   return (
     <CollapsibleSection title="Ask about this finding" defaultOpen={props.defaultOpen === true}>
       <div className="finding-ask-inline-panel space-y-4">
+          {isBuyerPolishedOperatorShellEnv() ? (
+            <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">{BUYER_ASK_GROUNDING_ONCE}</p>
+          ) : null}
           {turns.length > 0 ? (
             <ol className="m-0 list-none space-y-4 p-0">
               {turns.map((turn, index) => (

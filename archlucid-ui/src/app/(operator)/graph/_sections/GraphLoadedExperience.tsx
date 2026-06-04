@@ -4,7 +4,15 @@ import Link from "next/link";
 import { GraphNodeKindLegendChips } from "@/components/GraphNodeKindLegendChips";
 import { GraphReviewTrailLegendChips } from "@/components/GraphReviewTrailLegendChips";
 import { Button } from "@/components/ui/button";
-import { BUYER_GRAPH_FILTER_SUMMARY, BUYER_GRAPH_WHAT_THIS_PROVES } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_GRAPH_FILTER_SUMMARY,
+  BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED,
+  BUYER_GRAPH_GOVERNANCE_NEXT_PENDING,
+  BUYER_GRAPH_WHAT_THIS_PROVES,
+} from "@/lib/buyer-polish-copy";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { buyerGraphNodeTypeLabel } from "@/lib/buyer-graph-node-type-labels";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import {
   downloadBrowserTextFile,
@@ -59,6 +67,8 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
   } = props;
 
   const runTrim = runId.trim();
+  const showcaseRun = canonicalizeDemoRunId(runTrim) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const buyerTrailPresentation = demoUi || (buyerPolishedShell && showcaseRun);
 
   return (
     <>
@@ -102,7 +112,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
               <option value="">All types</option>
               {nodeTypes.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {buyerPolishedShell ? buyerGraphNodeTypeLabel(t) : t}
                 </option>
               ))}
             </select>
@@ -205,7 +215,7 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         graph={graph}
         typeFilter={typeFilter}
         runIdTrimmed={runTrim}
-        presentation={demoUi || buyerPolishedShell ? "buyerTrail" : "operator"}
+        presentation={buyerTrailPresentation ? "buyerTrail" : "operator"}
         onInteractiveSurfaceReady={buyerPolishedShell ? onGraphInteractiveSurfaceReady : undefined}
         defaultSelectedGraphNodeId={defaultSelectedGraphNodeId}
       />
@@ -213,7 +223,9 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
         <div className={cn("mt-6 space-y-2", graphMainColumnMaxClass)}>
           <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Next</p>
           <Button type="button" asChild variant="default" size="sm">
-            <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>Continue to governance approval</Link>
+            <Link href={`/governance?runId=${encodeURIComponent(runTrim)}`}>
+              {showcaseRun ? BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED : BUYER_GRAPH_GOVERNANCE_NEXT_PENDING}
+            </Link>
           </Button>
         </div>
       ) : null}

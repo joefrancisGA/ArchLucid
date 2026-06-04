@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { batchReviewGovernanceApprovalRequests, getApprovalRequestLineage } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { approvalLineageBlocksQuickApprove } from "@/lib/governance-quick-approve-lineage";
+import { BUYER_GOVERNANCE_QUICK_APPROVE_LABEL } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
 
 type LineagePhase = "loading" | "ready" | "error";
@@ -133,7 +135,7 @@ export function GovernanceQuickApproveButton({
       title="Approve immediately (batch-review). Only available when lineage shows no Critical or High (Error) findings in the snapshot."
       onClick={() => void onClick()}
     >
-      {busy ? "Approving…" : "Quick approve"}
+      {busy ? "Approving…" : isBuyerPolishedOperatorShellEnv() ? BUYER_GOVERNANCE_QUICK_APPROVE_LABEL : "Quick approve"}
     </Button>
   );
 }

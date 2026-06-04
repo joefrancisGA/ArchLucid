@@ -28,7 +28,9 @@ import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
   BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE,
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
+  BUYER_GOVERNANCE_FINDINGS_EMPTY,
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
+  BUYER_GOVERNANCE_PAGE_TITLE,
 } from "@/lib/buyer-polish-copy";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -148,7 +150,7 @@ function staticDemoGovernanceRows(): GovernanceFindingQueueRow[] {
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
     runLabel: "Claims Intake Modernization Review",
     manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-    findingId: `sample-decision-${i + 1}`,
+    findingId: `showcase-decision-${i + 1}`,
     title: syn.length > 96 ? `${syn.slice(0, 93)}…` : syn,
     severity: "Info",
     category: "Architecture decision",
@@ -799,12 +801,16 @@ export default function GovernanceFindingsQueueClient() {
                   ? "We could not load findings for this workspace. Check your connection, or return to reviews and try again."
                   : "We could not load reviews for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
                 : buyerPolishedShell
-                  ? "When reviews surface items that need attention, they will appear here. Start from reviews or your sample package."
+                  ? `When reviews surface items that need attention, they will appear here. ${BUYER_GOVERNANCE_FINDINGS_EMPTY}`
                   : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a manifest, then return or open findings from review detail."
             }
             actions={[
               { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
-              { label: "Governance workflow", href: "/governance", variant: "outline" },
+              {
+                label: buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Governance workflow",
+                href: "/governance",
+                variant: "outline",
+              },
             ]}
           />
         ) : null}

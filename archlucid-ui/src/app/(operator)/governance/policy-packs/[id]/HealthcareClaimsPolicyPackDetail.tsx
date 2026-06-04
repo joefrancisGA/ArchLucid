@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { BUYER_GOVERNANCE_PAGE_TITLE, BUYER_POLICY_PACK_LEAD } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
@@ -31,9 +32,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         </p>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{canonicalPackLabel}</h1>
         <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          {buyerPolishedShell
-            ? "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths."
-            : "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths — matching the Claims Intake showcase review referenced from Governance and Manifest surfaces."}
+          {buyerPolishedShell ? BUYER_POLICY_PACK_LEAD : `${BUYER_POLICY_PACK_LEAD} — matching the Claims Intake showcase review referenced from Governance and Manifest surfaces.`}
         </p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">Healthcare vertical</Badge>
@@ -80,13 +79,15 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
 
       <section className="flex flex-wrap gap-3">
         <Button asChild variant="default">
-          <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Open Claims Intake manifest</Link>
+          <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>
+            {buyerPolishedShell ? "Open signed manifest" : "Open Claims Intake manifest"}
+          </Link>
         </Button>
         <Button asChild variant="outline">
           <Link href="/policy-packs">Compare against registry catalog</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/governance">Continue governance workflow</Link>
+          <Link href="/governance">{buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Continue governance workflow"}</Link>
         </Button>
       </section>
 

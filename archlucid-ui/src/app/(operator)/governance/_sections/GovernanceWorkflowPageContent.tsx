@@ -45,6 +45,8 @@ import {
   BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD,
   BUYER_GOVERNANCE_GOVERNED_USE_SCOPE,
   BUYER_GOVERNANCE_PAGE_TITLE,
+  BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES,
+  BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO,
 } from "@/lib/buyer-polish-copy";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type {
@@ -533,7 +535,15 @@ export function GovernanceWorkflowPageContent() {
         <GovernanceInteractiveQuickstartCard />
       )}
 
-      {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) && !showBuyerApprovalStory ? (
+      {buyerPolishedShell && !showBuyerApprovalStory ? (
+        <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 text-sm">
+          <p className="m-0">{BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO}</p>
+          <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">{BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES}</p>
+        </div>
+      ) : null}
+      {!buyerPolishedShell &&
+      (isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) &&
+      !showBuyerApprovalStory ? (
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 mb-6 px-4 py-3 text-sm">
           <strong>Approval workflow reference</strong>
           {" — "}

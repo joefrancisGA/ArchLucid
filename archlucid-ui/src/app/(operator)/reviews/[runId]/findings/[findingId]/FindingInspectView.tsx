@@ -69,7 +69,13 @@ export function FindingInspectView({
     return (
       <div className="mx-auto max-w-6xl space-y-4 p-6">
         <p className="text-sm text-neutral-700 dark:text-neutral-300">
-          This finding belongs to run <span className="font-mono">{payload.runId}</span>, not the run in this URL.
+          {buyerPolishedShell
+            ? "This finding belongs to a different review package than the one in this URL."
+            : (
+                <>
+                  This finding belongs to run <span className="font-mono">{payload.runId}</span>, not the run in this URL.
+                </>
+              )}
         </p>
         <Link
           href={`/reviews/${encodeURIComponent(payload.runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
@@ -100,7 +106,7 @@ export function FindingInspectView({
   }
 
   const findingTitle = findingDetailHeadingTitle(payload);
-  const inspectHeroTitle = buyerPolishedShell ? "Technical evidence trail" : `${findingTitle} — evidence & trace`;
+  const inspectHeroTitle = buyerPolishedShell ? "Evidence trace" : `${findingTitle} — evidence & trace`;
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 p-4">
@@ -119,8 +125,8 @@ export function FindingInspectView({
             Appendix
           </span>
           <span>
-            Technical traceability appendix — source evidence, trace path, and audit metadata for this finding. Not
-            part of the governed decision summary.
+            Supporting evidence trace — source evidence, trace path, and audit metadata linked to this finding within the
+            review package.
           </span>
         </div>
       ) : null}

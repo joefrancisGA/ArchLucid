@@ -107,8 +107,10 @@ export const BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA = "View evidence 
 export const BUYER_ASK_GROUNDING_ONCE =
   "Answers are scoped to selected review evidence. Validate conclusions against the finalized signed manifest — Ask does not replace formal governance records.";
 
-export const BUYER_ASK_SHOWCASE_ANCHORS_LINE =
-  "On the Claims Intake review package, replies include quick links to executive summary, manifest, policy basis, evidence trail, and audit anchors where available.";
+export const BUYER_ASK_REVIEW_ANCHORS_LINE =
+  "Replies on this review package can include quick links to executive summary, manifest, policy basis, evidence trail, and audit anchors where available.";
+
+export const BUYER_ASK_SHOWCASE_ANCHORS_LINE = BUYER_ASK_REVIEW_ANCHORS_LINE;
 
 export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
   "Load a prior vs. later review pair to see an explicit delta between signed decision records.";
@@ -240,3 +242,59 @@ export const BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT = 4;
 export const BUYER_TECHNICAL_APPENDIX_LABEL = "Technical appendix";
 
 export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
+
+export const BUYER_MANIFEST_HEADLINE_SUFFIX = "architecture review package";
+
+export const BUYER_MANIFEST_AUTHORITY_SUMMARY =
+  "This signed decision record is the authoritative reviewed architecture record for this package — decisions, findings, and downloadable deliverables.";
+
+export const BUYER_MANIFEST_TOP_RISK_CTA = "View top risk and evidence";
+
+export const BUYER_MANIFEST_NO_DELIVERABLES_YET = "No deliverables listed yet.";
+
+export const BUYER_MANIFEST_DOWNLOAD_PREPARING = "Download is being prepared when your workspace publishes a bundle for this review.";
+
+export const BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP = "Download review package (ZIP)";
+
+export const BUYER_GRAPH_PAGE_LEAD =
+  "Decision traceability graph for this architecture review package — evidence, decisions, and governance links.";
+
+export const BUYER_GRAPH_LOAD_ERROR =
+  "We couldn't render the evidence graph. Check connectivity and try again.";
+
+export const BUYER_GRAPH_IDLE_DESCRIPTION =
+  "Load the decision traceability graph from a finalized review package. Open the signed manifest or audit trail to continue diligence.";
+
+export const BUYER_GOVERNANCE_GOVERNED_USE_NOTES =
+  "Governed-use record aligned with this architecture review package.";
+
+export const BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO =
+  "Authorized roles submit approval requests, record decisions, and attach evidence before changes move to implementation planning.";
+
+export const BUYER_GOVERNANCE_SEGREGATION_OF_DUTIES =
+  "Requesters cannot approve their own reviews (segregation of duties).";
+
+export const BUYER_GOVERNANCE_QUICK_APPROVE_LABEL = "Approve (no critical/high findings)";
+
+export const BUYER_GOVERNANCE_FINDINGS_EMPTY = "Start from a review.";
+
+export const BUYER_GOVERNANCE_WORKFLOW_CTA = "Open governance decision record";
+
+export const BUYER_POLICY_PACK_LEAD =
+  "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths.";
+
+export const BUYER_ASK_THREAD_EXAMPLE_TITLE = "Review briefing thread";
+
+export const BUYER_ASK_REVIEW_ANCHORS_SUMMARY = "Review anchors";
+
+export const BUYER_FINDING_EVIDENCE_TRACE_LABEL = "Evidence trace";
+
+export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trace";
+
+export const BUYER_AUDIT_REFERENCE_ID_LABEL = "Reference ID";
+
+export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance decision record";
+
+export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";
+
+export const BUYER_EXAMPLE_COUNT_SUFFIX = "(example)";

@@ -88,7 +88,7 @@ export function AskPageContent() {
       const data = await listConversationThreads();
       setThreads(data);
 
-      if (data.length === 0 && (isBuyerPolishedOperatorShellEnv() || isStaticDemoPayloadFallbackEnabled())) {
+      if (data.length === 0 && isStaticDemoPayloadFallbackEnabled() && !buyerPolishedShell) {
         const seeded = tryStaticDemoConversationMessages("thread-claims-intake-001");
 
         if (seeded !== null) {
@@ -99,7 +99,7 @@ export function AskPageContent() {
               workspaceId: "demo",
               projectId: "default",
               runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-              title: "Example review question — PHI risk briefing",
+              title: "Review briefing thread",
               createdUtc: "2026-01-12T10:06:00.000Z",
               lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
             },
@@ -112,7 +112,7 @@ export function AskPageContent() {
         }
       }
     } catch (e) {
-      if (isBuyerPolishedOperatorShellEnv() || isStaticDemoPayloadFallbackEnabled()) {
+      if (isStaticDemoPayloadFallbackEnabled() && !buyerPolishedShell) {
         const seeded = tryStaticDemoConversationMessages("thread-claims-intake-001");
 
         if (seeded !== null) {
@@ -123,7 +123,7 @@ export function AskPageContent() {
               workspaceId: "demo",
               projectId: "default",
               runId: SHOWCASE_STATIC_DEMO_RUN_ID,
-              title: "Example review question — PHI risk briefing",
+              title: "Review briefing thread",
               createdUtc: "2026-01-12T10:06:00.000Z",
               lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
             },

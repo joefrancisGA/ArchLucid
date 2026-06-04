@@ -87,7 +87,7 @@ export function FindingDetailPageView(props: Props) {
           href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
         >
-          {buyerPolishedShell ? "Open technical evidence trace" : "Technical inspection trail"}
+          {buyerPolishedShell ? "Open evidence trace" : "Technical inspection trail"}
         </Link>
       </nav>
 

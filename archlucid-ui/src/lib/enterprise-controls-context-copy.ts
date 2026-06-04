@@ -216,7 +216,7 @@ export const governanceWorkflowPendingReviewReaderNote =
 
 /** Buyer shell: avoids “operator-level” jargon where possible. */
 export const governanceWorkflowPendingReviewReaderNoteBuyerPolished =
-  "Approving or rejecting from here requires the right role in production; this form shows how the workflow looks.";
+  "Authorized roles record approval decisions here. Requesters cannot approve their own reviews (segregation of duties).";
 
 /**
  * Alert rules / routing / simulation / tuning / composite — rank-aware cue (`AlertOperatorToolingRankCue`) for tests

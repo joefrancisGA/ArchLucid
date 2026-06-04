@@ -23,6 +23,7 @@ import {
   governanceNoApprovalsGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
 import { buyerSafeGovernanceActorLabel } from "@/lib/buyer-demo-persona-labels";
+import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer-governance-workflow-status-labels";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
@@ -114,7 +115,12 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                   </CardDescription>
                   <p className="sr-only">Approval request id {row.approvalRequestId}</p>
                 </div>
-                <StatusPill status={row.status} domain="governance" className="text-xs" />
+                <StatusPill
+                  status={buyerPolishedShell ? buyerGovernanceWorkflowStatusLabel(row.status) : row.status}
+                  domain="governance"
+                  className="text-xs"
+                  uppercase={!buyerPolishedShell}
+                />
               </CardHeader>
               <CardContent className="grid gap-2 text-sm">
                 <div>

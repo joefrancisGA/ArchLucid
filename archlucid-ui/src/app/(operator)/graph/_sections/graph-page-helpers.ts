@@ -1,4 +1,5 @@
 import type { EmptyStateProps } from "@/components/EmptyState";
+import { BUYER_GRAPH_IDLE_DESCRIPTION } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -60,7 +61,7 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
     return {
       ...GRAPH_IDLE,
       title: BUYER_SURFACE_VOCABULARY.evidenceGraph,
-      description: `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} traces evidence from captured context through monitored risks to the signed manifest and deliverables. Choose Open signed manifest or Open audit trail if the canvas is taking longer than expected.`,
+      description: BUYER_GRAPH_IDLE_DESCRIPTION,
       actions: [
         { label: "Open signed manifest", href: manifestHref },
         { label: "Open audit trail", href: auditHref, variant: "outline" as const },

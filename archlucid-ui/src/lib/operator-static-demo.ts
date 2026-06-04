@@ -1126,7 +1126,7 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
       targetEnvironment: "test",
       promotedBy: "Taylor Morgan",
       approvalRequestId: "claims-intake-approval-001",
-      notes: "Sample governed-use record aligned with the Claims Intake showcase.",
+      notes: "Governed-use record aligned with this architecture review package.",
       promotedUtc: "2026-01-14T22:06:00.000Z",
     },
   ];

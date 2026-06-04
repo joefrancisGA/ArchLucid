@@ -16,6 +16,7 @@ import {
   auditSearchSectionLeadReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { BUYER_AUDIT_REFERENCE_ID_LABEL } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
@@ -259,7 +260,7 @@ export function AuditSearchSection(props: AuditSearchSectionProps) {
               <CollapsibleContent className="pt-2">
                 <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
                   <label>
-                    Correlation ID{" "}
+                    {buyerPolishedShell ? BUYER_AUDIT_REFERENCE_ID_LABEL : "Correlation ID"}{" "}
                     <input
                       value={correlationId}
                       onChange={(e) => setCorrelationId(e.target.value)}
