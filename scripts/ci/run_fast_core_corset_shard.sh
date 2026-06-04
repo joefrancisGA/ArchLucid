@@ -39,20 +39,24 @@ mkdir -p "$RESULT_DIR"
 
 echo "Fast core shard ${SHARD_ID}: ${#PROJECTS[@]} project(s)"
 
-ARGS=(
-  dotnet test
-  "${PROJECTS[@]}"
-  --no-build
-  -c Release
-  --filter "${DOTNET_FAST_CORE_TEST_FILTER}"
-)
-
-if [ "${ARCHLUCID_FAST_CORE_COLLECT_COVERAGE:-0}" = "1" ]; then
-  ARGS+=(
-    --settings coverage.runsettings
-    --collect:"XPlat Code Coverage"
-    --results-directory "${RESULT_DIR}"
+# SDK 10+ MSBuild rejects multiple projects in one `dotnet test` invocation (MSB1008).
+for proj in "${PROJECTS[@]}"; do
+  echo "Fast core shard ${SHARD_ID}: testing ${proj}"
+  ARGS=(
+    dotnet test
+    "${proj}"
+    --no-build
+    -c Release
+    --filter "${DOTNET_FAST_CORE_TEST_FILTER}"
   )
-fi
 
-"${ARGS[@]}"
+  if [ "${ARCHLUCID_FAST_CORE_COLLECT_COVERAGE:-0}" = "1" ]; then
+    ARGS+=(
+      --settings coverage.runsettings
+      --collect:"XPlat Code Coverage"
+      --results-directory "${RESULT_DIR}"
+    )
+  fi
+
+  "${ARGS[@]}"
+done

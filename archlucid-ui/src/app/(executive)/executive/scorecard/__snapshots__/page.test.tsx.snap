@@ -52,6 +52,11 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
           Last quarter (90 days)
         </option>
         <option
+          value="year"
+        >
+          Last year
+        </option>
+        <option
           value="all"
         >
           All time

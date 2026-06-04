@@ -352,14 +352,14 @@ public sealed class GovernanceStickinessController(
             await recurrenceScheduleRepository.GetByIdAsync(scheduleId, cancellationToken);
 
         if (existing is null)
-            return NotFound();
+            return this.NotFoundProblem("Recurrence schedule was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         if (existing.TenantId != scope.TenantId
             || existing.WorkspaceId != scope.WorkspaceId
             || existing.ProjectId != scope.ProjectId)
-            return NotFound();
+            return this.NotFoundProblem("Recurrence schedule was not found.", ProblemTypes.ResourceNotFound);
 
         if (request.IsEnabled.HasValue)
             existing.IsEnabled = request.IsEnabled.Value;

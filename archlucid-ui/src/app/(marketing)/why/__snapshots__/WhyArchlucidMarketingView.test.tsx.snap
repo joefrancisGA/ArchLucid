@@ -145,6 +145,195 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     </p>
   </section>
   <section
+    aria-labelledby="why-vs-chat-assistant-heading"
+    class="mt-12"
+    data-testid="why-vs-chat-assistant"
+  >
+    <h2
+      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      id="why-vs-chat-assistant-heading"
+    >
+      vs a chat assistant (ChatGPT, Copilot, Claude)
+    </h2>
+    <p
+      class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400"
+    >
+      Many buyers already use a general LLM for architecture questions. ArchLucid is not “another chat box” — it persists a committed review package, governance gate, and audit trail a session cannot replace.
+    </p>
+    <ul
+      class="mt-4 grid gap-3 sm:grid-cols-2"
+    >
+      <li
+        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Durable review artifact
+        </p>
+        <p
+          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+        >
+          <span
+            class="font-medium text-teal-800 dark:text-teal-300"
+          >
+            ArchLucid:
+          </span>
+           
+          Committed golden manifest in SQL with manifest id and audit trail
+        </p>
+        <p
+          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+        >
+          <span
+            class="font-medium"
+          >
+            Typical chat:
+          </span>
+           
+          Chat transcript — no durable manifest tied to your tenant
+        </p>
+      </li>
+      <li
+        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Governance before commit
+        </p>
+        <p
+          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+        >
+          <span
+            class="font-medium text-teal-800 dark:text-teal-300"
+          >
+            ArchLucid:
+          </span>
+           
+          Optional pre-commit gate blocks policy violations before the manifest is canonical
+        </p>
+        <p
+          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+        >
+          <span
+            class="font-medium"
+          >
+            Typical chat:
+          </span>
+           
+          No commit boundary — advice is not gated against your policy packs
+        </p>
+      </li>
+      <li
+        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Evidence per finding
+        </p>
+        <p
+          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+        >
+          <span
+            class="font-medium text-teal-800 dark:text-teal-300"
+          >
+            ArchLucid:
+          </span>
+           
+          Evidence refs and explainability traces on structured findings
+        </p>
+        <p
+          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+        >
+          <span
+            class="font-medium"
+          >
+            Typical chat:
+          </span>
+           
+          Hallucination risk without persisted evidence linkage
+        </p>
+      </li>
+      <li
+        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Sponsor export
+        </p>
+        <p
+          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+        >
+          <span
+            class="font-medium text-teal-800 dark:text-teal-300"
+          >
+            ArchLucid:
+          </span>
+           
+          Repeatable sponsor packet and labeled ROI basis (buyer-provided / demo / not collected)
+        </p>
+        <p
+          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+        >
+          <span
+            class="font-medium"
+          >
+            Typical chat:
+          </span>
+           
+          Copy-paste from a session — not a bounded export package
+        </p>
+      </li>
+      <li
+        class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="m-0 font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Audit trail
+        </p>
+        <p
+          class="m-0 mt-2 text-neutral-700 dark:text-neutral-300"
+        >
+          <span
+            class="font-medium text-teal-800 dark:text-teal-300"
+          >
+            ArchLucid:
+          </span>
+           
+          Typed AuditEvents with correlation ids for mutating API work
+        </p>
+        <p
+          class="m-0 mt-1 text-neutral-600 dark:text-neutral-400"
+        >
+          <span
+            class="font-medium"
+          >
+            Typical chat:
+          </span>
+           
+          No enterprise audit ledger for architecture review decisions
+        </p>
+      </li>
+    </ul>
+    <p
+      class="mt-3 text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      More detail:
+       
+      <a
+        class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+        href="/faq"
+      >
+        FAQ — vs ChatGPT/Copilot
+      </a>
+      .
+    </p>
+  </section>
+  <section
     aria-labelledby="why-market-landscape-heading"
     class="mt-12"
   >

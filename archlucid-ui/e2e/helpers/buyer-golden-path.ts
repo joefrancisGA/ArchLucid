@@ -39,6 +39,10 @@ export const BUYER_SHOWCASE_EXECUTIVE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_T
 /** Review detail H1 for showcase run (`load-run-detail-page-model` buyer-polished headline). */
 export const BUYER_SHOWCASE_REVIEW_PACKAGE_HEADLINE = SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE;
 
+/** Playwright-accessible name may include status chips inside the H1 flex row. */
+export const BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN =
+  /Claims Intake Modernization Review( Package)?/i;
+
 export async function expectNoGenericErrorBoundary(page: Page): Promise<void> {
   await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 }

@@ -4,6 +4,8 @@ import { WHY_ARCHLUCID_COMPARISON_ROWS } from "./why-archlucid-comparison";
 
 const FIRST_PARTY_CITATION = "first-party assertion (no external citation yet)";
 
+const ILLUSTRATIVE_CITATION = "Illustrative category comparison (no external hours study cited)";
+
 const HTTPS = /^https:\/\//i;
 
 describe("WHY_ARCHLUCID_COMPARISON_ROWS", () => {
@@ -23,7 +25,10 @@ describe("WHY_ARCHLUCID_COMPARISON_ROWS", () => {
 
   it("requires citation to be HTTPS or the explicit first-party disclaimer phrase", () => {
     for (const [index, row] of WHY_ARCHLUCID_COMPARISON_ROWS.entries()) {
-      const ok = HTTPS.test(row.citation) || row.citation === FIRST_PARTY_CITATION;
+      const ok =
+        HTTPS.test(row.citation) ||
+        row.citation === FIRST_PARTY_CITATION ||
+        row.citation === ILLUSTRATIVE_CITATION;
       expect(ok, `row=${index} citation=${row.citation}`).toBe(true);
     }
   });

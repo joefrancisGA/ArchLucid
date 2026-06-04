@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 import { RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN } from "../e2e/fixtures/runs-list-heading";
-import { SHOWCASE_DEMO_RUN_ID } from "../e2e/fixtures/ids";
+import { SHOWCASE_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "../e2e/fixtures/ids";
+import { BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN } from "../e2e/helpers/buyer-golden-path";
 import { openBuyerRunDetailArchitectureReviewBoardDeliverables } from "../e2e/helpers/operator-journey";
 
 /**
@@ -33,14 +34,13 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
 
     await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: /Claims Intake Modernization/i,
-      }),
+      page.getByRole("heading", { level: 1 }).filter({ hasText: BUYER_SHOWCASE_REVIEW_PAGE_HEADING_PATTERN }),
     ).toBeVisible();
 
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
-    await expect(outcomeStrip.getByRole("link", { name: /Finalized/i })).toBeVisible();
+    const manifestLink = outcomeStrip.locator(`a[href="/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}"]`);
+    await expect(manifestLink).toBeVisible();
+    await expect(manifestLink).toContainText(/Finalized/i);
 
     const deliverablesRegion = await openBuyerRunDetailArchitectureReviewBoardDeliverables(page);
 
