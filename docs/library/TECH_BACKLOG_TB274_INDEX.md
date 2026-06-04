@@ -16,13 +16,13 @@
 | **5DL-trust-p1** | BE-034 export SAS DNS policy consolidation; Slack + exec-digest anonymous rate limits | Done |
 | **5DM-usability** | **TB-270**, **TB-271**, **TB-272** — review paths, correlation id, loading/empty states | Done |
 | **5DL-trust-p2** | Artifact export/push cross-tenant IDOR SQL regression; scope binding on artifact export; CI matrix drift guard | Done |
+| **5DN-demo-deferred** | **BDA-135** home hierarchy; **BDA-139** executive metric typography; **BDA-146** `topDecisionSynopses` on manifest summary | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DN-demo-deferred** | Trustworthiness (B), Usability | **BDA-135**, **BDA-139**, **BDA-146** buyer-demo hierarchy polish |
-| **5DN-demo-p1** | Trustworthiness (B) | TB-273 BDA P1 sweep (~109) per [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md) |
+| **5DO-trust-remainder** | Trustworthiness, Deployability | Remaining TB-274 SEC/BE (ingest IDOR, webhook/mutating-route auth, **TB-091+** IaC parity) |
 
 ## Excluded from Cursor batches
 

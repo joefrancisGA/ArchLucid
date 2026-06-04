@@ -24,6 +24,7 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
@@ -264,7 +265,7 @@ export function ExecutiveRoiSummarySection() {
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings</div>
-            <div className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary">
+            <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {formatUsd(data.totalEstimatedUsdSavings)}
             </div>
             <div className="mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="exec-roi-pricing-basis">
@@ -283,7 +284,7 @@ export function ExecutiveRoiSummarySection() {
             <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
               <div className="text-xs font-medium text-teal-800 dark:text-teal-200">Realized USD (remediated)</div>
               <div
-                className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary"
+                className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
                 data-testid="exec-roi-realized-usd"
               >
                 {formatUsd(data.basisBreakdown.realizedUsd)}
@@ -309,13 +310,13 @@ export function ExecutiveRoiSummarySection() {
           ) : null}
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Systems reviewed</div>
-            <div className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary">
+            <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {data.systemCount}
             </div>
           </div>
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Latest runs included</div>
-            <div className="mt-1 text-sm font-semibold tabular-nums text-al-text-primary">
+            <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {data.latestRunCount}
             </div>
           </div>

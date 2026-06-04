@@ -1,3 +1,4 @@
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Queries;
@@ -46,7 +47,8 @@ internal static class AuthorityRunMapper
             DecisionCount = manifest.Decisions.Count,
             WarningCount = manifest.Warnings.Count,
             UnresolvedIssueCount = manifest.UnresolvedIssues.Items.Count,
-            Status = manifest.Metadata.Status
+            Status = manifest.Metadata.Status,
+            TopDecisionSynopses = ManifestDecisionSynopsisFormatter.FormatTopSynopses(manifest.Decisions)
         };
     }
 }

@@ -18,6 +18,7 @@ import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/executive-pilot-day";
 import { BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
@@ -165,7 +166,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             href={EXECUTIVE_KPI_DRILL_THROUGH.resolvedFindings30d}
             testId="kpi-tile-resolved-30d-link"
           >
-            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
               {resolved.display}
             </p>
           </KpiTileDrillThroughLink>
@@ -187,7 +188,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             href={EXECUTIVE_KPI_DRILL_THROUGH.newlyDiscoveredFindings30d}
             testId="kpi-tile-discovered-30d-link"
           >
-            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
               {discovered.display}
             </p>
           </KpiTileDrillThroughLink>
@@ -212,7 +213,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             href={EXECUTIVE_KPI_DRILL_THROUGH.staleArchitectureRisks}
             testId="kpi-tile-stale-risks-link"
           >
-            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
               {staleRisks.display}
             </p>
           </KpiTileDrillThroughLink>
@@ -237,7 +238,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             href={EXECUTIVE_KPI_DRILL_THROUGH.decisionsNeeded}
             testId="kpi-tile-decisions-needed-link"
           >
-            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
               {decisionsNeeded.display}
             </p>
           </KpiTileDrillThroughLink>
@@ -259,7 +260,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             href={EXECUTIVE_KPI_DRILL_THROUGH.expiringWaivers}
             testId="kpi-tile-expiring-waivers-link"
           >
-            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
               {expiringWaivers.display}
             </p>
           </KpiTileDrillThroughLink>
@@ -283,7 +284,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
             href={EXECUTIVE_KPI_DRILL_THROUGH.findingsRemediated30d}
             testId="kpi-tile-remediated-30d-link"
           >
-            <p className="font-mono text-4xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+            <p className={OPERATOR_TYPOGRAPHY.executiveDashboardMetric}>
               {remediated.display}
             </p>
           </KpiTileDrillThroughLink>

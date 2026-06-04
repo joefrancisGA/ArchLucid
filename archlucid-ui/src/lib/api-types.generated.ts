@@ -767,6 +767,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/auth/diagnose-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["AdminTokenClaimsDiagnosticRequest"];
+                    "application/json": components["schemas"]["AdminTokenClaimsDiagnosticRequest"];
+                    "text/json": components["schemas"]["AdminTokenClaimsDiagnosticRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminTokenClaimsDiagnosticResponse"];
+                        "text/json": components["schemas"]["AdminTokenClaimsDiagnosticResponse"];
+                        "text/plain": components["schemas"]["AdminTokenClaimsDiagnosticResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/auth/oidc-diagnostics": {
         parameters: {
             query?: never;
@@ -2623,6 +2677,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/rag-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminRagHealthResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/roi-bulletin-preview": {
         parameters: {
             query?: never;
@@ -3349,6 +3456,59 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/tenant-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminTenantHealthListResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -10917,6 +11077,17 @@ export interface paths {
                         "text/plain": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -10952,6 +11123,89 @@ export interface paths {
                         "application/json": components["schemas"]["RunRoiScorecardDto"];
                         "text/json": components["schemas"]["RunRoiScorecardDto"];
                         "text/plain": components["schemas"]["RunRoiScorecardDto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/architecture/run/{runId}/stage-timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StageTimelineSummary"][];
+                        "text/json": components["schemas"]["StageTimelineSummary"][];
+                        "text/plain": components["schemas"]["StageTimelineSummary"][];
                     };
                 };
                 /** @description Unauthorized */
@@ -13239,6 +13493,84 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/authority/runs/{runId}/disposition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["RecordRunOperatorGovernanceDispositionRequest"];
+                    "application/json": null | components["schemas"]["RecordRunOperatorGovernanceDispositionRequest"];
+                    "text/json": null | components["schemas"]["RecordRunOperatorGovernanceDispositionRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RunOperatorGovernanceDispositionDto"];
+                        "text/json": components["schemas"]["RunOperatorGovernanceDispositionDto"];
+                        "text/plain": components["schemas"]["RunOperatorGovernanceDispositionDto"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -18922,6 +19254,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/recurrence-schedules/{scheduleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    scheduleId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["UpdateArchitectureReviewRecurrenceScheduleRequest"];
+                    "application/json": null | components["schemas"]["UpdateArchitectureReviewRecurrenceScheduleRequest"];
+                    "text/json": null | components["schemas"]["UpdateArchitectureReviewRecurrenceScheduleRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureReviewRecurrenceSchedule"];
+                        "text/json": components["schemas"]["ArchitectureReviewRecurrenceSchedule"];
+                        "text/plain": components["schemas"]["ArchitectureReviewRecurrenceSchedule"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/governance/reviews-awaiting-action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["GovernanceReviewsAwaitingActionResponse"];
+                        "text/json": components["schemas"]["GovernanceReviewsAwaitingActionResponse"];
+                        "text/plain": components["schemas"]["GovernanceReviewsAwaitingActionResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/risk-exceptions": {
         parameters: {
             query?: never;
@@ -23161,6 +23597,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/pilots/runs/{runId}/sponsor-pack-sent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    runId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["SponsorPackSentPostRequest"];
+                    "application/json": null | components["schemas"]["SponsorPackSentPostRequest"];
+                    "text/json": null | components["schemas"]["SponsorPackSentPostRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/pilots/runs/{runId}/sponsor-proof-pack.zip": {
         parameters: {
             query?: never;
@@ -25579,6 +26100,7 @@ export interface paths {
             parameters: {
                 query?: {
                     format?: string;
+                    generateNarrative?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -28801,6 +29323,20 @@ export interface components {
             /** Format: double */
             structuralWarnBelow?: number | string;
         };
+        AdminRagCorpusHealthItem: {
+            /** Format: int32 */
+            chunkCount?: number;
+            corpusKind?: string;
+            /** Format: int32 */
+            embeddingDimension?: number;
+            isStale?: boolean;
+            /** Format: date-time */
+            lastIndexedUtc?: null | string;
+        };
+        AdminRagHealthResponse: {
+            corpora?: components["schemas"]["AdminRagCorpusHealthItem"][];
+            embeddingModelId?: string;
+        };
         AdminSamlOperationalHealthResponse: {
             idpMetadataDiagnosticSummary?: null | string;
             /** Format: date-time */
@@ -28809,6 +29345,36 @@ export interface components {
             spSigningCertificateDiagnosticSummary?: null | string;
             /** Format: date-time */
             spSigningCertificateNotAfterUtc?: null | string;
+        };
+        AdminTenantHealthListResponse: {
+            items?: components["schemas"]["AdminTenantHealthSummaryItem"][];
+        };
+        AdminTenantHealthSummaryItem: {
+            /** Format: int32 */
+            commitsLast7d?: number;
+            /** Format: double */
+            engagementScore?: number | string;
+            /** Format: double */
+            governanceScore?: number | string;
+            /** Format: date-time */
+            lastActivityUtc?: null | string;
+            pilotFunnelStage?: string;
+            /** Format: uuid */
+            projectId?: string;
+            /** Format: int32 */
+            runsLast7d?: number;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+        };
+        AdminTokenClaimsDiagnosticRequest: {
+            bearerToken?: string;
+        };
+        AdminTokenClaimsDiagnosticResponse: {
+            resolvedRoles?: string[];
+            unmappedValues?: string[];
+            warnings?: string[];
         };
         AdvisoryScanExecution: {
             /** Format: date-time */
@@ -28933,6 +29499,7 @@ export interface components {
             reasoningTokenCount?: null | number;
             runId?: string;
             systemPrompt?: string;
+            systemPromptContentHash?: null | string;
             systemPromptContentSha256?: null | string;
             taskId?: string;
             traceId?: string;
@@ -28945,7 +29512,26 @@ export interface components {
             pageSize?: number;
             /** Format: int32 */
             totalCount?: number;
-            traces?: components["schemas"]["AgentExecutionTrace"][];
+            traces?: components["schemas"]["AgentExecutionTraceSummary"][];
+        };
+        AgentExecutionTraceSummary: {
+            agentType?: components["schemas"]["AgentType"];
+            blobUploadFailed?: null | boolean;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: double */
+            estimatedCostUsd?: null | number | string;
+            /** Format: int32 */
+            inputTokenCount?: null | number;
+            modelDeploymentName?: null | string;
+            /** Format: int32 */
+            outputTokenCount?: null | number;
+            parseSucceeded?: boolean;
+            qualityRejected?: boolean;
+            qualityWarning?: boolean;
+            runId?: string;
+            taskId?: string;
+            traceId?: string;
         };
         AgentOutputEvaluationScore: {
             agentType?: components["schemas"]["AgentType"];
@@ -29421,10 +30007,12 @@ export interface components {
             policyReferences: string[];
             priorManifestVersion?: null | string;
             requestId: string;
+            requestSource?: null | string;
             requiredCapabilities: string[];
             securityBaselineHints: string[];
             systemName: string;
             topologyHints: string[];
+            wizardPresetUsed?: null | string;
         };
         ArchitectureRequestTemplateSummary: {
             description: string;
@@ -29432,11 +30020,15 @@ export interface components {
             name: string;
         };
         ArchitectureReviewRecurrenceSchedule: {
+            /** Format: int32 */
+            consecutiveFailureCount?: number;
             createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
             cronExpression?: string;
             isEnabled?: boolean;
+            lastErrorMessage?: null | string;
+            lastRunStatus?: string;
             /** Format: uuid */
             lastTriggeredRunId?: null | string;
             /** Format: date-time */
@@ -30826,6 +31418,13 @@ export interface components {
         ExecutiveRoiHistoryPoint: {
             /** Format: int32 */
             criticalSecurityFindings?: number;
+            isMixedMode?: boolean;
+            /** Format: double */
+            realModeSavingsUsd?: number | string;
+            /** Format: int32 */
+            realRunCount?: number;
+            /** Format: int32 */
+            simulatorRunCount?: number;
             /** Format: date-time */
             snapshotUtc?: string;
             /** Format: double */
@@ -30844,6 +31443,8 @@ export interface components {
             eaDiscountMultiplier?: number | string;
             /** Format: int32 */
             expiringWaiversCount14Days?: number;
+            /** Format: date-time */
+            firstCommitUtc?: null | string;
             historicalTrends?: components["schemas"]["ExecutiveRoiSystemicIssueTrendSeries"][];
             /** Format: date-time */
             latestCostEvidenceCollectionTimestampUtc?: null | string;
@@ -31516,6 +32117,20 @@ export interface components {
             winningPolicyPackName?: string;
             winningScopeLevel?: string;
             winningVersion?: string;
+        };
+        GovernanceReviewAwaitingActionItem: {
+            /** Format: date-time */
+            executedUtc?: null | string;
+            name?: string;
+            /** Format: int32 */
+            newFindingCount?: number;
+            /** Format: uuid */
+            runId?: string;
+            /** Format: uuid */
+            sourceRunId?: string;
+        };
+        GovernanceReviewsAwaitingActionResponse: {
+            items?: components["schemas"]["GovernanceReviewAwaitingActionItem"][];
         };
         GraphEdge: {
             edgeId?: string;
@@ -32283,6 +32898,7 @@ export interface components {
             /** Format: uuid */
             runId: string;
             status: string;
+            topDecisionSynopses?: string[];
             /** Format: int32 */
             unresolvedIssueCount: number;
             /** Format: int32 */
@@ -33385,6 +34001,10 @@ export interface components {
             /** Format: uuid */
             runId?: null | string;
         };
+        RecordRunOperatorGovernanceDispositionRequest: {
+            decision?: components["schemas"]["RunOperatorGovernanceDecision"];
+            rationale?: null | string;
+        };
         RegisterItsmCorrelationRequest: {
             externalKey?: string;
             externalSysId?: null | string;
@@ -33740,13 +34360,16 @@ export interface components {
         };
         RunAuthorityRuleAuditExplainabilitySection: {
             acceptedFindingIds?: string[];
+            allowedFindingIds?: string[];
             appliedRuleIds?: string[];
             /** Format: uuid */
             decisionTraceId?: null | string;
             notes?: string[];
             pipeline?: string;
+            preferredFindingIds?: string[];
             promptRefs?: components["schemas"]["RuleAuditTracePromptRef"][];
             rejectedFindingIds?: string[];
+            requiredFindingIds?: string[];
             ruleSetId?: string;
             ruleSetVersion?: string;
         };
@@ -33989,6 +34612,16 @@ export interface components {
             requestIdsDiffer?: boolean;
             statusDiffers?: boolean;
         };
+        RunOperatorGovernanceDecision: number;
+        RunOperatorGovernanceDispositionDto: {
+            decision?: components["schemas"]["RunOperatorGovernanceDecision"];
+            /** Format: date-time */
+            occurredAtUtc?: string;
+            rationale?: null | string;
+            recordedByUserId?: string;
+            /** Format: uuid */
+            runId?: string;
+        };
         RunPipelineTimelineItemResponse: {
             actorUserName?: string;
             correlationId?: null | string;
@@ -34038,12 +34671,12 @@ export interface components {
             isSample?: boolean;
             lastFailureReason?: null | string;
             legacyRunStatus?: null | string;
-            otelTraceId?: null | string;
             operatorGovernanceDecision?: null | string;
             operatorGovernanceDecisionByUserId?: null | string;
             operatorGovernanceDecisionRationale?: null | string;
             /** Format: date-time */
             operatorGovernanceDecisionUtc?: null | string;
+            otelTraceId?: null | string;
             pilotAoaiDeploymentSnapshot?: null | string;
             projectId: string;
             realModeFellBackToSimulator?: boolean;
@@ -34268,6 +34901,20 @@ export interface components {
             generatedUtc?: string;
             governanceOutcomes?: components["schemas"]["SponsorEvidenceGovernanceOutcomes"];
             processInstrumentation?: components["schemas"]["WhyArchLucidSnapshotResponse"];
+        };
+        SponsorPackSentPostRequest: {
+            deliveryMethod?: null | string;
+            recipientEmail?: null | string;
+        };
+        StageTimelineSummary: {
+            /** Format: date-time */
+            completedUtc: null | string;
+            /** Format: int64 */
+            durationMs: null | number | string;
+            outcomeStatus: string;
+            stageName: string;
+            /** Format: date-time */
+            startedUtc: string;
         };
         StringSegment: {
             buffer?: null | string;
@@ -34568,8 +35215,13 @@ export interface components {
             /** Format: date-time */
             tenantErasureRequestedUtc?: null | string;
             tier?: components["schemas"]["TenantTier"];
+            /** Format: int32 */
+            trialArchitecturePreseedAttemptCount?: number;
             /** Format: date-time */
             trialArchitecturePreseedEnqueuedUtc?: null | string;
+            /** Format: date-time */
+            trialArchitecturePreseedFailedUtc?: null | string;
+            trialArchitecturePreseedLastError?: null | string;
             /** Format: date-time */
             trialExpiresUtc?: null | string;
             /** Format: date-time */
@@ -34816,7 +35468,6 @@ export interface components {
         TrialLocalRegisterResponse: {
             /** Format: uuid */
             userId?: string;
-            verificationToken?: string;
         };
         TrialLocalTokenRequest: {
             email?: null | string;
@@ -34848,6 +35499,11 @@ export interface components {
         };
         UnresolvedIssuesSection: {
             items?: components["schemas"]["ManifestIssue"][];
+        };
+        UpdateArchitectureReviewRecurrenceScheduleRequest: {
+            cronExpression?: null | string;
+            isEnabled?: null | boolean;
+            name?: null | string;
         };
         UpdateComparisonRecordRequest: {
             label?: null | string;

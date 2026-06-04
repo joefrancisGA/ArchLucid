@@ -12988,6 +12988,12 @@
           "status": {
             "type": "string"
           },
+          "topDecisionSynopses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "unresolvedIssueCount": {
             "format": "int32",
             "type": "integer"

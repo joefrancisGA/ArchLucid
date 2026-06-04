@@ -340,7 +340,8 @@ public sealed class AuthorityQueryController(
             HasWarnings = result.WarningCount > 0,
             HasUnresolvedIssues = result.UnresolvedIssueCount > 0,
             OperatorSummary =
-                $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}"
+                $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
+            TopDecisionSynopses = result.TopDecisionSynopses
         });
     }
 

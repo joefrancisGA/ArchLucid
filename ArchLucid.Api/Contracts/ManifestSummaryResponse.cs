@@ -100,4 +100,11 @@ public class ManifestSummaryResponse
         get;
         set;
     } = "";
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.TopDecisionSynopses" />
+    public IReadOnlyList<string> TopDecisionSynopses
+    {
+        get;
+        set;
+    } = [];
 }

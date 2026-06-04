@@ -37,6 +37,9 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
       return null;
     }
 
+    const excerpts = summary.topDecisionSynopses ?? [];
+    const hasExcerpts = excerpts.length > 0;
+
     return (
       <Card>
         <CardHeader>
@@ -47,17 +50,31 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
             {buyer ? (
               <>
                 This review package records <strong>{summary.decisionCount}</strong> decision
-                {summary.decisionCount === 1 ? "" : "s"}. Open the review for full context and evidence.
+                {summary.decisionCount === 1 ? "" : "s"}.
+                {hasExcerpts ? " Preview:" : " Open the review for full context and evidence."}
               </>
             ) : (
               <>
                 This manifest records <strong>{summary.decisionCount}</strong> decision
-                {summary.decisionCount === 1 ? "" : "s"} — review the originating run for full evidence and narration.
+                {summary.decisionCount === 1 ? "" : "s"}
+                {hasExcerpts ? " — preview:" : " — review the originating run for full evidence and narration."}
               </>
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          {hasExcerpts ? (
+            <ul className="m-0 list-none space-y-2 p-0" data-testid="manifest-top-decision-excerpts">
+              {excerpts.map((line) => (
+                <li
+                  key={line}
+                  className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+                >
+                  {line}
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <Button variant="outline" size="sm" asChild>
             <Link href={`/reviews/${encodeURIComponent(summary.runId)}#run-explanation`}>
               {buyer ? "View on review" : "Open decisions on run"}

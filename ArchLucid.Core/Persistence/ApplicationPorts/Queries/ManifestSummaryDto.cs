@@ -70,4 +70,11 @@ public class ManifestSummaryDto
         get;
         set;
     } = null!;
+
+    /// <summary>Up to three one-line decision excerpts for manifest summary cards (BDA-146).</summary>
+    public IReadOnlyList<string> TopDecisionSynopses
+    {
+        get;
+        set;
+    } = [];
 }

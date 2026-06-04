@@ -10,7 +10,8 @@
 | **5CZ-demo** | 003–007, 010–011, 015–023 | **Done** | `buyer-demo-persona-labels.ts`, audit/governance/reviews/executive P0 persona + misleading-claim sweep |
 | **5DA-demo** | 025–080 | **Done** | Home/reviews/executive P1 wave 1 — `buyer-polish-copy`, terminology, executive surface guards |
 | **5DB-demo** | 081–133 | **Done** | Governance/audit/finding/ask/manifest/graph P1 wave 2 |
-| **5DC-demo** | 134–150 | **Done** | P2 polish — home casing, neutral runs count, executive scorecard/trend/KPI copy, in-app help links; BDA-135/139/146 deferred (design hierarchy / manifest excerpts) |
+| **5DC-demo** | 134–150 | **Done** | P2 polish — home casing, neutral runs count, executive scorecard/trend/KPI copy, in-app help links |
+| **5DN-demo-deferred** | 135, 139, 146 | **Done** | Home hero/section hierarchy; unified executive dashboard metrics; manifest summary `topDecisionSynopses` + UI excerpts |
 
 ## P0 checklist (24)
 

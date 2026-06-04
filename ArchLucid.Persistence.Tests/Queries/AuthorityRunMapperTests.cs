@@ -55,7 +55,14 @@ public sealed class AuthorityRunMapperTests
             RuleSetId = "r",
             RuleSetVersion = "v",
             Metadata = new ManifestMetadata { Status = "Committed" },
-            Decisions = [new ResolvedArchitectureDecision()],
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    Title = "Identity",
+                    SelectedOption = "Entra ID",
+                },
+            ],
             Warnings = ["w"],
             UnresolvedIssues = new UnresolvedIssuesSection
             {
@@ -84,5 +91,6 @@ public sealed class AuthorityRunMapperTests
         dto.WarningCount.Should().Be(1);
         dto.UnresolvedIssueCount.Should().Be(1);
         dto.Status.Should().Be("Committed");
+        dto.TopDecisionSynopses.Should().ContainSingle().Which.Should().Be("Identity: Entra ID");
     }
 }

@@ -45,8 +45,8 @@ export const OPERATOR_LAYOUT = {
  * @see globals.css `.text-title` … `.text-meta` utilities (same scale)
  */
 export const OPERATOR_TYPE_SCALE = {
-  /** Page hero / primary card headline (18px). */
-  title: "text-lg font-semibold leading-snug tracking-tight text-al-text-primary",
+  /** Page hero / primary card headline (20px). */
+  title: "text-xl font-semibold leading-snug tracking-tight text-al-text-primary",
   /** Major in-card titles (16px). */
   cardTitle: "text-base font-semibold leading-snug text-al-text-primary",
   /** Zone / table group / tab labels (14px). */
@@ -59,8 +59,9 @@ export const OPERATOR_TYPE_SCALE = {
   micro: "text-[11px] font-normal leading-snug text-al-text-secondary",
 } as const;
 
-/** Zone headings on operator/buyer home — sentence case (no `uppercase` transform). */
-export const OPERATOR_HOME_SECTION_HEADING = `m-0 ${OPERATOR_TYPE_SCALE.section} text-neutral-600 dark:text-neutral-300`;
+/** Zone headings on operator/buyer home — quieter than {@link OPERATOR_TYPE_SCALE.title} (BDA-135). */
+export const OPERATOR_HOME_SECTION_HEADING =
+  `m-0 ${OPERATOR_TYPE_SCALE.meta} font-medium text-neutral-600 dark:text-neutral-300`;
 
 /** Subsection labels inside home disclosure cards — sentence case. */
 export const OPERATOR_HOME_SUBSECTION_LABEL = `m-0 ${OPERATOR_TYPE_SCALE.section} text-neutral-600 dark:text-neutral-400`;
@@ -84,6 +85,8 @@ export const OPERATOR_TYPOGRAPHY = {
   dataValue: `${OPERATOR_TYPE_SCALE.body} font-medium tabular-nums`,
   /** Dashboard / metric tiles only — not page titles. */
   kpiValue: "font-mono text-4xl font-semibold tabular-nums text-al-text-primary",
+  /** Executive dashboard numbers (KPI tiles + ROI summary) — one treatment (BDA-139). */
+  executiveDashboardMetric: "text-2xl font-semibold tabular-nums text-al-text-primary",
 } as const;
 
 export const DESIGN_TOKENS = {
