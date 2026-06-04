@@ -259,7 +259,8 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let stageTimelineForUi: StageTimelineSummary[] = [];
 
   try {
-    stageTimelineForUi = await getRunStageTimeline(runId);
+    const stageTimelineRaw = await getRunStageTimeline(runId);
+    stageTimelineForUi = Array.isArray(stageTimelineRaw) ? stageTimelineRaw : [];
   } catch {
     stageTimelineForUi = [];
   }

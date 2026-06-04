@@ -407,6 +407,13 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      const stageTimelineMatch = /^\/v1\/architecture\/run\/([^/]+)\/stage-timeline$/.exec(pathname);
+
+      if (stageTimelineMatch) {
+        sendJson(res, 200, []);
+        return;
+      }
+
       if (isGraphUpstreamPath(pathname)) {
         sendJson(res, 200, getEmptyGraphViewModelJson());
         return;

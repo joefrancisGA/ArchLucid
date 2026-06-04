@@ -144,7 +144,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
 
         await AssertCrossTenantTenantRouteDeniedAsync(
             "metering summary",
-            static (client, tenantId) =>
+            (client, tenantId) =>
                 client.GetAsync(
                     $"/v1/admin/metering/tenants/{tenantId:D}/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
     }

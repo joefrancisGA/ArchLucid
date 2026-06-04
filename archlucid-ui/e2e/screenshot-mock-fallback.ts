@@ -449,6 +449,11 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     return [] as unknown[];
   }
 
+  /** `getRunStageTimeline` expects a JSON array — not a paged envelope. */
+  if (pathname.includes("/stage-timeline")) {
+    return [] as unknown[];
+  }
+
   if (pathname.includes("/traces") && pathname.includes("architecture")) {
     return { items: [] as unknown[], nextCursor: null };
   }
