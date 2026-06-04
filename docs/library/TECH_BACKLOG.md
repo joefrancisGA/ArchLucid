@@ -2,11 +2,11 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DO-trust-remainder-p0**). **~37 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after batch **5DO-trust-remainder-p1**). **~35 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Trustworthiness | 10 |
+| Trustworthiness | 8 |
 | Correctness | 9 |
 | Reliability | 7 |
 | Deployability | 5 |

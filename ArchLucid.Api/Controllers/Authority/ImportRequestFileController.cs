@@ -33,6 +33,7 @@ public sealed class ImportRequestFileController(
     ///     <c>SwaggerGeneratorException</c> while generating OpenAPI. ApiController still binds the file from
     ///     multipart form-data.
     /// </remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("request/import")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("multipart/form-data")]

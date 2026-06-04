@@ -45,6 +45,7 @@ public sealed class ArchitectureDefinitionImportController(
     ///     Do not decorate <see cref="IFormFile" /> with <c>[FromForm]</c> (Swashbuckle OpenAPI generation limitation); bind
     ///     <c>systemName</c> via <c>[FromForm]</c> only.
     /// </remarks>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("import")]
     [Authorize(Policy = ArchLucidPolicies.ArchitectureDefinitionImport)]
     [Consumes("multipart/form-data")]

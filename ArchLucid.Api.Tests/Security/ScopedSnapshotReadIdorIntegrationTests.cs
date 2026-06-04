@@ -128,6 +128,15 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     [SkippableFact]
+    public async Task Tenant_b_cannot_create_tenant_a_terraform_pr_sql_tb274()
+    {
+        await AssertCrossTenantRouteDeniedAsync(
+            "terraform advisory PR",
+            static (client, runId) =>
+                client.PostAsync($"/v1/artifacts/runs/{runId}/terraform-pr", content: null));
+    }
+
+    [SkippableFact]
     public async Task Tenant_b_cannot_download_tenant_a_run_artifact_bundle_sql_tb073()
     {
         await AssertCrossTenantRouteDeniedAsync(

@@ -32,6 +32,7 @@ public sealed class ArchitectureQuickScanController(
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>Runs a quick scan from minimal context (simulator-friendly by default).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("quick-scan")]
     [ProducesResponseType(typeof(ArchitectureQuickScanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

@@ -18,13 +18,14 @@
 | **5DL-trust-p2** | Artifact export/push cross-tenant IDOR SQL regression; scope binding on artifact export; CI matrix drift guard | Done |
 | **5DN-demo-deferred** | **BDA-135** home hierarchy; **BDA-139** executive metric typography; **BDA-146** `topDecisionSynopses` on manifest summary | Done |
 | **5DO-trust-remainder-p0** | Run-scoped POST IDOR (analysis-report, evidence bulk); `idempotency-posture` on export push / trial / marketing / client-error | Done |
+| **5DO-trust-remainder-p1** | Terraform PR POST IDOR; ingest/quick-scan/request-import posture; mutating-route baseline sync (11 routes) | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DO-trust-remainder-p1** | Trustworthiness, Deployability | **TB-091–102** IaC parity (Azure OpenAI, Redis, Cosmos, Key Vault PE/RBAC); **TB-082** agent tool runtime enforcer |
-| **5DP-correctness-p0** | Correctness | **TB-106–108** run-detail API/UI field parity (authority vs architecture endpoints) |
+| **5DP-mutating-posture-p1** | Trustworthiness, Reliability | Classify remaining high-risk `unclassified` mutating routes (replay/export/ask/advisory) via `idempotency-posture` + baseline |
+| **TB-138** | Trustworthiness (B) | Real-LLM golden-cohort CI promotion (owner Azure OpenAI secrets / environment) |
 
 ## Excluded from Cursor batches
 

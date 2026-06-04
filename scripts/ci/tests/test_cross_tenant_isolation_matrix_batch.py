@@ -54,6 +54,7 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("/analysis-report", text, "TB-274 run analysis-report POST IDOR regression")
         self.assertIn("/evidence/bulk", text, "TB-274 run evidence bulk POST IDOR regression")
+        self.assertIn("/terraform-pr", text, "TB-274 terraform PR POST IDOR regression")
 
     def test_retrieval_indexing_and_search_filter_tests_exist(self) -> None:
         root = REPO_ROOT / "ArchLucid.Retrieval.Tests"

@@ -461,6 +461,7 @@ public sealed class ArtifactExportController(
     ///     configured repository. Returns <c>201 Created</c> with the PR URL on success.
     ///     Requires <c>TerraformGitHubPr:Enabled=true</c> and valid GitHub credentials in configuration.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId:guid}/terraform-pr")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TerraformPrCreatedResponse), StatusCodes.Status201Created)]
