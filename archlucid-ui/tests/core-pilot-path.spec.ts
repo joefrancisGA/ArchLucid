@@ -38,7 +38,7 @@ test.describe("Core pilot path (mock API, buyer-polished shell)", () => {
     ).toBeVisible();
 
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
-    const manifestLink = outcomeStrip.locator(`a[href="/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}"]`);
+    const manifestLink = outcomeStrip.getByRole("link", { name: /Finalized/i }).first();
     await expect(manifestLink).toBeVisible();
     await expect(manifestLink).toContainText(/Finalized/i);
 

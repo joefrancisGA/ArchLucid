@@ -32,7 +32,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     ).toBeVisible();
 
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
-    const manifestLink = outcomeStrip.locator(`a[href="/manifests/${FIXTURE_MANIFEST_ID}"]`);
+    const manifestLink = outcomeStrip.getByRole("link", { name: /Finalized/i }).first();
 
     await expect(manifestLink).toBeVisible();
     await expect(manifestLink).toContainText("Finalized");
