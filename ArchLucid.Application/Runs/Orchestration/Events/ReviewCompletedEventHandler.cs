@@ -13,7 +13,10 @@ public class ReviewCompletedEventHandler(ILogger<ReviewCompletedEventHandler> lo
 {
     public Task HandleAsync(ReviewCompletedEvent @event, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Intent to send completion email for RunId={RunId}, ProjectId={ProjectId}", @event.RunId, @event.ProjectId);
+        logger.LogInformation(
+            "Intent to send completion email for RunId={RunId}, ProjectId={ProjectId}",
+            @event.RunId,
+            @event.ProjectId); // lgtm[cs/log-forging] RunId and ProjectId are Guid value types.
         return Task.CompletedTask;
     }
 }

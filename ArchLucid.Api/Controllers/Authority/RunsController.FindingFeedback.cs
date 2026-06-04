@@ -1,6 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
@@ -75,8 +76,8 @@ public sealed partial class RunsController
         logger.LogInformation(
             "Finding feedback recorded for run {RunId} finding {FindingId} score {Score}.",
             request.RunId,
-            trimmedFindingId,
-            score);
+            LogSanitizer.Sanitize(trimmedFindingId),
+            score); // lgtm[cs/log-forging] finding id sanitized for log sink.
 
         return NoContent();
     }

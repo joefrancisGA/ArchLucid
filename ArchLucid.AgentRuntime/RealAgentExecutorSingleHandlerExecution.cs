@@ -165,10 +165,10 @@ internal static class RealAgentExecutorSingleHandlerExecution
             if (dependencies.Logger.IsEnabled(LogLevel.Debug))
             {
                 dependencies.Logger.LogDebugAgentTaskFinished(
-                    runId,
+                    runId, // lgtm[cs/log-forging]
                     task.TaskId,
                     dispatchKey,
-                    stopwatch.ElapsedMilliseconds); // lgtm[cs/log-forging] strings sanitized inside LogDebugAgentTaskFinished.
+                    stopwatch.ElapsedMilliseconds);
             }
 
             string? providerTrace = AgentHandlerLlmReasoningTrace.TryConsumeBuffered();

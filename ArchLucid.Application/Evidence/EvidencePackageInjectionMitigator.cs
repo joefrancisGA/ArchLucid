@@ -99,7 +99,7 @@ public sealed class EvidencePackageInjectionMitigator(
             _logger.LogWarning(
                 "Redacted {FieldCount} evidence field(s) for RunId={RunId} after injection-pattern match.",
                 changed,
-                evidence.RunId);
+                LogSanitizer.Sanitize(evidence.RunId)); // lgtm[cs/log-forging] run id sanitized for log sink.
 
         return Task.FromResult(changed);
     }

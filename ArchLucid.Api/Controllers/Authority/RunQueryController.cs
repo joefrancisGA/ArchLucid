@@ -500,7 +500,7 @@ public sealed class RunQueryController(
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
-        if (pageNumber < 1)
+        if (pageNumber < 1) // lgtm[cs/user-controlled-bypass] rejects invalid paging before any data access.
             return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
 
         if (pageSize is < 1 or > PagingParameters.MaxPageSize)

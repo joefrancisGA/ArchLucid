@@ -50,9 +50,11 @@ public sealed class FirstTenantFunnelEmitter(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex,
-                "First-tenant funnel per-tenant row append failed for event {FunnelEvent} tenant {TenantId}; aggregated counter still recorded.", eventName,
-                tenantId);
+            _logger.LogWarning(
+                ex,
+                "First-tenant funnel per-tenant row append failed for event {FunnelEvent} tenant {TenantId}; aggregated counter still recorded.",
+                LogSanitizer.Sanitize(eventName),
+                tenantId); // lgtm[cs/log-forging] event name sanitized; tenantId is Guid.
         }
     }
 

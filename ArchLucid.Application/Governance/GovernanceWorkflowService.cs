@@ -507,7 +507,7 @@ public sealed class GovernanceWorkflowService(
                 logger.LogWarning(
                     "Promotion to prod blocked: approval request {ApprovalRequestId} has status {Status} (expected Approved). CallerRunId={CallerRunId}, CallerManifestVersion={CallerManifestVersion}, TargetEnvironment={TargetEnvironment}.",
                     LogSanitizer.Sanitize(approvalRequestId), approvalRequest?.Status ?? "not found", LogSanitizer.Sanitize(runId),
-                    LogSanitizer.Sanitize(manifestVersion), targetEnvironment);
+                    LogSanitizer.Sanitize(manifestVersion), LogSanitizer.Sanitize(targetEnvironment)); // lgtm[cs/log-forging] operational ids sanitized.
             throw new InvalidOperationException(OpaqueProdApprovalValidationFailed);
         }
 
@@ -543,7 +543,7 @@ public sealed class GovernanceWorkflowService(
         if (logger.IsEnabled(LogLevel.Warning))
             logger.LogWarning(
                 "Promotion to prod blocked: approval request {ApprovalRequestId} target environment mismatch (stored {StoredTarget}, caller {CallerTarget}).",
-                LogSanitizer.Sanitize(approvalRequestId), LogSanitizer.Sanitize(approved.TargetEnvironment), targetEnvironment);
+                LogSanitizer.Sanitize(approvalRequestId), LogSanitizer.Sanitize(approved.TargetEnvironment), LogSanitizer.Sanitize(targetEnvironment)); // lgtm[cs/log-forging] operational ids sanitized.
         throw new InvalidOperationException(OpaqueProdApprovalMismatch);
     }
 

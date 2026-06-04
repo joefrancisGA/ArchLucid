@@ -293,7 +293,7 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Failed to publish integration event type {EventType} to Service Bus.",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
+            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 
     /// <summary>
@@ -317,7 +317,7 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Integration event serialization failed for {EventType}",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
+            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 
     /// <summary>
@@ -337,7 +337,7 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Integration event outbox enqueue failed for {EventType}",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
+            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 
     /// <summary>
@@ -357,6 +357,6 @@ public static class SanitizedLoggerWarningExtensions
         logger.LogWarning(
             ex,
             "Integration event publish failed for {EventType}",
-            safeEventType); // codeql[cs/exposure-of-sensitive-information]: canonical IntegrationEventTypes URN taxonomy only; operational keys, not credentials or PII (docs/library/CODEQL_TRIAGE.md).
+            safeEventType); // lgtm[cs/exposure-of-sensitive-information] canonical IntegrationEventTypes URN taxonomy only.
     }
 }
