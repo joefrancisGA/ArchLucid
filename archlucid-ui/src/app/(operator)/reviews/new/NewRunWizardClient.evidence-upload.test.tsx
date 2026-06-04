@@ -112,7 +112,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
       expect(screen.getByTestId("new-run-wizard-mode-toggle")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Full Wizard/i }));
+    fireEvent.click(screen.getByRole("button", { name: /All steps/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("wizard-start-blank")).toBeInTheDocument();
