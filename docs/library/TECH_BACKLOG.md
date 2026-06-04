@@ -2,11 +2,11 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DM-usability**). **~45 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after batch **5DL-trust-p2**). **~42 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Trustworthiness | 15 |
+| Trustworthiness | 12 |
 | Correctness | 9 |
 | Reliability | 7 |
 | Deployability | 5 |
@@ -28,9 +28,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~45** |
+| **Total (unique)** | **~42** |
 
-**Usability (3):** deferred buyer-demo **BDA-135**, **BDA-139**, **BDA-146** (design hierarchy / manifest excerpts). **Trustworthiness (15):** remaining TB-274 SEC/BE register. **Next recommended batch:** **5DL-trust-p2** (scope binding, export/ingest IDOR matrix, webhook hardening). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**Usability (3):** deferred buyer-demo **BDA-135**, **BDA-139**, **BDA-146** (design hierarchy / manifest excerpts). **Trustworthiness (12):** remaining TB-274 SEC/BE register (ingest/webhook/IaC gaps). **Next recommended batch:** **5DN-demo-deferred** (**BDA-135**, **BDA-139**, **BDA-146**) then **5DN-demo-p1** (TB-273 BDA sweep). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 

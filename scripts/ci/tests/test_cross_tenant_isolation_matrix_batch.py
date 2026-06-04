@@ -43,6 +43,12 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         smoke_path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "TenantIsolationSmokeTests.cs"
         self.assertTrue(smoke_path.is_file(), f"Missing {smoke_path}")
 
+    def test_scoped_snapshot_idor_matrix_covers_artifact_export_routes(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopedSnapshotReadIdorIntegrationTests.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("/export/push", text, "TB-274 export push IDOR regression")
+        self.assertIn("/export", text, "TB-274 run export zip IDOR regression")
+
     def test_retrieval_indexing_and_search_filter_tests_exist(self) -> None:
         root = REPO_ROOT / "ArchLucid.Retrieval.Tests"
         for name in RETRIEVAL_ISOLATION_TESTS:

@@ -30,6 +30,10 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     private static readonly Guid WorkspaceB = Guid.Parse("88888888-8888-8888-8888-888888888888");
     private static readonly Guid ProjectB = Guid.Parse("99999999-9999-9999-9999-999999999999");
 
+    /// <summary>Public Azure Blob host shape; passes BE-034 sync guard before run scope is evaluated.</summary>
+    private const string PlaceholderAzureBlobSasUrl =
+        "https://acct.blob.core.windows.net/exports/archlucid.zip?sv=2022-11-02&ss=b&srt=sco&sp=w&se=2099-01-01T00:00:00Z&sig=placeholder";
+
     [SkippableFact]
     public async Task Tenant_b_cannot_list_tenant_a_run_findings_sql_tb073()
     {
@@ -76,6 +80,25 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         await AssertCrossTenantRouteDeniedAsync(
             "run artifact list",
             static (client, runId) => client.GetAsync($"/v1/runs/{runId}/artifacts"));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_download_tenant_a_run_artifact_export_zip_sql_tb274()
+    {
+        await AssertCrossTenantRouteDeniedAsync(
+            "artifact run export zip",
+            static (client, runId) => client.GetAsync($"/v1/artifacts/runs/{runId}/export"));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_push_tenant_a_run_export_to_blob_sql_tb274()
+    {
+        await AssertCrossTenantRouteDeniedAsync(
+            "artifact run export blob push",
+            static (client, runId) =>
+                client.PostAsJsonAsync(
+                    $"/v1/artifacts/runs/{runId}/export/push",
+                    new { destinationSasUrl = PlaceholderAzureBlobSasUrl }));
     }
 
     [SkippableFact]

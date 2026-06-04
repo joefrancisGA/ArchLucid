@@ -15,6 +15,9 @@ public sealed class ScopeIdentityBindingIntegrationTests
 {
     private const string RunsListPath = "/v1/authority/projects/default/runs?take=1";
 
+    private const string ArtifactRunExportProbePath =
+        "/v1/artifacts/runs/00000000-0000-0000-0000-000000000001/export";
+
     [SkippableFact]
     public async Task ApiKey_with_mismatched_tenant_header_returns_forbidden()
     {
@@ -54,5 +57,18 @@ public sealed class ScopeIdentityBindingIntegrationTests
         HttpResponseMessage response = await client.GetAsync(RunsListPath);
 
         response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task ApiKey_with_mismatched_tenant_header_returns_forbidden_on_artifact_run_export()
+    {
+        await using ApiKeyReaderAndAdminArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestAdminApiKey);
+        client.DefaultRequestHeaders.Add("x-tenant-id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        HttpResponseMessage response = await client.GetAsync(ArtifactRunExportProbePath);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }
