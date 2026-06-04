@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { cn } from "@/lib/utils";
 
 const calloutBase =
@@ -35,6 +36,10 @@ export function OperatorEmptyState({
   children?: ReactNode;
   description?: string;
 }) {
+  if (children === undefined && description !== undefined && description.length > 0) {
+    return <EmptyState title={title} description={description} />;
+  }
+
   const detail: ReactNode = children ?? description;
 
   return (

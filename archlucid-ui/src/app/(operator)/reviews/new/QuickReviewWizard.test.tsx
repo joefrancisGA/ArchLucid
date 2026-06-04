@@ -103,4 +103,18 @@ describe("ReviewsNewPathSwitcher", () => {
       expect(screen.getByTestId("quick-review-progress")).toBeInTheDocument();
     });
   });
+
+  it("shows exactly one creation path at a time (TB-270)", async () => {
+    localStorage.clear();
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-path-hint")).toBeInTheDocument();
+    });
+
+    const quickVisible = screen.queryByTestId("quick-review-progress") !== null;
+    const detailedVisible = screen.queryByTestId("detailed-wizard-stub") !== null;
+
+    expect(quickVisible !== detailedVisible).toBe(true);
+  });
 });

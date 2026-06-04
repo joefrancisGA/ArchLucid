@@ -111,6 +111,7 @@ function tryReadJsonCorrelationId(bodyText: string): string | null {
 export function buildApiRequestErrorFromParts(
   response: Response,
   bodyText: string,
+  requestCorrelationId?: string | null,
 ): ApiRequestError {
   const contentType = response.headers.get("content-type");
   const problem = tryParseApiProblemDetails(bodyText, contentType);
@@ -118,6 +119,7 @@ export function buildApiRequestErrorFromParts(
     response.headers.get(CORRELATION_ID_HEADER)?.trim() ||
     problem?.correlationId?.trim() ||
     tryReadJsonCorrelationId(bodyText) ||
+    requestCorrelationId?.trim() ||
     null;
   const message = formatApiFailureMessage(
     problem,

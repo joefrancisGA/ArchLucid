@@ -122,11 +122,17 @@ export function resolveRequest(path: string): { url: string; headers: HeadersIni
   return { url, headers };
 }
 
-export function withCorrelationHeaders(headers: HeadersInit): Headers {
+/** Applies a fresh correlation id header; returns headers and id for error fallback (TB-271). */
+export function applyCorrelationHeaders(headers: HeadersInit): { headers: Headers; correlationId: string } {
+  const correlationId = generateCorrelationId();
   const h = new Headers(headers);
-  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  h.set(CORRELATION_ID_HEADER, correlationId);
 
-  return h;
+  return { headers: h, correlationId };
+}
+
+export function withCorrelationHeaders(headers: HeadersInit): Headers {
+  return applyCorrelationHeaders(headers).headers;
 }
 
 function serverFetchInit(
@@ -146,8 +152,12 @@ function serverFetchInit(
   return requestInit;
 }
 
-export function throwApiRequestError(response: Response, bodyText: string): never {
-  const err = buildApiRequestErrorFromParts(response, bodyText);
+export function throwApiRequestError(
+  response: Response,
+  bodyText: string,
+  requestCorrelationId?: string | null,
+): never {
+  const err = buildApiRequestErrorFromParts(response, bodyText, requestCorrelationId);
 
   if (isBrowser() && err.httpStatus === 402) {
     const trial = parseTrialLimitProblemDetails(bodyText);
@@ -194,13 +204,13 @@ export async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseW
 
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h));
   const text = await response.text();
   const traceId = extractTraceId(response);
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    throwApiRequestError(response, text, correlationId);
   }
 
   return { data: JSON.parse(text) as T, traceId };
@@ -221,7 +231,7 @@ export async function apiPostJson<T>(
 ): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
 
   if (options?.extraHeaders) {
@@ -237,7 +247,7 @@ export async function apiPostJson<T>(
   const text = await response.text();
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    throwApiRequestError(response, text, correlationId);
   }
 
   notifyIfIdempotencyReplayed(response);
@@ -249,7 +259,7 @@ export async function apiPostJson<T>(
 export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(
     url,
@@ -258,7 +268,7 @@ export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
   const text = await response.text();
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    throwApiRequestError(response, text, correlationId);
   }
 
   notifyIfIdempotencyReplayed(response);
@@ -270,7 +280,7 @@ export async function apiPatchJson<T>(path: string, body: unknown): Promise<T> {
 export async function apiPostNoContent(path: string, body: unknown): Promise<void> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(
     url,
@@ -279,7 +289,7 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
   const text = await response.text();
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    throwApiRequestError(response, text, correlationId);
   }
 
   notifyIfIdempotencyReplayed(response);
@@ -289,13 +299,13 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
 export async function apiPutJson<T>(path: string, body: unknown): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
   const text = await response.text();
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    throwApiRequestError(response, text, correlationId);
   }
 
   notifyIfIdempotencyReplayed(response);
@@ -311,13 +321,13 @@ export async function apiPutJson<T>(path: string, body: unknown): Promise<T> {
 export async function apiPutNoContent(path: string, body: unknown): Promise<void> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, serverFetchInit(h, { method: "PUT", body: JSON.stringify(body) }));
   const text = await response.text();
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    throwApiRequestError(response, text, correlationId);
   }
 
   notifyIfIdempotencyReplayed(response);
@@ -327,12 +337,12 @@ export async function apiPutNoContent(path: string, body: unknown): Promise<void
 export async function apiDelete(path: string): Promise<void> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
-  const h = withCorrelationHeaders(headers);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
   const response = await fetch(url, serverFetchInit(h, { method: "DELETE" }));
   const text = await response.text();
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    throwApiRequestError(response, text, correlationId);
   }
 
   notifyIfIdempotencyReplayed(response);

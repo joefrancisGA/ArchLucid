@@ -2,14 +2,13 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DL-trust-p1**). **~48 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after batch **5DM-usability**). **~45 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Trustworthiness | 15 |
 | Correctness | 9 |
 | Reliability | 7 |
-| Usability | 6 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
 | Architectural integrity | 5 |
@@ -19,6 +18,7 @@
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
 | Commercial / marketability | 3 |
+| Usability | 3 |
 | Testability | 2 |
 | Maintainability | 2 |
 | Traceability | 2 |
@@ -28,9 +28,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~48** |
+| **Total (unique)** | **~45** |
 
-**Usability (6):** **TB-270**, **TB-271**, **TB-272** plus deferred buyer-demo **BDA-135**, **BDA-139**, **BDA-146**. **Trustworthiness (15):** remaining TB-274 SEC/BE register (~50 unique fixes minus ~35 closed in **5DE–5DL**). **Next recommended batch:** **5DM-usability** (TB-270–272). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**Usability (3):** deferred buyer-demo **BDA-135**, **BDA-139**, **BDA-146** (design hierarchy / manifest excerpts). **Trustworthiness (15):** remaining TB-274 SEC/BE register. **Next recommended batch:** **5DL-trust-p2** (scope binding, export/ingest IDOR matrix, webhook hardening). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -224,9 +224,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-267 | `/executive/dashboard` route under executive chrome — new `(executive)/executive/dashboard/page.tsx` rendering `ExecutiveRoiDashboardPageView` inside `ExecutiveShellFrame` (thin provider wrapper if dashboard sections need operator-nav context); repoint the `ExecutiveShellFrame` "Dashboard" nav `<Link>` from `/dashboard` to `/executive/dashboard`; update active-route highlight + Vitest | **Done (2026-06-03 batch 5CO)** — `(executive)/executive/dashboard/page.tsx` + nav href; `test_executive_value_batch_5co.py` | M |
 | TB-268 | In-product executive narrative summary line — `buildExecutiveValueNarrative` helper deriving a plain-language synthesis ("This period: {reviews} reviews, {findings} findings, ~${savings}/{hours} h saved; top action: {topRecommendedAction}") from the already-loaded `pilot-value-report` + recommended-actions data; render atop `ExecutiveScorecardClient` (and the dashboard) above the tiles; deterministic (no LLM); unit + Vitest | **Done (2026-06-03 batch 5CO)** — `buildExecutiveValueNarrative` + `ExecutiveValueNarrativeBanner`; scorecard + executive dashboard | S |
 | TB-269 | Dashboard ROI trend window selector — add a 30d/quarter/all/year range selector to `ExecutiveRoiTrendSection` matching `ExecutiveScorecardClient`'s control; thread the selected window to the history fetch; Vitest | **Done (2026-06-03 batch 5CO)** — client-side filter + `exec-roi-trend-time-range`; scorecard year option; `test_executive_value_batch_5co.py` | S |
-| TB-270 | Disambiguate review-creation entry points — audit the reachable "quick" creation paths (`QuickReviewWizard` top-level vs `QuickStartWizard` / `SimplifiedPilotWizard` inside `NewRunWizardClient`); make `ReviewsNewPathSwitcher` the single decision surface with clear labels ("Quick review" vs "Full guided review") and document which path renders in which mode; Vitest guard that exactly one quick path is reachable per shell mode (do NOT remove wizard logic — relabel/route only) | Usability P2 — multiple near-synonymous entry points on the single highest-stakes task (core pilot path) create choice confusion | M |
-| TB-271 | Universal failure identifier — generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id | Usability P2 — correlation id shows only when the server emits Problem Details, so a user hitting other failures has nothing to quote in a support request | S |
-| TB-272 | Empty/loading-state consistency — consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | Usability P3 — two empty-state families + partial `loading.tsx` coverage make the operator surface inconsistent and perceived performance uneven | M |
+| TB-270 | Disambiguate review-creation entry points — audit the reachable "quick" creation paths (`QuickReviewWizard` top-level vs `QuickStartWizard` / `SimplifiedPilotWizard` inside `NewRunWizardClient`); make `ReviewsNewPathSwitcher` the single decision surface with clear labels ("Quick review" vs "Full guided review") and document which path renders in which mode; Vitest guard that exactly one quick path is reachable per shell mode (do NOT remove wizard logic — relabel/route only) | **Done (2026-06-04 batch 5DM)** — path hint copy, relabeled wizard mode toggle, Vitest single-path guard | M |
+| TB-271 | Universal failure identifier — generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id | **Done (2026-06-04 batch 5DM)** — `applyCorrelationHeaders` + `buildApiRequestErrorFromParts` request fallback; `api-error.test.ts` | S |
+| TB-272 | Empty/loading-state consistency — consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | **Done (2026-06-04 batch 5DM)** — `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | M |
 | TB-273 | Buyer-demo readiness defect remediation (2026-06-03 harsh demo audit) — ~150 enumerated issues **BDA-001…BDA-150** across the golden path (Home → Reviews → Review detail → Executive summary → Manifest → Evidence graph → Governance → Audit) + Finding/Ask. P0: demo/test-data leakage (Claims Intake / "Jordan Lee" / "Taylor Morgan" / `demo-tenant` / sample-decision ids), fabricated decision/confidence/audit-link fallbacks, misleading "Audit trail complete"/"placeholder"/"demonstration KPI $94,360"/"Demo-derived" claims, sponsor exports merging demo runs, one dead `#run-actions` finalize anchor. P1: terminology drift, raw identifiers and enum labels in UI, redundant CTAs, chart-grammar/hierarchy, SoD marketed-not-explained. P2 polish. Primary fix lever: harden buyer-polished vs static-demo env gating so demo copy never reaches the polished shell, plus copy/label fixes. Full per-issue table in `## TB-273` | Buyer-demo credibility — one week to a CIO/CISO/procurement live demo; per-issue severity/screen/problem/why/fix/copy in detail section | XL |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |

@@ -614,7 +614,7 @@ export function NewRunWizardClient() {
   const fullWizardStepCountLabel: number = baselineFirst
     ? WIZARD_STEP_DEFINITIONS_BASELINE.length
     : WIZARD_STEP_DEFINITIONS_FULL.length;
-  const quickModeLabel = baselineFirst ? "Pilot wizard (3 steps)" : "Quick Start (3 steps)";
+  const quickModeLabel = baselineFirst ? "Pilot baseline (3 steps)" : "Quick start (3 steps)";
 
   return (
     <FormProvider {...form}>
@@ -637,10 +637,12 @@ export function NewRunWizardClient() {
             <div
               className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
               role="group"
-              aria-label="Wizard mode"
+              aria-label="Steps inside full guided review"
               data-testid="new-run-wizard-mode-toggle"
             >
-              <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Mode</span>
+              <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                Inside full guided review
+              </span>
               <button
                 type="button"
                 className={
@@ -663,7 +665,7 @@ export function NewRunWizardClient() {
                 aria-pressed={wizardMode === "full"}
                 onClick={() => persistWizardMode("full")}
               >
-                Full Wizard ({fullWizardStepCountLabel} steps)
+                All steps ({fullWizardStepCountLabel})
               </button>
             </div>
           ) : null}

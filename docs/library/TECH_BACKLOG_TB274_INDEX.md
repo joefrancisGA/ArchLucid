@@ -14,13 +14,14 @@
 | **5DJ-trust-p0** | BE-017/018-class trial JWT scope; value-report IDOR; `Demo:AnonymousViewer` production block | Done |
 | **5DK-sec-remainder** | BE-022-class `SourceDocumentUrl` DNS guard; anonymous/marketing rate limits; search/webhook/evidence throttling | Done |
 | **5DL-trust-p1** | BE-034 export SAS DNS policy consolidation; Slack + exec-digest anonymous rate limits | Done |
+| **5DM-usability** | **TB-270**, **TB-271**, **TB-272** — review paths, correlation id, loading/empty states | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DM-usability** | Usability, Adoption friction | **TB-270**, **TB-271**, **TB-272** |
 | **5DL-trust-p2** | Trustworthiness, Correctness | Remaining TB-274 SEC/BE (scope binding hardening, export/ingest regression matrix, webhook auth gaps) |
+| **5DN-demo-deferred** | Trustworthiness (B) | **BDA-135**, **BDA-139**, **BDA-146** buyer-demo hierarchy polish |
 | **5DN-demo-p1** | Trustworthiness (B) | TB-273 BDA P1 sweep (~109) per [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md) |
 
 ## Excluded from Cursor batches

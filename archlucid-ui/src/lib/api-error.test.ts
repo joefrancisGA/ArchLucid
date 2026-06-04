@@ -69,6 +69,20 @@ describe("buildApiRequestErrorFromParts", () => {
     }
   });
 
+  it("falls back to client request correlation id when response has none (TB-271)", () => {
+    const response = new Response("plain text failure", {
+      status: 500,
+      headers: { "content-type": "text/plain" },
+    });
+
+    const err = buildApiRequestErrorFromParts(response, "plain text failure", "client-req-abc");
+
+    expect(isApiRequestError(err)).toBe(true);
+    if (isApiRequestError(err)) {
+      expect(err.correlationId).toBe("client-req-abc");
+    }
+  });
+
   it("parses Retry-After as seconds on 429", () => {
     const bodyText = JSON.stringify({ title: "Slow down", detail: "Rate limited" });
     const response = new Response(bodyText, {

@@ -379,10 +379,18 @@ export function ReviewsNewPathSwitcher() {
             onClick={selectDetailed}
             data-testid="reviews-new-path-detailed"
           >
-            Detailed wizard
+            Full guided review
           </Button>
         </div>
-      ) : (
+      ) : null}
+      {ready ? (
+        <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
+          {pathMode === "quick-review"
+            ? "Quick review: one-page brief and submit. Choose Full guided review for import, presets, evidence upload, and every configuration step."
+            : "Full guided review: step-by-step wizard. Use Quick review above for the fastest path when you already have a brief."}
+        </p>
+      ) : null}
+      {ready ? null : (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
       {!ready ? null : pathMode === "quick-review" ? <QuickReviewWizard /> : <NewRunWizardClient />}
