@@ -6,6 +6,8 @@ import {
   buildExplanationConfidenceSummary,
   type ExplanationConfidenceDisposition,
 } from "@/lib/run-explanation-confidence-disposition";
+import { buyerExplanationConfidenceDispositionLabel } from "@/lib/buyer-explanation-confidence-labels";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 function dispositionClass(disposition: ExplanationConfidenceDisposition): string {
@@ -36,6 +38,11 @@ export function RunExplanationConfidenceBanner(props: {
   if (confidence === null)
     return null;
 
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const dispositionLabel = buyerPolished
+    ? buyerExplanationConfidenceDispositionLabel(confidence.disposition)
+    : confidence.disposition;
+
   return (
     <Card
       className={`rounded-lg border shadow-sm ${dispositionClass(confidence.disposition)}`}
@@ -43,7 +50,7 @@ export function RunExplanationConfidenceBanner(props: {
     >
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold text-al-text-primary">
-          Explanation confidence — {confidence.disposition}
+          {buyerPolished ? `Explanation confidence: ${dispositionLabel}` : `Explanation confidence — ${dispositionLabel}`}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 pt-0 text-sm">

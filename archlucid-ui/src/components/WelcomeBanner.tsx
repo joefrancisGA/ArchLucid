@@ -184,9 +184,9 @@ export function WelcomeBanner() {
 
   const headingText =
     returningUser
-      ? "Your review workspace"
+      ? "Architecture review workspace"
       : buyerPolishedShell
-        ? "Explore one governed Claims Intake review package"
+        ? "Explore one governed architecture review package"
         : "Your first architecture review — four steps";
 
   // Core workspace hero — always expanded; do not add Minimize/X collapse here.
@@ -197,8 +197,7 @@ export function WelcomeBanner() {
     </>
   ) : buyerPolishedShell ? (
     <>
-      Lead with <strong>executive view</strong> for a board-ready summary of this sample, then the{" "}
-      <strong>manifest summary</strong> (finalized signed package), <strong>audit trail</strong>, and prioritized{" "}
+      Start with the <strong>executive view</strong>, then the <strong>signed manifest</strong>, <strong>audit trail</strong>, and prioritized{" "}
       <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
     </>
   ) : (

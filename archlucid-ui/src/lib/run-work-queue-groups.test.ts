@@ -75,7 +75,7 @@ describe("workQueueSectionHeading", () => {
 
   it("returns buyer-polished labels when requested", () => {
     expect(workQueueSectionHeading("needs-attention", true)).toBe("Pre-final — manifest pending");
-    expect(workQueueSectionHeading("in-progress", true)).toBe("Early pipeline");
+    expect(workQueueSectionHeading("in-progress", true)).toBe("In progress");
     expect(workQueueSectionHeading("committed", true)).toBe("Finalized review packages");
   });
 });

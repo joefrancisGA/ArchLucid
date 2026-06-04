@@ -33,7 +33,7 @@ import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPack
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
-import { BUYER_HOME_SETUP_SECTION_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_HOME_REVIEWS_SECTION_HEADING, BUYER_HOME_SETUP_SECTION_HEADING } from "@/lib/buyer-polish-copy";
 import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 
@@ -118,13 +118,13 @@ function BuyerPolishedHomePageBody() {
           <OperatorCoArchitectHomeStrip buyerPolishedShell />
           <SampleFirstReviewPackageCard buyerPolishedShell={true} />
         </div>
-        <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start" aria-label="Sample package shortcuts">
+        <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start" aria-label="Example review package shortcuts">
           <SamplePackageShortcutsCard />
         </aside>
       </section>
 
       <section aria-labelledby="operator-home-reviews-heading" className="space-y-4">
-        <HomeSectionHeading id="operator-home-reviews-heading">Your reviews</HomeSectionHeading>
+        <HomeSectionHeading id="operator-home-reviews-heading">{BUYER_HOME_REVIEWS_SECTION_HEADING}</HomeSectionHeading>
         <RunsDashboardPanel />
       </section>
 

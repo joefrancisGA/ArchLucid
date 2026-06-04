@@ -23,6 +23,11 @@ import {
 } from "@/lib/executive-time-range";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import {
+  BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL,
+  BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP,
+} from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
@@ -256,6 +261,7 @@ export function ExecutiveScorecardClient() {
     hoursRoi > 0 ? hoursRoi : reviewsCount * AVERAGE_MANUAL_REVIEW_HOURS;
   const driftTotal = sumDriftChanges(driftPoints);
   const driftTrend = driftTrendLabel(driftPoints);
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
   return (
     <div className="space-y-6" data-testid="executive-scorecard">
@@ -290,7 +296,7 @@ export function ExecutiveScorecardClient() {
             <option value="all">All time</option>
           </select>
           <p id="scorecard-time-range-help" className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            Window matches pilot-value-report bounds (toUtc exclusive where applicable).
+            {buyerPolished ? BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP : "Window matches pilot-value-report bounds (toUtc exclusive where applicable)."}
           </p>
         </div>
         <Button asChild variant="outline" size="sm" className="shrink-0 self-start sm:self-auto">
@@ -321,7 +327,9 @@ export function ExecutiveScorecardClient() {
             <p className="m-0 text-3xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {finiteIntegerCountDisplay(reviewsCount)}
             </p>
-            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">Committed runs (pilot-value-report)</p>
+            <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              {buyerPolished ? BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL : "Committed runs (pilot-value-report)"}
+            </p>
           </CardContent>
         </Card>
 
@@ -346,11 +354,17 @@ export function ExecutiveScorecardClient() {
               {formatHours(estimatedHours)}
             </p>
             <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              Severity-weighted ROI model
-              {hoursRoi <= 0 && reviewsCount > 0
-                ? ` · fallback ${AVERAGE_MANUAL_REVIEW_HOURS} h × reviews when weighted hours are zero`
-                : ""}
-              {!precommitBlocksExact ? " · pre-commit block count may be capped" : ""}
+              {buyerPolished
+                ? "Estimated hours saved (methodology in pilot guide)"
+                : (
+                    <>
+                      Severity-weighted ROI model
+                      {hoursRoi <= 0 && reviewsCount > 0
+                        ? ` · fallback ${AVERAGE_MANUAL_REVIEW_HOURS} h × reviews when weighted hours are zero`
+                        : ""}
+                      {!precommitBlocksExact ? " · pre-commit block count may be capped" : ""}
+                    </>
+                  )}
             </p>
           </CardContent>
         </Card>

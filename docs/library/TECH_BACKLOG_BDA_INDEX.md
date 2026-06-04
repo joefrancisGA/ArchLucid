@@ -8,7 +8,7 @@
 |-------|---------|--------|-------|
 | **5CY-demo** | 024, 150, 001, 012–014, 002, 004, 008–009, 017 | **Done** | `buyer-demo-content-gating.ts`, env CI guard, golden-path import guard, fabrication + anchor fixes |
 | **5CZ-demo** | 003–007, 010–011, 015–023 | **Done** | `buyer-demo-persona-labels.ts`, audit/governance/reviews/executive P0 persona + misleading-claim sweep |
-| **5DA-demo** | 025–080 | Open | Home/reviews/executive/manifest P1 wave 1 |
+| **5DA-demo** | 025–080 | **Done** | Home/reviews/executive P1 wave 1 — `buyer-polish-copy`, terminology, executive surface guards |
 | **5DB-demo** | 081–133 | Open | Governance/audit/finding/ask P1 wave 2 |
 | **5DC-demo** | 134–150 | Open | P2 polish |
 

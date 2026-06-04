@@ -20,6 +20,7 @@ import { RunSavingsSummary } from "@/components/RunSavingsSummary";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
+import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 import {
   buyerHeaderStatusTwinPillCaption,
 } from "@/lib/review-buyer-disposition-line";
@@ -101,11 +102,13 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
   const findingCoverageSummary = m.resolvedDetail.findingCoverageSummary ?? null;
   const commitBlockedReason =
     findingCoverageSummary?.hasCommitBlockingFailures === true
-      ? `Finding coverage is commit-blocking. Failed engines: ${
-          findingCoverageSummary.failedEngineLabels?.length
-            ? findingCoverageSummary.failedEngineLabels.join(", ")
-            : "one or more required finding engines"
-        }.`
+      ? m.buyerPolishedArtifactTable === true
+        ? "Some checks must finish before this review can be finalized."
+        : `Finding coverage is commit-blocking. Failed engines: ${
+            findingCoverageSummary.failedEngineLabels?.length
+              ? findingCoverageSummary.failedEngineLabels.join(", ")
+              : "one or more required finding engines"
+          }.`
       : null;
 
   const governanceAlertsEl = (
@@ -359,7 +362,11 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           manifestSummary={m.manifestSummary}
           trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
           samplePolicyPackContextLine={
-            m.usedStaticDemoRun === true ? "Policy pack used for this sample review." : null
+            m.usedStaticDemoRun === true
+              ? m.buyerPolishedArtifactTable === true
+                ? BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE
+                : "Policy pack used for this sample review."
+              : null
           }
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
         />

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunSummary } from "@/types/authority";
 
 export type RunProgressTrackerProps = {
@@ -34,6 +35,7 @@ function allStagesReady(s: RunSummary | null): boolean {
 const POLL_MAX_MS = 180_000;
 
 export function RunProgressTracker({ runId, initialSummary }: RunProgressTrackerProps) {
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const pollEnabled = !allStagesReady(initialSummary);
 
   const [pollSession, setPollSession] = useState(0);
@@ -81,13 +83,17 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
     }
 
     if (clientPhase === "timeout") {
+      if (buyerPolished) {
+        return "We're preparing this review; this can take a moment. Use Retry or refresh the page.";
+      }
+
       return `Pipeline may still be running server-side (run ${runId}). Use Retry to watch for up to ~3 minutes, refresh this page, or check GET /health/ready on the API.`;
     }
 
     const transport = sseConnected ? "live stream" : "polling";
 
     return `${completedStages} of 4 run pipeline stages complete (${transport}).`;
-  }, [clientPhase, completedStages, runId, sseConnected]);
+  }, [buyerPolished, clientPhase, completedStages, runId, sseConnected]);
 
   if (!pollEnabled) {
     return null;
@@ -101,10 +107,12 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       <h3 id="run-progress-tracker-title" className="mt-0 text-sm font-semibold text-al-text-primary">
         Pipeline progress
       </h3>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        <strong>Review ID:</strong>{" "}
-        <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
-      </p>
+      {buyerPolished ? null : (
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <strong>Review ID:</strong>{" "}
+          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
+        </p>
+      )}
 
       <div aria-live="polite" aria-atomic="true" className="mt-3 text-sm text-neutral-800 dark:text-neutral-200">
         {liveStatus}

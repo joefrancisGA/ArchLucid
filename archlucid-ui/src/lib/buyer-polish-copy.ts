@@ -14,15 +14,31 @@ export const BUYER_COMPARE_MANIFEST_DIFF_APPENDIX_LABEL = "Review change details
 export const BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY = "Change compared reviews";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
-  "Start with a completed architecture review package";
+  "Explore a completed example review package";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
   "Completed architecture review package with signed manifest, evidence trail, and audit record.";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
-  "Review a completed sample package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
+  "Review a completed example package with manifest, evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
-export const BUYER_HOME_PRIMARY_CTA = "Open sample review package";
+export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
+
+export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Example review package shortcuts";
+
+export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Example review package";
+
+export const BUYER_HOME_EXAMPLE_PACKAGE_LEAD =
+  "Open a completed example to see the output, then start your own review.";
+
+export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
+
+export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture review package";
+
+export const BUYER_HOME_WELCOME_LEAD =
+  "Start with the executive view, then the signed manifest, audit trail, and prioritized findings.";
+
+export const BUYER_HOME_REVIEWS_SECTION_HEADING = "Your review packages";
 
 export const BUYER_HOME_SECONDARY_CTA = "Create from evidence";
 
@@ -34,7 +50,23 @@ export const BUYER_HOME_SETUP_SECTION_HEADING = "Start a new review";
 export const BUYER_RUNS_DASHBOARD_RECENT_LABEL = "Featured finalized review package";
 
 export const BUYER_RUNS_DASHBOARD_RECENT_SUMMARY =
-  "Featured finalized review package: signed manifest, evidence trail, governance approval, and audit trail complete.";
+  "Recent review package: signed manifest, evidence, governance, and audit.";
+
+export const BUYER_RUN_INSPECTOR_FINALIZED_LABEL = "Example · finalized";
+
+export const BUYER_SEED_EXAMPLE_REVIEW_CTA = "Load the example review";
+
+export const BUYER_SEED_EXAMPLE_REVIEW_HINT =
+  "Loads the interactive example review so you can explore outputs before uploading your own architecture context.";
+
+export const BUYER_RUNS_GETTING_STARTED_GUIDE = "getting-started guide";
+
+export const BUYER_RUNS_LIST_GLOSSARY_LEAD =
+  "Open a review package for manifest, evidence, findings, and deliverables.";
+
+export const BUYER_PIPELINE_IN_PROGRESS_LABEL = "In progress";
+
+export const BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE = "Policy pack used for this review.";
 
 export const BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL = "Detailed comparison appendix";
 
@@ -166,7 +198,16 @@ export const BUYER_FINDING_EVALUATION_CONFIDENCE_EXPLANATION =
   "Finding evaluation confidence — how strongly cited policy rules and evidence support this specific finding (not overall product accuracy).";
 
 export const BUYER_GRAPH_WHAT_THIS_PROVES =
-  "A reviewer can trace the accepted PHI minimization risk from source context through policy basis, decision, approval, signed manifest, and audit record.";
+  "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, signed manifest, and audit record.";
+
+export const BUYER_EXECUTIVE_DATA_SOURCE_NOTE = "Source: committed reviews in this workspace.";
+
+export const BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR =
+  "We couldn't load the executive summary. Try again or contact support with the reference below.";
+
+export const BUYER_EXECUTIVE_SCORECARD_WINDOW_HELP = "Showing the selected time range.";
+
+export const BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews";
 
 export const BUYER_GRAPH_FILTER_SUMMARY = "Filter by evidence type, decision, or risk";
 

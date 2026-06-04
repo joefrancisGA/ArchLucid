@@ -25,7 +25,7 @@ export const ARCHITECTURE_REVIEW_LABELS = {
 
 /** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
-  buyerPolished: "Review packages",
+  buyerPolished: "Your review packages",
   fullOperator: "Architecture Reviews",
 } as const;
 

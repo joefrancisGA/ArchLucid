@@ -9,6 +9,8 @@ import {
   type ExecutiveTimeRange,
   filterHistoryPointsByRange,
 } from "@/lib/executive-time-range";
+import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { ExecutiveRoiSavingsTrendSvgChart } from "./ExecutiveRoiSavingsTrendSvgChart";
@@ -120,6 +122,7 @@ export function ExecutiveRoiTrendSection({
 
   const maxCritical = Math.max(...points.map((point) => point.criticalSecurityFindings), 1);
   const showMixedModeFootnote = chartIncludesMixedMode(points);
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
   return (
     <Card>
@@ -128,8 +131,14 @@ export function ExecutiveRoiTrendSection({
           <div>
             <CardTitle className="text-base">ROI trend ({trendRangeLabel(timeRange)})</CardTitle>
             <CardDescription className="text-xs">
-              Estimated USD savings and critical security findings over time from{" "}
-              <span className="font-mono">GET /v1/roi/executive-summary/history</span>.
+              {buyerPolished
+                ? `Estimated USD savings and critical security findings over time. ${BUYER_EXECUTIVE_DATA_SOURCE_NOTE}`
+                : (
+                    <>
+                      Estimated USD savings and critical security findings over time from{" "}
+                      <span className="font-mono">GET /v1/roi/executive-summary/history</span>.
+                    </>
+                  )}
             </CardDescription>
           </div>
           {showTimeRangeSelector ? (
@@ -180,7 +189,7 @@ export function ExecutiveRoiTrendSection({
               <div className="flex items-end gap-2">
                 {points.map((point) => (
                   <div key={`critical-${point.snapshotUtc}`} className="flex flex-1 flex-col items-center gap-1">
-                    {isSimulatorOnlyPeriod(point) ? (
+                    {isSimulatorOnlyPeriod(point) && !buyerPolished ? (
                       <StatusTag
                         kind="needs-attention"
                         label="Simulator-only"
@@ -198,7 +207,7 @@ export function ExecutiveRoiTrendSection({
                 ))}
               </div>
             </div>
-            {showMixedModeFootnote ? (
+            {showMixedModeFootnote && !buyerPolished ? (
               <p
                 className="m-0 text-xs text-neutral-600 dark:text-neutral-400"
                 data-testid="exec-roi-trend-mixed-mode-footnote"

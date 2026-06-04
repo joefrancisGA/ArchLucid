@@ -41,7 +41,7 @@ function buyerHintBody(
   if (state === "no-run") {
     return (
       <>
-        Start a tenant-backed review when you are ready to move beyond the demonstration package.{" "}
+        Start a review on your own architecture when ready.{" "}
         <Link
           href="/reviews/new"
           className="font-medium text-teal-800 underline decoration-teal-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-600"
@@ -159,8 +159,8 @@ export function CorePilotBuyerStepHint() {
         </p>
       </div>
       <OperatorHomeGuidanceLinks className="mt-2">
-        <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Core Pilot steps — guide" />
-        <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First-pilot operator path — full walkthrough" />
+        <OperatorHomeGuidanceLink helpSlug="core-pilot" label="Getting started — guide" />
+        <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="Full review walkthrough" />
       </OperatorHomeGuidanceLinks>
     </section>
   );

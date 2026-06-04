@@ -21,9 +21,20 @@ import { showError } from "@/lib/toast";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
+import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
+
+function executiveRoiSummaryCardTitle(): string {
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle;
+  }
+
+  return "Portfolio ROI summary";
+}
 
 function formatUsd(value: number): string {
   if (!Number.isFinite(value)) {
@@ -167,7 +178,7 @@ export function ExecutiveRoiSummarySection() {
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Portfolio ROI summary</CardTitle>
+          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="m-0 text-sm text-red-600 dark:text-red-400" role="alert">
@@ -182,7 +193,7 @@ export function ExecutiveRoiSummarySection() {
     return (
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Portfolio ROI summary</CardTitle>
+          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="exec-roi-summary-loading">
@@ -197,7 +208,7 @@ export function ExecutiveRoiSummarySection() {
     <Card>
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <CardTitle className="text-base">Portfolio ROI summary</CardTitle>
+          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
           <Button
             type="button"
             size="sm"
@@ -234,11 +245,19 @@ export function ExecutiveRoiSummarySection() {
             onChange={(e) => setIncludeBoardPackNarrative(e.target.checked)}
             data-testid="exec-roi-board-pack-narrative-toggle"
           />
-          Include AI executive summary (uses 1 fast LLM call when enabled in API config)
+          {isBuyerPolishedOperatorShellEnv()
+            ? "Include an AI-generated executive summary."
+            : "Include AI executive summary (uses 1 fast LLM call when enabled in API config)"}
         </label>
         <CardDescription className="text-xs">
-          Latest committed run per system in this workspace. Data from{" "}
-          <span className="font-mono">GET /v1/roi/executive-summary</span>.
+          {isBuyerPolishedOperatorShellEnv() ? (
+            <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
+          ) : (
+            <>
+              Latest committed run per system in this workspace. Data from{" "}
+              <span className="font-mono">GET /v1/roi/executive-summary</span>.
+            </>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

@@ -176,7 +176,7 @@ export function FirstPilotOperatingRail() {
                 <Button variant="outline" size="sm" asChild>
                   <Link href={primaryHref}>{step.primaryLabel}</Link>
                 </Button>
-                {step.id === "ingest-evidence" && status !== "complete" ? (
+                {step.id === "ingest-evidence" && status !== "complete" && !buyerPolishedShell ? (
                   <Button
                     type="button"
                     variant="ghost"

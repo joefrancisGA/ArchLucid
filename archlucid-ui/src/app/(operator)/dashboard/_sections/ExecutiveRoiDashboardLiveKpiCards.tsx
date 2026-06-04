@@ -16,6 +16,8 @@ import {
 } from "@/lib/executive-roi-kpi-display";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { computePilotDayNumber } from "@/lib/executive-pilot-day";
+import { BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR } from "@/lib/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
@@ -108,10 +110,17 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
     };
   }, []);
 
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
   if (error) {
+    const displayError =
+      buyerPolished && error.startsWith("Executive summary HTTP")
+        ? BUYER_EXECUTIVE_SUMMARY_LOAD_ERROR
+        : error;
+
     return (
       <p className="text-sm text-red-600 dark:text-red-400 sm:col-span-2 lg:col-span-3" role="alert">
-        {error}
+        {displayError}
       </p>
     );
   }
@@ -134,7 +143,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
 
   return (
     <>
-      {pilotDayNumber !== null ? (
+      {pilotDayNumber !== null && !buyerPolished ? (
         <p
           className="m-0 text-sm text-neutral-600 dark:text-neutral-400 sm:col-span-2 lg:col-span-3"
           data-testid="exec-kpi-pilot-day-badge"

@@ -1,11 +1,11 @@
 /** Buyer-facing vocabulary for first-pilot surfaces — lead with architecture review. */
 export const FIRST_PILOT_BUYER_COPY = {
   architectureReview: "architecture review",
-  sampleArchitectureReview: "sample architecture review",
-  proofPipelineAction: "Collect the first-pilot proof pipeline",
-  governanceDryRun: "policy-pack governance dry-run",
+  sampleArchitectureReview: "example architecture review",
+  proofPipelineAction: "Generate the proof package for sign-off review",
+  governanceDryRun: "preview governance checks against the policy pack",
   ingestEvidenceWithoutUpload:
-    "Upload an Azure extractor ZIP or open the sample package for a sample architecture review without customer upload.",
+    "Upload an Azure extractor ZIP or open the example package to preview outputs before your own upload.",
 } as const;
 
 /** Returns true when buyer-facing copy leads with architecture-review language. */

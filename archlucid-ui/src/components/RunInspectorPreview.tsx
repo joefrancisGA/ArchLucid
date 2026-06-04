@@ -7,6 +7,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
+import { BUYER_RUN_INSPECTOR_FINALIZED_LABEL } from "@/lib/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
   isBuyerPolishedOperatorShellEnv,
@@ -67,7 +68,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const headline = buyerFacingReviewTitleFromSummary(run);
   const createdLabel = showcaseStory
     ? demoChrome
-      ? "Sample finalized (illustrative)"
+      ? buyerPolished
+        ? BUYER_RUN_INSPECTOR_FINALIZED_LABEL
+        : "Sample finalized (illustrative)"
       : formatInstantForBuyerGovernance(run.createdUtc)
     : buyerPolished
       ? formatInstantForBuyerGovernance(run.createdUtc)

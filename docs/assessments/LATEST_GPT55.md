@@ -6,7 +6,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-03.
 
-Rescore note: Through **87.75%** (5CP). Batches **5CY-demo** / **5CZ-demo** (**TB-273**, BDA P0 sweep: env gating, persona/audit/governance copy, executive misleading-claim fixes) improve buyer-demo credibility under **`(B)`** and **Trustworthiness** narrative — **no `(A)` headline change** per `Assessment-Scope-V1_1.mdc` (TB-273 scope). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **87.75%** (5CP). Batches **5CY-demo** / **5CZ-demo** / **5DA-demo** (**TB-273**: P0 persona/gating sweep + P1 home/reviews/executive terminology and buyer-safe executive KPI copy) improve buyer-demo credibility under **`(B)`** and **Trustworthiness** narrative — **no `(A)` headline change** per `Assessment-Scope-V1_1.mdc` (TB-273 scope). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
@@ -18,7 +18,7 @@ The headline score is held down mostly by current-release issues inside high-wei
 
 ### `(B)` Procurement / market-motion realism
 
-Enterprise buyers will still feel friction around SOC 2 CPA attestation, third-party pen-test publication, public references, live Marketplace/Stripe transactability, and first-party connectors. Those are procurement and market-motion realities, not `(A)` deductions where the repo explicitly defers them. **TB-273** batches **5CY-demo** / **5CZ-demo** (2026-06-01) closed the highest-severity buyer-shell P0 defects (demo leakage, fabricated finding fields, misleading audit/ROI labels); **~126 BDA P1/P2** items remain in [`TECH_BACKLOG_BDA_INDEX.md`](../library/TECH_BACKLOG_BDA_INDEX.md).
+Enterprise buyers will still feel friction around SOC 2 CPA attestation, third-party pen-test publication, public references, live Marketplace/Stripe transactability, and first-party connectors. Those are procurement and market-motion realities, not `(A)` deductions where the repo explicitly defers them. **TB-273** batches **5CY-demo** / **5CZ-demo** / **5DA-demo** (2026-06-01) closed P0 defects and the first P1 home/reviews/executive terminology wave; **~70 BDA P1/P2** items remain (**5DB-demo**, **5DC-demo**) in [`TECH_BACKLOG_BDA_INDEX.md`](../library/TECH_BACKLOG_BDA_INDEX.md).
 
 Current trust posture is unusually honest for a young product: Trust Center, self-assessment, CAIQ/SIG/DPA/process material, owner-conducted security posture, access boundaries, and procurement pack machinery are present. The buyer risk is not "no security story"; it is that some security reviewers will still require formal external assurance before a broad enterprise rollout.
 

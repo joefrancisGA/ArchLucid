@@ -53,7 +53,7 @@ export function workQueueSectionHeading(groupId: RunWorkQueueGroupId, buyerPolis
       case "needs-attention":
         return "Pre-final — manifest pending";
       case "in-progress":
-        return "Early pipeline";
+        return "In progress";
       case "committed":
         return "Finalized review packages";
       default: {

@@ -110,7 +110,7 @@ export function RunDetailPageHeader({
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
                 <h1 className="m-0 min-w-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl flex items-center">
                   {headline}
-                  {runSummary.idempotencyReplayed ? (
+                  {runSummary.idempotencyReplayed && buyerPolishedShell !== true ? (
                     <Badge variant="secondary" className="ml-2 font-normal">Replayed</Badge>
                   ) : null}
                 </h1>
@@ -126,7 +126,7 @@ export function RunDetailPageHeader({
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <HelpButton pageKey="/runs/[id]" />
-              <InAppHelpLink helpSlug="core-pilot" label="Architecture review steps — Core Pilot guide" />
+              <InAppHelpLink helpSlug="core-pilot" label="Architecture review steps — guide" />
             </div>
           </div>
           {buyerPolishedShell === true && executionFlavorBuyerSummary ? (
@@ -203,7 +203,7 @@ export function RunDetailPageHeader({
           ) : (
             <div id="finalize-review" className="flex shrink-0 scroll-mt-24 flex-col gap-1.5">
               <div className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
-                Finalize package
+                Finalize review
                 <ContextualHelp helpKey="commit-manifest" />
               </div>
               {hasGovernanceWarnings === true ? (

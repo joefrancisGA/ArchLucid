@@ -18,7 +18,13 @@ import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
-import { BUYER_RUNS_DASHBOARD_RECENT_SUMMARY } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
+  BUYER_RUNS_GETTING_STARTED_GUIDE,
+  BUYER_RUNS_LIST_GLOSSARY_LEAD,
+  BUYER_SEED_EXAMPLE_REVIEW_CTA,
+  BUYER_SEED_EXAMPLE_REVIEW_HINT,
+} from "@/lib/buyer-polish-copy";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 
@@ -67,8 +73,7 @@ export function RunsPageView(props: Props) {
           ) : (
             <>
               <span className="inline-flex flex-wrap items-center gap-x-1">
-                Open an <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip> for manifest, evidence,
-                findings, and deliverables.
+                <GlossaryTooltip termKey="review_package">{BUYER_RUNS_LIST_GLOSSARY_LEAD}</GlossaryTooltip>
                 <RunsPageBuyerHelpTip variant="search" />
               </span>
             </>
@@ -147,14 +152,14 @@ export function RunsPageView(props: Props) {
           >
             <strong className="font-semibold">Start your first architecture review:</strong> use{" "}
             <strong className="font-semibold">New review</strong> (or onboarding), run the pipeline, finalize, then review the package on
-            architecture review detail (see{" "}
+            architecture review detail (see the{" "}
             <a
               href={toDocsBlobUrl("/docs/CORE_PILOT.md")}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-teal-800 underline dark:text-teal-300"
             >
-              CORE_PILOT.md
+              {BUYER_RUNS_GETTING_STARTED_GUIDE}
             </a>
             ). Compare and heavy governance surfaces can wait until after your first committed package.
           </div>
@@ -184,10 +189,9 @@ export function RunsPageView(props: Props) {
           />
           {isBuyerPolishedOperatorShellEnv() ? (
             <div className="mt-3 flex flex-col items-center gap-2" data-testid="seed-sample-review-empty-state">
-              <SeedSampleReviewButton />
+              <SeedSampleReviewButton label={BUYER_SEED_EXAMPLE_REVIEW_CTA} />
               <p className="max-w-md text-center text-xs text-neutral-600 dark:text-neutral-400">
-                Seeds an interactive sample review so you can explore the workspace before uploading your own
-                architecture context.
+                {BUYER_SEED_EXAMPLE_REVIEW_HINT}
               </p>
             </div>
           ) : null}

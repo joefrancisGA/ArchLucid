@@ -36,6 +36,7 @@ import {
 } from "@/lib/demo-run-canonical";
 import { getBuyerSafeReviewsTableLink, getBuyerSafeReviewsTableLinkForRun, getBuyerSafeSignedManifestTableLink } from "@/lib/buyer-safe-review-navigation";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer-demo-package-card-meta";
+import { BUYER_PIPELINE_IN_PROGRESS_LABEL } from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
@@ -452,7 +453,9 @@ export function RunsListClient({
         aria-label={
           buyerPolished
             ? "Search reviews by title or description"
-            : "Filter reviews by name or description"
+            : buyerPolished
+              ? "Filter review packages by name or description"
+              : "Filter reviews by name or description"
         }
         aria-controls="runs-list-filter-status"
       />
@@ -498,7 +501,7 @@ export function RunsListClient({
         buyerCollapseFilters ? (
           <details className="rounded-lg border border-neutral-200 bg-neutral-50/40 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
             <summary className="cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
-              Filter reviews
+              {buyerPolished ? "Filter review packages" : "Filter reviews"}
             </summary>
             <div className="mt-3 space-y-3">
               {runsFilterControl}
@@ -538,7 +541,7 @@ export function RunsListClient({
                       setBuyerPackageScope("in_flight");
                     }}
                   >
-                    In flight
+                    {buyerPolished ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight"}
                   </Button>
                 </div>
               </fieldset>
@@ -587,7 +590,7 @@ export function RunsListClient({
                     setBuyerPackageScope("in_flight");
                   }}
                 >
-                  In flight
+                  {buyerPolished ? BUYER_PIPELINE_IN_PROGRESS_LABEL : "In flight"}
                 </Button>
               </div>
             </fieldset>

@@ -58,7 +58,7 @@ const BUYER_STEP_TEXT_OVERRIDES: Record<FirstPilotOperatingRailStepId, FirstPilo
   "ingest-evidence": {
     title: "Add architecture evidence",
     shortBody:
-      "Upload an architecture evidence package or open the sample package to explore without a customer upload.",
+      "Upload an architecture evidence package, or open the example package to preview the output before your own upload.",
     primaryLabel: "Upload evidence",
   },
   "create-review": {
