@@ -376,7 +376,10 @@ public sealed class ArtifactExportController(
         if (request is null || string.IsNullOrWhiteSpace(request.DestinationSasUrl))
             return this.BadRequestProblem("DestinationSasUrl is required.", ProblemTypes.RequestBodyRequired);
 
-        string? sasRejection = AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(request.DestinationSasUrl);
+        string? sasRejection =
+            await AllowedRunExportBlobDestinationUrlPolicy
+                .TryGetRejectionReasonAfterDnsResolveAsync(request.DestinationSasUrl, ct)
+                .ConfigureAwait(false);
 
         if (sasRejection is not null)
             return this.BadRequestProblem(sasRejection, ProblemTypes.ValidationFailed);

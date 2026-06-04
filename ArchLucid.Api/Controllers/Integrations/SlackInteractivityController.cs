@@ -10,6 +10,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Integrations;
@@ -23,6 +24,7 @@ namespace ArchLucid.Api.Controllers.Integrations;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/integrations/webhooks/slack")]
+[EnableRateLimiting("fixed")]
 public sealed class SlackInteractivityController(
     ISlackInteractivityVerifier verifier,
     IGovernanceWorkflowService workflowService,

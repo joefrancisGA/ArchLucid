@@ -8,6 +8,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Notifications;
 
@@ -16,6 +17,7 @@ namespace ArchLucid.Api.Controllers.Notifications;
 [AllowAnonymous]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/notifications/exec-digest")]
+[EnableRateLimiting("registration")]
 public sealed class ExecDigestUnsubscribeController(
     IExecDigestUnsubscribeTokenFactory tokenFactory,
     ITenantExecDigestPreferencesRepository preferencesRepository) : ControllerBase

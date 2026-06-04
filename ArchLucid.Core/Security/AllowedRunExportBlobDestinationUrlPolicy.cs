@@ -29,6 +29,32 @@ public static class AllowedRunExportBlobDestinationUrlPolicy
         return null;
     }
 
+    /// <summary>Literal/blob-host checks plus post-DNS resolution guard (TB-274 / 5DL).</summary>
+    public static async Task<string?> TryGetRejectionReasonAfterDnsResolveAsync(
+        string? rawUrl,
+        CancellationToken cancellationToken = default)
+    {
+        string? syncReason = TryGetRejectionReason(rawUrl);
+
+        if (syncReason is not null)
+            return syncReason;
+
+        if (string.IsNullOrWhiteSpace(rawUrl))
+            return null;
+
+        string? dnsReason =
+            await OutboundHttpsUrlDnsResolutionGuard
+                .TryGetRejectionReasonAfterDnsResolveAsync(rawUrl, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (dnsReason is null)
+            return null;
+
+        return dnsReason.StartsWith("URL ", StringComparison.Ordinal)
+            ? "DestinationSasUrl" + dnsReason[3..]
+            : dnsReason;
+    }
+
     private static bool IsAzureBlobStorageHost(string host)
     {
         if (host.EndsWith(".blob.core.windows.net", StringComparison.OrdinalIgnoreCase))

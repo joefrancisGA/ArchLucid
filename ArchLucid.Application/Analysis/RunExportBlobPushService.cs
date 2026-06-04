@@ -38,18 +38,13 @@ public sealed class RunExportBlobPushService(
         ArgumentNullException.ThrowIfNull(zipContent);
         ArgumentException.ThrowIfNullOrWhiteSpace(destinationSasUrl);
 
-        string? sasRejection = AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(destinationSasUrl);
+        string? sasRejection =
+            await AllowedRunExportBlobDestinationUrlPolicy
+                .TryGetRejectionReasonAfterDnsResolveAsync(destinationSasUrl, cancellationToken)
+                .ConfigureAwait(false);
 
         if (sasRejection is not null)
             throw new InvalidOperationException(sasRejection);
-
-        string? dnsRejection =
-            await OutboundHttpsUrlDnsResolutionGuard.TryGetRejectionReasonAfterDnsResolveAsync(
-                destinationSasUrl,
-                cancellationToken).ConfigureAwait(false);
-
-        if (dnsRejection is not null)
-            throw new InvalidOperationException(dnsRejection);
 
         HttpClient client = _httpClientFactory.CreateClient(HttpClientName);
 

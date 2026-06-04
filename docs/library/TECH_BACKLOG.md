@@ -1,5 +1,39 @@
 > **Scope:** Engineering-owned technical backlog items deferred from current sessions; audience is contributors and the AI assistant; not a buyer or operator document. Not a substitute for ADRs or the pending-questions owner decisions file.
 
+## Cursor-actionable backlog — remaining by architectural quality
+
+**Updated:** 2026-06-04 (after batch **5DL-trust-p1**). **~48 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+
+| Architectural quality | Remaining tasks |
+| --- | ---: |
+| Trustworthiness | 15 |
+| Correctness | 9 |
+| Reliability | 7 |
+| Usability | 6 |
+| Deployability | 5 |
+| AI/Agent readiness | 5 |
+| Architectural integrity | 5 |
+| Adoption friction | 4 |
+| Data consistency | 3 |
+| Cutting-edge AI | 3 |
+| Explainability | 3 |
+| Proof-of-ROI / executive value | 3 |
+| Commercial / marketability | 3 |
+| Testability | 2 |
+| Maintainability | 2 |
+| Traceability | 2 |
+| Interoperability | 2 |
+| Compliance readiness | 2 |
+| Performance | 1 |
+| Scalability | 1 |
+| Cost-effectiveness | 1 |
+| Supportability | 1 |
+| **Total (unique)** | **~48** |
+
+**Usability (6):** **TB-270**, **TB-271**, **TB-272** plus deferred buyer-demo **BDA-135**, **BDA-139**, **BDA-146**. **Trustworthiness (15):** remaining TB-274 SEC/BE register (~50 unique fixes minus ~35 closed in **5DE–5DL**). **Next recommended batch:** **5DM-usability** (TB-270–272). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+
+---
+
 # Tech backlog
 
 Items here are **greenlit in principle** — the decision has been made and context is captured — but deferred for a future session rather than the current one. Pick any item up by searching the codebase for the files listed and applying the recorded approach.

@@ -27,4 +27,15 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
         reason.Should().NotBeNull();
         reason.Should().Contain(expectedPhrase);
     }
+
+    [Fact]
+    public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToDestinationSasUrl()
+    {
+        string? reason = await AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync(
+            "https://archlucid-tb274-export.invalid/container/blob?sas=1");
+
+        reason.Should().NotBeNull();
+        reason.Should().StartWith("DestinationSasUrl");
+        reason.Should().Contain("could not be resolved");
+    }
 }
