@@ -49,6 +49,12 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         self.assertIn("/export/push", text, "TB-274 export push IDOR regression")
         self.assertIn("/export", text, "TB-274 run export zip IDOR regression")
 
+    def test_scoped_snapshot_idor_matrix_covers_run_scoped_mutating_routes(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopedSnapshotReadIdorIntegrationTests.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("/analysis-report", text, "TB-274 run analysis-report POST IDOR regression")
+        self.assertIn("/evidence/bulk", text, "TB-274 run evidence bulk POST IDOR regression")
+
     def test_retrieval_indexing_and_search_filter_tests_exist(self) -> None:
         root = REPO_ROOT / "ArchLucid.Retrieval.Tests"
         for name in RETRIEVAL_ISOLATION_TESTS:

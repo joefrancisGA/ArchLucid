@@ -38,6 +38,7 @@ public sealed class EvidenceBulkUploadController(
     /// <summary>
     /// Bulk uploads evidence files for a given review run, up to <see cref="EvidenceBulkUploadOptions.EvidenceBulkUploadMaxFiles" />.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("bulk")]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status200OK)]

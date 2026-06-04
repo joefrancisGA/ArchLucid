@@ -42,6 +42,7 @@ public sealed class MarketingEarlyAccessRequestController(
         salesNotifier ?? throw new ArgumentNullException(nameof(salesNotifier));
 
     /// <summary>Append-only early-access request (honeypot + rate limit).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

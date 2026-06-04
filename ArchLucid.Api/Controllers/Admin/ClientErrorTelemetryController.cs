@@ -277,6 +277,7 @@ public sealed class ClientErrorTelemetryController(
     }
 
     /// <summary>Records a client-side error report at Warning level (sanitized).</summary>
+    // idempotency-posture: inbound-webhook-pipeline
     [HttpPost("client-error")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

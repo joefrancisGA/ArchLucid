@@ -102,6 +102,32 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     [SkippableFact]
+    public async Task Tenant_b_cannot_generate_tenant_a_run_analysis_report_sql_tb274()
+    {
+        await AssertCrossTenantRouteDeniedAsync(
+            "run analysis report",
+            static (client, runId) =>
+                client.PostAsJsonAsync($"/v1/architecture/run/{runId}/analysis-report", new { }));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_bulk_upload_tenant_a_run_evidence_sql_tb274()
+    {
+        await AssertCrossTenantRouteDeniedAsync(
+            "run evidence bulk upload",
+            static async (client, runId) =>
+            {
+                using MultipartFormDataContent form = new();
+                ByteArrayContent empty = new([]);
+
+                empty.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+                form.Add(empty, "files", "empty.txt");
+
+                return await client.PostAsync($"/v1/architecture/run/{runId}/evidence/bulk", form);
+            });
+    }
+
+    [SkippableFact]
     public async Task Tenant_b_cannot_download_tenant_a_run_artifact_bundle_sql_tb073()
     {
         await AssertCrossTenantRouteDeniedAsync(

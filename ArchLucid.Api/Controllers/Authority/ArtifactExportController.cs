@@ -361,6 +361,7 @@ public sealed class ArtifactExportController(
     ///     Durable <c>RunExportBlobPushQueued</c> fires at accept; completion audits are
     ///     <c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c>.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId:guid}/export/push")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

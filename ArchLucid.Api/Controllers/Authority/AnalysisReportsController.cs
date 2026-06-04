@@ -65,6 +65,7 @@ public sealed class AnalysisReportsController(
     ///     Builds a structured <see cref="ArchLucid.Application.Analysis.ArchitectureAnalysisReport" /> for
     ///     <paramref name="runId" /> using optional section flags in the body.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

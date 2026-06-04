@@ -17,12 +17,14 @@
 | **5DM-usability** | **TB-270**, **TB-271**, **TB-272** — review paths, correlation id, loading/empty states | Done |
 | **5DL-trust-p2** | Artifact export/push cross-tenant IDOR SQL regression; scope binding on artifact export; CI matrix drift guard | Done |
 | **5DN-demo-deferred** | **BDA-135** home hierarchy; **BDA-139** executive metric typography; **BDA-146** `topDecisionSynopses` on manifest summary | Done |
+| **5DO-trust-remainder-p0** | Run-scoped POST IDOR (analysis-report, evidence bulk); `idempotency-posture` on export push / trial / marketing / client-error | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DO-trust-remainder** | Trustworthiness, Deployability | Remaining TB-274 SEC/BE (ingest IDOR, webhook/mutating-route auth, **TB-091+** IaC parity) |
+| **5DO-trust-remainder-p1** | Trustworthiness, Deployability | **TB-091–102** IaC parity (Azure OpenAI, Redis, Cosmos, Key Vault PE/RBAC); **TB-082** agent tool runtime enforcer |
+| **5DP-correctness-p0** | Correctness | **TB-106–108** run-detail API/UI field parity (authority vs architecture endpoints) |
 
 ## Excluded from Cursor batches
 

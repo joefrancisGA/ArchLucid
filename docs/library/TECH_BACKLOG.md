@@ -2,11 +2,11 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DN-demo-deferred**). **~39 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after batch **5DO-trust-remainder-p0**). **~37 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Trustworthiness | 12 |
+| Trustworthiness | 10 |
 | Correctness | 9 |
 | Reliability | 7 |
 | Deployability | 5 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~39** |
+| **Total (unique)** | **~37** |
 
-**Trustworthiness (12):** remaining TB-274 SEC/BE register (ingest/webhook/IaC gaps). **TB-273 / BDA-001…150** engineering scope is **complete** (batch **5DN-demo-deferred** closed **BDA-135**, **BDA-139**, **BDA-146**). **Next recommended batch:** **5DO-trust-remainder** (TB-274 ingest IDOR extensions, mutating-route auth, IaC parity **TB-091+**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**Trustworthiness (10):** remaining TB-274 SEC/BE + IaC parity (**TB-091+**). **TB-273 / BDA-001…150** engineering scope is **complete**. **Next recommended batch:** **5DO-trust-remainder-p1** (IaC roots for OpenAI/Redis/Cosmos, agent tool sandbox **TB-082**) or **TB-106–108** run-detail correctness. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 

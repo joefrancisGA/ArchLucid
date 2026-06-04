@@ -41,6 +41,7 @@ public sealed class TrialLocalIdentityAuthController(
         trialOptions ?? throw new ArgumentNullException(nameof(trialOptions));
 
     /// <summary>Registers a pending user; email must be verified before trial provisioning when LocalIdentity is enabled.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("register")]
     [EnableRateLimiting("registration")]
     [ProducesResponseType(typeof(TrialLocalRegisterResponse), StatusCodes.Status201Created)]
@@ -129,6 +130,7 @@ public sealed class TrialLocalIdentityAuthController(
     }
 
     /// <summary>Confirms email ownership using the token returned from <see cref="RegisterAsync" />.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("verify-email")]
     [EnableRateLimiting("registration")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -152,6 +154,7 @@ public sealed class TrialLocalIdentityAuthController(
     }
 
     /// <summary>Issues a JWT suitable for <c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c> validation (Reader role by default).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("token")]
     [EnableRateLimiting("registration")]
     [ProducesResponseType(typeof(TrialLocalTokenResponse), StatusCodes.Status200OK)]
