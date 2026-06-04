@@ -40,8 +40,9 @@ public sealed class AllowedDocumentUrlPolicyTests
     [Fact]
     public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToSourceDocumentUrl()
     {
+        // .invalid is reserved (RFC 6761) and should NXDOMAIN without long resolver retries.
         string? reason = await AllowedDocumentUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync(
-            "https://archlucid-tb274-nonexistent-host.example/adr.md");
+            "https://archlucid-tb274.invalid/adr.md");
 
         reason.Should().NotBeNull();
         reason.Should().StartWith("SourceDocumentUrl");
