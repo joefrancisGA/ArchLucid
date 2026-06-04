@@ -62,11 +62,9 @@ public sealed class RunExportBlobPushService(
             // Azure Blob Storage SAS PUT requires x-ms-blob-type: BlockBlob header.
             content.Headers.Add("x-ms-blob-type", "BlockBlob");
 
+            // codeql[cs/ssrf]: HTTPS Azure Blob SAS URL validated by AllowedRunExportBlobDestinationUrlPolicy and OutboundHttpsUrlDnsResolutionGuard before PUT (BE-034).
             HttpResponseMessage response = await client
-                .PutAsync(
-                    destinationSasUrl,
-                    content,
-                    cancellationToken) // codeql[cs/ssrf]: HTTPS Azure Blob SAS URL validated by AllowedRunExportBlobDestinationUrlPolicy and OutboundHttpsUrlDnsResolutionGuard before PUT (BE-034).
+                .PutAsync(destinationSasUrl, content, cancellationToken)
                 .ConfigureAwait(false);
 
             bool success = response.IsSuccessStatusCode;

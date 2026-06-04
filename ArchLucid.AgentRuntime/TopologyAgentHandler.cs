@@ -276,10 +276,11 @@ public sealed class TopologyAgentHandler(
 
             if (_logger.IsEnabled(LogLevel.Warning))
             {
+                // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
                 _logger.LogWarning(
                     ex,
                     "Failed to persist retrieval grounding trace for topology agent run {RunId}.",
-                    LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
+                    LogSanitizer.Sanitize(runId));
             }
         }
     }

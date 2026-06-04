@@ -120,9 +120,8 @@ public static class IdentityClaimRoleMappingValidator
 
         try
         {
-            _ = new Regex(
-                regexPattern,
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase); // codeql[cs/regex-injection]: admin-configured SAML regex compiled in validation-only test path with ArgumentException guard.
+            // codeql[cs/regex-injection]: admin-configured SAML regex compiled in validation-only test path with ArgumentException guard.
+            _ = new Regex(regexPattern, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
             results.Add(new SamlTestConfigComponentResult(
                 "claimMapping.customGroupClaimRegex",

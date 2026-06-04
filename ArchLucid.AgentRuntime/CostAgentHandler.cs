@@ -226,10 +226,11 @@ public sealed class CostAgentHandler(
         {
             if (_logger.IsEnabled(LogLevel.Warning))
             {
+                // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
                 _logger.LogWarning(
                     ex,
                     "Failed to persist retail-price grounding trace for cost agent run {RunId}.",
-                    LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
+                    LogSanitizer.Sanitize(runId));
             }
         }
     }

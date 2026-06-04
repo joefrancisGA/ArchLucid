@@ -6,7 +6,8 @@ import { describe, expect, it } from "vitest";
 import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
 
 // codeql[js/regex/missing-regexp-anchor]: intentional substring scan per source line in guard test (not full-string match).
-const GITHUB_BLOB_PATTERN = /github\.com\/[^/]+\/[^/]+\/(blob|tree)\//i;
+const GITHUB_BLOB_PATTERN =
+  /github\.com\/[^/]+\/[^/]+\/(blob|tree)\//i;
 
 /** Paths scanned for customer-facing GitHub blob links (operator + marketing surfaces). */
 const CUSTOMER_SURFACE_DIRS = [

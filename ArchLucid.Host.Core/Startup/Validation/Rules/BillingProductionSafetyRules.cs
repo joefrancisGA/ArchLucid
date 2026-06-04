@@ -125,10 +125,13 @@ internal static class BillingProductionSafetyRules
                 continue;
 
             if (logger.IsEnabled(LogLevel.Critical))
+            {
+                // codeql[cs/cleartext-storage-of-sensitive-information]: configuration validation messages; not secrets or PII.
                 logger.LogCritical(
                     "Billing production safety validation failed. {Remediation} Details: {Error}",
                     RemediationHint,
-                    error); // codeql[cs/cleartext-storage-of-sensitive-information]: configuration validation messages; not secrets or PII.
+                    error);
+            }
         }
     }
 

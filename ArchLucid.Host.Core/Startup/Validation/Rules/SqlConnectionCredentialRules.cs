@@ -57,9 +57,10 @@ internal static class SqlConnectionCredentialRules
             return;
 
         if (logger.IsEnabled(LogLevel.Warning))
-            logger.LogWarning(
-                "{Message}",
-                message); // codeql[cs/cleartext-storage-of-sensitive-information]: operational remediation text; not credential material.
+        {
+            // codeql[cs/cleartext-storage-of-sensitive-information]: operational remediation text; not credential material.
+            logger.LogWarning("{Message}", message);
+        }
     }
 
     internal static bool ShouldEnforceServerCertificateTrust(IConfiguration configuration) =>

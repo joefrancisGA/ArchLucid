@@ -135,11 +135,12 @@ internal static class RealAgentExecutorStagedCriticExecution
         {
             if (dependencies.Logger.IsEnabled(LogLevel.Warning))
             {
+                // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
                 dependencies.Logger.LogWarning(
                     ex,
                     "Staged Critic phase timed out after {TimeoutSeconds}s for RunId={RunId}; continuing without Critic output.",
                     stagedOpts.CriticTimeoutSeconds,
-                    LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
+                    LogSanitizer.Sanitize(runId));
             }
 
             evidence.Notes.Add(new EvidenceNote
