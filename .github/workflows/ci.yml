@@ -1269,12 +1269,15 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Cache Release obj + NuGet (for parallel test shards)
+      - name: Cache Release obj + bin + NuGet (for parallel test shards)
         uses: actions/cache@v4
         with:
+          # bin is keyed to the exact SHA so test shards reuse this job's compiled output
+          # (their `dotnet build` becomes an up-to-date no-op instead of a full ~7m recompile).
           path: |
             ~/.nuget/packages
             **/obj
+            **/bin
           key: corset-build-${{ github.sha }}-${{ hashFiles('Directory.Packages.props', 'global.json') }}
           restore-keys: |
             corset-build-${{ hashFiles('Directory.Packages.props', 'global.json') }}-
@@ -1286,7 +1289,9 @@ jobs:
     name: ".NET: fast core — test (${{ matrix.shard_label }})"
     needs: dotnet-fast-core-build
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    # Blame-hang (5m/test) fails a deadlocked shard fast with a named culprit; 30m is a generous
+    # backstop for healthy shards (heaviest historically ~19m) without burning a 75m budget on a hang.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -1295,6 +1300,8 @@ jobs:
             shard_label: Api.Tests
           - shard_id: host-application
             shard_label: Application + runtime + host
+          - shard_id: host-composition
+            shard_label: Host composition (full DI graph)
           - shard_id: data-core
             shard_label: Core + persistence stack
           - shard_id: surface-misc
@@ -1312,17 +1319,20 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Restore cached Release obj + NuGet
+      - name: Restore cached Release obj + bin + NuGet
         uses: actions/cache@v4
         with:
           path: |
             ~/.nuget/packages
             **/obj
+            **/bin
           key: corset-build-${{ github.sha }}-${{ hashFiles('Directory.Packages.props', 'global.json') }}
           restore-keys: |
             corset-build-${{ hashFiles('Directory.Packages.props', 'global.json') }}-
 
-      - name: Rebuild solution (incremental from cache)
+      # With bin cached at this SHA, the build is an up-to-date no-op; it stays as a safety net
+      # if the cache ever misses, in which case it performs a full compile.
+      - name: Ensure solution is built (no-op when SHA bin cache hit)
         run: |
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)

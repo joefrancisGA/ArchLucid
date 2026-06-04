@@ -12,7 +12,13 @@
         "ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj",
         "ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj",
         "ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj",
-        "ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj",
+        "ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj"
+      ]
+    },
+    {
+      "id": "host-composition",
+      "label": "Host composition (full DI graph)",
+      "projects": [
         "ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj"
       ]
     },
