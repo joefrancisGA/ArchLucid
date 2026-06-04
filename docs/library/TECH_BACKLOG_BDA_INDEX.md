@@ -1,6 +1,6 @@
-# TB-273 / BDA batch tracker
+> **Scope:** Contributor-reference — engineering index for buyer-demo defect remediation (**TB-273**). Canonical per-issue detail remains in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) § TB-273. Does not change `(A)` assessment scores per `Assessment-Scope-V1_1.mdc`.
 
-> **Scope:** Engineering index for buyer-demo defect remediation (**TB-273**). Canonical per-issue detail remains in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) § TB-273. Does not change `(A)` assessment scores per `Assessment-Scope-V1_1.mdc`.
+# TB-273 / BDA batch tracker
 
 ## Status (2026-06-01)
 
