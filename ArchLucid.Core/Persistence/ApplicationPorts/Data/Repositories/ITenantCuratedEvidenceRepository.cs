@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchLucid.Persistence.Data.Repositories;
 
 public interface ITenantCuratedEvidenceRepository
@@ -14,5 +16,7 @@ public interface ITenantCuratedEvidenceRepository
         string description,
         string rationale,
         string sourceResultId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 }

@@ -338,27 +338,31 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
     }
 
     public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
+        ScopeContext scope,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-                           SELECT
-                               ar.ResultId,
-                               ar.RunId,
-                               ar.AgentType,
-                               ar.ProposedEvidenceJson,
-                               ar.CreatedUtc,
-                               CASE
-                                   WHEN EXISTS (
-                                       SELECT 1
-                                       FROM TenantCuratedEvidenceEntries AS tce
-                                       WHERE tce.SourceResultId = ar.ResultId)
-                                   THEN CAST(1 AS BIT)
-                                   ELSE CAST(0 AS BIT)
-                               END AS IsPromoted
-                           FROM AgentResults AS ar
-                           WHERE ar.ProposedEvidenceJson IS NOT NULL
-                           ORDER BY ar.CreatedUtc DESC;
-                           """;
+        RunChildRunScopeSql.RequireScope(scope);
+
+        string sql = $"""
+                      SELECT
+                          ar.ResultId,
+                          ar.RunId,
+                          ar.AgentType,
+                          ar.ProposedEvidenceJson,
+                          ar.CreatedUtc,
+                          CAST(0 AS BIT) AS IsPromoted
+                      FROM AgentResults AS ar
+                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      WHERE ar.ProposedEvidenceJson IS NOT NULL
+                        AND ar.EvidenceProposalPromotedUtc IS NULL
+                        AND {RunChildRunScopeSql.ScopeWhereClause}
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM TenantCuratedEvidenceEntries AS tce
+                            WHERE tce.SourceResultId = ar.ResultId
+                              AND tce.TenantId = @TenantId)
+                      ORDER BY ar.CreatedUtc DESC;
+                      """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
@@ -368,6 +372,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         {
             rows = await conn.QueryAsync<EvidenceProposalListItem>(new CommandDefinition(
                 sql,
+                RunChildRunScopeSql.ScopeParameters(scope),
                 cancellationToken: cancellationToken));
         }
         finally
@@ -379,30 +384,36 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
     }
 
     public async Task<EvidenceProposalListItem?> TryGetEvidenceProposalAsync(
+        ScopeContext scope,
         string resultId,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
+        RunChildRunScopeSql.RequireScope(scope);
 
-        const string sql = """
-                           SELECT TOP (1)
-                               ar.ResultId,
-                               ar.RunId,
-                               ar.AgentType,
-                               ar.ProposedEvidenceJson,
-                               ar.CreatedUtc,
-                               CASE
-                                   WHEN EXISTS (
+        string sql = $"""
+                      SELECT TOP (1)
+                          ar.ResultId,
+                          ar.RunId,
+                          ar.AgentType,
+                          ar.ProposedEvidenceJson,
+                          ar.CreatedUtc,
+                          CASE
+                              WHEN ar.EvidenceProposalPromotedUtc IS NOT NULL
+                                   OR EXISTS (
                                        SELECT 1
                                        FROM TenantCuratedEvidenceEntries AS tce
-                                       WHERE tce.SourceResultId = ar.ResultId)
-                                   THEN CAST(1 AS BIT)
-                                   ELSE CAST(0 AS BIT)
-                               END AS IsPromoted
-                           FROM AgentResults AS ar
-                           WHERE ar.ResultId = @ResultId
-                             AND ar.ProposedEvidenceJson IS NOT NULL;
-                           """;
+                                       WHERE tce.SourceResultId = ar.ResultId
+                                         AND tce.TenantId = @TenantId)
+                              THEN CAST(1 AS BIT)
+                              ELSE CAST(0 AS BIT)
+                          END AS IsPromoted
+                      FROM AgentResults AS ar
+                      {RunChildRunScopeSql.InnerJoinRuns("ar")}
+                      WHERE ar.ResultId = @ResultId
+                        AND ar.ProposedEvidenceJson IS NOT NULL
+                        AND {RunChildRunScopeSql.ScopeWhereClause};
+                      """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
@@ -411,7 +422,13 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         {
             return await conn.QuerySingleOrDefaultAsync<EvidenceProposalListItem>(new CommandDefinition(
                 sql,
-                new { ResultId = resultId },
+                new
+                {
+                    ResultId = resultId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
                 cancellationToken: cancellationToken));
         }
         finally
@@ -420,6 +437,42 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         }
     }
 
-    public Task MarkEvidenceProposalPromotedAsync(string resultId, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public async Task MarkEvidenceProposalPromotedAsync(
+        string resultId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
+
+        const string sql = """
+                           UPDATE AgentResults
+                           SET EvidenceProposalPromotedUtc = @PromotedUtc
+                           WHERE ResultId = @ResultId
+                             AND EvidenceProposalPromotedUtc IS NULL;
+                           """;
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        try
+        {
+            int rows = await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    ResultId = resultId,
+                    PromotedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+
+            if (rows == 0)
+                throw new InvalidOperationException($"Evidence proposal '{resultId}' is already promoted or missing.");
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
 }

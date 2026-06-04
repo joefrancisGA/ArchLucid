@@ -49,7 +49,9 @@ public sealed class TenantCuratedEvidenceRepository(IDbConnectionFactory connect
         string description,
         string rationale,
         string sourceResultId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         Guid entryId = Guid.NewGuid();
 
@@ -81,7 +83,7 @@ public sealed class TenantCuratedEvidenceRepository(IDbConnectionFactory connect
                            """;
 
         (IDbConnection conn, bool ownsConnection) =
-            await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
         try
         {
@@ -99,6 +101,7 @@ public sealed class TenantCuratedEvidenceRepository(IDbConnectionFactory connect
                     SourceResultId = sourceResultId,
                     PromotedUtc = TimeProvider.System.GetUtcNow().UtcDateTime
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
         }
         finally

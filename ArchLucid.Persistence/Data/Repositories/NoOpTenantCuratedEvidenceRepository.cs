@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchLucid.Persistence.Data.Repositories;
 
 public sealed class NoOpTenantCuratedEvidenceRepository : ITenantCuratedEvidenceRepository
@@ -15,6 +17,8 @@ public sealed class NoOpTenantCuratedEvidenceRepository : ITenantCuratedEvidence
         string description,
         string rationale,
         string sourceResultId,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null) =>
         Task.FromResult(Guid.NewGuid());
 }

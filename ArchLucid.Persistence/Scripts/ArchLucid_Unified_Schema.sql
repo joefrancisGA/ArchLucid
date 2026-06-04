@@ -260,6 +260,85 @@ END
 
 GO
 
+/* ---- AI batch D: calibrated confidence, evidence proposals, promoted catalog (migration 182 / 244) ---- */
+
+IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.AgentResults', N'CalibratedConfidence') IS NULL
+        ALTER TABLE dbo.AgentResults ADD CalibratedConfidence FLOAT NULL;
+
+    IF COL_LENGTH(N'dbo.AgentResults', N'ProposedEvidenceJson') IS NULL
+        ALTER TABLE dbo.AgentResults ADD ProposedEvidenceJson NVARCHAR(MAX) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentResults', N'EvidenceProposalPromotedUtc') IS NULL
+        ALTER TABLE dbo.AgentResults ADD EvidenceProposalPromotedUtc DATETIME2 NULL;
+END
+
+GO
+
+IF OBJECT_ID(N'dbo.AgentOutputCalibrationSamples', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AgentOutputCalibrationSamples
+    (
+        SampleId       UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_AgentOutputCalibrationSamples_SampleId DEFAULT (NEWSEQUENTIALID()),
+        AgentType      NVARCHAR(50)     NOT NULL,
+        RawConfidence  FLOAT            NOT NULL,
+        SemanticScore  FLOAT            NOT NULL,
+        CreatedUtc     DATETIME2        NOT NULL,
+        CONSTRAINT PK_AgentOutputCalibrationSamples PRIMARY KEY (SampleId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AgentOutputCalibrationSamples_AgentType_CreatedUtc
+        ON dbo.AgentOutputCalibrationSamples (AgentType, CreatedUtc DESC);
+END
+
+GO
+
+IF OBJECT_ID(N'dbo.TenantCuratedEvidenceEntries', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantCuratedEvidenceEntries
+    (
+        EntryId          UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_TenantCuratedEvidenceEntries_EntryId DEFAULT (NEWSEQUENTIALID()),
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        EntryType        NVARCHAR(32)     NOT NULL,
+        CatalogEntryId   NVARCHAR(128)    NOT NULL,
+        Title            NVARCHAR(512)    NOT NULL,
+        Description      NVARCHAR(MAX)    NOT NULL,
+        Rationale        NVARCHAR(MAX)    NULL,
+        SourceResultId   NVARCHAR(64)     NULL,
+        PromotedUtc      DATETIME2        NOT NULL,
+        CONSTRAINT PK_TenantCuratedEvidenceEntries PRIMARY KEY (EntryId)
+    );
+
+    CREATE UNIQUE NONCLUSTERED INDEX UX_TenantCuratedEvidenceEntries_Tenant_CatalogEntryId
+        ON dbo.TenantCuratedEvidenceEntries (TenantId, CatalogEntryId);
+
+    CREATE NONCLUSTERED INDEX IX_TenantCuratedEvidenceEntries_TenantId_PromotedUtc
+        ON dbo.TenantCuratedEvidenceEntries (TenantId, PromotedUtc DESC);
+
+    CREATE UNIQUE NONCLUSTERED INDEX UX_TenantCuratedEvidenceEntries_Tenant_SourceResultId
+        ON dbo.TenantCuratedEvidenceEntries (TenantId, SourceResultId)
+        WHERE SourceResultId IS NOT NULL;
+END
+
+GO
+
+IF OBJECT_ID(N'dbo.TenantCuratedEvidenceEntries', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'UX_TenantCuratedEvidenceEntries_Tenant_SourceResultId'
+         AND object_id = OBJECT_ID(N'dbo.TenantCuratedEvidenceEntries'))
+BEGIN
+    CREATE UNIQUE NONCLUSTERED INDEX UX_TenantCuratedEvidenceEntries_Tenant_SourceResultId
+        ON dbo.TenantCuratedEvidenceEntries (TenantId, SourceResultId)
+        WHERE SourceResultId IS NOT NULL;
+END
+
+GO
+
 /* ---- RunExportRecords: create or extend ---- */
 
 IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NULL

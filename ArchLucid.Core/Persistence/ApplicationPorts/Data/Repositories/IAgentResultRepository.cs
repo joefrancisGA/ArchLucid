@@ -57,11 +57,17 @@ public interface IAgentResultRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
+        ScopeContext scope,
         CancellationToken cancellationToken = default);
 
     Task<EvidenceProposalListItem?> TryGetEvidenceProposalAsync(
+        ScopeContext scope,
         string resultId,
         CancellationToken cancellationToken = default);
 
-    Task MarkEvidenceProposalPromotedAsync(string resultId, CancellationToken cancellationToken = default);
+    Task MarkEvidenceProposalPromotedAsync(
+        string resultId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 }

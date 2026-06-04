@@ -138,13 +138,16 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
     }
 
     public Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
+        ScopeContext scope,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        _ = scope;
         lock (_gate)
         {
             List<EvidenceProposalListItem> items = _results
                 .Where(r => !string.IsNullOrWhiteSpace(r.ProposedEvidenceJson))
+                .Where(r => !_promotedProposalResultIds.Contains(r.ResultId))
                 .OrderByDescending(r => r.CreatedUtc)
                 .Select(r => new EvidenceProposalListItem
                 {
@@ -162,10 +165,12 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
     }
 
     public Task<EvidenceProposalListItem?> TryGetEvidenceProposalAsync(
+        ScopeContext scope,
         string resultId,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        _ = scope;
         lock (_gate)
         {
             AgentResult? row = _results.FirstOrDefault(r => r.ResultId == resultId);
@@ -185,9 +190,15 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
         }
     }
 
-    public Task MarkEvidenceProposalPromotedAsync(string resultId, CancellationToken cancellationToken = default)
+    public Task MarkEvidenceProposalPromotedAsync(
+        string resultId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        _ = connection;
+        _ = transaction;
         lock (_gate)
         {
             _promotedProposalResultIds.Add(resultId);

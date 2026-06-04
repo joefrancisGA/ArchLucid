@@ -1,8 +1,6 @@
-using System.Text.Json;
-
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Agents.Evidence;
@@ -10,10 +8,9 @@ namespace ArchLucid.Application.Agents.Evidence;
 public sealed class EvidenceProposalPromoter(
     IAgentResultRepository agentResultRepository,
     ITenantCuratedEvidenceRepository curatedEvidenceRepository,
-    IScopeContextProvider scopeContextProvider) : IEvidenceProposalPromoter
+    IScopeContextProvider scopeContextProvider,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory) : IEvidenceProposalPromoter
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     private readonly IAgentResultRepository _agentResultRepository =
         agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
@@ -23,25 +20,100 @@ public sealed class EvidenceProposalPromoter(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory =
+        unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
     public async Task<Guid> PromoteAsync(string resultId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
-
-        EvidenceProposalListItem? proposal =
-            await _agentResultRepository.TryGetEvidenceProposalAsync(resultId, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException($"No evidence proposal exists for result '{resultId}'.");
-
-        ProposedEvidencePayload payload =
-            JsonSerializer.Deserialize<ProposedEvidencePayload>(proposal.ProposedEvidenceJson, JsonOptions)
-            ?? throw new InvalidOperationException("Proposed evidence JSON is invalid.");
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         if (scope.TenantId == Guid.Empty)
             throw new InvalidOperationException("Tenant scope is required to promote evidence proposals.");
 
+        EvidenceProposalListItem? proposal =
+            await _agentResultRepository.TryGetEvidenceProposalAsync(scope, resultId, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"No evidence proposal exists for result '{resultId}'.");
+
+        if (proposal.IsPromoted)
+            throw new InvalidOperationException($"Evidence proposal '{resultId}' was already promoted.");
+
+        if (!ProposedEvidencePayloadValidator.TryParseValid(proposal.ProposedEvidenceJson, out ProposedEvidencePayload payload))
+            throw new InvalidOperationException("Proposed evidence JSON is invalid.");
+
         string catalogEntryId = BuildCatalogEntryId(payload.Type, payload.Title);
 
+        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            Guid entryId = uow.SupportsExternalTransaction
+                ? await InsertAndMarkPromotedInTransactionAsync(
+                    scope,
+                    payload,
+                    proposal,
+                    resultId,
+                    catalogEntryId,
+                    uow,
+                    cancellationToken).ConfigureAwait(false)
+                : await InsertAndMarkPromotedWithoutTransactionAsync(
+                    scope,
+                    payload,
+                    proposal,
+                    resultId,
+                    catalogEntryId,
+                    cancellationToken).ConfigureAwait(false);
+
+            await uow.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+            return entryId;
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            throw;
+        }
+    }
+
+    private async Task<Guid> InsertAndMarkPromotedInTransactionAsync(
+        ScopeContext scope,
+        ProposedEvidencePayload payload,
+        EvidenceProposalListItem proposal,
+        string resultId,
+        string catalogEntryId,
+        IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        Guid entryId = await _curatedEvidenceRepository
+            .InsertPromotedEntryAsync(
+                scope.TenantId,
+                payload.Type,
+                catalogEntryId,
+                payload.Title,
+                payload.Description,
+                payload.Rationale,
+                proposal.ResultId,
+                cancellationToken,
+                uow.Connection,
+                uow.Transaction)
+            .ConfigureAwait(false);
+
+        await _agentResultRepository
+            .MarkEvidenceProposalPromotedAsync(resultId, cancellationToken, uow.Connection, uow.Transaction)
+            .ConfigureAwait(false);
+
+        return entryId;
+    }
+
+    private async Task<Guid> InsertAndMarkPromotedWithoutTransactionAsync(
+        ScopeContext scope,
+        ProposedEvidencePayload payload,
+        EvidenceProposalListItem proposal,
+        string resultId,
+        string catalogEntryId,
+        CancellationToken cancellationToken)
+    {
         Guid entryId = await _curatedEvidenceRepository
             .InsertPromotedEntryAsync(
                 scope.TenantId,
