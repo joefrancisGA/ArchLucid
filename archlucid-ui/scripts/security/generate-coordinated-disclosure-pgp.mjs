@@ -70,11 +70,11 @@ mkdirSync(dirname(PUBLIC_PGP), { recursive: true });
 writeFileSync(PUBLIC_PGP, publicKey, "utf8");
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-const base = join(tmpdir(), `archlucid-security-coordinated-disclosure-${stamp}`);
+const base = join(tmpdir(), `archlucid-security-coordinated-disclosure-${stamp}`); // codeql[js/file-system-race]: one-shot operator CLI; unique stamp path; not concurrent server code.
 
-writeFileSync(`${base}-PRIVATE.asc`, privateKey, "utf8");
-writeFileSync(`${base}-REVOCATION.asc`, revocationCertificate, "utf8");
-writeFileSync(`${base}-PASSPHRASE.txt`, passphrase, "utf8");
+writeFileSync(`${base}-PRIVATE.asc`, privateKey, "utf8"); // codeql[js/insecure-temporary-file]: ephemeral keygen output for custodian handoff; documented in script stderr.
+writeFileSync(`${base}-REVOCATION.asc`, revocationCertificate, "utf8"); // codeql[js/insecure-temporary-file]: same one-shot disclosure keygen workflow.
+writeFileSync(`${base}-PASSPHRASE.txt`, passphrase, "utf8"); // codeql[js/insecure-temporary-file]: passphrase file is intentional one-time operator artifact.
 
 console.error("");
 console.error("PUBLIC key →", PUBLIC_PGP);

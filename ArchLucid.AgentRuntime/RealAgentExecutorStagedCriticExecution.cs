@@ -139,7 +139,7 @@ internal static class RealAgentExecutorStagedCriticExecution
                     ex,
                     "Staged Critic phase timed out after {TimeoutSeconds}s for RunId={RunId}; continuing without Critic output.",
                     stagedOpts.CriticTimeoutSeconds,
-                    runId);
+                    LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
             }
 
             evidence.Notes.Add(new EvidenceNote

@@ -41,10 +41,10 @@ internal static class RealAgentExecutorSingleHandlerExecution
                 {
                     dependencies.Logger.LogDebug(
                         "Skipping idempotent agent execute for RunId={RunId} TaskId={TaskId} Agent={AgentType} Reason={Reason}.",
-                        runId,
-                        task.TaskId,
-                        dispatchKey,
-                        skipReason);
+                        LogSanitizer.Sanitize(runId),
+                        LogSanitizer.Sanitize(task.TaskId),
+                        LogSanitizer.Sanitize(dispatchKey),
+                        LogSanitizer.Sanitize(skipReason ?? string.Empty)); // codeql[cs/log-forging]: operational strings sanitized (CWE-117).
                 }
 
                 return persistedResult!;
@@ -108,9 +108,9 @@ internal static class RealAgentExecutorSingleHandlerExecution
                             dependencies.Logger.LogWarning(
                                 ex,
                                 "Non-Critic agent handler degraded for RunId={RunId} TaskId={TaskId} Agent={AgentTypeKey}.",
-                                runId,
-                                task.TaskId,
-                                dispatchKey);
+                                LogSanitizer.Sanitize(runId),
+                                LogSanitizer.Sanitize(task.TaskId),
+                                LogSanitizer.Sanitize(dispatchKey)); // codeql[cs/log-forging]: operational strings sanitized (CWE-117).
                         }
 
                         string degradationReason = AgentHandlerDegradationTelemetry.ResolveReasonCode(ex);
@@ -161,7 +161,13 @@ internal static class RealAgentExecutorSingleHandlerExecution
             stopwatch.Stop();
 
             if (dependencies.Logger.IsEnabled(LogLevel.Debug))
-                dependencies.Logger.LogDebugAgentTaskFinished(runId, task.TaskId, dispatchKey, stopwatch.ElapsedMilliseconds);
+            {
+                dependencies.Logger.LogDebugAgentTaskFinished(
+                    runId,
+                    task.TaskId,
+                    dispatchKey,
+                    stopwatch.ElapsedMilliseconds); // codeql[cs/log-forging]: strings sanitized inside LogDebugAgentTaskFinished (CWE-117).
+            }
 
             string? providerTrace = AgentHandlerLlmReasoningTrace.TryConsumeBuffered();
 

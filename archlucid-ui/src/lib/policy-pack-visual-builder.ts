@@ -124,7 +124,7 @@ function conditionsToAdvisoryDefaults(root: VisualConditionNode): Record<string,
     }
 
     if (child.field.startsWith("manifest.")) {
-      const key = child.field.replace("manifest.", "manifest.");
+      const key = child.field.replace("manifest.", "");
       defaults[key] = child.value;
     }
   }

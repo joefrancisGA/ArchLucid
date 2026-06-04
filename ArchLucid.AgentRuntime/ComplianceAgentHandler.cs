@@ -318,7 +318,7 @@ public sealed class ComplianceAgentHandler(
                 _logger.LogWarning(
                     ex,
                     "Failed to persist retrieval grounding trace for compliance agent run {RunId}.",
-                    runId);
+                    LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
             }
         }
     }

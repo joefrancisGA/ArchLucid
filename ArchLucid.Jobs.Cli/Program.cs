@@ -64,7 +64,9 @@ public static class Program
         {
             foreach (string error in configurationErrors)
 
-                app.Logger.LogError("Startup configuration error: {Error}", error);
+                app.Logger.LogError(
+                    "Startup configuration error: {Error}",
+                    error); // codeql[cs/cleartext-storage-of-sensitive-information]: validation message text only; no secrets persisted (docs/library/CODEQL_TRIAGE.md).
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }

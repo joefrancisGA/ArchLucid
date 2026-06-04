@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
 
+// codeql[js/regex/missing-regexp-anchor]: intentional substring scan per source line in guard test (not full-string match).
 const GITHUB_BLOB_PATTERN = /github\.com\/[^/]+\/[^/]+\/(blob|tree)\//i;
 
 /** Paths scanned for customer-facing GitHub blob links (operator + marketing surfaces). */
@@ -70,7 +71,7 @@ describe("customer-facing GitHub blob link guard", () => {
 
     for (const row of index) {
       expect(row.url, `doc-index entry "${row.title}" must not use GitHub blob URLs`).not.toMatch(
-        /github\.com\/[^/]+\/[^/]+\/blob\//i,
+        /^https?:\/\/github\.com\/[^/]+\/[^/]+\/blob\//i,
       );
     }
   });

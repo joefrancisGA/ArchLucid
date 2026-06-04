@@ -8,6 +8,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Topology;
@@ -278,7 +279,7 @@ public sealed class TopologyAgentHandler(
                 _logger.LogWarning(
                     ex,
                     "Failed to persist retrieval grounding trace for topology agent run {RunId}.",
-                    runId);
+                    LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
             }
         }
     }

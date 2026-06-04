@@ -33,7 +33,8 @@ public sealed class SqlOperatorStickinessSnapshotReaderRlsTests
 
         connectionFactory
             .Setup(factory => factory.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True"));
+            .ReturnsAsync(new SqlConnection(
+                "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True")); // codeql[cs/insecure-sql-connection]: unit-test mock LocalDB; no production credentials.
 
         applicator
             .Setup(a => a.ApplyAsync(
@@ -77,7 +78,8 @@ public sealed class SqlOperatorStickinessSnapshotReaderRlsTests
 
         connectionFactory
             .Setup(factory => factory.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True"));
+            .ReturnsAsync(new SqlConnection(
+                "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True")); // codeql[cs/insecure-sql-connection]: unit-test mock LocalDB; no production credentials.
 
         applicator
             .Setup(a => a.ApplyAsync(
