@@ -51,11 +51,11 @@ export function looksStripeHostedTestCheckoutUrl(raw: string | null | undefined)
 
   const hostKey = "buy.stripe.com/";
 
-  if (!lower.includes(hostKey)) {
+  const idx = lower.indexOf(hostKey);
+
+  if (idx < 0) {
     return false;
   }
-
-  const idx = lower.indexOf(hostKey);
   const tail = lower.slice(idx + hostKey.length);
   const firstSegment = tail.split("/")[0]?.split("?")[0] ?? "";
 

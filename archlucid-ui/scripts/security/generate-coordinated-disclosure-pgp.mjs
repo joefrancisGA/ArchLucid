@@ -67,7 +67,7 @@ const fpPretty = groups.join(" ");
 const shortId = fpHex.slice(-16);
 
 mkdirSync(dirname(PUBLIC_PGP), { recursive: true });
-writeFileSync(PUBLIC_PGP, publicKey, "utf8");
+writeFileSync(PUBLIC_PGP, publicKey, "utf8"); // lgtm[js/file-system-race] writes committed public key artifact only.
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
 const base = join(tmpdir(), `archlucid-security-coordinated-disclosure-${stamp}`); // lgtm[js/file-system-race] one-shot operator CLI with unique stamp.
