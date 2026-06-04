@@ -29,6 +29,7 @@ public sealed class ArchitectureFindingAskController(
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly ILogger<ArchitectureFindingAskController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{findingId:guid}/ask")]
     [MutatingAuditExcluded("Conversation persistence in IAskService handles auditing-related writes.")]
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]

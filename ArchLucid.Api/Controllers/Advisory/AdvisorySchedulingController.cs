@@ -55,6 +55,7 @@ public sealed class AdvisorySchedulingController(
     /// </param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The persisted schedule including assigned id and computed <see cref="AdvisoryScanSchedule.NextRunUtc" />.</returns>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("schedules")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(AdvisoryScanSchedule), StatusCodes.Status200OK)]
@@ -151,6 +152,7 @@ public sealed class AdvisorySchedulingController(
     ///     Advances <see cref="AdvisoryScanSchedule.LastRunUtc" /> / <see cref="AdvisoryScanSchedule.NextRunUtc" /> like
     ///     a scheduled tick.
     /// </remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("schedules/{scheduleId:guid}/run")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

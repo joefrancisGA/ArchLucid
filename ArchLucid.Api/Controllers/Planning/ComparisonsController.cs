@@ -294,6 +294,7 @@ public sealed class ComparisonsController(
             : Ok(new ComparisonRecordResponse { Record = record });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
@@ -334,6 +335,7 @@ public sealed class ComparisonsController(
                 ProblemTypes.BadRequest));
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DriftAnalysisResponse), StatusCodes.Status200OK)]
@@ -392,6 +394,7 @@ public sealed class ComparisonsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
@@ -440,6 +443,7 @@ public sealed class ComparisonsController(
         });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("comparisons/replay/batch")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]

@@ -47,6 +47,7 @@ public sealed class AuthorityReplayController(
     ///     <see cref="ReplayResponse" /> with validation and rebuilt entity ids when applicable, or 404 when the run is
     ///     unknown.
     /// </returns>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [HttpPost("/v{version:apiVersion}/authority/replay")]
     [ProducesResponseType(typeof(ReplayResponse), StatusCodes.Status200OK)]

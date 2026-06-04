@@ -109,6 +109,7 @@ public sealed class RunComparisonController(
         return error ?? Ok(ComparisonResponseMapper.ToEndToEndResponse(report!));
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/compare/end-to-end/summary")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]

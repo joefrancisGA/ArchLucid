@@ -2,13 +2,13 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DO-trust-remainder-p1**). **~35 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-01 (after batch **5DP-mutating-posture-p1**). **~32 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Trustworthiness | 8 |
+| Trustworthiness | 6 |
 | Correctness | 9 |
-| Reliability | 7 |
+| Reliability | 6 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
 | Architectural integrity | 5 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~37** |
+| **Total (unique)** | **~33** |
 
-**Trustworthiness (10):** remaining TB-274 SEC/BE + IaC parity (**TB-091+**). **TB-273 / BDA-001…150** engineering scope is **complete**. **Next recommended batch:** **5DO-trust-remainder-p1** (IaC roots for OpenAI/Redis/Cosmos, agent tool sandbox **TB-082**) or **TB-106–108** run-detail correctness. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**Trustworthiness (6):** remaining TB-274 SEC/BE register rows (ingest/webhook class gaps, internal replay). **TB-273 / BDA-001…150** and **TB-082 / TB-091–102** are **Done**. **Next recommended batch:** **5DQ-trust-ingest-p0** (ingest URL / extractor upload posture + IDOR) or **TB-138** real-LLM golden-cohort CI promotion (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -226,7 +226,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-270 | Disambiguate review-creation entry points — audit the reachable "quick" creation paths (`QuickReviewWizard` top-level vs `QuickStartWizard` / `SimplifiedPilotWizard` inside `NewRunWizardClient`); make `ReviewsNewPathSwitcher` the single decision surface with clear labels ("Quick review" vs "Full guided review") and document which path renders in which mode; Vitest guard that exactly one quick path is reachable per shell mode (do NOT remove wizard logic — relabel/route only) | **Done (2026-06-04 batch 5DM)** — path hint copy, relabeled wizard mode toggle, Vitest single-path guard | M |
 | TB-271 | Universal failure identifier — generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id | **Done (2026-06-04 batch 5DM)** — `applyCorrelationHeaders` + `buildApiRequestErrorFromParts` request fallback; `api-error.test.ts` | S |
 | TB-272 | Empty/loading-state consistency — consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | **Done (2026-06-04 batch 5DM)** — `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | M |
-| TB-273 | Buyer-demo readiness defect remediation (2026-06-03 harsh demo audit) — ~150 enumerated issues **BDA-001…BDA-150** across the golden path (Home → Reviews → Review detail → Executive summary → Manifest → Evidence graph → Governance → Audit) + Finding/Ask. P0: demo/test-data leakage (Claims Intake / "Jordan Lee" / "Taylor Morgan" / `demo-tenant` / sample-decision ids), fabricated decision/confidence/audit-link fallbacks, misleading "Audit trail complete"/"placeholder"/"demonstration KPI $94,360"/"Demo-derived" claims, sponsor exports merging demo runs, one dead `#run-actions` finalize anchor. P1: terminology drift, raw identifiers and enum labels in UI, redundant CTAs, chart-grammar/hierarchy, SoD marketed-not-explained. P2 polish. Primary fix lever: harden buyer-polished vs static-demo env gating so demo copy never reaches the polished shell, plus copy/label fixes. Full per-issue table in `## TB-273` | Buyer-demo credibility — one week to a CIO/CISO/procurement live demo; per-issue severity/screen/problem/why/fix/copy in detail section | XL |
+| TB-273 | Buyer-demo readiness defect remediation (**BDA-001…BDA-150**, including deferred **BDA-135/139/146** in batch **5DN-demo-deferred**) | **Done (2026-06-04)** — batches **5CY-demo** through **5DN-demo-deferred**; index [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md) | XL |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |

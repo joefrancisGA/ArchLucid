@@ -125,6 +125,7 @@ public sealed class AnalysisReportsController(
     ///     Returns the same analysis content as <c>analysis-report</c> serialized to markdown in JSON (
     ///     <see cref="ArchitectureAnalysisExportResponse" />).
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export")]
     [ProducesResponseType(typeof(ArchitectureAnalysisExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -159,6 +160,7 @@ public sealed class AnalysisReportsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/file")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -190,6 +192,7 @@ public sealed class AnalysisReportsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -225,6 +228,7 @@ public sealed class AnalysisReportsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx/async")]
     [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -252,6 +256,7 @@ public sealed class AnalysisReportsController(
         return Accepted(new AsyncJobResponse { JobId = jobId });
     }
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("analysis-report/export/docx/consulting/resolve-profile")]
     [ProducesResponseType(typeof(ConsultingDocxResolveProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -278,6 +283,7 @@ public sealed class AnalysisReportsController(
         });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting")]
     [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -368,6 +374,7 @@ public sealed class AnalysisReportsController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting/async")]
     [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
@@ -394,6 +401,7 @@ public sealed class AnalysisReportsController(
         return Accepted(new AsyncJobResponse { JobId = jobId });
     }
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("analysis-report/export/docx/consulting/profiles/recommend")]
     [ProducesResponseType(typeof(ConsultingDocxProfileRecommendationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -48,6 +48,7 @@ public sealed class AskController(
     /// <param name="request">Thread/run anchors and question (see validation rules in method body).</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="AskResponse" /> on success.</returns>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -81,6 +82,7 @@ public sealed class AskController(
     ///     Streams grounded Q&amp;A as <c>text/event-stream</c>: <c>token</c> events carry answer text deltas;
     ///     a terminal <c>done</c> event carries the final <see cref="AskResponse" /> JSON.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("stream")]
     [Produces("text/event-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]

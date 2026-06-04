@@ -19,12 +19,13 @@
 | **5DN-demo-deferred** | **BDA-135** home hierarchy; **BDA-139** executive metric typography; **BDA-146** `topDecisionSynopses` on manifest summary | Done |
 | **5DO-trust-remainder-p0** | Run-scoped POST IDOR (analysis-report, evidence bulk); `idempotency-posture` on export push / trial / marketing / client-error | Done |
 | **5DO-trust-remainder-p1** | Terraform PR POST IDOR; ingest/quick-scan/request-import posture; mutating-route baseline sync (11 routes) | Done |
+| **5DP-mutating-posture-p1** | `idempotency-posture` on ask/replay/export/advisory routes; mutating-route baseline refresh (~28 routes) | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DP-mutating-posture-p1** | Trustworthiness, Reliability | Classify remaining high-risk `unclassified` mutating routes (replay/export/ask/advisory) via `idempotency-posture` + baseline |
+| **5DQ-trust-ingest-p0** | Trustworthiness | Azure extractor upload sessions + architecture ingest/webhook class posture and IDOR hardening |
 | **TB-138** | Trustworthiness (B) | Real-LLM golden-cohort CI promotion (owner Azure OpenAI secrets / environment) |
 
 ## Excluded from Cursor batches

@@ -92,6 +92,7 @@ public sealed class ExportsController(
         return Ok(new ExportRecordDiffResponse { Diff = diff });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/exports/compare/summary")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
@@ -140,6 +141,7 @@ public sealed class ExportsController(
         return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = summary });
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/exports/{exportRecordId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -164,6 +166,7 @@ public sealed class ExportsController(
         return ReplayArtifactResponseFactory.FromExportReplay(Request, result);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("run/exports/{exportRecordId}/replay/metadata")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
