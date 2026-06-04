@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Security;
 using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
@@ -375,8 +376,10 @@ public sealed class ArtifactExportController(
         if (request is null || string.IsNullOrWhiteSpace(request.DestinationSasUrl))
             return this.BadRequestProblem("DestinationSasUrl is required.", ProblemTypes.RequestBodyRequired);
 
-        if (!Uri.TryCreate(request.DestinationSasUrl, UriKind.Absolute, out _))
-            return this.BadRequestProblem("DestinationSasUrl is not a valid absolute URI.", ProblemTypes.ValidationFailed);
+        string? sasRejection = AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(request.DestinationSasUrl);
+
+        if (sasRejection is not null)
+            return this.BadRequestProblem(sasRejection, ProblemTypes.ValidationFailed);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);

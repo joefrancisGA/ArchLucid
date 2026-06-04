@@ -3,11 +3,13 @@ using ArchLucid.Api.Security;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Security;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -18,8 +20,12 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Route("v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence")]
 public sealed class ReferenceEvidenceAdminController(
     IReferenceEvidenceAdminExportService exportService,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IConfiguration configuration) : ControllerBase
 {
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
     private readonly IReferenceEvidenceAdminExportService _exportService =
         exportService ?? throw new ArgumentNullException(nameof(exportService));
 
@@ -46,7 +52,7 @@ public sealed class ReferenceEvidenceAdminController(
         if (forbid is not null)
             return forbid;
 
-        string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
+        string baseForLinks = TrustedApiLinkBaseResolver.Resolve(_configuration, Request.Scheme, Request.Host.Value);
         byte[]? zip = await _exportService.BuildZipAsync(scope.TenantId, includeDemo, baseForLinks, cancellationToken);
 
         if (zip is null || zip.Length == 0)

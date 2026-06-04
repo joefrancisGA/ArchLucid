@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Security;
 
 using Microsoft.Extensions.Logging;
 
@@ -36,6 +37,19 @@ public sealed class RunExportBlobPushService(
     {
         ArgumentNullException.ThrowIfNull(zipContent);
         ArgumentException.ThrowIfNullOrWhiteSpace(destinationSasUrl);
+
+        string? sasRejection = AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(destinationSasUrl);
+
+        if (sasRejection is not null)
+            throw new InvalidOperationException(sasRejection);
+
+        string? dnsRejection =
+            await OutboundHttpsUrlDnsResolutionGuard.TryGetRejectionReasonAfterDnsResolveAsync(
+                destinationSasUrl,
+                cancellationToken).ConfigureAwait(false);
+
+        if (dnsRejection is not null)
+            throw new InvalidOperationException(dnsRejection);
 
         HttpClient client = _httpClientFactory.CreateClient(HttpClientName);
 
