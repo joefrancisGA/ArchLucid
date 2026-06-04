@@ -16,6 +16,7 @@ public static class WhyArchLucidPackBuilder
         StringBuilder body = new();
         body.AppendLine("# ArchLucid — side-by-side proof pack (demo)");
         body.AppendLine();
+        // DemoOnly: anonymous cached demo PDF export — not buyer-safe for polished operator shell (TB-273 / BDA-023).
         body.AppendLine("> **Panel banner:** *demo tenant — replace before publishing*");
         body.AppendLine();
         body.AppendLine(
