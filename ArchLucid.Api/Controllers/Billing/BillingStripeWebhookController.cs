@@ -8,6 +8,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Billing;
 
@@ -16,6 +17,7 @@ namespace ArchLucid.Api.Controllers.Billing;
 [AllowAnonymous]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/billing/webhooks")]
+[EnableRateLimiting("fixed")]
 public sealed class BillingStripeWebhookController(StripeBillingProvider stripeBillingProvider) : ControllerBase
 {
     private readonly StripeBillingProvider _stripeBillingProvider =

@@ -36,4 +36,24 @@ public sealed class AllowedDocumentUrlPolicyTests
         reason.Should().NotBeNull();
         reason.Should().Contain(expectedPhrase);
     }
+
+    [Fact]
+    public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToSourceDocumentUrl()
+    {
+        string? reason = await AllowedDocumentUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync(
+            "https://archlucid-tb274-nonexistent-host.example/adr.md");
+
+        reason.Should().NotBeNull();
+        reason.Should().StartWith("SourceDocumentUrl");
+        reason.Should().Contain("could not be resolved");
+    }
+
+    [Fact]
+    public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenSyncGuardRejects_SkipsDnsLookup()
+    {
+        string? reason = await AllowedDocumentUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync("https://127.0.0.1/doc");
+
+        reason.Should().Contain("SourceDocumentUrl");
+        reason.Should().Contain("private network");
+    }
 }

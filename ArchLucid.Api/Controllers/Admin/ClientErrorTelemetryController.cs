@@ -226,6 +226,7 @@ public sealed class ClientErrorTelemetryController(
     ///     owner-only flag <c>Telemetry:FirstTenantFunnel:PerTenantEmission</c>.
     /// </summary>
     [HttpPost("first-tenant-funnel")]
+    [EnableRateLimiting("registration")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -256,6 +257,7 @@ public sealed class ClientErrorTelemetryController(
     ///     counter only — safe for anonymous calls with rate limiting.
     /// </summary>
     [HttpPost("core-pilot-rail-step")]
+    [EnableRateLimiting("registration")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

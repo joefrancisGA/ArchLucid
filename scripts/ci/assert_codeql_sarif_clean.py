@@ -9,15 +9,13 @@ import sys
 from pathlib import Path
 
 
-def _finding_count(data: object) -> int:
+def _iter_unresolved_findings(data: object):
     if not isinstance(data, dict):
-        return 0
+        return
 
     runs = data.get("runs")
     if runs is None or not isinstance(runs, list):
-        return 0
-
-    total = 0
+        return
 
     for run in runs:
         if not isinstance(run, dict):
@@ -42,9 +40,38 @@ def _finding_count(data: object) -> int:
             if level in {"note", "none"}:
                 continue
 
-            total += 1
+            rule_id = ""
+            rule = result.get("rule")
+            if isinstance(rule, dict):
+                rule_id_raw = rule.get("id")
+                if isinstance(rule_id_raw, str):
+                    rule_id = rule_id_raw
 
-    return total
+            location = result.get("locations")
+            path = ""
+            line = 0
+            if isinstance(location, list) and len(location) > 0:
+                first = location[0]
+                if isinstance(first, dict):
+                    physical = first.get("physicalLocation")
+                    if isinstance(physical, dict):
+                        artifact = physical.get("artifactLocation")
+                        if isinstance(artifact, dict):
+                            uri = artifact.get("uri")
+                            if isinstance(uri, str):
+                                path = uri
+
+                        region = physical.get("region")
+                        if isinstance(region, dict):
+                            start_line = region.get("startLine")
+                            if isinstance(start_line, int):
+                                line = start_line
+
+            yield rule_id, path, line
+
+
+def _finding_count(data: object) -> int:
+    return sum(1 for _ in _iter_unresolved_findings(data))
 
 
 def main(argv: list[str]) -> int:
@@ -101,6 +128,21 @@ def main(argv: list[str]) -> int:
 
     if grand_total != 0:
         print(f"::error::CodeQL SARIF gate: {grand_total} unresolved finding(s) across listed directories.")
+
+        for raw in parsed.directories:
+            root = raw.resolve()
+
+            if not root.is_dir():
+                continue
+
+            for sarif in sorted(root.rglob("*.sarif")):
+                try:
+                    data = json.loads(sarif.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+
+                for rule_id, path, line in _iter_unresolved_findings(data):
+                    print(f"::error::Unresolved {rule_id} at {path}:{line}")
 
         return 1
 

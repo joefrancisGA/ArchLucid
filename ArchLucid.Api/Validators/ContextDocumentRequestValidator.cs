@@ -37,12 +37,14 @@ public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextD
             .MaximumLength(500_000).WithMessage("Document Content must not exceed 500000 characters.");
 
         RuleFor(x => x.SourceDocumentUrl)
-            .Custom((url, context) =>
+            .CustomAsync(async (url, context, cancellationToken) =>
             {
                 if (string.IsNullOrWhiteSpace(url))
                     return;
 
-                string? reason = AllowedDocumentUrlPolicy.TryGetRejectionReason(url);
+                string? reason =
+                    await AllowedDocumentUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync(url, cancellationToken)
+                        .ConfigureAwait(false);
 
                 if (reason is not null)
                     context.AddFailure(reason);

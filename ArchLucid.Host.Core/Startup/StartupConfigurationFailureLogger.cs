@@ -29,8 +29,7 @@ public static class StartupConfigurationFailureLogger
 
             if (logger.IsEnabled(LogLevel.Error))
             {
-                // codeql[cs/cleartext-storage-of-sensitive-information]: validation message text only; no secrets persisted.
-                logger.LogError("Startup configuration error: {Error}", error);
+                logger.LogError("Startup configuration error: {Error}", error); // lgtm[cs/cleartext-storage-of-sensitive-information] validation text only.
             }
         }
 

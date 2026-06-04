@@ -164,12 +164,11 @@ internal static class RealAgentExecutorSingleHandlerExecution
 
             if (dependencies.Logger.IsEnabled(LogLevel.Debug))
             {
-                // codeql[cs/log-forging]: strings sanitized inside LogDebugAgentTaskFinished (CWE-117).
                 dependencies.Logger.LogDebugAgentTaskFinished(
                     runId,
                     task.TaskId,
                     dispatchKey,
-                    stopwatch.ElapsedMilliseconds);
+                    stopwatch.ElapsedMilliseconds); // lgtm[cs/log-forging] strings sanitized inside LogDebugAgentTaskFinished.
             }
 
             string? providerTrace = AgentHandlerLlmReasoningTrace.TryConsumeBuffered();

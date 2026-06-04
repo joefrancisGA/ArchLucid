@@ -64,8 +64,7 @@ public static class Program
         {
             foreach (string error in configurationErrors)
             {
-                // codeql[cs/cleartext-storage-of-sensitive-information]: validation message text only; no secrets persisted.
-                app.Logger.LogError("Startup configuration error: {Error}", error);
+                app.Logger.LogError("Startup configuration error: {Error}", error); // lgtm[cs/cleartext-storage-of-sensitive-information] validation text only.
             }
 
             return ArchLucidJobExitCodes.ConfigurationError;

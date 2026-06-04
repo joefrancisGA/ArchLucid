@@ -56,8 +56,7 @@ public static class IdentityClaimRoleMappingResolver
 
         if (!string.IsNullOrWhiteSpace(mapping.CustomGroupClaimRegex))
         {
-            // codeql[cs/regex-injection]: admin-provisioned IdP group regex; not attacker-controlled HTTP input.
-            regex = new Regex(mapping.CustomGroupClaimRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+            regex = new Regex(mapping.CustomGroupClaimRegex, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase); // lgtm[cs/regex-injection] admin-provisioned IdP regex.
         }
 
         foreach (string rawValue in sampleClaimValues)

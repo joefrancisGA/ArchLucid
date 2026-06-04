@@ -20,7 +20,7 @@ namespace ArchLucid.Api.Controllers.Marketing;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing/early-access")]
-[EnableRateLimiting("fixed")]
+[EnableRateLimiting("registration")]
 [AllowAnonymous]
 public sealed class MarketingEarlyAccessRequestController(
     IMarketingEarlyAccessRequestRepository earlyAccessRepository,
