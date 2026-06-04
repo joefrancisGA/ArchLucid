@@ -45,10 +45,7 @@ export function isOperatorDemoStaticMode(): boolean {
   );
 }
 
-/**
- * Curated static payloads when authority APIs error — static-operator image **or** any `NEXT_PUBLIC_DEMO_MODE` build.
- * Eligibility is still limited to {@link isDemoRunIdEligibleForStaticFallback}.
- */
+/** Curated static payloads only when demo/static-operator env flags are set (TB-274 / BE-059). */
 export function isStaticDemoPayloadFallbackEnabled(): boolean {
   return isOperatorDemoStaticMode() || isPublicDemoModeEnv();
 }
@@ -57,13 +54,10 @@ export function isDemoRunIdEligibleForStaticFallback(runId: string): boolean {
   return DEMO_RUN_IDS_FOR_STATIC_FALLBACK.has(runId.trim());
 }
 
-/**
- * Uses curated Claims Intake static payloads for well-known `/reviews/{runId}` URL tokens **without** requiring demo env
- * vars (OpenAI UI review 2026-05-01 — deploys forgot flags; detail routes must still render).
- */
+/** True when demo env is on and the run id is a known showcase token (TB-274 / BE-059). */
 export function isStaticDemoPayloadFallbackActiveForRun(runId: string): boolean {
-  if (isStaticDemoPayloadFallbackEnabled()) {
-    return true;
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return false;
   }
 
   const effectiveRunId = canonicalizeDemoRunId(runId.trim());
@@ -73,8 +67,8 @@ export function isStaticDemoPayloadFallbackActiveForRun(runId: string): boolean 
 
 /** Same as {@link isStaticDemoPayloadFallbackActiveForRun} for the known showcase manifest UUID. */
 export function isStaticDemoPayloadFallbackActiveForManifest(manifestId: string): boolean {
-  if (isStaticDemoPayloadFallbackEnabled()) {
-    return true;
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return false;
   }
 
   return manifestId.trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
@@ -93,20 +87,8 @@ export type StaticDemoRunsListFallbackOptions = {
   readonly afterEmptyLiveList?: boolean;
 };
 
-function isRunsListCuratedShowcaseAllowed(options?: StaticDemoRunsListFallbackOptions): boolean {
-  if (isStaticDemoPayloadFallbackEnabled()) {
-    return true;
-  }
-
-  if (options?.afterAuthorityListFailure === true) {
-    return true;
-  }
-
-  if (options?.afterEmptyLiveList === true) {
-    return true;
-  }
-
-  return false;
+function isRunsListCuratedShowcaseAllowed(_options?: StaticDemoRunsListFallbackOptions): boolean {
+  return isStaticDemoPayloadFallbackEnabled();
 }
 
 /**

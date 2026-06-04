@@ -7,7 +7,7 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class AgentExecutionTraceResponse
 {
-    public List<AgentExecutionTrace> Traces
+    public List<AgentExecutionTraceSummary> Traces
     {
         get;
         set;

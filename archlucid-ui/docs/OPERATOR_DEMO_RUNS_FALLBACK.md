@@ -11,9 +11,7 @@ Primary navigation includes **Runs**. When `listRunsByProjectPaged` throws or re
 - `NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true`
 - `NEXT_PUBLIC_DEMO_MODE=true` / `=1`
 
-**Or** callers pass `{ afterAuthorityListFailure: true }`: when `listRunsByProjectPaged` **throws** or coercion fails (reviews page, home dashboard snapshot, merged pickers, executive error paths, runs grid error boundary), the same curated row appears **without** needing demo env vars (`OpenAI UI assessment 2026-05-01`).
-
-Review detail, manifest summary, findings inspect, explanation, artifacts, timeline, provenance graph, and governance approval/promotion static payloads for known showcase URL tokens activate via `isStaticDemoPayloadFallbackActiveForRun` **without** those env vars when live authority APIs fail.
+Curated run/detail/compare payloads require the same demo env flags **and** a known showcase run or manifest id (TB-274 / BE-059). Callers may still pass `{ afterAuthorityListFailure: true }` or `{ afterEmptyLiveList: true }`, but those options only take effect when demo env is enabled.
 
 The runs page clears `loadFailure` / `malformedMessage` after applying this fallback and shows `OperatorDemoStaticBanner`.
 

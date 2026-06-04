@@ -80,6 +80,13 @@ public sealed class AgentExecutionTraceSummary
         set;
     }
 
+    /// <summary>True when full prompt/response blob uploads failed after retries (operator list surfaces only).</summary>
+    public bool? BlobUploadFailed
+    {
+        get;
+        set;
+    }
+
     public static AgentExecutionTraceSummary FromTrace(AgentExecutionTrace trace)
     {
         ArgumentNullException.ThrowIfNull(trace);
@@ -98,6 +105,7 @@ public sealed class AgentExecutionTraceSummary
             CreatedUtc = trace.CreatedUtc,
             QualityWarning = trace.QualityWarning,
             QualityRejected = trace.QualityRejected,
+            BlobUploadFailed = trace.BlobUploadFailed,
         };
     }
 }

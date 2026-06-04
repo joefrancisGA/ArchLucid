@@ -80,10 +80,7 @@ public sealed class TrialLocalIdentityAuthController(
 
             return StatusCode(
                 StatusCodes.Status201Created,
-                new TrialLocalRegisterResponse
-                {
-                    UserId = created.UserId, VerificationToken = created.VerificationToken
-                });
+                new TrialLocalRegisterResponse { UserId = created.UserId });
         }
         catch (ArgumentException ex)
         {

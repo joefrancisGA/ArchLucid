@@ -113,6 +113,42 @@ public sealed class CriticalConfigurationValidatorTests
     }
 
     [Fact]
+    public void CollectErrors_reports_demo_enabled_on_production_profile()
+    {
+        IConfiguration configuration = BuildConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ArchLucid"] =
+                    "Server=.;Database=CriticalConfigurationValidatorTests;Trusted_Connection=True;TrustServerCertificate=True",
+                ["AgentExecution:Mode"] = "Simulator",
+                ["Demo:Enabled"] = "true",
+                ["ASPNETCORE_ENVIRONMENT"] = "Production",
+            });
+
+        IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(configuration);
+
+        errors.Should().ContainSingle(error => error.Contains("Demo:Enabled", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_allows_demo_enabled_when_not_production_profile()
+    {
+        IConfiguration configuration = BuildConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ArchLucid"] =
+                    "Server=.;Database=CriticalConfigurationValidatorTests;Trusted_Connection=True;TrustServerCertificate=True",
+                ["AgentExecution:Mode"] = "Simulator",
+                ["Demo:Enabled"] = "true",
+                ["ASPNETCORE_ENVIRONMENT"] = "Development",
+            });
+
+        IReadOnlyList<string> errors = CriticalConfigurationValidator.CollectErrors(configuration);
+
+        errors.Should().NotContain(error => error.Contains("Demo:Enabled", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void StartAsync_throws_descriptive_invalid_operation_exception_when_configuration_invalid()
     {
         IConfiguration configuration = BuildConfiguration(

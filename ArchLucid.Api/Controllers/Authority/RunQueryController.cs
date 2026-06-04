@@ -528,9 +528,12 @@ public sealed class RunQueryController(
                 take,
                 cancellationToken);
 
+        List<AgentExecutionTraceSummary> summaries =
+            pagedTraces.Select(AgentExecutionTraceSummary.FromTrace).ToList();
+
         return Ok(new AgentExecutionTraceResponse
         {
-            Traces = pagedTraces.ToList(),
+            Traces = summaries,
             TotalCount = totalCount,
             PageNumber = paging.PageNumber,
             PageSize = paging.PageSize

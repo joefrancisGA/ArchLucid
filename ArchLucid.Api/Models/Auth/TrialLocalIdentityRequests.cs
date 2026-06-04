@@ -70,12 +70,6 @@ public sealed class TrialLocalRegisterResponse
         get;
         set;
     }
-
-    public string VerificationToken
-    {
-        get;
-        set;
-    } = string.Empty;
 }
 
 public sealed class TrialLocalTokenResponse

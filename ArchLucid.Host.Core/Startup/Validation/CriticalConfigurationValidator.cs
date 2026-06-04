@@ -20,6 +20,7 @@ public static class CriticalConfigurationValidator
 
         CollectConnectionStringErrors(configuration, errors);
         CollectAzureOpenAiErrorsWhenNotSimulator(configuration, errors);
+        CollectDemoEnabledProductionErrors(configuration, errors);
 
         return errors;
     }
@@ -84,5 +85,30 @@ public static class CriticalConfigurationValidator
             + $"Configure: {missingList}. "
             + "Use AgentExecution:Mode=Simulator for local development without Azure OpenAI, "
             + "or AgentExecution:CompletionClient=Echo when Real mode should use the in-process Echo client.");
+    }
+
+    private static void CollectDemoEnabledProductionErrors(IConfiguration configuration, List<string> errors)
+    {
+        if (!configuration.GetValue("Demo:Enabled", false))
+            return;
+
+        string? aspNetEnv =
+            configuration["ASPNETCORE_ENVIRONMENT"]?.Trim()
+            ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Trim();
+
+        string? archLucidEnv =
+            configuration["ARCHLUCID_ENVIRONMENT"]?.Trim()
+            ?? Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT")?.Trim();
+
+        bool productionProfile =
+            string.Equals(aspNetEnv, "Production", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(archLucidEnv, "Production", StringComparison.OrdinalIgnoreCase);
+
+        if (!productionProfile)
+            return;
+
+        errors.Add(
+            "Demo:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
+            + "(in-product demo paths must not run on production-profile hosts).");
     }
 }

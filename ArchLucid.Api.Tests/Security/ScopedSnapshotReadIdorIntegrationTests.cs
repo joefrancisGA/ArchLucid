@@ -119,6 +119,59 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
                 client.GetAsync($"/v1/explain/runs/{runId}/findings/cross-tenant-idor-probe/llm-audit"));
     }
 
+    [SkippableFact]
+    public async Task Tenant_b_cannot_read_tenant_a_executive_summary_by_route_tenant_sql_tb274()
+    {
+        await AssertCrossTenantTenantRouteDeniedAsync(
+            "executive summary",
+            static (client, tenantId) => client.GetAsync($"/api/authority/executive-summary/{tenantId:D}"));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_export_tenant_a_reference_evidence_zip_sql_tb274()
+    {
+        await AssertCrossTenantTenantRouteDeniedAsync(
+            "reference evidence export",
+            static (client, tenantId) =>
+                client.GetAsync($"/v1/admin/tenants/{tenantId:D}/reference-evidence"));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_read_tenant_a_metering_summary_sql_tb274()
+    {
+        DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset end = DateTimeOffset.UtcNow;
+
+        await AssertCrossTenantTenantRouteDeniedAsync(
+            "metering summary",
+            static (client, tenantId) =>
+                client.GetAsync(
+                    $"/v1/admin/metering/tenants/{tenantId:D}/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
+    }
+
+    private static async Task AssertCrossTenantTenantRouteDeniedAsync(
+        string routeFamily,
+        Func<HttpClient, Guid, Task<HttpResponseMessage>> send)
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        HttpResponseMessage response = await send(clientB, ScopeIds.DefaultTenant);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden, because: $"{routeFamily} must not resolve for cross-tenant route id.");
+    }
+
     private static async Task AssertCrossTenantRouteDeniedAsync(
         string routeFamily,
         Func<HttpClient, string, Task<HttpResponseMessage>> send)

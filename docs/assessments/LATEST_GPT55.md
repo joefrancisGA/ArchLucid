@@ -6,7 +6,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 
 Working copy with incremental batch rescales lives in gitignored `docs/assessments/LATEST.md`; this committed snapshot tracks the same headline as of 2026-06-03.
 
-Rescore note: Through **87.75%** (5CP). Batches **5CY-demo** through **5DC-demo** (**TB-273**: full BDA-001…150 remediation on the buyer-polished golden path; P2 polish in 5DC closes copy/hierarchy smells except deferred BDA-135/139/146) improve buyer-demo credibility under **`(B)`** and **Trustworthiness** narrative — **no `(A)` headline change** per `Assessment-Scope-V1_1.mdc` (TB-273 engineering scope complete). G-REAL/TB-140 owner-blocked.
+Rescore note: Through **87.75%** (5CP). Batches **5CY-demo** through **5DC-demo** (**TB-273**: full BDA-001…150 remediation on the buyer-polished golden path; P2 polish in 5DC closes copy/hierarchy smells except deferred BDA-135/139/146) improve buyer-demo credibility under **`(B)`** and **Trustworthiness** narrative — **no `(A)` headline change** per `Assessment-Scope-V1_1.mdc` (TB-273 engineering scope complete). Batch **5DE–5DI** (TB-274 P0): route `{tenantId}` IDOR guards (executive-summary, reference-evidence, metering), redacted run traces list, trial register omits verification token, demo static fallback gated on env flags, `Demo:Enabled` fail-fast on production profile — **no `(A)` headline change** (trust/safety hardening under narrative). G-REAL/TB-140 owner-blocked.
 
 ## Executive Summary
 
