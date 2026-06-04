@@ -74,7 +74,14 @@ public sealed class AskServiceConversationCompressionTests
             .Setup(c => c.GetHistoryAsync(thread.ThreadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(history);
 
-        ManifestDocument manifest = new() { SystemName = "Test" };
+        ManifestDocument manifest = new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            ManifestId = Guid.NewGuid(),
+        };
         Mock<IAuthorityQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto { GoldenManifest = manifest });
