@@ -43,7 +43,7 @@ export function FindingInspectAuditSection({
             </span>
           </p>
         )
-      ) : demoFillGaps ? (
+      ) : demoFillGaps && !buyerPolishedShell ? (
         <div className="mt-2 space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
           <p className="m-0">
             <strong className="font-medium">Related audit event</strong> — Monitored finding recorded with governance
@@ -57,6 +57,10 @@ export function FindingInspectAuditSection({
             {BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE} applies while this monitored risk remains open.
           </p>
         </div>
+      ) : buyerPolishedShell ? (
+        <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          No linked audit event for this finding.
+        </p>
       ) : (
         <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           Audit record not available in this environment (SQL-backed audit logging may be disabled).

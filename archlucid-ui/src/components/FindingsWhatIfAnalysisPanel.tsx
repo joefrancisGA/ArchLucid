@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatUsd } from "@/lib/roi-assumptions";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { Label } from "@/components/ui/label";
@@ -78,7 +79,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
         <div>
           <div className="flex items-center gap-2">
             <h3 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">What-if cost analysis</h3>
-            {props.isIllustrativePricing && (
+            {props.isIllustrativePricing && !isBuyerPolishedOperatorShellEnv() && (
               <span 
                 className="inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-500/20"
                 title="Illustrative Retail Pricing: Actual EA discounts may vary"

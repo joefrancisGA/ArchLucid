@@ -619,6 +619,15 @@ jobs:
       - name: Buyer-facing canonical claim drift guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
 
+      - name: Buyer-polished demo env coherence (TB-273 / BDA-024)
+        run: python scripts/ci/check_buyer_polished_demo_env.py
+
+      - name: Buyer-polished demo env coherence guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_polished_demo_env.py"
+
+      - name: WhyArchLucid pack demo banner documentation (TB-273 / BDA-023)
+        run: python scripts/ci/check_why_archlucid_pack_buyer_banner.py
+
       - name: Real-mode LLM prerequisite checklist unit test
         run: python -m unittest discover -s scripts/ci/tests -p "test_verify_real_mode_prereqs.py"
 

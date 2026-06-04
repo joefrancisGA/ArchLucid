@@ -119,7 +119,7 @@ export const BUYER_ASK_UNSTRUCTURED_EXECUTIVE_FALLBACK_LEAD =
   "The answer below is scoped to this review package's indexed evidence.";
 
 /** Residual-risk monitoring metadata for the Claims Intake showcase package. */
-export const BUYER_SHOWCASE_RESIDUAL_RISK_OWNER = "Taylor Morgan (Request owner)";
+export const BUYER_SHOWCASE_RESIDUAL_RISK_OWNER = "Request owner";
 
 export const BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE = "Weekly exception-volume sampling";
 
@@ -142,7 +142,7 @@ export const BUYER_FINDING_POST_APPROVAL_VALIDATION =
 
 export const BUYER_AUDIT_TIMELINE_INTRO = "Recorded timeline for this review package.";
 
-export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail complete";
+export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail for this review package";
 
 export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
   "System-recorded events capture automated lifecycle steps.";

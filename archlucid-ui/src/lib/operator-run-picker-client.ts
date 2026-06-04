@@ -1,4 +1,5 @@
 import { listRunsByProjectPaged } from "@/lib/api";
+import { shouldMergeDemoRunsIntoProjectPicker } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { tryStaticDemoCompareRunSummaries, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
@@ -12,6 +13,8 @@ export type LoadProjectRunsOptions = {
   readonly forCompare?: boolean;
   /** When true, return only committed runs capped at {@link COMMITTED_RUN_PICKER_LIMIT}. */
   readonly committedOnly?: boolean;
+  /** When false, never merge curated demo runs (tenant sponsor exports in buyer-polished shell — BDA-017). */
+  readonly mergeDemoOnEmpty?: boolean;
 };
 
 function applyPickerFilters(items: RunSummary[], options?: LoadProjectRunsOptions): RunSummary[] {
@@ -33,6 +36,7 @@ export async function loadProjectRunsMergedWithDemoFallback(
   options?: LoadProjectRunsOptions,
 ): Promise<{ items: RunSummary[]; loadError: boolean }> {
   let loadError = false;
+  const mergeDemo = shouldMergeDemoRunsIntoProjectPicker(options);
 
   try {
     const page = await listRunsByProjectPaged(projectId, 1, 50);
@@ -40,6 +44,10 @@ export async function loadProjectRunsMergedWithDemoFallback(
 
     if (items.length > 0) {
       return { items: applyPickerFilters(items, options), loadError: false };
+    }
+
+    if (!mergeDemo) {
+      return { items: [], loadError: false };
     }
 
     if (options?.forCompare ?? false) {
@@ -59,6 +67,10 @@ export async function loadProjectRunsMergedWithDemoFallback(
     return { items: [], loadError: false };
   } catch {
     loadError = true;
+  }
+
+  if (!mergeDemo) {
+    return { items: [], loadError };
   }
 
   if (options?.forCompare ?? false) {

@@ -3,6 +3,7 @@ import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { auditBuyerEventIsSystemRecordedActor } from "@/app/(operator)/audit/audit-ui-helpers";
+import { buyerSafeActorDisplayName } from "@/lib/buyer-demo-persona-labels";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 
 type AuditTimelineEventCardProps = {
@@ -74,7 +75,9 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
       <div className="mt-2 text-sm">
         {buyerPolishedShell ? (
           <div>
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">{ev.actorUserName}</span>
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">
+              {buyerSafeActorDisplayName(ev.actorUserName, ev.eventType)}
+            </span>
             <span className="text-neutral-600 dark:text-neutral-400">
               {" "}
               · {auditBuyerActorRoleLine(ev.actorUserName, ev.eventType)}

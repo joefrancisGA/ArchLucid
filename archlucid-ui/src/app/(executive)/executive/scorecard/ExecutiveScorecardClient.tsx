@@ -305,7 +305,7 @@ export function ExecutiveScorecardClient() {
         >
           <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">No committed runs in this range</p>
           <p className="m-0 mt-1 leading-snug">
-            Figures below are placeholders. Operators can finalize a review to populate ROI and drift context.
+            Finalize a review to populate executive ROI and drift for this workspace.
           </p>
         </div>
       ) : null}

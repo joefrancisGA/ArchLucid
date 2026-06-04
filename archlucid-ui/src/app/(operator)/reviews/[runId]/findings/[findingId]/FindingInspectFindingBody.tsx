@@ -32,7 +32,8 @@ export function FindingInspectFindingBody({
   payload,
   variant = "inspect",
 }: FindingInspectFindingBodyProps): ReactElement {
-  const demoFillGaps = isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId);
+  const demoFillGaps =
+    (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && !isBuyerPolishedOperatorShellEnv();
   const reviewContextHref = isDemoRunIdEligibleForStaticFallback(runId)
     ? getShowcaseManifestHref()
     : `/reviews/${encodeURIComponent(runId)}`;

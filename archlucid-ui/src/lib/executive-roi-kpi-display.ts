@@ -1,3 +1,5 @@
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
 export type ExecutiveKpiCountState = "loading" | "missing" | "zero" | "value";
 
 export type ExecutiveKpiCountPresentation = {
@@ -18,7 +20,9 @@ export function presentExecutiveKpiCount(
     return {
       display: "—",
       state: "missing",
-      footnote: "Not returned by the executive ROI summary API for this tenant.",
+      footnote: isBuyerPolishedOperatorShellEnv()
+        ? "Not available for this workspace yet."
+        : "Not returned by the executive ROI summary API for this tenant.",
     };
   }
 
@@ -57,6 +61,15 @@ export function presentCostEvidenceFreshness(input: {
   const basis = input.savingsPricingBasis?.trim().toLowerCase() ?? "";
 
   if (basis.includes("demo") || basis.includes("illustrative")) {
+    if (isBuyerPolishedOperatorShellEnv()) {
+      return {
+        display: "Illustrative",
+        state: "demo-derived",
+        footnote: "Upload your Azure inventory to ground cost evidence in measured spend.",
+        runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
+      };
+    }
+
     return {
       display: "Demo-derived",
       state: "demo-derived",

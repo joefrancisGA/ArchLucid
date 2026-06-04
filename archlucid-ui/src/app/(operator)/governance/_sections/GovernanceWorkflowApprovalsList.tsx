@@ -22,6 +22,7 @@ import {
   governanceNoApprovalsGettingStartedOperator,
   governanceNoApprovalsGettingStartedReader,
 } from "@/lib/governance-workflow-empty-guidance";
+import { buyerSafeGovernanceActorLabel } from "@/lib/buyer-demo-persona-labels";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 import type { MutableRefObject } from "react";
@@ -117,7 +118,8 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
               </CardHeader>
               <CardContent className="grid gap-2 text-sm">
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-400">Requested by</span> {row.requestedBy}
+                  <span className="text-neutral-500 dark:text-neutral-400">Requested by</span>{" "}
+                  {buyerPolishedShell ? buyerSafeGovernanceActorLabel(row.requestedBy) : row.requestedBy}
                 </div>
                 <div>
                   <span className="text-neutral-500 dark:text-neutral-400">Requested</span>{" "}
@@ -130,7 +132,8 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                 ) : null}
                 {row.reviewedBy ? (
                   <div>
-                    <span className="text-neutral-500 dark:text-neutral-400">Reviewed by</span> {row.reviewedBy}
+                    <span className="text-neutral-500 dark:text-neutral-400">Reviewed by</span>{" "}
+                    {buyerPolishedShell ? buyerSafeGovernanceActorLabel(row.reviewedBy) : row.reviewedBy}
                     {row.reviewedUtc ? ` · ${formatGovernanceBusinessInstant(row.reviewedUtc)}` : null}
                   </div>
                 ) : null}

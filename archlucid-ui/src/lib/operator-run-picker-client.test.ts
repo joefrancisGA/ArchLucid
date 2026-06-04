@@ -74,7 +74,7 @@ describe("loadProjectRunsMergedWithDemoFallback", () => {
     expect(items.map((r) => r.runId)).toEqual(["claims-intake-run-v1", "claims-intake-run-v2"]);
   });
 
-  it("injects showcase row when API returns zero without curated demo env flags", async () => {
+  it("returns empty list when API returns zero without explicit demo build flags", async () => {
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
     mockList.mockResolvedValue({
@@ -88,18 +88,35 @@ describe("loadProjectRunsMergedWithDemoFallback", () => {
     const { items, loadError } = await loadProjectRunsMergedWithDemoFallback("default");
 
     expect(loadError).toBe(false);
-    expect(items).toHaveLength(1);
-    expect(items[0]?.runId).toBe("claims-intake-modernization");
+    expect(items).toEqual([]);
   });
 
-  it("injects single showcase row when list throws and demo mode is off", async () => {
+  it("returns load error without demo merge when list throws and demo mode is off", async () => {
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
     mockList.mockRejectedValue(new Error("network down"));
 
     const { items, loadError } = await loadProjectRunsMergedWithDemoFallback("default");
 
+    expect(loadError).toBe(true);
+    expect(items).toEqual([]);
+  });
+
+  it("honors mergeDemoOnEmpty=false even in demo mode", async () => {
+    process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+    mockList.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    const { items, loadError } = await loadProjectRunsMergedWithDemoFallback("default", {
+      mergeDemoOnEmpty: false,
+    });
+
     expect(loadError).toBe(false);
-    expect(items).toHaveLength(1);
-    expect(items[0]?.runId).toBe("claims-intake-modernization");
+    expect(items).toEqual([]);
   });
 });

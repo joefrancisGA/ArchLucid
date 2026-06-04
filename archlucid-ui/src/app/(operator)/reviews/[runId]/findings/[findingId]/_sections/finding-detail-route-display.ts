@@ -132,6 +132,25 @@ export function mitigationPosture(payload: FindingInspectPayload | null, finding
   return "Review the recommended action and cited evidence before closing or escalating this finding.";
 }
 
+/** Buyer decision panel — from payload/status, not a scripted default (BDA-012). */
+export function buyerFindingDecisionPanelCopy(payload: FindingInspectPayload | null, findingId: string): string {
+  if (payload !== null) {
+    const status = findingInspectPrimaryLabels(payload).statusLabel;
+
+    if (status !== null && status.trim().length > 0) {
+      return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+    }
+  }
+
+  const status = fallbackStatus(payload, findingId);
+
+  if (status !== "Requires review") {
+    return `Disposition: ${status}. See acceptance record below for recorded controls.`;
+  }
+
+  return "No disposition recorded for this finding.";
+}
+
 export function validationRequirement(payload: FindingInspectPayload | null, findingId: string): string {
   if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
     return phiMinimizationApprovalNarrative();

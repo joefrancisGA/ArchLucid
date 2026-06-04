@@ -25,6 +25,7 @@ import {
 } from "@/lib/review-buyer-disposition-line";
 import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
 import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/run-decision-explainability-from-detail";
+import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
@@ -138,13 +139,18 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
   const buyerFinalizedPackage =
     m.buyerPolishedArtifactTable === true && Boolean(m.manifestId);
 
+  const showDemoMarketingChrome = shouldShowOperatorDemoMarketingChrome(
+    m.buyerPolishedArtifactTable === true,
+    m.usedStaticDemoRun,
+  );
+
   return (
     <div
       className={`mx-auto space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
     >
       <RunDetailBreadcrumb headline={m.headline} />
 
-      {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? <OperatorDemoStaticBanner /> : null}
+      {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
 
       <RunDetailPageHeader
         runSummary={runSummaryForBadge}
@@ -209,7 +215,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <CompareToBaselineCta currentRunId={m.resolvedDetail.run.runId} />
       ) : null}
 
-      {m.usedStaticDemoRun && !m.buyerPolishedArtifactTable ? sampleReviewPackageSummaryEl : null}
+      {showDemoMarketingChrome ? sampleReviewPackageSummaryEl : null}
 
 
       {!m.buyerPolishedArtifactTable ? (

@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
-  resolveFirstWeekRouteGuidance,
+  resolveFirstWeekRouteGuidanceForShell,
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY,
   type FirstWeekRouteGuidanceVariant,
 } from "@/lib/first-week-route-guidance";
@@ -47,7 +48,7 @@ function GuidanceBody(props: {
  * Used on Home, Onboarding, New review, Reviews, and review detail before broad Operate exploration.
  */
 export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
-  const config = resolveFirstWeekRouteGuidance(props.variant);
+  const config = resolveFirstWeekRouteGuidanceForShell(props.variant, isBuyerPolishedOperatorShellEnv());
 
   if (props.variant === "home") {
     return (

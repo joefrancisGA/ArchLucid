@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
@@ -17,6 +18,10 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
   const { policyPackId } = props;
 
   const canonicalPackLabel = policyPackBuyerLabel("healthcare-claims-v3", "3.4.1");
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const versionBadgeLabel = buyerPolishedShell
+    ? "Healthcare Claims policy pack · v3.4.1 · effective 2026-05-01"
+    : "Demonstration rule-set v3.4.1";
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 p-6">
@@ -26,15 +31,18 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
         </p>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{canonicalPackLabel}</h1>
         <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated
-          intake paths — matching the Claims Intake showcase review referenced from Governance and Manifest surfaces.
+          {buyerPolishedShell
+            ? "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths."
+            : "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths — matching the Claims Intake showcase review referenced from Governance and Manifest surfaces."}
         </p>
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary">Healthcare vertical</Badge>
           <Badge variant="outline">HIPAA-aligned intake posture</Badge>
-          <Badge variant="outline">Demonstration rule-set v3.4.1</Badge>
+          <Badge variant="outline">{versionBadgeLabel}</Badge>
         </div>
-        <p className="m-0 font-mono text-xs text-neutral-500 dark:text-neutral-400">Pack reference id: {policyPackId}</p>
+        {buyerPolishedShell ? null : (
+          <p className="m-0 font-mono text-xs text-neutral-500 dark:text-neutral-400">Pack reference id: {policyPackId}</p>
+        )}
       </header>
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">

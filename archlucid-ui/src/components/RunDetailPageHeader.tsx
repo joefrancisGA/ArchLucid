@@ -201,7 +201,7 @@ export function RunDetailPageHeader({
               {hasGoldenManifest ? <BuyerExecutiveBriefExports runId={runId} /> : null}
             </div>
           ) : (
-            <div className="flex shrink-0 flex-col gap-1.5">
+            <div id="finalize-review" className="flex shrink-0 scroll-mt-24 flex-col gap-1.5">
               <div className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
                 Finalize package
                 <ContextualHelp helpKey="commit-manifest" />

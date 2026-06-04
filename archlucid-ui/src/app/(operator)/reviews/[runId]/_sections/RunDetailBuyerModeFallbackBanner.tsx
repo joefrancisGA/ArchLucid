@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
 type RunDetailBuyerModeFallbackBannerProps = {
   readonly realModeFellBackToSimulator: boolean;
 };
@@ -10,7 +12,7 @@ type RunDetailBuyerModeFallbackBannerProps = {
 export function RunDetailBuyerModeFallbackBanner(
   props: RunDetailBuyerModeFallbackBannerProps,
 ): ReactElement | null {
-  if (!props.realModeFellBackToSimulator) {
+  if (!props.realModeFellBackToSimulator || isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 

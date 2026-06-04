@@ -1,5 +1,11 @@
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  BUYER_DEMO_ARCHITECTURE_REVIEW_LEAD,
+  BUYER_DEMO_GOVERNANCE_APPROVER,
+  BUYER_DEMO_REVIEW_OWNER_ROLE,
+} from "@/lib/buyer-demo-persona-labels";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export type BuyerDemoPackageCardMeta = {
   readonly decisionSummary: string;
@@ -37,9 +43,27 @@ const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>>
   },
 };
 
+function withBuyerSafeActors(meta: BuyerDemoPackageCardMeta): BuyerDemoPackageCardMeta {
+  return {
+    ...meta,
+    packageOwner: BUYER_DEMO_ARCHITECTURE_REVIEW_LEAD,
+    riskOwner: BUYER_DEMO_REVIEW_OWNER_ROLE,
+    approvalAuthority: BUYER_DEMO_GOVERNANCE_APPROVER,
+  };
+}
+
 /** Demo portfolio rows — operational metadata for buyer review package cards. */
 export function buyerDemoPackageCardMeta(runId: string): BuyerDemoPackageCardMeta | null {
   const key = canonicalizeDemoRunId(runId.trim());
+  const meta = DEMO_PACKAGE_CARD_META[key] ?? null;
 
-  return DEMO_PACKAGE_CARD_META[key] ?? null;
+  if (meta === null) {
+    return null;
+  }
+
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return withBuyerSafeActors(meta);
+  }
+
+  return meta;
 }

@@ -16,6 +16,7 @@ import {
 } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer-demo-content-gating";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getBundleDownloadUrl } from "@/lib/api";
 import {
@@ -227,7 +228,9 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         ) : null}
       </nav>
 
-      {model.usedStaticDemoManifest && buyerPolishedLayout !== true ? <OperatorDemoStaticBanner /> : null}
+      {shouldShowOperatorDemoMarketingChrome(buyerPolishedLayout === true, model.usedStaticDemoManifest) ? (
+        <OperatorDemoStaticBanner />
+      ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>

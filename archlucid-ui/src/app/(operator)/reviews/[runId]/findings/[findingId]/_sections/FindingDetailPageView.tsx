@@ -30,6 +30,7 @@ import {
   fallbackSeverity,
   fallbackStatus,
   findingDetailLeadFallback,
+  buyerFindingDecisionPanelCopy,
   mitigationPosture,
   summarizeEvidenceBasis,
   validationRequirement,
@@ -167,7 +168,7 @@ export function FindingDetailPageView(props: Props) {
                   </>
                 ) : buyerPolishedShell ? (
                   <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                    Medium confidence — based on policy rule match and cited intake subgraph evidence.
+                    Confidence not available for this finding.
                   </p>
                 ) : (
                   <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
@@ -206,7 +207,7 @@ export function FindingDetailPageView(props: Props) {
             <div className={cn("p-4", operatorSemanticSurface("info"))}>
               <h2 className="m-0 text-sm font-semibold text-neutral-950 dark:text-neutral-100">Decision</h2>
               <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                Accepted with monitoring — non-blocking for approval. See acceptance record below for recorded controls.
+                {buyerFindingDecisionPanelCopy(inspectPayload, decodedFindingId)}
               </p>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import type { AuditEvent } from "@/lib/api";
+import { buyerSafeTechnicalIdLabel } from "@/lib/buyer-demo-persona-labels";
 import { formatUtc, tryFormatDataJson } from "./audit-page-helpers";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 
@@ -26,12 +27,12 @@ export function BuyerAuditEventsTechnicalAppendix(props: BuyerAuditEventsTechnic
             <div className="mt-2 space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
               <div>
                 <span className="font-medium text-neutral-600 dark:text-neutral-400">User id</span>{" "}
-                <span className="font-mono text-xs">{ev.actorUserId}</span>
+                <span className="font-mono text-xs">{buyerSafeTechnicalIdLabel(ev.actorUserId)}</span>
               </div>
               <div>
                 <span className="font-medium text-neutral-600 dark:text-neutral-400">Correlation ID</span>{" "}
                 <span className="font-mono text-xs">
-                  {(ev.correlationId ?? "").trim().length > 0 ? ev.correlationId : "—"}
+                  {buyerSafeTechnicalIdLabel(ev.correlationId)}
                 </span>
               </div>
               {ev.otelTraceId ? (

@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunSavingsSummaryModel, RunSavingsSummarySourceKind } from "@/lib/run-savings-summary-model";
 
 function formatUsdWhole(amount: number): string {
@@ -17,6 +18,10 @@ function sourceBadgeLabel(sourceKind: RunSavingsSummarySourceKind): string {
   }
 
   if (sourceKind === "static-demo") {
+    if (isBuyerPolishedOperatorShellEnv()) {
+      return "Estimated savings (methodology)";
+    }
+
     return "demonstration KPI";
   }
 

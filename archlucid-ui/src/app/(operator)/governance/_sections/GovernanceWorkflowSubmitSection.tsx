@@ -210,8 +210,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="note">
                 {isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled() ? (
                   <>
-                    This evaluation sample is read-only. Production tenants can submit governance approvals when their role
-                    allows.
+                    Approvals require an authorized governance role; your access here is review-only.
                   </>
                 ) : (
                   <>

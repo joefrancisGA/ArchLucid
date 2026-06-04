@@ -1,10 +1,28 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
-import { FIRST_WEEK_ROUTE_GUIDANCE } from "@/lib/first-week-route-guidance";
+import {
+  BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
+  FIRST_WEEK_ROUTE_GUIDANCE,
+} from "@/lib/first-week-route-guidance";
+
+const buyerPolishedMock = vi.hoisted(() => ({ on: false }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.on,
+  };
+});
 
 describe("FirstWeekRouteGuidance", () => {
+  afterEach(() => {
+    buyerPolishedMock.on = false;
+  });
+
   it("renders new-review guidance with wizard anchor CTA", () => {
     render(<FirstWeekRouteGuidance variant="new-review" />);
 
@@ -22,6 +40,16 @@ describe("FirstWeekRouteGuidance", () => {
 
     expect(screen.getByRole("link", { name: "Go to finalize actions" })).toHaveAttribute("href", "#run-actions");
     expect(screen.getByText(/Skip graph and governance dashboards/i)).toBeInTheDocument();
+  });
+
+  it("renders buyer-polished in-progress guidance with header finalize anchor (BDA-001)", () => {
+    buyerPolishedMock.on = true;
+    render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
+
+    expect(screen.getByRole("link", { name: "Finalize this review" })).toHaveAttribute(
+      "href",
+      BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
+    );
   });
 
   it("renders committed review detail guidance with exports anchor", () => {

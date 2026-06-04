@@ -22,8 +22,7 @@ import { downloadArchitectureRiskRegisterCsv } from "@/lib/architecture-risk-reg
 import { severityFromTrace } from "@/lib/executive-finding-severity";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/finding-inspect-graph-evidence";
-import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled, isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
-import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD,
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
@@ -31,6 +30,7 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
 } from "@/lib/buyer-polish-copy";
+import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
@@ -436,13 +436,9 @@ export default function GovernanceFindingsQueueClient() {
       setLoading(true);
       setLoadFailed(false);
 
-      const useDemoSpine =
-        isBuyerPolishedOperatorShellEnv() ||
-        isPublicDemoModeEnv() ||
-        isStaticDemoPayloadFallbackEnabled() ||
-        isStaticDemoPayloadFallbackActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
+      const useCuratedDemoSpine = shouldUseGovernanceCuratedDemoSpine();
 
-      if (useDemoSpine) {
+      if (useCuratedDemoSpine) {
         if (!cancelled) {
           setRows(staticDemoGovernanceRows());
           setLoading(false);
@@ -494,9 +490,9 @@ export default function GovernanceFindingsQueueClient() {
 
         let merged = dedupeRows(collected);
 
-        if (merged.length === 0 && useDemoSpine) {
+        if (merged.length === 0 && useCuratedDemoSpine) {
           merged = staticDemoGovernanceRows();
-        } else if (useDemoSpine) {
+        } else if (useCuratedDemoSpine) {
           const hasPhi = merged.some((x) => x.findingId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID);
 
           if (!hasPhi) {
@@ -511,7 +507,7 @@ export default function GovernanceFindingsQueueClient() {
         }
 
         setLoadFailed(true);
-        setRows(staticDemoGovernanceRows());
+        setRows(useCuratedDemoSpine ? staticDemoGovernanceRows() : []);
       } finally {
         if (!cancelled) {
           setLoading(false);

@@ -1,5 +1,6 @@
 import type { AuditEvent } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { sanitizeAuditEventsForBuyerPolishedShell } from "@/lib/buyer-demo-persona-labels";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -13,7 +14,7 @@ import {
 export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
   const runId = SHOWCASE_STATIC_DEMO_RUN_ID;
 
-  return [
+  const events: AuditEvent[] = [
     {
       eventId: "demo-audit-run-started",
       occurredUtc: "2026-01-10T09:15:22.000Z",
@@ -120,6 +121,12 @@ export function getDemoSampleAuditTrailEvents(): AuditEvent[] {
       correlationId: "corr-intake-demo-bundle",
     },
   ];
+
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return sanitizeAuditEventsForBuyerPolishedShell(events);
+  }
+
+  return events;
 }
 
 /** True when the UI should show curated sample rows instead of an empty search (demo builds only). */

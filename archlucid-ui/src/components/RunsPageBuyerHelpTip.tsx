@@ -3,6 +3,7 @@
 import { CircleHelp } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 
 export type RunsPageBuyerHelpTipProps = {
   readonly variant: "search" | "sample-workspace";
@@ -14,10 +15,14 @@ export type RunsPageBuyerHelpTipProps = {
 export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
   const { variant } = props;
 
+  const demoMarketing = isExplicitStaticDemoMarketingBuild();
+
   const label =
     variant === "search"
       ? "How to use Search review packages on this page"
-      : "About this demonstration workspace";
+      : demoMarketing
+        ? "About this demonstration workspace"
+        : "About this workspace";
 
   const body =
     variant === "search" ? (
@@ -26,10 +31,15 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
         by title or description. Each row opens the full review package — manifest, evidence trail, findings, and
         deliverables — for that run.
       </>
-    ) : (
+    ) : demoMarketing ? (
       <>
         Demonstration workspace — suitable for understanding output shape and navigation, not as customer-specific ROI or
         compliance evidence.
+      </>
+    ) : (
+      <>
+        Example review package — illustrates structure and navigation for your workspace. Start a review on your own
+        architecture when you are ready for customer-specific evidence.
       </>
     );
 

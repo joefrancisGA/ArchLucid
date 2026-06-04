@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getArtifactDownloadUrl } from "@/lib/api";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -25,7 +26,10 @@ export function SponsorExportsSection() {
     let cancelled = false;
 
     void (async () => {
-      const { items } = await loadProjectRunsMergedWithDemoFallback("default", { committedOnly: true });
+      const { items } = await loadProjectRunsMergedWithDemoFallback("default", {
+        committedOnly: true,
+        mergeDemoOnEmpty: isExplicitStaticDemoMarketingBuild(),
+      });
       const committed = filterCommittedRunsForPicker(items);
 
       for (const run of committed) {

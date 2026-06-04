@@ -20,6 +20,17 @@ export type FirstWeekRouteGuidanceConfig = {
   readonly operateDeferralNote: string;
 };
 
+/** Buyer-polished shell renders finalize in the page header — anchor must match {@link RunDetailPageHeader} (BDA-001). */
+export const BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR = "#finalize-review";
+
+const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
+  useWhen: "The review is running or findings are ready but the signed manifest is not finalized yet.",
+  bridgeCopy:
+    "Stay on this page until you finalize — that locks the signed decision record and unlocks sponsor exports.",
+  primaryAction: { label: "Finalize this review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
+  operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
+};
+
 export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, FirstWeekRouteGuidanceConfig> = {
   home: {
     useWhen: "You are in your first pilot session and need the shortest path to a committed review package.",
@@ -70,4 +81,15 @@ export function resolveFirstWeekRouteGuidance(
   variant: FirstWeekRouteGuidanceVariant,
 ): FirstWeekRouteGuidanceConfig {
   return FIRST_WEEK_ROUTE_GUIDANCE[variant];
+}
+
+export function resolveFirstWeekRouteGuidanceForShell(
+  variant: FirstWeekRouteGuidanceVariant,
+  buyerPolishedShell: boolean,
+): FirstWeekRouteGuidanceConfig {
+  if (buyerPolishedShell && variant === "review-detail-in-progress") {
+    return BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE;
+  }
+
+  return resolveFirstWeekRouteGuidance(variant);
 }
