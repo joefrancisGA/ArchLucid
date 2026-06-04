@@ -35,8 +35,9 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: csharp
+          queries: security-extended
           # AlertSuppression binds // codeql[rule-id] comments into SARIF suppressions for assert_codeql_sarif_clean.py.
-          queries: security-extended,codeql/csharp-queries:AlertSuppression.ql
+          packs: codeql/csharp-queries:AlertSuppression.ql
           config-file: ./.github/codeql/codeql-config.yml
           # `none` is required for PR overlay-base incremental DBs; `manual` forces a full DB and logs a warning.
           # Trade-off: analysis is "good" vs "best" per GitHub docs; we restore packages to help resolution without a traced build.
@@ -87,7 +88,8 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: javascript
-          queries: security-extended,codeql/javascript-queries:AlertSuppression.ql
+          queries: security-extended
+          packs: codeql/javascript-queries:AlertSuppression.ql
           source-root: ${{ env.ARCHLUCID_UI_DIR }}
 
       - name: Setup Node.js
