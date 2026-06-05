@@ -2,21 +2,22 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after **TB-275** buyer-demo re-validation index). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after **TB-275** buyer-demo re-validation index). **~29 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Trustworthiness | 2 |
 | Correctness | 9 |
 | Reliability | 5 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
 | Architectural integrity | 5 |
 | Adoption friction | 4 |
+| Commercial / marketability | 4 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
+| Trustworthiness | 2 |
 | Testability | 2 |
 | Maintainability | 2 |
 | Traceability | 2 |
@@ -26,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~28** |
+| **Total (unique)** | **~29** |
 
-**Trustworthiness (2):** remaining TB-274 rows (internal replay, SCIM, governance mutators). **TB-273 / BDA-001…150** and **TB-082 / TB-091–102** are **Done**. **Next recommended batch:** **5DS-trust-internal-p0** (internal replay + SCIM posture) or **TB-138** real-LLM golden-cohort CI (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** (open) re-validates spot-check residuals — do not fork new BDA ids. **Trustworthiness (2):** TB-274 remainder (internal replay, SCIM, governance mutators). **Commercial (4):** includes **TB-275** + buyer-demo **(B)** narrative. **Next recommended batch:** **5DT-demo-revalidate-p0** (close TB-275 residuals: **BDA-008/009/015**, operator **BDA-001**, audit gating **BDA-006–007**) then **5DS-trust-internal-p0**. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
