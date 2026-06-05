@@ -2,12 +2,12 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-05 (after **TB-283–301** from DTO boundary + risk-weighted coverage assessments). **~48 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-05 (after batch **5DV-mutating-posture-p3** + **TB-283–301** assessment register). **~47 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 9 |
-| Reliability | 4 |
+| Reliability | 3 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
 | Architectural integrity | 8 |
@@ -8524,4 +8524,437 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Size estimate:** **XS** — ~2 hours.
 
 **Cross-ref:** `InternalCrossTenantAnalyticsController`, **TB-274** trust register.
+
+---
+
+## TB-283 — Buyer run detail summary DTO (P0)
+
+**Source:** DTO boundary assessment ([`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx)), 2026-06-05.
+
+**Problem:** `RunDetailDto` (`ArchLucid.Persistence.Queries`) embeds `ContextSnapshot`, `GraphSnapshot`, `FindingsSnapshot`, `DecisionTraceDto`, `AgentResult`, and related persistence shapes and is returned directly from `GET api/authority/runs/{runId}`. Buyer-polished UI and proof surfaces inherit internal ids, engine labels, and snapshot subgraphs on every new persisted field.
+
+**What to do:**
+
+1. Introduce `BuyerRunDetailSummaryDto` (or buyer-scoped contract in `ArchLucid.Contracts`) with whitelisted proof fields only (`executionFlavorBuyerSummary`, `trustEvidenceCard`, `findingCoverageSummary`, etc. — align with `ProofSurfaceContractRegistry`).
+2. Add explicit mapper `RunDetailBuyerMapper` (Application or Contracts) — default-deny construction, no AutoMapper blind copy.
+3. Wire buyer-polished UI data loaders / proxy routes to the buyer DTO; keep full `RunDetailDto` on operator architecture endpoint only.
+4. Extend `ProofSurfaceContractDriftTests` for the new type.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence/Queries/RunDetailDto.cs`
+- `ArchLucid.Contracts/` (new buyer DTO)
+- `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs`
+- `archlucid-ui` run detail loaders
+- `ArchLucid.Api.Tests/Contracts/ProofSurfaceContractRegistry.cs`
+
+**Size estimate:** **M** — ~1–2 eng days.
+
+**Cross-ref:** **TB-106**, **TB-273** (raw id/enum leakage), **TB-285**.
+
+---
+
+## TB-284 — Audience-tier Problem Details (P0)
+
+**Source:** DTO boundary assessment, 2026-06-05.
+
+**Problem:** `ProblemSupportHints` attaches `extensions.supportHint` with operator route strings (`GET /v1/graph/…`, `POST /v1/tenant/convert`, Swagger paths, config keys) on all problem+json responses — visible to buyer-polished clients on 4xx/5xx.
+
+**What to do:**
+
+1. Define **Operator** vs **Buyer** problem profiles (policy flag, route audience metadata, or shell hint from proxy).
+2. On buyer tier: omit `supportHint` or map to buyer-safe `nextStep` copy (no `/v1/` paths, no runbook file paths).
+3. Extend `ProblemSupportHintsTests` + add API golden tests: buyer route 404/400 bodies must not match `GET /v1/` regex.
+
+**Affected files / projects:**
+
+- `ArchLucid.Host.Core/ProblemDetails/ProblemSupportHints.cs`
+- `ArchLucid.Api/ProblemDetails/ApplicationProblemMapper.cs`
+- `ArchLucid.Api/Startup/MvcExtensions.cs`, `PipelineExtensions.cs`
+- `ArchLucid.Host.Core.Tests/ProblemSupportHintsTests.cs`
+
+**Size estimate:** **S** — ~4–6 hours.
+
+**Cross-ref:** **TB-271** (correlation id), **TB-273** BDA error-copy items.
+
+---
+
+## TB-285 — CI forbidden-property guard for buyer OpenAPI schemas (P1)
+
+**Source:** DTO boundary assessment, 2026-06-05.
+
+**Problem:** `ProofSurfaceContractRegistry` guards critical property **presence** but not forbidden internal names; new snapshot/trace fields can ship on proof schemas without review.
+
+**What to do:**
+
+1. Add `ForbiddenJsonProperties` per surface in `ProofSurfaceContractRegistry` (e.g. `contextSnapshotId`, `graphSnapshotId`, `findingsSnapshotId`, `decisionTraceId`, `traceId`, `rawResponse`, `systemPrompt`).
+2. Add `ProofSurfaceForbiddenPropertyDriftTests` scanning OpenAPI snapshot + contract types.
+3. Maintain allowlist file `scripts/ci/data/buyer_dto_forbidden_properties.txt` for CI drift guard (`test_dto_boundary_batch.py`).
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/Contracts/ProofSurfaceContractRegistry.cs`
+- `scripts/ci/` (new assert script + pytest)
+
+**Size estimate:** **S** — ~3–4 hours.
+
+**Cross-ref:** **TB-283**, **TB-286**.
+
+---
+
+## TB-286 — OpenAPI audience tiers + buyer contract snapshot (P1)
+
+**Source:** DTO boundary assessment, 2026-06-05.
+
+**Problem:** Single `openapi-v1.contract.snapshot.json` documents `/v1/internal/*`, admin diagnose routes, and buyer routes — procurement and UI codegen cannot distinguish product boundary.
+
+**What to do:**
+
+1. Add OpenAPI extension `x-archlucid-audience: buyer | operator | internal | forensics` on operations (and key schemas).
+2. Generate filtered `buyer-contract.openapi.snapshot.json` for UI `generate:api-types` and procurement pack.
+3. CI: fail if buyer snapshot includes `/v1/internal/` paths; document in `docs/library/API_CONTRACTS.md`.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api` OpenAPI generation / Swashbuckle filters
+- `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`
+- `archlucid-ui/package.json` (`generate:api-types` source)
+- `docs/library/API_CONTRACTS.md`
+
+**Size estimate:** **M** — ~1 eng day.
+
+**Cross-ref:** **TB-285**, **TB-288**.
+
+---
+
+## TB-287 — Forensics partition for full LLM traces (P1)
+
+**Source:** DTO boundary assessment, 2026-06-05.
+
+**Problem:** `GET /v1/architecture/run/{runId}/traces` under `ReadAuthority` returns forensics-grade prompt/response bodies — product feature vs admin forensics boundary is unclear for buyers.
+
+**What to do:**
+
+1. Restrict full trace bodies to `/v1/internal/*` or operator-only DTO + elevated policy.
+2. Buyer/proof routes keep `RunExplanationSummary` / faithfulness aggregates (`ProofSurfaceContractRegistry`).
+3. Update OpenAPI audience tags; integration test: buyer-scoped token → forensics route **403** or redacted payload.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Authority/` (trace endpoints)
+- `ArchLucid.Application/Explanation/`
+- OpenAPI snapshots + pen-test matrix doc
+
+**Size estimate:** **M** — ~1 eng day.
+
+**Cross-ref:** sonnet Q16 (`sonnet_questions_06042026.md`), **TB-072**.
+
+---
+
+## TB-288 — Architecture test: no Persistence return types on buyer routes (P2)
+
+**Source:** DTO boundary assessment, 2026-06-05.
+
+**Problem:** No mechanical guard prevents new controller actions from returning `ArchLucid.Persistence.*` types on buyer-facing routes.
+
+**What to do:**
+
+1. Add `BuyerFacingDtoBoundaryArchitectureTests` — scan controller return types on routes tagged `x-archlucid-audience: buyer` (or allowlist until **TB-286** lands).
+2. Wire drift guard in CI (`test_dto_boundary_batch.py`).
+
+**Affected files / projects:**
+
+- `ArchLucid.Architecture.Tests/`
+- `scripts/ci/tests/test_dto_boundary_batch.py` (new)
+
+**Size estimate:** **XS** — ~2 hours.
+
+**Cross-ref:** **TB-283**, **TB-286**.
+
+---
+
+## TB-289 — Live buyer golden path E2E (P0)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `buyer-golden-path.smoke.spec.ts` walks the five-step diligence spine against **mock API only**; trusted pilot has no live Sql + API proof of executive → manifest → graph → governance → audit.
+
+**What to do:**
+
+1. Add `archlucid-ui/e2e/live-api-buyer-golden-path.spec.ts` reusing `helpers/buyer-golden-path.ts` hrefs against live API + seeded showcase run.
+2. Assert stepper, no generic error boundary, graph canvas/load, audit metric tiles — same as mock smoke.
+3. Wire into live-api CI job (optional nightly if too slow for PR).
+
+**Affected files / projects:**
+
+- `archlucid-ui/e2e/live-api-buyer-golden-path.spec.ts` (new)
+- `archlucid-ui/e2e/helpers/buyer-golden-path.ts`
+- `.github/workflows/ci.yml` (live e2e matrix)
+
+**Size estimate:** **M** — ~1 eng day.
+
+**Cross-ref:** **TB-273**, `live-api-core-pilot-path.spec.ts`.
+
+---
+
+## TB-290 — Commit-to-audit trail integrity SQL integration (P0)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** Audit events are asserted in unit/orchestrator mocks; no single SQL integration proves commit → durable `RunStarted` / `RunCompleted` / manifest events queryable by `runId` with tenant isolation on search/export.
+
+**What to do:**
+
+1. Add integration test: create → execute → commit run → `GET /v1/audit/search?runId=` → assert expected `AuditEventTypes` and scope fields.
+2. Extend `TenantIsolationSmokeTests` pattern to `/v1/audit/export` and `/v1/audit/export/csv` (tenant B must not see tenant A `runId`).
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs` (extend)
+- New `AuditTrailCommitIntegrityIntegrationTests.cs`
+
+**Size estimate:** **S** — ~4–6 hours.
+
+**Cross-ref:** `AUDIT_COVERAGE_MATRIX.md`, **TB-295**.
+
+---
+
+## TB-291 — Reference evidence admin export integration (P0)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `ReferenceEvidenceAdminExportService.BuildZipAsync` has **no** dedicated tests; TB-274 export-p0 (trusted `PublicApiBaseUrl`, tenant scope) is unproven at content layer.
+
+**What to do:**
+
+1. Integration tests: tenant A zip contains only A qualifying runs; links use configured base URL not raw `Host`.
+2. Cross-tenant route 403 already partially in `ScopedSnapshotReadIdorIntegrationTests` — add content/hash smoke on success path.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/` (export service)
+- `ArchLucid.Api.Tests/Security/` or Application.Tests
+
+**Size estimate:** **S** — ~4–6 hours.
+
+**Cross-ref:** **TB-274** batch **5DG-export-p0**, `ReferenceEvidenceAdminController`.
+
+---
+
+## TB-292 — Route-tenant positive-path matrix (P0)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05. Extends **TB-278** (403-only matrix shipped batch **5DU-route-tenant-p0**).
+
+**Problem:** `ScopedSnapshotReadIdorIntegrationTests` proves cross-tenant **403** for route `{tenantId}` mismatch but not matching-tenant **200/404-not-403** — regressions could over-forbid or leak via wrong status.
+
+**What to do:**
+
+1. For executive-summary, reference-evidence, metering, value-report routes: tenant A token + `{tenantId}` = A → not **403** (200 or 404 when no data).
+2. Update `scripts/ci/tests/test_route_tenant_batch.py` drift guard.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/Security/ScopedSnapshotReadIdorIntegrationTests.cs`
+
+**Size estimate:** **S** — ~3 hours.
+
+**Cross-ref:** **TB-276–278**, **TB-281**.
+
+---
+
+## TB-293 — Production demo fail-fast host integration (P0)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `CriticalConfigurationValidatorTests` unit-tests `Demo:Enabled` in production profile but host boot failure is not integration-proven.
+
+**What to do:**
+
+1. `WebApplicationFactory` with `ASPNETCORE_ENVIRONMENT=Production` + `Demo:Enabled=true` → host fails startup with validator error.
+2. Mirror for `Demo:AnonymousViewer:Enabled` in production.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/` or `ArchLucid.Host.Core.Tests/`
+- `ArchLucid.Host.Core/Startup/CriticalConfigurationValidator.cs`
+
+**Size estimate:** **XS** — ~2 hours.
+
+**Cross-ref:** **TB-274** batch **5DE–5DI**, `buyer-demo-content-gating.test.ts`.
+
+---
+
+## TB-294 — Sponsor value report demo-run isolation API test (P0)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `buyer-demo-content-gating.test.ts` gates UI merge of demo runs; API value-report generation path lacks integration proof that showcase/demo run IDs are excluded when `includeDemo=false` (or equivalent).
+
+**What to do:**
+
+1. SQL integration: tenant with real committed run + demo seed present → generated value report / sponsor export must not reference showcase run ids.
+2. Align with **BDA** sponsor-export class defects under **TB-273**.
+
+**Affected files / projects:**
+
+- `ArchLucid.Application/` value-report builders
+- `ArchLucid.Api.Tests/ValueReports/`
+
+**Size estimate:** **S** — ~4 hours.
+
+**Cross-ref:** **TB-273**, `shouldMergeDemoRunsIntoProjectPicker`.
+
+---
+
+## TB-295 — SQL-backed audit export tenant isolation (P1)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `AuditExportCsvControllerTests` uses mocked `IAuditRepository` — CSV shape tested but not SQL RLS / tenant filtering through the HTTP stack.
+
+**What to do:**
+
+1. Greenfield SQL integration: tenant A creates run → tenant B `GET /v1/audit/export/csv` and `/v1/audit?take=200` must not contain A's `runId`.
+2. Keep mock tests for filter/clamp edge cases.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/AuditExportCsvControllerTests.cs`
+- `ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs` (extend)
+
+**Size estimate:** **S** — ~4–6 hours.
+
+**Cross-ref:** **TB-290**, `DapperAuditRepositoryContractTests`.
+
+---
+
+## TB-296 — Export blob push SSRF integration via API (P1)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `AllowedRunExportBlobDestinationUrlPolicyTests` and `RunExportBlobPushServiceTests` cover policy unit paths; full POST `/v1/artifacts/runs/{runId}/export/push` through API with internal IP / non-blob host is not integration-tested.
+
+**What to do:**
+
+1. Integration tests: disallowed destinations → **4xx** before blob write; allowed Azure blob HTTPS → success path smoke.
+2. Optional: assert audit event on rejection.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/Security/ScopedSnapshotReadIdorIntegrationTests.cs` (extend push cases)
+- `ArchLucid.Application/Analysis/RunExportBlobPushService.cs`
+
+**Size estimate:** **S** — ~4 hours.
+
+**Cross-ref:** **TB-274** **5DG-export-p0**, BE-034.
+
+---
+
+## TB-297 — Governance HTTP negative-path matrix (P1)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `live-api-negative-paths.spec.ts` covers self-approval; double-promote, reject-after-approve, stale manifest version, and bypass-without-role lack HTTP + audit assertions.
+
+**What to do:**
+
+1. Add `GovernanceNegativePathIntegrationTests.cs` (or extend live-api spec) for each path → expected problem type + durable audit event type from `AUDIT_COVERAGE_MATRIX.md`.
+2. Drift guard listing covered scenarios.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/` Governance controller tests
+- `archlucid-ui/e2e/live-api-negative-paths.spec.ts` (optional UI parity)
+
+**Size estimate:** **M** — ~1 eng day.
+
+**Cross-ref:** **TB-197**, `GovernanceWorkflowServiceTests`.
+
+---
+
+## TB-298 — Manifest artifact download integrity (P1)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** Cross-tenant artifact export IDOR exists in matrix; matching-tenant success (non-empty body, content-type, linkage to manifest) is not proven end-to-end in SQL integration.
+
+**What to do:**
+
+1. After commit: `GET /v1/runs/{runId}/artifacts` + artifact download → non-empty bytes, stable content-type.
+2. Cross-tenant GET → 403/404; extend `ScopedSnapshotReadIdorIntegrationTests` with success-path row.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/Security/ScopedSnapshotReadIdorIntegrationTests.cs`
+- `live-api-replay-export.spec.ts` (optional alignment)
+
+**Size estimate:** **S** — ~4 hours.
+
+**Cross-ref:** **TB-274** **5DL-trust-p2**.
+
+---
+
+## TB-299 — Executive ROI board-pack live E2E (P1)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `ExecutiveRoiSummaryInvariantTests` guards server logic; no live UI/API E2E for board-pack download and freshness/orphan labeling on real stack.
+
+**What to do:**
+
+1. Live Playwright or API test: download board-pack from executive dashboard/scorecard; assert no demo-derived labels, orphan fields present per contract.
+2. Cross-ref **TB-240** regression guard.
+
+**Affected files / projects:**
+
+- `archlucid-ui/e2e/` (new or extend live-api suite)
+- `ExecutiveRoiSummaryEndpointTests.cs`
+
+**Size estimate:** **S** — ~4–6 hours.
+
+**Cross-ref:** **TB-240**, **TB-241**.
+
+---
+
+## TB-300 — Scope identity auth permutation table (P1)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05. Extends **TB-072**.
+
+**Problem:** `ScopeIdentityBindingIntegrationTests` exists but ApiKey vs JWT vs DevBypass scope header/claim mismatch permutations are not documented as a explicit pen-test matrix.
+
+**What to do:**
+
+1. Add integration test table: mismatched `x-tenant-id` vs claim → **403**; ApiKey without tenant claim cannot steer via header alone.
+2. Document scenarios in `docs/security/pen-test-summaries/` and `test_cross_tenant_isolation_matrix_batch.py` registry.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/Security/ScopeIdentityBindingIntegrationTests.cs`
+- `scripts/ci/tests/test_cross_tenant_isolation_matrix_batch.py`
+
+**Size estimate:** **M** — ~1 eng day.
+
+**Cross-ref:** **TB-072**, **TB-078**.
+
+---
+
+## TB-301 — Targeted Persistence tenant-read SQL probes (P2)
+
+**Source:** Risk-weighted coverage audit, 2026-06-05.
+
+**Problem:** `COVERAGE_GAP_ANALYSIS.md` shows low Persistence % driven by `DapperTenantRepository` and relational reads; IDOR API tests do not prove repository-layer tenant predicates on highest-risk uncovered paths.
+
+**What to do:**
+
+1. Pick 3–5 high-risk read methods (orchestrator reads, audit under RLS) from hotspot table — add SQL integration with two tenants, assert empty/wrong-tenant denial.
+2. **Do not** chase merged line % to 95%; stop when hotspot list is exhausted.
+
+**Affected files / projects:**
+
+- `ArchLucid.Persistence.Tests/`
+- `docs/library/COVERAGE_GAP_ANALYSIS.md` (update hotspot notes when done)
+
+**Size estimate:** **M** — ~1–2 eng days.
+
+**Cross-ref:** **TB-073**, **TB-010** INV-001.
 
