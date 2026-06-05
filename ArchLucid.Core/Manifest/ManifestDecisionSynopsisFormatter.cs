@@ -27,6 +27,9 @@ public static class ManifestDecisionSynopsisFormatter
             if (synopses.Count >= maxCount)
                 break;
 
+            if (!HasMeaningfulContent(decision))
+                continue;
+
             string synopsis = FormatSynopsis(decision);
 
             if (string.IsNullOrWhiteSpace(synopsis))
@@ -64,6 +67,14 @@ public static class ManifestDecisionSynopsisFormatter
             return Truncate(category);
 
         return "Architecture decision";
+    }
+
+    private static bool HasMeaningfulContent(ResolvedArchitectureDecision decision)
+    {
+        return !string.IsNullOrWhiteSpace(decision.Title)
+            || !string.IsNullOrWhiteSpace(decision.SelectedOption)
+            || !string.IsNullOrWhiteSpace(decision.Rationale)
+            || !string.IsNullOrWhiteSpace(decision.Category);
     }
 
     private static string Truncate(string value)

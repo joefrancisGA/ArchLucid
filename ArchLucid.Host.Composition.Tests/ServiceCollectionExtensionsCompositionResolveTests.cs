@@ -32,6 +32,7 @@ namespace ArchLucid.Host.Composition.Tests;
 public sealed class ServiceCollectionExtensionsCompositionResolveTests
 {
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task AddArchLucidApplicationServices_RealAzure_resolves_scoped_IAgentCompletionClient()
     {
         IConfiguration configuration = CreateRealAzureCompositionConfiguration(false);
@@ -66,6 +67,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
+    [Trait("Category", "Integration")]
     public async Task
         AddArchLucidApplicationServices_RealAzure_with_FallbackLlm_resolves_FallbackAgentCompletionClient()
     {
