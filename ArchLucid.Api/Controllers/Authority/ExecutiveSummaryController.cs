@@ -1,4 +1,3 @@
-using ArchLucid.Api.Security;
 using ArchLucid.Application.ExecutiveSummary;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Authorization;
@@ -36,10 +35,6 @@ public sealed class ExecutiveSummaryController(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IActionResult? forbid = RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope(tenantId, scope);
-
-        if (forbid is not null)
-            return forbid;
 
         ExecutiveSummaryResponse response =
             await executiveSummaryService.GenerateSummaryAsync(scope.TenantId, cancellationToken);

@@ -24,14 +24,12 @@
 | **5DR-trust-webhooks-p0** | Alert/digest/Teams/exec-digest/marketing-quote `idempotency-posture`; CI guard on alert controllers | Done |
 | **5DT-demo-revalidate-p0** | **TB-275** buyer-demo residuals (BDA-001/008/015, audit demo gating) | Done |
 | **5DS-trust-internal-p0** | Internal replay/determinism/seed + SCIM + governance stickiness mutators `idempotency-posture`; baseline 63→48 unclassified | Done |
-
-| **5DS-trust-internal-p0** | Internal replay/determinism/seed + SCIM + governance stickiness mutators `idempotency-posture`; baseline 63→48 unclassified | Done |
+| **5DU-route-tenant-p0** | **TB-276** global `RouteTenantScopeBindingFilter`; **TB-277** CI guard; **TB-278** matrix drift guard — extends BE-014–016 | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DU-route-tenant-p0** | Trustworthiness, Testability | **TB-276** route tenant filter; **TB-277** CI drift guard; **TB-278** IDOR integration matrix — extends BE-014–016 |
 | **5DU-route-tenant-p1** | Trustworthiness, Architectural integrity | **TB-281** value-report scope-only URL; **TB-279** admin route migration; **TB-280** / **TB-282** legacy exec-summary + cross-tenant rollup policy |
 | **5DU-mutating-posture-p2** | Reliability, Trustworthiness | Policy-pack + tenant/pilot/register mutator `idempotency-posture` (48 grandfathered remainder — first high-trust slice) |
 | **TB-106–108** | Correctness | Run-detail operator fidelity P0 — architecture endpoint fields on operator loader |

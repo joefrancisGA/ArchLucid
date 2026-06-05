@@ -79,6 +79,11 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
                 f"{name} must declare INV-009 posture before mutating routes",
             )
 
+    def test_route_tenant_scope_binding_filter_is_registered(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Api" / "Startup" / "MvcExtensions.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("RouteTenantScopeBindingFilter", text)
+
     def test_internal_governance_scim_controllers_declare_idempotency_posture(self) -> None:
         controller_paths = (
             REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "InternalArchitectureDiagnosticsController.cs",

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Auth;
 using ArchLucid.Api.Filters;
+using ArchLucid.Api.Security;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.OpenApi;
 using ArchLucid.Api.ProblemDetails;
@@ -34,6 +35,7 @@ internal static class MvcExtensions
                 options.Conventions.Add(new DefaultPublicApiRateLimitConvention());
                 options.Filters.Add<ApiProblemDetailsExceptionFilter>();
                 options.Filters.Add<TrialLimitExceededAuditFilter>();
+                options.Filters.Add<RouteTenantScopeBindingFilter>();
             })
             .AddJsonOptions(options =>
             {

@@ -268,6 +268,12 @@ jobs:
       - name: Route tier policy nav guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_route_tier_policy_nav.py"
 
+      - name: Route tenant scope binding guard (TB-277)
+        run: python scripts/ci/assert_route_tenant_scope_guard.py
+
+      - name: Route tenant scope batch unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_route_tenant_batch.py"
+
       - name: Commercial tier packaging drift fixtures
         run: python scripts/ci/assert_commercial_tier_packaging_drift.py
 

@@ -2,7 +2,6 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Security;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Contracts.ValueReports;
@@ -68,11 +67,6 @@ public sealed class ValueReportController(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        IActionResult? forbid = RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope(tenantId, scope);
-
-        if (forbid is not null)
-            return forbid;
 
         DateTimeOffset end = to ?? TimeProvider.System.GetUtcNow();
         DateTimeOffset start = from ?? end.AddDays(-30);

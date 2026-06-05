@@ -1,5 +1,4 @@
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Security;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -44,10 +43,6 @@ public sealed class MeteringAdminController(
                 ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IActionResult? forbid = RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope(tenantId, scope);
-
-        if (forbid is not null)
-            return forbid;
 
         IReadOnlyList<TenantUsageSummary> rows =
             await _metering.GetSummaryAsync(scope.TenantId, periodStart, periodEnd, cancellationToken);

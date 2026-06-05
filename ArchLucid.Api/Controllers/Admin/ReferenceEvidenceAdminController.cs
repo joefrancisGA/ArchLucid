@@ -1,5 +1,4 @@
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Security;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -47,10 +46,6 @@ public sealed class ReferenceEvidenceAdminController(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IActionResult? forbid = RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope(tenantId, scope);
-
-        if (forbid is not null)
-            return forbid;
 
         string baseForLinks = TrustedApiLinkBaseResolver.Resolve(_configuration, Request.Scheme, Request.Host.Value);
         byte[]? zip = await _exportService.BuildZipAsync(scope.TenantId, includeDemo, baseForLinks, cancellationToken);

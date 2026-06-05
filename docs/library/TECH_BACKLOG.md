@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after **TB-276–282** route-tenant addressing cluster). **~33 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after batch **5DU-route-tenant-p0** / **TB-276–278**). **~30 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -11,14 +11,14 @@
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
 | Architectural integrity | 7 |
-| Trustworthiness | 4 |
 | Adoption friction | 4 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Testability | 3 |
+| Trustworthiness | 2 |
+| Testability | 2 |
 | Maintainability | 2 |
 | Traceability | 2 |
 | Interoperability | 2 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~33** |
+| **Total (unique)** | **~30** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant cluster:** **TB-276–282** (assessment [`route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx), 2026-06-04). **TB-274 INV-009:** internal/SCIM/governance mutators **Done** (batch **5DS**); **48** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DU-route-tenant-p0** (**TB-276** + **TB-277** + **TB-278**) or **5DU-mutating-posture-p2** (policy-pack + tenant/pilot mutator posture). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **TB-274 INV-009:** **48** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DU-mutating-posture-p2** (policy-pack + tenant/pilot/register posture) or **5DU-route-tenant-p1** (**TB-281** value-report scope-only URL). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
