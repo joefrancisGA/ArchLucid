@@ -4340,6 +4340,155 @@
         },
         "type": "object"
       },
+      "BuyerRunDetailRunDto": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "degradedExecutionAgents": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "goldenManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasFindingsSnapshot": {
+            "type": "boolean"
+          },
+          "hasGoldenManifest": {
+            "type": "boolean"
+          },
+          "hasGraphSnapshot": {
+            "type": "boolean"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "runDegradedExecution": {
+            "type": "boolean"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BuyerRunDetailSummaryDto": {
+        "properties": {
+          "agentExecutionLlmCostEstimate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunAgentLlmCostEstimateDto"
+              }
+            ]
+          },
+          "decisionExplainability": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunDecisionExplainabilityDto"
+              }
+            ]
+          },
+          "degradedExecutionAgents": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "degradedFindingCoverage": {
+            "type": "boolean"
+          },
+          "estimatedUsdSavingsSummary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunEstimatedUsdSavingsDto"
+              }
+            ]
+          },
+          "executionFlavorBuyerSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingCoverageSummary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunFindingCoverageSummary"
+              }
+            ]
+          },
+          "lastAgentExecutionFailure": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentExecutionFailureSummary"
+              }
+            ]
+          },
+          "retrievalGroundingSummary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunRetrievalGroundingSummaryDto"
+              }
+            ]
+          },
+          "run": {
+            "$ref": "#/components/schemas/BuyerRunDetailRunDto"
+          },
+          "runDegradedExecution": {
+            "type": "boolean"
+          },
+          "trustEvidenceCard": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunTrustEvidenceCard"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CallerClaimResponse": {
         "properties": {
           "type": {
@@ -40796,6 +40945,126 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/RunDetailDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "AuthorityQuery"
+        ]
+      }
+    },
+    "/v1/authority/runs/{runId}/buyer-summary": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuyerRunDetailSummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuyerRunDetailSummaryDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuyerRunDetailSummaryDto"
                 }
               }
             },
