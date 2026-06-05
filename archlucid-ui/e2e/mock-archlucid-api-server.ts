@@ -46,6 +46,22 @@ function fixtureRunDetailForRunId(runId: string): RunDetail {
   };
 }
 
+function resolveRunDetailBodyForRunId(runId: string): RunDetail | null {
+  if (runId === FIXTURE_RUN_ID) {
+    return fixtureRunDetail();
+  }
+
+  if (runId === MOCK_TRIAL_WELCOME_RUN_ID) {
+    return fixtureRunDetailForRunId(MOCK_TRIAL_WELCOME_RUN_ID);
+  }
+
+  if (runId === SHOWCASE_DEMO_RUN_ID || runId === SCREENSHOT_RUN_ID) {
+    return fixtureRunDetailAlignedToShowcase(runId);
+  }
+
+  return null;
+}
+
 function sendJson(res: http.ServerResponse, status: number, body: unknown): void {
   const payload = JSON.stringify(body);
   res.writeHead(status, {
@@ -298,21 +314,33 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       }
 
       // RSC server-side fetch uses `getServerApiBaseUrl()` → these paths (see `src/lib/api.ts`).
+      const buyerSummaryMatchV1 = /^\/v1\/authority\/runs\/([^/]+)\/buyer-summary$/.exec(pathname);
+      const buyerSummaryMatchLegacy = /^\/api\/authority\/runs\/([^/]+)\/buyer-summary$/.exec(pathname);
+      const buyerSummaryMatch = buyerSummaryMatchV1 ?? buyerSummaryMatchLegacy;
+
+      if (buyerSummaryMatch) {
+        const detail = resolveRunDetailBodyForRunId(buyerSummaryMatch[1]);
+
+        if (detail === null) {
+          sendJson(res, 404, { detail: "Review not found." });
+        } else {
+          sendJson(res, 200, detail);
+        }
+
+        return;
+      }
+
       const runMatchV1 = /^\/v1\/authority\/runs\/([^/]+)$/.exec(pathname);
       const runMatchLegacy = /^\/api\/authority\/runs\/([^/]+)$/.exec(pathname);
       const runMatch = runMatchV1 ?? runMatchLegacy;
 
       if (runMatch) {
-        const runId = runMatch[1];
+        const detail = resolveRunDetailBodyForRunId(runMatch[1]);
 
-        if (runId === FIXTURE_RUN_ID) {
-          sendJson(res, 200, fixtureRunDetail());
-        } else if (runId === MOCK_TRIAL_WELCOME_RUN_ID) {
-          sendJson(res, 200, fixtureRunDetailForRunId(MOCK_TRIAL_WELCOME_RUN_ID));
-        } else if (runId === SHOWCASE_DEMO_RUN_ID || runId === SCREENSHOT_RUN_ID) {
-          sendJson(res, 200, fixtureRunDetailAlignedToShowcase(runId));
-        } else {
+        if (detail === null) {
           sendJson(res, 404, { detail: "Review not found." });
+        } else {
+          sendJson(res, 200, detail);
         }
 
         return;

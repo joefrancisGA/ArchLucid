@@ -21,6 +21,14 @@ export function matchesRunDetailGet(url: URL, runId: string): boolean {
   );
 }
 
+/** Buyer-polished run detail (`GET /v1/authority/runs/{runId}/buyer-summary`, TB-283). */
+export function matchesBuyerRunDetailSummaryGet(url: URL, runId: string): boolean {
+  return (
+    url.search === "" &&
+    backendApiPath(url) === `/v1/authority/runs/${encodeURIComponent(runId)}/buyer-summary`
+  );
+}
+
 export function matchesAuthorityRunManifestGet(url: URL, runId: string): boolean {
   return (
     url.search === "" &&

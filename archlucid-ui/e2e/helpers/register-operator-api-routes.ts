@@ -28,6 +28,7 @@ import {
   matchesArtifactListGet,
   matchesAuthorityProjectRunsPagedGet,
   matchesAuthorityRunManifestGet,
+  matchesBuyerRunDetailSummaryGet,
   matchesCompareExplainGet,
   matchesLegacyCompareRunsGet,
   matchesManifestSummaryGet,
@@ -123,7 +124,12 @@ export async function registerOperatorJourneyApiRoutes(
         return true;
       }
 
-      if (config.runDetail && method === "GET" && matchesRunDetailGet(url, config.runDetail.runId)) {
+      if (
+        config.runDetail &&
+        method === "GET" &&
+        (matchesRunDetailGet(url, config.runDetail.runId) ||
+          matchesBuyerRunDetailSummaryGet(url, config.runDetail.runId))
+      ) {
         await fulfillJson(route, 200, config.runDetail.body);
         return true;
       }
