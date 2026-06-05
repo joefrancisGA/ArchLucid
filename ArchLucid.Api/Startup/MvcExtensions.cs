@@ -96,7 +96,9 @@ internal static class MvcExtensions
             options.AddDocumentTransformer<RunSummaryResponseOpenApiContractTransformer>();
             options.AddDocumentTransformer<PublicHttpContractSchemasOpenApiDocumentTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiAnonymousSecurityOperationTransformer>();
+            options.AddOperationTransformer<MicrosoftOpenApiAudienceOperationTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiEvidenceBulkUploadOperationTransformer>();
+            options.AddDocumentTransformer<MicrosoftOpenApiAudienceSchemaDocumentTransformer>();
         });
         services.AddEndpointsApiExplorer();
         services.AddArchLucidSwagger();

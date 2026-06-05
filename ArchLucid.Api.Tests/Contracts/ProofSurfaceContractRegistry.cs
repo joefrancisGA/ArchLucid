@@ -12,7 +12,28 @@ internal static class ProofSurfaceContractRegistry
         string OpenApiSchemaName,
         Type ContractType,
         string GeneratedClientTypeName,
-        IReadOnlyList<string> CriticalJsonProperties);
+        IReadOnlyList<string> CriticalJsonProperties,
+        IReadOnlyList<string> ForbiddenJsonProperties);
+
+    /// <summary>Forbidden on buyer/proof surfaces — internal snapshot ids and LLM forensics (TB-285).</summary>
+    internal static readonly string[] SharedBuyerForbiddenJsonProperties =
+    [
+        "contextSnapshotId",
+        "graphSnapshotId",
+        "findingsSnapshotId",
+        "decisionTraceId",
+        "traceId",
+        "rawResponse",
+        "systemPrompt",
+        "userPrompt",
+        "parsedResultJson",
+        "fullSystemPromptInline",
+        "fullUserPromptInline",
+        "fullResponseInline",
+        "fullSystemPromptBlobKey",
+        "fullUserPromptBlobKey",
+        "fullResponseBlobKey",
+    ];
 
     internal static IReadOnlyList<Surface> Surfaces { get; } =
     [
@@ -28,7 +49,8 @@ internal static class ProofSurfaceContractRegistry
                 "topFindingEvidenceChain",
                 "llmCallCountResolved",
                 "roiSourceFreshnessDisposition",
-            ]),
+            ],
+            ForbiddenJsonProperties: SharedBuyerForbiddenJsonProperties),
         new Surface(
             OpenApiSchemaName: "ExecutiveRoiSummaryResponse",
             ContractType: typeof(ArchLucid.Contracts.Roi.ExecutiveRoiSummaryResponse),
@@ -40,7 +62,8 @@ internal static class ProofSurfaceContractRegistry
                 "savingsPricingBasis",
                 "totalEstimatedUsdSavings",
                 "basisBreakdown",
-            ]),
+            ],
+            ForbiddenJsonProperties: SharedBuyerForbiddenJsonProperties),
         new Surface(
             OpenApiSchemaName: "ExecutiveOrphanCandidateSummary",
             ContractType: typeof(ArchLucid.Contracts.Roi.ExecutiveOrphanCandidateSummary),
@@ -50,7 +73,8 @@ internal static class ProofSurfaceContractRegistry
                 "candidateCount",
                 "annualSavingsUsd",
                 "evidenceRunId",
-            ]),
+            ],
+            ForbiddenJsonProperties: SharedBuyerForbiddenJsonProperties),
         new Surface(
             OpenApiSchemaName: "RunDetailDto",
             ContractType: typeof(ArchLucid.Persistence.Queries.RunDetailDto),
@@ -63,7 +87,8 @@ internal static class ProofSurfaceContractRegistry
                 "executionFlavorBuyerSummary",
                 "retrievalGroundingSummary",
                 "lastAgentExecutionFailure",
-            ]),
+            ],
+            ForbiddenJsonProperties: ["systemPrompt", "rawResponse", "userPrompt", "parsedResultJson"]),
         new Surface(
             OpenApiSchemaName: "BuyerRunDetailSummaryDto",
             ContractType: typeof(ArchLucid.Contracts.Runs.BuyerRunDetailSummaryDto),
@@ -76,6 +101,13 @@ internal static class ProofSurfaceContractRegistry
                 "executionFlavorBuyerSummary",
                 "retrievalGroundingSummary",
                 "lastAgentExecutionFailure",
+            ],
+            ForbiddenJsonProperties:
+            [
+                ..SharedBuyerForbiddenJsonProperties,
+                "results",
+                "findingsSnapshot",
+                "graphSnapshot",
             ]),
         new Surface(
             OpenApiSchemaName: "RunExplanationSummary",
@@ -87,6 +119,7 @@ internal static class ProofSurfaceContractRegistry
                 "deterministicFallbackUsed",
                 "faithfulnessWarning",
                 "citations",
-            ]),
+            ],
+            ForbiddenJsonProperties: SharedBuyerForbiddenJsonProperties),
     ];
 }

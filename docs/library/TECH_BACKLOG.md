@@ -2,23 +2,23 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-05 (after batch **5DW-trust-pilot-p0** — **TB-283–284**, **TB-289–294** Done). **~39 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-05 (after batch **5DW-trust-paid-p1a** — **TB-285–287** Done). **~36 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 9 |
-| Testability | 9 |
+| Testability | 8 |
 | Reliability | 3 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
-| Architectural integrity | 7 |
+| Architectural integrity | 6 |
 | Adoption friction | 4 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 3 |
+| Trustworthiness | 2 |
 | Maintainability | 2 |
 | Traceability | 2 |
 | Interoperability | 2 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~39** |
+| **Total (unique)** | **~36** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–284** **Done** (batch **5DW-trust-pilot-p0**); **TB-285–288** remain. **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–301** remain (paid-pilot / P2 gates). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DW-trust-paid-p1** (**TB-285–287**, **TB-295–300**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–287** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**); **TB-288** remains. **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–301** remain (paid-pilot / P2 gates). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DW-trust-paid-p1b** (**TB-295–300**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -93,6 +93,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **TB-191 – TB-195** were added 2026-06-02 from an independent first-principles **Cutting-Edge AI Technology** quality assessment (`docs/assessments/CuttingEdgeAITechnology_06022026.MD`). They extend the TB-177–190 cluster without duplicating it: prompt template content-hash forensics (**TB-191**, P2), dynamic evidence summarization before context overflow (**TB-192**, P1 — counts against tenant run-execution quota per PQ-CEAT-02 resolved 2026-06-02), LLM provider abstraction factory scaffold (**TB-193**, P2 — scaffold only, no non-Azure providers per PQ-CEAT-01 resolved 2026-06-02), RAG corpus operator monitoring panel (**TB-194**, P2), and multi-turn Ask context compression (**TB-195**, P2). All three PQ-CEAT pending questions were resolved by judgment on 2026-06-02. These items are distinct from **TB-178** (streaming Ask), **TB-180** (calibrated confidence), and **TB-181** (nightly cron) which remain the highest-priority AI readiness work.
 
 **TB-196 – TB-206** were added 2026-06-02 from an independent first-principles **Correctness** quality assessment (`docs/assessments/Correctness_06022026.MD`). They target correctness defects identified in priority order: reasoning token cost underreporting bug (**TB-196**, P0 — silent monetary error in all runs with reasoning models), governance PromoteAsync non-atomic state transition (**TB-197**, P1 — irrecoverable data inconsistency), `CostConstraintFindingEngine` zero coverage (**TB-198**, P1), `TenantOrProjectCapabilityAuthorizationHandler` zero coverage (**TB-199**, P1 — security-critical), `HttpScopeContextProvider` zero coverage (**TB-200**, P1 — security boundary), DB-level `UNIQUE (RunId, TaskId)` constraint on `AgentResults` (**TB-201**, P1 — multi-replica race), notification unit tests (**TB-202**, P2), `ConversationService` unit tests (**TB-203**, P2), decision rule action differentiation in audit trace (**TB-204**, P2), `BuildHistoryAsync` infinite loop guard (**TB-205**, P2), and `ResolveEnvironmentLabel` null guard (**TB-206**, P3). These do not duplicate **TB-087** (findings backfill unique index), **TB-149–155** (waiver/KPI correctness), **TB-103–105** (orphan/waiver/bucket correctness), **TB-033** (reasoning token persist — TB-196 fixes the aggregator that was never updated to use that column), or **TB-039–044** (idempotency — TB-201 targets the `AgentResults` submit path specifically). Owner input needed for TB-011 Wave B (`Mixed` UX copy — PQ-COR-01) and confirmation on `AgentResults` uniqueness constraint (PQ-COR-02).
+
+**TB-207 – TB-213** were added 2026-06-02 from an independent first-principles **Adoption Friction** quality assessment (`docs/assessments/AdoptionFriction_06022026.MD`). They target adoption gaps in priority order: token-claims diagnostic (**TB-207**, P0), CLI global-tool + self-contained binaries (**TB-208**, P0), `request create --from-file` subcommand (**TB-209**, P1), pilot prerequisites page + connectivity script (**TB-210**, P1), SAML SP certificate rotation runbook (**TB-211**, P1), IaC coverage for adoption-critical Azure dependencies (**TB-212**, P1), and QualityGate WarnOnly production-like lint (**TB-213**, P1). **TB-214** (non-Azure ingest path) is DEFERRED pending owner input. All seven engineering items are **Done** (batches 5X–5AC, 5BK).
 
 **TB-085 – TB-090** were added 2026-05-27 from a Backfill.Cli and Jobs.Cli operational review (idempotency on rerun, bounded memory, checkpointing, poison-message handling, observability). **TB-089** is operator-visible (duplicate digest emails on ACA retry); **TB-087** closes a concurrent-rerun duplicate-`FindingRecords` window; **TB-088** prevents whole-job failure on one bad tenant/schedule; **TB-085** + **TB-086** harden large-catalog backfill runs; **TB-090** enables CI/pipeline assertions. Neither CLI writes cost rows; provenance child inserts are count-guarded (**TB-087** adds DB-level defense). Cross-ref **TB-012** (**INV-009** idempotency), **TB-067** (migration/backfill docs), **TB-061** (digest recurrence), [`SqlRelationalBackfill.md`](SqlRelationalBackfill.md), [`CONTAINER_APPS_JOBS.md`](../runbooks/CONTAINER_APPS_JOBS.md).
 
@@ -245,9 +247,9 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-282 | Reclassify cross-tenant usage rollup — move `AdminController.GetCrossTenantUsageSummary` (`GET …/admin/analytics/cross-tenant-summary`) from `AdminAuthority` to `RequireOperatorRole` (or document + enforce platform-only break-glass); tenant admins must not reach fleet-wide aggregates via tenant-admin policy | Trustworthiness P2 — policy/URL semantics alignment | XS |
 | ~~TB-283~~ | ~~Buyer run detail summary DTO~~ — **Done** (batch **5DW-trust-pilot-p0**): `BuyerRunDetailSummaryDto`, `RunDetailBuyerMapper`, `GET /v1/authority/runs/{runId}/buyer-summary`, buyer-polished UI loader | Architectural integrity P0 | M |
 | ~~TB-284~~ | ~~Audience-tier Problem Details~~ — **Done** (batch **5DW-trust-pilot-p0**): `ProblemDetailsAudience`, `x-archlucid-audience: buyer`, buyer-safe `supportHint` copy + golden tests | Trustworthiness P0 | S |
-| TB-285 | CI forbidden-property guard for buyer OpenAPI schemas — extend `ProofSurfaceContractRegistry` with forbidden property names (`*SnapshotId`, `TraceId`, `RawResponse`, etc.); fail CI when buyer-tier schemas add them | Testability P1 — anti-drift on proof DTO boundary | S |
-| TB-286 | OpenAPI audience tiers — add `x-archlucid-audience` on operations/schemas; publish filtered `buyer-contract.openapi.json` for UI codegen and procurement; exclude `/v1/internal/*` from buyer snapshot | Architectural integrity P1 — contract boundary for integrators | M |
-| TB-287 | Forensics partition for full LLM traces — move `GET /v1/architecture/run/{runId}/traces` full prompt/response bodies to `/v1/internal/*` or operator-only DTO; buyer/proof surfaces keep `RunExplanationSummary` aggregates only | Trustworthiness P1 — ReadAuthority must not expose forensics by default | M |
+| ~~TB-285~~ | ~~CI forbidden-property guard for buyer OpenAPI schemas~~ — **Done** (batch **5DW-trust-paid-p1a**): `ProofSurfaceForbiddenPropertyDriftTests`, `buyer_dto_forbidden_properties.txt`, `test_dto_boundary_batch.py` | Testability P1 | S |
+| ~~TB-286~~ | ~~OpenAPI audience tiers + buyer contract snapshot~~ — **Done** (batch **5DW-trust-paid-p1a**): `x-archlucid-audience` transformers, `buyer-contract.openapi.snapshot.json`, `OpenApiBuyerContractSnapshotTests` | Architectural integrity P1 | M |
+| ~~TB-287~~ | ~~Forensics partition for full LLM traces~~ — **Done** (batch **5DW-trust-paid-p1a**): `GET /v1/internal/architecture/run/{runId}/traces/forensics`, operator gate on tool-invocation-forensics, `ForensicsTracePartitionIntegrationTests` | Trustworthiness P1 | M |
 | TB-288 | Architecture test — buyer-facing controller actions must not declare return types from `ArchLucid.Persistence.*` | Testability P2 — mechanical enforcement of TB-283 | XS |
 | ~~TB-289~~ | ~~Live buyer golden path E2E~~ — **Done** (batch **5DW-trust-pilot-p0**): `e2e/live-api-buyer-golden-path.spec.ts` | Testability P0 | M |
 | ~~TB-290~~ | ~~Commit-to-audit trail integrity (SQL)~~ — **Done** (batch **5DW-trust-pilot-p0**): `AuditTrailCommitIntegrityIntegrationTests` | Trustworthiness P0 | S |
@@ -5903,6 +5905,635 @@ There is no Cursor rule that instructs the AI assistant to follow the Carbon-ins
 
 ---
 
+## TB-207 — Token-claims diagnostic command and endpoint
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-01).
+
+**Problem:**
+
+When a JWT has the wrong tenant, missing workspace, or an unexpected role mapping, operators see `401 Unauthorized` or silent 403s with no indication of which claim is wrong. There is no command or endpoint that parses the current bearer token and shows exactly which claims ArchLucid extracts: `tenantId`, `workspaceId`, `projectId`, role, and scope.
+
+**What to do:**
+
+1. Add `archlucid token-claims` CLI subcommand that POSTs to `GET /v1/admin/token-debug` and pretty-prints the parsed claims.
+2. Add `GET /v1/admin/token-debug` endpoint returning: `tenantId`, `workspaceId`, `projectId`, `role`, `authScheme`, `subject`, `expiration`, `validationSummary` (PASS/FAIL per claim).
+3. Require `ReadAuthority` — no elevated permissions needed; operators should always be able to call this on their own token.
+4. Add unit tests covering: valid claims, missing tenant claim, expired token, wrong scope.
+
+**Acceptance criteria:**
+
+- `archlucid token-claims` prints a table of claims and a PASS/FAIL summary.
+- Missing or malformed claims are labeled with a fix hint (e.g., "tenantId claim missing — ensure OIDC scope includes archlucid.tenantId").
+- The endpoint response is JSON-serializable and CLI-printable.
+
+**Affected files:**
+
+- `ArchLucid.Api/Controllers/Admin/TokenDebugController.cs` (new)
+- `ArchLucid.Cli/Commands/TokenClaimsCommand.cs` (new)
+- `ArchLucid.Cli/Program.cs` (register command)
+- `docs/library/customer-facing/OPERATOR_QUICKSTART.md` (add to diagnostics section)
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-208 — CLI as dotnet global tool + self-contained binaries
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-02). Also referenced in Time-to-Value assessment 2026-06-02.
+
+**Problem:**
+
+Every sponsor artifact generation command in `FIRST_VALUE_20_MINUTES.md` is written as `dotnet run --project ArchLucid.Cli -- ...`. An operator without the .NET SDK installed — which includes most sales engineers and most customers running the pilot on a standard workstation — cannot use the CLI at all. The friction is: install .NET SDK → restore packages → build → run. This adds 5–15 minutes to every first-value path.
+
+**What to do:**
+
+1. Configure `ArchLucid.Cli.csproj` for `dotnet pack` as a global tool (`PackAsTool=true`, `ToolCommandName=archlucid`).
+2. Publish self-contained binaries for `win-x64`, `linux-x64`, and `osx-arm64` via a GitHub Actions release workflow.
+3. Add a `scripts/install-archlucid-cli.ps1` script for Windows one-liner install via the published NuGet feed or GitHub Release binary.
+4. Update all customer-facing docs (`FIRST_VALUE_20_MINUTES.md`, `OPERATOR_QUICKSTART.md`, `FIRST_PILOT_OPERATOR_PATH.md`) to use `archlucid ...` (bare command) instead of `dotnet run --project`.
+5. Add a CI check that `ArchLucid.Cli` packs without warnings and the tool runs `archlucid --version` successfully.
+
+**Acceptance criteria:**
+
+- `dotnet tool install -g archlucid` installs from the feed and `archlucid --version` returns the version.
+- Self-contained binary for `win-x64` runs without .NET runtime installed.
+- All customer-facing doc references to `dotnet run --project ArchLucid.Cli` are replaced.
+
+**Affected files:**
+
+- `ArchLucid.Cli/ArchLucid.Cli.csproj`
+- `.github/workflows/release.yml` (new or update)
+- `scripts/install-archlucid-cli.ps1` (new)
+- `docs/runbooks/FIRST_VALUE_20_MINUTES.md`
+- `docs/library/customer-facing/OPERATOR_QUICKSTART.md`
+- `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`
+
+**Size estimate:** **M** — ~2–3 eng days including CI, packaging, and doc sweep.
+
+---
+
+## TB-209 — `archlucid request create --from-file` subcommand
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-03).
+
+**Problem:**
+
+Operators who want to script repeated review creation (e.g., in CI pipelines or pilot automation) must construct the `POST /v1/architecture/reviews` request body by hand from the OpenAPI spec. There is no `--from-file` path in the CLI.
+
+**What to do:**
+
+1. Add `archlucid request create --from-file request.json` subcommand.
+2. The `request.json` schema mirrors `ArchitectureReviewRequest` from the OpenAPI spec.
+3. Parse and validate the file before posting; emit actionable errors for missing required fields.
+4. On success, print the created `reviewId` and `runId` for downstream use in scripts.
+5. Add a `request.schema.json` sample file to `docs/examples/`.
+6. Add unit tests for: file not found, invalid JSON, missing required field, valid request → API call.
+
+**Affected files:**
+
+- `ArchLucid.Cli/Commands/RequestCreateCommand.cs` (new)
+- `ArchLucid.Cli/Program.cs`
+- `docs/examples/architecture-review-request.schema.json` (new)
+- `docs/library/customer-facing/OPERATOR_QUICKSTART.md`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-210 — Pilot prerequisites page + connectivity check script
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-04).
+
+**Problem:**
+
+There is no single document or script that an operator can run before starting a pilot to verify: (1) API reachability from their network, (2) identity claims are present and correct, (3) Azure OpenAI endpoint is reachable, (4) CLI/tool version matches the deployed API.
+
+**What to do:**
+
+1. Create `docs/runbooks/PILOT_PREREQUISITES.md` with: network requirements, identity claim requirements, Azure OpenAI connectivity check, CLI version check, and a quick-start table.
+2. Create `scripts/check-pilot-connectivity.ps1` that: calls `GET /health/ready`, calls `GET /v1/admin/token-debug` (using the TB-207 endpoint), optionally calls the Azure OpenAI endpoint with a trivial completion, and prints a PASS/FAIL summary with fix hints.
+3. Link from `OPERATOR_QUICKSTART.md`, `FIRST_PILOT_OPERATOR_PATH.md`, and `FIRST_VALUE_20_MINUTES.md` at the top ("Before starting, run `scripts/check-pilot-connectivity.ps1`").
+
+**Acceptance criteria:**
+
+- Script runs without .NET SDK and produces a colored PASS/FAIL table.
+- FAIL rows include a fix hint (not just "FAILED").
+- Document covers the three most common first-pilot failure modes: wrong tenant claim, Azure OpenAI unreachable, wrong API URL.
+
+**Affected files:**
+
+- `docs/runbooks/PILOT_PREREQUISITES.md` (new)
+- `scripts/check-pilot-connectivity.ps1` (new)
+- `docs/library/customer-facing/OPERATOR_QUICKSTART.md`
+- `docs/runbooks/FIRST_PILOT_OPERATOR_PATH.md`
+- `docs/runbooks/FIRST_VALUE_20_MINUTES.md`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-211 — SAML SP certificate rotation runbook
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-05).
+
+**Problem:**
+
+There is no SAML SP certificate rotation runbook. Enterprise operators using SAML 2.0 with 12-month certificate cycles will hit certificate expiry with no documented procedure. The `CONFIGURATION_REFERENCE.md` covers initial SAML setup but does not cover rotation.
+
+**What to do:**
+
+1. Create `docs/runbooks/SAML_SP_CERTIFICATE_ROTATION.md` covering: detecting the current cert expiry, generating a new PFX, uploading to Key Vault, updating SAML SP metadata, testing without downtime (simultaneous old+new acceptance window), and rollback.
+2. Add `scripts/saml-sp-cert-status.ps1` to emit the current cert's expiry date from Key Vault.
+3. Reference `security@archlucid.net` (or equivalent contact) for cert push notifications — pending PQ-AF-02.
+4. Link from `CONFIGURATION_REFERENCE.md` §SAML section.
+
+**Acceptance criteria:**
+
+- Runbook covers zero-downtime rotation (both certificates accepted during transition window).
+- Script outputs cert expiry date in ISO 8601.
+- Doc is linked from the SAML configuration section.
+
+**Affected files:**
+
+- `docs/runbooks/SAML_SP_CERTIFICATE_ROTATION.md` (new)
+- `scripts/saml-sp-cert-status.ps1` (new)
+- `docs/library/CONFIGURATION_REFERENCE.md`
+
+**Size estimate:** **S** — ~1 eng day (doc + script).
+
+---
+
+## TB-212 — IaC coverage for adoption-critical Azure dependencies
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-06). Partial implementation of TB-091–099.
+
+**Problem:**
+
+Enterprise platform teams who deploy ArchLucid via IaC-first patterns cannot provision Azure AI Search, Azure Content Safety, or a new Azure OpenAI instance from Terraform. These are the three services that adoption friction identifies as most critical to unblock. TB-091–099 already track the full IaC parity audit; this item focuses on the adoption-critical subset not yet fully covered by the TB-093 and TB-096 existing-resource compose modes.
+
+**What to do:**
+
+1. Add a `terraform-content-safety` root (or module) for Azure Content Safety — `azurerm_cognitive_account` with kind `ContentSafety`, private endpoint, and managed identity RBAC grant for the API identity.
+2. Extend `terraform-search` (or `terraform-hosted-prod`) to support creating (not just consuming) an Azure AI Search instance when `azure_search_create_mode=new` — for operators who do not have an existing search instance.
+3. Document in `CONFIGURATION_REFERENCE.md` which Terraform roots are required for a fully IaC-provisioned pilot and which expect existing resources.
+
+**Acceptance criteria:**
+
+- `terraform validate` passes for all new/modified roots.
+- `terraform plan` with a sample `.tfvars` produces a valid plan.
+- `CONFIGURATION_REFERENCE.md` has an "IaC provisioning" section with a table of roots and their required/optional status.
+
+**Affected files:**
+
+- `infra/terraform-content-safety/` (new root)
+- `infra/terraform-search/` or `deploy/hosted-prod-terraform/` (search create mode)
+- `docs/library/CONFIGURATION_REFERENCE.md`
+- `deploy/hosted-prod-terraform/terraform.tfvars.example`
+
+**Size estimate:** **M** — ~2 eng days.
+
+---
+
+## TB-213 — QualityGate WarnOnly lint rule for production-like pilots
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-08).
+
+**Problem:**
+
+`ArchLucid:AgentOutput:QualityGate:Mode` defaults to `WarnOnly`. Operators who deploy a production-like hosted pilot without explicitly setting `PilotStrict` receive AI output that has not been validated to sponsor-handoff quality. This configuration combination creates a silent trap: the pilot runs, produces output, but the output may fail if re-run in strict mode.
+
+**What to do:**
+
+1. Add a new lint rule `quality_gate_warn_only_in_real_production_like` to `OperatorConfigurationLintEvaluator` (or equivalent).
+2. Condition: `AgentExecution:Mode == Real` AND `ArchLucid:AgentOutput:QualityGate:Mode == WarnOnly`.
+3. Level: Advisory for standard profiles; HOLD for `production-like-hosted-pilot` profile.
+4. Message: "Quality gate is in WarnOnly mode with real LLM execution. Production-like pilots should use PilotStrict to ensure sponsor-handoff quality. Set `ArchLucid:AgentOutput:QualityGate:Mode=PilotStrict`."
+5. Add unit tests: WarnOnly+Real → advisory; WarnOnly+Real+production-like → HOLD; PilotStrict+Real → no finding; WarnOnly+Simulator → no finding.
+6. Update `CONFIGURATION_REFERENCE.md` pilot profile table "Common failure mode" column.
+
+**Affected files:**
+
+- `ArchLucid.Application/Configuration/OperatorConfigurationLintEvaluator.cs`
+- `ArchLucid.Application.Tests/Configuration/OperatorConfigurationLintEvaluatorTests.cs`
+- `docs/library/CONFIGURATION_REFERENCE.md`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-214 — DEFERRED: Non-Azure evidence ingest path
+
+**Status:** **DEFERRED** — pending PQ-AF-01 (owner decision on V1 scope and schema).
+
+**Source:** Adoption Friction assessment 2026-06-02 (AF-07).
+
+**Problem:**
+
+Evaluators who do not have Azure subscriptions or PowerShell access cannot submit evidence without running the Azure extractor ZIP workflow. A `POST /v1/evidence/upload-json` endpoint accepting a minimal structured JSON would allow testing agent quality without the extractor prerequisite.
+
+**Blocked on owner input:**
+
+1. Is a non-Azure/non-extractor evidence submission path in V1 scope? `V1_SCOPE.md §2.16` defines the Azure extractor ZIP as the ingest contract. A generic JSON upload may conflict with citation posture.
+2. What schema would the JSON upload accept — unstructured description, partial ARM resource list, or a documented minimal schema?
+
+Do not implement until PQ-AF-01 is answered.
+
+---
+
+## TB-215 — Default-open explanation aggregate when `goldenManifestId` is present
+
+**Source:** Time-to-Value assessment 2026-06-02 (TTV-01).
+
+**Problem:**
+
+The AI explanation collapsible on the committed run detail page defaults to closed. First-time operators who commit a run and expect to see AI output immediately find a collapsed panel — they do not realize the explanation is there. The explanation is the most important TTV artifact for demonstrating AI value to a sponsor.
+
+**What to do:**
+
+1. In `RunDetailPageView.tsx` (or the explanation collapsible component), change the default open state from `false` to `true` when `hasGoldenManifest` (i.e., `goldenManifestId` is non-null on the run detail DTO) is true.
+2. Keep the default closed for uncommitted runs (no `goldenManifestId`).
+3. Persist the operator's manual collapse/expand preference using a `localStorage` key `archlucid:explanation:expanded:{runId}` so the operator's choice persists on page reload.
+4. Add a Vitest test: component opens by default when `goldenManifestId` is set; component stays closed when unset.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- The explanation collapsible component (find via import in `RunDetailPageView.tsx`)
+
+**Size estimate:** **XS** — ~1–2 hours.
+
+---
+
+## TB-216 — Wizard progress-tracker post-timeout recovery guidance
+
+**Source:** Time-to-Value assessment 2026-06-02 (TTV-02).
+
+**Problem:**
+
+When `RunProgressTracker` transitions to a stalled or timeout state (polling completes without a committed run), the component renders a status message with no actionable next step. Operators who hit a run timeout have no guidance on whether to wait, retry, or escalate.
+
+**What to do:**
+
+1. In `RunProgressTracker` (find file via `RunProgressTracker` in `archlucid-ui/src`), when the tracker transitions to the stalled/error state (no `hasGoldenManifest` after polling ends):
+   - Add a help link: "Run stalled? See [Core Pilot troubleshooting](/help/pilot#run-stalled)".
+   - Add a secondary action button: "Check run status" that links to `/reviews/{runId}` or calls a status endpoint.
+2. When the tracker renders with no run ID at all (empty state), add: "No active run. [Start a new review](/reviews/new)."
+3. Update `archlucid-ui/docs/COMPONENT_REFERENCE.md` to document the stalled and empty states.
+4. Add Vitest tests: stalled state renders help link; empty state renders "Start a new review" link.
+
+**Affected files:**
+
+- `archlucid-ui/src/` (locate `RunProgressTracker` component)
+- `archlucid-ui/docs/COMPONENT_REFERENCE.md`
+
+**Size estimate:** **XS–S** — ~2–4 hours.
+
+---
+
+## TB-217 — TTV funnel telemetry — `archlucid_operator_ttv_first_commit_minutes` histogram
+
+**Source:** Time-to-Value assessment 2026-06-02 (TTV-03).
+
+**Problem:**
+
+There is no OTel metric measuring time-to-first-committed-manifest. TTV regressions (caused by configuration changes, agent latency increases, or UX friction) are invisible until operators complain. The `PILOT_SUCCESS_SCORECARD.md` has a blank "wall-clock time" field that is filled manually — this should be auto-instrumented.
+
+**What to do:**
+
+1. Add `archlucid_operator_ttv_first_commit_minutes` OTel histogram to `ObservabilityConstants` (or equivalent metric name registry).
+2. Emit the metric in the commit path: record the delta from `RunRecord.CreatedUtc` to `RunRecord.CommittedUtc` (or equivalent) on the first `Commit` operation for a given scope (tenant/workspace/project).
+3. Add an alert rule to the Grafana/Loki/Azure Monitor alerting configuration: P95 > 20 minutes triggers a warning.
+4. Add to `docs/library/OBSERVABILITY.md` metric table.
+5. Add a unit test: metric is emitted with correct bucket boundaries on a simulated commit event.
+
+**Affected files:**
+
+- `ArchLucid.Core/Observability/ObservabilityConstants.cs` (or equivalent)
+- `ArchLucid.Application/Authority/` (commit path service)
+- `docs/library/OBSERVABILITY.md`
+- Grafana dashboard JSON or Azure Monitor alert rule
+
+**Size estimate:** **M** — ~1–2 eng days.
+
+---
+
+## TB-218 — Replace placeholder screenshots in `FIRST_30_MINUTES.md` via CI
+
+**Source:** Time-to-Value assessment 2026-06-02 (TTV-04).
+
+**Problem:**
+
+`docs/engineering/FIRST_30_MINUTES.md` contains placeholder screenshots that are 7+ weeks stale and show UI that no longer matches the shipped product. Operators following the guide land on UI flows that look different from the screenshots.
+
+**What to do:**
+
+1. Add a Playwright step to `.github/workflows/template-eval-harness.yml` (or a new `screenshot-docs.yml` workflow) that: starts the API and UI in simulator mode, navigates the first-30-minutes flow (new review → execute → commit), captures screenshots at each major step.
+2. Save screenshots to `docs/engineering/assets/first-30-minutes/` and commit via `git add` in CI.
+3. Update `FIRST_30_MINUTES.md` to reference `assets/first-30-minutes/*.png` instead of placeholder paths.
+4. Run on `push` to main and on a weekly `schedule` (to catch UI drift even without code changes).
+
+**Acceptance criteria:**
+
+- Screenshots in `FIRST_30_MINUTES.md` match the current shipped UI.
+- CI fails if Playwright cannot complete the flow (regression signal).
+
+**Affected files:**
+
+- `.github/workflows/screenshot-docs.yml` (new) or `template-eval-harness.yml`
+- `docs/engineering/FIRST_30_MINUTES.md`
+- `docs/engineering/assets/first-30-minutes/` (new directory)
+- `archlucid-ui/e2e/` (Playwright spec for the screenshot flow)
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-219 — Route label + date standardization in `FIRST_RUN_WALKTHROUGH.md` and `FIRST_RUN_WIZARD.md`
+
+**Source:** Time-to-Value assessment 2026-06-02 (TTV-05).
+
+**Problem:**
+
+`FIRST_RUN_WALKTHROUGH.md` and `FIRST_RUN_WIZARD.md` reference UI route labels that have drifted since the TB-169 progressive disclosure work and other nav changes. Operators following these docs land on wrong routes or see different section names.
+
+**What to do:**
+
+1. Audit every UI route reference in `FIRST_RUN_WALKTHROUGH.md` and `FIRST_RUN_WIZARD.md` against the current `nav-config.ts` route definitions.
+2. Update all mismatched labels to match the current nav config.
+3. Add "Last reviewed: YYYY-MM-DD" to the header of both documents.
+4. Add a CI check (extend `check_doc_links.py` or a new script) that fails if any `FIRST_RUN_*.md` document has a "Last reviewed" date older than 60 days.
+
+**Affected files:**
+
+- `docs/library/FIRST_RUN_WALKTHROUGH.md`
+- `docs/library/FIRST_RUN_WIZARD.md`
+- `scripts/ci/check_doc_links.py` (or a new check)
+
+**Size estimate:** **XS** — ~2–4 hours.
+
+---
+
+## TB-220 — `RunProgressTracker` empty/error-state deep link to Core Pilot help
+
+**Source:** Time-to-Value assessment 2026-06-02 (TTV-06).
+
+**Problem:**
+
+When `RunProgressTracker` renders without a run ID (empty state) or in an error state, it shows no actionable next step. Operators who land on a stalled tracker have no path back to the Core Pilot guide.
+
+**What to do:**
+
+1. Add a help deep link to `RunProgressTracker` empty state: "No active run — [start from Core Pilot guide](/help/pilot)" or equivalent in-app help route.
+2. Add a "What to do when a run stalls" accordion in the stalled state referencing the `CORE_PILOT.md` recovery steps.
+3. Note: the link from TB-216 already covers the stalled polling case; TB-220 covers the empty/no-run-ID case. Do not duplicate — only add what is missing in the empty state.
+
+**Affected files:**
+
+- `archlucid-ui/src/` (RunProgressTracker component)
+
+**Size estimate:** **XS** — ~1 hour.
+
+---
+
+## TB-221 — DEFERRED: Buyer-path hosted smoke scaffold
+
+**Status:** **DEFERRED** — pending PQ-TTV-01.
+
+**Source:** Time-to-Value assessment 2026-06-02 (TTV-07).
+
+**Problem:**
+
+There is no end-to-end smoke test that exercises the buyer path (sign-in → first review → commit → export sponsor artifact) on `archlucid.net` without a sales engineer. If `archlucid.net` is self-service accessible, a `archlucid trial smoke --buyer-path` command would let sales engineers verify the buyer path before demos and let operators self-validate trial access.
+
+**Blocked on owner input (PQ-TTV-01):** Is `archlucid.net` currently accessible for sales-invited evaluators to sign in and run the buyer path independently, or does it require a sales engineer to provision a trial tenant?
+
+**Partial work possible now:**
+- Create the `archlucid trial smoke --buyer-path` CLI command stub with the planned steps documented as `TODO` placeholders.
+- Write a Playwright spec skeleton for the buyer path (sign-in → new review → execute → commit → export) that can be wired to `archlucid.net` once PQ-TTV-01 is answered.
+
+---
+
+## TB-222 — Recurrence scheduling UI: post-commit flow + management page
+
+**Source:** Stickiness assessment 2026-06-02 (S-01).
+
+**Problem:**
+
+`POST /v1/governance/recurrence-schedules` and `GET /v1/governance/recurrence-schedules` are fully implemented in `GovernanceStickinessController`. All client functions are implemented in `governance-stickiness-api.ts`. But no UI calls these endpoints. The post-commit flow has no "Schedule next review" affordance. Operators who want a weekly review cadence must call the API directly — eliminating the habit loop before it starts.
+
+**What to do:**
+
+See S-01 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+
+Summary:
+1. Add `RecurrenceSchedulePostCommitCard` to `RunDetailPageView.tsx` — visible after commit, with cron field, name field, submit via `createArchitectureReviewRecurrenceSchedule`.
+2. Create `/governance/recurrence-schedules` page + `RecurrenceSchedulesClient.tsx` with `EnterpriseTable`, enable/disable toggle, `NextRunUtc` display.
+3. Add to governance nav in `nav-config.ts`.
+
+**Acceptance criteria:**
+
+- Operator can schedule a recurring review from the post-commit run detail page without leaving the UI.
+- Management page shows all schedules with next-run date and enable/disable toggle.
+- Vitest tests cover submitted, success, and error states.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/reviews/[runId]/_sections/RunDetailPageView.tsx`
+- `archlucid-ui/src/app/(operator)/governance/recurrence-schedules/page.tsx` (new)
+- `archlucid-ui/src/app/(operator)/governance/recurrence-schedules/RecurrenceSchedulesClient.tsx` (new)
+- `archlucid-ui/src/components/governance/RecurrenceSchedulePostCommitCard.tsx` (new)
+- `archlucid-ui/src/app/(operator)/nav-config.ts`
+
+**Size estimate:** **M** — ~2 eng days.
+
+---
+
+## TB-223 — Decision-needed summary KPI card in governance dashboard
+
+**Source:** Stickiness assessment 2026-06-02 (S-02).
+
+**Problem:**
+
+`GET /v1/governance/decisions-needed-summary` returns `GovernanceDecisionsNeededSummary` with 7 signals (pending approvals, stale risks, unowned High risks, findings awaiting evidence, waivers expiring within 14 days, deferred items due, total decision items). `getGovernanceDecisionsNeededSummary` is implemented in `governance-stickiness-api.ts`. The governance dashboard does not render this summary. Operators have no "decisions needed today" view.
+
+**What to do:**
+
+See S-02 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+
+Summary:
+1. Fetch `GovernanceDecisionsNeededSummary` alongside `getGovernanceDashboard` (parallel).
+2. Add `DecisionsNeededSummaryCard` with 7 KPI tiles, expiring-waivers caution highlight, and deep-links.
+3. Place card at top of `/governance/dashboard` before pending approvals.
+4. Auto-refresh with the 30-second governance dashboard refresh.
+
+**Acceptance criteria:**
+
+- Dashboard shows "decisions needed" count on every load.
+- `waiversExpiringWithin14Days > 0` shows a visual caution highlight.
+- Empty state shown when `totalDecisionItems === 0`.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx`
+- `archlucid-ui/src/components/governance/DecisionsNeededSummaryCard.tsx` (new)
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-224 — AI conversational compare-two-runs narrative
+
+**Source:** Stickiness assessment 2026-06-02 (S-03). Implements `AI_LEVERAGE_ROADMAP.md` item 11.
+
+**Problem:**
+
+Compare runs shows a raw diff table. Operators who have done their second review cannot answer "are we net-better or net-worse?" without manually interpreting delta rows. The AI leverage roadmap identifies conversational compare as the highest-leverage Stickiness AI feature — it makes every re-run feel like a progress report rather than a spreadsheet.
+
+**What to do:**
+
+See S-03 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+
+Summary:
+1. Extend `AskService.cs` to detect `BaseRunId + TargetRunId` → make a single fast-model LLM call → return `ComparisonNarrative` (nullable string) on `AskResponse`.
+2. Guard with `Ask:GenerateComparisonNarrative=false` (opt-in).
+3. Render as highlighted callout above compare delta table in the UI.
+4. Unit test: delta with changes → non-empty narrative; empty delta → null.
+
+**Acceptance criteria:**
+
+- Compare view shows a 3–5 sentence AI narrative when both run IDs are present and the feature flag is on.
+- Narrative does not block compare view if the Ask call fails (non-blocking, fail-open).
+- Narrative is clearly labeled "AI narrative" with a disclaimer.
+
+**Affected files:**
+
+- `ArchLucid.Application/Ask/AskService.cs`
+- `ArchLucid.Contracts/Ask/AskResponse.cs`
+- `ArchLucid.Application.Tests/Ask/AskServiceCompareNarrativeTests.cs` (new)
+- `archlucid-ui/src/app/(operator)/compare/` (compare route — find exact file)
+- `ArchLucid.Host.Composition/` (register feature flag)
+
+**Size estimate:** **M** — ~2 eng days.
+
+---
+
+## TB-225 — CS-06 RLS fix: `SqlOperatorStickinessSnapshotReader` + CS-07/CS-08/CS-09 defects
+
+**Source:** Stickiness assessment 2026-06-02 (S-04). Defects documented in `CUSTOMER_SUCCESS_PERSISTENCE_DESIGN.md` §5.3.
+
+**Problem:**
+
+`SqlOperatorStickinessSnapshotReader` does not inject `IRlsSessionContextApplicator`. The only tenant isolation guard is `WHERE TenantId = @TenantId`. A future call path without this parameter would silently cross tenant boundaries. This is the same class of defect addressed by TB-073 (scoped snapshot reads) and TB-048 (retrieval tenant filter). CS-07/CS-08/CS-09 are low-severity style defects bundled here for efficiency.
+
+**What to do:**
+
+See S-04 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+
+Summary:
+1. Inject `IRlsSessionContextApplicator`; call `ApplyAsync` before each query in `GetOperatorSignalsAsync` and `GetFunnelSnapshotAsync`.
+2. Route connections through `IReadReplicaQueryConnectionFactory`.
+3. Fix CS-07: rename `ToDateTimeOffset` → `ToNullableUtcDateTime`.
+4. Fix CS-08: collapse inner class properties to one line.
+5. Fix CS-09: use `long` for COUNT columns; remove `ToInt` converter.
+6. Update DI registration.
+7. Add unit tests for RLS application and renamed helper.
+
+**Affected files:**
+
+- `ArchLucid.Persistence/CustomerSuccess/SqlOperatorStickinessSnapshotReader.cs`
+- `ArchLucid.Persistence/CustomerSuccess/InMemoryOperatorStickinessSnapshotReader.cs`
+- `ArchLucid.Host.Composition/` (DI registration)
+- `ArchLucid.Persistence.Tests/CustomerSuccess/SqlOperatorStickinessSnapshotReaderTests.cs` (new)
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-226 — Risk exceptions dedicated management page
+
+**Source:** Stickiness assessment 2026-06-02 (S-05).
+
+**Problem:**
+
+Risk exceptions (waivers) are accessible only from `FindingInspectGovernanceStickinessPanel` on individual finding detail pages. An operator managing 40 active waivers across 200 findings has no cross-finding list view, no bulk expiry filter, and no way to see which waivers expire this week without opening each finding manually.
+
+**What to do:**
+
+See S-05 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+
+Summary:
+1. Create `/governance/risk-exceptions/page.tsx` + `RiskExceptionsClient.tsx`.
+2. Render `EnterpriseTable` with columns: Finding ID, Owner, Rationale, Status (color-coded), Expiry, Actions (Renew / Revoke).
+3. Sort by expiry ascending; show warning callout when any exception expires within 14 days.
+4. Add to governance nav.
+
+**Affected files:**
+
+- `archlucid-ui/src/app/(operator)/governance/risk-exceptions/page.tsx` (new)
+- `archlucid-ui/src/app/(operator)/governance/risk-exceptions/RiskExceptionsClient.tsx` (new)
+- `archlucid-ui/src/app/(operator)/nav-config.ts`
+
+**Size estimate:** **M** — ~1.5 eng days.
+
+---
+
+## TB-227 — Second-review proof collection: update `collect-first-pilot-proof.ps1`
+
+**Source:** Stickiness assessment 2026-06-02 (S-06).
+
+**Problem:**
+
+`collect-first-pilot-proof.ps1` is a first-run-only collection tool. The `REPEAT_REVIEW_LOOP.md` second-review proof checklist requires: compare output, stickiness signal improvement, decisions-needed summary. Neither is collected by the current script. An operator doing a second review with a sponsor has no scripted evidence-collection path.
+
+**What to do:**
+
+See S-06 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+
+Summary:
+1. Add `-RunNumber` and `-CompareBaseRunId` parameters.
+2. When `-RunNumber >= 2`, collect compare delta, decisions-needed summary, risk register.
+3. Add `stickinessSignals` section to output manifest.
+4. Write to `pilot-proof-run{N}/` directory to avoid overwriting first-run evidence.
+5. Update `REPEAT_REVIEW_LOOP.md` §5 to reference the updated script.
+
+**Affected files:**
+
+- `scripts/collect-first-pilot-proof.ps1`
+- `docs/library/REPEAT_REVIEW_LOOP.md`
+- `docs/runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md`
+
+**Size estimate:** **S** — ~1 eng day.
+
+---
+
+## TB-228 — Internal tenant health score surface for ArchLucid operators
+
+**Source:** Stickiness assessment 2026-06-02 (S-07).
+
+**Problem:**
+
+`TenantHealthScoringCalculator`, `OperatorStickinessSignals`, and `PilotFunnelSnapshot` produce rich per-tenant engagement signals. None of these are exposed to the ArchLucid team. The SaaS CS team has no in-product visibility into which tenants are engaged, stalled, or at risk of churn during the post-pilot conversion window.
+
+**What to do:**
+
+See S-07 cursor prompt in `docs/assessments/Stickiness_06022026.MD` §3.
+
+Summary:
+1. Add `GET /v1/admin/tenant-health` (system-admin policy, RLS bypass ambient).
+2. Return `TenantHealthSummaryResponse` per tenant: engagement score, governance score, pilot funnel stage, runs/commits last 7d, last activity UTC.
+3. Add admin UI table at `/admin/tenant-health` with severity color coding.
+4. Unit tests: 200 for system admin, 403 for tenant user.
+
+**Affected files:**
+
+- `ArchLucid.Api/Controllers/Admin/AdminCustomerSuccessController.cs` (new)
+- `ArchLucid.Application/Admin/TenantHealthSummaryService.cs` (new)
+- `ArchLucid.Contracts/Admin/TenantHealthSummaryResponse.cs` (new)
+- `archlucid-ui/src/app/(operator)/admin/tenant-health/` (new pages)
+- `ArchLucid.Api.Tests/Admin/AdminCustomerSuccessControllerTests.cs` (new)
+
+**Size estimate:** **M** — ~2 eng days.
+
 ## TB-222 — Recurrence scheduling UI: post-commit nudge + management page
 
 **Source assessment:** `docs/assessments/Stickiness_06022026.MD` §S-01
@@ -8581,6 +9212,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-285 — CI forbidden-property guard for buyer OpenAPI schemas (P1)
 
+**Status:** **Done** (batch **5DW-trust-paid-p1a**, 2026-06-05).
+
 **Source:** DTO boundary assessment, 2026-06-05.
 
 **Problem:** `ProofSurfaceContractRegistry` guards critical property **presence** but not forbidden internal names; new snapshot/trace fields can ship on proof schemas without review.
@@ -8603,6 +9236,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 ---
 
 ## TB-286 — OpenAPI audience tiers + buyer contract snapshot (P1)
+
+**Status:** **Done** (batch **5DW-trust-paid-p1a**, 2026-06-05).
 
 **Source:** DTO boundary assessment, 2026-06-05.
 
@@ -8628,6 +9263,8 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 ---
 
 ## TB-287 — Forensics partition for full LLM traces (P1)
+
+**Status:** **Done** (batch **5DW-trust-paid-p1a**, 2026-06-05).
 
 **Source:** DTO boundary assessment, 2026-06-05.
 

@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:161 -->
+<!-- route-tier-policy-nav-registry-count:162 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -144,6 +144,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/ImportRequestFileController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/InternalArchitectureDiagnosticsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  | internal_architecture_diagnostics |
+| `Authority/InternalArchitectureTraceForensicsController.cs` | `/v1/internal/architecture` | none | RequireOperatorRole |  |  |
 | `Authority/RunAgentEvaluationController.cs` | `/v1/internal/architecture` | none | ReadAuthority |  | internal_architecture_diagnostics |
 | `Authority/RunComparisonController.cs` | `/v1/architecture` | standard | ReadAuthority | /compare |  |
 | `Authority/RunQueryController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |

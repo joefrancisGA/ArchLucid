@@ -722,6 +722,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/InternalArchitectureTraceForensicsController.cs",
+      "class_name": "InternalArchitectureTraceForensicsController",
+      "route_template": "v{version:apiVersion}/internal/architecture",
+      "normalized_prefix": "/v1/internal/architecture",
+      "commercial_tier": "none",
+      "class_policy": "RequireOperatorRole",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/RunAgentEvaluationController.cs",
       "class_name": "RunAgentEvaluationController",
       "route_template": "v{version:apiVersion}/internal/architecture",

@@ -274,6 +274,9 @@ jobs:
       - name: Route tenant scope batch unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_route_tenant_batch.py"
 
+      - name: DTO boundary batch unit tests (TB-285–287)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_dto_boundary_batch.py"
+
       - name: Commercial tier packaging drift fixtures
         run: python scripts/ci/assert_commercial_tier_packaging_drift.py
 

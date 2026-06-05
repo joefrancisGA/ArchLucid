@@ -488,8 +488,8 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    ///     Returns a page of <see cref="AgentExecutionTrace" /> rows for <paramref name="runId" /> (including prompts and
-    ///     raw model output when persisted).
+    ///     Returns a page of <see cref="AgentExecutionTraceSummary" /> rows for <paramref name="runId" /> (no prompts or
+    ///     raw model output — use <c>GET /v1/internal/architecture/run/{runId}/traces/forensics</c> for operator forensics).
     /// </summary>
     [HttpGet("run/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
@@ -544,6 +544,7 @@ public sealed class RunQueryController(
     ///     Trace-derived redacted invocation forensics for operator review (TB-110). Not a structured MCP tool-call ledger.
     /// </summary>
     [HttpGet("run/{runId}/tool-invocation-forensics")]
+    [Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
     [ProducesResponseType(typeof(RunToolInvocationForensicsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunToolInvocationForensics(
