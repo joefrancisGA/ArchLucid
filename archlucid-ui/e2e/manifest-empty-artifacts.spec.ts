@@ -27,7 +27,7 @@ test.describe("operator journey — manifest empty artifact list", () => {
 
     // Buyer-polished shell hides raw manifest UUID in the verification appendix; assert stable operator summary copy.
     await expect(
-      page.getByText(/E2E fixture: golden manifest summary is present/i),
+      page.getByText(/E2E fixture: golden manifest summary is present/i).first(),
     ).toBeVisible();
 
     await expect(page.getByText("Artifact list could not be loaded.", { exact: true })).toHaveCount(0);

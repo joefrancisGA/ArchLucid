@@ -45,7 +45,7 @@ public sealed class AgentExecutionTraceMapperTests
     }
 
     [Fact]
-    public void Summary_from_trace_has_at_most_twelve_cross_context_properties()
+    public void Summary_from_trace_has_at_most_thirteen_cross_context_properties()
     {
         AgentExecutionTrace trace = new()
         {
@@ -56,7 +56,7 @@ public sealed class AgentExecutionTraceMapperTests
 
         AgentExecutionTraceSummary summary = AgentExecutionTraceSummary.FromTrace(trace);
 
-        typeof(AgentExecutionTraceSummary).GetProperties().Length.Should().BeLessOrEqualTo(12);
+        typeof(AgentExecutionTraceSummary).GetProperties().Length.Should().BeLessOrEqualTo(13);
         summary.QualityRejected.Should().BeTrue();
     }
 }

@@ -37,7 +37,10 @@ public sealed class LlmJudgeDailyTokenBudgetTrackerTests
             },
             CancellationToken.None);
 
-        LlmJudgeDailyTokenBudgetTracker tracker = CreateTracker(hardCap: 200_000, assumed: 4096);
+        LlmJudgeDailyTokenBudgetTracker tracker = CreateTracker(
+            repo,
+            hardCap: 200_000,
+            assumed: 4096);
 
         bool within = await tracker.TryPeekWithinBudgetAsync(tenant, CancellationToken.None);
 
@@ -55,6 +58,7 @@ public sealed class LlmJudgeDailyTokenBudgetTrackerTests
     }
 
     private static LlmJudgeDailyTokenBudgetTracker CreateTracker(
+        InMemoryLlmTenantBudgetRepository? repo = null,
         long hardCap = 200_000,
         int assumed = 8192)
     {
@@ -67,6 +71,8 @@ public sealed class LlmJudgeDailyTokenBudgetTrackerTests
                 AssumedMaxTotalTokensPerRequest = assumed
             });
 
-        return new LlmJudgeDailyTokenBudgetTracker(opts.Object, new InMemoryLlmTenantBudgetRepository());
+        InMemoryLlmTenantBudgetRepository budgetRepo = repo ?? new InMemoryLlmTenantBudgetRepository();
+
+        return new LlmJudgeDailyTokenBudgetTracker(opts.Object, budgetRepo);
     }
 }

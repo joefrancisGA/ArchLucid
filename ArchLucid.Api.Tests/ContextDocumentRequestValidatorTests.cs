@@ -21,9 +21,9 @@ public sealed class ContextDocumentRequestValidatorTests
     }
 
     [SkippableFact]
-    public void Validate_Succeeds_WhenAllRulesSatisfied()
+    public async Task Validate_Succeeds_WhenAllRulesSatisfied()
     {
-        ValidationResult result = _validator.Validate(ValidDocument());
+        ValidationResult result = await _validator.ValidateAsync(ValidDocument());
 
         result.IsValid.Should().BeTrue();
     }
@@ -33,12 +33,12 @@ public sealed class ContextDocumentRequestValidatorTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("\t")]
-    public void Validate_Fails_WhenNameIsMissingOrWhitespace(string? name)
+    public async Task Validate_Fails_WhenNameIsMissingOrWhitespace(string? name)
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.Name = name!;
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.Name));
@@ -46,12 +46,12 @@ public sealed class ContextDocumentRequestValidatorTests
     }
 
     [SkippableFact]
-    public void Validate_Fails_WhenNameExceedsMaxLength()
+    public async Task Validate_Fails_WhenNameExceedsMaxLength()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.Name = new string('a', 501);
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
@@ -63,12 +63,12 @@ public sealed class ContextDocumentRequestValidatorTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public void Validate_Fails_WhenContentTypeIsMissingOrWhitespace(string? contentType)
+    public async Task Validate_Fails_WhenContentTypeIsMissingOrWhitespace(string? contentType)
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.ContentType = contentType!;
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.ContentType));
@@ -76,12 +76,12 @@ public sealed class ContextDocumentRequestValidatorTests
     }
 
     [SkippableFact]
-    public void Validate_Fails_WhenContentTypeIsUnsupported()
+    public async Task Validate_Fails_WhenContentTypeIsUnsupported()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.ContentType = "application/pdf";
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
@@ -91,12 +91,12 @@ public sealed class ContextDocumentRequestValidatorTests
     }
 
     [SkippableFact]
-    public void Validate_Fails_WhenContentTypeExceedsMaxLength()
+    public async Task Validate_Fails_WhenContentTypeExceedsMaxLength()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.ContentType = new string('a', 256);
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
@@ -105,24 +105,24 @@ public sealed class ContextDocumentRequestValidatorTests
     }
 
     [SkippableFact]
-    public void Validate_Fails_WhenContentIsNull()
+    public async Task Validate_Fails_WhenContentIsNull()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.Content = null!;
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.Content));
     }
 
     [SkippableFact]
-    public void Validate_Fails_WhenContentExceedsMaxLength()
+    public async Task Validate_Fails_WhenContentExceedsMaxLength()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.Content = new string('x', 500_001);
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
@@ -131,57 +131,57 @@ public sealed class ContextDocumentRequestValidatorTests
     }
 
     [SkippableFact]
-    public void Validate_Succeeds_WhenContentIsEmptyString()
+    public async Task Validate_Succeeds_WhenContentIsEmptyString()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.Content = string.Empty;
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeTrue();
     }
 
     [SkippableFact]
-    public void Validate_Succeeds_When_SourceDocumentUrl_IsNullOrWhitespace()
+    public async Task Validate_Succeeds_When_SourceDocumentUrl_IsNullOrWhitespace()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.SourceDocumentUrl = null;
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeTrue();
     }
 
     [SkippableFact]
-    public void Validate_Succeeds_When_SourceDocumentUrl_IsPublicHttps()
+    public async Task Validate_Succeeds_When_SourceDocumentUrl_IsPublicHttps()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.SourceDocumentUrl = "https://example.com/docs/adr-1.md";
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeTrue();
     }
 
     [SkippableFact]
-    public void Validate_Fails_When_SourceDocumentUrl_IsHttp()
+    public async Task Validate_Fails_When_SourceDocumentUrl_IsHttp()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.SourceDocumentUrl = "http://example.com/x";
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.SourceDocumentUrl));
     }
 
     [SkippableFact]
-    public void Validate_Fails_When_SourceDocumentUrl_TargetsLoopbackHttps()
+    public async Task Validate_Fails_When_SourceDocumentUrl_TargetsLoopbackHttps()
     {
         ContextDocumentRequest doc = ValidDocument();
         doc.SourceDocumentUrl = "https://127.0.0.1/secret";
 
-        ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = await _validator.ValidateAsync(doc);
 
         result.IsValid.Should().BeFalse();
     }
