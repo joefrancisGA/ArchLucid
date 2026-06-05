@@ -5,6 +5,7 @@ import {
   type ApiResponseWithTrace,
   compareRuns,
   getManifestSummary,
+  getBuyerRunDetailSummary,
   getRunDetail,
   getRunExplanationSummary,
   getRunPipelineTimeline,
@@ -78,8 +79,10 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   let loadFailure: ApiLoadFailureState | null = null;
   let usedStaticDemoRun = false;
 
+  const fetchRunDetail = isBuyerPolishedOperatorShellEnv() ? getBuyerRunDetailSummary : getRunDetail;
+
   try {
-    runDetailResponse = await getRunDetail(runId);
+    runDetailResponse = await fetchRunDetail(runId);
   } catch (e) {
     const fallback = tryStaticDemoRunDetail(runId);
 
@@ -337,7 +340,9 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     manifestSummary,
     trustEvidenceCard: resolvedDetail.trustEvidenceCard,
     manifestId,
-    graphSnapshotId: resolvedDetail.run.graphSnapshotId,
+    graphSnapshotId:
+      resolvedDetail.run.graphSnapshotId ??
+      ((resolvedDetail.run as { hasGraphSnapshot?: boolean }).hasGraphSnapshot ? "present" : undefined),
   });
 
   const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";

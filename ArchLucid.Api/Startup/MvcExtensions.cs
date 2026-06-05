@@ -7,6 +7,7 @@ using ArchLucid.Api.Security;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.OpenApi;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Api.Startup;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Reporting;
@@ -61,7 +62,9 @@ internal static class MvcExtensions
                     Instance = context.HttpContext.Request.Path.Value
                 };
                 ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.ValidationFailed);
-                ProblemSupportHints.AttachForProblemType(problem);
+                ProblemSupportHints.AttachForProblemType(
+                    problem,
+                    ProblemDetailsAudienceHttpContext.Resolve(context.HttpContext));
                 ProblemCorrelation.Attach(problem, context.HttpContext);
                 return new BadRequestObjectResult(problem)
                 {

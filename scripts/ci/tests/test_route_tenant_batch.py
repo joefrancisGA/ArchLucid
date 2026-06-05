@@ -41,6 +41,12 @@ class TestRouteTenantBatch(unittest.TestCase):
         for fragment in ROUTE_TENANT_MATRIX_ROUTES:
             self.assertIn(fragment, text, f"TB-278 matrix must cover {fragment}")
 
+    def test_route_tenant_positive_path_matrix_tb292(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopedSnapshotReadIdorIntegrationTests.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("AssertMatchingTenantRouteNotForbiddenAsync", text)
+        self.assertIn("tb292", text.lower())
+
     def test_route_tenant_scope_binding_filter_source_exists(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api" / "Security" / "RouteTenantScopeBindingFilter.cs"
         self.assertTrue(path.is_file(), f"Missing {path}")

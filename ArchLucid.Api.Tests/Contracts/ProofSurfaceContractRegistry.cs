@@ -65,6 +65,19 @@ internal static class ProofSurfaceContractRegistry
                 "lastAgentExecutionFailure",
             ]),
         new Surface(
+            OpenApiSchemaName: "BuyerRunDetailSummaryDto",
+            ContractType: typeof(ArchLucid.Contracts.Runs.BuyerRunDetailSummaryDto),
+            GeneratedClientTypeName: "BuyerRunDetailSummaryDto",
+            CriticalJsonProperties:
+            [
+                "agentExecutionLlmCostEstimate",
+                "trustEvidenceCard",
+                "findingCoverageSummary",
+                "executionFlavorBuyerSummary",
+                "retrievalGroundingSummary",
+                "lastAgentExecutionFailure",
+            ]),
+        new Surface(
             OpenApiSchemaName: "RunExplanationSummary",
             ContractType: typeof(ArchLucid.Core.Explanation.RunExplanationSummary),
             GeneratedClientTypeName: "RunExplanationSummary",

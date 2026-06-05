@@ -7,6 +7,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Runs;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Governance;
@@ -186,6 +187,35 @@ public sealed class AuthorityQueryController(
         FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(GetRunDetail), findingCount);
 
         return Ok(result);
+    }
+
+    /// <summary>Buyer-proof run detail — whitelisted fields only; no embedded snapshots (TB-283).</summary>
+    [HttpGet("runs/{runId:guid}/buyer-summary")]
+    [ProducesResponseType(typeof(BuyerRunDetailSummaryDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetBuyerRunDetailSummary(
+        Guid runId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (result is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
+            result.Run.RealModeFellBackToSimulator,
+            _configuration["AgentExecution:Mode"]);
+
+        await runDetailOperatorEnricher
+            .EnrichAsync(result, _configuration["AgentExecution:Mode"], ct)
+            .ConfigureAwait(false);
+
+        BuyerRunDetailSummaryDto buyerSummary = RunDetailBuyerMapper.Map(result);
+
+        return Ok(buyerSummary);
     }
 
     /// <summary>Records run-level approve / reject / request-remediation (TB-112).</summary>

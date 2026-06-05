@@ -12,23 +12,116 @@ public static class ProblemSupportHints
     /// </summary>
     public static void AttachForProblemType(Microsoft.AspNetCore.Mvc.ProblemDetails problem)
     {
+        AttachForProblemType(problem, ProblemDetailsAudience.Operator);
+    }
+
+    /// <summary>
+    /// Adds audience-tier <c>supportHint</c> — buyer tier omits operator route/runbook strings (TB-284).
+    /// </summary>
+    public static void AttachForProblemType(
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem,
+        ProblemDetailsAudience audience)
+    {
         ArgumentNullException.ThrowIfNull(problem);
 
         string? type = problem.Type;
+
         if (string.IsNullOrWhiteSpace(type))
             return;
 
-        string? hint = Resolve(type);
-        if (!string.IsNullOrWhiteSpace(hint))
+        string? hint = audience == ProblemDetailsAudience.Buyer
+            ? ResolveBuyerSafe(type)
+            : ResolveOperator(type);
 
+        if (!string.IsNullOrWhiteSpace(hint))
             problem.Extensions["supportHint"] = hint;
     }
 
-    private static string? Resolve(string typeUri)
+    private static string? ResolveBuyerSafe(string typeUri)
+    {
+        if (typeUri == ProblemTypes.RunNotFound)
+            return "Confirm the review identifier and that you are signed in to the correct organization.";
+
+        if (typeUri == ProblemTypes.ManifestNotFound)
+            return "Confirm the review package identifier. It may not exist in your organization yet.";
+
+        if (typeUri == ProblemTypes.ResourceNotFound)
+            return "Confirm the identifier and that you are authorized for this organization.";
+
+        if (typeUri == ProblemTypes.Conflict)
+            return "Read the detail above. You may need to start a new review or complete an earlier step before retrying.";
+
+        if (typeUri == ProblemTypes.QualityGateRejected)
+            return "Add richer architecture context and re-run the review, or ask your workspace owner to review quality settings.";
+
+        if (typeUri is ProblemTypes.ValidationFailed or ProblemTypes.BadRequest or ProblemTypes.RequestBodyRequired)
+            return "Correct the fields highlighted above and try again.";
+
+        if (typeUri == ProblemTypes.InvalidRunState)
+            return "Check review status: complete required steps before finalizing, or avoid repeating a completed action.";
+
+        if (typeUri == ProblemTypes.CommitFailed)
+            return "Review the detail message, ensure required outputs are present, then retry.";
+
+        if (typeUri == ProblemTypes.AgentResultRequired)
+            return "Submit the missing output, then retry.";
+
+        if (typeUri == ProblemTypes.UnavailableInProduction)
+            return "This action is not available in the current environment.";
+
+        if (typeUri is ProblemTypes.DatabaseTimeout or ProblemTypes.DatabaseUnavailable)
+            return "Retry after a short wait. If it persists, contact support with your correlation id.";
+
+        if (typeUri == ProblemTypes.CircuitBreakerOpen)
+            return "Automated analysis is temporarily paused after repeated failures. Retry later.";
+
+        if (typeUri == ProblemTypes.LlmTokenQuotaExceeded)
+            return "Usage limits were reached. Wait for the window to reset or ask your administrator to adjust limits.";
+
+        if (typeUri == ProblemTypes.AuthorityTenantConcurrentRunsExceeded)
+            return "Too many reviews are running at once. Retry in a few minutes.";
+
+        if (typeUri == ProblemTypes.ComparisonVerificationFailed)
+            return "Review the differences shown in the response and adjust inputs if you need a passing comparison.";
+
+        if (typeUri == ProblemTypes.BatchReplayAllFailed)
+            return "Every item in the batch failed. Fix identifiers or parameters and retry with your correlation id for support.";
+
+        if (typeUri == ProblemTypes.PolicyPackVersionNotFound)
+            return "Confirm the policy pack is deployed to your environment.";
+
+        if (typeUri is ProblemTypes.ExportFailed or ProblemTypes.DeterminismFailed)
+            return "Retry once. If it persists, contact support with your correlation id.";
+
+        if (typeUri == ProblemTypes.GraphTooLargeForFullResponse)
+            return "Load the evidence graph in smaller sections from the review detail page.";
+
+        if (typeUri == ProblemTypes.RequestPayloadTooLarge)
+            return "Reduce the size of your upload and try again.";
+
+        if (typeUri == ProblemTypes.TrialExpired)
+            return "Your trial period ended. Convert to a paid plan or contact sales to continue.";
+
+        if (typeUri == ProblemTypes.PackagingTierInsufficient)
+            return "This feature requires a higher subscription tier. Use the upgrade options in the message or contact sales.";
+
+        if (typeUri == ProblemTypes.UpstreamIntegrationFailed)
+            return "A connected system could not be reached. Retry after a short wait or check integration settings.";
+
+        if (typeUri == ProblemTypes.ProvenanceNodeExplanationNotSupported)
+            return "Use the review-level explanation summary instead of node-level forensics.";
+
+        if (typeUri == ProblemTypes.InternalError)
+            return "Retry once. If it persists, contact support with your correlation id; do not paste secrets.";
+
+        return null;
+    }
+
+    private static string? ResolveOperator(string typeUri)
     {
         if (typeUri == ProblemTypes.RunNotFound)
 
-            return "Confirm the run ID. If you use scope headers (x-tenant-id, x-workspace-id, x-project-id), they must match the run�s scope.";
+            return "Confirm the run ID. If you use scope headers (x-tenant-id, x-workspace-id, x-project-id), they must match the run's scope.";
 
         if (typeUri == ProblemTypes.ManifestNotFound)
             return "Confirm the manifest ID and scope. The manifest may not exist in this tenant/workspace/project.";

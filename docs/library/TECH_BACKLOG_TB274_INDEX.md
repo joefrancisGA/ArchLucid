@@ -27,14 +27,19 @@
 | **5DU-route-tenant-p0** | **TB-276** global `RouteTenantScopeBindingFilter`; **TB-277** CI guard; **TB-278** matrix drift guard — extends BE-014–016 | Done |
 | **5DU-mutating-posture-p2** | Policy-pack + tenant/pilot/register/billing-checkout `idempotency-posture`; baseline 48→26 unclassified | Done |
 | **5DV-mutating-posture-p3** | Final INV-009 grandfathered slice; baseline 26→0 unclassified | Done |
+| **5DW-trust-pilot-p0** | **TB-283–284**, **TB-289–294** — buyer DTO boundary, audience-tier Problem Details, trusted-pilot SQL/E2E coverage | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
+| **5DW-trust-paid-p1** | Trustworthiness, Testability, Architectural integrity | **TB-285–287**, **TB-295–300** (DTO + coverage P1 — paid pilot) |
+| **5DX-trust-p2** | Testability, Architectural integrity | **TB-288**, **TB-301** |
 | **5DU-route-tenant-p1** | Trustworthiness, Architectural integrity | **TB-281** value-report scope-only URL; **TB-279** admin route migration; **TB-280** / **TB-282** legacy exec-summary + cross-tenant rollup policy |
 | **TB-106–108** | Correctness | Run-detail operator fidelity P0 — architecture endpoint fields on operator loader |
 | **TB-138** | Trustworthiness (B) | Real-LLM golden-cohort CI promotion (owner Azure OpenAI secrets / environment) |
+
+**Assessment sources:** [`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx) (**TB-283–288**); risk-weighted coverage audit 2026-06-05 (**TB-289–301**).
 
 ## Excluded from Cursor batches
 

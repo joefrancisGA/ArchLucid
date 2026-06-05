@@ -227,6 +227,45 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     [SkippableFact]
+    public async Task Tenant_a_matching_route_tenant_executive_summary_is_not_forbidden_sql_tb292()
+    {
+        await AssertMatchingTenantRouteNotForbiddenAsync(
+            "executive summary",
+            static (client, tenantId) => client.GetAsync($"/api/authority/executive-summary/{tenantId:D}"));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_a_matching_route_tenant_reference_evidence_is_not_forbidden_sql_tb292()
+    {
+        await AssertMatchingTenantRouteNotForbiddenAsync(
+            "reference evidence export",
+            static (client, tenantId) =>
+                client.GetAsync($"/v1/admin/tenants/{tenantId:D}/reference-evidence?includeDemo=false"));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_a_matching_route_tenant_metering_summary_is_not_forbidden_sql_tb292()
+    {
+        DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(-7);
+        DateTimeOffset end = DateTimeOffset.UtcNow;
+
+        await AssertMatchingTenantRouteNotForbiddenAsync(
+            "metering summary",
+            (client, tenantId) =>
+                client.GetAsync(
+                    $"/v1/admin/metering/tenants/{tenantId:D}/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
+    }
+
+    [SkippableFact]
+    public async Task Tenant_a_matching_route_tenant_value_report_generate_is_not_forbidden_sql_tb292()
+    {
+        await AssertMatchingTenantRouteNotForbiddenAsync(
+            "value report generate",
+            static (client, tenantId) =>
+                client.PostAsync($"/v1/value-report/{tenantId:D}/generate", content: null));
+    }
+
+    [SkippableFact]
     public async Task Tenant_b_cannot_read_tenant_a_executive_summary_by_route_tenant_sql_tb274()
     {
         await AssertCrossTenantTenantRouteDeniedAsync(
@@ -263,6 +302,27 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
             "value report generate",
             static (client, tenantId) =>
                 client.PostAsync($"/v1/value-report/{tenantId:D}/generate", content: null));
+    }
+
+    private static async Task AssertMatchingTenantRouteNotForbiddenAsync(
+        string routeFamily,
+        Func<HttpClient, Guid, Task<HttpResponseMessage>> send)
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+        }
+
+        using HttpClient clientA = factory.CreateClient();
+        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        HttpResponseMessage response = await send(clientA, ScopeIds.DefaultTenant);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden, because: $"{routeFamily} must not 403 for matching tenant route id.");
     }
 
     private static async Task AssertCrossTenantTenantRouteDeniedAsync(

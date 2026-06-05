@@ -2,23 +2,23 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-05 (after batch **5DV-mutating-posture-p3** + **TB-283–301** assessment register). **~47 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-05 (after batch **5DW-trust-pilot-p0** — **TB-283–284**, **TB-289–294** Done). **~39 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 9 |
+| Testability | 9 |
 | Reliability | 3 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
-| Architectural integrity | 8 |
+| Architectural integrity | 7 |
 | Adoption friction | 4 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 8 |
-| Testability | 11 |
+| Trustworthiness | 3 |
 | Maintainability | 2 |
 | Traceability | 2 |
 | Interoperability | 2 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~48** |
+| **Total (unique)** | **~39** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–288** from [`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx). **Coverage hardening:** **TB-289–301** from risk-weighted coverage audit (trusted/paid pilot gates — not vanity %). **TB-274 INV-009:** policy-pack/tenant/pilot/register slice **Done** (batch **5DU-mutating-posture-p2**); **26** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DV-trust-pilot-p0** (**TB-283–284**, **TB-289–294**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–284** **Done** (batch **5DW-trust-pilot-p0**); **TB-285–288** remain. **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–301** remain (paid-pilot / P2 gates). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DW-trust-paid-p1** (**TB-285–287**, **TB-295–300**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -243,18 +243,18 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-279 | Tenant-scoped admin route migration — collapse redundant `{tenantId}` segments on tenant-admin surfaces to ambient scope: e.g. `GET /v1/admin/metering/summary`, `GET /v1/admin/reference-evidence`, align naming in OpenAPI; update UI/CLI callers; document that `AdminAuthority` is tenant-scoped, not platform cross-tenant | Architectural integrity P2 — removes misleading `/admin/tenants/{tenantId}/…` platform-admin URL shape | M |
 | TB-280 | Retire legacy `GET api/authority/executive-summary/{tenantId}` — redirect clients to `GET /v1/reports/executive-summary` (ambient scope); remove duplicate controller or mark obsolete + CI guard against new callers | Architectural integrity P2 — one executive-summary contract | XS |
 | TB-282 | Reclassify cross-tenant usage rollup — move `AdminController.GetCrossTenantUsageSummary` (`GET …/admin/analytics/cross-tenant-summary`) from `AdminAuthority` to `RequireOperatorRole` (or document + enforce platform-only break-glass); tenant admins must not reach fleet-wide aggregates via tenant-admin policy | Trustworthiness P2 — policy/URL semantics alignment | XS |
-| TB-283 | Buyer run detail summary DTO — introduce `BuyerRunDetailSummaryDto` (or split buyer fields off `RunDetailDto`); explicit mapper from persistence read model; buyer-polished UI routes must not return embedded `ContextSnapshot` / `GraphSnapshot` / `FindingsSnapshot` / `AgentResult` subgraphs | Architectural integrity P0 — stops persistence-shape leakage on proof surface | M |
-| TB-284 | Audience-tier Problem Details — strip or replace `extensions.supportHint` route/runbook strings on buyer-facing errors; operator tier retains `ProblemSupportHints`; golden tests assert buyer 4xx/5xx never contain `GET /v1/` substrings | Trustworthiness P0 — buyer errors must not teach internal API topology | S |
+| ~~TB-283~~ | ~~Buyer run detail summary DTO~~ — **Done** (batch **5DW-trust-pilot-p0**): `BuyerRunDetailSummaryDto`, `RunDetailBuyerMapper`, `GET /v1/authority/runs/{runId}/buyer-summary`, buyer-polished UI loader | Architectural integrity P0 | M |
+| ~~TB-284~~ | ~~Audience-tier Problem Details~~ — **Done** (batch **5DW-trust-pilot-p0**): `ProblemDetailsAudience`, `x-archlucid-audience: buyer`, buyer-safe `supportHint` copy + golden tests | Trustworthiness P0 | S |
 | TB-285 | CI forbidden-property guard for buyer OpenAPI schemas — extend `ProofSurfaceContractRegistry` with forbidden property names (`*SnapshotId`, `TraceId`, `RawResponse`, etc.); fail CI when buyer-tier schemas add them | Testability P1 — anti-drift on proof DTO boundary | S |
 | TB-286 | OpenAPI audience tiers — add `x-archlucid-audience` on operations/schemas; publish filtered `buyer-contract.openapi.json` for UI codegen and procurement; exclude `/v1/internal/*` from buyer snapshot | Architectural integrity P1 — contract boundary for integrators | M |
 | TB-287 | Forensics partition for full LLM traces — move `GET /v1/architecture/run/{runId}/traces` full prompt/response bodies to `/v1/internal/*` or operator-only DTO; buyer/proof surfaces keep `RunExplanationSummary` aggregates only | Trustworthiness P1 — ReadAuthority must not expose forensics by default | M |
 | TB-288 | Architecture test — buyer-facing controller actions must not declare return types from `ArchLucid.Persistence.*` | Testability P2 — mechanical enforcement of TB-283 | XS |
-| TB-289 | Live buyer golden path E2E — port `buyer-golden-path.smoke.spec.ts` to `live-api-buyer-golden-path.spec.ts` against Sql + seeded showcase run (executive → manifest → graph → governance → audit); assert no mock leakage / generic error boundary | Testability P0 — trusted pilot requires live API proof, not mock-only spine | M |
-| TB-290 | Commit-to-audit trail integrity (SQL) — after full commit, `GET /v1/audit/search?runId=` asserts `RunStarted` / `RunCompleted` / manifest events with correct scope; tenant B must not see tenant A events on list/search/export | Trustworthiness P0 — evidence trail durability for buyers | S |
-| TB-291 | Reference evidence admin export integration — `ReferenceEvidenceAdminExportService.BuildZipAsync` tests: tenant-scoped content, trusted `PublicApiBaseUrl` links, cross-tenant route 403; no tests exist today | Trustworthiness P0 — admin proof bundle export (TB-274 export-p0) unproven end-to-end | S |
-| TB-292 | Route-tenant positive-path matrix — extend **TB-278**: tenant A token + matching `{tenantId}` → success (200/404-not-403); complements existing 403-only rows in `ScopedSnapshotReadIdorIntegrationTests` | Testability P0 — proves binding does not over-forbid or mis-signal | S |
-| TB-293 | Production demo fail-fast host integration — boot `WebApplicationFactory` with Production + `Demo:Enabled=true` → host fails startup (extends unit-tested `CriticalConfigurationValidator`) | Trustworthiness P0 — demo/prod separation at host, not config unit only | XS |
-| TB-294 | Sponsor value report demo-run isolation (API) — integration test: real tenant runs + demo exclusion must not embed showcase run IDs in generated value report | Trustworthiness P0 — closes BDA-class demo merge into sponsor exports at API layer | S |
+| ~~TB-289~~ | ~~Live buyer golden path E2E~~ — **Done** (batch **5DW-trust-pilot-p0**): `e2e/live-api-buyer-golden-path.spec.ts` | Testability P0 | M |
+| ~~TB-290~~ | ~~Commit-to-audit trail integrity (SQL)~~ — **Done** (batch **5DW-trust-pilot-p0**): `AuditTrailCommitIntegrityIntegrationTests` | Trustworthiness P0 | S |
+| ~~TB-291~~ | ~~Reference evidence admin export integration~~ — **Done** (batch **5DW-trust-pilot-p0**): `ReferenceEvidenceAdminExportIntegrationTests` | Trustworthiness P0 | S |
+| ~~TB-292~~ | ~~Route-tenant positive-path matrix~~ — **Done** (batch **5DW-trust-pilot-p0**): matching-tenant not-403 rows + `test_route_tenant_batch.py` guard | Testability P0 | S |
+| ~~TB-293~~ | ~~Production demo fail-fast host integration~~ — **Done** (batch **5DW-trust-pilot-p0**): `ProductionDemoFailFastHostIntegrationTests` | Trustworthiness P0 | XS |
+| ~~TB-294~~ | ~~Sponsor value report demo-run isolation (API)~~ — **Done** (batch **5DW-trust-pilot-p0**): `ValueReportDemoRunIsolationIntegrationTests` | Trustworthiness P0 | S |
 | TB-295 | SQL-backed audit export tenant isolation — supplement mocked `AuditExportCsvControllerTests` with greenfield SQL: tenant B export/list must not include tenant A `runId` / events | Trustworthiness P1 — compliance export RLS proof | S |
 | TB-296 | Export blob push SSRF integration (API) — POST `/export/push` with internal IP / non-blob host / DNS-rebinding fixture → 4xx; extends policy unit tests | Trustworthiness P1 — customer-supplied SAS abuse path | S |
 | TB-297 | Governance HTTP negative-path matrix — self-approval (exists), double-promote, reject-after-approve, stale manifest version → problem details + durable audit types | Testability P1 — governance trust for paid pilot | M |

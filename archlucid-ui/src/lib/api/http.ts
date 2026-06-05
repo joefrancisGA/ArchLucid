@@ -7,12 +7,24 @@ import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { getScopeHeaders } from "@/lib/scope";
 import { SERVER_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 
 /** Shared HTTP helpers (JSON + proxy routing). */
+
+/** TB-284: buyer-polished shell requests audience-tier problem details (no internal route hints). */
+export const PROBLEM_DETAILS_AUDIENCE_HEADER = "x-archlucid-audience";
+
+function audienceHeadersForCurrentShell(): Record<string, string> {
+  if (!isBuyerPolishedOperatorShellEnv()) {
+    return {};
+  }
+
+  return { [PROBLEM_DETAILS_AUDIENCE_HEADER]: "buyer" };
+}
 
 export interface ApiResponseWithTrace<T> {
   data: T;
@@ -105,6 +117,7 @@ export function resolveRequest(path: string): { url: string; headers: HeadersIni
     const headers: Record<string, string> = {
       Accept: "application/json",
       ...getEffectiveBrowserProxyScopeHeaders(),
+      ...audienceHeadersForCurrentShell(),
     };
     const bearer = getBearerToken();
     if (bearer) headers.Authorization = `Bearer ${bearer}`;
@@ -117,6 +130,7 @@ export function resolveRequest(path: string): { url: string; headers: HeadersIni
     Accept: "application/json",
     ...getScopeHeaders(),
     ...getServerUpstreamAuthHeaders(),
+    ...audienceHeadersForCurrentShell(),
   };
 
   return { url, headers };

@@ -176,6 +176,11 @@ export async function getRunDetail(runId: string): Promise<ApiResponseWithTrace<
   return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`);
 }
 
+/** Buyer-proof run detail — whitelisted fields only (TB-283). */
+export async function getBuyerRunDetailSummary(runId: string): Promise<ApiResponseWithTrace<RunDetail>> {
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}/buyer-summary`);
+}
+
 export type RunOperatorGovernanceDispositionRequest = {
   decision: "Approved" | "Rejected" | "RequestRemediation";
   rationale?: string | null;

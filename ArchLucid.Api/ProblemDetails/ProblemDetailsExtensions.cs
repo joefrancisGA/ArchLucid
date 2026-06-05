@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Validation;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +34,7 @@ public static class ProblemDetailsExtensions
             };
             ApplyOptionalProblemExtensions(problem, extensions);
             ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-            ProblemSupportHints.AttachForProblemType(problem);
+            AttachAudienceSupportHint(problem, controller.HttpContext);
             ProblemCorrelation.Attach(problem, controller.HttpContext);
             return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
         }
@@ -59,7 +60,7 @@ public static class ProblemDetailsExtensions
         };
         ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -79,7 +80,7 @@ public static class ProblemDetailsExtensions
             Instance = instance ?? controller.Request.Path
         };
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -112,7 +113,7 @@ public static class ProblemDetailsExtensions
         }
 
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -144,7 +145,7 @@ public static class ProblemDetailsExtensions
         };
 
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -174,7 +175,7 @@ public static class ProblemDetailsExtensions
             problem.Extensions["blockExplanation"] = result.BlockExplanation;
 
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -199,7 +200,7 @@ public static class ProblemDetailsExtensions
         };
         ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -224,7 +225,7 @@ public static class ProblemDetailsExtensions
         };
         ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -249,7 +250,7 @@ public static class ProblemDetailsExtensions
             Instance = instance ?? controller.Request.Path
         };
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
@@ -274,9 +275,14 @@ public static class ProblemDetailsExtensions
         };
         ApplyOptionalProblemExtensions(problem, extensions);
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
+    private static void AttachAudienceSupportHint(Microsoft.AspNetCore.Mvc.ProblemDetails problem, HttpContext httpContext)
+    {
+        ProblemSupportHints.AttachForProblemType(problem, ProblemDetailsAudienceHttpContext.Resolve(httpContext));
     }
 
     private static void ApplyOptionalProblemExtensions(
@@ -316,7 +322,7 @@ public static class ProblemDetailsExtensions
         };
 
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
+        AttachAudienceSupportHint(problem, controller.HttpContext);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
