@@ -26,6 +26,7 @@ public sealed class McpRetrievalToolsController(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("policy-pack-search")]
     [MutatingAuditExcluded("Read-only retrieval tool.")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalMcpToolHit>), StatusCodes.Status200OK)]
@@ -34,6 +35,7 @@ public sealed class McpRetrievalToolsController(
         CancellationToken cancellationToken) =>
         SearchAsync(body, _retrievalTools.PolicyPackSearchAsync, cancellationToken);
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("prior-decision-search")]
     [MutatingAuditExcluded("Read-only retrieval tool.")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalMcpToolHit>), StatusCodes.Status200OK)]
@@ -42,6 +44,7 @@ public sealed class McpRetrievalToolsController(
         CancellationToken cancellationToken) =>
         SearchAsync(body, _retrievalTools.PriorDecisionSearchAsync, cancellationToken);
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("price-row-lookup")]
     [MutatingAuditExcluded("Read-only retrieval tool.")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalMcpToolHit>), StatusCodes.Status200OK)]

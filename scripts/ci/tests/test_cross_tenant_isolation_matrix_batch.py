@@ -105,6 +105,35 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
                 f"{path.name} must declare INV-009 posture before mutating routes",
             )
 
+    def test_remainder_mutating_controllers_declare_idempotency_posture(self) -> None:
+        controller_paths = (
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "FastPathContextController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Demo" / "QuickStartController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin" / "DemoController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin" / "ClientErrorTelemetryController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Diagnostics" / "SyntheticOperatorDemoPackController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Evolution" / "EvolutionController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Planning" / "FindingFeedbackController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Findings" / "FindingMuteController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernancePreviewController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Integrations" / "ItsmCorrelationController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Integrations" / "ItsmOutboundIssuesController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Analytics" / "InternalCrossTenantAnalyticsController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Advisory" / "LearningController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Mcp" / "McpRetrievalToolsController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Operator" / "OperatorSavedViewsController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Advisory" / "ProductLearningController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "ValueReports" / "ValueReportController.cs",
+        )
+
+        for path in controller_paths:
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(
+                "idempotency-posture:",
+                text,
+                f"{path.name} must declare INV-009 posture before mutating routes",
+            )
+
     def test_internal_governance_scim_controllers_declare_idempotency_posture(self) -> None:
         controller_paths = (
             REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "InternalArchitectureDiagnosticsController.cs",

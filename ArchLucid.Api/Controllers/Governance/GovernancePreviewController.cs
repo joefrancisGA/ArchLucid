@@ -30,6 +30,7 @@ public sealed class GovernancePreviewController(
     ILogger<GovernancePreviewController> logger) : ControllerBase
 {
     /// <summary>Preview governance diff if the given run/manifest were activated into an environment (no persistence).</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("preview")]
     [ProducesResponseType(typeof(GovernancePreviewResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -68,6 +69,7 @@ public sealed class GovernancePreviewController(
     }
 
     /// <summary>Compare governance between the currently active manifests in two environments (read-only).</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("compare-environments")]
     [ProducesResponseType(typeof(GovernanceEnvironmentComparisonResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

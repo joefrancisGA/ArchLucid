@@ -272,6 +272,7 @@ public sealed class LearningController(
     ///     Persists deterministic themes and bounded draft plans from ranked pilot-feedback opportunities (59R). Operator-
     ///     triggered — does not mutate agents, prompts, or governance packs.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("planning/materialize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ProductLearningPlanningMaterializeResult), StatusCodes.Status200OK)]

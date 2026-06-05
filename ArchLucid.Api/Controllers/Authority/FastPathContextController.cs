@@ -22,6 +22,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed class FastPathContextController : ControllerBase
 {
     /// <summary>Builds a shallow C4-style preview from an http(s) repository URL.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("fast-path/context-preview")]
     [ProducesResponseType(typeof(FastPathContextPreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

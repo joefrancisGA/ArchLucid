@@ -46,6 +46,7 @@ public sealed class EvolutionController(
     };
 
     /// <summary>Creates a reviewable candidate from a persisted 59R improvement plan (copies a JSON snapshot).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("candidates/from-plan/{planId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionCandidateChangeSetResponse), StatusCodes.Status200OK)]
@@ -77,6 +78,7 @@ public sealed class EvolutionController(
     ///     Runs read-only architecture analysis for each baseline run linked on the source plan (persists shadow rows; no
     ///     commits/replays).
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("candidates/{candidateId:guid}/shadow-evaluate")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionShadowEvaluateResponse), StatusCodes.Status200OK)]
@@ -112,6 +114,7 @@ public sealed class EvolutionController(
     ///     Re-runs simulation for the candidate (replaces prior simulation rows), persists 60R-v2 outcomes with evaluation
     ///     scores.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("simulate/{candidateId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionSimulateResponse), StatusCodes.Status200OK)]

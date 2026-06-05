@@ -40,6 +40,7 @@ public sealed class FindingMuteController(
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <summary>Mutes a finding for the given run (hides from default operator lists until un-muted).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{findingId}/mute")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

@@ -69,6 +69,7 @@ public sealed class OperatorSavedViewsController(
     }
 
     /// <summary>Creates a saved view for the current tenant and user.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [HttpPost]
     [ProducesResponseType(typeof(OperatorSavedViewResponse), StatusCodes.Status201Created)]

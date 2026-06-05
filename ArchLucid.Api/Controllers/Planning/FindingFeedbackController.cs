@@ -41,6 +41,7 @@ public sealed class FindingFeedbackController(
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Append-only thumbs vote for one finding on a run.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId:guid}/findings/{findingId}/feedback")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

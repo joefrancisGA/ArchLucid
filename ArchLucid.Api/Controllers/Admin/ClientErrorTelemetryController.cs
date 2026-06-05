@@ -64,6 +64,7 @@ public sealed class ClientErrorTelemetryController(
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <summary>Records sponsor-banner first-commit badge render (low-cardinality counter).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("sponsor-banner-first-commit-badge")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,6 +89,7 @@ public sealed class ClientErrorTelemetryController(
     }
 
     /// <summary>Records trial upgrade nudge render (Improvement #14).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("trial-upgrade-nudge/shown")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -121,6 +123,7 @@ public sealed class ClientErrorTelemetryController(
     }
 
     /// <summary>Records trial upgrade nudge CTA click (Improvement #14).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("trial-upgrade-nudge/clicked")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -154,6 +157,7 @@ public sealed class ClientErrorTelemetryController(
     }
 
     /// <summary>Records paid Team expansion nudge render (Improvement #5).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("team-expansion-nudge/shown")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -187,6 +191,7 @@ public sealed class ClientErrorTelemetryController(
     }
 
     /// <summary>Records paid Team expansion nudge CTA click (Improvement #5).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("team-expansion-nudge/clicked")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

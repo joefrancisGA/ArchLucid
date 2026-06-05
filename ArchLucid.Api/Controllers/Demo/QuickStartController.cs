@@ -22,6 +22,7 @@ public sealed class QuickStartController(QuickStartService quickStartService) : 
         quickStartService ?? throw new ArgumentNullException(nameof(quickStartService));
 
     /// <summary>Runs a deterministic simulator pipeline scoped to demo tenant/workspace/project.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("quickstart")]
     [ProducesResponseType(typeof(DemoQuickStartResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

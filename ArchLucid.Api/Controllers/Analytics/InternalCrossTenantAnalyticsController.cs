@@ -75,6 +75,7 @@ public sealed class InternalCrossTenantAnalyticsController(
     }
 
     /// <summary>On-demand rollup refresh for the given UTC calendar day (operator only).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("cross-tenant/daily/refresh")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RefreshDailyRollupsAsync(

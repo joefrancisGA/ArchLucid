@@ -57,6 +57,7 @@ public sealed class ItsmCorrelationController(
         return Ok(body);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

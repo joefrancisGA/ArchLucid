@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DU-mutating-posture-p2**). **~29 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-05 (after **TB-283–301** from DTO boundary + risk-weighted coverage assessments). **~48 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -10,15 +10,15 @@
 | Reliability | 4 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
-| Architectural integrity | 7 |
+| Architectural integrity | 8 |
 | Adoption friction | 4 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 2 |
-| Testability | 2 |
+| Trustworthiness | 8 |
+| Testability | 11 |
 | Maintainability | 2 |
 | Traceability | 2 |
 | Interoperability | 2 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~29** |
+| **Total (unique)** | **~48** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **TB-274 INV-009:** policy-pack/tenant/pilot/register slice **Done** (batch **5DU-mutating-posture-p2**); **26** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DV-mutating-posture-p3** (diagnostics/demo/evolution/MCP remainder) or **5DU-route-tenant-p1** (**TB-281** value-report scope-only URL). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–288** from [`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx). **Coverage hardening:** **TB-289–301** from risk-weighted coverage audit (trusted/paid pilot gates — not vanity %). **TB-274 INV-009:** policy-pack/tenant/pilot/register slice **Done** (batch **5DU-mutating-posture-p2**); **26** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DV-trust-pilot-p0** (**TB-283–284**, **TB-289–294**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -121,6 +121,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **TB-275** was added 2026-06-04 as a **re-validation index** for the same harsh buyer-demo audit re-run in chat (top-100 display only; full register already on disk). It does **not** duplicate the 150-row table — canonical detail remains **TB-273 § BDA-001…150**. Use TB-275 to track spot-check regressions still visible in demo/buyer paths after batches **5CY-demo**–**5DN-demo-deferred** marked TB-273 Done. Next TB number after TB-274 (backend/platform register — **BE-001…BE-061**, **SEC-001…SEC-035** in [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), no `## TB-274` body in this file).
 
 **TB-276 – TB-282** were added 2026-06-04 from the **route-based tenant addressing** architecture assessment ([`docs/assessments/route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx)). BE-014–016 shipped per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` on four tenant-scoped routes, but the guard is **manual, untested, and easy to omit** on new endpoints; `AdminAuthority` is **tenant-scoped admin** while several URLs (`/admin/tenants/{tenantId}/…`) read like platform cross-tenant ops. **TB-276** (P0) centralizes route↔scope binding in one filter; **TB-277** + **TB-278** (P1) add CI + integration tests; **TB-281** (P1) completes the TB-075 remainder (value-report path tenant); **TB-279** + **TB-280** (P2) migrate to ambient scope-only routes and retire the legacy authority executive-summary `{tenantId}` path; **TB-282** (P2) reclassifies aggregate cross-tenant analytics off `AdminAuthority` onto operator RBAC. Platform tenant lifecycle (`AdminTenantsController` + `PlatformTenantDeletionAuthority`) **correctly** uses route `{id}` with a distinct policy — out of scope for removal. Cross-ref **TB-072**, **TB-075**, **TB-274** batch **5DE–5DI** (BE-014–016).
+
+**TB-283 – TB-288** were added 2026-06-05 from the **DTO boundary design** assessment ([`docs/assessments/dto_boundary.docx`](../assessments/dto_boundary.docx)). `RunDetailDto` and similar persistence read models embed snapshots, traces, and agent rows on buyer-consumed routes; `ProblemSupportHints` leaks operator route strings into problem+json. **TB-283** + **TB-284** (P0) introduce buyer/proof DTOs and audience-tier Problem Details; **TB-285** + **TB-286** (P1) add CI forbidden-property and OpenAPI audience tiers; **TB-287** (P1) partitions forensics LLM traces; **TB-288** (P2) architecture-test guard on Persistence return types. Cross-ref **TB-106**, **TB-273** (raw enum/id leakage), **ProofSurfaceContractRegistry**, **TB-075**.
+
+**TB-289 – TB-301** were added 2026-06-05 from a **risk-weighted test coverage** audit (trusted pilot / paid pilot gates — not merged-line vanity). Strong IDOR SQL matrix exists; gaps are mock-heavy buyer golden path, SQL-backed audit/export integrity, reference-evidence ZIP content, route-tenant positive paths, and prod demo boot integration. **TB-289–294** (P0) before trusted pilot; **TB-295–300** (P1) before paid pilot; **TB-301** (P2) targeted Persistence probes. Cross-ref **TB-278**, **TB-259**, **COVERAGE_GAP_ANALYSIS.md**.
 
 **TB-273** was added 2026-06-03 from a **harsh buyer-demo readiness defect audit** of the buyer-polished operator shell along the golden path (Home → Reviews list → Review detail → Executive summary → Manifest summary → Evidence graph → Governance → Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. It is a single umbrella item enumerating ~150 issues as sub-IDs **BDA-001 … BDA-150** (sub-ID scheme consistent with `RAG-V1-*` / `INV-*`), grouped **P0** (demo/test-data leakage visible to the buyer, fabricated decision/confidence/audit-link fallbacks, misleading "complete"/"placeholder"/illustrative-ROI claims, sponsor exports that can merge demo runs, and one dead "finalize" anchor in buyer mode), **P1** (terminology drift — run/review/pilot, manifest/golden manifest/signed decision record, audit log/trail, workflow/decision record/approval, evidence trace/trail; raw identifiers and enum labels in UI; redundant CTAs; visual-hierarchy/chart-grammar inconsistency; in-product segregation-of-duties not explained while marketed), and **P2** (lower polish). The full per-issue table (severity, screen/area, exact problem + file, why it hurts buyer confidence, recommended fix, replacement copy) is in the `## TB-273` detail section. **These are buyer-demo-shell credibility defects, not V1 readiness-scoring gaps** — many are correctly gated to demo/static mode today and the dominant risk is **env-flag drift** (`isBuyerPolishedOperatorShellEnv()` / `buyerPolishedArtifactTable` vs static-demo flags) leaking demo copy into the polished shell; per `Assessment-Scope-V1_1.mdc` they do not change `(A)` headline scores. They do not duplicate **TB-143–148** (in-app docs presentation — BDA cross-refs the raw-doc-link items), **TB-168** (KPI semantic guard), or **TB-270–272** (operator usability). Cross-ref `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
@@ -239,6 +243,25 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-279 | Tenant-scoped admin route migration — collapse redundant `{tenantId}` segments on tenant-admin surfaces to ambient scope: e.g. `GET /v1/admin/metering/summary`, `GET /v1/admin/reference-evidence`, align naming in OpenAPI; update UI/CLI callers; document that `AdminAuthority` is tenant-scoped, not platform cross-tenant | Architectural integrity P2 — removes misleading `/admin/tenants/{tenantId}/…` platform-admin URL shape | M |
 | TB-280 | Retire legacy `GET api/authority/executive-summary/{tenantId}` — redirect clients to `GET /v1/reports/executive-summary` (ambient scope); remove duplicate controller or mark obsolete + CI guard against new callers | Architectural integrity P2 — one executive-summary contract | XS |
 | TB-282 | Reclassify cross-tenant usage rollup — move `AdminController.GetCrossTenantUsageSummary` (`GET …/admin/analytics/cross-tenant-summary`) from `AdminAuthority` to `RequireOperatorRole` (or document + enforce platform-only break-glass); tenant admins must not reach fleet-wide aggregates via tenant-admin policy | Trustworthiness P2 — policy/URL semantics alignment | XS |
+| TB-283 | Buyer run detail summary DTO — introduce `BuyerRunDetailSummaryDto` (or split buyer fields off `RunDetailDto`); explicit mapper from persistence read model; buyer-polished UI routes must not return embedded `ContextSnapshot` / `GraphSnapshot` / `FindingsSnapshot` / `AgentResult` subgraphs | Architectural integrity P0 — stops persistence-shape leakage on proof surface | M |
+| TB-284 | Audience-tier Problem Details — strip or replace `extensions.supportHint` route/runbook strings on buyer-facing errors; operator tier retains `ProblemSupportHints`; golden tests assert buyer 4xx/5xx never contain `GET /v1/` substrings | Trustworthiness P0 — buyer errors must not teach internal API topology | S |
+| TB-285 | CI forbidden-property guard for buyer OpenAPI schemas — extend `ProofSurfaceContractRegistry` with forbidden property names (`*SnapshotId`, `TraceId`, `RawResponse`, etc.); fail CI when buyer-tier schemas add them | Testability P1 — anti-drift on proof DTO boundary | S |
+| TB-286 | OpenAPI audience tiers — add `x-archlucid-audience` on operations/schemas; publish filtered `buyer-contract.openapi.json` for UI codegen and procurement; exclude `/v1/internal/*` from buyer snapshot | Architectural integrity P1 — contract boundary for integrators | M |
+| TB-287 | Forensics partition for full LLM traces — move `GET /v1/architecture/run/{runId}/traces` full prompt/response bodies to `/v1/internal/*` or operator-only DTO; buyer/proof surfaces keep `RunExplanationSummary` aggregates only | Trustworthiness P1 — ReadAuthority must not expose forensics by default | M |
+| TB-288 | Architecture test — buyer-facing controller actions must not declare return types from `ArchLucid.Persistence.*` | Testability P2 — mechanical enforcement of TB-283 | XS |
+| TB-289 | Live buyer golden path E2E — port `buyer-golden-path.smoke.spec.ts` to `live-api-buyer-golden-path.spec.ts` against Sql + seeded showcase run (executive → manifest → graph → governance → audit); assert no mock leakage / generic error boundary | Testability P0 — trusted pilot requires live API proof, not mock-only spine | M |
+| TB-290 | Commit-to-audit trail integrity (SQL) — after full commit, `GET /v1/audit/search?runId=` asserts `RunStarted` / `RunCompleted` / manifest events with correct scope; tenant B must not see tenant A events on list/search/export | Trustworthiness P0 — evidence trail durability for buyers | S |
+| TB-291 | Reference evidence admin export integration — `ReferenceEvidenceAdminExportService.BuildZipAsync` tests: tenant-scoped content, trusted `PublicApiBaseUrl` links, cross-tenant route 403; no tests exist today | Trustworthiness P0 — admin proof bundle export (TB-274 export-p0) unproven end-to-end | S |
+| TB-292 | Route-tenant positive-path matrix — extend **TB-278**: tenant A token + matching `{tenantId}` → success (200/404-not-403); complements existing 403-only rows in `ScopedSnapshotReadIdorIntegrationTests` | Testability P0 — proves binding does not over-forbid or mis-signal | S |
+| TB-293 | Production demo fail-fast host integration — boot `WebApplicationFactory` with Production + `Demo:Enabled=true` → host fails startup (extends unit-tested `CriticalConfigurationValidator`) | Trustworthiness P0 — demo/prod separation at host, not config unit only | XS |
+| TB-294 | Sponsor value report demo-run isolation (API) — integration test: real tenant runs + demo exclusion must not embed showcase run IDs in generated value report | Trustworthiness P0 — closes BDA-class demo merge into sponsor exports at API layer | S |
+| TB-295 | SQL-backed audit export tenant isolation — supplement mocked `AuditExportCsvControllerTests` with greenfield SQL: tenant B export/list must not include tenant A `runId` / events | Trustworthiness P1 — compliance export RLS proof | S |
+| TB-296 | Export blob push SSRF integration (API) — POST `/export/push` with internal IP / non-blob host / DNS-rebinding fixture → 4xx; extends policy unit tests | Trustworthiness P1 — customer-supplied SAS abuse path | S |
+| TB-297 | Governance HTTP negative-path matrix — self-approval (exists), double-promote, reject-after-approve, stale manifest version → problem details + durable audit types | Testability P1 — governance trust for paid pilot | M |
+| TB-298 | Manifest artifact download integrity — committed run artifact GET returns stable content; cross-tenant denial; matching-tenant success path in SQL integration | Trustworthiness P1 — deliverable bytes match committed manifest | S |
+| TB-299 | Executive ROI board-pack live E2E — download path from UI or API; assert freshness/orphan labeling regressions (`ExecutiveRoiSummaryInvariantTests` guards logic only today) | Testability P1 — sponsor-facing export on live stack | S |
+| TB-300 | Scope identity auth permutation table — ApiKey vs JWT vs DevBypass: mismatched scope headers/claims → 403; document in pen-test matrix | Trustworthiness P1 — extends **TB-072** with explicit matrix | M |
+| TB-301 | Targeted Persistence tenant-read SQL probes — high-risk uncovered read paths (orchestrator/audit under RLS), not blanket % chasing | Testability P2 — repository-layer defense in depth | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |

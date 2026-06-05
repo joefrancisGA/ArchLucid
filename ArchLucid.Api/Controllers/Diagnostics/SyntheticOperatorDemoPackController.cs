@@ -55,6 +55,7 @@ public sealed class SyntheticOperatorDemoPackController(
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <summary>Appends five durable synthetic audit markers (purge via type or JSON flag in payload).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("synthetic-operator-demo-pack")]
     [ProducesResponseType(typeof(SyntheticOperatorDemoPackResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

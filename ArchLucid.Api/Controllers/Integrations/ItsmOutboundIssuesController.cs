@@ -34,6 +34,7 @@ public sealed class ItsmOutboundIssuesController(
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <summary>Creates an external ticket from the persisted finding in the current scope.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [ProducesResponseType(typeof(CreateItsmOutboundIssueResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

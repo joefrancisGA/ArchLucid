@@ -56,6 +56,7 @@ public sealed class ValueReportController(
         valueReportRenderer ?? throw new ArgumentNullException(nameof(valueReportRenderer));
 
     /// <summary>Generates a DOCX value report for the tenant (sync) or enqueues background generation for large windows.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{tenantId:guid}/generate")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

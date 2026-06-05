@@ -87,6 +87,7 @@ public sealed class ProductLearningController(
     }
 
     /// <summary>Captures a scoped pilot feedback signal from a visible review output.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("signals")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

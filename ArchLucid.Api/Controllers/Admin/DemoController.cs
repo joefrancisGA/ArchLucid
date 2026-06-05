@@ -28,6 +28,7 @@ public sealed class DemoController(
     ///     Available when <c>Demo:Enabled</c> is true and either the host environment is Development OR
     ///     <c>Demo:SaaSGuestSeedEnabled</c> is true (V1 Operator Shell — OS-1, LATEST.md improvement #1).
     /// </remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("seed")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
