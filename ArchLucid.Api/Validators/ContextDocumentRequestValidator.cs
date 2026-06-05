@@ -36,15 +36,16 @@ public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextD
             .NotNull().WithMessage("Document Content must not be null.")
             .MaximumLength(500_000).WithMessage("Document Content must not exceed 500000 characters.");
 
+        // Literal HTTPS / private-host checks only — keep this validator synchronous so nested
+        // SetValidator under auto-validation does not block create-run payloads with inline documents.
+        // Post-DNS SSRF guard runs on the parent ArchitectureRequestValidator (MustAsync per document).
         RuleFor(x => x.SourceDocumentUrl)
-            .CustomAsync(async (url, context, cancellationToken) =>
+            .Custom((url, context) =>
             {
                 if (string.IsNullOrWhiteSpace(url))
                     return;
 
-                string? reason =
-                    await AllowedDocumentUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync(url, cancellationToken)
-                        .ConfigureAwait(false);
+                string? reason = AllowedDocumentUrlPolicy.TryGetRejectionReason(url);
 
                 if (reason is not null)
                     context.AddFailure(reason);

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Security;
 
 using FluentValidation;
 
@@ -58,6 +59,18 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
 
         RuleForEach(x => x.Documents)
             .SetValidator(new ContextDocumentRequestValidator());
+
+        RuleForEach(x => x.Documents)
+            .MustAsync(static async (document, cancellationToken) =>
+            {
+                if (string.IsNullOrWhiteSpace(document.SourceDocumentUrl))
+                    return true;
+
+                return await AllowedDocumentUrlPolicy
+                    .TryGetRejectionReasonAfterDnsResolveAsync(document.SourceDocumentUrl, cancellationToken)
+                    .ConfigureAwait(false) is null;
+            })
+            .WithMessage("Document SourceDocumentUrl failed SSRF policy checks.");
 
         RuleFor(x => x.PolicyReferences)
             .NotNull().WithMessage("PolicyReferences must not be null.")
