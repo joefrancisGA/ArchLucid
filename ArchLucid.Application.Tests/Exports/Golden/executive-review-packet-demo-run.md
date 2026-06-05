@@ -40,6 +40,10 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 - Under-provisioned OCR worker autoscale floor
 - Missing regional failover documentation
 
+---
+
+_This executive summary was generated with AI assistance from run findings and severity counts. Review before sharing with sponsors._
+
 ## Portfolio signals (live)
 
 - **Findings resolved (30d):** 2

@@ -99,8 +99,10 @@ public sealed class RecurringArchitectureReviewTriggerServiceTests
 
         await sut.TriggerScheduleAsync(schedule, CancellationToken.None);
 
-        callOrder.Should().Equal("create", "update", "execute");
+        callOrder.Should().Equal("create", "update", "execute", "update");
         schedule.LastTriggeredRunId.Should().Be(newRunId);
         schedule.NextRunUtc.Should().Be(nextRun);
+        schedule.LastRunStatus.Should().Be(RecurrenceRunStatuses.Succeeded);
+        schedule.ConsecutiveFailureCount.Should().Be(0);
     }
 }
