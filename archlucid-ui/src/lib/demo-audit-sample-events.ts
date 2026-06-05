@@ -1,5 +1,6 @@
 import type { AuditEvent } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer-demo-content-gating";
 import { sanitizeAuditEventsForBuyerPolishedShell } from "@/lib/buyer-demo-persona-labels";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -171,5 +172,5 @@ export function shouldPreferCuratedAuditTrailForBuyerShell(filters: {
   readonly actorUserId: string;
   readonly runId: string;
 }): boolean {
-  return isBuyerPolishedOperatorShellEnv() && shouldInjectDemoAuditSample(filters);
+  return isExplicitStaticDemoMarketingBuild() && shouldInjectDemoAuditSample(filters);
 }

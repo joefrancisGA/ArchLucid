@@ -22,6 +22,7 @@
 | **5DP-mutating-posture-p1** | `idempotency-posture` on ask/replay/export/advisory routes; mutating-route baseline refresh (~28 routes) | Done |
 | **5DQ-trust-ingest-p0** | Extractor upload/connection `idempotency-posture`; cross-tenant runId + package download IDOR SQL regressions | Done |
 | **5DR-trust-webhooks-p0** | Alert/digest/Teams/exec-digest/marketing-quote `idempotency-posture`; CI guard on alert controllers | Done |
+| **5DT-demo-revalidate-p0** | **TB-275** buyer-demo residuals (BDA-001/008/015, audit demo gating) | Done |
 
 ## Recommended next batches
 

@@ -35,7 +35,7 @@ describe("presentCostEvidenceFreshness", () => {
     });
 
     expect(result.state).toBe("demo-derived");
-    expect(result.display).toBe("Demo-derived");
+    expect(result.display).toBe("Illustrative");
   });
 
   it("links stale evidence to Azure extractor runbook", () => {

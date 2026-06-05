@@ -178,6 +178,10 @@ export const BUYER_AUDIT_TIMELINE_INTRO = "Recorded timeline for this review pac
 
 export const BUYER_AUDIT_TRAIL_COMPLETE_HEADING = "Audit trail for this review package";
 
+/** Buyer completion card on audit results — scope framing without "complete" overclaim (BDA-008). */
+export const BUYER_AUDIT_PACKAGE_READY_LEAD =
+  "Decision record, signed manifest, evidence trail, governance approval, and audit events are available for this review package.";
+
 export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
   "System-recorded events capture automated lifecycle steps.";
 

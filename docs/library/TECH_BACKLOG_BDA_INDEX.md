@@ -12,6 +12,7 @@
 | **5DB-demo** | 081–133 | **Done** | Governance/audit/finding/ask/manifest/graph P1 wave 2 |
 | **5DC-demo** | 134–150 | **Done** | P2 polish — home casing, neutral runs count, executive scorecard/trend/KPI copy, in-app help links |
 | **5DN-demo-deferred** | 135, 139, 146 | **Done** | Home hero/section hierarchy; unified executive dashboard metrics; manifest summary `topDecisionSynopses` + UI excerpts |
+| **5DT-demo-revalidate-p0** | 001, 006–009, 015 (TB-275) | **Done** | Audit completion copy; finalize anchor; illustrative cost KPI; explicit-demo audit inject gating |
 
 ## P0 checklist (24)
 
@@ -48,19 +49,9 @@
 |----|-----|----------------|
 | BDA-150 | ✓ | Mock KPI / illustrative spine import guard |
 
-## TB-275 re-validation (2026-06-04) — open residuals
+## TB-275 re-validation (2026-06-04) — **Done** (batch **5DT-demo-revalidate-p0**)
 
-Canonical ids remain **BDA-001…150** (`TECH_BACKLOG.md` § TB-273). Spot-check after TB-273 **Done** — fix against existing BDA ids only:
-
-| BDA | Priority | Residual |
-| --- | --- | --- |
-| BDA-008 | P0 | "Audit trail complete — review package finalized" still on buyer completion card (`AuditResultsSection.tsx`) |
-| BDA-009 | P0 | "You have now seen the sample audit trail…" admission (`AuditResultsSection.tsx`) |
-| BDA-015 | P0 | "Demo-derived" KPI label (`executive-roi-kpi-display.ts`) |
-| BDA-001 | P0 | Operator shell `#run-actions` anchor still broken (`first-week-route-guidance.ts`; buyer path uses `#finalize-review`) |
-| BDA-006–007 | P0 | Verify `demo-audit-sample-events.ts` never renders in buyer-polished tenant mode |
-
-**Recommended batch:** **5DT-demo-revalidate-p0** — closes **TB-275** when golden-path walk shows no residual rows.
+Spot-check residuals closed against existing **BDA-001…150** ids — see `TECH_BACKLOG.md` § TB-275.
 
 ## How to pick up
 

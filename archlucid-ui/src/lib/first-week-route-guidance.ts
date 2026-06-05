@@ -61,13 +61,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
     primaryAction: { label: "Start new review", href: "/reviews/new" },
     operateDeferralNote: "Compare is optional — not required for first-pilot success.",
   },
-  "review-detail-in-progress": {
-    useWhen: "The review is running or findings are ready but the signed manifest is not finalized yet.",
-    bridgeCopy:
-      "Stay on this page until you finalize — that locks the signed decision record and unlocks sponsor exports.",
-    primaryAction: { label: "Go to finalize actions", href: "#run-actions" },
-    operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
-  },
+  "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {
     useWhen: "The manifest is committed and you need sponsor-ready exports or an executive summary.",
     bridgeCopy:

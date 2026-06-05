@@ -61,20 +61,17 @@ export function presentCostEvidenceFreshness(input: {
   const basis = input.savingsPricingBasis?.trim().toLowerCase() ?? "";
 
   if (basis.includes("demo") || basis.includes("illustrative")) {
-    if (isBuyerPolishedOperatorShellEnv()) {
-      return {
-        display: "Illustrative",
-        state: "demo-derived",
-        footnote: "Upload your Azure inventory to ground cost evidence in measured spend.",
-        runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
-      };
-    }
+    const footnote = isBuyerPolishedOperatorShellEnv()
+      ? "Upload your Azure inventory to ground cost evidence in measured spend."
+      : "Cost evidence is illustrative — do not treat as measured Azure spend.";
 
     return {
-      display: "Demo-derived",
+      display: "Illustrative",
       state: "demo-derived",
-      footnote: "Cost evidence is illustrative — do not treat as measured Azure spend.",
-      runbookHref: null,
+      footnote,
+      runbookHref: isBuyerPolishedOperatorShellEnv()
+        ? "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md"
+        : null,
     };
   }
 

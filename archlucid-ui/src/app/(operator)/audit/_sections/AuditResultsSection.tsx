@@ -20,7 +20,13 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
-import { BUYER_AUDIT_DOWNLOAD_CTA, BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION, BUYER_AUDIT_TIMELINE_INTRO, BUYER_AUDIT_TRAIL_COMPLETE_HEADING } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_AUDIT_DOWNLOAD_CTA,
+  BUYER_AUDIT_PACKAGE_READY_LEAD,
+  BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION,
+  BUYER_AUDIT_TIMELINE_INTRO,
+  BUYER_AUDIT_TRAIL_COMPLETE_HEADING,
+} from "@/lib/buyer-polish-copy";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
@@ -192,11 +198,11 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                 data-testid="audit-buyer-completion-card"
               >
                 <h3 id="audit-buyer-completion-heading" className="m-0 text-sm font-semibold text-al-text-primary">
-                  Audit trail complete — review package finalized
+                  {BUYER_AUDIT_TRAIL_COMPLETE_HEADING}
                 </h3>
                 <p className="m-0 mt-2 max-w-prose text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-                  Decision, signed manifest, evidence trail, governance approval, and audit trail are available for this
-                  review package. Download the audit trail or open the manifest bundle for diligence export.
+                  {BUYER_AUDIT_PACKAGE_READY_LEAD} Download the audit trail or open the manifest bundle for diligence
+                  export.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button type="button" variant="primary" size="sm" onClick={() => void onExportCsv()} disabled={!csvExportUiAllowed || exporting}>

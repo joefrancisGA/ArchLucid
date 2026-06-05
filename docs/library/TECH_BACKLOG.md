@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after **TB-275** buyer-demo re-validation index). **~29 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after batch **5DT-demo-revalidate-p0** / **TB-275** closed). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -12,7 +12,7 @@
 | AI/Agent readiness | 5 |
 | Architectural integrity | 5 |
 | Adoption friction | 4 |
-| Commercial / marketability | 4 |
+| Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~29** |
+| **Total (unique)** | **~28** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** (open) re-validates spot-check residuals — do not fork new BDA ids. **Trustworthiness (2):** TB-274 remainder (internal replay, SCIM, governance mutators). **Commercial (4):** includes **TB-275** + buyer-demo **(B)** narrative. **Next recommended batch:** **5DT-demo-revalidate-p0** (close TB-275 residuals: **BDA-008/009/015**, operator **BDA-001**, audit gating **BDA-006–007**) then **5DS-trust-internal-p0**. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Trustworthiness (2):** TB-274 remainder (internal replay, SCIM, governance mutators). **Next recommended batch:** **5DS-trust-internal-p0** (internal replay + SCIM + governance mutator posture) or **TB-138** (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -229,7 +229,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-271 | Universal failure identifier — generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id | **Done (2026-06-04 batch 5DM)** — `applyCorrelationHeaders` + `buildApiRequestErrorFromParts` request fallback; `api-error.test.ts` | S |
 | TB-272 | Empty/loading-state consistency — consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | **Done (2026-06-04 batch 5DM)** — `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | M |
 | TB-273 | Buyer-demo readiness defect remediation (**BDA-001…BDA-150**, including deferred **BDA-135/139/146** in batch **5DN-demo-deferred**) | **Done (2026-06-04)** — batches **5CY-demo** through **5DN-demo-deferred**; index [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md); full per-issue table in `## TB-273` below | XL |
-| TB-275 | Buyer-demo harsh audit re-validation (2026-06-04) — spot-check residual defects; canonical register **TB-273** (all **150** issues, not top-100 only) | Open — see `## TB-275`; re-verify before live demo | S |
+| TB-275 | Buyer-demo harsh audit re-validation (2026-06-04) — spot-check residual defects; canonical register **TB-273** (all **150** issues, not top-100 only) | **Done (2026-06-04 batch 5DT)** — BDA-001/008/015 + audit demo gating; `test_demo_batch_5dt.py` | S |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |

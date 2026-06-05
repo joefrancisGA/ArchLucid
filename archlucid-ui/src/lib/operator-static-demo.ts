@@ -1056,7 +1056,7 @@ export function tryStaticDemoAlertInboxRow(): AlertRecord {
 
 /** Merge PHI sample alert into an empty inbox only in demo / buyer-polished builds — not for arbitrary local dev. */
 export function shouldMergeOperatorDemoAlertSample(): boolean {
-  return isBuyerPolishedOperatorShellEnv() || isStaticDemoPayloadFallbackEnabled();
+  return isStaticDemoPayloadFallbackEnabled();
 }
 
 export function tryStaticDemoGovernanceApprovalRequests(runId: string): GovernanceApprovalRequest[] | null {
