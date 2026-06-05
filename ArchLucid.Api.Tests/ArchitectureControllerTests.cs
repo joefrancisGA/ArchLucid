@@ -26,7 +26,9 @@ public sealed class ArchitectureControllerTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true,
+        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     private static StringContent JsonContent(object value)
@@ -436,8 +438,12 @@ public sealed class ArchitectureControllerTests
                 HttpResponseMessage response =
                     await client.PostAsync("/v1/architecture/request", JsonContent(template));
 
-                response.StatusCode.Should().Be(HttpStatusCode.Created,
-                    $"template {template.SystemName} should create a run");
+                if (response.StatusCode != HttpStatusCode.Created)
+                {
+                    string problemBody = await response.Content.ReadAsStringAsync();
+                    response.StatusCode.Should().Be(HttpStatusCode.Created,
+                        $"template {template.SystemName} should create a run; response: {problemBody}");
+                }
 
                 CreateRunResponseDto? payload =
                     await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);

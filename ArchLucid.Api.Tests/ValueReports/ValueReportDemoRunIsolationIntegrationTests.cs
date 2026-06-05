@@ -35,7 +35,9 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
+                primer,
+                includePostCreateRunWarmup: false);
         }
 
         using HttpClient client = factory.CreateClient();

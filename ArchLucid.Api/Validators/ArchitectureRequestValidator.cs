@@ -60,15 +60,23 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
         RuleForEach(x => x.Documents)
             .SetValidator(new ContextDocumentRequestValidator());
 
-        RuleForEach(x => x.Documents)
-            .MustAsync(static async (document, cancellationToken) =>
+        // Post-DNS SSRF guard on the parent request — avoid a second RuleForEach on Documents, which can prevent
+        // nested SetValidator rules from running under FluentValidation auto-validation on create-run payloads.
+        RuleFor(x => x)
+            .MustAsync(static async (request, cancellationToken) =>
             {
-                if (string.IsNullOrWhiteSpace(document.SourceDocumentUrl))
-                    return true;
+                foreach (ContextDocumentRequest document in request.Documents)
+                {
+                    if (string.IsNullOrWhiteSpace(document.SourceDocumentUrl))
+                        continue;
 
-                return await AllowedDocumentUrlPolicy
-                    .TryGetRejectionReasonAfterDnsResolveAsync(document.SourceDocumentUrl, cancellationToken)
-                    .ConfigureAwait(false) is null;
+                    if (await AllowedDocumentUrlPolicy
+                            .TryGetRejectionReasonAfterDnsResolveAsync(document.SourceDocumentUrl, cancellationToken)
+                            .ConfigureAwait(false) is not null)
+                        return false;
+                }
+
+                return true;
             })
             .WithMessage("Document SourceDocumentUrl failed SSRF policy checks.");
 

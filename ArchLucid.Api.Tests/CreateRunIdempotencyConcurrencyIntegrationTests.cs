@@ -25,12 +25,12 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     ///     <see cref="ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> times
     ///     the waiter depth on cold CI SQL, and stay below slow-shard <c>--blame-hang-timeout</c> minus bootstrap.
     ///     4 parallel POSTs serialise through <c>sp_getapplock</c>, so the last waiter can need ~4 × pipeline duration
-    ///     on cold CI SQL (~6–8 min each → ~28–32 min total). A 55-min buffer over the per-attempt HTTP ceiling
-    ///     (total 70 min) gives headroom on cold runners while leaving margin below the 105-min blame-hang.
+    ///     on cold CI SQL (~6–8 min each → ~28–32 min total). An 85-min buffer over the per-attempt HTTP ceiling
+    ///     (total 100 min) survived a 70-min CI cancel on run 27023705522; stays below the 105-min blame-hang.
     /// </summary>
     private static readonly TimeSpan ParallelCreateRunHangGuard =
         ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
-        + TimeSpan.FromMinutes(55);
+        + TimeSpan.FromMinutes(85);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "

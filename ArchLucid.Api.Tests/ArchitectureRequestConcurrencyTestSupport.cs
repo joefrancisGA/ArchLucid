@@ -40,7 +40,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     ///     Must exceed <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> so a single warm POST is not
     ///     cancelled by the bootstrap token before the HTTP client budget elapses.
     /// </summary>
-    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(20);
+    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(30);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {

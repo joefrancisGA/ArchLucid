@@ -1692,6 +1692,7 @@ jobs:
           pwsh -NoProfile -File ./scripts/ci/Invoke-ApiIntegrationTestShard.ps1
           -ShardIndex ${{ matrix.shard }}
           -ShardCount 3
+          -BlameHangTimeout 75min
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
       - uses: actions/upload-artifact@v6
@@ -1929,7 +1930,7 @@ jobs:
       - name: Test â€” ArchLucid.Api.Tests (Category=Slow only)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
-        # Blame must exceed ParallelCreateRunHangGuard (~85m) + GreenfieldSqlHostBootstrapBudget (~35m) slack on cold CI SQL.
+        # Blame must exceed ParallelCreateRunHangGuard (~100m) + GreenfieldSqlHostBootstrapBudget (~30m) slack on cold CI SQL.
         # --diag: VSTest/platform trace when the host stalls after tests (Coverlet teardown vs SQL dispose); blame "current test" is often the last finished test.
         run: >
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-build -c Release --settings coverage.runsettings

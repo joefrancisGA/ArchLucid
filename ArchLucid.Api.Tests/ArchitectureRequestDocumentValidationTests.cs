@@ -41,23 +41,10 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
         using JsonDocument doc = JsonDocument.Parse(body);
 
         JsonElement rootEl = doc.RootElement;
-        rootEl.TryGetProperty("errors", out JsonElement errors).Should().BeTrue(
-            "validation failures should expose an errors object (problem details shape)");
+        bool hasFieldScopedContentTypeError = ValidationProblemAssertions.ContainsDocumentContentTypeFieldError(rootEl);
 
-        bool hasDocumentContentTypeKey = false;
-
-        foreach (JsonProperty p in errors.EnumerateObject())
-        {
-            if (!p.Name.Contains("contentType", StringComparison.OrdinalIgnoreCase) ||
-                !p.Name.Contains("document", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            hasDocumentContentTypeKey = true;
-            break;
-        }
-
-        hasDocumentContentTypeKey.Should().BeTrue(
-            "expected a validation key scoped to documents and content type, e.g. documents[0].contentType; got keys: {0}",
-            string.Join(", ", errors.EnumerateObject().Select(p => p.Name)));
+        hasFieldScopedContentTypeError.Should().BeTrue(
+            "expected a validation key scoped to documents and content type in problem details; body: {0}",
+            body);
     }
 }

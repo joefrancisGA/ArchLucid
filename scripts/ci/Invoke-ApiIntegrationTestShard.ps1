@@ -18,7 +18,7 @@ param(
 
     [int]$FilterChunkSize = 40,
 
-    [string]$BlameHangTimeout = '45min'
+    [string]$BlameHangTimeout = '75min'
 )
 
 Set-StrictMode -Version Latest
