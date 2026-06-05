@@ -60,6 +60,16 @@ class TestDtoBoundaryBatch(unittest.TestCase):
         path = REPO_ROOT / "ArchLucid.Api.Tests" / "OpenApiBuyerContractSnapshotTests.cs"
         self.assertTrue(path.is_file(), f"Missing {path}")
 
+    def test_buyer_facing_dto_boundary_architecture_tests_exist(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Architecture.Tests"
+            / "BuyerFacingDtoBoundaryArchitectureTests.cs"
+        )
+        self.assertTrue(path.is_file(), f"Missing {path}")
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("Buyer_facing_controller_actions_do_not_declare_ArchLucid_Persistence_return_types", text)
+
 
 if __name__ == "__main__":
     unittest.main()

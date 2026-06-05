@@ -74,7 +74,7 @@ See **`docs/library/coverage-exclusions.md`** and **`coverage.runsettings`** (ge
 
 Class-level rankings (uncovered line entries, partial types merged) and **test-backfill notes** are maintained in the tables below. Highest-impact themes aligned with the snapshot:
 
-1. **`ArchLucid.Persistence`** — lowest line % in that merge (**~40%** for the main **`ArchLucid.Persistence`** package); **`DapperTenantRepository`** and relational read paths dominate uncovered entries.
+1. **`ArchLucid.Persistence`** — lowest line % in that merge (**~40%** for the main **`ArchLucid.Persistence`** package); **`DapperTenantRepository`** and relational read paths dominate uncovered entries. **TB-301 (2026-06-05 batch 5DX-trust-p2)** added named SQL scope-isolation probes (not blanket % chasing) for **`SqlRunRepository.GetByIdAsync`**, **`DapperAuditRepository.GetFilteredAsync`**, **`SqlGoldenManifestRepository.GetByIdAsync`**, **`GovernanceApprovalRequestRepository.GetByIdAsync`**, and **`SqlDecisionTraceRepository.GetByIdAsync`** — see `*ScopeIsolationSqlIntegrationTests.cs` under **`ArchLucid.Persistence.Tests`**.
 2. **`ArchLucid.Api`** — **~61%** line; **`AdminDiagnosticsService`**, **`GovernanceController`**, **`EvolutionSimulationService`** drive gaps in the hotspot table.
 3. **`ArchLucid.Cli`** — CLI commands and config evaluation remain expensive to cover end-to-end.
 4. **`ArchLucid.Host.Core` / `ArchLucid.Host.Composition`** — background processing, DI composition extension methods, and consistency probes carry integration-heavy paths.

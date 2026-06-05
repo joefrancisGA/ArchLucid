@@ -30,12 +30,12 @@
 | **5DW-trust-pilot-p0** | **TB-283–284**, **TB-289–294** — buyer DTO boundary, audience-tier Problem Details, trusted-pilot SQL/E2E coverage | Done |
 | **5DW-trust-paid-p1a** | **TB-285–287** — forbidden-property CI guard, OpenAPI audience tiers + buyer snapshot, forensics partition | Done |
 | **5DW-trust-paid-p1b** | **TB-295–300** — audit export RLS, export-push SSRF API, governance negative paths, artifact download integrity, board-pack E2E, scope identity permutation table | Done |
+| **5DX-trust-p2** | **TB-288**, **TB-301** — buyer-facing Persistence return-type architecture guard; five Persistence tenant-read SQL scope-isolation probes | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DX-trust-p2** | Testability, Architectural integrity | **TB-288**, **TB-301** |
 | **5DU-route-tenant-p1** | Trustworthiness, Architectural integrity | **TB-281** value-report scope-only URL; **TB-279** admin route migration; **TB-280** / **TB-282** legacy exec-summary + cross-tenant rollup policy |
 | **TB-106–108** | Correctness | Run-detail operator fidelity P0 — architecture endpoint fields on operator loader |
 | **TB-138** | Trustworthiness (B) | Real-LLM golden-cohort CI promotion (owner Azure OpenAI secrets / environment) |

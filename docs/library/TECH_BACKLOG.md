@@ -2,12 +2,12 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-05 (after batch **5DW-trust-paid-p1b** — **TB-295–300** Done). **~30 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-05 (after batch **5DX-trust-p2** — **TB-288**, **TB-301** Done). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 9 |
-| Testability | 6 |
+| Testability | 4 |
 | Reliability | 3 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~30** |
+| **Total (unique)** | **~28** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–287** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**); **TB-288** remains. **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** remains (P2). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DX-trust-p2** (**TB-288**, **TB-301**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DU-route-tenant-p1** (**TB-281** first) or remaining **TB-279–282**. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -250,7 +250,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | ~~TB-285~~ | ~~CI forbidden-property guard for buyer OpenAPI schemas~~ — **Done** (batch **5DW-trust-paid-p1a**): `ProofSurfaceForbiddenPropertyDriftTests`, `buyer_dto_forbidden_properties.txt`, `test_dto_boundary_batch.py` | Testability P1 | S |
 | ~~TB-286~~ | ~~OpenAPI audience tiers + buyer contract snapshot~~ — **Done** (batch **5DW-trust-paid-p1a**): `x-archlucid-audience` transformers, `buyer-contract.openapi.snapshot.json`, `OpenApiBuyerContractSnapshotTests` | Architectural integrity P1 | M |
 | ~~TB-287~~ | ~~Forensics partition for full LLM traces~~ — **Done** (batch **5DW-trust-paid-p1a**): `GET /v1/internal/architecture/run/{runId}/traces/forensics`, operator gate on tool-invocation-forensics, `ForensicsTracePartitionIntegrationTests` | Trustworthiness P1 | M |
-| TB-288 | Architecture test — buyer-facing controller actions must not declare return types from `ArchLucid.Persistence.*` | Testability P2 — mechanical enforcement of TB-283 | XS |
+| ~~TB-288~~ | ~~Architecture test — buyer-facing controller actions must not declare return types from `ArchLucid.Persistence.*`~~ — **Done** (batch **5DX-trust-p2**): `BuyerFacingDtoBoundaryArchitectureTests` + `test_dto_boundary_batch.py` guard | Testability P2 | XS |
 | ~~TB-289~~ | ~~Live buyer golden path E2E~~ — **Done** (batch **5DW-trust-pilot-p0**): `e2e/live-api-buyer-golden-path.spec.ts` | Testability P0 | M |
 | ~~TB-290~~ | ~~Commit-to-audit trail integrity (SQL)~~ — **Done** (batch **5DW-trust-pilot-p0**): `AuditTrailCommitIntegrityIntegrationTests` | Trustworthiness P0 | S |
 | ~~TB-291~~ | ~~Reference evidence admin export integration~~ — **Done** (batch **5DW-trust-pilot-p0**): `ReferenceEvidenceAdminExportIntegrationTests` | Trustworthiness P0 | S |
@@ -263,7 +263,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | ~~TB-298~~ | ~~Manifest artifact download integrity~~ — **Done** (batch **5DW-trust-paid-p1b**): matching-tenant artifact list/download success path in SQL integration | Trustworthiness P1 | S |
 | ~~TB-299~~ | ~~Executive ROI board-pack live E2E~~ — **Done** (batch **5DW-trust-paid-p1b**): `ExecutiveRoiBoardPackEndpointTests` + `live-api-executive-board-pack.spec.ts` | Testability P1 | S |
 | ~~TB-300~~ | ~~Scope identity auth permutation table~~ — **Done** (batch **5DW-trust-paid-p1b**): JWT/DevBypass permutations + pen-test matrix row | Trustworthiness P1 | M |
-| TB-301 | Targeted Persistence tenant-read SQL probes — high-risk uncovered read paths (orchestrator/audit under RLS), not blanket % chasing | Testability P2 — repository-layer defense in depth | M |
+| ~~TB-301~~ | ~~Targeted Persistence tenant-read SQL probes~~ — **Done** (batch **5DX-trust-p2**): five `*ScopeIsolationSqlIntegrationTests.cs` probes + `test_trust_p2_batch.py` | Testability P2 | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -9288,23 +9288,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-288 — Architecture test: no Persistence return types on buyer routes (P2)
+## TB-288 — Architecture test: no Persistence return types on buyer routes (P2) — **Done (2026-06-05 batch 5DX-trust-p2)**
 
-**Source:** DTO boundary assessment, 2026-06-05.
-
-**Problem:** No mechanical guard prevents new controller actions from returning `ArchLucid.Persistence.*` types on buyer-facing routes.
-
-**What to do:**
-
-1. Add `BuyerFacingDtoBoundaryArchitectureTests` — scan controller return types on routes tagged `x-archlucid-audience: buyer` (or allowlist until **TB-286** lands).
-2. Wire drift guard in CI (`test_dto_boundary_batch.py`).
-
-**Affected files / projects:**
-
-- `ArchLucid.Architecture.Tests/`
-- `scripts/ci/tests/test_dto_boundary_batch.py` (new)
-
-**Size estimate:** **XS** — ~2 hours.
+**Shipped:** `BuyerFacingDtoBoundaryArchitectureTests` + `BuyerFacingControllerRouteScanner` / `BuyerFacingPersistenceReturnTypeInspector` — buyer routes classified via `OpenApiAudiencePathClassifier`; drift guard in `test_dto_boundary_batch.py` + `test_trust_p2_batch.py`.
 
 **Cross-ref:** **TB-283**, **TB-286**.
 
@@ -9491,23 +9477,9 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-301 — Targeted Persistence tenant-read SQL probes (P2)
+## TB-301 — Targeted Persistence tenant-read SQL probes (P2) — **Done (2026-06-05 batch 5DX-trust-p2)**
 
-**Source:** Risk-weighted coverage audit, 2026-06-05.
-
-**Problem:** `COVERAGE_GAP_ANALYSIS.md` shows low Persistence % driven by `DapperTenantRepository` and relational reads; IDOR API tests do not prove repository-layer tenant predicates on highest-risk uncovered paths.
-
-**What to do:**
-
-1. Pick 3–5 high-risk read methods (orchestrator reads, audit under RLS) from hotspot table — add SQL integration with two tenants, assert empty/wrong-tenant denial.
-2. **Do not** chase merged line % to 95%; stop when hotspot list is exhausted.
-
-**Affected files / projects:**
-
-- `ArchLucid.Persistence.Tests/`
-- `docs/library/COVERAGE_GAP_ANALYSIS.md` (update hotspot notes when done)
-
-**Size estimate:** **M** — ~1–2 eng days.
+**Shipped:** `SqlRunRepositoryScopeIsolationSqlIntegrationTests`, `SqlGoldenManifestRepositoryScopeIsolationSqlIntegrationTests`, `DapperAuditRepositoryScopeIsolationSqlIntegrationTests`, `SqlGovernanceApprovalRequestRepositoryScopeIsolationSqlIntegrationTests`, `SqlDecisionTraceRepositoryScopeIsolationSqlIntegrationTests`; hotspot notes in `COVERAGE_GAP_ANALYSIS.md`; `test_trust_p2_batch.py`.
 
 **Cross-ref:** **TB-073**, **TB-010** INV-001.
 
