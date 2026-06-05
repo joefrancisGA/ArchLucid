@@ -28,8 +28,8 @@ describe("design-tokens TB-115 surfaces", () => {
 });
 
 describe("design-tokens TB-119 typography", () => {
-  it("four-tier scale uses 18/16/13/12/11px steps", () => {
-    expect(OPERATOR_TYPE_SCALE.title).toContain("text-lg");
+  it("four-tier scale uses 20/16/13/12/11px steps", () => {
+    expect(OPERATOR_TYPE_SCALE.title).toContain("text-xl");
     expect(OPERATOR_TYPE_SCALE.cardTitle).toContain("text-base");
     expect(OPERATOR_TYPE_SCALE.section).toContain("text-sm");
     expect(OPERATOR_TYPE_SCALE.body).toContain("text-[13px]");
@@ -37,7 +37,7 @@ describe("design-tokens TB-119 typography", () => {
     expect(OPERATOR_TYPE_SCALE.micro).toContain("text-[11px]");
   });
 
-  it("page titles align with title tier (18px)", () => {
+  it("page titles align with title tier (20px)", () => {
     expect(OPERATOR_TYPOGRAPHY.pageTitle).toBe(OPERATOR_TYPE_SCALE.title);
     expect(OPERATOR_TYPOGRAPHY.pageTitle).not.toContain("text-2xl");
   });
