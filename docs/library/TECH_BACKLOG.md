@@ -2,13 +2,13 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-01 (after batch **5DR-trust-webhooks-p0**). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after **TB-275** buyer-demo re-validation index). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Trustworthiness | 4 |
+| Trustworthiness | 2 |
 | Correctness | 9 |
-| Reliability | 6 |
+| Reliability | 5 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
 | Architectural integrity | 5 |
@@ -17,7 +17,6 @@
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Commercial / marketability | 3 |
 | Testability | 2 |
 | Maintainability | 2 |
 | Traceability | 2 |
@@ -27,9 +26,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~30** |
+| **Total (unique)** | **~28** |
 
-**Trustworthiness (4):** remaining TB-274 rows (alert/webhook mutators, internal replay, SCIM). **TB-273 / BDA-001…150** and **TB-082 / TB-091–102** are **Done**. **Next recommended batch:** **5DR-trust-webhooks-p0** (inbound webhook + alert mutator posture) or **TB-138** real-LLM golden-cohort CI (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**Trustworthiness (2):** remaining TB-274 rows (internal replay, SCIM, governance mutators). **TB-273 / BDA-001…150** and **TB-082 / TB-091–102** are **Done**. **Next recommended batch:** **5DS-trust-internal-p0** (internal replay + SCIM posture) or **TB-138** real-LLM golden-cohort CI (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -117,6 +116,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **TB-267 – TB-269** were added 2026-06-03 from an independent first-principles **Executive Value Visibility** re-assessment (`docs/assessments/ExecutiveValueVisibility_06032026.MD`, score 83/100 — up from 70 on 06-02 because the entire prior cluster TB-239/241/243/244–249 is now Done; COMMERCIAL weight 4/116). They close the remaining executive route-group + narrative gaps: an `/executive/dashboard` route under executive chrome (**TB-267**, P2 — `ExecutiveShellFrame`'s "Dashboard" nav links to `/dashboard`, which renders `ExecutiveRoiDashboardPageView` under the *operator* shell with the full sidebar; the `(executive)` group has only `reviews` + `scorecard`, so a sponsor in the clean executive chrome is dumped into the operator UI), an in-product deterministic executive narrative summary line (**TB-268**, P2 — the live dashboard/scorecard show tiles + a recommended-actions list but no synthesized "this period: N reviews, M findings, ~$X/H hours saved; top action: …" sentence; the TB-241 AI narrative exists only on the gated board-pack export), and a dashboard ROI trend window selector matching the scorecard's 30d/quarter/all (**TB-269**, P3 — `ExecutiveRoiTrendSection` is a fixed window). These do not duplicate the now-Done **TB-244–249** EVV cluster; TB-246 added the nav *link* but never created the executive-chrome dashboard *route* (TB-267), and TB-247 added a recommended-actions *list* but not a synthesized narrative *line* (TB-268). Enabling the TB-241 AI narrative by default remains owner validation, excluded from `(A)`.
 
 **TB-270 – TB-272** were added 2026-06-03 from an independent first-principles **Usability** quality assessment (`docs/assessments/Usability_06032026.MD`, score 83/100, ENTERPRISE weight 3/116, scoring the full operator shell). The operator UX is unusually mature (Ctrl/⌘-K command palette, breadcrumbs, global search, persona shell presets, skip-link + route announcer + focus management, 15 jest-axe suites + ~81-route Playwright axe matrix, generated help index, rich first-run cockpit); these items close the remaining friction/consistency smells: disambiguate the review-creation entry points (**TB-270**, P2 — the core pilot path exposes `QuickReviewWizard` plus `QuickStartWizard` and `SimplifiedPilotWizard` inside `NewRunWizardClient` alongside the full 9-step wizard, i.e. multiple near-synonymous entry points on the single highest-stakes task), a universal failure identifier (**TB-271**, P2 — `OperatorApiProblem` shows a correlation id only when the server returns one, so non-Problem-Details failures leave the user nothing to quote in a support request), and empty/loading-state consistency (**TB-272**, P3 — dual empty-state components `EmptyState` vs `OperatorEmptyState`, and only 22 routes have `loading.tsx` so `/` and `/governance` lack skeletons). Per `Assessment-Scope-V1_1.mdc`, absence of assistive-technology user-lab testing is **not** an `(A)` defect and is not represented here; automated axe coverage is the in-scope posture.
+
+**TB-275** was added 2026-06-04 as a **re-validation index** for the same harsh buyer-demo audit re-run in chat (top-100 display only; full register already on disk). It does **not** duplicate the 150-row table — canonical detail remains **TB-273 § BDA-001…150**. Use TB-275 to track spot-check regressions still visible in demo/buyer paths after batches **5CY-demo**–**5DN-demo-deferred** marked TB-273 Done. Next TB number after TB-274 (backend/platform register — **BE-001…BE-061**, **SEC-001…SEC-035** in [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), no `## TB-274` body in this file).
 
 **TB-273** was added 2026-06-03 from a **harsh buyer-demo readiness defect audit** of the buyer-polished operator shell along the golden path (Home → Reviews list → Review detail → Executive summary → Manifest summary → Evidence graph → Governance → Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. It is a single umbrella item enumerating ~150 issues as sub-IDs **BDA-001 … BDA-150** (sub-ID scheme consistent with `RAG-V1-*` / `INV-*`), grouped **P0** (demo/test-data leakage visible to the buyer, fabricated decision/confidence/audit-link fallbacks, misleading "complete"/"placeholder"/illustrative-ROI claims, sponsor exports that can merge demo runs, and one dead "finalize" anchor in buyer mode), **P1** (terminology drift — run/review/pilot, manifest/golden manifest/signed decision record, audit log/trail, workflow/decision record/approval, evidence trace/trail; raw identifiers and enum labels in UI; redundant CTAs; visual-hierarchy/chart-grammar inconsistency; in-product segregation-of-duties not explained while marketed), and **P2** (lower polish). The full per-issue table (severity, screen/area, exact problem + file, why it hurts buyer confidence, recommended fix, replacement copy) is in the `## TB-273` detail section. **These are buyer-demo-shell credibility defects, not V1 readiness-scoring gaps** — many are correctly gated to demo/static mode today and the dominant risk is **env-flag drift** (`isBuyerPolishedOperatorShellEnv()` / `buyerPolishedArtifactTable` vs static-demo flags) leaking demo copy into the polished shell; per `Assessment-Scope-V1_1.mdc` they do not change `(A)` headline scores. They do not duplicate **TB-143–148** (in-app docs presentation — BDA cross-refs the raw-doc-link items), **TB-168** (KPI semantic guard), or **TB-270–272** (operator usability). Cross-ref `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
@@ -226,7 +227,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-270 | Disambiguate review-creation entry points — audit the reachable "quick" creation paths (`QuickReviewWizard` top-level vs `QuickStartWizard` / `SimplifiedPilotWizard` inside `NewRunWizardClient`); make `ReviewsNewPathSwitcher` the single decision surface with clear labels ("Quick review" vs "Full guided review") and document which path renders in which mode; Vitest guard that exactly one quick path is reachable per shell mode (do NOT remove wizard logic — relabel/route only) | **Done (2026-06-04 batch 5DM)** — path hint copy, relabeled wizard mode toggle, Vitest single-path guard | M |
 | TB-271 | Universal failure identifier — generate a client-side request id (`crypto.randomUUID`) per API call in `api/http.ts`, send it as the correlation header, and have `OperatorApiProblem` fall back to it when the server returns no correlation id; route the remaining raw-text / `OperatorShellMessage` error sites through `OperatorApiProblem` (or surface the id); Vitest that a non-Problem-Details failure still renders a copyable id | **Done (2026-06-04 batch 5DM)** — `applyCorrelationHeaders` + `buildApiRequestErrorFromParts` request fallback; `api-error.test.ts` | S |
 | TB-272 | Empty/loading-state consistency — consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | **Done (2026-06-04 batch 5DM)** — `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | M |
-| TB-273 | Buyer-demo readiness defect remediation (**BDA-001…BDA-150**, including deferred **BDA-135/139/146** in batch **5DN-demo-deferred**) | **Done (2026-06-04)** — batches **5CY-demo** through **5DN-demo-deferred**; index [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md) | XL |
+| TB-273 | Buyer-demo readiness defect remediation (**BDA-001…BDA-150**, including deferred **BDA-135/139/146** in batch **5DN-demo-deferred**) | **Done (2026-06-04)** — batches **5CY-demo** through **5DN-demo-deferred**; index [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md); full per-issue table in `## TB-273` below | XL |
+| TB-275 | Buyer-demo harsh audit re-validation (2026-06-04) — spot-check residual defects; canonical register **TB-273** (all **150** issues, not top-100 only) | Open — see `## TB-275`; re-verify before live demo | S |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -8113,7 +8115,7 @@ Make operator empty/loading states consistent.
 
 | ID | Screen / area | Exact problem (quote + file) | Why it hurts buyer confidence | Recommended fix | Replacement copy |
 |----|---------------|------------------------------|-------------------------------|-----------------|------------------|
-| BDA-001 | Review detail | Guided CTA "Go to finalize actions" targets `href="#run-actions"`, but `RunDetailRunActionsSection` (id `run-actions`) is not rendered in buyer-polished mode — `first-week-route-guidance.ts` (~57), `RunDetailPageView.tsx` (~414–421). | A primary guided action scrolls nowhere — a visibly broken interaction during the demo. | Render the actions section in buyer mode, or retarget the anchor to the header `CommitRunButton`; add a test asserting the anchor target exists in each shell mode. | "Finalize this review" |
+| BDA-001 | Review detail | Guided CTA "Go to finalize actions" targets `href="#run-actions"`, but `RunDetailRunActionsSection` (id `run-actions`) is not rendered in buyer-polished mode — `first-week-route-guidance.ts` (~57), `RunDetailPageView.tsx` (~414–421). **Re-validated 2026-06-04:** buyer shell uses `resolveFirstWeekRouteGuidanceForShell` → `#finalize-review` on `RunDetailPageHeader`; operator shell base config still points at `#run-actions`. | A primary guided action scrolls nowhere — a visibly broken interaction during the demo (buyer path fixed; operator/hybrid still broken). | Render the actions section in buyer mode, or retarget the anchor to the header `CommitRunButton`; add a test asserting the anchor target exists in each shell mode. | "Finalize this review" |
 | BDA-002 | Governance | "This evaluation sample is read-only. Production tenants can submit governance approvals when their role allows." — `GovernanceWorkflowSubmitSection.tsx` (~213). | Breaks the buyer illusion on the core governance control; "evaluation sample" reads as not-real. | Gate the read-only admission to demo/operator mode; in buyer mode use role-gated production framing. | "Approvals require an authorized governance role; your access here is review-only." |
 | BDA-003 | Governance | Pre-seeded approval personas "Taylor Morgan" / "Jordan Lee" (requestedBy / reviewedBy) — `operator-static-demo.ts` (~1099–1100). | Named fictional approvers read as seeded, not identity-backed actors. | Source approver identity from the authenticated directory, or use neutral role titles in buyer mode. | "Requested by: Architecture Review Lead · Reviewed by: Governance Approver" |
 | BDA-004 | Governance findings queue | Static rows ("Claims Intake Modernization Review") injected on API empty/failure so the queue always looks full — `GovernanceFindingsQueueClient.tsx` (~145–162, 445–514). | Buyer cannot tell live governance state from seeded storyline. | Inject demo rows only in demo/static mode; in tenant mode render a real empty state. | — |
@@ -8279,5 +8281,36 @@ Make operator empty/loading states consistent.
 
 **Affected files / projects:** `archlucid-ui/src/**` (operator + executive route groups, `lib/buyer-polish-copy.ts`, `lib/operator-static-demo.ts`, `lib/showcase-static-demo.ts`, `lib/*-copy.ts`, graph/governance/audit/manifest/ask sections), and `ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs` (BDA-023, verify). Primary lever is env gating in the buyer-polished shell, not large code rewrites.
 
-**Cross-ref:** TB-143–148 (in-app docs presentation — BDA-045/133), TB-168 (KPI semantic guard — BDA-150), TB-270–272 (operator usability), `.cursor/rules/Assessment-Scope-V1_1.mdc` (these do not change `(A)` scores).
+**Cross-ref:** TB-143–148 (in-app docs presentation — BDA-045/133), TB-168 (KPI semantic guard — BDA-150), TB-270–272 (operator usability), **TB-275** (2026-06-04 re-validation spot-check), `.cursor/rules/Assessment-Scope-V1_1.mdc` (these do not change `(A)` scores).
+
+## TB-275 — Buyer-demo harsh audit re-validation (2026-06-04)
+
+**Source:** Same harsh pre-demo audit prompt re-run 2026-06-04 (chat displayed top **100** only; user requested all issues on disk).
+
+**Numbering note (avoid confusion):**
+
+| ID | What it is | Where |
+| --- | --- | --- |
+| **TB-273** | Umbrella + **full 150-issue register** | `## TB-273` below — sub-IDs **BDA-001…BDA-150** |
+| **TB-274** | Backend/platform + security audit (different audit) | [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md) — sub-IDs **BE-001…BE-061**, **SEC-001…SEC-035** (no `## TB-274` section in this file) |
+| **TB-275** | This re-validation index only — **does not re-number or duplicate BDA rows** | Spot-check after TB-273 batches marked Done |
+
+**Canonical register:** All **150** buyer-demo UI defects are already captured under **TB-273** (24 P0 + 109 P1 + 17 P2). Do not fork a second BDA numbering scheme.
+
+### 2026-06-04 spot-check — residual buyer/demo leakage still in tree
+
+Re-read of golden-path sources after TB-273 **Done** marking. Items below still show demo fingerprints or misleading buyer copy when demo/static or buyer-polished paths are active — verify env gating before the live demo:
+
+| BDA ref | Severity | Still observed (2026-06-04) | File / note |
+| --- | --- | --- | --- |
+| BDA-006–007 | P0 | `demo-jordan`, `demo-tenant`, `corr-intake-demo-*`, personas Jordan Lee / Taylor Morgan | `demo-audit-sample-events.ts` — OK only if never rendered in buyer-polished tenant mode |
+| BDA-008 | P0 | "Audit trail complete — review package finalized" on buyer completion card | `AuditResultsSection.tsx` ~195 (`buyerPolishedShell && events.length > 0`) |
+| BDA-009 | P0 | "You have now seen the sample audit trail…" admission | `AuditResultsSection.tsx` ~273 |
+| BDA-015 | P0 | "Demo-derived" KPI display string | `executive-roi-kpi-display.ts` ~74 |
+| BDA-001 | P0 | Operator `FIRST_WEEK_ROUTE_GUIDANCE["review-detail-in-progress"]` still `#run-actions` / "Go to finalize actions" | `first-week-route-guidance.ts` ~68 (buyer override fixed via `#finalize-review`) |
+| BDA-013 | P0 | **Fixed** — fallback is "Confidence not available for this finding." | `FindingDetailPageView.tsx` ~171 |
+
+**Action:** Before demo, run the buyer-polished shell with production-like flags and walk the golden path; any row above that still renders is a **TB-273 regression**, not a new TB item. Log fixes against the existing **BDA-NNN** id.
+
+**Cross-ref:** [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md), **TB-273**, **TB-274** (backend — separate concern).
 

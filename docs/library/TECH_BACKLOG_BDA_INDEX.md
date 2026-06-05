@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — engineering index for buyer-demo defect remediation (**TB-273**). Canonical per-issue detail remains in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) § TB-273. Does not change `(A)` assessment scores per `Assessment-Scope-V1_1.mdc`.
+> **Scope:** Contributor-reference — engineering index for buyer-demo defect remediation (**TB-273**). Canonical per-issue detail remains in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) § TB-273 (**BDA-001…150**, all 150 issues). Re-validation spot-check: **TB-275** (2026-06-04). Does not change `(A)` assessment scores per `Assessment-Scope-V1_1.mdc`.
 
 # TB-273 / BDA batch tracker
 
@@ -48,8 +48,23 @@
 |----|-----|----------------|
 | BDA-150 | ✓ | Mock KPI / illustrative spine import guard |
 
+## TB-275 re-validation (2026-06-04) — open residuals
+
+Canonical ids remain **BDA-001…150** (`TECH_BACKLOG.md` § TB-273). Spot-check after TB-273 **Done** — fix against existing BDA ids only:
+
+| BDA | Priority | Residual |
+| --- | --- | --- |
+| BDA-008 | P0 | "Audit trail complete — review package finalized" still on buyer completion card (`AuditResultsSection.tsx`) |
+| BDA-009 | P0 | "You have now seen the sample audit trail…" admission (`AuditResultsSection.tsx`) |
+| BDA-015 | P0 | "Demo-derived" KPI label (`executive-roi-kpi-display.ts`) |
+| BDA-001 | P0 | Operator shell `#run-actions` anchor still broken (`first-week-route-guidance.ts`; buyer path uses `#finalize-review`) |
+| BDA-006–007 | P0 | Verify `demo-audit-sample-events.ts` never renders in buyer-polished tenant mode |
+
+**Recommended batch:** **5DT-demo-revalidate-p0** — closes **TB-275** when golden-path walk shows no residual rows.
+
 ## How to pick up
 
 1. Read the batch row above and the matching rows in `TECH_BACKLOG.md` § TB-273.
 2. Prefer extending `buyer-demo-content-gating.ts` for env/demo leakage before one-off copy edits.
 3. Mark ✓ in this index when a BDA row is fully closed (code + test + backlog row note).
+4. For **TB-275**, log fixes against existing **BDA-NNN** ids — no new numbering.
