@@ -43,6 +43,7 @@ public sealed class DigestSubscriptionsController(
     : ControllerBase
 {
     /// <summary>Creates a subscription stamped with the current scope; mutating action requires execute authority.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
@@ -101,6 +102,7 @@ public sealed class DigestSubscriptionsController(
     }
 
     /// <summary>Toggles <see cref="DigestSubscription.IsEnabled" /> when the row is in scope.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{subscriptionId:guid}/toggle")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]

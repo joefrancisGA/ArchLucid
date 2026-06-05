@@ -21,12 +21,13 @@
 | **5DO-trust-remainder-p1** | Terraform PR POST IDOR; ingest/quick-scan/request-import posture; mutating-route baseline sync (11 routes) | Done |
 | **5DP-mutating-posture-p1** | `idempotency-posture` on ask/replay/export/advisory routes; mutating-route baseline refresh (~28 routes) | Done |
 | **5DQ-trust-ingest-p0** | Extractor upload/connection `idempotency-posture`; cross-tenant runId + package download IDOR SQL regressions | Done |
+| **5DR-trust-webhooks-p0** | Alert/digest/Teams/exec-digest/marketing-quote `idempotency-posture`; CI guard on alert controllers | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
-| **5DR-trust-webhooks-p0** | Trustworthiness | Alert/webhook/digest mutator `idempotency-posture` + remaining high-risk `unclassified` operator routes |
+| **5DS-trust-internal-p0** | Trustworthiness | Internal replay/determinism routes + SCIM mutators `idempotency-posture`; governance mutator remainder |
 | **TB-138** | Trustworthiness (B) | Real-LLM golden-cohort CI promotion (owner Azure OpenAI secrets / environment) |
 
 ## Excluded from Cursor batches

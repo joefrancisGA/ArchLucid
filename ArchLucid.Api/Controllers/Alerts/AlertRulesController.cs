@@ -38,6 +38,7 @@ public sealed class AlertRulesController(
     : ControllerBase
 {
     /// <summary>Creates a rule with new id, scope from <see cref="IScopeContextProvider" />, and default metadata JSON.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRule), StatusCodes.Status200OK)]

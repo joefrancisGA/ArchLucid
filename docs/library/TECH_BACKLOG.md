@@ -2,11 +2,11 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-01 (after batch **5DQ-trust-ingest-p0**). **~30 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-01 (after batch **5DR-trust-webhooks-p0**). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
-| Trustworthiness | 6 |
+| Trustworthiness | 4 |
 | Correctness | 9 |
 | Reliability | 6 |
 | Deployability | 5 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~32** |
+| **Total (unique)** | **~30** |
 
-**Trustworthiness (6):** remaining TB-274 SEC/BE register rows (ingest/webhook class gaps, internal replay). **TB-273 / BDA-001…150** and **TB-082 / TB-091–102** are **Done**. **Next recommended batch:** **5DQ-trust-ingest-p0** (ingest URL / extractor upload posture + IDOR) or **TB-138** real-LLM golden-cohort CI promotion (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**Trustworthiness (4):** remaining TB-274 rows (alert/webhook mutators, internal replay, SCIM). **TB-273 / BDA-001…150** and **TB-082 / TB-091–102** are **Done**. **Next recommended batch:** **5DR-trust-webhooks-p0** (inbound webhook + alert mutator posture) or **TB-138** real-LLM golden-cohort CI (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 

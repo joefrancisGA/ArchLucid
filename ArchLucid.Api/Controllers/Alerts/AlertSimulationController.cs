@@ -39,6 +39,7 @@ public sealed class AlertSimulationController(
     : ControllerBase
 {
     /// <summary>Runs <see cref="IRuleSimulationService.SimulateAsync" /> and audits aggregate counts.</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(RuleSimulationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -81,6 +82,7 @@ public sealed class AlertSimulationController(
     ///     Runs <see cref="IRuleSimulationService.CompareCandidatesAsync" /> and audits would-create counts per
     ///     candidate.
     /// </summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("compare-candidates")]
     [ProducesResponseType(typeof(RuleCandidateComparisonResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

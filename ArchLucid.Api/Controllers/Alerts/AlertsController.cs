@@ -181,6 +181,7 @@ public sealed class AlertsController(
     /// <param name="request">Action type and optional comment.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Updated alert, or 404 when missing or out of scope.</returns>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{alertId:guid}/action")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRecord), StatusCodes.Status200OK)]

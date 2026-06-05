@@ -53,6 +53,7 @@ public sealed class TenantExecDigestPreferencesController(
     }
 
     /// <summary>Upserts digest preferences (Execute+).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("exec-digest-preferences")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecDigestPreferencesResponse), StatusCodes.Status200OK)]

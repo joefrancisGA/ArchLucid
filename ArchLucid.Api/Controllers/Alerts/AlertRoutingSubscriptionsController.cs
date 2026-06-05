@@ -41,6 +41,7 @@ public sealed class AlertRoutingSubscriptionsController(
     : ControllerBase
 {
     /// <summary>Creates a routing subscription bound to the current tenant/workspace/project.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
@@ -113,6 +114,7 @@ public sealed class AlertRoutingSubscriptionsController(
     }
 
     /// <summary>Toggles <see cref="AlertRoutingSubscription.IsEnabled" /> when the subscription belongs to the current scope.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{routingSubscriptionId:guid}/toggle")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]

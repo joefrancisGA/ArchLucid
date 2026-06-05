@@ -39,6 +39,7 @@ public sealed class MarketingPricingQuoteRequestController(
         salesNotifier ?? throw new ArgumentNullException(nameof(salesNotifier));
 
     /// <summary>Append-only quote request (honeypot + rate limit).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("quote-request")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -174,6 +174,7 @@ public sealed class AdvisoryController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Updated <see cref="RecommendationRecordResponse" />.</returns>
     /// <remarks>400 when action is unknown; 404 when the id does not exist. Audit event type follows the action.</remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationRecordResponse), StatusCodes.Status200OK)]

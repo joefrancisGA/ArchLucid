@@ -45,6 +45,7 @@ public sealed class AlertTuningController(
     ///     Invokes <see cref="IThresholdRecommendationService.RecommendAsync" /> and audits candidate/recommended
     ///     threshold metadata.
     /// </summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("recommend-threshold")]
     [ProducesResponseType(typeof(ThresholdRecommendationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

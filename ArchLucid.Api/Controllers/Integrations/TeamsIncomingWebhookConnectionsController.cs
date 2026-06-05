@@ -81,6 +81,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
     }
 
     /// <summary>Upserts the Key Vault secret name used to resolve the Teams incoming webhook URL at delivery time.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("connections")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(TeamsIncomingWebhookConnectionResponse), StatusCodes.Status200OK)]

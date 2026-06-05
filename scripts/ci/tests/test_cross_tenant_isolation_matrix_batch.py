@@ -56,6 +56,29 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         self.assertIn("/evidence/bulk", text, "TB-274 run evidence bulk POST IDOR regression")
         self.assertIn("/terraform-pr", text, "TB-274 terraform PR POST IDOR regression")
 
+    def test_alert_digest_controllers_declare_idempotency_posture(self) -> None:
+        controllers = (
+            "AlertRoutingSubscriptionsController.cs",
+            "AlertRulesController.cs",
+            "CompositeAlertRulesController.cs",
+            "AlertSimulationController.cs",
+            "AlertTuningController.cs",
+            "AlertsController.cs",
+            "DigestSubscriptionsController.cs",
+        )
+        alerts_dir = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Alerts"
+        advisory_dir = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Advisory"
+
+        for name in controllers:
+            root = advisory_dir if name == "DigestSubscriptionsController.cs" else alerts_dir
+            path = root / name
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(
+                "idempotency-posture:",
+                text,
+                f"{name} must declare INV-009 posture before mutating routes",
+            )
+
     def test_scoped_snapshot_idor_matrix_covers_ingest_routes(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopedSnapshotReadIdorIntegrationTests.cs"
         text = path.read_text(encoding="utf-8")

@@ -39,6 +39,7 @@ public sealed class CompositeAlertRulesController(
     : ControllerBase
 {
     /// <summary>Persists the rule and conditions in one repository operation; stamps scope and rule id.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CompositeAlertRule), StatusCodes.Status200OK)]
