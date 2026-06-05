@@ -169,6 +169,7 @@ public sealed class TenantCustomerSuccessController(
     }
 
     /// <summary>Records thumbs feedback for product instrumentation.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("product-feedback")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

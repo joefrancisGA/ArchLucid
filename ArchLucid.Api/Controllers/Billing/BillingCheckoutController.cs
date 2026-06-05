@@ -46,6 +46,7 @@ public sealed class BillingCheckoutController(
     private readonly MarketplaceWebhookConnectivityService _marketplaceWebhookConnectivityService =
         marketplaceWebhookConnectivityService ?? throw new ArgumentNullException(nameof(marketplaceWebhookConnectivityService));
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("checkout")]
     [SkipTrialWriteLimit]
     [ProducesResponseType(typeof(BillingCheckoutResponseDto), StatusCodes.Status200OK)]

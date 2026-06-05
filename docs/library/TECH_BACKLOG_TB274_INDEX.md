@@ -25,13 +25,14 @@
 | **5DT-demo-revalidate-p0** | **TB-275** buyer-demo residuals (BDA-001/008/015, audit demo gating) | Done |
 | **5DS-trust-internal-p0** | Internal replay/determinism/seed + SCIM + governance stickiness mutators `idempotency-posture`; baseline 63→48 unclassified | Done |
 | **5DU-route-tenant-p0** | **TB-276** global `RouteTenantScopeBindingFilter`; **TB-277** CI guard; **TB-278** matrix drift guard — extends BE-014–016 | Done |
+| **5DU-mutating-posture-p2** | Policy-pack + tenant/pilot/register/billing-checkout `idempotency-posture`; baseline 48→26 unclassified | Done |
 
 ## Recommended next batches
 
 | Batch | Primary qualities | Scope |
 | --- | --- | --- |
+| **5DV-mutating-posture-p3** | Reliability, Trustworthiness | Diagnostics/demo/evolution/MCP/operator mutator `idempotency-posture` (26 grandfathered remainder) |
 | **5DU-route-tenant-p1** | Trustworthiness, Architectural integrity | **TB-281** value-report scope-only URL; **TB-279** admin route migration; **TB-280** / **TB-282** legacy exec-summary + cross-tenant rollup policy |
-| **5DU-mutating-posture-p2** | Reliability, Trustworthiness | Policy-pack + tenant/pilot/register mutator `idempotency-posture` (48 grandfathered remainder — first high-trust slice) |
 | **TB-106–108** | Correctness | Run-detail operator fidelity P0 — architecture endpoint fields on operator loader |
 | **TB-138** | Trustworthiness (B) | Real-LLM golden-cohort CI promotion (owner Azure OpenAI secrets / environment) |
 

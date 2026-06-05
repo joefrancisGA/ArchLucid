@@ -212,6 +212,7 @@ public sealed class TenantWorkspacesController(
     /// Restores a soft-deleted architecture project when no active project in the workspace already uses the same
     /// name.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{workspaceId:guid}/projects/{projectId:guid}/restore")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

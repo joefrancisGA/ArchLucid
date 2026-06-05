@@ -129,6 +129,7 @@ public sealed class TenantTrialController(
     ///     local user when <see cref="TenantLinkEntraRequest.LocalEmail" /> and <see cref="TenantLinkEntraRequest.EntraOid" />
     ///     are both set.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("link-entra")]
     [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
@@ -231,6 +232,7 @@ public sealed class TenantTrialController(
     }
 
     /// <summary>Marks an active trial as converted after billing rules pass (paid row or Noop provider).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("convert")]
     [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]

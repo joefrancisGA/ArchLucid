@@ -47,6 +47,7 @@ public sealed class RegistrationController(
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <summary>Creates a Free-tier tenant and default workspace (idempotent by organization slug).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [ProducesResponseType(typeof(TenantProvisioningResult), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(TenantProvisioningResult), StatusCodes.Status200OK)]

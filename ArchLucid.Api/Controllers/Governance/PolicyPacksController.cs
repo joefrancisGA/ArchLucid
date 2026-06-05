@@ -82,6 +82,7 @@ public sealed class PolicyPacksController(
         policyPackRuleTemplatesService ?? throw new ArgumentNullException(nameof(policyPackRuleTemplatesService));
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService" />.</remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -110,6 +111,7 @@ public sealed class PolicyPacksController(
 
     /// <summary>Publishes or upserts a version for the pack and marks the pack active.</summary>
     /// <remarks>Audit: <c>PolicyPackVersionPublished</c>.</remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/publish")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
@@ -137,6 +139,7 @@ public sealed class PolicyPacksController(
     /// </summary>
     /// <returns>404 with <c>policy-pack-version-not-found</c> when the version row does not exist.</returns>
     /// <remarks>Audit: <c>PolicyPackAssignmentCreated</c>. Default scope level is Project when omitted or blank in JSON.</remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/assign")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
@@ -174,6 +177,7 @@ public sealed class PolicyPacksController(
     /// <summary>Soft-deletes a policy pack assignment for the current tenant (row retained for audit).</summary>
     /// <returns>404 when no active assignment matched.</returns>
     /// <remarks>Audit: <c>PolicyPackAssignmentArchived</c>.</remarks>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("assignments/{assignmentId:guid}/archive")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -211,6 +215,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Duplicates a policy pack and its latest version content.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{policyPackId:guid}/duplicate")]
     [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -277,6 +282,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Snapshots a pack from the caller&apos;s authoring scope into the global catalog and promotes it.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("catalog/promote")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(PolicyPackCatalogEntryDetail), StatusCodes.Status200OK)]
@@ -318,6 +324,7 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Removes a catalog entry from the buyer-visible catalog (row retained).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("catalog/demote")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -472,6 +479,7 @@ public sealed class PolicyPacksController(
     ///     Facade over <see cref="GovernanceController.DryRunProposedPolicyPack" /> with a typed
     ///     <see cref="PolicyPackContentDocument" /> body. Persists the same redacted governance dry-run audit row as the governance route.
     /// </remarks>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("simulate")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [EnableRateLimiting("governancePolicyPackDryRun")]

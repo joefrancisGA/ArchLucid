@@ -2,12 +2,12 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DU-route-tenant-p0** / **TB-276–278**). **~30 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after batch **5DU-mutating-posture-p2**). **~29 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 9 |
-| Reliability | 5 |
+| Reliability | 4 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
 | Architectural integrity | 7 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~30** |
+| **Total (unique)** | **~29** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **TB-274 INV-009:** **48** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DU-mutating-posture-p2** (policy-pack + tenant/pilot/register posture) or **5DU-route-tenant-p1** (**TB-281** value-report scope-only URL). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **TB-274 INV-009:** policy-pack/tenant/pilot/register slice **Done** (batch **5DU-mutating-posture-p2**); **26** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DV-mutating-posture-p3** (diagnostics/demo/evolution/MCP remainder) or **5DU-route-tenant-p1** (**TB-281** value-report scope-only URL). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 

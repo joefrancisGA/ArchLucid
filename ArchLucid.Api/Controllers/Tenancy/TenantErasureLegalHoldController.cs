@@ -30,6 +30,7 @@ public sealed class TenantErasureLegalHoldController(
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Extend legal hold while the tenant is in erasure quarantine (tenant <c>Admin</c>).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("legal-hold")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [EnableRateLimiting("expensive")]
@@ -68,6 +69,7 @@ public sealed class TenantErasureLegalHoldController(
     }
 
     /// <summary>Approve tenant erasure (tenant <c>Admin</c>).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("approve")]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [EnableRateLimiting("expensive")]

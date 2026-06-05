@@ -319,6 +319,7 @@ public sealed class PilotsController(
     ///     Mirrors the auth surface of <see cref="GetFirstValueReport" /> (ReadAuthority) so the operator-shell post-commit
     ///     CTA does not introduce a new commercial gate at the click site.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/first-value-report.pdf")]
     [Produces("application/pdf")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
@@ -346,6 +347,7 @@ public sealed class PilotsController(
     /// <summary>
     ///     Records that the operator delivered sponsor evidence for a committed run (audit-only; TB-243).
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/sponsor-pack-sent")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -413,6 +415,7 @@ public sealed class PilotsController(
     }
 
     /// <summary>JSON pilot scorecard for the current tenant scope (UTC window).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("scorecard")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(PilotScorecardResponse), StatusCodes.Status200OK)]
@@ -498,6 +501,7 @@ public sealed class PilotsController(
     /// <summary>
     ///     One-page sponsor PDF for a run (Standard tier) — headline timing plus 30-day pilot scorecard mix.
     /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/sponsor-one-pager")]
     [RequiresCommercialTenantTier(TenantTier.Standard)]
     [Produces("application/pdf")]
@@ -515,6 +519,7 @@ public sealed class PilotsController(
     }
 
     /// <summary>Optional structured closeout for sponsor proof-of-ROI (tenant-scoped insert + audit).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("closeout")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Produces("application/json")]

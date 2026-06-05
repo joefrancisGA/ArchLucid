@@ -29,6 +29,7 @@ public sealed class PilotsBoardPackController(BoardPackPdfBuilder boardPackPdfBu
         boardPackPdfBuilder ?? throw new ArgumentNullException(nameof(boardPackPdfBuilder));
 
     /// <summary>Builds a quarterly sponsor board pack PDF for the current tenant scope.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("board-pack.pdf")]
     [Produces("application/pdf")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
