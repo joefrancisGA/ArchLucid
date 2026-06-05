@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-04 (after batch **5DT-demo-revalidate-p0** / **TB-275** closed). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-04 (after **TB-276–282** route-tenant addressing cluster). **~33 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -10,15 +10,15 @@
 | Reliability | 5 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
-| Architectural integrity | 5 |
+| Architectural integrity | 7 |
+| Trustworthiness | 4 |
 | Adoption friction | 4 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 2 |
-| Testability | 2 |
+| Testability | 3 |
 | Maintainability | 2 |
 | Traceability | 2 |
 | Interoperability | 2 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~28** |
+| **Total (unique)** | **~33** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Trustworthiness (2):** TB-274 remainder (internal replay, SCIM, governance mutators). **Next recommended batch:** **5DS-trust-internal-p0** (internal replay + SCIM + governance mutator posture) or **TB-138** (owner secrets). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant cluster:** **TB-276–282** (assessment [`route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx), 2026-06-04). **TB-274 INV-009:** internal/SCIM/governance mutators **Done** (batch **5DS**); **48** grandfathered unclassified mutating routes remain. **Next recommended batch:** **5DU-route-tenant-p0** (**TB-276** + **TB-277** + **TB-278**) or **5DU-mutating-posture-p2** (policy-pack + tenant/pilot mutator posture). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -119,6 +119,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 **TB-270 – TB-272** were added 2026-06-03 from an independent first-principles **Usability** quality assessment (`docs/assessments/Usability_06032026.MD`, score 83/100, ENTERPRISE weight 3/116, scoring the full operator shell). The operator UX is unusually mature (Ctrl/⌘-K command palette, breadcrumbs, global search, persona shell presets, skip-link + route announcer + focus management, 15 jest-axe suites + ~81-route Playwright axe matrix, generated help index, rich first-run cockpit); these items close the remaining friction/consistency smells: disambiguate the review-creation entry points (**TB-270**, P2 — the core pilot path exposes `QuickReviewWizard` plus `QuickStartWizard` and `SimplifiedPilotWizard` inside `NewRunWizardClient` alongside the full 9-step wizard, i.e. multiple near-synonymous entry points on the single highest-stakes task), a universal failure identifier (**TB-271**, P2 — `OperatorApiProblem` shows a correlation id only when the server returns one, so non-Problem-Details failures leave the user nothing to quote in a support request), and empty/loading-state consistency (**TB-272**, P3 — dual empty-state components `EmptyState` vs `OperatorEmptyState`, and only 22 routes have `loading.tsx` so `/` and `/governance` lack skeletons). Per `Assessment-Scope-V1_1.mdc`, absence of assistive-technology user-lab testing is **not** an `(A)` defect and is not represented here; automated axe coverage is the in-scope posture.
 
 **TB-275** was added 2026-06-04 as a **re-validation index** for the same harsh buyer-demo audit re-run in chat (top-100 display only; full register already on disk). It does **not** duplicate the 150-row table — canonical detail remains **TB-273 § BDA-001…150**. Use TB-275 to track spot-check regressions still visible in demo/buyer paths after batches **5CY-demo**–**5DN-demo-deferred** marked TB-273 Done. Next TB number after TB-274 (backend/platform register — **BE-001…BE-061**, **SEC-001…SEC-035** in [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), no `## TB-274` body in this file).
+
+**TB-276 – TB-282** were added 2026-06-04 from the **route-based tenant addressing** architecture assessment ([`docs/assessments/route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx)). BE-014–016 shipped per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` on four tenant-scoped routes, but the guard is **manual, untested, and easy to omit** on new endpoints; `AdminAuthority` is **tenant-scoped admin** while several URLs (`/admin/tenants/{tenantId}/…`) read like platform cross-tenant ops. **TB-276** (P0) centralizes route↔scope binding in one filter; **TB-277** + **TB-278** (P1) add CI + integration tests; **TB-281** (P1) completes the TB-075 remainder (value-report path tenant); **TB-279** + **TB-280** (P2) migrate to ambient scope-only routes and retire the legacy authority executive-summary `{tenantId}` path; **TB-282** (P2) reclassifies aggregate cross-tenant analytics off `AdminAuthority` onto operator RBAC. Platform tenant lifecycle (`AdminTenantsController` + `PlatformTenantDeletionAuthority`) **correctly** uses route `{id}` with a distinct policy — out of scope for removal. Cross-ref **TB-072**, **TB-075**, **TB-274** batch **5DE–5DI** (BE-014–016).
 
 **TB-273** was added 2026-06-03 from a **harsh buyer-demo readiness defect audit** of the buyer-polished operator shell along the golden path (Home → Reviews list → Review detail → Executive summary → Manifest summary → Evidence graph → Governance → Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. It is a single umbrella item enumerating ~150 issues as sub-IDs **BDA-001 … BDA-150** (sub-ID scheme consistent with `RAG-V1-*` / `INV-*`), grouped **P0** (demo/test-data leakage visible to the buyer, fabricated decision/confidence/audit-link fallbacks, misleading "complete"/"placeholder"/illustrative-ROI claims, sponsor exports that can merge demo runs, and one dead "finalize" anchor in buyer mode), **P1** (terminology drift — run/review/pilot, manifest/golden manifest/signed decision record, audit log/trail, workflow/decision record/approval, evidence trace/trail; raw identifiers and enum labels in UI; redundant CTAs; visual-hierarchy/chart-grammar inconsistency; in-product segregation-of-duties not explained while marketed), and **P2** (lower polish). The full per-issue table (severity, screen/area, exact problem + file, why it hurts buyer confidence, recommended fix, replacement copy) is in the `## TB-273` detail section. **These are buyer-demo-shell credibility defects, not V1 readiness-scoring gaps** — many are correctly gated to demo/static mode today and the dominant risk is **env-flag drift** (`isBuyerPolishedOperatorShellEnv()` / `buyerPolishedArtifactTable` vs static-demo flags) leaking demo copy into the polished shell; per `Assessment-Scope-V1_1.mdc` they do not change `(A)` headline scores. They do not duplicate **TB-143–148** (in-app docs presentation — BDA cross-refs the raw-doc-link items), **TB-168** (KPI semantic guard), or **TB-270–272** (operator usability). Cross-ref `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
@@ -230,6 +232,13 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-272 | Empty/loading-state consistency — consolidate `EmptyState` and `OperatorEmptyState` into one component/API (keep one, adapt call sites); add `loading.tsx` route skeletons for high-traffic routes lacking them (`/`, `/governance`); optional warn-only `scripts/ci/check_operator_token_drift.py` flagging raw `text-neutral-*` where `al-*` tokens exist; Vitest | **Done (2026-06-04 batch 5DM)** — `OperatorEmptyState` delegates plain-text to `EmptyState`; `dashboard/loading.tsx` + `governance/loading.tsx` | M |
 | TB-273 | Buyer-demo readiness defect remediation (**BDA-001…BDA-150**, including deferred **BDA-135/139/146** in batch **5DN-demo-deferred**) | **Done (2026-06-04)** — batches **5CY-demo** through **5DN-demo-deferred**; index [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md); full per-issue table in `## TB-273` below | XL |
 | TB-275 | Buyer-demo harsh audit re-validation (2026-06-04) — spot-check residual defects; canonical register **TB-273** (all **150** issues, not top-100 only) | **Done (2026-06-04 batch 5DT)** — BDA-001/008/015 + audit demo gating; `test_demo_batch_5dt.py` | S |
+| TB-276 | Route tenant scope binding filter — replace per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` calls with a global `IAsyncActionFilter` (or endpoint convention) that forbids `{tenantId}` / `{id}` route values when they differ from `IScopeContextProvider.GetCurrentScope().TenantId`; **exclude** routes under `PlatformTenantDeletionAuthority` and `/internal/*` cross-tenant surfaces; remove duplicated controller guards once filter is registered | Trustworthiness P0 — closes IDOR regression class from BE-014–016; single HTTP enforcement point after `HttpScopeContextProvider` | M |
+| TB-277 | Route `{tenantId}` CI drift guard — `scripts/ci/assert_route_tenant_scope_guard.py` fails when a controller action binds `{tenantId:guid}` (or `{id:guid}` on tenant-admin paths) without the filter attribute/convention or an explicit allowlist entry; wire into API CI | Trustworthiness P1 — prevents new unguarded tenant-in-route endpoints | S |
+| TB-278 | Route tenant IDOR integration test matrix — for each tenant-scoped `{tenantId}` route (executive summary, reference-evidence, metering, value-report): tenant A token + tenant B route → **403**; matching tenant → **200**/expected status; no dedicated tests exist today | Testability P1 — proves BE-014–016 binding holds under auth permutations | S |
+| TB-281 | Value-report scope-only URL — change `POST /v1/value-report/{tenantId}/generate` to scope-only `POST /v1/value-report/generate` (tenant from `IScopeContextProvider` only); update OpenAPI, generated client, `downloads-api.ts` / `GenerateSponsorValueReportButton.tsx`; keep old route as deprecated alias returning 308 or 403-on-mismatch for one release if needed | Trustworthiness P1 — completes TB-075 item 3 (client-chosen tenant in path) | S |
+| TB-279 | Tenant-scoped admin route migration — collapse redundant `{tenantId}` segments on tenant-admin surfaces to ambient scope: e.g. `GET /v1/admin/metering/summary`, `GET /v1/admin/reference-evidence`, align naming in OpenAPI; update UI/CLI callers; document that `AdminAuthority` is tenant-scoped, not platform cross-tenant | Architectural integrity P2 — removes misleading `/admin/tenants/{tenantId}/…` platform-admin URL shape | M |
+| TB-280 | Retire legacy `GET api/authority/executive-summary/{tenantId}` — redirect clients to `GET /v1/reports/executive-summary` (ambient scope); remove duplicate controller or mark obsolete + CI guard against new callers | Architectural integrity P2 — one executive-summary contract | XS |
+| TB-282 | Reclassify cross-tenant usage rollup — move `AdminController.GetCrossTenantUsageSummary` (`GET …/admin/analytics/cross-tenant-summary`) from `AdminAuthority` to `RequireOperatorRole` (or document + enforce platform-only break-glass); tenant admins must not reach fleet-wide aggregates via tenant-admin policy | Trustworthiness P2 — policy/URL semantics alignment | XS |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
 | TB-011 | Architecture invariant enforcement — Wave B (INV-002, INV-004, INV-012, INV-013) | **Done (2026-06-01 batches 5D+5G)** — persisted read-path + dual-replica harness guards; Wave B architecture tests + CI drift guards | L |
@@ -8314,4 +8323,182 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Action:** Before demo, run the buyer-polished shell with production-like flags and walk the golden path; any row above that still renders is a **TB-273 regression**, not a new TB item. Log fixes against the existing **BDA-NNN** id.
 
 **Cross-ref:** [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md), **TB-273**, **TB-274** (backend — separate concern).
+
+---
+
+## TB-276 — Route tenant scope binding filter (P0)
+
+**Source:** Route-based tenant addressing assessment ([`docs/assessments/route_based_tenant_addressing.docx`](../assessments/route_based_tenant_addressing.docx)), 2026-06-04. Extends **TB-274 / BE-014–016** (per-controller guards shipped batch **5DE–5DI**).
+
+**Problem:** Four tenant-scoped routes compare `{tenantId}` to `IScopeContextProvider.GetCurrentScope().TenantId` via manual `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` calls. New endpoints can omit the guard; services must never trust the route parameter (today they correctly use `scope.TenantId`, but the HTTP layer is fragile).
+
+**What to do:**
+
+1. Add `RouteTenantScopeBindingFilter` (`IAsyncActionFilter`) in `ArchLucid.Api/Security/` that reads route values `tenantId` or `id` (when the route template is under tenant-admin, not platform lifecycle).
+2. Compare parsed GUID to ambient scope; return **403** on mismatch (same semantics as today).
+3. Register globally in `Program.cs` / `PipelineExtensions.cs` for MVC controllers, **or** use an `[RequireRouteTenantMatchesScope]` attribute applied via convention to all `{tenantId:guid}` actions.
+4. **Exclude:** `AdminTenantsController` routes (`PlatformTenantDeletionAuthority`), `/v1/internal/analytics/cross-tenant*`, and any route explicitly marked `[AllowCrossTenantRoute]` (platform ops only).
+5. Remove the four duplicated controller guard blocks once the filter is active.
+6. Unit test the filter; one integration test proving a new dummy route cannot ship without the filter.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs` (new)
+- `ArchLucid.Api/Security/RouteTenantScopeAuthorization.cs` (delegate or fold into filter)
+- `ArchLucid.Api/Controllers/Authority/ExecutiveSummaryController.cs`
+- `ArchLucid.Api/Controllers/Admin/ReferenceEvidenceAdminController.cs`
+- `ArchLucid.Api/Controllers/Admin/MeteringAdminController.cs`
+- `ArchLucid.Api/Controllers/ValueReports/ValueReportController.cs`
+- `ArchLucid.Api/Startup/PipelineExtensions.cs`
+
+**Size estimate:** **M** — ~1 eng day.
+
+**Cross-ref:** **TB-072** (scope ingress), **TB-277** (CI), **TB-278** (tests), **TB-279–281** (route migration).
+
+---
+
+## TB-277 — Route `{tenantId}` CI drift guard (P1)
+
+**Source:** Route-based tenant addressing assessment, 2026-06-04.
+
+**Problem:** Without automation, the next `{tenantId:guid}` route can ship without scope binding (**TB-276** filter or explicit platform allowlist).
+
+**What to do:**
+
+1. Add `scripts/ci/assert_route_tenant_scope_guard.py` — scan `ArchLucid.Api/Controllers/**/*.cs` for route templates containing `{tenantId` or tenant-admin `{id:guid}` patterns.
+2. Require either registration in a central allowlist (platform lifecycle + internal cross-tenant) or evidence the global filter/convention applies (attribute name constant in repo).
+3. Wire as a blocking step in the API CI workflow; pytest for pass/fail fixtures.
+
+**Affected files / projects:**
+
+- `scripts/ci/assert_route_tenant_scope_guard.py` (new)
+- `.github/workflows/*.yml` (CI step)
+- `docs/library/API_CONTRACTS.md` (one paragraph on tenant-in-route policy)
+
+**Size estimate:** **S** — ~2–4 hours.
+
+**Cross-ref:** **TB-276**, **INV-001** / **TB-010** tenant boundary.
+
+---
+
+## TB-278 — Route tenant IDOR integration test matrix (P1)
+
+**Source:** Route-based tenant addressing assessment, 2026-06-04.
+
+**Problem:** **BE-014–016** guards have **no** dedicated integration tests (`RouteTenantScopeAuthorization` is untested). Cross-tenant denial for route/param mismatch is unproven in CI.
+
+**What to do:**
+
+1. Add `ArchLucid.Api.Tests/Security/RouteTenantScopeBindingIntegrationTests.cs`.
+2. For each route: `GET/POST …` with tenant A JWT/API key + `{tenantId}` = tenant B → **403**; matching tenant → success path (or **404** when no data — not **403** from scope mismatch).
+3. Cover: `api/authority/executive-summary/{tenantId}`, `v1/admin/tenants/{tenantId}/reference-evidence`, `v1/admin/metering/tenants/{tenantId}/summary`, `v1/value-report/{tenantId}/generate`.
+4. Add `scripts/ci/test_route_tenant_batch.py` drift guard listing covered routes.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api.Tests/Security/RouteTenantScopeBindingIntegrationTests.cs` (new)
+- Existing `ArchLucidApiFactory` / security test harness
+
+**Size estimate:** **S** — ~4–6 hours.
+
+**Cross-ref:** **TB-276**, **TB-078** (cross-tenant matrix), **ScopedSnapshotReadIdorIntegrationTests**.
+
+---
+
+## TB-281 — Value-report scope-only URL (P1)
+
+**Source:** Route-based tenant addressing assessment, 2026-06-04. Completes **TB-075** item 3 (marked Done for proxy posture but path tenant remains).
+
+**Problem:** `POST /v1/value-report/{tenantId}/generate` lets the client supply tenant in the URL; `downloads-api.ts` builds the path with a caller-supplied `tenantId`. Even with **TB-276**, this is unnecessary attack surface and duplicates scope.
+
+**What to do:**
+
+1. Add `POST /v1/value-report/generate` — tenant from `IScopeContextProvider` only.
+2. Update `ValueReportController`; deprecate `{tenantId}` route (403 on mismatch during transition, then remove).
+3. Update `archlucid-ui/src/lib/api/downloads-api.ts`, generated OpenAPI types, and any CLI callers.
+4. Integration test: generate without path tenant; cross-tenant path param denied.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/ValueReports/ValueReportController.cs`
+- `archlucid-ui/src/lib/api/downloads-api.ts`
+- `archlucid-ui/src/components/GenerateSponsorValueReportButton.tsx`
+- OpenAPI / `api-types.generated.ts`
+
+**Size estimate:** **S** — ~4–6 hours.
+
+**Cross-ref:** **TB-075**, **TB-276**, **TB-279**.
+
+---
+
+## TB-279 — Tenant-scoped admin route migration (P2)
+
+**Source:** Route-based tenant addressing assessment, 2026-06-04.
+
+**Problem:** `AdminAuthority` URLs like `/v1/admin/tenants/{tenantId}/reference-evidence` imply platform operators can target arbitrary tenants; auth only permits **tenant admin of the token tenant**. Misleading for security review and OpenAPI consumers.
+
+**What to do:**
+
+1. Introduce scope-only routes: `GET /v1/admin/reference-evidence`, `GET /v1/admin/metering/summary` (tenant from scope).
+2. Keep old routes as deprecated aliases (same **403** binding) for one release if external clients exist; document in `API_CONTRACTS.md`.
+3. Update UI/admin CLI references; regenerate client.
+4. Do **not** change `AdminTenantsController` (`PlatformTenantDeletionAuthority`) — that route shape is intentional.
+
+**Affected files / projects:**
+
+- `ReferenceEvidenceAdminController.cs`, `MeteringAdminController.cs`
+- `docs/library/API_CONTRACTS.md`
+- Generated client + any admin scripts
+
+**Size estimate:** **M** — ~1 eng day (includes client regen + caller updates).
+
+**Cross-ref:** **TB-276**, **TB-281**, **TB-280**.
+
+---
+
+## TB-280 — Retire legacy authority executive-summary `{tenantId}` route (P2)
+
+**Source:** Route-based tenant addressing assessment, 2026-06-04.
+
+**Problem:** Two executive-summary endpoints coexist: legacy `GET api/authority/executive-summary/{tenantId}` and canonical `GET /v1/reports/executive-summary` (ambient scope). Duplicate contracts confuse integrators.
+
+**What to do:**
+
+1. Audit callers (UI, tests, generated client); migrate to `/v1/reports/executive-summary`.
+2. Obsolete or remove `ArchLucid.Api.Controllers.Authority.ExecutiveSummaryController`.
+3. CI guard: fail if new references to `api/authority/executive-summary/{tenantId}` appear outside allowlist.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Authority/ExecutiveSummaryController.cs`
+- `ArchLucid.Api/Controllers/Reports/ExecutiveSummaryController.cs`
+- `archlucid-ui` / client grep targets
+
+**Size estimate:** **XS** — ~2–3 hours.
+
+**Cross-ref:** **TB-279**, EVV cluster (**TB-244–249**).
+
+---
+
+## TB-282 — Cross-tenant usage rollup policy alignment (P2)
+
+**Source:** Route-based tenant addressing assessment, 2026-06-04.
+
+**Problem:** `AdminController.GetCrossTenantUsageSummary` (`GET …/admin/analytics/cross-tenant-summary`) uses **`AdminAuthority`** (tenant admin) but returns **fleet-wide** aggregates. Tenant admins should not reach cross-tenant rollups via the same policy as tenant metering admin.
+
+**What to do:**
+
+1. Change authorization to **`RequireOperatorRole`** (match `InternalCrossTenantAnalyticsController` posture) **or** move under `/v1/internal/analytics/…`.
+2. Add integration test: tenant-admin JWT → **403**; operator role → **200**.
+3. Document in `docs/SECURITY.md` RBAC table: cross-tenant analytics = operator/platform only.
+
+**Affected files / projects:**
+
+- `ArchLucid.Api/Controllers/Admin/AdminController.cs`
+- `docs/SECURITY.md`
+- `ArchLucid.Api.Tests` (RBAC test)
+
+**Size estimate:** **XS** — ~2 hours.
+
+**Cross-ref:** `InternalCrossTenantAnalyticsController`, **TB-274** trust register.
 

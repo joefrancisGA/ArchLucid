@@ -79,6 +79,24 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
                 f"{name} must declare INV-009 posture before mutating routes",
             )
 
+    def test_internal_governance_scim_controllers_declare_idempotency_posture(self) -> None:
+        controller_paths = (
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Authority" / "InternalArchitectureDiagnosticsController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernanceController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernanceStickinessController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Governance" / "GovernancePreCommitSimulationController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Scim" / "ScimUsersController.cs",
+            REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Scim" / "ScimGroupsController.cs",
+        )
+
+        for path in controller_paths:
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(
+                "idempotency-posture:",
+                text,
+                f"{path.name} must declare INV-009 posture before mutating routes",
+            )
+
     def test_scoped_snapshot_idor_matrix_covers_ingest_routes(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopedSnapshotReadIdorIntegrationTests.cs"
         text = path.read_text(encoding="utf-8")

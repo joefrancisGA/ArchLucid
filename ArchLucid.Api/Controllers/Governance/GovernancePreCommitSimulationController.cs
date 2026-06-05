@@ -29,6 +29,7 @@ public sealed class GovernancePreCommitSimulationController(
     IPreCommitGovernanceGate gate,
     IAuditService auditService) : ControllerBase
 {
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(PreCommitGateResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -121,6 +121,7 @@ public sealed class GovernanceStickinessController(
         return Ok(response);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("findings/{findingId}/dispositions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FindingDispositionEventDto), StatusCodes.Status200OK)]
@@ -174,6 +175,7 @@ public sealed class GovernanceStickinessController(
         return Ok(history);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("risk-exceptions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RiskExceptionRecord), StatusCodes.Status200OK)]
@@ -218,6 +220,7 @@ public sealed class GovernanceStickinessController(
         return Ok(records);
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("risk-exceptions/{riskExceptionId:guid}/revoke")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -230,6 +233,7 @@ public sealed class GovernanceStickinessController(
         return NoContent();
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("risk-exceptions/{riskExceptionId:guid}/renew")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RiskExceptionRecord), StatusCodes.Status200OK)]
@@ -265,6 +269,7 @@ public sealed class GovernanceStickinessController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("recurrence-schedules")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ArchitectureReviewRecurrenceSchedule), StatusCodes.Status200OK)]

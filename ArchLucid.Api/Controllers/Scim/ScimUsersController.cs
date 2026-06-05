@@ -67,6 +67,7 @@ public sealed class ScimUsersController(
             : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [Produces("application/scim+json")]
     public async Task<IActionResult> CreateAsync(CancellationToken cancellationToken)

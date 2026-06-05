@@ -186,6 +186,7 @@ public sealed class GovernanceController(
         }
     }
 
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("approval-requests/{approvalRequestId}/reject")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
@@ -240,6 +241,7 @@ public sealed class GovernanceController(
     }
 
     /// <summary>Applies approve or reject to many approval requests; each id is evaluated independently (partial success).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("approval-requests/batch-review")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceBatchReviewResponse), StatusCodes.Status200OK)]
@@ -579,6 +581,7 @@ public sealed class GovernanceController(
     /// <summary>
     ///     Simulates proposed pack content against a single run's findings (pre-commit gate semantics) without persisting a pack.
     /// </summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("simulate")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [EnableRateLimiting("governancePolicyPackDryRun")]
@@ -753,6 +756,7 @@ public sealed class GovernanceController(
     }
 
     /// <summary>AI-assisted draft of a single curated policy rule (advisory; not persisted).</summary>
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("policy-pack/draft")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Draft endpoint is advisory-only and does not persist domain mutations.")]

@@ -40,6 +40,7 @@ public sealed class InternalArchitectureDiagnosticsController(
     : ControllerBase
 {
     /// <summary>Re-executes agents for <paramref name="runId" /> (relocated from public architecture routes).</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
@@ -125,6 +126,7 @@ public sealed class InternalArchitectureDiagnosticsController(
     }
 
     /// <summary>Determinism replay iterations for pipeline QA.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/determinism-check")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DeterminismCheckResponse), StatusCodes.Status200OK)]
@@ -182,6 +184,7 @@ public sealed class InternalArchitectureDiagnosticsController(
     }
 
     /// <summary>Development seed path for simulator substitution.</summary>
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId}/seed-fake-results")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = "CanSeedResults")]
