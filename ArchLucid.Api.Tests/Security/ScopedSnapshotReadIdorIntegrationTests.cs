@@ -304,6 +304,98 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
                 client.PostAsync($"/v1/value-report/{tenantId:D}/generate", content: null));
     }
 
+    [SkippableFact]
+    public async Task Export_blob_push_with_internal_ip_returns_bad_request_before_queue_sql_tb296()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/v1/artifacts/runs/{seed.RunId}/export/push",
+            new { destinationSasUrl = "https://127.0.0.1/evil/archlucid.zip?sv=2022-11-02&ss=b&srt=sco&sp=w&sig=x" });
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        string body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("private", because: "SSRF policy must reject loopback destinations at the API boundary");
+    }
+
+    [SkippableFact]
+    public async Task Export_blob_push_with_non_blob_host_returns_bad_request_sql_tb296()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/v1/artifacts/runs/{seed.RunId}/export/push",
+            new { destinationSasUrl = "https://evil.example.com/exports/archlucid.zip?sig=x" });
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [SkippableFact]
+    public async Task Export_blob_push_with_azure_blob_host_returns_accepted_sql_tb296()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        HttpResponseMessage response = await client.PostAsJsonAsync(
+            $"/v1/artifacts/runs/{seed.RunId}/export/push",
+            new { destinationSasUrl = PlaceholderAzureBlobSasUrl });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+    }
+
+    [SkippableFact]
+    public async Task Matching_tenant_committed_run_artifact_list_and_download_return_bytes_sql_tb298()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        CommittedRunSeed seed = await SeedTenantACommittedRunAsync();
+
+        await using GreenfieldSqlApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        HttpResponseMessage list = await client.GetAsync($"/v1/runs/{seed.RunId}/artifacts");
+        await list.EnsureSuccessForTestAsync();
+
+        string listJson = await list.Content.ReadAsStringAsync();
+        using System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(listJson);
+        System.Text.Json.JsonElement root = doc.RootElement;
+
+        System.Text.Json.JsonElement artifactsElement = root.ValueKind == System.Text.Json.JsonValueKind.Array
+            ? root
+            : root.GetProperty("artifacts");
+
+        artifactsElement.GetArrayLength().Should().BeGreaterThan(0, because: "committed run must expose synthesized artifacts");
+
+        Guid artifactId = artifactsElement[0].GetProperty("artifactId").GetGuid();
+
+        HttpResponseMessage download =
+            await client.GetAsync($"/v1/runs/{seed.RunId}/artifacts/{artifactId:D}");
+
+        await download.EnsureSuccessForTestAsync();
+        download.Content.Headers.ContentType?.MediaType.Should().NotBeNullOrWhiteSpace();
+
+        byte[] bytes = await download.Content.ReadAsByteArrayAsync();
+        bytes.Length.Should().BeGreaterThan(0, because: "artifact download must return non-empty bytes for matching tenant");
+    }
+
     private static async Task AssertMatchingTenantRouteNotForbiddenAsync(
         string routeFamily,
         Func<HttpClient, Guid, Task<HttpResponseMessage>> send)
@@ -444,6 +536,37 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     private sealed record CrossTenantRunSeed(string RunId, string RequestId);
+
+    private sealed record CommittedRunSeed(string RunId);
+
+    private static async Task<CommittedRunSeed> SeedTenantACommittedRunAsync()
+    {
+        await using GreenfieldSqlApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+        }
+
+        using HttpClient clientA = factory.CreateClient();
+        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        string requestId = "REQ-COMMIT-ART-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage create = await PostArchitectureRequestAsync(
+            clientA,
+            TestRequestFactory.CreateArchitectureRequest(requestId));
+        await create.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
+        string runId = created!.Run.RunId;
+
+        HttpResponseMessage execute = await clientA.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        await execute.EnsureSuccessForTestAsync();
+
+        HttpResponseMessage commit = await clientA.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        commit.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        return new CommittedRunSeed(runId);
+    }
 
     private static bool IsSqlServerReachableWithShortTimeout()
     {

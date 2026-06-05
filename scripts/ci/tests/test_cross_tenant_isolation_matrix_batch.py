@@ -19,6 +19,7 @@ API_ISOLATION_TESTS = (
     "ScopedSnapshotReadIdorIntegrationTests.cs",
     "ScopeIdentityBindingIntegrationTests.cs",
     "TenantIsolationSmokeTests.cs",
+    "AuditExportTenantIsolationIntegrationTests.cs",
 )
 
 RETRIEVAL_ISOLATION_TESTS = (
@@ -168,6 +169,13 @@ class TestCrossTenantIsolationMatrixBatch(unittest.TestCase):
         path = REPO_ROOT / "ArchLucid.Api" / "Startup" / "PipelineExtensions.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("ScopeIdentityBindingMiddleware", text)
+
+    def test_scope_identity_binding_permutation_table_documents_auth_modes(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopeIdentityBindingIntegrationTests.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("Jwt_with_mismatched_tenant_header_returns_forbidden_tb300", text)
+        self.assertIn("DevBypass_with_mismatched_tenant_header_returns_forbidden_tb300", text)
+        self.assertIn("ApiKey_without_tenant_claim_rejects_tenant_header_escalation", text)
 
     def test_tenant_retrieval_boundary_proof_script_exists(self) -> None:
         path = REPO_ROOT / "scripts" / "ci" / "report_tenant_retrieval_boundary_proof.py"

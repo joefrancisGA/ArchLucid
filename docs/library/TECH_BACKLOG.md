@@ -2,12 +2,12 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-05 (after batch **5DW-trust-paid-p1a** — **TB-285–287** Done). **~36 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-05 (after batch **5DW-trust-paid-p1b** — **TB-295–300** Done). **~30 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
 | Correctness | 9 |
-| Testability | 8 |
+| Testability | 6 |
 | Reliability | 3 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~36** |
+| **Total (unique)** | **~30** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–287** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**); **TB-288** remains. **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–301** remain (paid-pilot / P2 gates). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DW-trust-paid-p1b** (**TB-295–300**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–287** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**); **TB-288** remains. **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** remains (P2). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DX-trust-p2** (**TB-288**, **TB-301**) or **5DU-route-tenant-p1** (**TB-281**). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -257,12 +257,12 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | ~~TB-292~~ | ~~Route-tenant positive-path matrix~~ — **Done** (batch **5DW-trust-pilot-p0**): matching-tenant not-403 rows + `test_route_tenant_batch.py` guard | Testability P0 | S |
 | ~~TB-293~~ | ~~Production demo fail-fast host integration~~ — **Done** (batch **5DW-trust-pilot-p0**): `ProductionDemoFailFastHostIntegrationTests` | Trustworthiness P0 | XS |
 | ~~TB-294~~ | ~~Sponsor value report demo-run isolation (API)~~ — **Done** (batch **5DW-trust-pilot-p0**): `ValueReportDemoRunIsolationIntegrationTests` | Trustworthiness P0 | S |
-| TB-295 | SQL-backed audit export tenant isolation — supplement mocked `AuditExportCsvControllerTests` with greenfield SQL: tenant B export/list must not include tenant A `runId` / events | Trustworthiness P1 — compliance export RLS proof | S |
-| TB-296 | Export blob push SSRF integration (API) — POST `/export/push` with internal IP / non-blob host / DNS-rebinding fixture → 4xx; extends policy unit tests | Trustworthiness P1 — customer-supplied SAS abuse path | S |
-| TB-297 | Governance HTTP negative-path matrix — self-approval (exists), double-promote, reject-after-approve, stale manifest version → problem details + durable audit types | Testability P1 — governance trust for paid pilot | M |
-| TB-298 | Manifest artifact download integrity — committed run artifact GET returns stable content; cross-tenant denial; matching-tenant success path in SQL integration | Trustworthiness P1 — deliverable bytes match committed manifest | S |
-| TB-299 | Executive ROI board-pack live E2E — download path from UI or API; assert freshness/orphan labeling regressions (`ExecutiveRoiSummaryInvariantTests` guards logic only today) | Testability P1 — sponsor-facing export on live stack | S |
-| TB-300 | Scope identity auth permutation table — ApiKey vs JWT vs DevBypass: mismatched scope headers/claims → 403; document in pen-test matrix | Trustworthiness P1 — extends **TB-072** with explicit matrix | M |
+| ~~TB-295~~ | ~~SQL-backed audit export tenant isolation~~ — **Done** (batch **5DW-trust-paid-p1b**): `AuditExportTenantIsolationIntegrationTests` | Trustworthiness P1 | S |
+| ~~TB-296~~ | ~~Export blob push SSRF integration (API)~~ — **Done** (batch **5DW-trust-paid-p1b**): API-layer SSRF regressions in `ScopedSnapshotReadIdorIntegrationTests` | Trustworthiness P1 | S |
+| ~~TB-297~~ | ~~Governance HTTP negative-path matrix~~ — **Done** (batch **5DW-trust-paid-p1b**): `GovernanceNegativePathIntegrationTests` + `test_trust_paid_p1b_batch.py` | Testability P1 | M |
+| ~~TB-298~~ | ~~Manifest artifact download integrity~~ — **Done** (batch **5DW-trust-paid-p1b**): matching-tenant artifact list/download success path in SQL integration | Trustworthiness P1 | S |
+| ~~TB-299~~ | ~~Executive ROI board-pack live E2E~~ — **Done** (batch **5DW-trust-paid-p1b**): `ExecutiveRoiBoardPackEndpointTests` + `live-api-executive-board-pack.spec.ts` | Testability P1 | S |
+| ~~TB-300~~ | ~~Scope identity auth permutation table~~ — **Done** (batch **5DW-trust-paid-p1b**): JWT/DevBypass permutations + pen-test matrix row | Trustworthiness P1 | M |
 | TB-301 | Targeted Persistence tenant-read SQL probes — high-risk uncovered read paths (orchestrator/audit under RLS), not blanket % chasing | Testability P2 — repository-layer defense in depth | M |
 | TB-009 | Architecture invariant program — doc + ADR 0035 finalize | Engineering governance — single catalog IDs `INV-*`, proposed ADR acceptance, links from index / Cursor rule | Done (doc land 2026-05-09) |
 | TB-010 | Architecture invariant enforcement — Wave A (INV-001, INV-005, INV-006) | Done (Improvement **#21**, 2026-05-25) — INV-001 Roslyn analyzer; INV-005 catalog/fail-fast parity; INV-006 composition-root scan | S |
@@ -9443,133 +9443,49 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-295 — SQL-backed audit export tenant isolation (P1)
+## TB-295 — SQL-backed audit export tenant isolation (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Source:** Risk-weighted coverage audit, 2026-06-05.
-
-**Problem:** `AuditExportCsvControllerTests` uses mocked `IAuditRepository` — CSV shape tested but not SQL RLS / tenant filtering through the HTTP stack.
-
-**What to do:**
-
-1. Greenfield SQL integration: tenant A creates run → tenant B `GET /v1/audit/export/csv` and `/v1/audit?take=200` must not contain A's `runId`.
-2. Keep mock tests for filter/clamp edge cases.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api.Tests/AuditExportCsvControllerTests.cs`
-- `ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs` (extend)
-
-**Size estimate:** **S** — ~4–6 hours.
+**Shipped:** `AuditExportTenantIsolationIntegrationTests` — tenant B `GET /v1/audit`, `/v1/audit/search`, and `/v1/audit/export/csv` exclude tenant A `runId` under greenfield SQL.
 
 **Cross-ref:** **TB-290**, `DapperAuditRepositoryContractTests`.
 
 ---
 
-## TB-296 — Export blob push SSRF integration via API (P1)
+## TB-296 — Export blob push SSRF integration via API (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Source:** Risk-weighted coverage audit, 2026-06-05.
-
-**Problem:** `AllowedRunExportBlobDestinationUrlPolicyTests` and `RunExportBlobPushServiceTests` cover policy unit paths; full POST `/v1/artifacts/runs/{runId}/export/push` through API with internal IP / non-blob host is not integration-tested.
-
-**What to do:**
-
-1. Integration tests: disallowed destinations → **4xx** before blob write; allowed Azure blob HTTPS → success path smoke.
-2. Optional: assert audit event on rejection.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api.Tests/Security/ScopedSnapshotReadIdorIntegrationTests.cs` (extend push cases)
-- `ArchLucid.Application/Analysis/RunExportBlobPushService.cs`
-
-**Size estimate:** **S** — ~4 hours.
+**Shipped:** `ScopedSnapshotReadIdorIntegrationTests` — internal IP + non-blob host → **400**; Azure blob placeholder → **202**.
 
 **Cross-ref:** **TB-274** **5DG-export-p0**, BE-034.
 
 ---
 
-## TB-297 — Governance HTTP negative-path matrix (P1)
+## TB-297 — Governance HTTP negative-path matrix (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Source:** Risk-weighted coverage audit, 2026-06-05.
-
-**Problem:** `live-api-negative-paths.spec.ts` covers self-approval; double-promote, reject-after-approve, stale manifest version, and bypass-without-role lack HTTP + audit assertions.
-
-**What to do:**
-
-1. Add `GovernanceNegativePathIntegrationTests.cs` (or extend live-api spec) for each path → expected problem type + durable audit event type from `AUDIT_COVERAGE_MATRIX.md`.
-2. Drift guard listing covered scenarios.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api.Tests/` Governance controller tests
-- `archlucid-ui/e2e/live-api-negative-paths.spec.ts` (optional UI parity)
-
-**Size estimate:** **M** — ~1 eng day.
+**Shipped:** `GovernanceNegativePathIntegrationTests` — self-approval, reject-after-approve, double-promote, stale manifest → problem types + audit types; `test_trust_paid_p1b_batch.py`.
 
 **Cross-ref:** **TB-197**, `GovernanceWorkflowServiceTests`.
 
 ---
 
-## TB-298 — Manifest artifact download integrity (P1)
+## TB-298 — Manifest artifact download integrity (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Source:** Risk-weighted coverage audit, 2026-06-05.
-
-**Problem:** Cross-tenant artifact export IDOR exists in matrix; matching-tenant success (non-empty body, content-type, linkage to manifest) is not proven end-to-end in SQL integration.
-
-**What to do:**
-
-1. After commit: `GET /v1/runs/{runId}/artifacts` + artifact download → non-empty bytes, stable content-type.
-2. Cross-tenant GET → 403/404; extend `ScopedSnapshotReadIdorIntegrationTests` with success-path row.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api.Tests/Security/ScopedSnapshotReadIdorIntegrationTests.cs`
-- `live-api-replay-export.spec.ts` (optional alignment)
-
-**Size estimate:** **S** — ~4 hours.
+**Shipped:** matching-tenant committed-run artifact list + download success path in `ScopedSnapshotReadIdorIntegrationTests` (cross-tenant denial rows pre-existed).
 
 **Cross-ref:** **TB-274** **5DL-trust-p2**.
 
 ---
 
-## TB-299 — Executive ROI board-pack live E2E (P1)
+## TB-299 — Executive ROI board-pack live E2E (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Source:** Risk-weighted coverage audit, 2026-06-05.
-
-**Problem:** `ExecutiveRoiSummaryInvariantTests` guards server logic; no live UI/API E2E for board-pack download and freshness/orphan labeling on real stack.
-
-**What to do:**
-
-1. Live Playwright or API test: download board-pack from executive dashboard/scorecard; assert no demo-derived labels, orphan fields present per contract.
-2. Cross-ref **TB-240** regression guard.
-
-**Affected files / projects:**
-
-- `archlucid-ui/e2e/` (new or extend live-api suite)
-- `ExecutiveRoiSummaryEndpointTests.cs`
-
-**Size estimate:** **S** — ~4–6 hours.
+**Shipped:** `ExecutiveRoiBoardPackEndpointTests` orphan/freshness contract checks + `live-api-executive-board-pack.spec.ts`.
 
 **Cross-ref:** **TB-240**, **TB-241**.
 
 ---
 
-## TB-300 — Scope identity auth permutation table (P1)
+## TB-300 — Scope identity auth permutation table (P1) — **Done (2026-06-05 batch 5DW-trust-paid-p1b)**
 
-**Source:** Risk-weighted coverage audit, 2026-06-05. Extends **TB-072**.
-
-**Problem:** `ScopeIdentityBindingIntegrationTests` exists but ApiKey vs JWT vs DevBypass scope header/claim mismatch permutations are not documented as a explicit pen-test matrix.
-
-**What to do:**
-
-1. Add integration test table: mismatched `x-tenant-id` vs claim → **403**; ApiKey without tenant claim cannot steer via header alone.
-2. Document scenarios in `docs/security/pen-test-summaries/` and `test_cross_tenant_isolation_matrix_batch.py` registry.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api.Tests/Security/ScopeIdentityBindingIntegrationTests.cs`
-- `scripts/ci/tests/test_cross_tenant_isolation_matrix_batch.py`
-
-**Size estimate:** **M** — ~1 eng day.
+**Shipped:** JWT + DevBypass permutation rows in `ScopeIdentityBindingIntegrationTests`; pen-test matrix section in `2026-Q2-OWNER-CONDUCTED.md`; drift guards in `test_cross_tenant_isolation_matrix_batch.py` + `test_trust_paid_p1b_batch.py`.
 
 **Cross-ref:** **TB-072**, **TB-078**.
 

@@ -1,5 +1,8 @@
 using System.Net;
+using System.Net.Http.Headers;
 
+using ArchLucid.Api.Tests;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -68,6 +71,76 @@ public sealed class ScopeIdentityBindingIntegrationTests
         client.DefaultRequestHeaders.Add("x-tenant-id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
         HttpResponseMessage response = await client.GetAsync(ArtifactRunExportProbePath);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task Jwt_with_mismatched_tenant_header_returns_forbidden_tb300()
+    {
+        await using JwtLocalSigningWebAppFactory factory = new();
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+            factory.PrivatePemForTests,
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
+            "JwtScopeBindingUser",
+            [ArchLucidRoles.Admin]);
+
+        using HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.Add("x-tenant-id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        HttpResponseMessage response = await client.GetAsync(RunsListPath);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task Jwt_with_matching_scope_headers_is_not_rejected_by_scope_binding_tb300()
+    {
+        await using JwtLocalSigningWebAppFactory factory = new();
+        string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(
+            factory.PrivatePemForTests,
+            JwtLocalSigningWebAppFactory.JwtLocalTestIssuer,
+            JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
+            "JwtScopeBindingUser",
+            [ArchLucidRoles.Admin]);
+
+        using HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.Add("x-tenant-id", ScopeIds.DefaultTenant.ToString("D"));
+        client.DefaultRequestHeaders.Add("x-workspace-id", ScopeIds.DefaultWorkspace.ToString("D"));
+        client.DefaultRequestHeaders.Add("x-project-id", ScopeIds.DefaultProject.ToString("D"));
+
+        HttpResponseMessage response = await client.GetAsync(RunsListPath);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task DevBypass_with_mismatched_tenant_header_returns_forbidden_tb300()
+    {
+        await using ArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        client.DefaultRequestHeaders.Remove("x-tenant-id");
+        client.DefaultRequestHeaders.Add("x-tenant-id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        HttpResponseMessage response = await client.GetAsync(RunsListPath);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task DevBypass_with_mismatched_workspace_header_returns_forbidden_tb300()
+    {
+        await using ArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        client.DefaultRequestHeaders.Remove("x-workspace-id");
+        client.DefaultRequestHeaders.Add("x-workspace-id", "88888888-8888-8888-8888-888888888888");
+
+        HttpResponseMessage response = await client.GetAsync(RunsListPath);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

@@ -45,10 +45,23 @@ Owner pen-test manual probes should align with the CI-backed **V1 cross-tenant i
 | Layer | Representative tests |
 | --- | --- |
 | Persistence (SingleCatalog IDOR) | `SqlFindingsSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `SqlContextSnapshotRepositoryScopeIsolationSqlIntegrationTests`, `SqlGraphSnapshotRepositoryScopeIsolationSqlIntegrationTests` |
-| API ingress / scope binding | `ScopedSnapshotReadIdorIntegrationTests`, `ScopeIdentityBindingIntegrationTests`, `TenantIsolationSmokeTests` |
+| API ingress / scope binding | `ScopedSnapshotReadIdorIntegrationTests`, `ScopeIdentityBindingIntegrationTests`, `TenantIsolationSmokeTests`, `AuditExportTenantIsolationIntegrationTests` |
 | Retrieval write + search filter | `RetrievalIndexingScopeValidatorTests`, `AzureSearchTenantScopeFilterBuilderTests` |
 
 Drift guard: `scripts/ci/tests/test_cross_tenant_isolation_matrix_batch.py` (CI **Cross-tenant isolation matrix drift guards**). Evidence rollup: `python scripts/ci/report_tenant_retrieval_boundary_proof.py`.
+
+### Scope identity auth permutation (TB-300)
+
+Explicit HTTP **403** expectations when scope headers disagree with bound identity claims (extends **TB-072**):
+
+| Auth mode | Scenario | Expected |
+| --- | --- | --- |
+| **ApiKey** (tenant-bound) | `x-tenant-id` ≠ key `TenantId` claim | **403** on runs list + artifact export probe |
+| **ApiKey** (unbound) | Caller supplies `x-tenant-id` without tenant claim | **403** (header escalation blocked) |
+| **JWT** (local signing integration host) | Bearer JWT `tenant_id` ≠ `x-tenant-id` header | **403** on runs list |
+| **DevelopmentBypass** | Default dev claims ≠ mismatched `x-tenant-id` / `x-workspace-id` | **403** on runs list |
+
+Regression: `ScopeIdentityBindingIntegrationTests` · drift: `test_cross_tenant_isolation_matrix_batch.py` + `test_trust_paid_p1b_batch.py`.
 
 ## Tools
 

@@ -277,6 +277,9 @@ jobs:
       - name: DTO boundary batch unit tests (TB-285–287)
         run: python -m unittest discover -s scripts/ci/tests -p "test_dto_boundary_batch.py"
 
+      - name: Trust paid-pilot P1b batch unit tests (TB-295–300)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_trust_paid_p1b_batch.py"
+
       - name: Commercial tier packaging drift fixtures
         run: python scripts/ci/assert_commercial_tier_packaging_drift.py
 
