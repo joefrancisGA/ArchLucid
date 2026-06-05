@@ -1,5 +1,6 @@
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace ArchLucid.Api.Tests.Startup;
