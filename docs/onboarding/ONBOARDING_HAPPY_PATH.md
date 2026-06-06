@@ -11,5 +11,5 @@ Historical operators used **`ONBOARDING_HAPPY_PATH`** as the short name for one 
 **Use instead**
 
 1. **[`LIVE_E2E_HAPPY_PATH.md`](../library/LIVE_E2E_HAPPY_PATH.md)** — repeatable HTTP / curl narrative.
-2. **[`FIRST_RUN_WALKTHROUGH.md`](../library/FIRST_RUN_WALKTHROUGH.md)** — operator UI steps for **`/runs/new`** through commit.
+2. **[`FIRST_RUN_WALKTHROUGH.md`](../library/FIRST_RUN_WALKTHROUGH.md)** — operator UI steps for **`/reviews/new`** through commit (legacy `/runs/new` redirects).
 3. **[`archive/ONBOARDING_HAPPY_PATH_2026_04_17.md`](../archive/ONBOARDING_HAPPY_PATH_2026_04_17.md)** — frozen 2026-04-17 prose (archive only).

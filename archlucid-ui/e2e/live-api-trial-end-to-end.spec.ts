@@ -248,7 +248,7 @@ test.describe("live-api-trial-end-to-end", () => {
       ? trialJson.trialSampleRunId!
       : `${trialJson.trialSampleRunId!.slice(0, 8)}-${trialJson.trialSampleRunId!.slice(8, 12)}-${trialJson.trialSampleRunId!.slice(12, 16)}-${trialJson.trialSampleRunId!.slice(16, 20)}-${trialJson.trialSampleRunId!.slice(20, 32)}`;
 
-    await page.goto(`/runs/new?sampleRunId=${encodeURIComponent(sampleRunId)}`);
+    await page.goto(`/reviews/new?sampleRunId=${encodeURIComponent(sampleRunId)}`);
 
     await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible({
       timeout: 60_000,

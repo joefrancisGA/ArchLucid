@@ -34,7 +34,7 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | New run wizard — Step 1 |
-| **URL** | `/runs/new` |
+| **URL** | `/reviews/new` (legacy `/runs/new` redirects) |
 | **Data state** | Fresh page load, no preset selected yet. All three preset cards visible: Greenfield web app, Modernize legacy system, Blank (advanced). |
 | **Annotation callouts** | (A) "Choose a starting template or start from scratch" on the preset card area. (B) "Seven guided steps from intent to pipeline" on the stepper indicator. |
 | **Caption** | "ArchLucid's guided wizard walks you from a starting template through identity, requirements, constraints, review, and live pipeline tracking — in seven steps." |
@@ -47,7 +47,7 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | New run wizard — Step 6 (Review) |
-| **URL** | `/runs/new` (navigate to step 6) |
+| **URL** | `/reviews/new` (navigate to step 6; legacy `/runs/new` redirects) |
 | **Data state** | Populated from the "Greenfield web app" preset. System name, environment, description, constraints, and capabilities all filled. Validation messages clear (green). |
 | **Annotation callouts** | (A) "Full request summary before submission" on the review panel. (B) "Inline validation catches errors before the run is created" near a validated field. (C) "Client-generated request ID for idempotency" on the request ID display. |
 | **Caption** | "Review every field before creating the run. The wizard validates inputs inline so errors are caught at design time, not in production." |
@@ -138,7 +138,7 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | Attribute | Detail |
 |-----------|--------|
 | **Screen** | New run wizard — Step 7 (Track) |
-| **URL** | `/runs/new` (navigate to step 7 after creating a run) |
+| **URL** | `/reviews/new` (navigate to step 7 after creating a review; legacy `/runs/new` redirects) |
 | **Data state** | Pipeline tracking in progress or completed. Progress bar at 75% or 100%. Stage badges showing Context Ready, Graph Ready, Findings Ready, Manifest Ready (or the last one still Pending for the "in progress" feel). |
 | **Annotation callouts** | (A) "Live pipeline tracking — no page refresh needed" on the progress bar. (B) "Four stages from context to manifest" on the stage badges. |
 | **Caption** | "After creating a run, the wizard tracks the AI pipeline in real time — context ingestion, graph build, findings generation, and manifest synthesis — so you know exactly when your results are ready." |

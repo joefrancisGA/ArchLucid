@@ -34,7 +34,7 @@ const PAGES = [
   { name: "Legacy /onboarding/start → onboarding", path: "/onboarding/start" },
   { name: "Legacy /onboarding → onboarding", path: "/onboarding" },
   { name: "Legacy /onboard → onboarding", path: "/onboard" },
-  { name: "New request", path: "/runs/new" },
+  { name: "New request", path: "/reviews/new" },
   { name: "Runs", path: "/runs?projectId=default" },
   { name: "Run detail", path: `/runs/${FIXTURE_RUN_ID}` },
   { name: "Run provenance", path: `/runs/${FIXTURE_RUN_ID}/provenance` },

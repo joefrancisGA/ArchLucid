@@ -246,7 +246,7 @@ Deterministic **retrieval citation faithfulness** for agent output text against 
 
 **Env overrides:** `ARCHLUCID_FAITHFULNESS_MIN_POSITIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MAX_NEGATIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO` (combined diagnostic floor when no split cohorts).
 
-**Phase B (LLM-graded):** nightly/release **`LlmFaithfulnessScore`** on real-mode golden cohort — warn-only soak until baselines stabilize, then enforce per Owner Decision Addendum in **`docs/assessments/LATEST_GPT55.md`** (p50 ≥ 0.65 → ratchet 0.70). See `Invoke-FaithfulnessTrendReport.ps1 -EnforceFaithfulness` for local trend runs.
+**Phase B (LLM-graded):** nightly/release **`LlmFaithfulnessScore`** on real-mode golden cohort — warn-only soak until baselines stabilize, then enforce per Owner Decision Addendum in **`docs/assessments/LATEST_GPT55.md`** (p50 ≥ 0.65 → ratchet 0.70). **`golden-cohort-nightly.yml`** job **`cohort-faithfulness-phase-b-warn`** runs deterministic `eval_agent_faithfulness.py` (no `--enforce`) every night and uploads `faithfulness-report.md` for baseline trending. See `Invoke-FaithfulnessTrendReport.ps1 -EnforceFaithfulness` for local trend runs.
 
 If any item fails, classify the sponsor packet as not ready and follow [`QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md) or [`RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md`](../runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md) before handoff.
 

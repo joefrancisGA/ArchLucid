@@ -51,6 +51,32 @@ jobs:
       - name: Test golden cohort JSON contract
         run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter "FullyQualifiedName~GoldenCohortContractTests" --configuration Release
 
+  cohort-faithfulness-phase-b-warn:
+    needs: cohort-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Deterministic faithfulness trend (warn-only — Phase B soak)
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/eval_agent_faithfulness.py
+          if [ -f docs/quality/faithfulness-report.md ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## Agent faithfulness (nightly warn-only)" >> "$GITHUB_STEP_SUMMARY"
+            head -n 40 docs/quality/faithfulness-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: faithfulness-nightly-warn
+          path: docs/quality/faithfulness-report.md
+          if-no-files-found: warn
+
   cohort-simulator-drift:
     needs: cohort-contract
     if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED == 'true' }}

@@ -1,4 +1,4 @@
-﻿import { expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import {
   fixtureArtifactDescriptorsScreenshot,
@@ -80,7 +80,7 @@ const HREFS: string[] = [
   "/recommendation-learning",
   "/replay",
   "/runs?projectId=default",
-  "/runs/new",
+  "/reviews/new",
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}`,
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}`,
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}/inspect`,
@@ -138,7 +138,7 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
 
   for (const href of HREFS) {
     test(`PNG ${slugForHref(href)}`, async ({ page }) => {
-      // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve — see registerScreenshotSuiteProxyRoutes.
+      // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve � see registerScreenshotSuiteProxyRoutes.
       await page.goto(href, { waitUntil: "load", timeout: 120_000 });
 
 

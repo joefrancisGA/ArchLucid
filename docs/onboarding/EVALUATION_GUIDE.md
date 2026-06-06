@@ -40,7 +40,7 @@ The Core Pilot path is **four steps** to produce a committed **golden manifest**
 On the operator Home page, **Start with sample review** opens the curated Claims Intake sample review package. Use it to understand the destination before filling out the real-input wizard.
 
 ### Step 1 — Create an architecture review
-**Operator UI:** Sidebar → **New review** (wizard; legacy nav may still show *New run* / `/runs/new`).
+**Operator UI:** Sidebar → **New review** (wizard at **`/reviews/new`**; legacy `/runs/new` redirects).
 **CLI:** `archlucid run` (reads `archlucid.json` + `inputs/brief.md` — CLI verb unchanged).
 
 ### Step 2 — Execute the review

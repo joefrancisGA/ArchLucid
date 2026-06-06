@@ -21,7 +21,7 @@ test.describe("marketing screenshots (mock API)", () => {
     const shots: { file: string; href: string }[] = [
       { file: `${OUT}/01-home.png`, href: "/" },
       { file: `${OUT}/02-runs-list.png`, href: "/runs?projectId=default" },
-      { file: `${OUT}/03-runs-new.png`, href: "/runs/new" },
+      { file: `${OUT}/03-reviews-new.png`, href: "/reviews/new" },
       { file: `${OUT}/04-run-detail.png`, href: `/runs/${encodeURIComponent(FIXTURE_RUN_ID)}` },
       { file: `${OUT}/05-compare.png`, href: "/compare" },
       { file: `${OUT}/06-graph.png`, href: "/graph" },

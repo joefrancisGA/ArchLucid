@@ -28,7 +28,7 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 
 | Combo | Action | Navigates to |
 |-------|--------|--------------|
-| **Alt+N** | New run wizard | `/runs/new` |
+| **Alt+N** | New review wizard | `/reviews/new` |
 | **Alt+R** | Runs list | `/runs?projectId=default` |
 | **Alt+C** | Compare | `/compare` |
 | **Alt+P** | Replay | `/replay` |

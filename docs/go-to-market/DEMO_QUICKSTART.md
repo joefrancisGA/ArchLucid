@@ -38,7 +38,7 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 
 ## Your first five minutes
 
-1. **Wizard** — Browser should open to **`/runs/new`** (legacy path; product copy: **New review**). Pick **Greenfield web app** (or another preset) and walk the seven steps; start a **new review** if you want live pipeline tracking, or explore existing data from the seeded demo.
+1. **Wizard** — Browser should open to **`/reviews/new`** (legacy `/runs/new` redirects; product copy: **New review**). Pick **Greenfield web app** (or another preset) and walk the seven steps; start a **new review** if you want live pipeline tracking, or explore existing data from the seeded demo.
 2. **Reviews** — Open **Reviews** (sidebar may still say *Runs*) and select a **review** to see status, findings, and manifest linkage. The seed creates baseline and hardened Contoso **reviews** when startup seed completes ([demo-quickstart.md](../library/demo-quickstart.md) §3).
 3. **Explainability** — Open a finding and review the structured explainability trace (what was examined, rules, decisions).
 4. **Compare** — Use **Compare** with two **reviews** (seeded IDs are documented in [demo-quickstart.md](../library/demo-quickstart.md)) to see structured deltas.

@@ -48,7 +48,7 @@
 
 | # | Step | Expected | Pass |
 |---|------|----------|------|
-| 3.1 | Navigate to `/runs/new` | New **review** wizard renders (legacy label may still say **New run**); contextual help info icon is present | [ ] |
+| 3.1 | Navigate to `/reviews/new` | New **review** wizard renders (legacy `/runs/new` redirects); contextual help info icon is present | [ ] |
 | 3.2 | Submit an architecture request (use a template or free-text) | Review session is created (**`runId`** in API); pipeline status page shows agent tasks | [ ] |
 | 3.3 | Wait for agent execution (simulator: < 10s) | All agent tasks complete; green status indicators | [ ] |
 | 3.4 | Finalize the review | Commit succeeds; manifest version increments | [ ] |
