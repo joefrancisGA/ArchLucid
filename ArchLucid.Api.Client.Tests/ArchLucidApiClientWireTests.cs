@@ -109,7 +109,7 @@ public sealed class ArchLucidApiClientWireTests
         };
 
         ArchLucidApiException<ProblemDetails> ex = await Assert.ThrowsAsync<ArchLucidApiException<ProblemDetails>>(
-            () => client.ExecutiveSummaryAsync(Guid.NewGuid(), null, null));
+            () => client.ExecutiveSummaryAsync());
 
         Assert.Equal(401, ex.StatusCode);
         Assert.NotNull(ex.Result);
