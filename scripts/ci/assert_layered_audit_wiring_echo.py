@@ -39,7 +39,7 @@ FILES_AND_MARKERS: list[tuple[str, tuple[str, ...]]] = [
         ("AuditEventTypes.FindingMuted",),
     ),
     (
-        "ArchLucid.Persistence/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs",
+        "ArchLucid.Application/Runs/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs",
         (
             "AuditEventTypes.FindingsSnapshotSealed",
             "AuditEventTypes.ArtifactSynthesisFailed",
