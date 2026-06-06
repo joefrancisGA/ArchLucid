@@ -60,14 +60,14 @@ Regulated reviewers ask: *“Show me nothing changed after commit.”* Without a
 |-------|----------|
 | DENY on full sealed set in registry | Versioned rows where product needs explicit revisions |
 | `AgentResultEnrichments` overlay | Seal / immutability rules on `dbo.Runs` header |
-| Startup probe + architecture/SQL tests | Cryptographic hash-linked lineage (#6) |
+| Startup probe + architecture/SQL tests | Cryptographic hash-linked lineage (#6 — [ADR 0040](0040-tamper-evident-lineage-without-worm-storage.md); WORM out of scope) |
 | Insert-only agent results & evidence packages | FK repoint detection |
 
 ## Consequences
 
 - **Positive:** Aligns product thesis with enforced DB permissions; audit pattern extended consistently.
 - **Negative:** Operators must create `[ArchLucidApp]` and apply migration 247 (see `MANAGED_IDENTITY_SQL_BLOB.md`).
-- **Follow-ups:** Item #6 hash-linked lineage; optional CI script mirroring registry ↔ migration parity (architecture test covers today).
+- **Follow-ups:** Item #6 hash-linked lineage per [ADR 0040](0040-tamper-evident-lineage-without-worm-storage.md) (WORM out of scope); optional CI script mirroring registry ↔ migration parity (architecture test covers today).
 
 ## Links
 
