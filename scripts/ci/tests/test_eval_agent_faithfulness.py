@@ -104,7 +104,8 @@ class EvalAgentFaithfulnessTests(unittest.TestCase):
         )
 
         self.assertTrue(any("positive readiness" in failure for failure in failures))
-        self.assertTrue(any("combined diagnostic" in failure for failure in failures))
+        # Phase A split cohort floors: combined diagnostic is suppressed when both cohort kinds are present.
+        self.assertFalse(any("combined diagnostic" in failure for failure in failures))
 
 
 if __name__ == "__main__":

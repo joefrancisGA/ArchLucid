@@ -16,6 +16,7 @@ using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -90,7 +91,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         int coordinatorInvocations = 0;
         Mock<IArchitectureRunAuthorityCoordination> coordinationMock = new();
         coordinationMock
-            .Setup(c => c.CreateRunAsync(request, It.IsAny<CancellationToken>()))
+            .Setup(c => c.CreateRunAsync(request, It.IsAny<CancellationToken>(), It.IsAny<IArchLucidUnitOfWork?>()))
             .ReturnsAsync(() =>
             {
                 Interlocked.Increment(ref coordinatorInvocations);
@@ -202,7 +203,9 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         CreateRunResult[] results = await Task.WhenAll(tasks);
 
         coordinatorInvocations.Should().Be(1);
-        coordinationMock.Verify(c => c.CreateRunAsync(request, It.IsAny<CancellationToken>()), Times.Once);
+        coordinationMock.Verify(
+            c => c.CreateRunAsync(request, It.IsAny<CancellationToken>(), It.IsAny<IArchLucidUnitOfWork?>()),
+            Times.Once);
 
         results.Should().HaveCount(parallel);
         results.Select(r => r.Run.RunId).Distinct().Should().ContainSingle().Which.Should().Be(runId);
@@ -225,7 +228,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         coordination
             .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>(), It.IsAny<ArchLucid.Core.Transactions.IArchLucidUnitOfWork?>()))
-            .ReturnsAsync((ArchitectureRequest req, CancellationToken cancellationToken) =>
+            .ReturnsAsync((ArchitectureRequest req, CancellationToken cancellationToken, IArchLucidUnitOfWork? _) =>
             {
                 Interlocked.Increment(ref coordinatorInvocations);
 

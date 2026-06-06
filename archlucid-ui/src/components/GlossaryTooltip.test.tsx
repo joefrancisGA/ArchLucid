@@ -40,7 +40,7 @@ describe("GlossaryTooltip", () => {
     );
 
     fireEvent.pointerMove(screen.getByText("reviewed manifest"));
-    const termMatches = await screen.findAllByText("Signed manifest", { exact: true });
+    const termMatches = await screen.findAllByText("Golden manifest", { exact: true });
     expect(termMatches.length).toBeGreaterThan(0);
     const defMatches = await screen.findAllByText(GLOSSARY_TERMS.golden_manifest.definition, { exact: true });
     expect(defMatches.length).toBeGreaterThan(0);

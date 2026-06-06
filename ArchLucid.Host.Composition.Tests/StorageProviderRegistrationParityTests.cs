@@ -8,6 +8,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Tenancy;
@@ -54,6 +55,7 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(SqlResilientOperationExecutor),
         typeof(IWarmTenantCatalogReplenishService),
         typeof(IAuditSqlRetryPolicyProvider),
+        typeof(SqlGraphSnapshotRepository),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =

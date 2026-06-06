@@ -298,18 +298,28 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
                 },
             ]));
 
-        Mock<ITenantEstimatedUsdSavingsResolver> savingsResolver = new();
-        savingsResolver
-            .Setup(resolver => resolver.ResolveFromFindingsSnapshotIdAsync(paymentsSnapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(5000m);
-        savingsResolver
-            .Setup(resolver => resolver.ResolveFromFindingsSnapshotIdAsync(claimsSnapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(3000m);
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(repo => repo.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync(tenants);
 
-        ExecutiveRoiSummaryService sut = CreateSutWithAccessibleTenants(
+        Mock<IScimUserRepository> scimRepository = new();
+        scimRepository
+            .Setup(repo => repo.GetByExternalIdAsync(It.IsAny<Guid>(), "user-key", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateActiveUser());
+
+        ExecutiveRoiSummaryService sut = ExecutiveRoiSummaryServiceTestSupport.CreateService(
             runQuery.Object,
-            savingsResolver.Object,
-            tenants);
+            Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
+            tenantRepository.Object,
+            scimRepository.Object,
+            configureFindingsSnapshots: findingsSnapshots =>
+            {
+                findingsSnapshots
+                    .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), paymentsSnapshotId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(ExecutiveRoiSummaryServiceTestSupport.CreateOpenFindingSnapshot(5000m));
+                findingsSnapshots
+                    .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), claimsSnapshotId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(ExecutiveRoiSummaryServiceTestSupport.CreateOpenFindingSnapshot(3000m));
+            }).Service;
 
         CrossTenantPortfolioSummaryResponse response =
             await sut.GetCrossTenantPortfolioSummaryAsync("user-key", CancellationToken.None);
