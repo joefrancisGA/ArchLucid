@@ -1061,6 +1061,9 @@ jobs:
           ARCHLUCID_OPENAPI_SNAPSHOT_ARTIFACT_PATH: ${{ runner.temp }}/openapi-contract/openapi-v1.generated.canonical.json
         run: bash scripts/ci/check_openapi_contract_snapshot.sh
 
+      - name: Assert ArchLucid.Api.Client NSwag output in sync
+        run: bash scripts/ci/assert_api_client_in_sync.sh
+
       - name: Upload generated OpenAPI contract artifact
         if: always()
         uses: actions/upload-artifact@v6

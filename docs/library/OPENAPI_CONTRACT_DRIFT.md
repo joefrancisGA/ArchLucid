@@ -93,11 +93,11 @@ Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snaps
 
 **Downstream generated clients (same PR as intentional contract changes):**
 
-1. **.NET SDK:** `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj` — NSwag regenerates `Generated/ArchLucidApiClient.g.cs` from the snapshot (`ArchLucid.Api.Client/README.md`).
+1. **.NET SDK:** `dotnet build ArchLucid.Api.Client/ArchLucid.Api.Client.csproj` — NSwag regenerates `Generated/ArchLucidApiClient.g.cs` from the snapshot (`ArchLucid.Api.Client/README.md`). CI drift guard: `scripts/ci/assert_api_client_in_sync.sh` (job **openapi-contract-snapshot**).
 2. **TypeScript (operator UI):** from `archlucid-ui/`, run `npm run generate:api-types` — refreshes `src/lib/api-types.generated.ts` from the same snapshot (see `scripts/ci/assert_api_types_in_sync.sh`).
 3. **Docs:** update operator/integration docs when behavior or DTO semantics change (quality gate, agent evaluation, golden cohort, configuration tables linked from `ConfigurationKeyCatalog`).
 
-Commit baseline + regenerated clients + doc edits together so CI (`openapi-contract-snapshot`, `assert_api_types_in_sync` where wired) stays green.
+Commit baseline + regenerated clients + doc edits together so CI (`openapi-contract-snapshot`, `assert_api_client_in_sync`, `assert_api_types_in_sync` where wired) stays green.
 
 **Optional git pre-push gate:** Run once from repo root: `.\scripts\git-hooks\Install-GitHooks.ps1` (Windows) or `bash scripts/git-hooks/install-git-hooks.sh` (Unix). That sets `core.hooksPath` to `scripts/git-hooks` so `pre-push` runs the same snapshot check as CI when your outgoing commits touch paths under the API dependency closure (for example `ArchLucid.Api/`, `ArchLucid.Application/`, `ArchLucid.Persistence/`, `schemas/`, or central MSBuild files). Skip one push: `ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1` (Bash) or `$env:ARCHLUCID_SKIP_OPENAPI_PRE_PUSH = "1"` (PowerShell). Always run the check on every push (ignore path filter): `ARCHLUCID_OPENAPI_PRE_PUSH=all`. If a legitimate change did not match the filter and CI still failed, extend the patterns in `scripts/git-hooks/pre-push`.
 
