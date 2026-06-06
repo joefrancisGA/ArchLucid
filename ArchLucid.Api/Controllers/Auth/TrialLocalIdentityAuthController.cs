@@ -18,9 +18,12 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Auth;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Local email/password trial identity (gated by <c>Auth:Trial:Modes</c> including <c>LocalIdentity</c>).</summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/auth/trial/local")]
 public sealed class TrialLocalIdentityAuthController(

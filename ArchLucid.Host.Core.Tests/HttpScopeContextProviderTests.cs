@@ -88,4 +88,37 @@ public sealed class HttpScopeContextProviderTests
 
         scope.TenantId.Should().Be(ScopeIds.DefaultTenant);
     }
+
+    [Fact]
+    public void ResolveCurrentScope_reports_default_source_when_unresolved()
+    {
+        DefaultHttpContext http = new();
+        HttpContextAccessor accessor = new() { HttpContext = http };
+        HttpScopeContextProvider sut = new(accessor);
+
+        ScopeResolution resolution = sut.ResolveCurrentScope();
+
+        resolution.Tenant.Source.Should().Be(ScopeSource.Default);
+        resolution.Workspace.Source.Should().Be(ScopeSource.Default);
+        resolution.Project.Source.Should().Be(ScopeSource.Default);
+    }
+
+    [Fact]
+    public void ResolveCurrentScope_reports_claim_source_when_present()
+    {
+        Guid tenant = Guid.NewGuid();
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", tenant.ToString("D"))],
+                "Bearer")),
+        };
+        HttpContextAccessor accessor = new() { HttpContext = http };
+        HttpScopeContextProvider sut = new(accessor);
+
+        ScopeResolution resolution = sut.ResolveCurrentScope();
+
+        resolution.Tenant.Source.Should().Be(ScopeSource.Claim);
+        resolution.Tenant.Value.Should().Be(tenant);
+    }
 }

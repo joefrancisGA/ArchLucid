@@ -23,6 +23,8 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Demo;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Read-only anonymous viewer for Contoso demo-seeded data when <c>Demo:AnonymousViewer:Enabled</c> is true.
 /// </summary>
@@ -31,6 +33,7 @@ namespace ArchLucid.Api.Controllers.Demo;
 [Route("v{version:apiVersion}/demo/viewer")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 public sealed class DemoViewerController(
     IOptions<DemoOptions> demoOptions,
     IRunDetailQueryService runDetailQueryService,

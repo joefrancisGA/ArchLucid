@@ -12,9 +12,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Billing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Stripe billing webhooks (signature verified inside <see cref="StripeBillingProvider" />).</summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/billing/webhooks")]
 [EnableRateLimiting("fixed")]

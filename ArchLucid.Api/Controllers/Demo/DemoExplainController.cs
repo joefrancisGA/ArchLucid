@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Demo;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Public, read-only proof endpoint for the operator-shell <c>/demo/explain</c> route.
 ///     Returns the citations-bound aggregate explanation alongside the full provenance graph for
@@ -42,6 +44,7 @@ namespace ArchLucid.Api.Controllers.Demo;
 [Route("v{version:apiVersion}/demo")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [FeatureGate(FeatureGateKey.DemoEnabled)]
 public sealed class DemoExplainController(IDemoReadModelClient demoReadModelClient) : ControllerBase
 {

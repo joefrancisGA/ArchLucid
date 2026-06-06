@@ -20,9 +20,12 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Integrations;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Inbound ITSM vendor webhooks (shared-secret headers; no JWT).</summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/integrations/webhooks")]
 [EnableRateLimiting("fixed")]

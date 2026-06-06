@@ -9454,3 +9454,23 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope:** Hash-linked lineage (#6), sealing `dbo.Runs` header, versioned evidence rows.
 
 **Refs:** ADR-0039; TB-302; ADR-0038.
+
+---
+
+## TB-304 — Fail-closed scope derivation on production-like hosts
+
+**Status:** **Done** (2026-06-06).
+
+**Problem:** `HttpScopeContextProvider` silently fell back to `ScopeIds.Default*` when JWT claims and headers were absent — in all environments including production-like hosts. Cross-tenant routing was strong; inward workspace/project leakage and default-tenant reads remained possible.
+
+**Shipped:**
+
+1. `ScopeSource` + `ScopeResolution` + `IScopeContextProvider.ResolveCurrentScope()` with per-dimension source tracking.
+2. `ScopeResolutionGuardMiddleware` — 403 on production-like when scope is header/default/ambient-default unless `[AllowUnscopedRoute]`.
+3. `[AllowUnscopedRoute]` on marketing, webhooks, registration, and other scope-free controllers.
+4. `ProductionSafetyRules.CollectScopeDerivationUnsafeInProductionLike` — rejects `DevelopmentBypass` and `AllowTestActorHeaders` on production-like hosts.
+5. ADR **0041**, [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) Layer B update, architecture + unit tests.
+
+**Out of scope:** SQL RLS; JWT issuance changes; schema NOT NULL TenantId backfills.
+
+**Refs:** ADR-0037; ADR-0041; TB-072; TB-276.

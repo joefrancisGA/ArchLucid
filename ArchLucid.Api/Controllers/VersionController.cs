@@ -21,6 +21,7 @@ namespace ArchLucid.Api.Controllers;
 [ApiController]
 [Route("version")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersionNeutral]
 [EnableRateLimiting("fixed")]
 public sealed class VersionController(IHostEnvironment environment, TimeProvider timeProvider) : ControllerBase

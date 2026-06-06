@@ -16,12 +16,15 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Anonymous early-access capture for buyers who are not ready for self-serve signup.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing/early-access")]
 [EnableRateLimiting("registration")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 public sealed class MarketingEarlyAccessRequestController(
     IMarketingEarlyAccessRequestRepository earlyAccessRepository,
     IMarketingEarlyAccessSalesNotifier salesNotifier,

@@ -9,6 +9,8 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Anonymous Trust Center evidence-pack endpoint — bundles in-repo procurement
 ///     artefacts (DPA template, subprocessors, SLA summary, security.txt, CAIQ Lite,
@@ -36,6 +38,7 @@ namespace ArchLucid.Api.Controllers.Marketing;
 [Route("v{version:apiVersion}/marketing/trust-center")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 public sealed class TrustCenterEvidencePackController(
     IEvidencePackBuilder evidencePackBuilder,
     IMemoryCache memoryCache) : ControllerBase

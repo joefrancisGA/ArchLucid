@@ -4,6 +4,7 @@ using ArchLucid.Api.Auth;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
@@ -134,6 +135,7 @@ internal static class PipelineExtensions
 
         app.UseAuthentication();
         app.UseMiddleware<ScopeIdentityBindingMiddleware>();
+        app.UseMiddleware<ScopeResolutionGuardMiddleware>();
         app.UseRateLimiter();
         app.UseMiddleware<ArchLucidRateLimitTelemetryHeadersMiddleware>();
         app.UseMiddleware<TrialSeatReservationMiddleware>();

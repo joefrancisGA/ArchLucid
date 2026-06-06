@@ -27,4 +27,8 @@ public static class ScopeIds
     ///     Not safe to assume in production.
     /// </summary>
     public static readonly Guid DefaultProject = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+    /// <summary>True when <paramref name="id" /> is one of the well-known development default scope GUIDs.</summary>
+    public static bool IsDevelopmentDefault(Guid id) =>
+        id == DefaultTenant || id == DefaultWorkspace || id == DefaultProject;
 }

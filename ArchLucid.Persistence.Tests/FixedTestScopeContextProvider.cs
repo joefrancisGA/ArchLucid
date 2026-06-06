@@ -6,4 +6,7 @@ namespace ArchLucid.Persistence.Tests;
 internal sealed class FixedTestScopeContextProvider(ScopeContext scope) : IScopeContextProvider
 {
     public ScopeContext GetCurrentScope() => scope;
+
+    public ScopeResolution ResolveCurrentScope() =>
+        ScopeResolution.FromUniformSource(scope, ScopeSource.Ambient);
 }

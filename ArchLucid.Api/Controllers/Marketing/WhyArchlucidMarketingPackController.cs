@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Anonymous marketing artifact: bundled PDF proof pack for the public <c>/why</c> page, sourced only from
 ///     <see cref="IDemoCommitPagePreviewClient" /> (same deterministic demo data as <c>GET /v1/demo/preview</c>).
@@ -21,6 +23,7 @@ namespace ArchLucid.Api.Controllers.Marketing;
 [Route("v{version:apiVersion}/marketing")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [FeatureGate(FeatureGateKey.DemoEnabled)]
 public sealed class WhyArchlucidMarketingPackController(
     IDemoCommitPagePreviewClient previewClient,

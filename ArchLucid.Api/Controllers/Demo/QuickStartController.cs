@@ -10,12 +10,15 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Demo;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Anonymous simulator-only onboarding path (<c>/v1/demo/quickstart</c>).</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/demo")]
 [EnableRateLimiting("expensive")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 public sealed class QuickStartController(QuickStartService quickStartService) : ControllerBase
 {
     private readonly QuickStartService _quickStartService =

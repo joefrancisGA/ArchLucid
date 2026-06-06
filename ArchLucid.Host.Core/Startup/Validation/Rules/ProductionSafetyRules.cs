@@ -211,6 +211,43 @@ internal static class ProductionSafetyRules
             + $"SingleCatalog shares one SQL database across all tenants and must only be used for local development and test.");
     }
 
+    /// <summary>
+    ///     Production-like hosts must not permit header-steered test scope or development-bypass auth (TB-304).
+    /// </summary>
+    public static void CollectScopeDerivationUnsafeInProductionLike(
+        IConfiguration configuration,
+        IHostEnvironment environment,
+        List<string> errors)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(environment);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!HostEnvironmentClassification.IsProductionOrStagingLike(environment, configuration))
+            return;
+
+        if (AllowsInMemoryForDevelopmentArchLucidStagingOnly(environment, configuration))
+            return;
+
+        if (configuration.GetValue("ArchLucidAuth:AllowTestActorHeaders", false))
+        {
+            errors.Add(
+                "ArchLucidAuth:AllowTestActorHeaders must be false in production-like hosts "
+                + "(ASP.NET Production/Staging or ARCHLUCID_ENVIRONMENT=Production|Staging). "
+                + "Test header scope steering is not permitted outside local Development.");
+        }
+
+        string? authMode = configuration["ArchLucidAuth:Mode"];
+
+        if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+        {
+            errors.Add(
+                "ArchLucidAuth:Mode cannot be DevelopmentBypass in production-like hosts "
+                + "(ASP.NET Production/Staging or ARCHLUCID_ENVIRONMENT=Production|Staging). "
+                + "Scope must bind to real identity claims, not development defaults.");
+        }
+    }
+
     /// <summary>Fail-fast CORS checks in Production for API-facing hosts only.</summary>
     public static void CollectCors(IConfiguration configuration, List<string> errors)
     {

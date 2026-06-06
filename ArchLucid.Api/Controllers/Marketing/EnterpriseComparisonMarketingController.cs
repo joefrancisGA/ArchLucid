@@ -12,12 +12,15 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Anonymous marketing PDF built from <c>docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md</c>.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 public sealed class EnterpriseComparisonMarketingController(
     IWebHostEnvironment hostEnvironment,
     WhyArchLucidPackPdfBuilder pdfBuilder) : ControllerBase

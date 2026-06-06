@@ -11,9 +11,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Anonymous read-only hero payloads for Contoso runs flagged <c>IsPublicShowcase</c> in the demo catalog.</summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing/showcase")]
 [EnableRateLimiting("fixed")]

@@ -18,9 +18,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Anonymous tenant self-registration (Free tier).</summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [EnableRateLimiting("registration")]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/register")]

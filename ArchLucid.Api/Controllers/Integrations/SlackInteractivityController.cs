@@ -15,12 +15,15 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Integrations;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Receives Slack interactivity callbacks (<c>block_actions</c>) from governance approval Block Kit buttons.
 ///     Verifies the Slack request signature against the tenant-configured <c>SlackSigningSecret</c>
 ///     before dispatching approve/reject actions.
 /// </summary>
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/integrations/webhooks/slack")]

@@ -17,4 +17,14 @@ public interface IScopeContextProvider
     /// </summary>
     /// <returns>Non-null <see cref="ScopeContext" />; ids may be well-known defaults when unauthenticated in development.</returns>
     ScopeContext GetCurrentScope();
+
+    /// <summary>
+    ///     Returns scope plus per-dimension source metadata for fail-closed production-like guards (TB-304).
+    /// </summary>
+    /// <remarks>
+    ///     Default implementation treats the resolved scope as an ambient job override. Host HTTP providers override with
+    ///     claim/header/default source tracking.
+    /// </remarks>
+    ScopeResolution ResolveCurrentScope() =>
+        ScopeResolution.FromUniformSource(GetCurrentScope(), ScopeSource.Ambient);
 }

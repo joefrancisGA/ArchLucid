@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Accepts operator-shell client error reports for structured Serilog emission (no persistence).
 /// </summary>
@@ -233,6 +235,7 @@ public sealed class ClientErrorTelemetryController(
     [HttpPost("first-tenant-funnel")]
     [EnableRateLimiting("registration")]
     [AllowAnonymous]
+    [AllowUnscopedRoute]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostFirstTenantFunnelEvent(
@@ -264,6 +267,7 @@ public sealed class ClientErrorTelemetryController(
     [HttpPost("core-pilot-rail-step")]
     [EnableRateLimiting("registration")]
     [AllowAnonymous]
+    [AllowUnscopedRoute]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult PostCorePilotRailChecklistStep([FromBody] CorePilotRailStepRequest? body)

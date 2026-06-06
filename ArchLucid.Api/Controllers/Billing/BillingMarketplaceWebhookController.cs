@@ -16,12 +16,15 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Billing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Azure Marketplace SaaS fulfillment webhooks (JWT verified inside
 ///     <see cref="AzureMarketplaceBillingProvider" />).
 /// </summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/billing/webhooks")]
 [EnableRateLimiting("fixed")]

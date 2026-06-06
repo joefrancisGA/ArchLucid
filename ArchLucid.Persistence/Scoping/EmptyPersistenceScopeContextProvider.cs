@@ -8,9 +8,12 @@ namespace ArchLucid.Persistence.Scoping;
 /// </summary>
 public sealed class EmptyPersistenceScopeContextProvider : IScopeContextProvider
 {
+    private static readonly ScopeContext EmptyScope = new();
+
     /// <inheritdoc />
-    public ScopeContext GetCurrentScope()
-    {
-        return new ScopeContext { TenantId = Guid.Empty, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty };
-    }
+    public ScopeContext GetCurrentScope() => EmptyScope;
+
+    /// <inheritdoc />
+    public ScopeResolution ResolveCurrentScope() =>
+        ScopeResolution.FromUniformSource(EmptyScope, ScopeSource.Default);
 }

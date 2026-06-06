@@ -15,4 +15,7 @@ public sealed class MutableScopeContextProvider : IScopeContextProvider
     {
         return Current;
     }
+
+    public ScopeResolution ResolveCurrentScope() =>
+        ScopeResolution.FromUniformSource(Current, ScopeSource.Ambient);
 }

@@ -12,9 +12,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Notifications;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Public unsubscribe endpoint for weekly executive digest (signed token, no interactive auth).</summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/notifications/exec-digest")]
 [EnableRateLimiting("registration")]

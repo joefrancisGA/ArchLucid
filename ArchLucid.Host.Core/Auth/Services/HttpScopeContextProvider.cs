@@ -17,33 +17,58 @@ namespace ArchLucid.Host.Core.Auth.Services;
 public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAccessor) : IScopeContextProvider
 {
     /// <inheritdoc />
+    public ScopeContext GetCurrentScope() => ResolveCurrentScope().Scope;
+
+    /// <inheritdoc />
     /// <remarks>
     /// Order per dimension: <see cref="AmbientScopeContext.CurrentOverride"/> (background jobs), then JWT claims
     /// <c>tenant_id</c> / <c>workspace_id</c> / <c>project_id</c> when they parse as GUIDs, then <c>x-*-id</c> headers,
     /// else <see cref="ScopeIds"/> defaults. Claims win over headers so callers cannot override token-bound scope via headers (IDOR mitigation).
     /// </remarks>
-    public ScopeContext GetCurrentScope()
+    public ScopeResolution ResolveCurrentScope()
     {
         ScopeContext? ambient = AmbientScopeContext.CurrentOverride;
+
         if (ambient is not null)
-            return ambient;
+            return ScopeResolution.FromUniformSource(ambient, ScopeSource.Ambient);
 
         HttpContext? http = httpContextAccessor.HttpContext;
         ClaimsPrincipal? user = http?.User;
         IHeaderDictionary? headers = http?.Request.Headers;
 
-        return new ScopeContext
+        ScopeDimensionResolution tenant = ResolveScopeIdWithSource(
+            user,
+            headers,
+            "tenant_id",
+            "x-tenant-id",
+            ScopeIds.DefaultTenant);
+        ScopeDimensionResolution workspace = ResolveScopeIdWithSource(
+            user,
+            headers,
+            "workspace_id",
+            "x-workspace-id",
+            ScopeIds.DefaultWorkspace);
+        ScopeDimensionResolution project = ResolveScopeIdWithSource(
+            user,
+            headers,
+            "project_id",
+            "x-project-id",
+            ScopeIds.DefaultProject);
+
+        ScopeContext scope = new()
         {
-            TenantId = ResolveScopeId(user, headers, "tenant_id", "x-tenant-id", ScopeIds.DefaultTenant),
-            WorkspaceId = ResolveScopeId(user, headers, "workspace_id", "x-workspace-id", ScopeIds.DefaultWorkspace),
-            ProjectId = ResolveScopeId(user, headers, "project_id", "x-project-id", ScopeIds.DefaultProject)
+            TenantId = tenant.Value,
+            WorkspaceId = workspace.Value,
+            ProjectId = project.Value,
         };
+
+        return ScopeResolution.Create(scope, tenant, workspace, project);
     }
 
     /// <summary>
     /// Prefers a well-formed JWT claim over the matching header so scope stays bound to the token when both are present.
     /// </summary>
-    private static Guid ResolveScopeId(
+    private static ScopeDimensionResolution ResolveScopeIdWithSource(
         ClaimsPrincipal? user,
         IHeaderDictionary? headers,
         string claimType,
@@ -53,16 +78,16 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
         string? claimValue = user?.FindFirst(claimType)?.Value;
 
         if (!string.IsNullOrWhiteSpace(claimValue) && Guid.TryParse(claimValue, out Guid fromClaim))
-            return fromClaim;
+            return new ScopeDimensionResolution(fromClaim, ScopeSource.Claim);
 
         if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
-            return defaultId;
+            return new ScopeDimensionResolution(defaultId, ScopeSource.Default);
 
         string headerText = headerRaw.ToString();
 
         if (string.IsNullOrWhiteSpace(headerText) || !Guid.TryParse(headerText, out Guid fromHeader))
-            return defaultId;
+            return new ScopeDimensionResolution(defaultId, ScopeSource.Default);
 
-        return fromHeader;
+        return new ScopeDimensionResolution(fromHeader, ScopeSource.Header);
     }
 }

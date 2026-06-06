@@ -10,4 +10,7 @@ internal sealed class FixedPersistenceScopeContextProvider(ScopeContext scope) :
     private readonly ScopeContext _scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
     public ScopeContext GetCurrentScope() => _scope;
+
+    public ScopeResolution ResolveCurrentScope() =>
+        ScopeResolution.FromUniformSource(_scope, ScopeSource.Ambient);
 }

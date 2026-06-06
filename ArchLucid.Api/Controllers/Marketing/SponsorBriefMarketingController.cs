@@ -12,12 +12,15 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Anonymous marketing artifact: printable PDF from the canonical Executive Sponsor Brief markdown.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 public sealed class SponsorBriefMarketingController(
     IWebHostEnvironment hostEnvironment,
     ExecutiveSponsorBriefPdfBuilder pdfBuilder) : ControllerBase

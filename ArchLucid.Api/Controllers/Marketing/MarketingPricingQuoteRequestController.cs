@@ -16,12 +16,15 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
+using ArchLucid.Api.Security;
+
 /// <summary>Anonymous quote-on-request for buyers who cannot use live checkout yet.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing/pricing")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 public sealed class MarketingPricingQuoteRequestController(
     IMarketingPricingQuoteRequestRepository quoteRepository,
     IMarketingPricingQuoteSalesNotifier salesNotifier,

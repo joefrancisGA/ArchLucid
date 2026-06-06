@@ -45,6 +45,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0038](0038-run-durability-multi-store-outbox-production-secrets.md) | Run durability — async SQL default, transactional authority outbox, unified create UoW, Cosmos graph outbox, production-like Key Vault + SQL MI (**Status: Accepted**) |
 | [0039](0039-commit-sealed-evidence-immutability.md) | Commit-sealed evidence immutability — DENY on sealed tables, agent-result enrichments overlay, startup probe (**Status: Accepted**) |
 | [0040](0040-tamper-evident-lineage-without-worm-storage.md) | Tamper-evident proof lineage in application layer; **WORM storage tier out of scope** (**Status: Accepted**) |
+| [0041](0041-fail-closed-scope-derivation.md) | Fail-closed tenant/workspace/project scope derivation on production-like hosts (**Status: Accepted**) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

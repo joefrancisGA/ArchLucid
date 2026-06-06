@@ -16,12 +16,15 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.E2e;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Non-production harness for live E2E (trial clock + billing activation). Gated by shared secret; returns 404 when
 ///     disabled.
 /// </summary>
 [ApiController]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/e2e")]
 [ApiExplorerSettings(IgnoreApi = true)]

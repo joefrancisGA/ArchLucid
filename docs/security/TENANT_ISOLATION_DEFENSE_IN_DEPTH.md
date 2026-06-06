@@ -56,6 +56,24 @@ flowchart TB
 
 - Scope derived **once** at host boundary; deeper layers use `IScopeContextProvider` / method parameters — not raw `HttpContext` (see **ARCH001** `TenantIdentityBoundaryAnalyzer`).
 - **Invariant:** [INV-001](../library/ARCHITECTURE_INVARIANTS.md#inv-001-tenant-identity-boundary)
+- **Fail-closed derivation (TB-304 / ADR 0041):** On production-like hosts, `ScopeResolutionGuardMiddleware` rejects requests whose tenant/workspace/project scope is not bound to **identity claims** or an explicit **ambient job override**. Header-only and `ScopeIds.Default*` resolution return **403** unless the route is marked `[AllowUnscopedRoute]`.
+
+#### Trusted scope sources (production-like)
+
+| Source | Trusted? | Notes |
+|--------|----------|-------|
+| JWT / API-key `tenant_id`, `workspace_id`, `project_id` claims | Yes | Primary production binding |
+| `AmbientScopeContext` override | Yes | Background jobs; must not use `ScopeIds.Default*` |
+| `x-tenant-id` / `x-workspace-id` / `x-project-id` headers | **No** | Rejected on production-like (claims win when both present) |
+| `ScopeIds.Default*` fallback | **No** | Development/CI only |
+
+#### Allow-list contract
+
+- **`[AllowUnscopedRoute]`** — marketing, registration, webhooks, version probe, and other legitimately scope-free controllers/actions.
+- **`/internal/*` path skip** — documented fallback for operator diagnostics (still require operator auth).
+- **Health / OpenAPI minimal routes** — skipped by path prefix in middleware.
+
+- Startup: `ProductionSafetyRules.CollectScopeDerivationUnsafeInProductionLike` rejects `DevelopmentBypass` auth mode and `AllowTestActorHeaders` on production-like hosts.
 
 ### Layer C — HTTP ingress
 

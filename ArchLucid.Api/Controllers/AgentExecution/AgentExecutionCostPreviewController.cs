@@ -11,6 +11,8 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.AgentExecution;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Anonymous host configuration read for operator UI cost preview on the new-run wizard review step.
 /// </summary>
@@ -18,6 +20,7 @@ namespace ArchLucid.Api.Controllers.AgentExecution;
 [Route("v{version:apiVersion}/agent-execution")]
 [ApiVersion("1.0")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(typeof(AgentExecutionCostPreviewResponse), StatusCodes.Status200OK)]
 public sealed class AgentExecutionCostPreviewController(

@@ -19,6 +19,8 @@ using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Controllers.Demo;
 
+using ArchLucid.Api.Security;
+
 /// <summary>
 ///     Public, read-only marketing surface: one JSON bundle shaped like the operator commit page for the latest committed
 ///     demo-seed run.
@@ -38,6 +40,7 @@ namespace ArchLucid.Api.Controllers.Demo;
 [Route("v{version:apiVersion}/demo")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
+[AllowUnscopedRoute]
 [FeatureGate(FeatureGateKey.DemoEnabled)]
 public sealed class DemoCommitPagePreviewController(
     IDemoCommitPagePreviewClient previewClient,
