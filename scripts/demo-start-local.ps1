@@ -98,12 +98,12 @@ if (-not $ok) {
 
 Write-Host ""
 Write-Host "API is ready." -ForegroundColor Green
-Write-Host "Operator UI: http://localhost:3000/runs/new" -ForegroundColor Green
+Write-Host "Operator UI: http://localhost:3000/reviews/new" -ForegroundColor Green
 Write-Host "Health:      $apiReadyUrl" -ForegroundColor Green
 Write-Host ""
 Write-Host "Teardown: docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack down -v" -ForegroundColor DarkGray
 
-$uiUrl = "http://localhost:3000/runs/new"
+$uiUrl = "http://localhost:3000/reviews/new"
 if (-not $NoOpenBrowser) {
     try {
         Start-Process $uiUrl

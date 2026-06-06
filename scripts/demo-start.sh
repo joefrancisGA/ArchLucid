@@ -50,9 +50,9 @@ if [[ "${ok}" -ne 1 ]]; then
 fi
 
 echo "API is ready."
-echo "Operator UI: http://localhost:3000/runs/new"
+echo "Operator UI: http://localhost:3000/reviews/new"
 
-UI_URL="http://localhost:3000/runs/new"
+UI_URL="http://localhost:3000/reviews/new"
 if command -v xdg-open >/dev/null 2>&1; then
   xdg-open "${UI_URL}" >/dev/null 2>&1 || true
 elif command -v open >/dev/null 2>&1; then

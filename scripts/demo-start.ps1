@@ -58,9 +58,9 @@ if (-not $ok) {
 }
 
 Write-Host "API is ready." -ForegroundColor Green
-Write-Host "Operator UI: http://localhost:3000/runs/new" -ForegroundColor Green
+Write-Host "Operator UI: http://localhost:3000/reviews/new" -ForegroundColor Green
 
-$uiUrl = "http://localhost:3000/runs/new"
+$uiUrl = "http://localhost:3000/reviews/new"
 try {
     Start-Process $uiUrl
 }

@@ -133,7 +133,7 @@ internal static class PilotUpCommand
 
         Console.WriteLine();
         Console.WriteLine("Pilot stack is up.");
-        Console.WriteLine("  Operator UI:  http://localhost:3000/runs/new");
+        Console.WriteLine("  Operator UI:  http://localhost:3000/reviews/new");
         Console.WriteLine("  API (Swagger): http://localhost:5000/swagger");
         Console.WriteLine("  Health:        http://localhost:5000/health/ready");
         Console.WriteLine();

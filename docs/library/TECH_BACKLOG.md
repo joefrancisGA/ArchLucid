@@ -7538,8 +7538,10 @@ Auto-apply the demo seed on startup when Demo:AnonymousViewer:Enabled is true.
 
 ## TB-218 — Demo viewer "Start your own review" CTA (P2)
 
+**Status:** **Shipped (2026-06-02)** — `DemoExplainConversionCtaCard` links to **`/reviews/new?preset=greenfield`** (`DEMO_EXPLAIN_CONVERSION_REVIEW_HREF`).
+
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
-**Problem:** The anonymous demo viewer at `/demo/explain` shows committed demo data but has no forward CTA. A buyer who sees the demo and wants to proceed must manually navigate to `/runs/new` — the conversion path from passive demo viewer to active evaluator is unguided.
+**Problem (resolved):** The anonymous demo viewer at `/demo/explain` had no forward CTA; canonical wizard entry is now **`/reviews/new`** (legacy `/runs/new` redirects).
 
 **Cursor prompt:**
 ```
@@ -7571,8 +7573,10 @@ In archlucid-ui, find the demo explain page component (/demo/explain route — s
 
 ## TB-219 — Wizard preset deep-link from self-qualification docs (P2)
 
+**Status:** **Shipped (2026-06-02 batch 5AG)** — `wizard-preset-deeplink.ts` + `NewRunWizardClient` at **`/reviews/new`**; `SHOULD_YOU_EVALUATE.md` Q4 links to **`/reviews/new?preset=greenfield`**.
+
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
-**Problem:** `SHOULD_YOU_EVALUATE.md` Q4 routes buyers to "Start with Pilot" via a link to the UI root. An evaluator arrives at the homepage with no wizard pre-selection. Adding `?preset=greenfield` support to `/runs/new` allows external docs to carry evaluation context directly into the wizard step 1.
+**Problem (resolved):** Self-qualification docs now deep-link preset context into the wizard at **`/reviews/new?preset=greenfield`**.
 
 **Cursor prompt:**
 ```
