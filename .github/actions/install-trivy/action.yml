@@ -20,7 +20,26 @@ runs:
         install_dir="${RUNNER_TOOL_CACHE}/trivy/${version}"
 
         mkdir -p "${install_dir}"
-        curl -fsSL "${url}" -o "/tmp/${archive}"
+
+        # GitHub release assets occasionally return 502/504; retry before failing Terraform/Trivy jobs.
+        max_attempts=5
+        attempt=1
+        while true; do
+          if curl -fsSL --connect-timeout 30 --max-time 300 "${url}" -o "/tmp/${archive}"; then
+            break
+          fi
+
+          if [ "${attempt}" -ge "${max_attempts}" ]; then
+            echo "Failed to download Trivy after ${max_attempts} attempts: ${url}" >&2
+            exit 22
+          fi
+
+          sleep_seconds=$((attempt * 5))
+          echo "Trivy download failed (attempt ${attempt}/${max_attempts}); retrying in ${sleep_seconds}s..." >&2
+          sleep "${sleep_seconds}"
+          attempt=$((attempt + 1))
+        done
+
         tar -xzf "/tmp/${archive}" -C "${install_dir}" trivy
         chmod +x "${install_dir}/trivy"
 
