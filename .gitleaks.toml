@@ -42,6 +42,12 @@ paths = [
 ]
 
 [[allowlists]]
+description = "ADR 0041 fail-closed scope derivation: configuration key names only (no credential values); generic-api-key false positives on ArchLucidAuth paths"
+paths = [
+  '''(?:^|/)docs/architecture/adrs/0041-fail-closed-scope-derivation\.md$''',
+]
+
+[[allowlists]]
 description = "Archived assessment backups: prose mentions route/policy/nav checks; generic-api-key false positive in git history"
 paths = [
   '''(?:^|/)docs/archive/assessments/LATEST_.*_pre_rescore_backup\.md$''',
