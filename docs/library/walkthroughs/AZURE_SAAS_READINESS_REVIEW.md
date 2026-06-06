@@ -35,7 +35,7 @@ Use this path for evaluator demos; skip to **Step 5** (inspect package) when the
 
 **UI**
 
-1. **Capture** → **New review** (`/runs/new`).
+1. **Capture** → **New review** (`/reviews/new`; legacy `/runs/new`).
 2. Set **cloud provider** to **Azure** and describe the SaaS workload (multi-tenant API, data plane, identity).
 3. Submit; note **run id** from success path or **Reviews** list.
 

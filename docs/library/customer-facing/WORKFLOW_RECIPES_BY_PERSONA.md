@@ -16,7 +16,7 @@ Canonical route and HTTP map: [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md). **[`NAV
 
 **Steps**
 
-1. **Request** — UI: `/runs/new` · API: `POST /v1/architecture/request` · CLI: `dotnet run --project ArchLucid.Cli -- run` (see [CLI_USAGE.md](../CLI_USAGE.md)).
+1. **Request** — UI: `/reviews/new` (legacy `/runs/new` may redirect) · API: `POST /v1/architecture/request` · CLI: `dotnet run --project ArchLucid.Cli -- run` (see [CLI_USAGE.md](../CLI_USAGE.md)).
 2. **Track pipeline** — UI: `/runs/{runId}` · API: `GET /v1/architecture/run/{runId}` · CLI: `… status <runId>`.
 3. **Commit** — UI: run detail commit control · API: `POST /v1/architecture/run/{runId}/commit` · CLI: `… commit <runId>` (manifest must exist before downstream exports).
 4. **Package for stakeholders** — UI: run detail exports · API: `GET /v1/pilots/runs/{runId}/first-value-report` (Markdown) · CLI: `… first-value-report <runId> [--save]`, `… sponsor-one-pager <runId> [--save]` where applicable.

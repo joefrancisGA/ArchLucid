@@ -72,7 +72,7 @@ cd ArchLucid
 
 **Optional (same stack, from a .NET SDK checkout):** if you already cloned the repo and have the **.NET 10 SDK** installed, you can run **`dotnet run --project ArchLucid.Cli -- pilot up`** from the repo root instead of the scripts above. It runs the same **`docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build`** command and polls **`http://127.0.0.1:5000/health/ready`** for up to **120 seconds**.
 
-> *What to expect:* Docker pulls/builds five containers (SQL Server, Azurite, Redis, API, UI) and waits up to **120 seconds** for `GET http://localhost:5000/health/ready` to return **200**. On success the script prints `API is ready.` and tries to open the operator UI at `http://localhost:3000/runs/new` in your default browser. **Simulator agents** are enabled — no Azure OpenAI key required.
+> *What to expect:* Docker pulls/builds five containers (SQL Server, Azurite, Redis, API, UI) and waits up to **120 seconds** for `GET http://localhost:5000/health/ready` to return **200**. On success the script prints `API is ready.` and tries to open the operator UI at `http://localhost:3000/reviews/new` in your default browser (legacy `/runs/new` may redirect). **Simulator agents** are enabled — no Azure OpenAI key required.
 
 ![Demo stack starting — placeholder](placeholder-02-demo-up.png)
 
@@ -97,10 +97,10 @@ curl -s http://localhost:5000/version
 If your browser did not auto-open:
 
 ```text
-http://localhost:3000/runs/new
+http://localhost:3000/reviews/new
 ```
 
-> *What to expect:* the **New run** wizard, with three product layers visible in the sidebar (Core Pilot is the default). The sample-run preset is already loaded — you do not have to invent a brief.
+> *What to expect:* the **New review** wizard, with three product layers visible in the sidebar (Core Pilot is the default). The sample-run preset is already loaded — you do not have to invent a brief.
 
 ![New-run wizard — placeholder](placeholder-03-new-run.png)
 
@@ -188,7 +188,7 @@ This is the **Core Pilot** path. **Operate (analysis workloads)** (compare runs,
 |---|---|
 | `docker info` errors out | Start Docker Desktop or the Docker daemon. On Windows ensure it has finished starting (the whale icon is solid white). |
 | `demo-start.*` times out at 120 s | Run `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack logs api` and look for the failing dependency. Most common cause: a port (1433 / 3000 / 5000) is already bound. |
-| Browser does not open the UI | Open `http://localhost:3000/runs/new` manually. |
+| Browser does not open the UI | Open `http://localhost:3000/reviews/new` manually (legacy `/runs/new` may redirect). |
 | `health/ready` returns `Unhealthy` for `sql` | Wait 30 seconds and retry — SQL Server takes a moment to apply DbUp migrations on first boot. |
 | `commit` returns 422 | The run does not yet have one result per required agent. Wait for the simulator agents to finish (look at the run's **Tasks** tab) and retry. |
 | You want to start over | Run the **Step 10** teardown command, then re-run **Step 2**. |

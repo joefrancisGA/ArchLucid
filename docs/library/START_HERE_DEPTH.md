@@ -51,7 +51,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 |-------|---------------------|
 | **Buyer / sponsor narrative** | You need procurement-safe language before touching the repo — **[`EXECUTIVE_SPONSOR_BRIEF.md`](../go-to-market/EXECUTIVE_SPONSOR_BRIEF.md)** |
 | **Contributor path** | You will implement, operate, or govern ArchLucid — see `START_HERE.md` |
-| **Operator UI wizard** | You want `/runs/new` semantics without screenshots — **[`library/FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** + checklist **[`library/FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md)** |
+| **Operator UI wizard** | You want `/reviews/new` semantics without screenshots — **[`library/FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md)** + checklist **[`library/FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md)** |
 | **Deeper engineering index** | You already ran the spine and need maps — **[`ARCHITECTURE_INDEX.md`](../ARCHITECTURE_INDEX.md)** |
 | **Everything else** | Search or browse **[`docs/library/`](.)** (~150+ reference markdown files moved 2026-04-23 to keep `/docs` root small) |
 

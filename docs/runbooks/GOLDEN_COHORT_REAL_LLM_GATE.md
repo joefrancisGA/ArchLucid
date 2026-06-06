@@ -178,4 +178,4 @@ On the committed **release cohort** scenario set, use these targets:
 | **Explainability trace completeness** (mean across cohort findings) | **≥ 0.80** | Metric family `archlucid_explainability_trace_completeness_ratio` / cohort rollup — low mean ⇒ thin justification vs auditors. |
 | **Adversarial scenarios** (when added to the corpus) | **Qualitative pass** | Human review for first **two** baseline runs; defer numeric floors until distributions stabilize. |
 
-**Related:** [`MANUAL_QA_CHECKLIST.md`](../quality/MANUAL_QA_CHECKLIST.md) §8.3–8.4, [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md), [`OBSERVABILITY.md`](../library/OBSERVABILITY.md).
+**Related:** [`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](./OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md) (owner flip + gate artifact), [`MANUAL_QA_CHECKLIST.md`](../quality/MANUAL_QA_CHECKLIST.md) §8.3–8.4, [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md), [`OBSERVABILITY.md`](../library/OBSERVABILITY.md).

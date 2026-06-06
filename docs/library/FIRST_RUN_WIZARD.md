@@ -40,7 +40,7 @@ Use it when you want a **repeatable first review** in a new tenant, workspace, o
 
 ```mermaid
 flowchart LR
-  subgraph wizard [Wizard — /runs/new]
+  subgraph wizard [Wizard — /reviews/new]
     S1[1 Preset]
     S2[2 Identity]
     S3[3 Description]

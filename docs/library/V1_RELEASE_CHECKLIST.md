@@ -51,7 +51,7 @@
 - [ ] **Correlation:** sample request with **`X-Correlation-ID`** appears in logs as expected ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Observability** (if production): metrics/logs dashboards or queries smoke-tested for one synthetic run ([OPERATIONS_ADMIN.md](OPERATIONS_ADMIN.md) if applicable).
 - [ ] **Agent output quality corpus** recorded: `python scripts/ci/eval_agent_corpus.py --markdown-report artifacts/agent-output-quality.md --enforce-quality-gate` for tagged release candidates, or documented as skipped for simulator-only internal builds.
-- [ ] **Real-LLM credibility (when ship posture includes real AOAI):** at least one session logged per [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) and [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) §B.7 — **not** required when the release is simulator-only end-to-end.
+- [ ] **Real-LLM credibility (when ship posture includes real AOAI):** complete **[`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](../runbooks/OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md)** (repo variable, gate script, `artifacts/release/real-llm-evidence-gate.json`); at least one session logged per [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) and [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) §B.7 — **not** required when the release is simulator-only end-to-end.
 
 ---
 

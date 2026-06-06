@@ -112,7 +112,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
 
 1. **Quickest local evaluation (Docker on your machine):** Run `.\scripts\demo-start.ps1` (Windows) or `./scripts/demo-start.sh` (macOS/Linux), or `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build` — see [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) for a five-minute walkthrough. This path is an **optional engineering / seller-led demo** artifact, not something ArchLucid **ships to customers** as the product.
 2. **Full-stack without demo overlay:** `docker compose --profile full-stack up -d --build` — same stack without automatic Contoso demo seed (see [CONTAINERIZATION.md](../library/CONTAINERIZATION.md)).
-3. **First run:** Open `http://localhost:3000/runs/new` — seven-step guided wizard
+3. **First run:** Open `http://localhost:3000/reviews/new` — seven-step guided wizard (legacy `/runs/new` may redirect)
 4. **See it live, not on a slide:** open `http://localhost:3000/why-archlucid` — the in-product proof page renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the run explanation + citations against the seeded Contoso Retail demo tenant.
 5. **Record a buyer demo video:** follow [`DEMO_VIDEO_STORYBOARD.md`](DEMO_VIDEO_STORYBOARD.md) (script: [`DEMO_VIDEO_SCRIPT.md`](DEMO_VIDEO_SCRIPT.md)).
 5. **Pilot:** Follow the [Pilot Guide](../library/PILOT_GUIDE.md) for production-style deployment

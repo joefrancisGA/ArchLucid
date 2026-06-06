@@ -19,7 +19,7 @@
 |--------|----------------|-------------|-------------|------------------------|---------------|
 | Health / readiness | `dotnet run --project ArchLucid.Cli -- health` | `GET /health/live`, `GET /health/ready` | — | Anonymous | [BUILD.md](BUILD.md) |
 | Version | `dotnet run --project ArchLucid.Cli -- doctor` | `GET /version` | — | Read (doctor) | [README.md](../REPOSITORY_README.md) |
-| Create architecture request | `dotnet run --project ArchLucid.Cli -- run` | `POST /v1/architecture/request` | `/runs/new` | Execute (wizard submit) | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
+| Create architecture request | `dotnet run --project ArchLucid.Cli -- run` | `POST /v1/architecture/request` | `/reviews/new` (legacy `/runs/new`) | Execute (wizard submit) | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
 | Poll review / pipeline | `… status <runId>` | `GET /v1/architecture/run/{runId}` | `/runs/{runId}` | Read | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
 | Commit manifest | `… commit <runId>` | `POST /v1/architecture/run/{runId}/commit` | Run detail | Execute | [CORE_PILOT — walkthrough](../CORE_PILOT.md#step-by-step-walkthrough) |
 | Manifest + artifacts | `… artifacts <runId> [--save]` | `GET /v1/architecture/manifest/{version}`, artifact routes | Run detail | Read | [CORE_PILOT — manifest & artifacts](../CORE_PILOT.md#review-manifest-and-artifacts) |
