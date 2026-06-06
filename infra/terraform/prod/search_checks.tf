@@ -1,4 +1,4 @@
-﻿# TB-096 — consumed Azure AI Search contract validation (US East pilot default: eastus).
+# TB-096 — consumed Azure AI Search contract validation (US East pilot default: eastus).
 
 check "search_existing_requires_contract" {
   assert {
@@ -13,7 +13,7 @@ check "search_existing_requires_contract" {
 
 check "search_create_requires_name" {
   assert {
-    condition = var.search_compose_mode != "create" || var.search_service_name != null
+    condition     = var.search_compose_mode != "create" || var.search_service_name != null
     error_message = "When search_compose_mode = create, set search_service_name (dev/lab only — production-like stacks should use existing)."
   }
 }

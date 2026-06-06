@@ -15,7 +15,7 @@ output "content_safety_location" {
 
 output "azure_content_safety_container_app_env" {
   value = length(local.content_safety_endpoint_effective) > 0 ? {
-    ArchLucid__ContentSafety__Enabled = "true"
+    ArchLucid__ContentSafety__Enabled  = "true"
     ArchLucid__ContentSafety__Endpoint = local.content_safety_endpoint_effective
   } : {}
   description = "Non-secret Container Apps env keys for production-like Content Safety (ApiKey remains a Key Vault secret reference)."

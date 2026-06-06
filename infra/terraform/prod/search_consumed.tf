@@ -1,4 +1,4 @@
-﻿# TB-096 — consume platform-owned Azure AI Search (no second production-like service in this root).
+# TB-096 — consume platform-owned Azure AI Search (no second production-like service in this root).
 
 locals {
   search_existing_mode = var.search_compose_mode == "existing"

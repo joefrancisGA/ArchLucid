@@ -1,4 +1,4 @@
-﻿output "search_endpoint" {
+output "search_endpoint" {
   value       = length(local.search_endpoint_effective) > 0 ? local.search_endpoint_effective : null
   description = "Maps to Retrieval:AzureSearch:Endpoint (created or consumed)."
 }
@@ -25,10 +25,10 @@ output "search_semantic_configuration_name" {
 
 output "azure_search_container_app_env" {
   value = length(local.search_endpoint_effective) > 0 && length(local.search_index_name_effective) > 0 ? {
-    Retrieval__VectorIndex                      = "AzureSearch"
-    Retrieval__AzureSearch__Endpoint            = local.search_endpoint_effective
-    Retrieval__AzureSearch__IndexName           = local.search_index_name_effective
-    Retrieval__Reranking__Provider              = "AzureAiSearchSemantic"
+    Retrieval__VectorIndex            = "AzureSearch"
+    Retrieval__AzureSearch__Endpoint  = local.search_endpoint_effective
+    Retrieval__AzureSearch__IndexName = local.search_index_name_effective
+    Retrieval__Reranking__Provider    = "AzureAiSearchSemantic"
   } : {}
   description = "Non-secret Container Apps env keys for production-like Azure AI Search (copy into terraform-container-apps)."
 }

@@ -1,4 +1,4 @@
-﻿# TB-093 — consume a platform-owned Azure OpenAI account (no second production account in this root).
+# TB-093 — consume a platform-owned Azure OpenAI account (no second production account in this root).
 
 locals {
   openai_existing_mode = var.openai_compose_mode == "existing"
