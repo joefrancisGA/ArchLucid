@@ -8359,39 +8359,6 @@
         },
         "type": "object"
       },
-      "ExecutiveSummaryResponse": {
-        "properties": {
-          "complianceAlignmentScore": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "latestRunCompletedUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "latestRunId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "securityPostureScore": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "techDebtRiskScore": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "tenantId": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "ExecutiveSummaryResult": {
         "properties": {
           "costWasteUsd": {
@@ -24038,6 +24005,9 @@
       "name": "AdminAuthDiagnostics"
     },
     {
+      "name": "AdminCrossTenantUsageRollup"
+    },
+    {
       "name": "AdminCustomerSuccess"
     },
     {
@@ -24354,6 +24324,9 @@
     },
     {
       "name": "ReferenceEvidenceAdmin"
+    },
+    {
+      "name": "ReferenceEvidenceAdminLegacy"
     },
     {
       "name": "Registration"

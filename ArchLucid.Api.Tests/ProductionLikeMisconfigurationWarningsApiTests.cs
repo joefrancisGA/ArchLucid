@@ -35,6 +35,10 @@ public sealed class ProductionLikeMisconfigurationWarningsApiTests
                                 "SqlTopology": {
                                   "Mode": "SystemWithPerTenantCatalogs"
                                 },
+                                "Secrets": {
+                                  "Provider": "KeyVault",
+                                  "KeyVaultUri": "https://example.invalid.vault.azure.net/"
+                                },
                                 "ContentSafety": {
                                   "Endpoint": "https://example.invalid/content-safety",
                                   "ApiKey": "01234567890123456789012345678901234567890123456789012345678901234"
