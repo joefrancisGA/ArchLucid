@@ -21,11 +21,18 @@ class TestAiReadinessBatch5T(unittest.TestCase):
 
     def test_tb_180_calibrated_confidence_column_and_patch_exist(self) -> None:
         contract_path = REPO_ROOT / "ArchLucid.Contracts" / "Agents" / "AgentResult.cs"
-        repo_path = REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Repositories" / "AgentResultRepository.cs"
+        enrichment_repo_path = (
+            REPO_ROOT / "ArchLucid.Persistence" / "Data" / "Repositories" / "AgentResultEnrichmentRepository.cs"
+        )
+        calibration_service_path = (
+            REPO_ROOT / "ArchLucid.Application" / "Agents" / "AgentConfidenceCalibrationService.cs"
+        )
         contract_text = contract_path.read_text(encoding="utf-8")
-        repo_text = repo_path.read_text(encoding="utf-8")
+        enrichment_repo_text = enrichment_repo_path.read_text(encoding="utf-8")
+        calibration_service_text = calibration_service_path.read_text(encoding="utf-8")
         self.assertIn("CalibratedConfidence", contract_text)
-        self.assertIn("PatchCalibratedConfidenceAsync", repo_text)
+        self.assertIn("UpsertCalibratedConfidenceAsync", enrichment_repo_text)
+        self.assertIn("UpsertCalibratedConfidenceAsync", calibration_service_text)
 
     def test_tb_180_fail_open_minimum_sample_default_is_twenty(self) -> None:
         path = REPO_ROOT / "ArchLucid.Core" / "Configuration" / "AgentConfidenceCalibrationOptions.cs"
