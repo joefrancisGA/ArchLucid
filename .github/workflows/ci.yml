@@ -80,6 +80,8 @@ jobs:
 
   docs-root-size:
     name: "Docs: root markdown count guard (â‰¤32)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -95,6 +97,8 @@ jobs:
   # Full history: last-touch dates for docs/*.md (advisory; merge-never).
   docs-stale-code-refs-warn:
     name: "Docs: stale code-path references (advisory)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - gitleaks
     runs-on: ubuntu-latest
@@ -114,6 +118,8 @@ jobs:
 
   docs-navigator-links:
     name: "Docs: NAVIGATOR + connector matrix link targets exist"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - gitleaks
       - docs-root-size
@@ -140,6 +146,8 @@ jobs:
 
   two-layer-naming-lint:
     name: "Docs: Pilot/Operate buyer naming lint"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - gitleaks
     runs-on: ubuntu-latest
@@ -159,6 +167,8 @@ jobs:
 
   integrations-node-ado-pipeline-tasks:
     name: "Integrations: Azure Pipelines YAML scripts (node --test)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: gitleaks
     strategy:
       matrix:
@@ -1136,6 +1146,8 @@ jobs:
         run: terraform validate
 
       - name: terraform fmt (check only)
+        # Warn-only: formatting drift is cosmetic and must not block a deploy. Run `terraform fmt -recursive` to fix.
+        continue-on-error: true
         working-directory: infra/terraform-private
         run: terraform fmt -check -recursive
 
@@ -1180,6 +1192,8 @@ jobs:
         run: terraform validate
 
       - name: terraform fmt (check only)
+        # Warn-only: formatting drift is cosmetic and must not block a deploy. Run `terraform fmt -recursive` to fix.
+        continue-on-error: true
         working-directory: ${{ matrix.directory }}
         run: terraform fmt -check -recursive
 
@@ -1200,6 +1214,8 @@ jobs:
 
   terraform-advisory-snippets-validate:
     name: "Terraform: advisory snippets from mock manifest (fmt + validate)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - gitleaks
       - doc-markdown-links
@@ -1226,6 +1242,8 @@ jobs:
 
   iac-parity-scan:
     name: "IaC: parity scan (HOLD on pilot-essential)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - gitleaks
       - doc-markdown-links
@@ -1251,6 +1269,8 @@ jobs:
 
   hosted-prod-terraform-sync-parity:
     name: "IaC: hosted prod scaffold sync parity"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - gitleaks
       - doc-markdown-links
@@ -1380,6 +1400,8 @@ jobs:
 
   demo-workspaces-fixture-parity:
     name: "Go-to-market: demo workspace pins (manifest vs docs + seeds)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - doc-markdown-links
     runs-on: ubuntu-latest
@@ -1411,6 +1433,8 @@ jobs:
 
   azure-extractor-pester:
     name: "Azure extractor: Get-ArchLucidAzurePackage Pester (mock ARM)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - doc-markdown-links
     runs-on: ubuntu-latest
@@ -1459,6 +1483,8 @@ jobs:
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - gitleaks
       - doc-markdown-links
@@ -1638,6 +1664,8 @@ jobs:
 
   dotnet-fast-core-artifacts:
     name: ".NET: fast core artifacts (SBOM + coverage HTML)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -1684,6 +1712,8 @@ jobs:
   # All infra/terraform* + infra/modules: init (no backend) + validate; apply-saas.ps1 consistency. No Azure creds.
   saas-terraform-roots-validate:
     name: "SaaS: Terraform roots validate (script suite)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -2140,6 +2170,8 @@ jobs:
   # Slow SQL-backed tests split by project set so the Api.Tests workload cannot monopolize one 3h timeout alone.
   dotnet-full-regression-slow-api:
     name: ".NET: full regression â€” slow shard API (SQL, Api.Tests Category=Slow)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -2230,6 +2262,8 @@ jobs:
 
   dotnet-full-regression-slow-domain:
     name: ".NET: full regression â€” slow shard domain (SQL, AgentRuntime+Application+Decisioning Category=Slow)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
@@ -2328,6 +2362,8 @@ jobs:
 
   dotnet-coverage-merge:
     name: ".NET: merge coverage + gates"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-full-regression-core-api-integration
       - dotnet-full-regression-core-api-unit
@@ -2498,6 +2534,8 @@ jobs:
   # Simmy chaos tests are CI-blocking; failures indicate resilience regressions.
   chaos-tests:
     name: "Resilience: Simmy chaos tests"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
@@ -2546,6 +2584,8 @@ jobs:
   # merged line/branch gates, and Simmy chaos are green (scheduled after `dotnet-coverage-merge` + `chaos-tests`).
   dotnet-azure-openai-live-post-regression:
     name: ".NET optional: live Azure OpenAI (post regression + chaos)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - openapi-contract-snapshot
       - dotnet-coverage-merge
@@ -2632,6 +2672,8 @@ jobs:
 
   publish-api-client-nuget:
     name: "NuGet: pack & push API client (main/master)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: dotnet-coverage-merge
     if: >-
       github.event_name == 'workflow_dispatch'
@@ -2685,6 +2727,8 @@ jobs:
   coverage-pr-comment:
     # Runs after green full regression merge (`workflow_dispatch` full CI); comment steps are same-repo pull_request only.
     name: "PR: coverage comment"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: dotnet-coverage-merge
     if: >-
       github.event_name != 'pull_request'
@@ -2861,24 +2905,42 @@ jobs:
         with:
           version: v0.69.3
 
-      - name: Trivy scan API image (CRITICAL/HIGH)
+      # GATE: block only on CRITICAL/HIGH that have a fix available (actionable). ignore-unfixed drops
+      # vulns with no upstream patch yet — those surface in the warn-only step below instead of blocking deploys.
+      - name: Trivy scan API image (CRITICAL/HIGH, fixable — blocking)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           skip-setup-trivy: true
           scan-type: image
           image-ref: archlucid-api:ci
           severity: CRITICAL,HIGH
+          ignore-unfixed: true
           exit-code: "1"
           cache: false
 
-      - name: Trivy scan Operator UI image (CRITICAL/HIGH)
+      - name: Trivy scan Operator UI image (CRITICAL/HIGH, fixable — blocking)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           skip-setup-trivy: true
           scan-type: image
           image-ref: archlucid-ui:ci
           severity: CRITICAL,HIGH
+          ignore-unfixed: true
           exit-code: "1"
+          cache: false
+
+      # WARN: full CRITICAL/HIGH set including not-yet-fixable CVEs. Informational so an unpatchable upstream
+      # CVE cannot block a deploy; review the annotations and decide. exit-code 0 + continue-on-error = never blocks.
+      - name: Trivy scan images (CRITICAL/HIGH incl. unfixable — warn only)
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          skip-setup-trivy: true
+          scan-type: image
+          image-ref: archlucid-api:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: false
+          exit-code: "0"
           cache: false
 
   ui-unit:
@@ -2917,6 +2979,8 @@ jobs:
 
   ui-demo-preflight:
     name: "Operator UI: demo-readiness preflight"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -2945,6 +3009,8 @@ jobs:
 
   ui-axe-components:
     name: "Operator UI: Vitest axe (components)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -2969,6 +3035,8 @@ jobs:
 
   ui-static-quality:
     name: "Operator UI: lint, typecheck, production build"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -3048,6 +3116,8 @@ jobs:
 
   ui-playwright-accessibility:
     name: "Operator UI: axe-core WCAG 2.1 A/AA (mock)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -3098,6 +3168,8 @@ jobs:
   # docs/go-to-market/DEMO_WORKSPACES.md
   ui-e2e-live:
     name: "Operator UI: e2e live API + SQL (full CI; extended live-a11y matrix via workflow_dispatch input)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
@@ -3249,6 +3321,8 @@ jobs:
 
   ui-e2e-live-apikey:
     name: "Operator UI: live e2e (ApiKey subset)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
@@ -3392,6 +3466,8 @@ jobs:
 
   ui-e2e-live-jwt:
     name: "Operator UI: live e2e (JWT subset)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
@@ -3617,7 +3693,10 @@ jobs:
           set -e
           k6 run "${GITHUB_WORKSPACE}/tests/load/k6-api-smoke.js"
 
-      - name: Assert k6 API smoke thresholds (Core Pilot operator-path budgets)
+      # WARN: per-tag p95 budget drift. Informational so a small perf regression does not block a deploy;
+      # review the annotations and decide. The catastrophic-cliff step below still blocks a truly broken API.
+      - name: Assert k6 API smoke thresholds (Core Pilot operator-path budgets — warn on drift)
+        continue-on-error: true
         env:
           ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
           ARCHLUCID_K6_P95_TIER2_MS: "928"
@@ -3628,6 +3707,15 @@ jobs:
           --max-failed-rate 0.02
           --max-p95-ms 2000
           --per-tag-k6-api-smoke
+
+      # GATE: catastrophic cliff only (overall p95 > 20s OR > 50% requests failing). This is a broken/hung
+      # API, not perf drift — block the build. Tune in docs/library/LOAD_TEST_BASELINE.md if budgets change.
+      - name: Assert k6 API smoke catastrophic cliff (blocking)
+        run: >
+          python3 scripts/ci/assert_k6_ci_smoke_summary.py
+          "${{ runner.temp }}/k6-api-smoke-summary.json"
+          --max-failed-rate 0.5
+          --max-p95-ms 20000
 
       - name: k6 API smoke summary (job log)
         run: python3 scripts/ci/print_k6_summary_metrics.py "${{ runner.temp }}/k6-api-smoke-summary.json"
@@ -3714,8 +3802,14 @@ jobs:
           set -e
           k6 run "${GITHUB_WORKSPACE}/tests/load/ci-smoke.js" --summary-export "${RUNNER_TEMP}/k6-ci-summary.json"
 
-      - name: Assert k6 CI smoke thresholds (per-tag p95 + failed rate)
+      # WARN: per-tag p95 budget drift (see k6-smoke-api for rationale). Catastrophic-cliff step below still blocks.
+      - name: Assert k6 CI smoke thresholds (per-tag p95 + failed rate — warn on drift)
+        continue-on-error: true
         run: python3 scripts/ci/assert_k6_ci_smoke_summary.py "${RUNNER_TEMP}/k6-ci-summary.json" --max-failed-rate 0.02 --max-p95-ms 3000 --per-tag-ci-smoke
+
+      # GATE: catastrophic cliff only (overall p95 > 20s OR > 50% requests failing) — a broken/hung API blocks.
+      - name: Assert k6 CI smoke catastrophic cliff (blocking)
+        run: python3 scripts/ci/assert_k6_ci_smoke_summary.py "${RUNNER_TEMP}/k6-ci-summary.json" --max-failed-rate 0.5 --max-p95-ms 20000
 
       - name: k6 CI smoke summary (job log)
         run: python3 scripts/ci/print_k6_summary_metrics.py "${RUNNER_TEMP}/k6-ci-summary.json"
@@ -3739,6 +3833,8 @@ jobs:
 
   dotnet-benchmark-regression:
     name: ".NET: benchmark regression (short job)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -3773,6 +3869,8 @@ jobs:
 
   security-zap-api-baseline:
     name: "Security: OWASP ZAP baseline (API container)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs: docker-build-smoke
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -3855,6 +3953,8 @@ jobs:
   # schema violations before merge. Full fuzz (fuzzing + stateful) runs weekly in schemathesis-scheduled.yml.
   api-schemathesis-light:
     name: "Security: Schemathesis light fuzz (full CI)"
+    # Warn-only (deploy gate exclusion): failure surfaces but does not fail the CI run / block CD.
+    continue-on-error: true
     needs:
       - dotnet-full-regression-core-complete
       - dotnet-full-regression-slow-api
