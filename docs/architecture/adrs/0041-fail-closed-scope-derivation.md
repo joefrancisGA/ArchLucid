@@ -1,3 +1,7 @@
+> **Scope:** ADR 0041 — fail-closed tenant/workspace/project scope derivation on production-like hosts (TB-304).
+
+> **Spine doc:** [`START_HERE.md`](../../START_HERE.md).
+
 # ADR 0041: Fail-closed scope derivation on production-like hosts
 
 **Status:** Accepted  
