@@ -1,12 +1,14 @@
 ﻿> **Scope:** Independent, first-principles weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Clean-slate snapshot (GPT-5.5 track); not a buyer-facing claim document. Prior snapshot archived at `ARCHIVE_2026_06_05_PRE_FIRST_PRINCIPLES_GPT55.md`.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.61%
+# ArchLucid Assessment – (A) Headline Readiness: 83.68%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 **Method note (per request):** This is a clean-slate, first-principles assessment. It does not reference, anchor to, or compare against any prior assessment scores or conclusions. It uses the **user-supplied 47-quality / total-weight-120 model** (an explicit replacement for the repo's default `ASSESSMENT_QUALITY_MODEL.md`). The referenced `Assessment-Read-First.mdc` does **not exist** in the repo (`.cursor/rules/` contains only `Assessment-Scope-V1_1.mdc`), so there was no historical-comparison behavior to override — the clean-slate posture is applied regardless. Scores are grounded in the current repo state: scope contract (`V1_SCOPE.md`), deferred inventory (`V1_DEFERRED.md`), 59 projects / 25 test projects, 36 CI workflows, ~192 API controllers, ~113 UI pages, and the CI gate configuration.
 
-**Engineering delta (2026-06-06, pass 4):** ADR 0042 canonical run-lifecycle write surface (`RunWriteLifecycleRoutes`, `RunAliasDeprecationMiddleware`, architecture + unit tests); authority decision-engine registration rename; `/result` append-only invariant tests. Headline **83.48% → 83.61%** (+0.13 pts).
+**Engineering delta (2026-06-06, pass 5):** First-run docs reconciled to `/reviews/new`; V1 workflow handoff + CI manifest-delta links in walkthrough; owner real-mode evidence checklist (`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`). Headline **83.61% → 83.68%** (+0.07 pts).
+
+**Prior delta (2026-06-06, pass 4):** ADR 0042 canonical run-lifecycle write surface (`RunWriteLifecycleRoutes`, `RunAliasDeprecationMiddleware`, architecture + unit tests); authority decision-engine registration rename; `/result` append-only invariant tests. Headline **83.48% → 83.61%** (+0.13 pts).
 
 **Prior delta (2026-06-06, pass 3):** Coverage-gate sibling docs reconciled (`coverage-exclusions.md`, `COVERAGE_GAP_ANALYSIS.md`); faithfulness metric documented in `AGENT_OUTPUT_EVALUATION.md`; Core Pilot + manifest mock journeys green (`core-pilot-path.spec.ts`, `run-manifest-journey.spec.ts`); docs-search "Review lifecycle"; Run→Review domain-noun sweep complete in operator UI. Headline **83.19% → 83.48%** (+0.29 pts).
 
@@ -18,7 +20,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 
 ## Executive Summary
 
-### `(A)` Overall headline readiness — **83.61%**
+### `(A)` Overall headline readiness — **83.68%**
 
 ArchLucid is a deep, genuinely engineered product that is a credible **controlled-pilot / service-led release candidate**. The shipped surface is large and coherent: the full review lifecycle (request â†’ execute â†’ commit â†’ golden manifest + artifacts), real/simulator agent execution, exports, compare, replay, provenance graph, governance (approvals with SoD, pre-commit gate, 23 bundled policy packs), 78-event append-only audit with RLS, alerts, identity (Entra + generic OIDC + SAML SP + SCIM + API key + RBAC), the customer-controlled Azure extractor, advisory-only Terraform emit, executive ROI rollups, value reports, CLI diagnostics, containerization, and Terraform IaC.
 
@@ -62,13 +64,13 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 | 6 | Time-to-Value | 86 | 7 | 5.02% | 98 | v1 |
 | 7 | Proof-of-ROI Readiness | 84 | 5 | 3.50% | 80 | v1 / (B) |
 | 8 | Usability | 78 | 3 | 1.95% | 66 | v1 |
-| 9 | Workflow Embeddedness | 76 | 3 | 1.90% | 72 | v1 / v1.1 |
+| 9 | Workflow Embeddedness | 77 | 3 | 1.93% | 69 | v1 / v1.1 |
 | 10 | Differentiability | 84 | 4 | 2.80% | 64 | v1 |
 | 11 | Architectural Integrity | 85 | 3 | 2.13% | 45 | v1 (partial) |
 | 12 | Executive Value Visibility | 86 | 4 | 2.87% | 56 | v1 |
 | 13 | Traceability | 85 | 3 | 2.13% | 45 | v1 |
 | 14 | Trustworthiness | 86 | 3 | 2.15% | 42 | v1 / (B) |
-| 15 | Security | 86 | 3 | 2.15% | 42 | v1 / (B) |
+| 15 | Security | 87 | 3 | 2.18% | 39 | v1 / (B) |
 | 16 | Maintainability | 84 | 2 | 1.40% | 32 | v1 |
 | 17 | Interoperability | 78 | 2 | 1.30% | 44 | v1 / v1.1 |
 | 18 | Compliance Readiness | 80 | 2 | 1.33% | 40 | v1 / (B) |
@@ -82,8 +84,8 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 | 26 | Explainability | 85 | 2 | 1.42% | 30 | v1 |
 | 27 | Cognitive Load | 74 | 1 | 0.62% | 26 | v1 |
 | 28 | Auditability | 86 | 2 | 1.43% | 28 | v1 |
-| 29 | Customer Self-Sufficiency | 82 | 1 | 0.68% | 18 | v1 |
-| 30 | Documentation | 85 | 1 | 0.71% | 15 | v1 |
+| 29 | Customer Self-Sufficiency | 83 | 1 | 0.69% | 17 | v1 |
+| 30 | Documentation | 86 | 1 | 0.72% | 14 | v1 |
 | 31 | Scalability | 80 | 1 | 0.67% | 20 | v1 / v2 |
 | 32 | Availability | 82 | 1 | 0.68% | 18 | v1 / v1.1 |
 | 33 | Extensibility | 82 | 1 | 0.68% | 18 | v1 |
@@ -102,7 +104,7 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 | 46 | Modularity | 87 | 1 | 0.73% | 13 | v1 |
 | 47 | Testability | 90 | 1 | 0.75% | 10 | v1 |
 
-**Weighted overall = 10033 / 120 = 83.61%.**
+**Weighted overall = 10041 / 120 = 83.68%.**
 
 ### Per-quality detail (most urgent first)
 
@@ -306,7 +308,7 @@ I produced **14** improvements and **stopped before 25 deliberately** (per your 
 ---
 
 **T2-6. Real-mode quad-agent end-to-end quality evidence in CI.** ✅ **COMPLETED (code/CI, 2026-06-06)** — budget probe in `ci.yml` live AOAI job. *(Owner inputs RESOLVED 2026-06-06 — implementation unblocked.)*
-*Tier:* 2. *Why it matters:* Real-mode output quality is the largest confidence gap behind AI/Agent Readiness and Correctness. *Status:* Owner confirmed endpoint/key secrets are in place; monthly cap **$15** with CI **warn-on-skip** (not fail) when budget kill-switch trips; acceptance bar defined below. *Remaining owner action:* set repository variable **`ARCHLUCID_CI_REAL_AOAI_ENABLED=true`** and run **`.\scripts\Invoke-RealLlmEvidenceGate.ps1`** once to seed `artifacts/release/real-llm-evidence-gate.json`. *Partial work already separated:* deterministic faithfulness seam (**T2-5**).
+*Tier:* 2. *Why it matters:* Real-mode output quality is the largest confidence gap behind AI/Agent Readiness and Correctness. *Status:* Owner confirmed endpoint/key secrets are in place; monthly cap **$15** with CI **warn-on-skip** (not fail) when budget kill-switch trips; acceptance bar defined below. *Remaining owner action:* follow **[`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](../runbooks/OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md)** (set **`ARCHLUCID_CI_REAL_AOAI_ENABLED=true`**, run **`Invoke-RealLlmEvidenceGate.ps1`**, seed `real-llm-evidence-gate.json`). *Partial work already separated:* deterministic faithfulness seam (**T2-5**).
 
 ---
 

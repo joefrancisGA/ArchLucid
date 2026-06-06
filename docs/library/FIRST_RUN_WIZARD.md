@@ -7,11 +7,13 @@
 
 **Audience:** New operators, pilot users, and first-time evaluators using **ArchLucid** through the web shell (`archlucid-ui`).
 
-**Route:** `/runs/new` — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
+**Route:** **`/reviews/new`** (canonical operator path; legacy **`/runs/new`** may redirect) — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
 
 **Operator checklist (no screenshots):** **[FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md)**
 
-**Last reviewed:** 2026-04-17
+**After first commit — workflow handoff:** **[V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md](../runbooks/V1_WORKFLOW_HANDOFF_GITHUB_AZDO.md)** (attach proof to GitHub / Azure DevOps without V1.1 connectors).
+
+**Last reviewed:** 2026-06-06
 
 ---
 
@@ -19,10 +21,10 @@
 
 | Design element | Status |
 |----------------|--------|
-| Seven-step wizard (`/runs/new`) | **Shipped** — preset → identity → description → constraints → advanced → review → track (`WizardStep*` + `NewRunWizardClient`). |
+| Seven-step wizard (`/reviews/new`) | **Shipped** — preset → identity → description → constraints → advanced → review → track (`WizardStep*` + `NewRunWizardClient`). Quick review default on buyer-polished shell. |
 | Starter presets (greenfield / modernize / blank) | **Shipped** — see `WizardStepPreset` and preset merge logic. |
 | Live pipeline tracking (step 7) | **Shipped** — `RunProgressTracker` + polling against run detail APIs. |
-| Playwright / Vitest coverage | **Partial** — Vitest: `archlucid-ui/src/app/runs/new/*.test.tsx`; E2E smoke: **`archlucid-ui/e2e/first-run-wizard.spec.ts`** (`/runs/new` heading + intro copy). **`/onboarding`** adds **`OnboardingWizardClient`** (auth / connection / storage checklist with localStorage progress). Extend when wizard steps change materially. |
+| Playwright / Vitest coverage | **Partial** — Vitest: `archlucid-ui/src/app/(operator)/reviews/new/*.test.tsx`; E2E: **`first-run-wizard.spec.ts`**, **`core-pilot-path.spec.ts`** (Core Pilot four-step path). **`/onboarding`** adds **`OnboardingWizardClient`** (auth / connection / storage checklist with localStorage progress). |
 
 ---
 
