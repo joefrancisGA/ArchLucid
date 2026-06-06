@@ -87,7 +87,7 @@ using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Marketing;
 using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Persistence.Orchestration.RunStageOutcomes;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
@@ -345,8 +345,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuthorityPipelineStagesExecutionDriver, InlineAuthorityPipelineStagesExecutionDriver>();
         services.AddScoped<SqlAuthorityPipelineTenantExecutionLeaseRepository>();
         services.AddScoped<ITenantAuthorityPipelineConcurrencyGate, SqlTenantAuthorityPipelineConcurrencyGate>();
-        // Legacy AuthorityRunOrchestrator retained in ArchLucid.Persistence for ArchLucid.Persistence.Tests;
-        // not registered as IAuthorityRunOrchestrator in production DI since DTF parity confirmed — SQL host uses Durable Task port.
+        // Authority orchestration body lives in Application; SQL host wraps it with DTF forwarding port.
         services.AddScoped<AuthorityRunOrchestrator>();
         services.AddScoped<IAuthorityRunOrchestrator, DtfAuthorityRunOrchestrator>();
         services.AddScoped<IAuditSqlRetryPolicyProvider, AuditSqlRetryPolicyProvider>();

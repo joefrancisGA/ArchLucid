@@ -3,7 +3,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Application.Runs.Orchestration;
 
 using FluentAssertions;
 

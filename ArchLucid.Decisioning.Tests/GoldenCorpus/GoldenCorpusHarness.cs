@@ -34,7 +34,7 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 /// <summary>
 /// Runs the in-process authority decisioning slice used on commit: findings orchestration →
 /// <see cref="RuleBasedDecisionEngine.DecideAsync"/> → optional <see cref="DecisionEngineService.MergeResults"/>,
-/// mirroring <see cref="ArchLucid.Persistence.Orchestration.Pipeline.AuthorityPipelineStagesExecutor"/> audit for manifest generation.
+/// mirroring <see cref="ArchLucid.Application.Runs.Orchestration.Pipeline.AuthorityPipelineStagesExecutor"/> audit for manifest generation.
 /// </summary>
 public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider timeProvider)
 {

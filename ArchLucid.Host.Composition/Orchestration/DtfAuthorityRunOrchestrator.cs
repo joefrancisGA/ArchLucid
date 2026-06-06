@@ -2,15 +2,14 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration;
 
 namespace ArchLucid.Host.Composition.Orchestration;
 
 /// <summary>
 ///     Durable Task–backed authority pipeline orchestrator port. Forwards to
 ///     <see cref="AuthorityRunOrchestrator" /> until DTF schedules and resumes work end-to-end; the SQL storage host
-///     registers this type as <see cref="IAuthorityRunOrchestrator" /> (InMemory hosts use
-///     <see cref="AuthorityRunOrchestratorApplicationAdapter" />).
+///     registers this type as <see cref="IAuthorityRunOrchestrator" /> (InMemory hosts register
+///     <see cref="AuthorityRunOrchestrator" /> directly).
 /// </summary>
 internal sealed class DtfAuthorityRunOrchestrator(AuthorityRunOrchestrator innerOrchestrator) : IAuthorityRunOrchestrator
 {

@@ -9,10 +9,8 @@ namespace ArchLucid.Application.Runs.Orchestration;
 ///     (optional) retrieval indexing.
 /// </summary>
 /// <remarks>
-///     The SQL-backed orchestration body lives in <c>ArchLucid.Persistence.Orchestration.AuthorityRunOrchestrator</c> and is
-///     registered against this abstraction in host composition via a forwarding adapter so application code does not depend
-///     on persistence orchestration namespaces. Primary caller:
-///     <see cref="ArchLucid.Application.Runs.Coordination.ArchitectureRunAuthorityCoordination" />.
+///     Implementation lives in <see cref="AuthorityRunOrchestrator" />; InMemory hosts register it directly as this port;
+///     SQL hosts register <c>DtfAuthorityRunOrchestrator</c> as a thin forwarder.
 /// </remarks>
 public interface IAuthorityRunOrchestrator
 {

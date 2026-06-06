@@ -49,7 +49,6 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Host.Composition.GoToMarket;
-using ArchLucid.Host.Composition.Orchestration;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
@@ -87,7 +86,7 @@ using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Marketing;
 using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Persistence.Orchestration.RunStageOutcomes;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
@@ -236,7 +235,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityPipelineStagesExecutionDriver, InlineAuthorityPipelineStagesExecutionDriver>();
         services.AddSingleton<ITenantAuthorityPipelineConcurrencyGate, InMemoryTenantAuthorityPipelineConcurrencyGate>();
         services.AddScoped<AuthorityRunOrchestrator>();
-        services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestratorApplicationAdapter>();
+        services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<IAgentTraceOrphanBlobCleanupService>(static sp => new AgentTraceOrphanBlobCleanupService(
             sp.GetRequiredService<IRunRepository>(),

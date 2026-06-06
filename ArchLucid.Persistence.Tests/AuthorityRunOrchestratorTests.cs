@@ -17,7 +17,7 @@ using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;

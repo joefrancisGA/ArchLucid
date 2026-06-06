@@ -13,7 +13,7 @@ public sealed class AuthorityPipelineStageCheckpointTests
     {
         RunRecord run = new() { RunId = Guid.NewGuid(), ContextSnapshotId = Guid.NewGuid() };
 
-        ArchLucid.Persistence.Orchestration.Pipeline.AuthorityPipelineStageCheckpoint
+        AuthorityPipelineStageCheckpoint
             .IsComplete(run, "context_ingestion")
             .Should()
             .BeTrue();
@@ -24,7 +24,7 @@ public sealed class AuthorityPipelineStageCheckpointTests
     {
         RunRecord run = new() { RunId = Guid.NewGuid(), GraphSnapshotId = Guid.NewGuid() };
 
-        ArchLucid.Persistence.Orchestration.Pipeline.AuthorityPipelineStageCheckpoint
+        AuthorityPipelineStageCheckpoint
             .IsComplete(run, "graph")
             .Should()
             .BeTrue();
@@ -35,14 +35,14 @@ public sealed class AuthorityPipelineStageCheckpointTests
     {
         RunRecord run = new() { RunId = Guid.NewGuid(), DecisionTraceId = Guid.NewGuid() };
 
-        ArchLucid.Persistence.Orchestration.Pipeline.AuthorityPipelineStageCheckpoint
+        AuthorityPipelineStageCheckpoint
             .IsComplete(run, "decisioning")
             .Should()
             .BeFalse();
 
         run.GoldenManifestId = Guid.NewGuid();
 
-        ArchLucid.Persistence.Orchestration.Pipeline.AuthorityPipelineStageCheckpoint
+        AuthorityPipelineStageCheckpoint
             .IsComplete(run, "decisioning")
             .Should()
             .BeTrue();
