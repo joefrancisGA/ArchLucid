@@ -46,6 +46,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0039](0039-commit-sealed-evidence-immutability.md) | Commit-sealed evidence immutability — DENY on sealed tables, agent-result enrichments overlay, startup probe (**Status: Accepted**) |
 | [0040](0040-tamper-evident-lineage-without-worm-storage.md) | Tamper-evident proof lineage in application layer; **WORM storage tier out of scope** (**Status: Accepted**) |
 | [0041](0041-fail-closed-scope-derivation.md) | Fail-closed tenant/workspace/project scope derivation on production-like hosts (**Status: Accepted**) |
+| [0042](0042-canonical-run-write-surface.md) | Canonical run-lifecycle write surface — `v1/architecture/*` canonical, `v1/runs/*` + `v1/requests` aliases deprecated, `/result` append-only (**Status: Accepted**) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

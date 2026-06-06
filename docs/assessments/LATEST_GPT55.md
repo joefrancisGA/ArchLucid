@@ -1,12 +1,14 @@
 ﻿> **Scope:** Independent, first-principles weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Clean-slate snapshot (GPT-5.5 track); not a buyer-facing claim document. Prior snapshot archived at `ARCHIVE_2026_06_05_PRE_FIRST_PRINCIPLES_GPT55.md`.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.48%
+# ArchLucid Assessment – (A) Headline Readiness: 83.61%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 **Method note (per request):** This is a clean-slate, first-principles assessment. It does not reference, anchor to, or compare against any prior assessment scores or conclusions. It uses the **user-supplied 47-quality / total-weight-120 model** (an explicit replacement for the repo's default `ASSESSMENT_QUALITY_MODEL.md`). The referenced `Assessment-Read-First.mdc` does **not exist** in the repo (`.cursor/rules/` contains only `Assessment-Scope-V1_1.mdc`), so there was no historical-comparison behavior to override — the clean-slate posture is applied regardless. Scores are grounded in the current repo state: scope contract (`V1_SCOPE.md`), deferred inventory (`V1_DEFERRED.md`), 59 projects / 25 test projects, 36 CI workflows, ~192 API controllers, ~113 UI pages, and the CI gate configuration.
 
-**Engineering delta (2026-06-06, pass 3):** Coverage-gate sibling docs reconciled (`coverage-exclusions.md`, `COVERAGE_GAP_ANALYSIS.md`); faithfulness metric documented in `AGENT_OUTPUT_EVALUATION.md`; Core Pilot + manifest mock journeys green (`core-pilot-path.spec.ts`, `run-manifest-journey.spec.ts`); docs-search "Review lifecycle"; Run→Review domain-noun sweep complete in operator UI. Headline **83.19% → 83.48%** (+0.29 pts).
+**Engineering delta (2026-06-06, pass 4):** ADR 0042 canonical run-lifecycle write surface (`RunWriteLifecycleRoutes`, `RunAliasDeprecationMiddleware`, architecture + unit tests); authority decision-engine registration rename; `/result` append-only invariant tests. Headline **83.48% → 83.61%** (+0.13 pts).
+
+**Prior delta (2026-06-06, pass 3):** Coverage-gate sibling docs reconciled (`coverage-exclusions.md`, `COVERAGE_GAP_ANALYSIS.md`); faithfulness metric documented in `AGENT_OUTPUT_EVALUATION.md`; Core Pilot + manifest mock journeys green (`core-pilot-path.spec.ts`, `run-manifest-journey.spec.ts`); docs-search "Review lifecycle"; Run→Review domain-noun sweep complete in operator UI. Headline **83.19% → 83.48%** (+0.29 pts).
 
 **Prior delta (2026-06-06, pass 2):** Faithfulness Phase A merge-blocking (`--enforce` in PR CI); negative-control fixture tune; split-cohort enforce semantics; ROI cross-tenant basis alignment; coverage-gate doc reconciliation; `.ci-artifacts/` gitignore; executive ROI UI semantics note; terminology/help guards; golden-path fixtures verified (stale `.ci-artifacts` trace only). Headline **82.13% → 83.19%** (+1.06 pts).
 
@@ -16,7 +18,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 
 ## Executive Summary
 
-### `(A)` Overall headline readiness — **83.48%**
+### `(A)` Overall headline readiness — **83.61%**
 
 ArchLucid is a deep, genuinely engineered product that is a credible **controlled-pilot / service-led release candidate**. The shipped surface is large and coherent: the full review lifecycle (request â†’ execute â†’ commit â†’ golden manifest + artifacts), real/simulator agent execution, exports, compare, replay, provenance graph, governance (approvals with SoD, pre-commit gate, 23 bundled policy packs), 78-event append-only audit with RLS, alerts, identity (Entra + generic OIDC + SAML SP + SCIM + API key + RBAC), the customer-controlled Azure extractor, advisory-only Terraform emit, executive ROI rollups, value reports, CLI diagnostics, containerization, and Terraform IaC.
 
@@ -62,12 +64,12 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 | 8 | Usability | 78 | 3 | 1.95% | 66 | v1 |
 | 9 | Workflow Embeddedness | 76 | 3 | 1.90% | 72 | v1 / v1.1 |
 | 10 | Differentiability | 84 | 4 | 2.80% | 64 | v1 |
-| 11 | Architectural Integrity | 83 | 3 | 2.08% | 51 | v1 (partial) |
+| 11 | Architectural Integrity | 85 | 3 | 2.13% | 45 | v1 (partial) |
 | 12 | Executive Value Visibility | 86 | 4 | 2.87% | 56 | v1 |
-| 13 | Traceability | 84 | 3 | 2.10% | 48 | v1 |
+| 13 | Traceability | 85 | 3 | 2.13% | 45 | v1 |
 | 14 | Trustworthiness | 86 | 3 | 2.15% | 42 | v1 / (B) |
-| 15 | Security | 85 | 3 | 2.13% | 45 | v1 / (B) |
-| 16 | Maintainability | 83 | 2 | 1.38% | 34 | v1 |
+| 15 | Security | 86 | 3 | 2.15% | 42 | v1 / (B) |
+| 16 | Maintainability | 84 | 2 | 1.40% | 32 | v1 |
 | 17 | Interoperability | 78 | 2 | 1.30% | 44 | v1 / v1.1 |
 | 18 | Compliance Readiness | 80 | 2 | 1.33% | 40 | v1 / (B) |
 | 19 | Procurement Readiness | 80 | 2 | 1.33% | 40 | v1 / (B) |
@@ -85,7 +87,7 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 | 31 | Scalability | 80 | 1 | 0.67% | 20 | v1 / v2 |
 | 32 | Availability | 82 | 1 | 0.68% | 18 | v1 / v1.1 |
 | 33 | Extensibility | 82 | 1 | 0.68% | 18 | v1 |
-| 34 | Evolvability | 82 | 1 | 0.68% | 18 | v1 |
+| 34 | Evolvability | 83 | 1 | 0.69% | 17 | v1 |
 | 35 | Cost-Effectiveness | 82 | 1 | 0.68% | 18 | v1 |
 | 36 | Stickiness | 82 | 1 | 0.68% | 18 | v1 |
 | 37 | Change Impact Clarity | 82 | 1 | 0.68% | 18 | v1 |
@@ -98,9 +100,9 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 | 44 | Accessibility | 85 | 1 | 0.71% | 15 | v1 |
 | 45 | Supportability | 86 | 1 | 0.72% | 14 | v1 |
 | 46 | Modularity | 87 | 1 | 0.73% | 13 | v1 |
-| 47 | Testability | 89 | 1 | 0.74% | 11 | v1 |
+| 47 | Testability | 90 | 1 | 0.75% | 10 | v1 |
 
-**Weighted overall = 10017 / 120 = 83.48%.**
+**Weighted overall = 10033 / 120 = 83.61%.**
 
 ### Per-quality detail (most urgent first)
 
@@ -238,7 +240,7 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 1. **Real-mode agent quality blind spot** — real LLM path not merge-blocking-evidenced until owner enables `ARCHLUCID_CI_REAL_AOAI_ENABLED` and seeds evidence artifact.
 2. **LLM-graded faithfulness not yet enforce** — Phase B nightly/release floors await baseline soak.
 3. **Golden-path contract drift (watch)** — fixtures verified; mock E2E build cost keeps local verification heavy.
-4. **Mid-strangle authority/coordinator duality** — two semantics increase defect and review surface until ADR 0021 converges.
+4. **Mid-strangle authority/coordinator duality (partially mitigated)** — ADR 0042 pins the HTTP write surface; data-layer strangler and Phase 3 soak remain.
 5. **Safety-control enforcement entropy** — many guards (route-tenant, IDOR, SSRF, idempotency) exist; risk is uniform enforcement drifting as routes grow. CI drift guards mitigate but must stay green.
 6. **Release-hygiene leakage (resolved)** — stray projects removed; client drift guard in CI; `.ci-artifacts/` gitignored.
 
@@ -343,7 +345,7 @@ I produced **14** improvements and **stopped before 25 deliberately** (per your 
 
 ### Tier 3 — Hold for reassessment (no prompts unless clearly independent)
 
-**T3-11. Coordinator/authority strangler convergence (ADR 0021).** Real maintainability/architectural-integrity upside, but it is **mid-flight and direction-dependent**; producing an implementation prompt now risks conflicting with the strangler sequencing. *Revisit after:* T1-3 (hygiene) and a confirmed next ADR step. *No prompt.*
+**T3-11. Coordinator/authority strangler convergence (ADR 0021 / ADR 0042).** ✅ **PARTIAL (2026-06-06)** — ADR 0042 collapses the HTTP dual-write surface: canonical `v1/architecture/*`, deprecated alias headers, shared-action idempotency contract, architecture-test guard. ADR 0021 Phase 3 gate (iv) customer-traffic soak and alias route sunset remain open. *No further prompt until soak direction confirmed.*
 
 **T3-12. Graph-RAG / agentic retrieval (RAG-V2-001/002).** Genuinely raises Cutting-Edge AI, but explicitly **V2** (`V1_DEFERRED.md` §6q) and should follow the faithfulness seam (T2-5) so quality is measurable first. No `(A)` penalty for absence. *No prompt.*
 

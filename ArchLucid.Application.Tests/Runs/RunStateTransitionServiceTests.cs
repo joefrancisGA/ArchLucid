@@ -76,6 +76,32 @@ public sealed class RunStateTransitionServiceTests
         _sut.ShouldSkipQueuedAuthorityPipelineCompletion(null).Should().BeFalse();
     }
 
+    // TB-305 / ADR 0042 (decision C): the POST /result extension point is append-only-to-in-progress and cannot finalize.
+    [Theory]
+    [InlineData(ArchitectureRunStatus.TasksGenerated)]
+    [InlineData(ArchitectureRunStatus.WaitingForResults)]
+    public void ValidateResultSubmissionAllowed_permits_only_in_progress_statuses(ArchitectureRunStatus status)
+    {
+        _sut.ValidateResultSubmissionAllowed(status).IsAllowed.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(ArchitectureRunStatus.Committed)]
+    [InlineData(ArchitectureRunStatus.ReadyForCommit)]
+    [InlineData(ArchitectureRunStatus.Failed)]
+    [InlineData(ArchitectureRunStatus.Created)]
+    [InlineData(ArchitectureRunStatus.ExecutionCompletedQualityRejected)]
+    public void ValidateResultSubmissionAllowed_denies_committed_and_terminal_statuses(ArchitectureRunStatus status)
+    {
+        _sut.ValidateResultSubmissionAllowed(status).IsAllowed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResultSubmissionAllowedStatuses_excludes_committed()
+    {
+        _sut.ResultSubmissionAllowedStatuses.Should().NotContain(ArchitectureRunStatus.Committed);
+    }
+
     private static AgentResult NewResult(AgentType agentType)
     {
         return new AgentResult

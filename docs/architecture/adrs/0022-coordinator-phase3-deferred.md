@@ -10,6 +10,7 @@
 - **Supersedes:** *(none — this ADR does not retire ADR 0010 / 0021 until Phase 3 actually ships)*
 - **Superseded by:** [ADR 0030 — Coordinator → Authority pipeline unification](0030-coordinator-authority-pipeline-unification.md) (PR A3 deletion shipped 2026-04-24).
 - **Amended by:** [ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)](0030-coordinator-authority-pipeline-unification.md) — the gate-evidence framing in this ADR's § Operational considerations now applies **per-sub-PR** (PR A0 → PR A4), not to a single PR A. The "PR A may merge once gates (ii) and (iii) clear" wording in the `IRunCommitOrchestrator` row of § Component breakdown carries over to each sub-PR independently.
+- **Status note (2026-06-06, [ADR 0042](0042-canonical-run-write-surface.md) / TB-305):** The **code-level** dual pipeline is fully retired — the HTTP write surface is now collapsed onto the canonical `v1/architecture/*` family (the `v1/runs/*` + `v1/requests` aliases are deprecated-but-routable and share one MVC action), and `CanonicalRunWriteSurfaceArchitectureTests` prevents new dual-write verbs from reappearing. The only outstanding Phase 3 item is gate **(iv)** (14 contiguous zero-coordinator-write days), which remains **owner/customer-traffic gated** and is **not** force-closed.
 
 ## Objective
 

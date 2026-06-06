@@ -74,6 +74,16 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 
 **Closing report:** *Not available — pre-release. Reopen this subsection if a future change ever restores gate (iv) (e.g., post-V1 coordinator-style refactor) and 14 contiguous zero-write days are recorded.*
 
+## HTTP write-surface collapse (2026-06-06, ADR 0042 / TB-305)
+
+The **code-level** dual pipeline is fully retired. Beyond the data/orchestrator deletion (ADR 0030 PR A3/A4), the HTTP run-lifecycle **write surface** is now collapsed onto the canonical `v1/architecture/*` family:
+
+- `v1/requests`, `v1/runs/{runId}/submit`, `v1/runs/{runId}/manifest/finalize` are **deprecated-but-routable** aliases that share a single MVC action with their canonical counterparts, so idempotency keys and audit events are identical regardless of verb. `RunAliasDeprecationMiddleware` emits `Deprecation` + `Link; rel="successor-version"` headers on alias responses.
+- `POST v1/architecture/run/{runId}/result` is constrained to append-only-to-in-progress (`RunStateTransitionService.ValidateResultSubmissionAllowed`) — it cannot finalize a run or bypass the commit orchestrator.
+- `CanonicalRunWriteSurfaceArchitectureTests` fails the build if a new dual-write verb appears without an ADR-cited `RunWriteLifecycleRoutes` entry.
+
+This closes the **code-level** half of ADR 0021; only gate **(iv)** (14 contiguous zero-coordinator-write days) remains, and it stays owner/customer-traffic gated (no force-close).
+
 ## Related
 
 - [ADR 0021 — Coordinator pipeline strangler plan](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md)

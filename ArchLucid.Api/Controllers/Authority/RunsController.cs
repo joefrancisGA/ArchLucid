@@ -90,6 +90,11 @@ public sealed partial class RunsController(
     ///     201 with <see cref="CreateArchitectureRunResponse" /> for new runs, or 200 with <c>X-Idempotency-Replayed</c>
     ///     header when the key matches a prior success.
     /// </returns>
+    /// <remarks>
+    ///     Canonical route: <c>POST v1/architecture/request</c>. The alias <c>POST /v1/requests</c> is <b>deprecated</b>
+    ///     (TB-305 / ADR 0042) and emits <c>Deprecation</c> headers; both bind to this single action so idempotency and audit
+    ///     keying are identical.
+    /// </remarks>
     [HttpPost("request")]
     [HttpPost("/v{version:apiVersion}/requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -374,6 +379,10 @@ public sealed partial class RunsController(
     ///     Dispatches all pending tasks for <paramref name="runId" /> through the agent executor and persists results.
     /// </summary>
     /// <returns><see cref="ExecuteRunResponse" /> with agent results.</returns>
+    /// <remarks>
+    ///     Canonical route: <c>POST v1/architecture/run/{runId}/execute</c>. The alias <c>POST /v1/runs/{runId}/submit</c> is
+    ///     <b>deprecated</b> (TB-305 / ADR 0042) and emits <c>Deprecation</c> headers; both bind to this single action.
+    /// </remarks>
     [HttpPost("run/{runId}/execute")]
     [HttpPost("/v{version:apiVersion}/runs/{runId}/submit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -440,6 +449,11 @@ public sealed partial class RunsController(
     ///     Merges agent results through the decision engine and persists the golden manifest and decision traces for
     ///     <paramref name="runId" />.
     /// </summary>
+    /// <remarks>
+    ///     Canonical route: <c>POST v1/architecture/run/{runId}/commit</c>. The alias
+    ///     <c>POST /v1/runs/{runId}/manifest/finalize</c> is <b>deprecated</b> (TB-305 / ADR 0042) and emits
+    ///     <c>Deprecation</c> headers; both bind to this single action so the commit idempotency key space is shared.
+    /// </remarks>
     // idempotency-posture: explicit-idempotency-key
     [HttpPost("run/{runId}/commit")]
     [HttpPost("/v{version:apiVersion}/runs/{runId}/manifest/finalize")]
@@ -737,6 +751,12 @@ public sealed partial class RunsController(
     ///     Accepts one <see cref="ArchLucid.Contracts.Agents.AgentResult" /> for an in-progress run (custom agent
     ///     integrations).
     /// </summary>
+    /// <remarks>
+    ///     TB-305 / ADR 0042: append-only extension point. The application service only accepts results while the run is in
+    ///     <c>TasksGenerated</c> or <c>WaitingForResults</c> (see
+    ///     <c>RunStateTransitionService.ValidateResultSubmissionAllowed</c>); it cannot finalize/commit a run or mutate a
+    ///     committed one, so it can never bypass the commit orchestrator.
+    /// </remarks>
     [IdempotencyFilter]
     [HttpPost("run/{runId}/result")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]

@@ -136,6 +136,8 @@ internal static class PipelineExtensions
         app.UseAuthentication();
         app.UseMiddleware<ScopeIdentityBindingMiddleware>();
         app.UseMiddleware<ScopeResolutionGuardMiddleware>();
+        // TB-305 / ADR 0042: flag deprecated run-lifecycle alias routes (v1/runs/*, v1/requests) with Deprecation headers.
+        app.UseMiddleware<RunAliasDeprecationMiddleware>();
         app.UseRateLimiter();
         app.UseMiddleware<ArchLucidRateLimitTelemetryHeadersMiddleware>();
         app.UseMiddleware<TrialSeatReservationMiddleware>();

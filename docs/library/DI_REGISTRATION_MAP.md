@@ -43,7 +43,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 11. **`RegisterRunReplayManifestAndDiffs`** — `IArchitectureRunService`, replay, diffs, exports, `IActorContext`, audit
 12. **`RegisterContextIngestionAndKnowledgeGraph`** — connectors, parsers, `IContextIngestionService`, graph builder/service
 13. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
-14. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**; **`IRunExplanationSummaryService`** — see **`CachingRunExplanationSummaryService`** below
+14. **`RegisterAuthorityDecisionEngineAndRepositories`** — authority decision engine + gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**; **`IRunExplanationSummaryService`** — see **`CachingRunExplanationSummaryService`** below (renamed from `RegisterCoordinatorDecisionEngineAndRepositories` per TB-305 / ADR 0042 decision D)
 15. **`RegisterArtifactSynthesis`**
 16. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, **`ArchLucid:FallbackLlm`** (optional), `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
 17. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
@@ -145,13 +145,13 @@ Also: `IGovernanceDashboardService` → `GovernanceDashboardService` scoped; `IC
 ## Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` (important)
 
 - **Decisioning / authority (Persistence)** types are registered in **`AddArchLucidStorage`** (e.g. SQL or InMemory authority stores).
-- **Coordinator / application workflow (Data)** types with the **same interface names** are registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** — see comments in that file. ADR 0004 documents the split.
+- **Authority / application workflow (Data)** types with the **same interface names** are registered in **`RegisterAuthorityDecisionEngineAndRepositories`** — see comments in that file. ADR 0004 documents the split.
 
 ---
 
 ## `IRunExplanationSummaryService` + `CachingRunExplanationSummaryService` (hot path)
 
-Registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** (`ServiceCollectionExtensions.CoordinatorAndArtifacts.cs`), mirroring **`CachingRunRepository`** / **`CachingGoldenManifestRepository`**: **`IHotPathReadCache`** is only registered when **`HotPathCache:Enabled`** is true in **`AddArchLucidStorage`**.
+Registered in **`RegisterAuthorityDecisionEngineAndRepositories`** (`ServiceCollectionExtensions.CoordinatorAndArtifacts.cs`), mirroring **`CachingRunRepository`** / **`CachingGoldenManifestRepository`**: **`IHotPathReadCache`** is only registered when **`HotPathCache:Enabled`** is true in **`AddArchLucidStorage`**.
 
 | **`HotPathCache:Enabled`** | `IRunExplanationSummaryService` registration |
 |----------------------------|---------------------------------------------|

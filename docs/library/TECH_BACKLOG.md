@@ -9474,3 +9474,23 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope:** SQL RLS; JWT issuance changes; schema NOT NULL TenantId backfills.
 
 **Refs:** ADR-0037; ADR-0041; TB-072; TB-276.
+
+## TB-305 — Collapse the dual run-pipeline write surface to one canonical lifecycle
+
+**Status:** **Done** (2026-06-06).
+
+**Problem:** ADR 0030 PR A3/A4 retired the coordinator data/orchestrator layer, but the HTTP **write surface** still had two live shapes: dual public write verbs per lifecycle operation (`v1/architecture/*` vs `v1/runs/*` + `v1/requests`), an external `/result` push path, and a `RegisterCoordinatorDecisionEngineAndRepositories` registration implying coordinator-era code still ran.
+
+**Shipped:**
+
+1. `RunWriteLifecycleRoutes` — single source of truth for the canonical↔alias mapping; canonical = `v1/architecture/*` (the only family used by the UI + CLI).
+2. `RunAliasDeprecationMiddleware` — emits RFC 8594 `Deprecation: true` + `Link; rel="successor-version"` headers on the deprecated `v1/runs/*` + `v1/requests` aliases (kept routable; **not** deleted).
+3. Unified idempotency + audit **by construction** — each canonical route and its alias are multiple `[HttpPost]` attributes on one MVC action; `CanonicalRunWriteSurfaceArchitectureTests` pins the shared-action contract.
+4. `/result` documented + tested as append-only-to-in-progress (`RunStateTransitionService.ValidateResultSubmissionAllowed`); cannot finalize/commit or mutate a committed run.
+5. Decision D: renamed `RegisterCoordinatorDecisionEngineAndRepositories` → `RegisterAuthorityDecisionEngineAndRepositories` (`DecisionEngineV2` / `IDecisionNodeRepository` / `DecisionNodeManifestMerger` are live authority components, not vestigial coordinator primitives — no behaviour change).
+6. Architecture guard fails the build on a new dual-write verb without an ADR-cited `RunWriteLifecycleRoutes` entry.
+7. ADR **0042**; ADR 0022/0029 status notes amended; `COORDINATOR_TO_AUTHORITY_PARITY.md` + `DI_REGISTRATION_MAP.md` updated.
+
+**Out of scope:** deleting the deprecated alias routes (later sunset TB); retiring `/result` (public-contract change, owner sign-off); force-closing ADR 0021 Phase 3 gate (iv) (owner/customer-traffic gated).
+
+**Refs:** ADR-0021; ADR-0022; ADR-0029; ADR-0030; ADR-0042; TB-302.

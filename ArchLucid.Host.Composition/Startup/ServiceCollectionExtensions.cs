@@ -107,7 +107,7 @@ public static partial class ServiceCollectionExtensions
         RegisterRunReplayManifestAndDiffs(services, configuration);
         RegisterContextIngestionAndKnowledgeGraph(services, configuration);
         RegisterDecisioningEngines(services, configuration);
-        RegisterCoordinatorDecisionEngineAndRepositories(services, configuration);
+        RegisterAuthorityDecisionEngineAndRepositories(services, configuration);
         RegisterArtifactSynthesis(services);
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);

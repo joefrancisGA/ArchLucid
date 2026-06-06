@@ -48,7 +48,10 @@ namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterCoordinatorDecisionEngineAndRepositories(
+    // TB-305 / ADR 0042 (decision D): DecisionEngineV2, IDecisionNodeRepository, and DecisionNodeManifestMerger are LIVE
+    // authority-pipeline components (consumed by AuthorityDrivenArchitectureRunCommitOrchestrator), not vestigial coordinator
+    // primitives. The legacy coordinator repository family was deleted in ADR 0030 PR A3; this registration is authority-side.
+    private static void RegisterAuthorityDecisionEngineAndRepositories(
         IServiceCollection services,
         IConfiguration configuration)
     {
@@ -78,8 +81,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<LlmCostEstimationOptions>, LlmCostEstimationOptionsValidator>();
         services.AddSingleton<IPostConfigureOptions<LlmCostEstimationOptions>, LlmCostEstimationStartupRateWarningPostConfigure>();
 
-        ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
-        RegisterLlmCostEstimationUsdRateOverride(services, coordinatorStorage);
+        ArchLucidOptions storageOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+        RegisterLlmCostEstimationUsdRateOverride(services, storageOptions);
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
         services.AddSingleton<IDeterministicExplanationService, DeterministicExplanationService>();
         services.AddScoped<IExplanationService, ExplanationService>();
@@ -102,7 +105,7 @@ public static partial class ServiceCollectionExtensions
         // were deleted along with their concretes (InMemoryCoordinator*, GoldenManifestRepository, DecisionTraceRepository).
         // dbo.GoldenManifestVersions is gone (PR A4 / migration 111); decision traces are persisted via the
         // Authority FK chain (dbo.AuthorityDecisionTraces). The unified reader stays scoped (now authority-only).
-        if (ArchLucidOptions.EffectiveIsInMemory(coordinatorStorage.StorageProvider))
+        if (ArchLucidOptions.EffectiveIsInMemory(storageOptions.StorageProvider))
         {
             services.AddSingleton<IArchitectureRequestRepository, InMemoryArchitectureRequestRepository>();
             services.AddSingleton<IArchitectureRunIdempotencyRepository, InMemoryArchitectureRunIdempotencyRepository>();
@@ -170,9 +173,9 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<ILogger<CachingRunExplanationSummaryService>>()));
     }
 
-    private static void RegisterLlmCostEstimationUsdRateOverride(IServiceCollection services, ArchLucidOptions coordinatorStorage)
+    private static void RegisterLlmCostEstimationUsdRateOverride(IServiceCollection services, ArchLucidOptions storageOptions)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(coordinatorStorage.StorageProvider))
+        if (ArchLucidOptions.EffectiveIsInMemory(storageOptions.StorageProvider))
         {
             services.AddSingleton<ILlmCostEstimationUsdRateOverride>(NoOpLlmCostEstimationUsdRateOverride.Instance);
 
