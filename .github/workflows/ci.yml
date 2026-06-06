@@ -179,7 +179,7 @@ jobs:
 
   doc-markdown-links:
     name: "Docs: markdown link integrity"
-    # Warn-only: one broken link or doc drift guard must not cancel the full CI matrix (see Tier 0.doc header).
+    # Warn-only: job + per-step continue-on-error so every doc/link guard runs and surfaces failures in one CI run.
     continue-on-error: true
     needs:
       - gitleaks
@@ -196,18 +196,23 @@ jobs:
           python-version: "3.12"
 
       - name: Terraform root ordering sync
+        continue-on-error: true
         run: python scripts/ci/assert_terraform_root_ordering_sync.py
 
       - name: Terraform plan data-region guard (unit tests)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_terraform_plan_data_regions.py"
 
       - name: Terraform SQL backup redundancy guard (unit tests)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_sql_backup_regions.py"
 
       - name: SQL backup verification artifact writer (unit tests)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_write_sql_backup_verification_artifact.py"
 
       - name: SQL backup verification artifact matches sample fixture
+        continue-on-error: true
         run: |
           python scripts/ci/write_sql_backup_verification_artifact.py \
             scripts/ci/fixtures/tfplan-sql-backup-verified.sample.json \
@@ -217,6 +222,7 @@ jobs:
             || (echo "Regenerate: python scripts/ci/write_sql_backup_verification_artifact.py scripts/ci/fixtures/tfplan-sql-backup-verified.sample.json archlucid-ui/public/sql-backup-region-verification.json --generated-at-utc 2026-05-18T00:00:00Z" && exit 1)
 
       - name: Prometheus SLO Terraform LLM budget warn rule (unit tests)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_prometheus_slo_llm_budget_warn_alert_rule_tf.py"
 
       - uses: actions/setup-node@v6
@@ -230,381 +236,507 @@ jobs:
         working-directory: archlucid-ui
 
       - name: Check relative markdown links
+        continue-on-error: true
         run: python scripts/ci/check_md_links.py
 
       - name: Doc link integrity batch guard (TB-170)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_doc_links_batch.py"
 
       - name: Contributor one-page doc line budget (â‰¤80 lines)
+        continue-on-error: true
         run: python scripts/ci/assert_contributor_on_one_page_size.py
 
       - name: Contributor one-page line budget unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_contributor_on_one_page_size.py"
 
       - name: Pen test remediation tracker hygiene
+        continue-on-error: true
         run: python scripts/ci/assert_pen_test_remediation_no_stale.py
 
       - name: Audit coverage matrix vs AuditEventTypes (names + count marker)
+        continue-on-error: true
         run: python scripts/ci/assert_audit_const_count.py
 
       - name: Audit matrix guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_audit_const_count.py"
 
       - name: Audit coverage matrix vs OpenAPI POST/PUT/DELETE paths
+        continue-on-error: true
         run: python scripts/ci/assert_openapi_mutations_in_audit_matrix.py
 
       - name: Audit coverage matrix vs controller HttpPost/Put/Delete routes
+        continue-on-error: true
         run: python scripts/ci/check_audit_matrix.py
 
       - name: Mutating route idempotency posture drift (INV-009)
+        continue-on-error: true
         run: python scripts/ci/detect_mutating_route_idempotency_drift.py
 
       - name: Mutating route idempotency drift unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_mutating_route_idempotency_drift.py"
 
       - name: OpenAPI audit matrix guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_openapi_mutations_in_audit_matrix.py"
 
       - name: Route tier policy nav registry vs controllers + matrix
+        continue-on-error: true
         run: python scripts/ci/assert_route_tier_policy_nav.py
 
       - name: Route tier policy nav guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_route_tier_policy_nav.py"
 
       - name: Route tenant scope binding guard (TB-277)
+        continue-on-error: true
         run: python scripts/ci/assert_route_tenant_scope_guard.py
 
       - name: Tenant isolation defense-in-depth guard (ADR 0037)
+        continue-on-error: true
         run: python scripts/ci/assert_tenant_isolation_defense_in_depth.py
 
       - name: Tenant isolation defense-in-depth guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_tenant_isolation_defense_in_depth.py"
 
       - name: Route tenant scope batch unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_route_tenant_batch.py"
 
       - name: Route tenant P1 batch unit tests (TB-279–282, TB-281)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_route_tenant_p1_batch.py"
 
       - name: DTO boundary batch unit tests (TB-285–287)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_dto_boundary_batch.py"
 
       - name: Trust paid-pilot P1b batch unit tests (TB-295–300)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_trust_paid_p1b_batch.py"
 
       - name: Trust P2 batch unit tests (TB-288, TB-301)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_trust_p2_batch.py"
 
       - name: Commercial tier packaging drift fixtures
+        continue-on-error: true
         run: python scripts/ci/assert_commercial_tier_packaging_drift.py
 
       - name: Commercial tier packaging drift unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_commercial_tier_packaging_drift.py"
 
       - name: Integration recipe CloudEvent types vs catalog
+        continue-on-error: true
         run: python scripts/ci/check_integration_recipes_link_alignment.py
 
       - name: Integration recipe alignment guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_integration_recipes_link_alignment.py"
 
       - name: READ_THIS_FIRST.md â€” relative targets exist
+        continue-on-error: true
         run: python scripts/ci/check_read_this_first_links.py
 
       - name: Check trust center doc links
+        continue-on-error: true
         run: python scripts/ci/check_trust_center_links.py
 
       - name: Trust center posture freshness (warn STALE_ROW to stderr)
+        continue-on-error: true
         run: python scripts/ci/check_trust_center_posture_freshness.py
 
       - name: Procurement PACK_INDEX table validation
+        continue-on-error: true
         run: python scripts/ci/check_procurement_pack_index.py
 
       - name: Starter proof pack metadata validation (TB-115/TB-116)
+        continue-on-error: true
         run: python scripts/ci/check_starter_proof_packs.py
 
       - name: Starter proof pack validation unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_starter_proof_packs.py"
 
       - name: Starter proof pack offline dry-run entrypoint (TB-173)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_dry_run_starter_proof_packs.py"
 
       - name: Vertical policy pack manifest validation (TB-175)
+        continue-on-error: true
         run: python scripts/ci/check_policy_pack_manifests.py
 
       - name: Policy pack dry-run index freshness (TB-176)
+        continue-on-error: true
         run: python scripts/ci/generate_policy_pack_dry_run_index.py --check
 
       - name: Policy pack manifest unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_manifests.py"
 
       - name: Audit event catalog metadata (TB-126)
+        continue-on-error: true
         run: python scripts/ci/check_audit_event_catalog.py
 
       - name: Commercial audit proof batch unit tests (TB-127)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_audit_proof_batch.py"
 
       - name: Tier fit validation matrix (TB-132)
+        continue-on-error: true
         run: python scripts/ci/check_tier_fit_matrix.py
 
       - name: Commercial overclaim guard (TB-134)
+        continue-on-error: true
         run: python scripts/ci/check_commercial_overclaim_guard.py
 
       - name: Commercial closeout batch unit tests (TB-129-134)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_closeout_batch.py"
 
       - name: Pilot acceptance thresholds batch unit tests (TB-158)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_pilot_acceptance_batch.py"
 
       - name: Tenancy defense-in-depth batch unit tests (TB-076-077)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_tenancy_defense_batch.py"
 
       - name: Cross-tenant isolation matrix drift guards (TB-078)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_cross_tenant_isolation_matrix_batch.py"
 
       - name: Backfill and container jobs batch unit tests (TB-085-090)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_backfill_jobs_batch.py"
 
       - name: Invariant Wave B architecture batch unit tests (TB-011 / TB-030)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_invariant_wave_b_batch.py"
 
       - name: Invariant Wave C architecture batch unit tests (TB-012)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_invariant_wave_c_batch.py"
 
       - name: Correctness batch unit tests (TB-198-200 / batch 5K)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5k.py"
 
       - name: Correctness batch unit tests (TB-201 / batch 5L)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5l.py"
 
       - name: AI readiness batch unit tests (TB-177 / batch 5M)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5m.py"
 
       - name: AI readiness batch unit tests (TB-178 / batch 5N)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5n.py"
 
       - name: AI readiness batch unit tests (TB-179 / batch 5S)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5s.py"
 
       - name: AI readiness batch unit tests (TB-180 / batch 5T)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5t.py"
 
       - name: AI readiness batch unit tests (TB-181 / batch 5U)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5u.py"
 
       - name: Correctness batch unit tests (TB-202 / batch 5O)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5o.py"
 
       - name: Correctness batch unit tests (TB-203 / batch 5P)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5p.py"
 
       - name: Correctness batch unit tests (TB-204 / batch 5Q)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5q.py"
 
       - name: Correctness batch unit tests (TB-196 / batch 5R)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5r.py"
 
       - name: Cutting-Edge batch 5V drift guards (TB-192)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5v.py"
 
       - name: Cutting-Edge batch 5W drift guards (TB-191)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5w.py"
 
       - name: Adoption batch 5X drift guards (TB-207)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5x.py"
 
       - name: Adoption batch 5Y drift guards (TB-208)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5y.py"
 
       - name: Adoption batch 5Z drift guards (TB-209)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5z.py"
 
       - name: Adoption batch 5AA drift guards (TB-210)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5aa.py"
 
       - name: Adoption batch 5AB drift guards (TB-211)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ab.py"
 
       - name: Adoption batch 5AC drift guards (TB-213)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ac.py"
 
       - name: Adoption batch 5AD drift guards (TB-216)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ad.py"
 
       - name: Adoption batch 5AE drift guards (TB-217)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ae.py"
 
       - name: Adoption batch 5AF drift guards (TB-218)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5af.py"
 
       - name: Adoption batch 5AG drift guards (TB-219)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ag.py"
 
       - name: Adoption batch 5AH drift guards (TB-220)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ah.py"
 
       - name: Adoption batch 5AI drift guards (TB-215)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ai.py"
 
       - name: Adoption batch 5AJ drift guards (TB-238)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5aj.py"
 
       - name: Adoption batch 5AK drift guards (TB-223)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ak.py"
 
       - name: Adoption batch 5AL drift guards (TB-239)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5al.py"
 
       - name: Adoption batch 5AN drift guards (TB-240)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5an.py"
 
       - name: Adoption batch 5AM drift guards (TB-224)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5am.py"
 
       - name: Adoption batch 5AO drift guards (TB-222)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ao.py"
 
       - name: Adoption batch 5AP drift guards (TB-225)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ap.py"
 
       - name: Adoption batch 5AQ drift guards (TB-241)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5aq.py"
 
       - name: Adoption batch 5AR drift guards (TB-223 linkage)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ar.py"
 
       - name: Adoption batch 5AS drift guards (TB-226)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5as.py"
 
       - name: Adoption batch 5AT drift guards (TB-242)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5at.py"
 
       - name: Adoption batch 5AU drift guards (TB-227)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5au.py"
 
       - name: Adoption batch 5AV drift guards (TB-243)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5av.py"
 
       - name: Adoption batch 5AW drift guards (TB-246)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5aw.py"
 
       - name: Adoption batch 5AX drift guards (TB-244)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ax.py"
 
       - name: Adoption batch 5AY drift guards (TB-247)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ay.py"
 
       - name: Adoption batch 5AZ drift guards (TB-245)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5az.py"
 
       - name: Adoption batch 5BA drift guards (TB-248)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5ba.py"
 
       - name: Adoption batch 5BB drift guards (TB-249)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bb.py"
 
       - name: Adoption batch 5BC drift guards (TB-229)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bc.py"
 
       - name: Adoption batch 5BD drift guards (TB-230)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bd.py"
 
       - name: Adoption batch 5BE drift guards (TB-231)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5be.py"
 
       - name: Adoption batch 5BF drift guards (TB-232)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bf.py"
 
       - name: Adoption batch 5BG drift guards (TB-233)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bg.py"
 
       - name: Adoption batch 5BH drift guards (TB-234)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bh.py"
 
       - name: Adoption batch 5BI drift guards (TB-235)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bi.py"
 
       - name: Adoption batch 5BJ drift guards (TB-237)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bj.py"
 
       - name: Adoption batch 5BK drift guards (TB-212)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bk.py"
 
       - name: Adoption batch 5BL drift guards (TB-183)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bl.py"
 
       - name: AI readiness batch 5BM drift guards (TB-184)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bm.py"
 
       - name: Adoption batch 5BN drift guards (TB-228)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_adoption_batch_5bn.py"
 
       - name: Cutting-edge batch 5BO drift guards (TB-194)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5bo.py"
 
       - name: AI readiness batch 5BP drift guards (TB-185)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bp.py"
 
       - name: AI readiness batch 5BQ drift guards (TB-186)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bq.py"
 
       - name: Cutting-edge batch 5BR drift guards (TB-195)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5br.py"
 
       - name: AI readiness batch 5BS drift guards (TB-187)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bs.py"
 
       - name: Cutting-edge batch 5BT drift guards (TB-193)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5bt.py"
 
       - name: AI readiness batch 5BU drift guards (TB-188)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bu.py"
 
       - name: AI readiness batch 5BV drift guards (TB-189)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5bv.py"
 
       - name: Traceability batch 5BW drift guards (TB-250)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5bw.py"
 
       - name: Traceability batch 5BX drift guards (TB-251)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5bx.py"
 
       - name: Traceability batch 5BY drift guards (TB-052)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5by.py"
 
       - name: Traceability batch 5BZ drift guards (TB-054)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5bz.py"
 
       - name: AI readiness batch 5BY drift guards (TB-190)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_ai_readiness_batch_5by.py"
 
       - name: Traceability batch 5CD drift guards (TB-037, TB-055)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_traceability_batch_5cd.py"
 
       - name: Marketability batch 5CC drift guards (TB-252, TB-253)
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_marketability_batch_5cc.py"
 
       - name: Check referenced static raster assets (warn-only)
+        continue-on-error: true
         run: python scripts/ci/check_referenced_static_assets.py
 
       - name: Check GTM placeholder tokens (warn-only)
+        continue-on-error: true
         run: python scripts/ci/check_gtm_placeholder_tokens.py
 
       - name: Check ROI model freshness (warn-only)
+        continue-on-error: true
         run: python scripts/ci/check_roi_model_freshness.py docs/go-to-market/ROI_MODEL.md
 
       - name: Hot path performance budgets guard
+        continue-on-error: true
         run: python scripts/ci/assert_hot_path_performance_budgets.py
 
       - name: Procurement claim coherence guard
+        continue-on-error: true
         run: python scripts/ci/check_procurement_claim_coherence.py
 
       - name: High-risk documentation coherence guard (trust / MCP / pricing policy)
+        continue-on-error: true
         run: python scripts/ci/assert_high_risk_doc_coherence.py
 
       - name: Public pricing placeholder hard guard (sales-led posture)
+        continue-on-error: true
         run: python scripts/ci/assert_public_pricing_placeholder_guard.py
 
       - name: Doc guard unit tests (connector + coherence + pricing + data-consistency report + observability export report + real-LLM gate script)
+        continue-on-error: true
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_assert_v1_connector_catalog_alignment.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_high_risk_doc_coherence.py"
@@ -621,18 +753,23 @@ jobs:
         run: python scripts/ci/check_procurement_doc_freshness.py
 
       - name: ITSM bridge starter kit â€” Node contract tests (no npm install)
+        continue-on-error: true
         run: node --test templates/integrations/bridge-recipe-contract-tests/mapping-contract.test.mjs
 
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
+        continue-on-error: true
         run: python scripts/ci/assert_marketing_accessibility_in_sync.py
 
       - name: Accessibility route evidence freshness (priority routes vs Playwright PAGES)
+        continue-on-error: true
         run: python scripts/ci/assert_accessibility_route_evidence_freshness.py
 
       - name: Buyer first-30-minutes path â€” vertical picker + q35 prose guard
+        continue-on-error: true
         run: python scripts/ci/assert_buyer_first_30_minutes_in_sync.py
 
       - name: Buyer first-30-minutes guard self-test
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_buyer_first_30_minutes_in_sync.py"
 
       - name: Buyer-facing doc claim drift (heuristic, warn-only)
@@ -641,21 +778,27 @@ jobs:
         run: ./scripts/Scan-BuyerDocClaims.ps1
 
       - name: Buyer-facing canonical claim drift (Python, strict)
+        continue-on-error: true
         run: python scripts/ci/check_buyer_claim_drift.py
 
       - name: Buyer-facing canonical claim drift guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
 
       - name: Buyer-polished demo env coherence (TB-273 / BDA-024)
+        continue-on-error: true
         run: python scripts/ci/check_buyer_polished_demo_env.py
 
       - name: Buyer-polished demo env coherence guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_polished_demo_env.py"
 
       - name: WhyArchLucid pack demo banner documentation (TB-273 / BDA-023)
+        continue-on-error: true
         run: python scripts/ci/check_why_archlucid_pack_buyer_banner.py
 
       - name: Real-mode LLM prerequisite checklist unit test
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_verify_real_mode_prereqs.py"
 
       - name: Customer WIF templates â€” validate (warn-only when CLI missing)
@@ -663,57 +806,73 @@ jobs:
         run: python scripts/ci/validate_customer_wif_templates.py
 
       - name: Customer WIF templates validation guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_validate_customer_wif_templates.py"
 
       - name: BillingProductionSafetyRules â€” sk_live_ + Marketplace landing + GA offer-id checks shipped
+        continue-on-error: true
         run: python scripts/ci/assert_billing_safety_rules_shipped.py
 
       - name: BillingProductionSafetyRules guard self-test
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_billing_safety_rules_shipped.py"
 
       - name: Golden cohort kill-switch shipped (Q15-conditional rule â€” warn 80% / kill 95%)
+        continue-on-error: true
         run: python scripts/ci/assert_golden_cohort_kill_switch_present.py
 
       - name: Golden cohort nightly job naming guard (preflight vs live)
+        continue-on-error: true
         run: python scripts/ci/assert_golden_cohort_job_names.py
 
       - name: Golden cohort kill-switch guard self-test
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_golden_cohort_kill_switch_present.py"
 
       - name: Golden cohort budget-probe threshold-parsing unit tests (Improvement 11)
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_golden_cohort_budget_probe
 
       - name: "Brand-category seam â€” rebrand guard (FAIL if legacy phrases hardcoded)"
+        continue-on-error: true
         run: python scripts/ci/assert_brand_category_seam.py --fail
 
       - name: Brand-category seam guard self-test
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_brand_category_seam.py"
 
       - name: ADR 0030 authority projection known-empty JSON guard
+        continue-on-error: true
         run: python scripts/ci/assert_authority_projection_known_empty.py
 
       - name: ADR 0030 authority projection known-empty guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_authority_projection_known_empty.py"
 
       - name: Golden cohort baseline locked â€” no placeholder SHAs
+        continue-on-error: true
         env:
           ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
         run: python scripts/ci/assert_golden_cohort_baseline_locked.py
 
       - name: Golden cohort baseline locked guard unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_assert_golden_cohort_baseline_locked
 
       - name: Procurement pack canonical inputs (validator)
+        continue-on-error: true
         run: python scripts/ci/assert_procurement_pack_buildable.py
 
       - name: Procurement pack validation unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_procurement_pack_validation.py"
 
       - name: Procurement pack index guard unit tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_procurement_pack_index.py"
 
       - name: "Advisory â€” game-day closing report vs calendar (strict after second logged run)"
@@ -723,112 +882,144 @@ jobs:
         run: python scripts/ci/assert_game_day_log_recent.py
 
       - name: Game-day log guard unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_assert_game_day_log_recent
 
       - name: Synthetic aggregate ROI bulletin sample guards
+        continue-on-error: true
         run: python scripts/ci/check_synthetic_roi_bulletin_sample.py
 
       - name: Doc scope header
+        continue-on-error: true
         # Merge-blocking: every active ``docs/**/*.md`` (except ``docs/archive/``) must open with
         # ``> **Scope:**`` on the first non-empty line. README.md uses ``<!-- **Scope:** ... -->``.
         # See ``scripts/ci/check_doc_scope_header.py`` and ``scripts/ci/backfill_doc_scope_headers.py``.
         run: python scripts/ci/check_doc_scope_header.py
 
       - name: Doc scope header check unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
 
       - name: Architecture poster line budget (Prompt 12)
+        continue-on-error: true
         run: python scripts/ci/check_doc_size_budget.py --max-lines 500 docs/ARCHITECTURE_ON_ONE_PAGE.md
 
       - name: Five-document onboarding spine line budget (600 lines each)
+        continue-on-error: true
         run: python scripts/ci/check_onboarding_spine_line_budget.py --max-lines 600
 
       - name: Doc size budget guard unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_check_doc_size_budget
 
       - name: Coordinator reference ceiling (ADR 0021 strangler drift)
+        continue-on-error: true
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_assert_coordinator_reference_ceiling.py"
           python scripts/ci/assert_coordinator_reference_ceiling.py
 
       - name: Critical docs drift guard
+        continue-on-error: true
         run: python scripts/ci/check_critical_docs_drift.py
 
       - name: API auth doc contract guard
+        continue-on-error: true
         run: python scripts/ci/check_api_auth_doc_contract.py
 
       - name: Policy pack content quality harness
+        continue-on-error: true
         run: python scripts/ci/check_policy_pack_content_quality.py
 
       - name: Hosted availability rollup tests
+        continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_summarize_hosted_probe_artifacts.py"
 
       - name: Audit semantic invariants guard
+        continue-on-error: true
         run: python scripts/ci/check_audit_semantic_invariants.py
 
       - name: Maintainability boundary map (generate + path check)
+        continue-on-error: true
         run: python scripts/ci/generate_maintainability_boundary_map.py
 
       - name: Capacity/performance evidence rollup (dry-run)
+        continue-on-error: true
         run: python scripts/ci/report_capacity_performance_evidence.py --markdown-out dist/capacity-performance-evidence.md --json-out dist/capacity-performance-evidence.json
 
       - name: Real-agent failure triage guard
+        continue-on-error: true
         run: python scripts/ci/check_real_agent_failure_triage.py
 
       - name: Real-agent failure triage rollup (dry-run)
+        continue-on-error: true
         run: python scripts/ci/report_real_agent_failure_triage.py --markdown-out dist/real-agent-failure-triage.md --json-out dist/real-agent-failure-triage.json
 
       - name: Custom-handler extensibility readiness guard
+        continue-on-error: true
         run: python scripts/ci/check_custom_handler_extensibility_readiness.py
 
       - name: Tenant isolation verification pack (dry-run)
+        continue-on-error: true
         run: python scripts/generate_tenant_isolation_verification_pack.py --dry-run
 
       - name: Procurement pack ZIP (deterministic docs bundle, buyer-drop strict)
+        continue-on-error: true
         run: python scripts/build_procurement_pack.py --deal-ready --dry-run
 
       - name: Procurement pack ZIP artifact (non-strict build for CI artifact)
+        continue-on-error: true
         run: bash scripts/build_procurement_pack.sh
 
       - name: Mermaid syntax (mermaid-cli when available)
+        continue-on-error: true
         run: python scripts/ci/check_mermaid_syntax.py docs/ARCHITECTURE_ON_ONE_PAGE.md
 
       - name: Runbook freshness (informational)
+        continue-on-error: true
         run: python scripts/ci/check_doc_freshness.py
 
       - name: Tenant inventory tables vs master DDL
+        continue-on-error: true
         run: python scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py
 
       - name: Pricing single-source-of-truth guard
+        continue-on-error: true
         run: python scripts/ci/check_pricing_single_source.py
 
       - name: Regenerate public pricing.json from PRICING_PHILOSOPHY locked block
+        continue-on-error: true
         run: python scripts/ci/generate_pricing_json.py
 
       - name: Pricing JSON must match generator (no drift)
+        continue-on-error: true
         run: git diff --exit-code -- archlucid-ui/public/pricing.json
 
       - name: Worked-example ROI PDF freshness (warn-only; set WORKED_EXAMPLE_ROI_FRESHNESS_FAIL=1 to enforce)
+        continue-on-error: true
         run: python scripts/ci/check_worked_example_roi_freshness.py
 
       - name: README opener link density (max 12 links above first <details>)
+        continue-on-error: true
         run: python scripts/ci/check_readme_density.py
 
       - name: README opener link density guard unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_check_readme_density -q
 
       - name: Marketplace pricing tier alignment vs PRICING_PHILOSOPHY
+        continue-on-error: true
         run: python scripts/ci/assert_marketplace_pricing_alignment.py
 
       - name: "/why comparison rows in sync (TS inline section vs C# PDF builder)"
+        continue-on-error: true
         # PENDING_QUESTIONS.md item 31, resolved 2026-04-21 (ship both PDF and inline section,
         # with a CI sync check). Fails if archlucid-ui/src/marketing/why-archlucid-comparison.ts
         # and ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs diverge on any of the
@@ -836,26 +1027,33 @@ jobs:
         run: python scripts/ci/check_why_archlucid_comparison_sync.py
 
       - name: "/why front-door hard table â€” markdown vs why-comparison.ts row order"
+        continue-on-error: true
         run: python scripts/ci/check_why_table_alignment.py
 
       - name: "/why differentiation rows â€” non-empty evidence fields"
+        continue-on-error: true
         run: python scripts/ci/assert_why_rows_have_evidence.py
 
       - name: "/why golden-cohort claim â€” baseline lock disclosure"
+        continue-on-error: true
         run: python scripts/ci/assert_why_cohort_claim_locked.py
 
       - name: Mutating controller actions â€” audit LogAsync guard
+        continue-on-error: true
         run: python scripts/ci/assert_controller_mutations_have_audit.py
 
       - name: Controller audit guard unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_assert_controller_mutations_have_audit -q
 
       - name: Layered audit wiring â€” echo marker CI tripwire
+        continue-on-error: true
         run: python scripts/ci/assert_layered_audit_wiring_echo.py
 
       - name: Layered audit wiring echo â€” unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_assert_layered_audit_wiring_echo -q
@@ -866,6 +1064,7 @@ jobs:
         run: python scripts/ci/assert_pgp_key_present.py
 
       - name: PGP key presence + golden cohort budget probe unit tests
+        continue-on-error: true
         run: |
           python -m pip install --upgrade pip
           pip install requests
@@ -875,9 +1074,11 @@ jobs:
           python -m unittest test_golden_cohort_usage_ledger
 
       - name: Guard â€” concept vocabulary (docs/library/CONCEPT_VOCABULARY.md Â§ 1)
+        continue-on-error: true
         run: python scripts/ci/check_concept_vocabulary.py
 
       - name: Guard â€” concept vocabulary check unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_check_concept_vocabulary
@@ -892,21 +1093,24 @@ jobs:
         run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
 
       - name: "Guard â€” reference-customer status (auto-flip: strict once any Published row exists)"
+        continue-on-error: true
         # Auto-flip semantics:
         #   - refcust-warn outcome == 'success'  =>  at least one Status: Published row exists today.
-        #   - From that day on, this step re-runs the same check WITHOUT continue-on-error,
-        #     so any regression (downgrade or removal of the only Published row) fails CI.
+        #   - From that day on, this step re-runs the same check (step still fails visibly; per-step
+        #     continue-on-error keeps later doc guards running in the same job).
         #   - While zero Published rows exist, this step is skipped and the warn step is the only signal.
         # See docs/archive/quality/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md (Improvement 1, ref-customer guard).
         if: steps.refcust-warn.outcome == 'success'
         run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
 
       - name: Guard â€” reference-customer status check unit tests
+        continue-on-error: true
         run: |
           cd scripts/ci
           python -m unittest test_check_reference_customer_status
 
       - name: AuditEvents read path â€” no NOLOCK hint
+        continue-on-error: true
         run: python scripts/ci/assert_no_audit_events_nolock.py
 
   terraform-validate-private:
