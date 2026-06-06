@@ -43,6 +43,8 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0035](0035-architecture-invariant-catalog.md) | Architecture invariant catalog — `INV-*` registry + enforcement waves via `TECH_BACKLOG` (**Status: Proposed**) |
 | [0037](0037-tenant-isolation-without-rls-defense-in-depth.md) | Tenant isolation without SQL RLS — catalog boundary + layered controls (**Status: Accepted**; supersedes 0003 production posture) |
 | [0038](0038-run-durability-multi-store-outbox-production-secrets.md) | Run durability — async SQL default, transactional authority outbox, unified create UoW, Cosmos graph outbox, production-like Key Vault + SQL MI (**Status: Accepted**) |
+| [0039](0039-commit-sealed-evidence-immutability.md) | Commit-sealed evidence immutability — DENY on sealed tables, agent-result enrichments overlay, startup probe (**Status: Accepted**) |
+| [0040](0040-tamper-evident-lineage-without-worm-storage.md) | Tamper-evident proof lineage in application layer; **WORM storage tier out of scope** (**Status: Accepted**) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 
