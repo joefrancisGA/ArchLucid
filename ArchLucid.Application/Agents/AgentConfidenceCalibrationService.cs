@@ -13,6 +13,7 @@ namespace ArchLucid.Application.Agents;
 /// <inheritdoc cref="IAgentConfidenceCalibrationService" />
 public sealed class AgentConfidenceCalibrationService(
     IAgentResultRepository agentResultRepository,
+    IAgentResultEnrichmentRepository agentResultEnrichmentRepository,
     IScopeContextProvider scopeContextProvider,
     IAgentConfidenceCalibrator calibrator,
     IOptions<AgentConfidenceCalibrationOptions> options,
@@ -20,6 +21,9 @@ public sealed class AgentConfidenceCalibrationService(
 {
     private readonly IAgentResultRepository _agentResultRepository =
         agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
+
+    private readonly IAgentResultEnrichmentRepository _agentResultEnrichmentRepository =
+        agentResultEnrichmentRepository ?? throw new ArgumentNullException(nameof(agentResultEnrichmentRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -51,10 +55,8 @@ public sealed class AgentConfidenceCalibrationService(
                 .CalibrateAsync(result.AgentType, result.Confidence, cancellationToken)
                 .ConfigureAwait(false);
 
-            result.CalibratedConfidence = calibrated;
-
-            await _agentResultRepository
-                .PatchCalibratedConfidenceAsync(result.ResultId, calibrated, cancellationToken)
+            await _agentResultEnrichmentRepository
+                .UpsertCalibratedConfidenceAsync(result.ResultId, calibrated, cancellationToken)
                 .ConfigureAwait(false);
         }
 

@@ -56,7 +56,7 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository());
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -91,7 +91,7 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository());
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -129,7 +129,7 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository());
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -166,7 +166,7 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository());
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();
@@ -208,7 +208,7 @@ public sealed class AgentExecutionResilienceTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository());
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
 
         ArchitectureRequest request = MinimalRequest();
         AgentEvidencePackage evidence = new();

@@ -115,7 +115,7 @@ public sealed class CustomAgentHandlerRegistrationProofTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new NoOpPromptRedactor(),
             new FixedValueOptionsMonitor<ArchLucidLlmOptions>(new ArchLucidLlmOptions()),
-            new InMemoryAgentResultRepository());
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
     }
 
     private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>

@@ -67,7 +67,8 @@ public sealed class EvidenceProposalPromoterTests
 
     private static EvidenceProposalPromoter BuildSut(
         IAgentResultRepository agentResults,
-        ITenantCuratedEvidenceRepository curated)
+        ITenantCuratedEvidenceRepository curated,
+        IAgentResultEnrichmentRepository? enrichmentRepository = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(TenantScope);
@@ -79,6 +80,14 @@ public sealed class EvidenceProposalPromoterTests
         uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
 
-        return new EvidenceProposalPromoter(agentResults, curated, scope.Object, uowFactory.Object);
+        IAgentResultEnrichmentRepository enrichments =
+            enrichmentRepository ?? new InMemoryAgentResultEnrichmentRepository();
+
+        return new EvidenceProposalPromoter(
+            agentResults,
+            enrichments,
+            curated,
+            scope.Object,
+            uowFactory.Object);
     }
 }

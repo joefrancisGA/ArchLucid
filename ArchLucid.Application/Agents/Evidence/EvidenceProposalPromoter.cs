@@ -7,12 +7,16 @@ namespace ArchLucid.Application.Agents.Evidence;
 
 public sealed class EvidenceProposalPromoter(
     IAgentResultRepository agentResultRepository,
+    IAgentResultEnrichmentRepository agentResultEnrichmentRepository,
     ITenantCuratedEvidenceRepository curatedEvidenceRepository,
     IScopeContextProvider scopeContextProvider,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory) : IEvidenceProposalPromoter
 {
     private readonly IAgentResultRepository _agentResultRepository =
         agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
+
+    private readonly IAgentResultEnrichmentRepository _agentResultEnrichmentRepository =
+        agentResultEnrichmentRepository ?? throw new ArgumentNullException(nameof(agentResultEnrichmentRepository));
 
     private readonly ITenantCuratedEvidenceRepository _curatedEvidenceRepository =
         curatedEvidenceRepository ?? throw new ArgumentNullException(nameof(curatedEvidenceRepository));
@@ -99,7 +103,7 @@ public sealed class EvidenceProposalPromoter(
                 uow.Transaction)
             .ConfigureAwait(false);
 
-        await _agentResultRepository
+        await _agentResultEnrichmentRepository
             .MarkEvidenceProposalPromotedAsync(resultId, cancellationToken, uow.Connection, uow.Transaction)
             .ConfigureAwait(false);
 
@@ -126,7 +130,7 @@ public sealed class EvidenceProposalPromoter(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        await _agentResultRepository
+        await _agentResultEnrichmentRepository
             .MarkEvidenceProposalPromotedAsync(resultId, cancellationToken)
             .ConfigureAwait(false);
 

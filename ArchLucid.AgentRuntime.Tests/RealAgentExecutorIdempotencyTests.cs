@@ -25,7 +25,7 @@ public sealed class RealAgentExecutorIdempotencyTests
     {
         CountingStubHandler topology = new(AgentType.Topology);
         CountingStubHandler compliance = new(AgentType.Compliance);
-        InMemoryAgentResultRepository resultRepository = new();
+        InMemoryAgentResultRepository resultRepository = new(new InMemoryAgentResultEnrichmentRepository());
         string runId = Guid.NewGuid().ToString("N");
 
         AgentResult persistedTopology = new()
@@ -66,7 +66,7 @@ public sealed class RealAgentExecutorIdempotencyTests
     public async Task ExecuteAsync_when_persisted_degraded_result_exists_reinvokes_handler()
     {
         CountingStubHandler topology = new(AgentType.Topology);
-        InMemoryAgentResultRepository resultRepository = new();
+        InMemoryAgentResultRepository resultRepository = new(new InMemoryAgentResultEnrichmentRepository());
         string runId = Guid.NewGuid().ToString("N");
 
         AgentResult degraded = new()

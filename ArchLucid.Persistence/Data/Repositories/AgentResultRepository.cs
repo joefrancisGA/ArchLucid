@@ -16,8 +16,12 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory) : IAgentResultRepository
+public sealed class AgentResultRepository(
+    IDbConnectionFactory connectionFactory,
+    IAgentResultEnrichmentRepository agentResultEnrichmentRepository) : IAgentResultRepository
 {
+    private readonly IAgentResultEnrichmentRepository _agentResultEnrichmentRepository =
+        agentResultEnrichmentRepository ?? throw new ArgumentNullException(nameof(agentResultEnrichmentRepository));
     /// <summary>
     ///     Persists one agent result row. Duplicate <c>(RunId, TaskId)</c> inserts fail with
     ///     <see cref="ArchLucid.Core.Persistence.AgentResultDuplicateConflictException" /> (see TB-201 unique index).
@@ -117,95 +121,15 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             return;
 
         List<string> distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
-        if (distinctRunIds.Count > 1)
 
+        if (distinctRunIds.Count > 1)
             throw new ArgumentException(
-                $"All results in a batch must belong to the same run. " +
-                $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
+                $"All results in a batch must belong to the same run. Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(results));
 
-        // Delete all existing results for this run before bulk-inserting so that a retry
-        // of ExecuteRunAsync (inside IArchLucidUnitOfWork) does not produce duplicate rows.
-        const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId;";
-
-        const string insertSql = """
-                                 INSERT INTO AgentResults
-                                 (
-                                     ResultId,
-                                     TaskId,
-                                     RunId,
-                                     AgentType,
-                                     Confidence,
-                                     CalibratedConfidence,
-                                     ProposedEvidenceJson,
-                                     PromptVariantKey,
-                                     ResultJson,
-                                     CreatedUtc
-                                 )
-                                 VALUES
-                                 (
-                                     @ResultId,
-                                     @TaskId,
-                                     @RunId,
-                                     @AgentType,
-                                     @Confidence,
-                                     @CalibratedConfidence,
-                                     @ProposedEvidenceJson,
-                                     @PromptVariantKey,
-                                     @ResultJson,
-                                     @CreatedUtc
-                                 );
-                                 """;
-
-        IEnumerable<object> args = results.Select(result => (object)new
+        foreach (AgentResult result in results)
         {
-            result.ResultId,
-            result.TaskId,
-            result.RunId,
-            AgentType = result.AgentType.ToString(),
-            result.Confidence,
-            result.CalibratedConfidence,
-            ProposedEvidenceJson = result.ProposedEvidenceJson,
-            PromptVariantKey = result.PromptVariantKey,
-            ResultJson = JsonSerializer.Serialize(result, ContractJson.Default),
-            result.CreatedUtc
-        });
-
-        (IDbConnection conn, bool ownsConnection) =
-            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
-
-        try
-        {
-            if (transaction is not null)
-            {
-                await conn.ExecuteAsync(new CommandDefinition(
-                    deleteSql,
-                    new { results[0].RunId },
-                    transaction,
-                    cancellationToken: cancellationToken));
-
-                await conn.ExecuteAsync(new CommandDefinition(insertSql, args, transaction,
-                    cancellationToken: cancellationToken));
-            }
-            else
-            {
-                using IDbTransaction tx = conn.BeginTransaction();
-
-                await conn.ExecuteAsync(new CommandDefinition(
-                    deleteSql,
-                    new { results[0].RunId },
-                    tx,
-                    cancellationToken: cancellationToken));
-
-                await conn.ExecuteAsync(
-                    new CommandDefinition(insertSql, args, tx, cancellationToken: cancellationToken));
-
-                tx.Commit();
-            }
-        }
-        finally
-        {
-            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+            await CreateAsync(result, cancellationToken, connection, transaction).ConfigureAwait(false);
         }
     }
 
@@ -275,66 +199,12 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             results.Add(result);
         }
 
-        return results;
-    }
+        IReadOnlyDictionary<string, AgentResultEnrichmentRecord> enrichments =
+            await _agentResultEnrichmentRepository.GetByResultIdsAsync(
+                results.Select(static r => r.ResultId).ToList(),
+                cancellationToken).ConfigureAwait(false);
 
-    public async Task PatchCalibratedConfidenceAsync(
-        string resultId,
-        double calibratedConfidence,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
-
-        const string sql = """
-                           UPDATE AgentResults
-                           SET CalibratedConfidence = @CalibratedConfidence
-                           WHERE ResultId = @ResultId;
-                           """;
-
-        (IDbConnection conn, bool ownsConnection) =
-            await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
-
-        try
-        {
-            await conn.ExecuteAsync(new CommandDefinition(
-                sql,
-                new { ResultId = resultId, CalibratedConfidence = calibratedConfidence },
-                cancellationToken: cancellationToken));
-        }
-        finally
-        {
-            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
-        }
-    }
-
-    public async Task PatchProposedEvidenceJsonAsync(
-        string resultId,
-        string proposedEvidenceJson,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
-        ArgumentException.ThrowIfNullOrWhiteSpace(proposedEvidenceJson);
-
-        const string sql = """
-                           UPDATE AgentResults
-                           SET ProposedEvidenceJson = @ProposedEvidenceJson
-                           WHERE ResultId = @ResultId;
-                           """;
-
-        (IDbConnection conn, bool ownsConnection) =
-            await ExternalDbConnection.ResolveAsync(connectionFactory, null, cancellationToken);
-
-        try
-        {
-            await conn.ExecuteAsync(new CommandDefinition(
-                sql,
-                new { ResultId = resultId, ProposedEvidenceJson = proposedEvidenceJson },
-                cancellationToken: cancellationToken));
-        }
-        finally
-        {
-            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
-        }
+        return AgentResultEnrichmentMerger.Apply(results, enrichments);
     }
 
     public async Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
@@ -352,9 +222,11 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                           ar.CreatedUtc,
                           CAST(0 AS BIT) AS IsPromoted
                       FROM AgentResults AS ar
+                      LEFT JOIN dbo.AgentResultEnrichments AS enr ON enr.ResultId = ar.ResultId
                       {RunChildRunScopeSql.InnerJoinRuns("ar")}
                       WHERE ar.ProposedEvidenceJson IS NOT NULL
                         AND ar.EvidenceProposalPromotedUtc IS NULL
+                        AND enr.EvidenceProposalPromotedUtc IS NULL
                         AND {RunChildRunScopeSql.ScopeWhereClause}
                         AND NOT EXISTS (
                             SELECT 1
@@ -399,7 +271,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                           ar.ProposedEvidenceJson,
                           ar.CreatedUtc,
                           CASE
-                              WHEN ar.EvidenceProposalPromotedUtc IS NOT NULL
+                              WHEN enr.EvidenceProposalPromotedUtc IS NOT NULL
+                                   OR ar.EvidenceProposalPromotedUtc IS NOT NULL
                                    OR EXISTS (
                                        SELECT 1
                                        FROM TenantCuratedEvidenceEntries AS tce
@@ -409,6 +282,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                               ELSE CAST(0 AS BIT)
                           END AS IsPromoted
                       FROM AgentResults AS ar
+                      LEFT JOIN dbo.AgentResultEnrichments AS enr ON enr.ResultId = ar.ResultId
                       {RunChildRunScopeSql.InnerJoinRuns("ar")}
                       WHERE ar.ResultId = @ResultId
                         AND ar.ProposedEvidenceJson IS NOT NULL
@@ -430,45 +304,6 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
                     ScopeProjectId = scope.ProjectId,
                 },
                 cancellationToken: cancellationToken));
-        }
-        finally
-        {
-            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
-        }
-    }
-
-    public async Task MarkEvidenceProposalPromotedAsync(
-        string resultId,
-        CancellationToken cancellationToken = default,
-        IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(resultId);
-
-        const string sql = """
-                           UPDATE AgentResults
-                           SET EvidenceProposalPromotedUtc = @PromotedUtc
-                           WHERE ResultId = @ResultId
-                             AND EvidenceProposalPromotedUtc IS NULL;
-                           """;
-
-        (IDbConnection conn, bool ownsConnection) =
-            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
-
-        try
-        {
-            int rows = await conn.ExecuteAsync(new CommandDefinition(
-                sql,
-                new
-                {
-                    ResultId = resultId,
-                    PromotedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-                },
-                transaction: transaction,
-                cancellationToken: cancellationToken));
-
-            if (rows == 0)
-                throw new InvalidOperationException($"Evidence proposal '{resultId}' is already promoted or missing.");
         }
         finally
         {

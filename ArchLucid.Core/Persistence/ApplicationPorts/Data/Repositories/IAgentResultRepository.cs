@@ -7,13 +7,11 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-///     Persistence interface for <see cref="AgentResult" /> records produced during an architecture run.
+///     Persistence interface for commit-sealed <see cref="AgentResult" /> rows (insert-only in SQL; TB-303).
+///     Post-commit enrichments use <see cref="IAgentResultEnrichmentRepository" />.
 /// </summary>
 public interface IAgentResultRepository
 {
-    /// <summary>Persists a single agent result.</summary>
-    /// <param name="result">The result to store.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
     Task CreateAsync(
         AgentResult result,
         CancellationToken cancellationToken = default,
@@ -21,40 +19,21 @@ public interface IAgentResultRepository
         IDbTransaction? transaction = null);
 
     /// <summary>
-    ///     Persists multiple agent results in a single operation.
-    ///     Implementations should use an idempotent delete-then-insert strategy within a transaction
-    ///     to allow safe retries.
+    ///     Inserts multiple agent results for one run. Duplicate <c>(RunId, TaskId)</c> throws
+    ///     <see cref="ArchLucid.Core.Persistence.AgentResultDuplicateConflictException" />.
     /// </summary>
-    /// <param name="results">The results to store.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
     Task CreateManyAsync(
         IReadOnlyList<AgentResult> results,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
 
-    /// <summary>
-    ///     Returns all agent results for the specified run, in creation order.
-    ///     Returns an empty collection when the run exists but has no results yet.
-    /// </summary>
-    /// <param name="runId">The run identifier to query.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
     Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
         ScopeContext scope,
         string runId,
         CancellationToken cancellationToken = default,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
-
-    Task PatchCalibratedConfidenceAsync(
-        string resultId,
-        double calibratedConfidence,
-        CancellationToken cancellationToken = default);
-
-    Task PatchProposedEvidenceJsonAsync(
-        string resultId,
-        string proposedEvidenceJson,
-        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
         ScopeContext scope,
@@ -64,10 +43,4 @@ public interface IAgentResultRepository
         ScopeContext scope,
         string resultId,
         CancellationToken cancellationToken = default);
-
-    Task MarkEvidenceProposalPromotedAsync(
-        string resultId,
-        CancellationToken cancellationToken = default,
-        IDbConnection? connection = null,
-        IDbTransaction? transaction = null);
 }

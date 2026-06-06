@@ -8597,8 +8597,128 @@ BEGIN
         CONSTRAINT PK_BackfillFailures PRIMARY KEY (Stage, EntityKey)
     );
 
-    CREATE NONCLUSTERED INDEX IX_BackfillFailures_Stage_Skipped
-        ON dbo.BackfillFailures (Stage, SkippedAfterMaxRetries)
-        INCLUDE (FailureCount, LastAttemptUtc);
+/* TB-303 / Migration 247: commit-sealed evidence immutability + post-commit agent-result enrichments. */
+IF OBJECT_ID(N'dbo.AgentResultEnrichments', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AgentResultEnrichments
+    (
+        ResultId                      NVARCHAR(64)  NOT NULL PRIMARY KEY,
+        CalibratedConfidence          FLOAT         NULL,
+        EnrichedResultJson            NVARCHAR(MAX) NULL,
+        EvidenceProposalPromotedUtc   DATETIME2     NULL,
+        UpdatedUtc                    DATETIME2     NOT NULL,
+        CONSTRAINT FK_AgentResultEnrichments_Result
+            FOREIGN KEY (ResultId) REFERENCES dbo.AgentResults (ResultId)
+    );
 END;
+GO
+
+IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'UX_AgentEvidencePackages_RunId'
+         AND object_id = OBJECT_ID(N'dbo.AgentEvidencePackages'))
+BEGIN
+    CREATE UNIQUE NONCLUSTERED INDEX UX_AgentEvidencePackages_RunId
+        ON dbo.AgentEvidencePackages (RunId);
+END;
+GO
+
+DECLARE @SealedTables247 TABLE (TableName SYSNAME NOT NULL PRIMARY KEY);
+INSERT INTO @SealedTables247 (TableName)
+VALUES
+    (N'dbo.AuditEvents'),
+    (N'dbo.AgentResults'),
+    (N'dbo.AgentEvidencePackages'),
+    (N'dbo.DecisionTraces'),
+    (N'dbo.DecisionNodes'),
+    (N'dbo.DecisioningTraces'),
+    (N'dbo.ContextSnapshots'),
+    (N'dbo.ContextSnapshotCanonicalObjects'),
+    (N'dbo.ContextSnapshotCanonicalObjectProperties'),
+    (N'dbo.ContextSnapshotWarnings'),
+    (N'dbo.ContextSnapshotErrors'),
+    (N'dbo.ContextSnapshotSourceHashes'),
+    (N'dbo.GraphSnapshots'),
+    (N'dbo.GraphSnapshotEdges'),
+    (N'dbo.GraphSnapshotNodes'),
+    (N'dbo.GraphSnapshotNodeProperties'),
+    (N'dbo.GraphSnapshotEdgeProperties'),
+    (N'dbo.GraphSnapshotWarnings'),
+    (N'dbo.FindingsSnapshots'),
+    (N'dbo.FindingRecords'),
+    (N'dbo.FindingRelatedNodes'),
+    (N'dbo.FindingRecommendedActions'),
+    (N'dbo.FindingProperties'),
+    (N'dbo.FindingTraceGraphNodesExamined'),
+    (N'dbo.FindingTraceRulesApplied'),
+    (N'dbo.FindingTraceDecisionsTaken'),
+    (N'dbo.FindingTraceAlternativePaths'),
+    (N'dbo.FindingTraceNotes'),
+    (N'dbo.GoldenManifests'),
+    (N'dbo.GoldenManifestAssumptions'),
+    (N'dbo.GoldenManifestWarnings'),
+    (N'dbo.GoldenManifestDecisions'),
+    (N'dbo.GoldenManifestDecisionEvidenceLinks'),
+    (N'dbo.GoldenManifestDecisionNodeLinks'),
+    (N'dbo.GoldenManifestProvenanceSourceFindings'),
+    (N'dbo.GoldenManifestProvenanceSourceGraphNodes'),
+    (N'dbo.GoldenManifestProvenanceAppliedRules'),
+    (N'dbo.ArtifactBundles'),
+    (N'dbo.ArtifactBundleArtifacts'),
+    (N'dbo.ArtifactBundleArtifactMetadata'),
+    (N'dbo.ArtifactBundleArtifactDecisionLinks'),
+    (N'dbo.ArtifactBundleTraceGenerators'),
+    (N'dbo.ArtifactBundleTraceDecisionLinks'),
+    (N'dbo.ArtifactBundleTraceNotes');
+
+DECLARE @TableName247 SYSNAME;
+DECLARE @Sql247 NVARCHAR(MAX);
+
+DECLARE sealed247_cursor CURSOR LOCAL FAST_FORWARD FOR
+    SELECT TableName FROM @SealedTables247;
+
+OPEN sealed247_cursor;
+FETCH NEXT FROM sealed247_cursor INTO @TableName247;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
+       AND OBJECT_ID(@TableName247, N'U') IS NOT NULL
+       AND NOT EXISTS (
+           SELECT 1
+           FROM sys.database_permissions AS dp
+           INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+           WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+             AND dp.major_id = OBJECT_ID(@TableName247)
+             AND dp.permission_name = N'UPDATE'
+             AND dp.state_desc = N'DENY'
+             AND gp.name = N'ArchLucidApp')
+    BEGIN
+        SET @Sql247 = N'DENY UPDATE ON ' + @TableName247 + N' TO [ArchLucidApp];';
+        EXEC sp_executesql @Sql247;
+    END;
+
+    IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
+       AND OBJECT_ID(@TableName247, N'U') IS NOT NULL
+       AND NOT EXISTS (
+           SELECT 1
+           FROM sys.database_permissions AS dp
+           INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+           WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+             AND dp.major_id = OBJECT_ID(@TableName247)
+             AND dp.permission_name = N'DELETE'
+             AND dp.state_desc = N'DENY'
+             AND gp.name = N'ArchLucidApp')
+    BEGIN
+        SET @Sql247 = N'DENY DELETE ON ' + @TableName247 + N' TO [ArchLucidApp];';
+        EXEC sp_executesql @Sql247;
+    END;
+
+    FETCH NEXT FROM sealed247_cursor INTO @TableName247;
+END;
+
+CLOSE sealed247_cursor;
+DEALLOCATE sealed247_cursor;
 GO

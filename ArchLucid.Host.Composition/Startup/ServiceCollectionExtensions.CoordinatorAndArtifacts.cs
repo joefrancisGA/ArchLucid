@@ -110,6 +110,7 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IIdempotencyRecordRepository, InMemoryIdempotencyRecordRepository>();
             services.AddSingleton<IProjectRoleAssignmentRepository, InMemoryProjectRoleAssignmentRepository>();
             services.AddSingleton<IAgentTaskRepository, InMemoryAgentTaskRepository>();
+            services.AddSingleton<IAgentResultEnrichmentRepository, InMemoryAgentResultEnrichmentRepository>();
             services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
             services.AddSingleton<IAgentEvaluationRepository, InMemoryAgentEvaluationRepository>();
             services.AddSingleton<IDecisionNodeRepository, InMemoryDecisionNodeRepository>();
@@ -133,6 +134,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IIdempotencyRecordRepository, IdempotencyRecordRepository>();
         services.AddScoped<IProjectRoleAssignmentRepository, ProjectRoleAssignmentRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
+        services.AddScoped<IAgentResultEnrichmentRepository, AgentResultEnrichmentRepository>();
         services.AddScoped<IAgentResultRepository, AgentResultRepository>();
         services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();
         services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();

@@ -1,9 +1,12 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -12,7 +15,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.Tests.Agents.IaC;
 
 [Trait("Suite", "Core")]
@@ -64,11 +66,14 @@ public sealed class FindingIacStubGeneratorTests
             .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([result]);
 
-        List<AgentResult>? persisted = null;
-        resultRepository
-            .Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>(), null, null))
-            .Callback<IReadOnlyList<AgentResult>, CancellationToken, System.Data.IDbConnection?, System.Data.IDbTransaction?>(
-                (rows, _, _, _) => persisted = rows.ToList())
+        string? persistedJson = null;
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+        enrichmentRepository
+            .Setup(r => r.UpsertEnrichedResultJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, string, CancellationToken>((_, json, _) => persistedJson = json)
             .Returns(Task.CompletedTask);
 
         Mock<IScopeContextProvider> scopeContextProvider = new();
@@ -77,15 +82,18 @@ public sealed class FindingIacStubGeneratorTests
         FindingIacStubGenerator sut = new(
             completionClient.Object,
             resultRepository.Object,
+            enrichmentRepository.Object,
             scopeContextProvider.Object,
             NullLogger<FindingIacStubGenerator>.Instance);
 
         await sut.GenerateAndPersistStubsForRunAsync("run-1", CancellationToken.None);
 
+        persistedJson.Should().NotBeNullOrWhiteSpace();
+
+        AgentResult? persisted = JsonSerializer.Deserialize<AgentResult>(persistedJson!, ContractJson.Default);
         persisted.Should().NotBeNull();
-        persisted!.Should().ContainSingle();
-        ArchitectureFinding findingWithEvidence = persisted[0].Findings.Single(f => f.FindingId == "finding-1");
-        ArchitectureFinding findingWithoutEvidence = persisted[0].Findings.Single(f => f.FindingId == "finding-2");
+        ArchitectureFinding findingWithEvidence = persisted!.Findings.Single(f => f.FindingId == "finding-1");
+        ArchitectureFinding findingWithoutEvidence = persisted.Findings.Single(f => f.FindingId == "finding-2");
         findingWithEvidence.IacStub.Should().NotBeNullOrWhiteSpace();
         findingWithEvidence.IacStub.Should().Contain("AI-generated stub");
         findingWithoutEvidence.IacStub.Should().BeNull();

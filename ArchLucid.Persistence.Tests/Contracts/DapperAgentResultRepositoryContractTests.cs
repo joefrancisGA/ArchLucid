@@ -19,7 +19,10 @@ public sealed class DapperAgentResultRepositoryContractTests(SqlServerPersistenc
 
     protected override IAgentResultRepository CreateRepository()
     {
-        return new AgentResultRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
+        TestSqlDbConnectionFactory connectionFactory = new(fixture.ConnectionString);
+        AgentResultEnrichmentRepository enrichmentRepository = new(connectionFactory);
+
+        return new AgentResultRepository(connectionFactory, enrichmentRepository);
     }
 
     protected override async Task PrepareRunTaskChainAsync(string requestId, string runId, AgentTask task,

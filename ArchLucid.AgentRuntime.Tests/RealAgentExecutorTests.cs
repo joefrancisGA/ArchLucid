@@ -70,7 +70,7 @@ public sealed class RealAgentExecutorTests
             Options.Create(new AgentOutputQualityGateOptions()),
             promptRedactor,
             archLucidLlm,
-            new InMemoryAgentResultRepository());
+            new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository()));
     }
 
     [SkippableFact]

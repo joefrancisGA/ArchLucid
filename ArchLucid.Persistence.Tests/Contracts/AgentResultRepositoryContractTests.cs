@@ -54,7 +54,7 @@ public abstract class AgentResultRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task CreateMany_replaces_prior_results_for_same_run()
+    public async Task CreateMany_throws_when_task_already_exists_for_run()
     {
         SkipIfSqlServerUnavailable();
         IAgentResultRepository repo = CreateRepository();
@@ -67,14 +67,11 @@ public abstract class AgentResultRepositoryContractTests
         await repo.CreateAsync(NewResult(runId, task.TaskId, "old", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
             CancellationToken.None);
 
-        await repo.CreateManyAsync(
+        Func<Task> act = () => repo.CreateManyAsync(
             [NewResult(runId, task.TaskId, "new", TimeProvider.System.UtcNowDateTime())],
             CancellationToken.None);
 
-        IReadOnlyList<AgentResult> loaded = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
-
-        loaded.Should().ContainSingle();
-        loaded[0].ResultId.Should().Be("new");
+        await act.Should().ThrowAsync<AgentResultDuplicateConflictException>();
     }
 
     [SkippableFact]

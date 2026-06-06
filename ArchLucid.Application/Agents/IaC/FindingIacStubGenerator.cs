@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
@@ -15,6 +16,7 @@ namespace ArchLucid.Application.Agents.IaC;
 public sealed class FindingIacStubGenerator(
     IAgentCompletionClient completionClient,
     IAgentResultRepository agentResultRepository,
+    IAgentResultEnrichmentRepository agentResultEnrichmentRepository,
     IScopeContextProvider scopeContextProvider,
     ILogger<FindingIacStubGenerator> logger) : IFindingIacStubGenerator
 {
@@ -31,6 +33,9 @@ public sealed class FindingIacStubGenerator(
 
     private readonly IAgentResultRepository _agentResultRepository = agentResultRepository
                                                                      ?? throw new ArgumentNullException(nameof(agentResultRepository));
+
+    private readonly IAgentResultEnrichmentRepository _agentResultEnrichmentRepository =
+        agentResultEnrichmentRepository ?? throw new ArgumentNullException(nameof(agentResultEnrichmentRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -80,7 +85,13 @@ public sealed class FindingIacStubGenerator(
         if (updatedResults.Count == 0)
             return;
 
-        await _agentResultRepository.CreateManyAsync(updatedResults, cancellationToken);
+        foreach (AgentResult updatedResult in updatedResults)
+        {
+            string json = System.Text.Json.JsonSerializer.Serialize(updatedResult, ContractJson.Default);
+            await _agentResultEnrichmentRepository
+                .UpsertEnrichedResultJsonAsync(updatedResult.ResultId, json, cancellationToken)
+                .ConfigureAwait(false);
+        }
     }
 
     private static string EnsureDisclaimerLine(string stub)

@@ -5,9 +5,12 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -22,12 +25,6 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evidencePackage);
-
-        // Delete any existing package for this run before inserting so that a retry
-        // (e.g. after a partial failure in ExecuteRunAsync) does not accumulate stale rows.
-        const string deleteSql = """
-                                 DELETE FROM AgentEvidencePackages WHERE RunId = @RunId;
-                                 """;
 
         const string insertSql = """
                                  INSERT INTO AgentEvidencePackages
@@ -76,12 +73,6 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             if (transaction is not null)
             {
                 await conn.ExecuteAsync(new CommandDefinition(
-                    deleteSql,
-                    new { evidencePackage.RunId },
-                    transaction,
-                    cancellationToken: cancellationToken));
-
-                await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
                     transaction,
@@ -89,22 +80,17 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             }
             else
             {
-                using IDbTransaction tx = conn.BeginTransaction();
-
-                await conn.ExecuteAsync(new CommandDefinition(
-                    deleteSql,
-                    new { evidencePackage.RunId },
-                    tx,
-                    cancellationToken: cancellationToken));
-
                 await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
-                    tx,
                     cancellationToken: cancellationToken));
-
-                tx.Commit();
             }
+        }
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
+        {
+            throw new InvalidOperationException(
+                $"An evidence package already exists for run '{evidencePackage.RunId}'. Retries must roll back the enclosing unit of work.",
+                ex);
         }
         finally
         {

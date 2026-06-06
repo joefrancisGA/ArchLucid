@@ -9434,3 +9434,23 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope for this item:** Replacing Worker/outbox mechanics (addressed in 2026-06-06 durability fixes). Full DTF replay remains **6f** / V1.1 evaluation.
 
 **Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6r; [`ORCHESTRATOR_RETRIES.md`](ORCHESTRATOR_RETRIES.md); ADR-0038.
+
+---
+
+## TB-303 — Commit-sealed evidence immutability (V1.1)
+
+**Status:** **Done** (2026-06-06).
+
+**Problem:** Audit events were append-only with SQL DENY + startup probe, but golden manifests, agent results, bundles, snapshots, and decision traces could still be rewritten after commit (e.g. agent-result delete-then-insert on retry). Regulated proof required a single enforced boundary.
+
+**Shipped:**
+
+1. `SealedEvidenceTableRegistry` + migration **247** / `ArchLucid.sql` — `DENY UPDATE/DELETE` on sealed tables for `[ArchLucidApp]`.
+2. `dbo.AgentResultEnrichments` overlay for post-commit calibration, IaC stubs, and proposal promotion; `AgentResults` insert-only.
+3. `SqlSealedEvidenceImmutabilityRules` startup probe (production-like SQL hosts fail closed).
+4. Repository fixes: no delete-then-insert on agent results or evidence packages; duplicate `(RunId, TaskId)` throws.
+5. ADR **0039**, [`EVIDENCE_IMMUTABILITY.md`](EVIDENCE_IMMUTABILITY.md), architecture + SQL integration tests.
+
+**Out of scope:** Hash-linked lineage (#6), sealing `dbo.Runs` header, versioned evidence rows.
+
+**Refs:** ADR-0039; TB-302; ADR-0038.

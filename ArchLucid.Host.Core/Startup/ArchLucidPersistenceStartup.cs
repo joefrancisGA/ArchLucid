@@ -200,6 +200,7 @@ public static class ArchLucidPersistenceStartup
                     DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
 
                 TryValidateAuditImmutabilityIfRequired(app, archLucidOptions);
+                TryValidateSealedEvidenceImmutabilityIfRequired(app, archLucidOptions);
             }
         }
 
@@ -250,5 +251,25 @@ public static class ArchLucidPersistenceStartup
         app.Logger.LogInformation("Startup: validating audit immutability on tenant catalog.");
 
         SqlAuditImmutabilityRules.ValidateOrThrow(connectionString, app.Logger);
+    }
+
+    private static void TryValidateSealedEvidenceImmutabilityIfRequired(WebApplication app, ArchLucidOptions archLucidOptions)
+    {
+        if (!SqlSealedEvidenceImmutabilityRules.ShouldValidate(app.Environment, app.Configuration, archLucidOptions))
+            return;
+
+        string? connectionString = SqlSealedEvidenceImmutabilityRules.ResolveCatalogConnectionString(app.Configuration);
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException(
+                "Sealed evidence immutability validation requires a tenant catalog connection in production-like hosts. "
+                + "Configure ConnectionStrings:ArchLucid (SingleCatalog) or ArchLucid:SqlTopology:DevelopmentTenantConnectionString "
+                + "(SystemWithPerTenantCatalogs template catalog).");
+        }
+
+        app.Logger.LogInformation("Startup: validating sealed evidence immutability on tenant catalog.");
+
+        SqlSealedEvidenceImmutabilityRules.ValidateOrThrow(connectionString, app.Logger);
     }
 }

@@ -17,6 +17,8 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 /// </summary>
 internal static class SqlAuditImmutabilityRules
 {
+    private const string AuditEventsTableName = "dbo.AuditEvents";
+
     internal static bool ShouldValidate(
         IHostEnvironment environment,
         IConfiguration configuration,
@@ -65,7 +67,7 @@ internal static class SqlAuditImmutabilityRules
             using SqlConnection connection = new(connectionString);
             connection.Open();
 
-            if (!RoleExists(connection, "ArchLucidApp"))
+            if (!SqlDatabaseImmutabilityProbeHelpers.RoleExists(connection, SqlDatabaseImmutabilityProbeHelpers.ApplicationDatabaseRoleName))
             {
                 errors.Add(
                     "Audit immutability: database role [ArchLucidApp] is missing. Create the role, grant least-privilege DML, "
@@ -73,14 +75,22 @@ internal static class SqlAuditImmutabilityRules
             }
             else
             {
-                if (!HasDenyPermission(connection, "ArchLucidApp", "UPDATE"))
+                if (!SqlDatabaseImmutabilityProbeHelpers.HasDenyPermission(
+                        connection,
+                        AuditEventsTableName,
+                        SqlDatabaseImmutabilityProbeHelpers.ApplicationDatabaseRoleName,
+                        "UPDATE"))
                 {
                     errors.Add(
                         "Audit immutability: DENY UPDATE on dbo.AuditEvents for [ArchLucidApp] is missing "
                         + "(migration 051 / append-only audit).");
                 }
 
-                if (!HasDenyPermission(connection, "ArchLucidApp", "DELETE"))
+                if (!SqlDatabaseImmutabilityProbeHelpers.HasDenyPermission(
+                        connection,
+                        AuditEventsTableName,
+                        SqlDatabaseImmutabilityProbeHelpers.ApplicationDatabaseRoleName,
+                        "DELETE"))
                 {
                     errors.Add(
                         "Audit immutability: DENY DELETE on dbo.AuditEvents for [ArchLucidApp] is missing "
@@ -88,16 +98,16 @@ internal static class SqlAuditImmutabilityRules
                 }
             }
 
-            if (ObjectExists(connection, "dbo.AuditEvents"))
+            if (SqlDatabaseImmutabilityProbeHelpers.ObjectExists(connection, AuditEventsTableName))
             {
-                if (HasEffectivePermission(connection, "UPDATE"))
+                if (SqlDatabaseImmutabilityProbeHelpers.HasEffectivePermission(connection, AuditEventsTableName, "UPDATE"))
                 {
                     errors.Add(
                         "Audit immutability: the connected SQL principal has UPDATE on dbo.AuditEvents; "
                         + "connect as [ArchLucidApp] (not db_owner/dbo) in production-like hosts.");
                 }
 
-                if (HasEffectivePermission(connection, "DELETE"))
+                if (SqlDatabaseImmutabilityProbeHelpers.HasEffectivePermission(connection, AuditEventsTableName, "DELETE"))
                 {
                     errors.Add(
                         "Audit immutability: the connected SQL principal has DELETE on dbo.AuditEvents; "
@@ -125,64 +135,5 @@ internal static class SqlAuditImmutabilityRules
             "Audit immutability validation failed in a production-like host:"
             + Environment.NewLine
             + string.Join(Environment.NewLine, errors.Select(static e => " - " + e)));
-    }
-
-    private static bool ObjectExists(SqlConnection connection, string twoPartName)
-    {
-        const string sql = "SELECT OBJECT_ID(@ObjectName, N'U');";
-
-        using SqlCommand command = new(sql, connection);
-        command.Parameters.Add(new SqlParameter("@ObjectName", SqlDbType.NVarChar, 256) { Value = twoPartName });
-
-        object? scalar = command.ExecuteScalar();
-
-        return scalar is not null and not DBNull;
-    }
-
-    private static bool RoleExists(SqlConnection connection, string roleName)
-    {
-        const string sql = """
-                           SELECT CASE WHEN DATABASE_PRINCIPAL_ID(@RoleName) IS NULL THEN 0 ELSE 1 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        command.Parameters.Add(new SqlParameter("@RoleName", SqlDbType.NVarChar, 128) { Value = roleName });
-
-        return Convert.ToInt32(command.ExecuteScalar()) == 1;
-    }
-
-    private static bool HasDenyPermission(SqlConnection connection, string granteeName, string permissionName)
-    {
-        const string sql = """
-                           SELECT CASE WHEN EXISTS (
-                               SELECT 1
-                               FROM sys.database_permissions AS dp
-                               INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
-                               WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
-                                 AND dp.major_id = OBJECT_ID(N'dbo.AuditEvents')
-                                 AND dp.permission_name = @PermissionName
-                                 AND dp.state_desc = N'DENY'
-                                 AND gp.name = @GranteeName)
-                           THEN 1 ELSE 0 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        command.Parameters.Add(new SqlParameter("@PermissionName", SqlDbType.NVarChar, 128) { Value = permissionName });
-        command.Parameters.Add(new SqlParameter("@GranteeName", SqlDbType.NVarChar, 128) { Value = granteeName });
-
-        return Convert.ToInt32(command.ExecuteScalar()) == 1;
-    }
-
-    private static bool HasEffectivePermission(SqlConnection connection, string permissionName)
-    {
-        const string sql = """
-                           SELECT CASE WHEN HAS_PERMS_BY_NAME(N'dbo.AuditEvents', N'OBJECT', @PermissionName) = 1
-                           THEN 1 ELSE 0 END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        command.Parameters.Add(new SqlParameter("@PermissionName", SqlDbType.NVarChar, 128) { Value = permissionName });
-
-        return Convert.ToInt32(command.ExecuteScalar()) == 1;
     }
 }

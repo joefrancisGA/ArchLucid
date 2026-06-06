@@ -8,6 +8,6 @@ public sealed class InMemoryAgentResultRepositoryContractTests : AgentResultRepo
 {
     protected override IAgentResultRepository CreateRepository()
     {
-        return new InMemoryAgentResultRepository();
+        return new InMemoryAgentResultRepository(new InMemoryAgentResultEnrichmentRepository());
     }
 }

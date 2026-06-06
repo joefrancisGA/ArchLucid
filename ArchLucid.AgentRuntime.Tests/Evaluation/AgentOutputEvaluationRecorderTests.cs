@@ -80,7 +80,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         Mock<IOptionsMonitor<AgentExecutionOptions>> agentExecutionOptions = new();
         agentExecutionOptions.Setup(o => o.CurrentValue).Returns(new AgentExecutionOptions { Mode = "Simulator" });
 
-        InMemoryAgentResultRepository agentResults = new();
+        InMemoryAgentResultRepository agentResults = new(new InMemoryAgentResultEnrichmentRepository());
 
         Mock<IAgentConfidenceCalibrationService> confidenceCalibration = new();
         confidenceCalibration
