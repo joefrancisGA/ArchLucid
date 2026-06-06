@@ -200,7 +200,7 @@ public sealed class AgentExecutionTraceRecorder(
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
 
-        if (parseSucceeded && !string.IsNullOrWhiteSpace(parsedResultJson))
+        if (parseSucceeded && !string.IsNullOrWhiteSpace(parsedResultJson) && !isSimulatorExecution)
         {
             try
             {

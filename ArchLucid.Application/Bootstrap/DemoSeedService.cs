@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Authority;
@@ -38,9 +38,9 @@ namespace ArchLucid.Application.Bootstrap;
 ///     <see cref = "IAuthorityCommittedManifestChainWriter"/> in a single FK-chain insert
 ///     (Snapshot rows + GoldenManifest + AuthorityDecisionTrace). The previous
 ///     <c>ICoordinatorDecisionTraceRepository</c> second write to <c>dbo.DecisionTraces</c> was removed when
-///     the coordinator interfaces themselves were deleted in PR A3 — see
+///     the coordinator interfaces themselves were deleted in PR A3 â€” see
 ///     <c>docs/architecture/adrs/0030-coordinator-authority-pipeline-unification.md</c>.
-///     The export row is optional metadata for export history — not required for consulting DOCX replay. See
+///     The export row is optional metadata for export history â€” not required for consulting DOCX replay. See
 ///     <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
 public sealed class DemoSeedService(
@@ -126,7 +126,7 @@ public sealed class DemoSeedService(
             return;
 
         await EnsureTrialWelcomeRequestAsync(requestId, cancellationToken);
-        string legacyRunId = welcomeRunGuid.ToString("N");
+        string runId = welcomeRunGuid.ToString("D");
         const string systemName = "Contoso Online Store";
         RunRecord authorityRow = new()
         {
@@ -135,7 +135,7 @@ public sealed class DemoSeedService(
             ScopeProjectId = scope.ProjectId,
             RunId = welcomeRunGuid,
             ProjectId = systemName,
-            Description = "Trial welcome sample — ecommerce modernization to Azure.",
+            Description = "Trial welcome sample â€” ecommerce modernization to Azure.",
             CreatedUtc = TrialWelcomeSeedUtc,
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
@@ -146,7 +146,7 @@ public sealed class DemoSeedService(
         AgentTask topoTask = new()
         {
             TaskId = topoTaskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
             Objective =
                 "Propose Azure landing targets for storefront, BFF, catalog, orders, and payment integration with Front Door and private egress.",
@@ -160,7 +160,7 @@ public sealed class DemoSeedService(
         AgentTask costTask = new()
         {
             TaskId = costTaskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Cost,
             Objective =
                 "Estimate monthly run-rate for Front Door, Container Apps (consumption profile), Azure SQL (GP tier), and Redis P1 with dev/test mirrors.",
@@ -174,7 +174,7 @@ public sealed class DemoSeedService(
         AgentTask compTask = new()
         {
             TaskId = compTaskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Compliance,
             Objective =
                 "Validate PCI boundaries for checkout, EU residency for PII, Key Vault secret rotation, and Defender for Cloud baseline coverage.",
@@ -190,7 +190,7 @@ public sealed class DemoSeedService(
         {
             ResultId = topoResultId,
             TaskId = topoTaskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
             Claims =
             [
@@ -207,11 +207,11 @@ public sealed class DemoSeedService(
         {
             ResultId = costResultId,
             TaskId = costTaskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Cost,
             Claims =
             [
-                "Primary region footprint (~2k RPS peak) lands near $45–60k/month at target SKUs with reserved capacity on SQL and Front Door savings plans."
+                "Primary region footprint (~2k RPS peak) lands near $45â€“60k/month at target SKUs with reserved capacity on SQL and Front Door savings plans."
             ],
             EvidenceRefs = ["trial-welcome-cost-model-v1"],
             Confidence = 0.78,
@@ -223,7 +223,7 @@ public sealed class DemoSeedService(
         {
             ResultId = compResultId,
             TaskId = compTaskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Compliance,
             Claims =
             [
@@ -236,7 +236,7 @@ public sealed class DemoSeedService(
             CreatedUtc = TrialWelcomeSeedUtc
         };
         await resultRepository.CreateManyAsync([topoResult, costResult, compResult], cancellationToken);
-        GoldenManifest manifest = BuildTrialWelcomeManifest(legacyRunId, manifestVersion);
+        GoldenManifest manifest = BuildTrialWelcomeManifest(runId, manifestVersion);
         IReadOnlyList<Finding> findings = BuildTrialWelcomeFindings(welcomeRunGuid);
         AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(welcomeRunGuid), AuthorityDemoChainIds.ContextSnapshot(welcomeRunGuid),
             AuthorityDemoChainIds.GraphSnapshot(welcomeRunGuid), AuthorityDemoChainIds.FindingsSnapshot(welcomeRunGuid),
@@ -285,7 +285,7 @@ public sealed class DemoSeedService(
                     Name = "Executive architecture analysis (trial welcome)",
                     Format = "Markdown",
                     Content =
-                        "# Contoso Online Store — Azure migration readout\n\n"
+                        "# Contoso Online Store â€” Azure migration readout\n\n"
                         + "This sample summarizes topology, cost posture, and compliance signals seeded for trial onboarding. "
                         + "Use it to see how ArchLucid packages findings with a committed manifest and artifact bundle.",
                     ContentHash = "sha256:trial-welcome-analysis-report-v1",
@@ -487,7 +487,7 @@ public sealed class DemoSeedService(
             {
                 ManifestVersion = manifestVersion,
                 ParentManifestVersion = null,
-                ChangeDescription = "Trial welcome sample — Azure ecommerce modernization",
+                ChangeDescription = "Trial welcome sample â€” Azure ecommerce modernization",
                 DecisionTraceIds = [],
                 CreatedUtc = TrialWelcomeSeedUtc
             }
@@ -551,9 +551,9 @@ public sealed class DemoSeedService(
                 Category = "Operational",
                 EngineType = "TrialWelcomeSeed",
                 Severity = FindingSeverity.Info,
-                Title = "Synthetic canaries stop at catalog path — extend through payment sandbox",
+                Title = "Synthetic canaries stop at catalog path â€” extend through payment sandbox",
                 Rationale =
-                    "Availability tests cover storefront → BFF → catalog only. Add a nightly sandbox transaction through payment adapter with alert routing to commerce ops so silent checkout regressions surface before business hours."
+                    "Availability tests cover storefront â†’ BFF â†’ catalog only. Add a nightly sandbox transaction through payment adapter with alert routing to commerce ops so silent checkout regressions surface before business hours."
             }
         ];
     }
@@ -562,7 +562,7 @@ public sealed class DemoSeedService(
         "Contoso Online Store is retiring a decade-old monolith that still serves catalog search, cart, checkout, and payment handoff from shared VMs. "
         + "Leadership chose Azure for elastic scale ahead of peak holidays. The target exposes a React storefront on Azure Static Web Apps behind Azure Front Door with regional WAF rules, OWASP defaults, and bot management. "
         + "A Node commerce BFF runs on Azure Container Apps inside a dedicated spoke, calling catalog and order microservices that are also on Container Apps with workload identities to Azure SQL and Redis. "
-        + "Checkout never persists payment cards; instead a payment adapter integrates with an external processor over private connectivity and Key Vault–backed secrets. "
+        + "Checkout never persists payment cards; instead a payment adapter integrates with an external processor over private connectivity and Key Vaultâ€“backed secrets. "
         + "Customer profile data must stay in EU regions, so primary writes land in a West Europe Azure SQL failover group with geo-redundant backups, while media sits in zone-redundant storage accounts with lifecycle rules. "
         + "Observability standardizes on Application Insights with distributed tracing across Front Door, BFF, and downstream APIs, plus budget alerts tied to cost management exports. "
         + "Delivery follows a strangler pattern: extract catalog and inventory read paths first, then checkout orchestration, while legacy APIs remain behind compatibility routes until traffic drains. "
@@ -576,7 +576,7 @@ public sealed class DemoSeedService(
         ArchitectureRequest request = new()
         {
             RequestId = demo.RequestId,
-            Description = "Contoso Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
+            Description = "Contoso Retail modernization â€” migrate monolith checkout to Azure with PCI-aware boundaries.",
             SystemName = "Contoso Retail Platform",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
@@ -591,7 +591,7 @@ public sealed class DemoSeedService(
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null)
             return;
-        string legacyRunId = authorityRunId.ToString("N");
+        string runId = authorityRunId.ToString("D");
         RunRecord authorityRow = new()
         {
             TenantId = scope.TenantId,
@@ -601,8 +601,8 @@ public sealed class DemoSeedService(
             ProjectId = "Contoso Retail Platform",
             Description =
                 isHardened
-                    ? "Demo — Contoso retail hardened manifest (trusted baseline seed)."
-                    : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
+                    ? "Demo â€” Contoso retail hardened manifest (trusted baseline seed)."
+                    : "Demo â€” Contoso retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
             ArchitectureRequestId = demo.RequestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
@@ -612,7 +612,7 @@ public sealed class DemoSeedService(
         AgentTask task = new()
         {
             TaskId = taskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
             Objective =
                 isHardened
@@ -630,7 +630,7 @@ public sealed class DemoSeedService(
         {
             ResultId = resultId,
             TaskId = taskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
             Claims =
             [
@@ -646,7 +646,7 @@ public sealed class DemoSeedService(
         };
         await resultRepository.CreateAsync(result, cancellationToken);
         bool richSeed = IsVerticalDemoSeedDepth(_demoOptions.CurrentValue.SeedDepth);
-        GoldenManifest manifest = BuildManifest(legacyRunId, manifestVersion, isHardened, richSeed);
+        GoldenManifest manifest = BuildManifest(runId, manifestVersion, isHardened, richSeed);
         AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(authorityRunId), AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
             AuthorityDemoChainIds.GraphSnapshot(authorityRunId), AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
             AuthorityDemoChainIds.DecisionTrace(authorityRunId));
@@ -823,7 +823,7 @@ public sealed class DemoSeedService(
                 RequestedBy = "demo.architect@contoso.com",
                 ReviewedBy = "demo.reviewer@contoso.com",
                 RequestComment = "Promote hardened retail manifest to test for integration validation.",
-                ReviewComment = "Approved — controls and WAF requirements satisfied in manifest.",
+                ReviewComment = "Approved â€” controls and WAF requirements satisfied in manifest.",
                 RequestedUtc = DemoUtc,
                 ReviewedUtc = DemoUtc.AddHours(2)
             };
@@ -931,7 +931,7 @@ public sealed class DemoSeedService(
         string requestId = DemoTourWorkspaceIds.ArchitectureRequestId(scope.TenantId);
         await EnsureArchitectureRequestNorthwindTourAsync(requestId, cancellationToken);
         DateTime utc = ProductTourWorkspaceSeed.SnapshotUtc;
-        string legacyRunId = runGuid.ToString("N");
+        string runId = runGuid.ToString("D");
         string demoSuffix = ProductTourDemoSuffix(scope.TenantId);
         string taskId = $"task-product-tour-topo-{demoSuffix}";
         string resultId = $"result-product-tour-topo-{demoSuffix}";
@@ -942,7 +942,7 @@ public sealed class DemoSeedService(
             ScopeProjectId = scope.ProjectId,
             RunId = runGuid,
             ProjectId = "Contoso Cloud Platform",
-            Description = "Northwind Architects — Workspace A Product Tour (synthetic Contoso Cloud Platform review).",
+            Description = "Northwind Architects â€” Workspace A Product Tour (synthetic Contoso Cloud Platform review).",
             CreatedUtc = utc,
             ArchitectureRequestId = requestId,
             LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
@@ -952,9 +952,9 @@ public sealed class DemoSeedService(
         AgentTask task = new()
         {
             TaskId = taskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
-            Objective = "Demonstrate authoritative capture→evidence→findings→decisions spine for evaluator tour.",
+            Objective = "Demonstrate authoritative captureâ†’evidenceâ†’findingsâ†’decisions spine for evaluator tour.",
             Status = AgentTaskStatus.Completed,
             CreatedUtc = utc,
             CompletedUtc = utc,
@@ -968,7 +968,7 @@ public sealed class DemoSeedService(
         {
             ResultId = resultId,
             TaskId = taskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
             Claims =
             [
@@ -983,7 +983,7 @@ public sealed class DemoSeedService(
         };
 
         await _resultRepository.CreateAsync(result, cancellationToken);
-        GoldenManifest manifest = ProductTourWorkspaceSeed.BuildManifest(legacyRunId);
+        GoldenManifest manifest = ProductTourWorkspaceSeed.BuildManifest(runId);
         IReadOnlyList<Finding> findings = ProductTourWorkspaceSeed.BuildFindings(runGuid);
         AuthorityChainKeying chainIds = new(AuthorityDemoChainIds.Manifest(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid),
             AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.FindingsSnapshot(runGuid), AuthorityDemoChainIds.DecisionTrace(runGuid));
@@ -1036,7 +1036,7 @@ public sealed class DemoSeedService(
                     Name = "northwind-architecture-review-tour-sample.md",
                     Format = "text/markdown",
                     Content =
-                        "# Architecture review tour — synthetic export scaffold\n\n"
+                        "# Architecture review tour â€” synthetic export scaffold\n\n"
                         + "**Reviewer firm:** Northwind Architects (fabricated)\\n\\n"
                         + "**Subject system:** Contoso Cloud Platform (synthetic modernization narrative)\\n\\n"
                         + "Demonstrates how evaluators finalize a workspace and initiate export without mutating seeded authority rows.",
@@ -1074,13 +1074,13 @@ public sealed class DemoSeedService(
             RequestId = requestId,
             Description =
                 "Northwind Architects (consultant) conducts a fabricated architecture review engagement for "
-                + "the Contoso Cloud Platform modernization backlog — onboarding Product Tour storyline only.",
+                + "the Contoso Cloud Platform modernization backlog â€” onboarding Product Tour storyline only.",
             SystemName = "Contoso Cloud Platform",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             Constraints =
             [
-                "Maintain evaluation-mode synthetic content only — no linkage to buyer production subscriptions",
+                "Maintain evaluation-mode synthetic content only â€” no linkage to buyer production subscriptions",
                 "Expose Pack A/B rule identifiers for evaluator education",
                 "Evidence attachments are illustrative PDF/JSON placeholders",
             ],
@@ -1110,7 +1110,7 @@ public sealed class DemoSeedService(
             ResolutionReason = "Demonstrates evaluator export workflow without invoking paid synthesis.",
             ManifestVersion = ProductTourWorkspaceSeed.ManifestVersionLiteral,
             Notes =
-                "Seeded Workspace A artifact — regenerate after tour refresh milestones. dbo.TenantWorkspaces.IsDemoWorkspace=1 excludes fixture from SKU math once billing gates honour the flag.",
+                "Seeded Workspace A artifact â€” regenerate after tour refresh milestones. dbo.TenantWorkspaces.IsDemoWorkspace=1 excludes fixture from SKU math once billing gates honour the flag.",
             IncludedManifest = true,
             IncludedSummary = true,
             CreatedUtc = ProductTourWorkspaceSeed.SnapshotUtc,
@@ -1149,7 +1149,7 @@ public sealed class DemoSeedService(
         string requestId = DemoRegulatedScenarioWorkspaceIds.ArchitectureRequestId(scope.TenantId);
         await EnsureArchitectureRequestAlpineRegulatedDemoAsync(requestId, cancellationToken);
         DateTime utc = RegulatedScenarioWorkspaceSeed.SnapshotUtc;
-        string legacyRunId = runGuid.ToString("N");
+        string runId = runGuid.ToString("D");
         string demoSuffix = ProductTourDemoSuffix(scope.TenantId);
         string taskId = $"task-regulated-demo-topo-{demoSuffix}";
         string resultId = $"result-regulated-demo-topo-{demoSuffix}";
@@ -1163,7 +1163,7 @@ public sealed class DemoSeedService(
             RunId = runGuid,
             ProjectId = alpineSystemName,
             Description =
-                "Meridian Advisory Group (whitelabel) — Workspace B synthetic regulated AI governance review "
+                "Meridian Advisory Group (whitelabel) â€” Workspace B synthetic regulated AI governance review "
                 + "for Alpine Health Innovations (patient risk scoring; PHI-free evaluator fixture).",
             CreatedUtc = utc,
             ArchitectureRequestId = requestId,
@@ -1175,7 +1175,7 @@ public sealed class DemoSeedService(
         AgentTask task = new()
         {
             TaskId = taskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
             Objective =
                 "Synthetic capture of inference, training orchestration, and classified data lake partitions for evaluator governance storyline.",
@@ -1193,7 +1193,7 @@ public sealed class DemoSeedService(
         {
             ResultId = resultId,
             TaskId = taskId,
-            RunId = legacyRunId,
+            RunId = runId,
             AgentType = AgentType.Topology,
             Claims =
             [
@@ -1208,7 +1208,7 @@ public sealed class DemoSeedService(
         };
 
         await _resultRepository.CreateAsync(result, cancellationToken);
-        GoldenManifest manifest = RegulatedScenarioWorkspaceSeed.BuildManifest(legacyRunId);
+        GoldenManifest manifest = RegulatedScenarioWorkspaceSeed.BuildManifest(runId);
         IReadOnlyList<Finding> findings = RegulatedScenarioWorkspaceSeed.BuildFindings(runGuid);
         AuthorityChainKeying chainIds = new(AuthorityDemoChainIds.Manifest(runGuid), AuthorityDemoChainIds.ContextSnapshot(runGuid),
             AuthorityDemoChainIds.GraphSnapshot(runGuid), AuthorityDemoChainIds.FindingsSnapshot(runGuid), AuthorityDemoChainIds.DecisionTrace(runGuid));
@@ -1262,10 +1262,10 @@ public sealed class DemoSeedService(
                     Name = "meridian-alpine-governance-board-sample.md",
                     Format = "text/markdown",
                     Content =
-                        "# Architecture review board — synthetic whitelabel sample\n\n"
+                        "# Architecture review board â€” synthetic whitelabel sample\n\n"
                         + "**Firm:** " + RegulatedScenarioWorkspaceSeed.WhitelabelFirmDisplayName + " (consultant)\\n"
                         + "**Engagement:** " + RegulatedScenarioWorkspaceSeed.WhitelabelClientEngagementTitle + "\\n"
-                        + "**Subject system:** " + alpineSystemName + " — synthetic healthtech modernization (no PHI).\\n"
+                        + "**Subject system:** " + alpineSystemName + " â€” synthetic healthtech modernization (no PHI).\\n"
                         + "**Logo reference (opaque):** `" + RegulatedScenarioWorkspaceSeed.WhitelabelLogoBlobReference + "`\\n\\n"
                         + "Invoke architecture review board export with matching `WhitelabelConfiguration`; "
                         + "`dbo.RunExportRecords.AnalysisRequestJson` mirrors hints for tooling pre-fill.",
@@ -1309,13 +1309,13 @@ public sealed class DemoSeedService(
             RequestId = requestId,
             Description =
                 "Meridian Advisory Group leads a fabricated AI governance + security architecture review engagement for Alpine Health Innovations' "
-                + "Patient Risk Scoring Platform — evaluator Workspace B storyline only.",
+                + "Patient Risk Scoring Platform â€” evaluator Workspace B storyline only.",
             SystemName = "Alpine Patient Risk Scoring Platform",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             Constraints =
             [
-                "Strictly synthetic regulated narrative — forbid ingest of customer PHI inside evaluator tenants",
+                "Strictly synthetic regulated narrative â€” forbid ingest of customer PHI inside evaluator tenants",
                 "Surface ai-gov-* and sec-base-* policy identifiers for procurement education",
                 "Evidence artifacts are illustrative exports / matrices / questionnaires only",
             ],
@@ -1409,7 +1409,7 @@ public sealed class DemoSeedService(
     private static bool ShouldMarkSeededRunAsSample(Guid tenantId) => tenantId != ScopeIds.DefaultTenant;
 
     /// <summary>
-    ///     Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no
+    ///     Optional export <strong>history</strong> row for demos â€” not wired to consulting DOCX replay (no
     ///     AnalysisRequestJson).
     /// </summary>
     private async Task EnsureExportRecordAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)

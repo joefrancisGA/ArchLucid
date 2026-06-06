@@ -323,25 +323,23 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
         using MemoryStream ms = new();
 
         using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
-
         {
-
             ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
 
-            using StreamWriter sw = new(manifest.Open());
-
-            sw.Write("{ not-valid-json");
+            using (StreamWriter sw = new(manifest.Open()))
+            {
+                sw.Write("{ not-valid-json");
+            }
 
             ZipArchiveEntry resources = zip.CreateEntry("resources.json");
 
-            using StreamWriter rw = new(resources.Open());
-
-            rw.Write("[]");
-
+            using (StreamWriter rw = new(resources.Open()))
+            {
+                rw.Write("[]");
+            }
         }
 
         return ms.ToArray();
-
     }
 
 }
