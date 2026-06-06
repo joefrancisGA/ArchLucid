@@ -11,7 +11,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,7 @@ using Microsoft.Extensions.Options;
 
 using Serilog.Context;
 
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
 ///     Legacy SQL-backed authority pipeline coordinating ingestion, knowledge graph, findings, decisioning, artifact synthesis,
@@ -38,7 +39,7 @@ public sealed class AuthorityRunOrchestrator(
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ITenantAuthorityPipelineConcurrencyGate tenantAuthorityPipelineConcurrencyGate,
     IRunStateTransitionService runStateTransitionService,
-    ILogger<AuthorityRunOrchestrator> logger)
+    ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));

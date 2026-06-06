@@ -2,7 +2,7 @@
 
 # Authority orchestrator — retries, timeouts, and resume
 
-**Related:** [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) (Flow A) · [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) · `AuthorityRunOrchestrator` (`ArchLucid.Persistence/Orchestration`)
+**Related:** [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) (Flow A) · [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) · `AuthorityRunOrchestrator` (`ArchLucid.Application/Runs/Orchestration`)
 
 This document describes how **`AuthorityRunOrchestrator`** recovers from transient failures, bounds pipeline duration, and resumes queued work. It applies to the SQL-backed authority pipeline registered behind **`IAuthorityRunOrchestrator`** in production hosts.
 
@@ -10,7 +10,7 @@ This document describes how **`AuthorityRunOrchestrator`** recovers from transie
 
 ## Transient SQL retries (state persist and commit)
 
-Long-running authority orchestration persists run state and commits unit-of-work boundaries through **`OrchestratorTransientDbRetry`** (`ArchLucid.Persistence/Orchestration/OrchestratorTransientDbRetry.cs`).
+Long-running authority orchestration persists run state and commits unit-of-work boundaries through **`OrchestratorTransientDbRetry`** (`ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs`).
 
 | Setting | Value |
 |--------|--------|

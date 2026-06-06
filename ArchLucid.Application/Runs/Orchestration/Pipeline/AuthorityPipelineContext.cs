@@ -6,7 +6,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Mutable state passed through ordered <see cref="IAuthorityPipelineStage" /> executions inside one unit of work.

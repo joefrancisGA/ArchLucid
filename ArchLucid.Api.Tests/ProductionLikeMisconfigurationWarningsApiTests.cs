@@ -32,6 +32,9 @@ public sealed class ProductionLikeMisconfigurationWarningsApiTests
                         """
                             {
                               "ArchLucid": {
+                                "SqlTopology": {
+                                  "Mode": "SystemWithPerTenantCatalogs"
+                                },
                                 "ContentSafety": {
                                   "Endpoint": "https://example.invalid/content-safety",
                                   "ApiKey": "01234567890123456789012345678901234567890123456789012345678901234"

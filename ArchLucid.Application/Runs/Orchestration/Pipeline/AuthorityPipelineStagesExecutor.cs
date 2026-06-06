@@ -16,13 +16,13 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Repositories;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Default pipeline executor with one OpenTelemetry span per major stage (<c>authority.*</c> activity names),

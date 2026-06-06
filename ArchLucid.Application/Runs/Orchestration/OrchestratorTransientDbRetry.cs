@@ -2,7 +2,7 @@ using Polly;
 
 using ArchLucid.Persistence.Connections;
 
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
 ///     Retries authority orchestrator state-persist and commit operations on transient SQL failures

@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Executes authority pipeline stages after <see cref="Models.RunRecord" /> persistence (inline SQL transaction vs

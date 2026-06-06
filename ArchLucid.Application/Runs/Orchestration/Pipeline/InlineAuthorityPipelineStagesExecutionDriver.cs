@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Default driver: runs <see cref="IAuthorityPipelineStagesExecutor.ExecuteAfterRunPersistedAsync" /> on the current

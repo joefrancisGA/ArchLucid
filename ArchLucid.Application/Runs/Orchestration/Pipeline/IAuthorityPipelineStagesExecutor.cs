@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Runs authority pipeline steps after the <see cref="Models.RunRecord" /> row exists (context ingestion through

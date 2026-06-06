@@ -6,7 +6,7 @@ using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Persistence.Ports;
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Loads committed stage artefacts into <see cref="AuthorityPipelineContext" /> when TB-041 checkpoint skip applies.

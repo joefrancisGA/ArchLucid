@@ -1,6 +1,6 @@
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Stage completion predicates derived from persisted <see cref="RunRecord" /> foreign keys (TB-041).

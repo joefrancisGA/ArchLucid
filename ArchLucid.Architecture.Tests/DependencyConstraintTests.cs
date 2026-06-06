@@ -518,6 +518,29 @@ public sealed class DependencyConstraintTests
                 because: "orchestration lives in ArchLucid.Application.Advisory; ArchLucid.Persistence hosts SQL adapters only.");
     }
 
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_contain_authority_orchestrator()
+    {
+        Assembly persistence = typeof(DapperAuthorityPipelineWorkRepository).Assembly;
+
+        persistence.GetTypes()
+            .Select(t => t.Name)
+            .Should()
+            .NotContain(
+                [
+                    "AuthorityRunOrchestrator",
+                    "AuthorityCommittedPipelineFinalizer",
+                    "AuthorityPipelineStagesExecutor",
+                    "OrchestratorTransientDbRetry",
+                    "AuthorityPipelineWorkPayload",
+                    "AuthorityPipelineWorkPayloadJson",
+                    "InlineAuthorityPipelineStagesExecutionDriver"
+                ],
+                because: "authority orchestration lives in ArchLucid.Application.Runs.Orchestration; Persistence hosts SQL/work adapters only.");
+    }
+
     // ── Tier 6 — New gap coverage ─────────────────────────────────────────────
 
     [Fact]

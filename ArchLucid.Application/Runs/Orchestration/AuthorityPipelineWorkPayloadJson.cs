@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>Shared JSON options for <see cref="AuthorityPipelineWorkPayload" /> serialization.</summary>
 public static class AuthorityPipelineWorkPayloadJson

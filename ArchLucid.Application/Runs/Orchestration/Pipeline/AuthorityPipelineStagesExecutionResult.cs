@@ -1,6 +1,6 @@
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 /// <summary>
 ///     Result of executing authority pipeline stages after the run row exists (may or may not include manifest finalize).

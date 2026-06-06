@@ -1,12 +1,11 @@
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Composition.Orchestration;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -19,17 +18,16 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>
-///     Parity between <see cref="AuthorityRunOrchestratorApplicationAdapter" /> (Legacy port) and
-///     <see cref="DtfAuthorityRunOrchestrator" />: both are pure forwards to
-///     <see cref="AuthorityRunOrchestrator" />. Same inner + same scenario must yield equivalent terminal run shape and
-///     audit event-type sequences (multiset / ordered by occurrence).
+///     InMemory storage registers <see cref="AuthorityRunOrchestrator" /> directly as
+///     <see cref="IAuthorityRunOrchestrator" />. Resolved port and inner orchestrator must yield equivalent terminal run
+///     shape and audit event-type sequences for the same scenario.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class AuthorityOrchestratorAdapterParityTests
 {
     [Fact]
-    public async Task ExecuteAsync_legacy_and_dtf_wrappers_match_terminal_shape_and_audit_event_types()
+    public async Task ExecuteAsync_resolved_port_and_inner_orchestrator_match_terminal_shape_and_audit_event_types()
     {
         Dictionary<string, string?> data = CreateSimulatorCompositionDictionary();
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -43,41 +41,38 @@ public sealed class AuthorityOrchestratorAdapterParityTests
         AuthorityRunOrchestrator inner =
             scope.ServiceProvider.GetRequiredService<AuthorityRunOrchestrator>();
 
-        AuthorityRunOrchestratorApplicationAdapter legacyAdapter =
-            new(inner);
-
-        DtfAuthorityRunOrchestrator dtfAdapter =
-            new(inner);
+        IAuthorityRunOrchestrator resolvedPort =
+            scope.ServiceProvider.GetRequiredService<IAuthorityRunOrchestrator>();
 
         IAuditRepository auditRepository =
             scope.ServiceProvider.GetRequiredService<IAuditRepository>();
 
         ContextIngestionRequest template = new()
         {
-            ProjectId = "parity-adapter-test",
+            ProjectId = "parity-orchestrator-test",
             ArchitectureRequestId = "parity-arch-req",
-            Description = "authority adapter parity (simulator)"
+            Description = "authority orchestrator parity (simulator)"
         };
 
-        RunRecord legacyRun = await legacyAdapter.ExecuteAsync(Clone(template));
-        RunRecord dtfRun = await dtfAdapter.ExecuteAsync(Clone(template));
+        RunRecord portRun = await resolvedPort.ExecuteAsync(Clone(template));
+        RunRecord innerRun = await inner.ExecuteAsync(Clone(template));
 
-        RunTerminalFingerprint(legacyRun).Should().Be(RunTerminalFingerprint(dtfRun));
+        RunTerminalFingerprint(portRun).Should().Be(RunTerminalFingerprint(innerRun));
 
         ScopeContext scopeContext =
             scope.ServiceProvider.GetRequiredService<IScopeContextProvider>().GetCurrentScope();
 
-        string legacyTypesJoined = await FormatAuditEventTypesAsync(
+        string portTypesJoined = await FormatAuditEventTypesAsync(
             auditRepository,
             scopeContext,
-            legacyRun.RunId);
+            portRun.RunId);
 
-        string dtfTypesJoined = await FormatAuditEventTypesAsync(
+        string innerTypesJoined = await FormatAuditEventTypesAsync(
             auditRepository,
             scopeContext,
-            dtfRun.RunId);
+            innerRun.RunId);
 
-        legacyTypesJoined.Should().Be(dtfTypesJoined);
+        portTypesJoined.Should().Be(innerTypesJoined);
     }
 
     private static ContextIngestionRequest Clone(ContextIngestionRequest source)

@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Persistence.Context;
 
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
 ///     JSON payload stored in <c>dbo.AuthorityPipelineWorkOutbox</c> for deferred authority continuation.

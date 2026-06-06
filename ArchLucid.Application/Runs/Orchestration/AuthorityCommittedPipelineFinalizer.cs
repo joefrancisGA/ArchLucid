@@ -17,7 +17,7 @@ using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
 ///     SQL-backed implementation of <see cref="IAuthorityCommittedPipelineFinalizer" /> (shared by the legacy orchestrator

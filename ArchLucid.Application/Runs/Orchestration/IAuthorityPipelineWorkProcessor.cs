@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>Drains <see cref="IAuthorityPipelineWorkRepository" /> and completes deferred authority runs.</summary>
 public interface IAuthorityPipelineWorkProcessor

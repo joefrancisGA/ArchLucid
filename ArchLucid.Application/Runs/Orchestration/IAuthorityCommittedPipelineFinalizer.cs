@@ -4,7 +4,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
 ///     Commits retrieval outbox rows, integration events, audit, and chat-ops notifications after authority artifacts exist.

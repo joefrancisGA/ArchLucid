@@ -9420,19 +9420,17 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ## TB-302 — Lift authority orchestration out of Persistence into Application (V1.1)
 
-**Status:** **V1.1 backlog** (architectural risk #5 — 2026-06-06).
+**Status:** **Done** (2026-06-06).
 
-**Problem:** `AuthorityRunOrchestrator`, pipeline stage execution, and DTF forwarding adapter live in `ArchLucid.Persistence`, while application callers depend on `IAuthorityRunOrchestrator`. This inverts layering (orchestration beside repositories), complicates testing, and blocks a clean DTF checkpoint model.
+**Problem:** `AuthorityRunOrchestrator`, pipeline stage execution, and DTF forwarding adapter lived in `ArchLucid.Persistence`, while application callers depend on `IAuthorityRunOrchestrator`. This inverted layering (orchestration beside repositories), complicated testing, and blocked a clean DTF checkpoint model.
 
-**What to do:**
+**Shipped:**
 
-1. Move orchestration contracts and stage coordination into `ArchLucid.Application` (or a dedicated `ArchLucid.Authority` module) with Persistence providing enlisted repositories only.
-2. Keep `IAuthorityRunOrchestrator` as the application port; Persistence registers repository adapters, not orchestration bodies.
-3. Align with **6f** DTF evaluation — either full DTF replay or remain on transactional outbox + worker resume with orchestration owned above Persistence.
-4. Architecture tests: Persistence must not reference Application; orchestration types must not live under `ArchLucid.Persistence.Orchestration`.
+1. Orchestration contracts and stage coordination moved to `ArchLucid.Application/Runs/Orchestration/`; Persistence provides enlisted repositories and outbox adapters only.
+2. `IAuthorityRunOrchestrator` remains the application port; InMemory hosts register `AuthorityRunOrchestrator` directly; SQL hosts register `DtfAuthorityRunOrchestrator` as a thin forwarder.
+3. `AuthorityRunOrchestratorApplicationAdapter` removed; shared ports (`IAuthorityPipelineWorkRepository`, outbox entries, `CosmosDbOptions`, `AuthorityPipelineWorkErrorSummary`) live in Core under `ArchLucid.Persistence.*` namespaces.
+4. Architecture tests: `Persistence_must_not_contain_authority_orchestrator`, `Application_must_not_reference_Persistence_assembly`.
 
-**Out of scope for this item:** Replacing Worker/outbox mechanics (addressed in 2026-06-06 durability fixes).
+**Out of scope for this item:** Replacing Worker/outbox mechanics (addressed in 2026-06-06 durability fixes). Full DTF replay remains **6f** / V1.1 evaluation.
 
-**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6r; `AuthorityRunOrchestrator.cs`; ADR candidate for orchestration layer.
-
-**Size estimate:** **L** — multi-PR refactor.
+**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6r; [`ORCHESTRATOR_RETRIES.md`](ORCHESTRATOR_RETRIES.md); ADR-0038.
