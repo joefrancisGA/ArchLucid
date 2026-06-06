@@ -9416,3 +9416,23 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 **Cross-ref:** **TB-073**, **TB-010** INV-001.
 
+---
+
+## TB-302 — Lift authority orchestration out of Persistence into Application (V1.1)
+
+**Status:** **V1.1 backlog** (architectural risk #5 — 2026-06-06).
+
+**Problem:** `AuthorityRunOrchestrator`, pipeline stage execution, and DTF forwarding adapter live in `ArchLucid.Persistence`, while application callers depend on `IAuthorityRunOrchestrator`. This inverts layering (orchestration beside repositories), complicates testing, and blocks a clean DTF checkpoint model.
+
+**What to do:**
+
+1. Move orchestration contracts and stage coordination into `ArchLucid.Application` (or a dedicated `ArchLucid.Authority` module) with Persistence providing enlisted repositories only.
+2. Keep `IAuthorityRunOrchestrator` as the application port; Persistence registers repository adapters, not orchestration bodies.
+3. Align with **6f** DTF evaluation — either full DTF replay or remain on transactional outbox + worker resume with orchestration owned above Persistence.
+4. Architecture tests: Persistence must not reference Application; orchestration types must not live under `ArchLucid.Persistence.Orchestration`.
+
+**Out of scope for this item:** Replacing Worker/outbox mechanics (addressed in 2026-06-06 durability fixes).
+
+**Refs:** [`V1_DEFERRED.md`](V1_DEFERRED.md) §6r; `AuthorityRunOrchestrator.cs`; ADR candidate for orchestration layer.
+
+**Size estimate:** **L** — multi-PR refactor.

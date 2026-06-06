@@ -1,5 +1,7 @@
 namespace ArchLucid.Persistence.Orchestration;
 
+using System.Data;
+
 /// <summary>In-memory outbox for tests and <c>StorageProvider=InMemory</c>.</summary>
 public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipelineWorkRepository
 {
@@ -64,6 +66,19 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
 
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task EnqueueAsync(
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string payloadJson,
+        IDbConnection connection,
+        IDbTransaction transaction,
+        CancellationToken cancellationToken = default)
+        =>
+        EnqueueAsync(runId, tenantId, workspaceId, projectId, payloadJson, cancellationToken);
 
     /// <inheritdoc />
     public Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(

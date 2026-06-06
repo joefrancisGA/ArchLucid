@@ -211,6 +211,19 @@ This section **promotes MCP from backlog-only text to the named V1.1 release win
 
 ---
 
+## 6r. Authority orchestration layer — lift out of Persistence (V1.1 backlog) (engineering note 2026-06-06)
+
+**V1 stance:** `AuthorityRunOrchestrator` and pipeline stage execution remain in `ArchLucid.Persistence` for V1 GA. Deferred queue + transactional outbox improvements (2026-06-06) harden durability without restructuring layers.
+
+**V1.1 target:** Move orchestration into Application (or dedicated authority module) per **TB-302** so Persistence is repositories/transactions only. Revisit DTF embedding (**§6f**) after the layer split.
+
+**Rules:**
+
+- Quality assessments **must not** treat Persistence-resident orchestration as a **V1 GA** blocker after this note.
+- Promotion to a dated release window requires [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) and [`TECH_BACKLOG.md`](TECH_BACKLOG.md) **TB-302**.
+
+---
+
 ## 6g. Identity — generic OIDC **and native SAML SP** in **V1 GA** (OIDC owner **2026-05-09**; SAML owner **2026-05-15**)
 
 **Generic OIDC** workforce sign-in — **`ArchLucidAuth:Mode=JwtBearer`** with **`ArchLucidAuth:Authority`** pointed at a **non-Microsoft OIDC issuer** (standard discovery + JWKS validation; claim mapping to **`ArchLucidRoles`** per **[SECURITY.md](contributor-reference/SECURITY.md)**) — is **in scope for V1 GA** per [V1_SCOPE.md §2.12](V1_SCOPE.md).

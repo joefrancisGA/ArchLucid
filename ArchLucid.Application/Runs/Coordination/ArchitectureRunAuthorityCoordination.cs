@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -44,7 +45,10 @@ public sealed class ArchitectureRunAuthorityCoordination(
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
 
     /// <inheritdoc/>
-    public async Task<CoordinationResult> CreateRunAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
+    public async Task<CoordinationResult> CreateRunAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken = default,
+        IArchLucidUnitOfWork? enlistUnitOfWork = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         CoordinationResult output = new();
@@ -60,8 +64,11 @@ public sealed class ArchitectureRunAuthorityCoordination(
         }
 
         EvidenceBundle evidenceBundle = RunStarterTaskFactory.BuildEvidenceBundle(request);
-        RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(ContextIngestionRequestMapper.FromArchitectureRequest(request), cancellationToken,
-            evidenceBundle.EvidenceBundleId);
+        RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(
+            ContextIngestionRequestMapper.FromArchitectureRequest(request),
+            cancellationToken,
+            evidenceBundle.EvidenceBundleId,
+            enlistUnitOfWork);
         ScopeContext scopeForExtractor = _scopeContextProvider.GetCurrentScope();
         AzureExtractorPackageProvenance? extractorProvenance =
             await _azureExtractorPackageRepository.TryGetLatestProvenanceByRunIdAsync(scopeForExtractor, authorityRun.RunId, cancellationToken);
@@ -75,7 +82,9 @@ public sealed class ArchitectureRunAuthorityCoordination(
         output.Run = run;
         output.EvidenceBundle = evidenceBundle;
         output.Tasks = tasks;
-        await PatchAuthorityRunHeaderAsync(authorityRun.RunId, request.RequestId, deferred, cancellationToken);
+
+        if (enlistUnitOfWork is null)
+            await PatchAuthorityRunHeaderAsync(authorityRun.RunId, request.RequestId, deferred, cancellationToken);
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",

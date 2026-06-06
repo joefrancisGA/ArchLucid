@@ -116,7 +116,10 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AuthorityPipelineWorkProcessorOptions.SectionName));
         services.Configure<RetrievalIndexingOutboxProcessorOptions>(
             configuration.GetSection(RetrievalIndexingOutboxProcessorOptions.SectionName));
+        services.Configure<CosmosGraphSnapshotOutboxProcessorOptions>(
+            configuration.GetSection(CosmosGraphSnapshotOutboxProcessorOptions.SectionName));
         RegisterRetrievalIndexingOutbox(services, hostingRole);
+        RegisterCosmosGraphSnapshotOutbox(services, configuration, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);
         RegisterAzureDevOpsCommitStatusPublisher(services, configuration);

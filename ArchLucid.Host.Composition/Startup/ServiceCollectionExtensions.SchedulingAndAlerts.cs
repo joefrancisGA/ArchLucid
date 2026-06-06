@@ -17,6 +17,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Host.Composition.Alerts;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Coordination.Cosmos;
 using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
@@ -194,6 +195,24 @@ public static partial class ServiceCollectionExtensions
 
         services.AddHostedService<RetrievalIndexingOutboxHostedService>();
         services.AddHostedService<AuthorityPipelineWorkHostedService>();
+    }
+
+    private static void RegisterCosmosGraphSnapshotOutbox(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        ArchLucidOptions archLucid = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
+        if (!ArchLucidOptions.EffectiveIsSql(archLucid.StorageProvider))
+            return;
+
+        services.AddSingleton<ICosmosGraphSnapshotOutboxProcessor, CosmosGraphSnapshotOutboxProcessor>();
+
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
+            return;
+
+        services.AddHostedService<CosmosGraphSnapshotOutboxHostedService>();
     }
 
     private static void RegisterIntegrationEventOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)

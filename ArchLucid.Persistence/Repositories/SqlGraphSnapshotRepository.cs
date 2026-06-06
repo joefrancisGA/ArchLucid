@@ -1,6 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -24,7 +26,7 @@ namespace ArchLucid.Persistence.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlGraphSnapshotRepository(
     ISqlConnectionFactory connectionFactory,
-    IScopeContextProvider scopeContextProvider) : IGraphSnapshotRepository
+    IScopeContextProvider scopeContextProvider) : IGraphSnapshotRepository, IGraphSnapshotSqlAuthorityWriter
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));

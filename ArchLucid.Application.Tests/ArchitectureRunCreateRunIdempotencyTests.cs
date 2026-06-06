@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -111,7 +112,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
         result.Tasks.Should().HaveCount(1);
 
         coordination.Verify(
-            x => x.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()),
+            x => x.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>(), It.IsAny<ArchLucid.Core.Transactions.IArchLucidUnitOfWork?>()),
             Times.Never);
     }
 
@@ -157,7 +158,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
         await act.Should().ThrowAsync<ConflictException>();
 
         coordination.Verify(
-            x => x.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()),
+            x => x.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>(), It.IsAny<ArchLucid.Core.Transactions.IArchLucidUnitOfWork?>()),
             Times.Never);
     }
 
@@ -223,6 +224,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             Mock.Of<IUsageMeteringService>(),
             new InProcessCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),
+            Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);

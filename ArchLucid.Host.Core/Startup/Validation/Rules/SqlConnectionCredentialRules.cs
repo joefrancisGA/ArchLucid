@@ -26,7 +26,7 @@ internal static class SqlConnectionCredentialRules
         ArgumentNullException.ThrowIfNull(archLucidOptions);
         ArgumentNullException.ThrowIfNull(errors);
 
-        if (!environment.IsProduction())
+        if (!HostEnvironmentClassification.IsProductionOrStagingLike(environment, configuration))
             return;
 
         string? message = DescribePasswordCredentialIssue(configuration, archLucidOptions);

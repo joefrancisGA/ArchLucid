@@ -33,7 +33,10 @@ public static partial class ServiceCollectionExtensions
             if (inMemory)
                 services.AddSingleton<IGraphSnapshotRepository, CosmosGraphSnapshotRepository>();
             else
+            {
+                services.AddScoped<CosmosGraphSnapshotRepository>();
                 services.AddScoped<IGraphSnapshotRepository, CosmosGraphSnapshotRepository>();
+            }
 
 
         if (cosmosSnapshot.AgentTracesEnabled)

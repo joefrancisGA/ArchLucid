@@ -17,7 +17,7 @@ Long-running authority orchestration persists run state and commits unit-of-work
 | Policy | Polly exponential backoff via **`SqlOpenResilienceDefaults.BuildSqlOperationRetryPipeline`** |
 | Max attempts | **3** retries (4 total tries including the first) |
 | Backoff | **2s** base → **2s, 4s, 8s** (with jitter) |
-| Retried operations | Run **`SaveAsync`**, unit-of-work **`CommitAsync`**, deferred pipeline **`EnqueueAsync`** |
+| Retried operations | Run **`SaveAsync`**, unit-of-work **`CommitAsync`**, deferred pipeline **`EnqueueAsync`** (including **enlisted** enqueue in the same SQL transaction as run header persist) |
 | Retried errors | **`SqlTransientDetector`**: deadlock (**1205**), timeout (**-2** / **`TimeoutException`**), Azure SQL unavailable/throttling (**40613**, **40197**, **40501**, **49918–49920**) |
 | Not retried | Constraint violations, business logic failures, non-transient SQL errors — transaction rolls back and the exception propagates |
 
@@ -37,9 +37,21 @@ Configure timeout under **`ArchLucid:AuthorityPipeline:PipelineTimeout`** (see h
 
 ---
 
+## Transactional outbox enqueue (queue mode)
+
+When async authority mode applies (**SQL** storage; flag **unset defaults to queue mode** per [ADR 0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md)), **`AuthorityRunOrchestrator`** inserts **`AuthorityPipelineWorkOutbox`** rows using the **same SQL transaction** as run header persistence. **`ArchitectureRunCreateOrchestrator`** may enlist a single create-run unit of work so coordination, orchestrator enqueue, and related row inserts **commit atomically**.
+
+| Behavior | Detail |
+|----------|--------|
+| Enlisted UoW | Supported for **queue mode only**; inline pipeline + enlisted UoW throws at orchestrator boundary. |
+| Create path | One UoW from create orchestrator through coordination → orchestrator → header patch → commit. |
+| Cosmos graph (optional) | When **`CosmosDb:GraphSnapshotsEnabled`**, graph JSON is SQL-authoritative with **`CosmosGraphSnapshotOutbox`** in the same authority transaction; worker upserts to Cosmos asynchronously. |
+
+---
+
 ## Queued pipeline resume
 
-When **`FeatureManagement:FeatureFlags:AsyncAuthorityPipeline`** is enabled and an evidence bundle id is present, **`ExecuteAsync`** may enqueue work and return after the first commit. A background worker later calls **`CompleteQueuedAuthorityPipelineAsync`**:
+When **`FeatureManagement:FeatureFlags:AsyncAuthorityPipeline`** is enabled (or **unset on SQL**, which defaults to enabled) and an evidence bundle id is present, **`ExecuteAsync`** may enqueue work and return after the first commit. A background worker later calls **`CompleteQueuedAuthorityPipelineAsync`**:
 
 | Behavior | Detail |
 |----------|--------|

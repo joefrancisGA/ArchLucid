@@ -28,6 +28,12 @@ public sealed class FeatureManagementAuthorityPipelineModeResolver(
         if (!ArchLucidOptions.EffectiveIsSql(archLucid.StorageProvider))
             return false;
 
+        IConfigurationSection flagSection =
+            _configuration.GetSection("FeatureManagement:FeatureFlags:AsyncAuthorityPipeline");
+
+        if (!flagSection.Exists())
+            return true;
+
         return await _featureFlags.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, cancellationToken);
     }
 }

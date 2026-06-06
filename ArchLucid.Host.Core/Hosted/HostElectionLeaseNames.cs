@@ -13,6 +13,8 @@ public static class HostElectionLeaseNames
 
     public const string RetrievalIndexingOutbox = "hosted:retrieval-indexing-outbox";
 
+    public const string CosmosGraphSnapshotOutbox = "hosted:cosmos-graph-snapshot-outbox";
+
     public const string IntegrationEventOutbox = "hosted:integration-event-outbox";
 
     public const string AuthorityPipelineWorkOutbox = "hosted:authority-pipeline-work-outbox";

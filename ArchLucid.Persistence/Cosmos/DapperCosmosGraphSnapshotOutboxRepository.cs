@@ -2,57 +2,54 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Orchestration;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Persistence.Cosmos;
 
-/// <summary>Dapper implementation over <c>dbo.AuthorityPipelineWorkOutbox</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository.")]
-public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory connectionFactory)
-    : IAuthorityPipelineWorkRepository
+public sealed class DapperCosmosGraphSnapshotOutboxRepository(ISqlConnectionFactory connectionFactory)
+    : ICosmosGraphSnapshotOutboxRepository
 {
     /// <inheritdoc />
     public async Task EnqueueAsync(
+        Guid graphSnapshotId,
         Guid runId,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        string payloadJson,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(payloadJson);
-
         Guid outboxId = Guid.NewGuid();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await EnqueueCoreAsync(
             connection,
             null,
             outboxId,
+            graphSnapshotId,
             runId,
             tenantId,
             workspaceId,
             projectId,
-            payloadJson,
             cancellationToken);
     }
 
     /// <inheritdoc />
     public Task EnqueueAsync(
+        Guid graphSnapshotId,
         Guid runId,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        string payloadJson,
         IDbConnection connection,
         IDbTransaction transaction,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(transaction);
-        ArgumentException.ThrowIfNullOrWhiteSpace(payloadJson);
 
         Guid outboxId = Guid.NewGuid();
 
@@ -60,16 +57,16 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
             connection,
             transaction,
             outboxId,
+            graphSnapshotId,
             runId,
             tenantId,
             workspaceId,
             projectId,
-            payloadJson,
             cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(
+    public async Task<IReadOnlyList<CosmosGraphSnapshotOutboxEntry>> DequeuePendingAsync(
         int maxBatch,
         int leaseDurationSeconds,
         CancellationToken cancellationToken = default)
@@ -77,59 +74,47 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
         int take = Math.Clamp(maxBatch, 1, 100);
         int lease = Math.Clamp(leaseDurationSeconds, 60, 7200);
 
-        // Fair dequeue: ROW_NUMBER per TenantId (FIFO within tenant); global sort takes round k from each tenant before any k+1.
         const string sql = """
-                           ;WITH numbered AS (
-                               SELECT
-                                   o.OutboxId,
-                                   o.TenantId,
-                                   o.CreatedUtc,
-                                   ROW_NUMBER() OVER (
-                                       PARTITION BY o.TenantId
-                                       ORDER BY o.CreatedUtc ASC, o.OutboxId ASC) AS TenantSeq
-                               FROM dbo.AuthorityPipelineWorkOutbox AS o WITH (READPAST, UPDLOCK, ROWLOCK)
+                           ;WITH cte AS (
+                               SELECT TOP (@Take)
+                                   OutboxId
+                               FROM dbo.CosmosGraphSnapshotOutbox AS o WITH (READPAST, UPDLOCK, ROWLOCK)
                                WHERE o.ProcessedUtc IS NULL
                                  AND o.DeadLetteredUtc IS NULL
                                  AND (o.NextAttemptUtc IS NULL OR o.NextAttemptUtc <= SYSUTCDATETIME())
-                                 AND (o.LockedUntilUtc IS NULL OR o.LockedUntilUtc <= SYSUTCDATETIME())),
-                           cte AS (
-                               SELECT TOP (@Take)
-                                   n.OutboxId
-                               FROM numbered AS n
-                               ORDER BY n.TenantSeq ASC, n.TenantId ASC, n.CreatedUtc ASC, n.OutboxId ASC)
+                                 AND (o.LockedUntilUtc IS NULL OR o.LockedUntilUtc <= SYSUTCDATETIME())
+                               ORDER BY o.CreatedUtc ASC, o.OutboxId ASC)
                            UPDATE o
                                SET LockedUntilUtc = DATEADD(second, @LeaseSeconds, SYSUTCDATETIME())
                            OUTPUT inserted.OutboxId,
+                                  inserted.GraphSnapshotId,
                                   inserted.RunId,
                                   inserted.TenantId,
                                   inserted.WorkspaceId,
                                   inserted.ProjectId,
-                                  inserted.PayloadJson,
                                   inserted.CreatedUtc,
                                   inserted.AttemptCount,
                                   inserted.LockedUntilUtc,
                                   inserted.NextAttemptUtc,
                                   inserted.LastAttemptError,
                                   inserted.DeadLetteredUtc
-                               FROM dbo.AuthorityPipelineWorkOutbox AS o
+                               FROM dbo.CosmosGraphSnapshotOutbox AS o
                                INNER JOIN cte ON cte.OutboxId = o.OutboxId;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<AuthorityPipelineWorkOutboxEntry> rows =
-            await connection.QueryAsync<AuthorityPipelineWorkOutboxEntry>(
-                new CommandDefinition(sql,
-                    new { Take = take, LeaseSeconds = lease },
-                    cancellationToken: cancellationToken));
+        IEnumerable<CosmosGraphSnapshotOutboxEntry> rows =
+            await connection.QueryAsync<CosmosGraphSnapshotOutboxEntry>(
+                new CommandDefinition(sql, new { Take = take, LeaseSeconds = lease }, cancellationToken: cancellationToken));
 
         return rows.ToList();
     }
 
     /// <inheritdoc />
-    public async Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken)
+    public async Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           UPDATE dbo.AuthorityPipelineWorkOutbox
+                           UPDATE dbo.CosmosGraphSnapshotOutbox
                            SET ProcessedUtc = SYSUTCDATETIME(),
                                LockedUntilUtc = NULL
                            WHERE OutboxId = @OutboxId
@@ -149,7 +134,7 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
     {
         string err = AuthorityPipelineWorkErrorSummary.TruncateNullable(failedAttemptErrorSummaryTruncatedTo400);
         const string sql = """
-                           UPDATE dbo.AuthorityPipelineWorkOutbox
+                           UPDATE dbo.CosmosGraphSnapshotOutbox
                            SET LockedUntilUtc = NULL,
                                AttemptCount = AttemptCount + 1,
                                NextAttemptUtc = @NextAttemptUtc,
@@ -161,18 +146,21 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
-            new CommandDefinition(sql,
+            new CommandDefinition(
+                sql,
                 new { OutboxId = outboxId, NextAttemptUtc = NormalizeSqlUtc(nextAttemptUtc), Err = err },
                 cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />
-    public async Task RecordDeadLetterAsync(Guid outboxId, string failedAttemptErrorSummaryTruncatedTo400,
+    public async Task RecordDeadLetterAsync(
+        Guid outboxId,
+        string failedAttemptErrorSummaryTruncatedTo400,
         CancellationToken cancellationToken = default)
     {
         string err = AuthorityPipelineWorkErrorSummary.TruncateNullable(failedAttemptErrorSummaryTruncatedTo400);
         const string sql = """
-                           UPDATE dbo.AuthorityPipelineWorkOutbox
+                           UPDATE dbo.CosmosGraphSnapshotOutbox
                            SET LockedUntilUtc = NULL,
                                AttemptCount = AttemptCount + 1,
                                DeadLetteredUtc = SYSUTCDATETIME(),
@@ -187,59 +175,21 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
         await connection.ExecuteAsync(new CommandDefinition(sql, new { OutboxId = outboxId, Err = err }, cancellationToken: cancellationToken));
     }
 
-    /// <inheritdoc />
-    public Task<long> CountPendingAsync(CancellationToken cancellationToken = default) =>
-        CountWhereAsync("""
-                         SELECT COUNT_BIG(1)
-                         FROM dbo.AuthorityPipelineWorkOutbox
-                         WHERE ProcessedUtc IS NULL
-                           AND DeadLetteredUtc IS NULL;
-                         """,
-            cancellationToken);
-
-    /// <inheritdoc />
-    public Task<long> CountActionablePendingAsync(CancellationToken cancellationToken = default) =>
-        CountWhereAsync("""
-                         SELECT COUNT_BIG(1)
-                         FROM dbo.AuthorityPipelineWorkOutbox
-                         WHERE ProcessedUtc IS NULL
-                           AND DeadLetteredUtc IS NULL
-                           AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())
-                           AND (LockedUntilUtc IS NULL OR LockedUntilUtc <= SYSUTCDATETIME());
-                         """,
-            cancellationToken);
-
-    /// <inheritdoc />
-    public Task<long> CountDeadLetteredAsync(CancellationToken cancellationToken = default) =>
-        CountWhereAsync("""
-                         SELECT COUNT_BIG(1)
-                         FROM dbo.AuthorityPipelineWorkOutbox
-                         WHERE DeadLetteredUtc IS NOT NULL
-                           AND ProcessedUtc IS NULL;
-                         """,
-            cancellationToken);
-
-    private async Task<long> CountWhereAsync(string sql, CancellationToken cancellationToken)
-    {
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<long>(new CommandDefinition(sql, cancellationToken: cancellationToken));
-    }
-
     private static async Task EnqueueCoreAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         Guid outboxId,
+        Guid graphSnapshotId,
         Guid runId,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        string payloadJson,
         CancellationToken cancellationToken)
     {
         const string sql = """
-                           INSERT INTO dbo.AuthorityPipelineWorkOutbox
-                           (OutboxId, RunId, TenantId, WorkspaceId, ProjectId, PayloadJson, CreatedUtc)
-                           VALUES (@OutboxId, @RunId, @TenantId, @WorkspaceId, @ProjectId, @PayloadJson, SYSUTCDATETIME());
+                           INSERT INTO dbo.CosmosGraphSnapshotOutbox
+                           (OutboxId, GraphSnapshotId, RunId, TenantId, WorkspaceId, ProjectId, CreatedUtc)
+                           VALUES (@OutboxId, @GraphSnapshotId, @RunId, @TenantId, @WorkspaceId, @ProjectId, SYSUTCDATETIME());
                            """;
 
         await connection.ExecuteAsync(
@@ -248,11 +198,11 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
                 new
                 {
                     OutboxId = outboxId,
+                    GraphSnapshotId = graphSnapshotId,
                     RunId = runId,
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    PayloadJson = payloadJson
+                    ProjectId = projectId
                 },
                 transaction,
                 cancellationToken: cancellationToken));

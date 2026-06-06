@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Application.Runs.Orchestration;
 
@@ -10,10 +11,12 @@ internal sealed class FakeAuthorityRunOrchestrator : IAuthorityRunOrchestrator
     public Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
         CancellationToken cancellationToken = default,
-        string? evidenceBundleIdForDeferredWork = null)
+        string? evidenceBundleIdForDeferredWork = null,
+        IArchLucidUnitOfWork? enlistUnitOfWork = null)
     {
         _ = cancellationToken;
         _ = evidenceBundleIdForDeferredWork;
+        _ = enlistUnitOfWork;
         Guid runId = Guid.NewGuid();
         return Task.FromResult(new RunRecord
         {

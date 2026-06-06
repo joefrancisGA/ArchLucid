@@ -16,6 +16,7 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -33,6 +34,8 @@ public sealed class AuthorityPipelineStagesExecutor(
     IContextSnapshotRepository contextSnapshotRepository,
     IKnowledgeGraphService knowledgeGraphService,
     IGraphSnapshotRepository graphSnapshotRepository,
+    IGraphSnapshotSqlAuthorityWriter graphSnapshotSqlAuthorityWriter,
+    ICosmosGraphSnapshotOutboxRepository cosmosGraphSnapshotOutboxRepository,
     IFindingsOrchestrator findingsOrchestrator,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IDecisionEngine decisionEngine,
@@ -99,6 +102,12 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IGraphSnapshotSqlAuthorityWriter _graphSnapshotSqlAuthorityWriter =
+        graphSnapshotSqlAuthorityWriter ?? throw new ArgumentNullException(nameof(graphSnapshotSqlAuthorityWriter));
+
+    private readonly ICosmosGraphSnapshotOutboxRepository _cosmosGraphSnapshotOutboxRepository =
+        cosmosGraphSnapshotOutboxRepository ?? throw new ArgumentNullException(nameof(cosmosGraphSnapshotOutboxRepository));
 
     private readonly IKnowledgeGraphService _knowledgeGraphService =
         knowledgeGraphService ?? throw new ArgumentNullException(nameof(knowledgeGraphService));
@@ -199,7 +208,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                     graphSnapshot.GraphSnapshotId);
 
 
-            await SaveGraphAsync(graphSnapshot, uow, token);
+            await SaveGraphAsync(graphSnapshot, ctx.Scope, uow, token);
 
             run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
             await UpdateRunAsync(run, uow, token);
@@ -616,12 +625,36 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _contextSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
-    private async Task SaveGraphAsync(GraphSnapshot snapshot, IArchLucidUnitOfWork uow, CancellationToken ct)
+    private async Task SaveGraphAsync(GraphSnapshot snapshot, ScopeContext scope, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
-        // Cosmos graph snapshots are committed outside the SQL authority transaction; SQL graph stays enlisted.
+        // Cosmos graph snapshots replicate through dbo.CosmosGraphSnapshotOutbox after SQL authority commit.
         if (_cosmosDbOptionsMonitor.CurrentValue.GraphSnapshotsEnabled)
         {
-            await _graphSnapshotRepository.SaveAsync(snapshot, ct);
+            if (uow.SupportsExternalTransaction)
+            {
+                await _graphSnapshotSqlAuthorityWriter.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+                await _cosmosGraphSnapshotOutboxRepository.EnqueueAsync(
+                    snapshot.GraphSnapshotId,
+                    snapshot.RunId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    uow.Connection,
+                    uow.Transaction,
+                    ct);
+            }
+            else
+            {
+                await _graphSnapshotSqlAuthorityWriter.SaveAsync(snapshot, ct);
+                await _cosmosGraphSnapshotOutboxRepository.EnqueueAsync(
+                    snapshot.GraphSnapshotId,
+                    snapshot.RunId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ct);
+            }
+
             return;
         }
 

@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -106,7 +107,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
         CoordinationResult coordinationResult = new() { Run = run, EvidenceBundle = bundle, Tasks = tasks, };
 
         coordination
-            .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>(), It.IsAny<ArchLucid.Core.Transactions.IArchLucidUnitOfWork?>()))
             .ReturnsAsync(coordinationResult);
 
         ArchitectureRequest request = new()
@@ -133,6 +134,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             metering.Object,
             new InProcessCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),
+            Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);

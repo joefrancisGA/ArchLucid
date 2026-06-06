@@ -3,6 +3,7 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -771,6 +772,26 @@ public sealed class AuthorityPipelineStagesExecutorTests
                 It.IsAny<System.Data.IDbTransaction>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IGraphSnapshotSqlAuthorityWriter> graphSqlWriter = new();
+        graphSqlWriter
+            .Setup(x => x.SaveAsync(
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection>(),
+                It.IsAny<System.Data.IDbTransaction>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> cosmosGraphOutbox = new();
+        cosmosGraphOutbox
+            .Setup(x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IOptionsMonitor<CosmosDbOptions>> cosmosDb = new();
         cosmosDb.SetupGet(m => m.CurrentValue).Returns(new CosmosDbOptions());
 
@@ -783,6 +804,8 @@ public sealed class AuthorityPipelineStagesExecutorTests
             ctxRepo.Object,
             kg.Object,
             graphRepo.Object,
+            graphSqlWriter.Object,
+            cosmosGraphOutbox.Object,
             findingsOrch.Object,
             findingsRepo.Object,
             decision.Object,

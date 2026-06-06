@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Transactions;
 
 namespace ArchLucid.Application.Runs.Coordination;
 
@@ -25,5 +26,6 @@ public interface IArchitectureRunAuthorityCoordination
     /// </returns>
     Task<CoordinationResult> CreateRunAsync(
         ArchitectureRequest request,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IArchLucidUnitOfWork? enlistUnitOfWork = null);
 }

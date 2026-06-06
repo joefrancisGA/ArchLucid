@@ -93,6 +93,7 @@ using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Scim;
 using ArchLucid.Persistence.Sql;
@@ -307,7 +308,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IManifestFinalizationSqlRepository, SqlManifestFinalizationRepository>();
         services.AddScoped<IRunTelemetryRepository, SqlRunTelemetryRepository>();
         services.AddScoped<IContextSnapshotRepository, SqlContextSnapshotRepository>();
+        services.AddScoped<SqlGraphSnapshotRepository>();
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
+        services.AddScoped<IGraphSnapshotSqlAuthorityWriter>(static sp => sp.GetRequiredService<SqlGraphSnapshotRepository>());
+        services.AddScoped<ICosmosGraphSnapshotOutboxRepository, DapperCosmosGraphSnapshotOutboxRepository>();
         services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();
         services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
         services.AddScoped<IFindingRecordMuteRepository, DapperFindingRecordMuteRepository>();

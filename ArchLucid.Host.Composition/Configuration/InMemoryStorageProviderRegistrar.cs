@@ -93,6 +93,7 @@ using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Roi;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Scim;
 using ArchLucid.Persistence.Telemetry;
@@ -121,6 +122,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
             new InMemoryContextSnapshotRepository(sp.GetRequiredService<IScopeContextProvider>()));
         services.AddSingleton<IGraphSnapshotRepository>(static sp =>
             new InMemoryGraphSnapshotRepository(sp.GetRequiredService<IScopeContextProvider>()));
+        services.AddSingleton<IGraphSnapshotSqlAuthorityWriter, GraphSnapshotSqlAuthorityWriterAdapter>();
+        services.AddSingleton<ICosmosGraphSnapshotOutboxRepository, NoOpCosmosGraphSnapshotOutboxRepository>();
         services.AddSingleton<IFindingsSnapshotRepository>(static sp =>
             new InMemoryFindingsSnapshotRepository(sp.GetRequiredService<IScopeContextProvider>()));
         services.AddSingleton<IFindingRecordMuteRepository, InMemoryFindingRecordMuteRepository>();

@@ -71,10 +71,35 @@ public sealed class AuthorityRunOrchestrator(
     public async Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
         CancellationToken cancellationToken = default,
-        string? evidenceBundleIdForDeferredWork = null)
+        string? evidenceBundleIdForDeferredWork = null,
+        IArchLucidUnitOfWork? enlistUnitOfWork = null)
     {
-        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+        bool callerOwnsUnitOfWork = enlistUnitOfWork is not null;
+        IArchLucidUnitOfWork uow = enlistUnitOfWork ?? await unitOfWorkFactory.CreateAsync(cancellationToken);
 
+        try
+        {
+            return await ExecuteCoreAsync(
+                request,
+                cancellationToken,
+                evidenceBundleIdForDeferredWork,
+                uow,
+                callerOwnsUnitOfWork);
+        }
+        finally
+        {
+            if (!callerOwnsUnitOfWork)
+                await uow.DisposeAsync();
+        }
+    }
+
+    private async Task<RunRecord> ExecuteCoreAsync(
+        ContextIngestionRequest request,
+        CancellationToken cancellationToken,
+        string? evidenceBundleIdForDeferredWork,
+        IArchLucidUnitOfWork uow,
+        bool callerOwnsUnitOfWork)
+    {
         Guid? pipelineRunIdForDiagnostics = null;
 
         try
@@ -171,9 +196,11 @@ public sealed class AuthorityRunOrchestrator(
                     run.RunId,
                     scope,
                     AuthorityPipelineWorkPayloadJson.Serialize(payload),
+                    uow,
                     pipelineCt);
 
-                await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
+                if (!callerOwnsUnitOfWork)
+                    await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
 
                 await auditService.LogAsync(
                     new AuditEvent
@@ -205,6 +232,13 @@ public sealed class AuthorityRunOrchestrator(
             }
 
             LogAgentExecutionStateTransition(run.RunId, "run_persisted", "inline_authority_pipeline_stages", "(none)");
+
+            if (callerOwnsUnitOfWork)
+            {
+                throw new InvalidOperationException(
+                    "Enlisted unit of work is only supported when async authority pipeline queue mode is active. "
+                    + "Enable FeatureManagement:FeatureFlags:AsyncAuthorityPipeline for SQL storage.");
+            }
 
             await using IAsyncDisposable executionConcurrencyLease =
                 await _tenantAuthorityPipelineConcurrencyGate.AcquireExecutionSlotAsync(
@@ -261,7 +295,8 @@ public sealed class AuthorityRunOrchestrator(
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            await uow.RollbackAsync(cancellationToken);
+            if (!callerOwnsUnitOfWork)
+                await uow.RollbackAsync(cancellationToken);
 
             logger.LogError(
                 "Authority pipeline timed out after {PipelineTimeout}. RunId={RunId}",
@@ -274,7 +309,8 @@ public sealed class AuthorityRunOrchestrator(
         }
         catch (Exception ex)
         {
-            await uow.RollbackAsync(cancellationToken);
+            if (!callerOwnsUnitOfWork)
+                await uow.RollbackAsync(cancellationToken);
 
             logger.LogError(
                 ex,
@@ -461,15 +497,34 @@ public sealed class AuthorityRunOrchestrator(
         Guid runId,
         ScopeContext scope,
         string payloadJson,
+        IArchLucidUnitOfWork uow,
         CancellationToken ct) =>
         await OrchestratorTransientDbRetry.ExecuteAsync(
-            token => authorityPipelineWorkRepository.EnqueueAsync(
-                runId,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                payloadJson,
-                token),
+            async token =>
+            {
+                if (uow.SupportsExternalTransaction)
+                {
+                    await authorityPipelineWorkRepository.EnqueueAsync(
+                        runId,
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        payloadJson,
+                        uow.Connection,
+                        uow.Transaction,
+                        token);
+                }
+                else
+                {
+                    await authorityPipelineWorkRepository.EnqueueAsync(
+                        runId,
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        payloadJson,
+                        token);
+                }
+            },
             ct);
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)

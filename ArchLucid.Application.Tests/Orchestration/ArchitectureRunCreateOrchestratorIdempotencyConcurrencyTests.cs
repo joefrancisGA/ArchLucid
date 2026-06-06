@@ -14,6 +14,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -186,7 +187,8 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new InProcessCreateRunIdempotencyLock(),
-            Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+            Microsoft.Extensions.Options.            Options.Create(new ArchitectureRunCreateOptions()),
+            Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
@@ -222,7 +224,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         int coordinatorInvocations = 0;
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         coordination
-            .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>(), It.IsAny<ArchLucid.Core.Transactions.IArchLucidUnitOfWork?>()))
             .ReturnsAsync((ArchitectureRequest req, CancellationToken cancellationToken) =>
             {
                 Interlocked.Increment(ref coordinatorInvocations);
@@ -295,7 +297,8 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new InProcessCreateRunIdempotencyLock(),
-            Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+            Microsoft.Extensions.Options.            Options.Create(new ArchitectureRunCreateOptions()),
+            Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);

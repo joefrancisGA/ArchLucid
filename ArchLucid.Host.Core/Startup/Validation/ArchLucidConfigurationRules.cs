@@ -30,6 +30,8 @@ public static class ArchLucidConfigurationRules
             archLucidOptions,
             errors);
         ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, environment, errors);
+        SqlConnectionCredentialRules.Collect(configuration, environment, archLucidOptions, errors);
+        ArchLucidSecretProviderRules.Collect(configuration, environment, errors);
         CosmosPolyglotRules.Collect(configuration, environment, errors);
         AuthenticationRules.CollectApiKeyWhenEnabled(configuration, errors);
         AuthenticationRules.CollectJwtBearerLocalSigningKey(configuration, errors);
@@ -66,7 +68,6 @@ public static class ArchLucidConfigurationRules
         AuthenticationRules.CollectProductionApiKeyDevelopmentBypassDisallowed(configuration, errors);
 
         SqlFailoverRules.Collect(configuration, environment, archLucidOptions, errors);
-        SqlConnectionCredentialRules.Collect(configuration, environment, archLucidOptions, errors);
 
         AuthenticationRules.CollectProductionApiKeyPlaceholders(configuration, errors);
 

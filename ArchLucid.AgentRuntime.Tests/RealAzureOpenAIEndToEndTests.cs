@@ -573,10 +573,12 @@ public sealed class RealAzureOpenAIEndToEndTests
         public Task<RunRecord> ExecuteAsync(
             ContextIngestionRequest request,
             CancellationToken cancellationToken = default,
-            string? evidenceBundleIdForDeferredWork = null)
+            string? evidenceBundleIdForDeferredWork = null,
+            ArchLucid.Core.Transactions.IArchLucidUnitOfWork? enlistUnitOfWork = null)
         {
             _ = cancellationToken;
             _ = evidenceBundleIdForDeferredWork;
+            _ = enlistUnitOfWork;
             Guid runId = Guid.NewGuid();
 
             return Task.FromResult(new RunRecord

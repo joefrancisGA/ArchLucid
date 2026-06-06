@@ -89,7 +89,11 @@ public sealed class FeatureFlagsTests
 
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?> { ["ArchLucid:StorageProvider"] = "Sql" })
+                new Dictionary<string, string?>
+                {
+                    ["ArchLucid:StorageProvider"] = "Sql",
+                    ["FeatureManagement:FeatureFlags:AsyncAuthorityPipeline"] = "true"
+                })
             .Build();
 
         FeatureManagementAuthorityPipelineModeResolver sut = new(featureFlags.Object, configuration);
@@ -113,7 +117,11 @@ public sealed class FeatureFlagsTests
 
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?> { ["ArchLucid:StorageProvider"] = "Sql" })
+                new Dictionary<string, string?>
+                {
+                    ["ArchLucid:StorageProvider"] = "Sql",
+                    ["FeatureManagement:FeatureFlags:AsyncAuthorityPipeline"] = "false"
+                })
             .Build();
 
         FeatureManagementAuthorityPipelineModeResolver sut = new(featureFlags.Object, configuration);
@@ -121,6 +129,29 @@ public sealed class FeatureFlagsTests
         bool queue = await sut.ShouldQueueContextAndGraphStagesAsync();
 
         queue.Should().BeFalse();
+        featureFlags.Verify(
+            f => f.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task FeatureManagementAuthorityPipelineModeResolver_WhenSqlStorageAndFlagUnset_DefaultsTrueWithoutQueryingFeatureFlags()
+    {
+        Mock<IFeatureFlags> featureFlags = new();
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ArchLucid:StorageProvider"] = "Sql" })
+            .Build();
+
+        FeatureManagementAuthorityPipelineModeResolver sut = new(featureFlags.Object, configuration);
+
+        bool queue = await sut.ShouldQueueContextAndGraphStagesAsync();
+
+        queue.Should().BeTrue();
+        featureFlags.Verify(
+            f => f.IsEnabledAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

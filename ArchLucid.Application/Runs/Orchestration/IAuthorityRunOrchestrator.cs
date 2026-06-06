@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -29,13 +30,18 @@ public interface IAuthorityRunOrchestrator
     /// <param name="evidenceBundleIdForDeferredWork">
     ///     When deferring, serialized into the work outbox so starter tasks reference the same evidence bundle id.
     /// </param>
+    /// <param name="enlistUnitOfWork">
+    ///     When set, run header and deferred outbox rows enlist in this unit of work and are not committed by the orchestrator.
+    ///     Only valid when async authority queue mode is active.
+    /// </param>
     /// <returns>
     ///     The persisted run with snapshot and manifest ids populated (or only <see cref="RunRecord.RunId" /> when deferred).
     /// </returns>
     Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
         CancellationToken cancellationToken = default,
-        string? evidenceBundleIdForDeferredWork = null);
+        string? evidenceBundleIdForDeferredWork = null,
+        IArchLucidUnitOfWork? enlistUnitOfWork = null);
 
     /// <summary>
     ///     Worker entry point: completes the pipeline for a run that was started with queued context/graph stages.

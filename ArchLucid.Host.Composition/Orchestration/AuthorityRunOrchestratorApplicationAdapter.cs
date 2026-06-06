@@ -1,5 +1,6 @@
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
@@ -19,9 +20,10 @@ internal sealed class AuthorityRunOrchestratorApplicationAdapter(
     public Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
         CancellationToken cancellationToken = default,
-        string? evidenceBundleIdForDeferredWork = null)
+        string? evidenceBundleIdForDeferredWork = null,
+        IArchLucidUnitOfWork? enlistUnitOfWork = null)
         =>
-        _innerOrchestrator.ExecuteAsync(request, cancellationToken, evidenceBundleIdForDeferredWork);
+        _innerOrchestrator.ExecuteAsync(request, cancellationToken, evidenceBundleIdForDeferredWork, enlistUnitOfWork);
 
     /// <inheritdoc />
     public Task<RunRecord> CompleteQueuedAuthorityPipelineAsync(
