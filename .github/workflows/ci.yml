@@ -12,7 +12,8 @@
 #           vs other test assemblies; Category=Slow split: Api.Tests vs AgentRuntime+Application+Decisioning; merged in `dotnet-coverage-merge`)
 #   Tier 2b â€” Simmy chaos (after Tier 2; no SQL)
 #   Tier 2d â€” Optional live Azure OpenAI (`RealAzureOpenAIEndToEndTests`) after OpenAPI snapshot + merged coverage gates + chaos;
-#           â€” opt-in repo var `ARCHLUCID_CI_REAL_AOAI_ENABLED`; secrets `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` / `ARCHLUCID_CI_REAL_AOAI_KEY` (same-repo PRs/push only).
+#           â€” opt-in repo var `ARCHLUCID_CI_REAL_AOAI_ENABLED`; secrets `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` / `ARCHLUCID_CI_REAL_AOAI_KEY`;
+#           shares golden-cohort budget probe ($15/mo): live invoke on probe exit 0/1, ::warning:: skip on 2/3 (not pull_request).
 #   Tier 2c â€” k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
 #   Tier 3a â€” Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact; lint/typecheck/build (`ui-static-quality`); mock journeys (`ui-playwright-mock-smoke`);
 #             axe WCAG 2.1 A/AA (`ui-playwright-accessibility`, mock-backed); optional full-page screenshot goldens via `npm run test:e2e:mock:visual` locally when updating baselines
@@ -178,6 +179,8 @@ jobs:
 
   doc-markdown-links:
     name: "Docs: markdown link integrity"
+    # Warn-only: one broken link or doc drift guard must not cancel the full CI matrix (see Tier 0.doc header).
+    continue-on-error: true
     needs:
       - gitleaks
       - docs-root-size
@@ -1150,6 +1153,15 @@ jobs:
           REP="${{ runner.temp }}/eval-corpus-report.md"
           python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP" --baseline
           if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Deterministic agent faithfulness (Phase A enforce)
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/eval_agent_faithfulness.py --enforce
+          if [ -f docs/quality/faithfulness-report.md ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## Agent faithfulness (deterministic)" >> "$GITHUB_STEP_SUMMARY"
+            head -n 40 docs/quality/faithfulness-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload agent eval scorecard
         if: always() && steps.eval_corpus.outcome != 'skipped'
@@ -2326,8 +2338,8 @@ jobs:
           path: "**/*.trx"
           if-no-files-found: warn
 
-  # Live Azure invoke (budget on your AOAI quota). Runs only after the OpenAPI snapshot job, merged line/branch gates,
-  # and Simmy chaos are green (scheduled after `dotnet-coverage-merge` + `chaos-tests`, not on slow shards alone).
+  # Live Azure invoke (shared $15/mo golden-cohort budget probe). Runs only after the OpenAPI snapshot job,
+  # merged line/branch gates, and Simmy chaos are green (scheduled after `dotnet-coverage-merge` + `chaos-tests`).
   dotnet-azure-openai-live-post-regression:
     name: ".NET optional: live Azure OpenAI (post regression + chaos)"
     needs:
@@ -2340,8 +2352,10 @@ jobs:
           && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    environment: dev
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v5
 
@@ -2366,7 +2380,30 @@ jobs:
             exit 1
           fi
 
+      - name: Set up Python (golden cohort budget probe)
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install requests (budget probe)
+        run: python -m pip install --upgrade pip && pip install requests
+
+      - name: Azure login (Cost Management / management plane)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - id: budget
+        name: Golden cohort budget probe ($15/mo cap, 80% warn / 95% kill)
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
+        run: bash scripts/ci/run_golden_cohort_budget_probe_ci.sh "CI live Azure OpenAI"
+
       - name: Restore and run live AOAI AgentRuntime integration
+        if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
         env:
           ARCHLUCID_REAL_AOAI_TEST_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
           ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
@@ -2383,6 +2420,11 @@ jobs:
             -c Release \
             --filter "FullyQualifiedName~RealAzureOpenAIEndToEndTests" \
             --logger "trx;LogFilePrefix=live-aoai-"
+
+      - name: Skip live AOAI — budget restriction
+        if: ${{ steps.budget.outputs.exit_code != '0' && steps.budget.outputs.exit_code != '1' }}
+        run: |
+          echo "::notice::Live Azure OpenAI post-regression skipped (budget probe exit ${{ steps.budget.outputs.exit_code }}). Real-mode release evidence is not refreshed this run."
 
   publish-api-client-nuget:
     name: "NuGet: pack & push API client (main/master)"
