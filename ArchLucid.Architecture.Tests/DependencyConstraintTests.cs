@@ -18,6 +18,7 @@ using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Queries;

@@ -16,7 +16,6 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;

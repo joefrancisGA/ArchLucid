@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Runs.Orchestration;
 ///     Retries authority orchestrator state-persist and commit operations on transient SQL failures
 ///     (deadlock, timeout, etc.) without altering the state machine.
 /// </summary>
-internal static class OrchestratorTransientDbRetry
+public static class OrchestratorTransientDbRetry
 {
     /// <summary>Three retries with 2s base exponential backoff (2s, 4s, 8s).</summary>
     private static readonly ResiliencePipeline Pipeline =
