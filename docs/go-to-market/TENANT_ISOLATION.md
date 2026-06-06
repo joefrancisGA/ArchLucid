@@ -29,20 +29,20 @@ flowchart TB
     S[Scope context tenant workspace project]
   end
   subgraph L3["Layer 3 — Database"]
-    C[SESSION_CONTEXT af_tenant_id af_workspace_id af_project_id]
-    Q[Row-level security on covered tables]
+    CAT[Per-tenant SQL catalog routing]
+    BIND[TenantDatabaseBindings]
   end
   E --> P
   R --> P
   K --> P
   P --> S
-  S --> C
-  C --> Q
+  S --> CAT
+  BIND --> CAT
 ```
 
 - **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([SECURITY.md](../library/SECURITY.md)).
 - **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) §5).
-- **Layer 3 — Database:** In `SystemWithPerTenantCatalogs` (production) mode the database boundary provides primary tenant isolation. **RLS** is available as optional configuration (`STATE = OFF` by default); it is not a required production control. Documentation: [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
+- **Layer 3 — Database:** In `SystemWithPerTenantCatalogs` (production) mode each tenant organization receives a **dedicated product SQL catalog** resolved via `TenantDatabaseBindings`. **SQL RLS is not used** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)). Application repositories still apply scope predicates within the catalog. Deep reference: [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ---
 

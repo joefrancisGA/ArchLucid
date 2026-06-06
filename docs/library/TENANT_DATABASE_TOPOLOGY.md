@@ -16,7 +16,7 @@ Establish a clear **cut line** between **system-plane** and **tenant-plane** dat
 
 - No customer data migration from a shared catalog into split catalogs.
 - **No** removal of `TenantId` / workspace / project columns.
-- **No** removal of RLS policies.
+- **No** reintroduction of SQL RLS as a production requirement (see [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md); migration 148 removed policies).
 - **No** introduction of EF Core or non-Azure primary data stores.
 
 ## System vs tenant table ownership (by family)

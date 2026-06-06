@@ -271,6 +271,12 @@ jobs:
       - name: Route tenant scope binding guard (TB-277)
         run: python scripts/ci/assert_route_tenant_scope_guard.py
 
+      - name: Tenant isolation defense-in-depth guard (ADR 0037)
+        run: python scripts/ci/assert_tenant_isolation_defense_in_depth.py
+
+      - name: Tenant isolation defense-in-depth guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_tenant_isolation_defense_in_depth.py"
+
       - name: Route tenant scope batch unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_route_tenant_batch.py"
 

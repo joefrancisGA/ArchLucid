@@ -41,6 +41,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0033](0033-first-real-value-single-env-var-flip.md) | First real value — `archlucid try --real` + **`ARCHLUCID_REAL_AOAI`** gate |
 | [0034](0034-segregation-of-duties-entra-oid-actor-keys.md) | Segregation of duties — Entra JWT `tid`/`oid` canonical actor keys + additive DB columns (**Status: Accepted**) |
 | [0035](0035-architecture-invariant-catalog.md) | Architecture invariant catalog — `INV-*` registry + enforcement waves via `TECH_BACKLOG` (**Status: Proposed**) |
+| [0037](0037-tenant-isolation-without-rls-defense-in-depth.md) | Tenant isolation without SQL RLS — catalog boundary + layered controls (**Status: Accepted**; supersedes 0003 production posture) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

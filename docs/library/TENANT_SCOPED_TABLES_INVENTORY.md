@@ -7,7 +7,7 @@
 
 ## Objective
 
-Give operators and engineers a single map from **logical scope** (`TenantId`, `WorkspaceId`, project scope) to **physical tables** in `ArchLucid.Persistence/Scripts/ArchLucid.sql`, so RLS policies, archival jobs, and cross-tenant probes stay aligned with the DDL.
+Give operators and engineers a single map from **logical scope** (`TenantId`, `WorkspaceId`, project scope) to **physical tables** in `ArchLucid.Persistence/Scripts/ArchLucid.sql`, so archival jobs and cross-tenant probes stay aligned with the DDL. **Production isolation is catalog-boundary + app scope** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)); RLS is not deployed.
 
 ## Assumptions
 
@@ -69,12 +69,13 @@ flowchart LR
 
 ## Data flow
 
-Writes on authority tables should set the **same** tenant/workspace/project tuple as the parent `dbo.Runs` row (or the registration-derived scope) so session context and BLOCK predicates cannot be bypassed by orphan inserts.
+Writes on authority tables should set the **same** tenant/workspace/project tuple as the parent `dbo.Runs` row (or the registration-derived scope) so application scope checks remain consistent within the tenant catalog.
 
 ## Security model
 
-- **RLS** predicates filter on the denormalized scope where present; see [`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md).
-- **Operational probes** (`DataConsistencyOrphanProbeHostedService`, admin remediation) should use this inventory when classifying “missing scope” vs “expected run-only” tables.
+- **Primary:** each tenant’s product data lives in a **dedicated SQL catalog** when `SystemWithPerTenantCatalogs` is enabled.
+- **Within catalog:** repositories must filter by scope triple where columns exist; run-scoped tables inherit tenant via `RunId` → `dbo.Runs`.
+- **Not used:** SQL RLS (removed migration 148). See [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ## Operational considerations
 
@@ -84,6 +85,6 @@ Writes on authority tables should set the **same** tenant/workspace/project tupl
 
 ## Reliability / cost / scalability
 
-- **Reliability:** mis-scoped DDL breaks RLS and multi-tenant isolation — tests fail CI early.
+- **Reliability:** mis-scoped DDL breaks multi-tenant isolation — tests fail CI early.
 - **Cost:** none beyond maintaining this short list.
 - **Scalability:** not a hot path; documentation + compile-time DDL string checks only.

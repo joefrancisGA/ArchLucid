@@ -5,7 +5,7 @@
 
 # ADR 0003: SQL RLS and SESSION_CONTEXT
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR 0037](0037-tenant-isolation-without-rls-defense-in-depth.md) (2026-06-06) for production posture. Historical record only.
 - **Date:** 2026-04-04
 
 ## Context

@@ -1,39 +1,52 @@
-> **Scope:** Concrete tenant-isolation enforcement in code (RLS, policies, blob paths, tests) for engineers; not a full threat-model paper or customer-facing trust narrative.
+> **Scope:** Concrete tenant-isolation enforcement in code for engineers; aligned with [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) (no SQL RLS in production).
 
-# Tenant isolation — implementation notes (2026-04)
+# Tenant isolation — implementation notes (2026-06)
 
-This doc ties code changes to the tenant-isolation threat model: what was enforced in SQL, HTTP, blob paths, and tests.
+This doc ties code changes to the tenant-isolation model. **Canonical layers:** [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
-## SQL (RLS)
+## Layer A — Catalog boundary
 
-- **Parity guard:** [TenantScopedTableDdlTests.cs](../../ArchLucid.Architecture.Tests/TenantScopedTableDdlTests.cs) compares `sys.security_predicates` targets for `ArchiforgeTenantScope` vs `ArchLucidTenantScope` when both policies exist; post–migration 108 only `ArchLucidTenantScope` remains, and the test still asserts it is non-empty.
-- **DDL guard:** [TenantScopedTableDdlTests.cs](../../ArchLucid.Architecture.Tests/TenantScopedTableDdlTests.cs) was extended for `ContextSnapshots`, `GoldenManifests` blob URI column, `ScimUsers` (tenant-only), and documents that `AgentExecutionTraces` has no denormalized triple-scope columns (isolation via `RunId`).
+- **Topology:** `SqlTopologyMode.SystemWithPerTenantCatalogs` in production-like hosts; `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike` blocks `SingleCatalog`.
+- **Routing:** `ScopedRoutingSqlConnectionFactory`, `ITenantDatabaseResolver`, `TenantDatabaseBindings`.
+- **Migration:** `148_RemoveRowLevelSecurity.sql` — RLS policies removed; do not re-add without a new ADR.
 
-## HTTP authorization
+## Layer B — Typed scope
 
-- **Support bundle:** [SupportBundleController.cs](../../ArchLucid.Api/Controllers/Admin/SupportBundleController.cs) now requires `AdminAuthority` (tenant/workspace admin personas via `WorkspaceAdmin` + `Admin` roles).
-- **Named roles:** [ArchLucidRoles.cs](../../ArchLucid.Core/Authorization/ArchLucidRoles.cs) adds `Architect`, `Reviewer`, `WorkspaceAdmin`; policies and [ArchLucidRoleClaimsTransformation.cs](../../ArchLucid.Api/Auth/Services/ArchLucidRoleClaimsTransformation.cs) map them to permission claims (Reviewer omits `commit:run`).
+- **Analyzer:** `TenantIdentityBoundaryAnalyzer` (ARCH001) — bans `HttpContext` / `ClaimsPrincipal` below API/Host boundary in product assemblies.
+- **Audit backfill:** [AuditService.cs](../../ArchLucid.Host.Core/Auth/Services/AuditService.cs) fills scope from `IScopeContextProvider` when audit payloads omit tenant/workspace/project.
 
-## Audit scope backfill
+## Layer C — HTTP authorization
 
-- [AuditService.cs](../../ArchLucid.Host.Core/Auth/Services/AuditService.cs) fills `TenantId` / `WorkspaceId` / `ProjectId` from `IScopeContextProvider` only when those values are still `Guid.Empty`, so explicit cross-scope audit payloads can be preserved when needed.
+- **Route binding:** `RouteTenantScopeBindingFilter` + CI `assert_route_tenant_scope_guard.py`.
+- **Support bundle:** [SupportBundleController.cs](../../ArchLucid.Api/Controllers/Admin/SupportBundleController.cs) requires `AdminAuthority`.
+- **Platform cross-tenant:** `PlatformCrossTenantReadAuthority` / `PlatformOperator` for admin analytics only.
 
-## Blob paths (artifact offload)
+## Layer D — Persistence
 
-- [ArtifactBlobTenantPaths.cs](../../ArchLucid.Core/Persistence/ApplicationPorts/BlobStore/ArtifactBlobTenantPaths.cs): `FormatArtifactContentRelativePath` builds `{workspace}/{project}/artifacts/{manifestId}/{artifactId}/{fileName}`; [SqlArtifactBundleRepository.cs](../../ArchLucid.Persistence/Repositories/SqlArtifactBundleRepository.cs) uses it for large artifact content offload. `PrefixWithTenant` allows workspace-first logical paths so the final object key is `{tenant}/…`. The type lives in **ArchLucid.Persistence** (shared by **ArchLucid.Persistence.Runtime** blob stores) so SQL repositories can reference it without a **Persistence ↔ Persistence.Runtime** circular project reference.
+- **DDL inventory:** [TenantScopedTableDdlTests.cs](../../ArchLucid.Architecture.Tests/TenantScopedTableDdlTests.cs) — scope columns on authority tables.
+- **Scope isolation SQL tests:** `*ScopeIsolationSqlIntegrationTests` in `ArchLucid.Persistence.Tests`.
+- Repositories use explicit scope parameters; **no RLS backstop** — code review + tests.
+
+## Layer E — Blob paths
+
+- [ArtifactBlobTenantPaths.cs](../../ArchLucid.Core/Persistence/ApplicationPorts/BlobStore/ArtifactBlobTenantPaths.cs): tenant-prefixed blob keys for artifact offload.
 
 ## Integration tests
 
-- [TenantIsolationSmokeTests.cs](../../ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs): ROI 404, artifact manifest 404 when a manifest exists for tenant A, and admin archive-batch from tenant A does not archive tenant B’s runs.
+- [TenantIsolationSmokeTests.cs](../../ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs): ROI 404, artifact manifest 404 across tenants, archive-batch isolation.
 
-## Diagram (nodes / edges)
+## Diagram (current model)
 
 ```mermaid
 flowchart LR
     HttpClient --> ApiPolicies[ASP.NET policies]
     ApiPolicies --> ScopeHeaders["x-tenant-id / workspace / project"]
-    ScopeHeaders --> SessionCtx[SESSION_CONTEXT al_*]
-    SessionCtx --> RlsPredicates[RLS filter and block]
+    ScopeHeaders --> CatalogRoute[ITenantDatabaseResolver]
+    CatalogRoute --> TenantCatalog[(Tenant SQL catalog)]
     ApiPolicies --> BlobPaths[ArtifactBlobTenantPaths prefix]
     BlobPaths --> BlobStore[Container blob name]
 ```
+
+## Historical note
+
+Prior versions of this doc referenced SESSION_CONTEXT RLS. That path was removed; see [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md) for legacy design context only.

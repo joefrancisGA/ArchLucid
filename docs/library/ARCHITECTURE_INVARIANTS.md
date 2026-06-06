@@ -35,9 +35,9 @@
 
 **Intent:** Exactly one derivation of tenant id per request scope; propagation via typed scope / parameters.
 
-**Why:** Cross-tenant data access is irreversible reputational failure; aligns with mental model of [ADR 0003](../architecture/adrs/0003-sql-rls-session-context.md) (RLS as defense in depth, not the only control).
+**Why:** Cross-tenant data access is irreversible reputational failure. **Primary control:** database-per-tenant catalog routing ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)). **Defense-in-depth:** typed scope, route binding, scoped repositories, CI guards — **not SQL RLS** (removed migration 148).
 
-**Enforcement sketch:** Roslyn ban on `IHttpContextAccessor` / `ClaimsPrincipal` reads below API/Middleware layer except allow-listed parsers; parallel-tenant integration test.
+**Enforcement sketch:** `TenantIdentityBoundaryAnalyzer` (ARCH001); `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike`; `assert_route_tenant_scope_guard.py`; parallel-tenant / scope-isolation integration tests. See [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ---
 

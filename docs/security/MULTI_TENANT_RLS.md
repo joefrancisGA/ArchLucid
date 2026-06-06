@@ -5,6 +5,8 @@
 
 # Multi-tenant row-level security (SQL) — design sketch
 
+> **Production posture (2026-06):** SQL RLS is **not deployed**. Tenant isolation uses **database-per-tenant catalogs** and layered application controls per [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) and [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md). This document describes the **historical / optional RLS design** retained for migration archaeology and teams evaluating optional RLS on non-standard deployments.
+
 ## 1. Objective
 
 Describe how ArchLucid enforces **tenant / workspace / project isolation in SQL Server** so a compromised application tier or query bug cannot read or mutate another customer’s rows, while keeping the current **application-level scope** model (`IScopeContextProvider`) as the primary authorization gate.
