@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Requests;
+
 namespace ArchLucid.Core.Security;
 
 /// <summary>
@@ -46,5 +48,31 @@ public static class AllowedDocumentUrlPolicy
         return dnsReason.StartsWith("URL ", StringComparison.Ordinal)
             ? "SourceDocumentUrl" + dnsReason[3..]
             : dnsReason;
+    }
+
+    /// <summary>
+    ///     Returns the first post-DNS rejection across inline documents, or <see langword="null" /> when all URLs pass.
+    /// </summary>
+    public static async Task<string?> TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(
+        IReadOnlyList<ContextDocumentRequest> documents,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(documents);
+
+        foreach (ContextDocumentRequest document in documents)
+        {
+            if (string.IsNullOrWhiteSpace(document.SourceDocumentUrl))
+                continue;
+
+            string? reason = await TryGetRejectionReasonAfterDnsResolveAsync(
+                    document.SourceDocumentUrl,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (reason is not null)
+                return reason;
+        }
+
+        return null;
     }
 }

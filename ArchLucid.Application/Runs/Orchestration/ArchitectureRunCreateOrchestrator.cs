@@ -12,6 +12,7 @@ using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Security;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -90,6 +91,14 @@ public sealed class ArchitectureRunCreateOrchestrator(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        string? documentUrlRejection = await AllowedDocumentUrlPolicy
+            .TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(request.Documents, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (documentUrlRejection is not null)
+            throw new InvalidOperationException(documentUrlRejection);
+
         RequestContentSafetyResult safety = await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken).ConfigureAwait(false);
         if (!safety.IsAllowed)
         {

@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Security;
 
 using FluentAssertions;
@@ -55,6 +56,26 @@ public sealed class AllowedDocumentUrlPolicyTests
         string? reason = await AllowedDocumentUrlPolicy.TryGetRejectionReasonAfterDnsResolveAsync("https://127.0.0.1/doc");
 
         reason.Should().Contain("SourceDocumentUrl");
+        reason.Should().Contain("private network");
+    }
+
+    [Fact]
+    public async Task TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync_WhenSecondDocumentFails_ReturnsThatReason()
+    {
+        List<ContextDocumentRequest> documents =
+        [
+            new() { Name = "ok", ContentType = "text/plain", Content = "body", SourceDocumentUrl = null },
+            new()
+            {
+                Name = "bad",
+                ContentType = "text/plain",
+                Content = "body",
+                SourceDocumentUrl = "https://127.0.0.1/secret"
+            }
+        ];
+
+        string? reason = await AllowedDocumentUrlPolicy.TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(documents);
+
         reason.Should().Contain("private network");
     }
 }

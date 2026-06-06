@@ -38,7 +38,7 @@ public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextD
 
         // Literal HTTPS / private-host checks only — keep this validator synchronous so nested
         // SetValidator under auto-validation does not block create-run payloads with inline documents.
-        // Post-DNS SSRF guard runs on the parent ArchitectureRequestValidator (MustAsync per document).
+        // Post-DNS SSRF guard runs in ArchitectureRunCreateOrchestrator (async, outside auto-validation).
         RuleFor(x => x.SourceDocumentUrl)
             .Custom((url, context) =>
             {

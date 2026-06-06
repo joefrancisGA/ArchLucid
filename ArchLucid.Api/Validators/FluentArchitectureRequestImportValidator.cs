@@ -1,5 +1,6 @@
 using ArchLucid.Application.Import;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Security;
 
 using FluentValidation;
 using FluentValidation.Results;
@@ -18,11 +19,24 @@ public sealed class FluentArchitectureRequestImportValidator(IValidator<Architec
         ArgumentNullException.ThrowIfNull(request);
         ValidationResult result = await _validator.ValidateAsync(request, ct);
 
-        if (result.IsValid)
-            return new ArchitectureRequestImportValidationResult { IsValid = true };
+        if (!result.IsValid)
+        {
+            List<string> errors = result.Errors.ConvertAll(static e => e.ErrorMessage);
 
-        List<string> errors = result.Errors.ConvertAll(static e => e.ErrorMessage);
+            return new ArchitectureRequestImportValidationResult { IsValid = false, Errors = errors };
+        }
 
-        return new ArchitectureRequestImportValidationResult { IsValid = false, Errors = errors };
+        string? documentUrlRejection = await AllowedDocumentUrlPolicy
+            .TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(request.Documents, ct)
+            .ConfigureAwait(false);
+
+        if (documentUrlRejection is not null)
+            return new ArchitectureRequestImportValidationResult
+            {
+                IsValid = false,
+                Errors = [documentUrlRejection]
+            };
+
+        return new ArchitectureRequestImportValidationResult { IsValid = true };
     }
 }
