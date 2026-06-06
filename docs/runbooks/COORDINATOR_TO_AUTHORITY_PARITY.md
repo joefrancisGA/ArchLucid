@@ -84,6 +84,8 @@ The **code-level** dual pipeline is fully retired. Beyond the data/orchestrator 
 
 This closes the **code-level** half of ADR 0021; only gate **(iv)** (14 contiguous zero-coordinator-write days) remains, and it stays owner/customer-traffic gated (no force-close).
 
+**Alias-traffic soak probe (ADR 0042, pre-sunset):** `RunAliasDeprecationMiddleware` increments **`archlucid_run_lifecycle_deprecated_alias_requests_total`** (label **`operation`** = `create` | `execute` | `commit`) on every deprecated-alias hit. Before deleting alias routes, confirm **14 consecutive days** with **zero** increase on all three operations (or document explicit integrator exceptions). Query example on `/metrics`: `sum by (operation) (increase(archlucid_run_lifecycle_deprecated_alias_requests_total[1d]))`.
+
 ## Related
 
 - [ADR 0021 — Coordinator pipeline strangler plan](../architecture/adrs/0021-coordinator-pipeline-strangler-plan.md)

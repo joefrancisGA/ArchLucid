@@ -55,6 +55,21 @@ public static class RunWriteLifecycleRoutes
     public static bool IsCanonical(string? rawRouteTemplate) =>
         rawRouteTemplate is not null && CanonicalTemplates.Contains(Normalize(rawRouteTemplate));
 
+    /// <summary>Low-cardinality operation id (<c>create</c>, <c>execute</c>, <c>commit</c>) for a deprecated alias template.</summary>
+    public static string? DeprecatedAliasOperation(string? rawRouteTemplate)
+    {
+        if (rawRouteTemplate is null)
+            return null;
+
+        string normalized = Normalize(rawRouteTemplate);
+
+        return RoutesInternal
+            .FirstOrDefault(route =>
+                route.DeprecatedAliasTemplates.Any(alias =>
+                    string.Equals(Normalize(alias), normalized, StringComparison.OrdinalIgnoreCase)))
+            ?.Operation;
+    }
+
     /// <summary>Maps a deprecated alias template to its canonical template, or <c>null</c> when not a known alias.</summary>
     public static string? CanonicalFor(string? rawRouteTemplate)
     {

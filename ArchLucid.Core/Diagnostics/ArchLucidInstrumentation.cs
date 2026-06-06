@@ -311,6 +311,15 @@ public static class ArchLucidInstrumentation
             "archlucid.runs.cost_preview.viewed_total",
             description: "GET /v1/agent-execution/cost-preview served for Real mode (wizard review step).");
 
+    /// <summary>
+    ///     Deprecated run-lifecycle alias routes (<c>v1/requests</c>, <c>v1/runs/*/submit</c>, etc.) per ADR 0042
+    ///     (label <c>operation</c> = create | execute | commit).
+    /// </summary>
+    public static readonly Counter<long> RunLifecycleDeprecatedAliasRequestsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_run_lifecycle_deprecated_alias_requests_total",
+            description: "HTTP requests matched deprecated run-lifecycle alias routes before canonical migration.");
+
     /// <summary>Authority pipeline runs that exceeded <c>AuthorityPipeline:PipelineTimeout</c>.</summary>
     public static readonly Counter<long> PipelineTimeoutsTotal =
         AppMeter.CreateCounter<long>(

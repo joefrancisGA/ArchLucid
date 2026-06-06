@@ -60,4 +60,5 @@ Evidence (first-party clients): the UI (`archlucid-ui/src/lib/api/architecture-r
 
 - `ArchLucid.Architecture.Tests` — `CanonicalRunWriteSurfaceArchitectureTests`
 - `ArchLucid.Api.Tests` — `RunWriteLifecycleRoutesTests`, `RunAliasDeprecationMiddlewareTests`, `DualPipelineRegistrationDisciplineTests`, `MvcControllerCoordinatorRepositoryFamilyGuardTests`
+- **Observability:** `archlucid_run_lifecycle_deprecated_alias_requests_total` (`operation` label) — alias-traffic soak input for ADR 0021 gate (iv) before route sunset
 - `ArchLucid.Application.Tests` — `RunStateTransitionServiceTests` (`/result` append-only invariant)

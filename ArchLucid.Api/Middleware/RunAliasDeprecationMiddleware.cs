@@ -1,4 +1,5 @@
 using ArchLucid.Api.Routing;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -23,6 +24,13 @@ internal sealed class RunAliasDeprecationMiddleware(RequestDelegate next)
         if (!RunWriteLifecycleRoutes.IsDeprecatedAlias(rawTemplate))
             return next(context);
 
+        string? operation = RunWriteLifecycleRoutes.DeprecatedAliasOperation(rawTemplate);
+
+        if (operation is not null)
+        {
+            ArchLucidInstrumentation.RunLifecycleDeprecatedAliasRequestsTotal.Add(1, new KeyValuePair<string, object?>("operation", operation));
+        }
+
         string? canonicalTemplate = RunWriteLifecycleRoutes.CanonicalFor(rawTemplate);
 
         // Headers are deferred to OnStarting so they survive regardless of how the action writes the response body.
@@ -31,6 +39,7 @@ internal sealed class RunAliasDeprecationMiddleware(RequestDelegate next)
             context.Response.Headers.Append("Deprecation", "true");
 
             if (canonicalTemplate is not null)
+            {
                 context.Response.Headers.Append(
                     "Link",
                     $"</{canonicalTemplate}>; rel=\"successor-version\"; title=\"{RunWriteLifecycleRoutes.DeprecationAdr}\"");

@@ -7431,14 +7431,16 @@ Frontend:
 
 ## TB-215 — Evidence upload integrated into review wizard (P1)
 
+**Status:** **Shipped (2026-06-02 batch 5AI)** — `WizardStepEvidenceUpload` + post-create upload path in `NewRunWizardClient` at **`/reviews/new`**.
+
 **Source:** Time-to-Value quality assessment (`docs/assessments/TimeToValue_06022026.MD`), 2026-06-02.
-**Problem:** The seven-step wizard creates a review but does not prompt for evidence upload. Evaluators who miss Phase C2 must circle back to the review-detail page to upload their Azure extractor ZIP — a discoverability gap that adds friction to the 15-minute path.
+**Problem (resolved):** Optional evidence upload is integrated into the wizard; evaluators can upload the Azure extractor ZIP during create instead of only from review detail.
 
 **Cursor prompt:**
 ```
 Add an optional evidence upload step to the architecture request wizard.
 
-1. In archlucid-ui/src/app/runs/new/ (locate the step components array or NewRunWizardClient.tsx), add a new optional step between the Preset step and Identity step: "Evidence (optional)".
+1. In archlucid-ui/src/app/(operator)/reviews/new/ (locate the step components array or NewRunWizardClient.tsx), add a new optional step between the Preset step and Identity step: "Evidence (optional)".
 
 2. Step content:
    - Heading: "Upload Azure evidence (optional)"
@@ -7457,7 +7459,7 @@ Add an optional evidence upload step to the architecture request wizard.
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/runs/new/` (wizard step components, `NewRunWizardClient.tsx` or equivalent)
+- `archlucid-ui/src/app/(operator)/reviews/new/` (wizard step components, `NewRunWizardClient.tsx` or equivalent)
 - `archlucid-ui/src/components/` (new `EvidenceUploadWizardStep.tsx` component)
 
 **Cross-ref:** TB-156 (API proxy startup diagnostics), `AZURE_EXTRACTOR.md`, `FIRST_PILOT_OPERATOR_PATH.md` Phase C2, TB-238 (wizard baseline capture — Proof-of-ROI).
@@ -7552,14 +7554,14 @@ In archlucid-ui, find the demo explain page component (/demo/explain route — s
 1. At the bottom of the demo findings/artifacts view, add a sticky footer or prominently placed card:
    - Heading: "Ready to run this on your own architecture?"
    - Body: "Upload your Azure evidence file to get a review like this in about 15 minutes."
-   - Primary button: "Start a new review →" — navigates to /runs/new?preset=greenfield
+   - Primary button: "Start a new review →" — navigates to /reviews/new?preset=greenfield
    - Secondary link: "See what you need first" — links to in-app help panel referencing EVALUATOR_WORKBOOK.md
 
 2. The CTA is visible without scrolling on desktop (sticky bottom bar or fixed bottom card).
 
 3. On mobile, the CTA collapses to a "Start your review" floating action button.
 
-4. Add a DemoExplainConversionCtaCard component with a Vitest test: renders CTA, primary button href is /runs/new?preset=greenfield.
+4. Add a DemoExplainConversionCtaCard component with a Vitest test: renders CTA, primary button href is /reviews/new?preset=greenfield.
 ```
 
 **Affected files / projects:**
@@ -7582,29 +7584,29 @@ In archlucid-ui, find the demo explain page component (/demo/explain route — s
 ```
 Add query param preset support to the wizard and update self-qualification links.
 
-1. In archlucid-ui/src/app/runs/new/ (or NewRunWizardClient.tsx), read searchParams.get("preset") on mount:
+1. In archlucid-ui/src/app/(operator)/reviews/new/ (or NewRunWizardClient.tsx), read searchParams.get("preset") on mount:
    - "greenfield" → auto-select "Greenfield web app" preset (step 1)
    - "modernize" → auto-select "Modernize legacy system"
    - "blank" → auto-select "Blank (advanced)"
    - Any other value or missing → show preset selection as normal (no auto-select)
 
 2. In docs/go-to-market/SHOULD_YOU_EVALUATE.md, update Q4 decision tree:
-   - "Start with Pilot" → link to /runs/new?preset=greenfield with text "Start with Pilot (pre-fills greenfield preset)"
+   - "Start with Pilot" → link to /reviews/new?preset=greenfield with text "Start with Pilot (pre-fills greenfield preset)"
    - "Start with Operate" → unchanged (links to /governance)
 
 3. In docs/onboarding/EVALUATOR_WORKBOOK.md §Session flow step 1, add:
-   "Quick start: your-pilot-url/runs/new?preset=greenfield pre-fills the greenfield template."
+   "Quick start: your-pilot-url/reviews/new?preset=greenfield pre-fills the greenfield template."
 
 4. Add Vitest tests: ?preset=greenfield → greenfield preset selected on mount; missing/unknown param → no preset pre-selected.
 ```
 
 **Affected files / projects:**
 
-- `archlucid-ui/src/app/runs/new/` (wizard step 1 or `NewRunWizardClient.tsx`)
+- `archlucid-ui/src/app/(operator)/reviews/new/` (wizard step 1 or `NewRunWizardClient.tsx`)
 - `docs/go-to-market/SHOULD_YOU_EVALUATE.md`
 - `docs/onboarding/EVALUATOR_WORKBOOK.md`
 
-**Cross-ref:** TB-218 (demo viewer CTA uses same `/runs/new?preset=greenfield` link), TB-169 (pilot-first progressive disclosure).
+**Cross-ref:** TB-218 (demo viewer CTA uses same `/reviews/new?preset=greenfield` link), TB-169 (pilot-first progressive disclosure).
 
 ---
 
@@ -7642,7 +7644,7 @@ Documentation:
 
 - `ArchLucid.Domain/` or `ArchLucid.Application/` (add `RequestSource` to run/request model)
 - `ArchLucid.Api/Controllers/` (commit endpoint — add histogram recording)
-- `archlucid-ui/src/app/runs/new/` (add `requestSource: "wizard"` to submit body)
+- `archlucid-ui/src/app/(operator)/reviews/new/` (add `requestSource: "wizard"` to submit body)
 - `docs/library/OBSERVABILITY.md`
 - `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md`
 
@@ -9498,3 +9500,22 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope:** deleting the deprecated alias routes (later sunset TB); retiring `/result` (public-contract change, owner sign-off); force-closing ADR 0021 Phase 3 gate (iv) (owner/customer-traffic gated).
 
 **Refs:** ADR-0021; ADR-0022; ADR-0029; ADR-0030; ADR-0042; TB-302.
+
+## TB-306 — Durable outbox for run-export blob push
+
+**Status:** **Done** (2026-06-06).
+
+**Problem:** `POST /v1/artifacts/runs/{runId}/export/push` was the last fire-and-forget post-commit projection (`Task.Run`). API restart between `202 Accepted` and upload lost the push with no retry or operator signal.
+
+**Shipped:**
+
+1. `dbo.RunExportBlobPushOutbox` + Dapper/InMemory repositories (migration 248; mirrors retrieval/Cosmos outbox lease/backoff/dead-letter).
+2. `RunExportBlobPushOutboxProcessor` + leader-elected `RunExportBlobPushOutboxHostedService` — rebuilds ZIP via `IRunExportPackageBuilder` (no Mermaid PNG in worker), re-validates SAS, uploads via `IRunExportBlobPushService`.
+3. `IRunExportPackageBuilder` shared with GET download under strict guardrails (callers own PNG render + audit; worker passes `null` PNG).
+4. Push endpoint enqueues + `RunExportBlobPushQueued` audit; removed `Task.Run`.
+5. `RunExportBlobPushDeadLettered` audit; push service throws on HTTP failure so outbox retries.
+6. ADR **0043**; data consistency matrix, SQL outbox compression doc, orphan-probe registry, DI map updated.
+
+**Out of scope:** persisting ZIP bytes; encrypting SAS column; deduplicating repeated operator pushes.
+
+**Refs:** ADR-0004; ADR-0038; ADR-0043; TB-251; TB-305.

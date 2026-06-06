@@ -1,5 +1,12 @@
 /** Core Pilot surfaces: essential-tier nav only (no Show more / extended / advanced links). */
-const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>(["/", "/onboarding", "/reviews/new", "/reviews"]);
+const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
+  "/",
+  "/onboarding",
+  "/reviews/new",
+  "/reviews",
+  "/settings/extract-upload",
+  "/graph",
+]);
 
 /**
  * On Core Pilot surfaces, show only essential-tier nav links so the sidebar matches polished home

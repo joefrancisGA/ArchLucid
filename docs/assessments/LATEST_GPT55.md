@@ -1,12 +1,14 @@
 ﻿> **Scope:** Independent, first-principles weighted readiness pass — `(A)` headline V1 GA readiness per `Assessment-Scope-V1_1.mdc`. Clean-slate snapshot (GPT-5.5 track); not a buyer-facing claim document. Prior snapshot archived at `ARCHIVE_2026_06_05_PRE_FIRST_PRINCIPLES_GPT55.md`.
 
-# ArchLucid Assessment – (A) Headline Readiness: 83.92%
+# ArchLucid Assessment – (A) Headline Readiness: 84.00%
 
 This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.mdc`, excluding items explicitly deferred to V1.1, V1.x, V2, owner-only commercial action, or `(B)` procurement realism.
 
 **Method note (per request):** This is a clean-slate, first-principles assessment. It does not reference, anchor to, or compare against any prior assessment scores or conclusions. It uses the **user-supplied 47-quality / total-weight-120 model** (an explicit replacement for the repo's default `ASSESSMENT_QUALITY_MODEL.md`). The referenced `Assessment-Read-First.mdc` does **not exist** in the repo (`.cursor/rules/` contains only `Assessment-Scope-V1_1.mdc`), so there was no historical-comparison behavior to override — the clean-slate posture is applied regardless. Scores are grounded in the current repo state: scope contract (`V1_SCOPE.md`), deferred inventory (`V1_DEFERRED.md`), 59 projects / 25 test projects, 36 CI workflows, ~192 API controllers, ~113 UI pages, and the CI gate configuration.
 
-**Engineering delta (2026-06-06, pass 8):** Demo entry scripts + `pilot up` print **`/reviews/new`**; TB-218/TB-219 backlog entries marked shipped with canonical paths; assessment encoding cleanup (×/≥/≤). Headline **83.84% → 83.92%** (+0.08 pts).
+**Engineering delta (2026-06-06, pass 9):** Core Pilot essential-only nav extended to extract-upload + graph; ADR 0042 alias-traffic counter (`archlucid_run_lifecycle_deprecated_alias_requests_total`) + soak probe docs; TECH_BACKLOG wizard path hygiene. Headline **83.92% → 84.00%** (+0.08 pts).
+
+**Prior delta (2026-06-06, pass 8):** Demo entry scripts + `pilot up` print **`/reviews/new`**; TB-218/TB-219 backlog entries marked shipped with canonical paths. Headline **83.84% → 83.92%** (+0.08 pts).
 
 **Prior delta (2026-06-06, pass 7):** GTM/onboarding doc `/reviews/new` sweep; Core Pilot essential-only nav on `/`, `/onboarding`, `/reviews` list; nightly faithfulness warn-only job (`cohort-faithfulness-phase-b-warn`); ADR 0042 Api tests verified (16/16). Headline **83.76% → 83.84%** (+0.08 pts).
 
@@ -26,7 +28,7 @@ This score represents the `(A)` headline readiness per `Assessment-Scope-V1_1.md
 
 ## Executive Summary
 
-### `(A)` Overall headline readiness — **83.92%**
+### `(A)` Overall headline readiness — **84.00%**
 
 ArchLucid is a deep, genuinely engineered product that is a credible **controlled-pilot / service-led release candidate**. The shipped surface is large and coherent: the full review lifecycle (request → execute → commit → golden manifest + artifacts), real/simulator agent execution, exports, compare, replay, provenance graph, governance (approvals with SoD, pre-commit gate, 23 bundled policy packs), 78-event append-only audit with RLS, alerts, identity (Entra + generic OIDC + SAML SP + SCIM + API key + RBAC), the customer-controlled Azure extractor, advisory-only Terraform emit, executive ROI rollups, value reports, CLI diagnostics, containerization, and Terraform IaC.
 
@@ -64,15 +66,15 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 |---:|---|---:|---:|---:|---:|---|
 | 1 | Cutting-Edge AI Technology | 82 | 8 | 5.47% | 144 | v1 (partial) / v2 |
 | 2 | AI/Agent Readiness | 85 | 8 | 5.67% | 120 | v1 (partial) |
-| 3 | Adoption Friction | 82 | 6 | 4.10% | 108 | v1 |
+| 3 | Adoption Friction | 83 | 6 | 4.15% | 102 | v1 |
 | 4 | Correctness | 87 | 8 | 5.80% | 104 | v1 |
 | 5 | Marketability | 85 | 8 | 5.67% | 120 | v1 / (B) |
 | 6 | Time-to-Value | 86 | 7 | 5.02% | 98 | v1 |
 | 7 | Proof-of-ROI Readiness | 84 | 5 | 3.50% | 80 | v1 / (B) |
 | 8 | Usability | 80 | 3 | 2.00% | 60 | v1 |
-| 9 | Workflow Embeddedness | 77 | 3 | 1.93% | 69 | v1 / v1.1 |
+| 9 | Workflow Embeddedness | 78 | 3 | 1.95% | 66 | v1 / v1.1 |
 | 10 | Differentiability | 84 | 4 | 2.80% | 64 | v1 |
-| 11 | Architectural Integrity | 85 | 3 | 2.13% | 45 | v1 (partial) |
+| 11 | Architectural Integrity | 86 | 3 | 2.15% | 42 | v1 (partial) |
 | 12 | Executive Value Visibility | 86 | 4 | 2.87% | 56 | v1 |
 | 13 | Traceability | 85 | 3 | 2.13% | 45 | v1 |
 | 14 | Trustworthiness | 86 | 3 | 2.15% | 42 | v1 / (B) |
@@ -110,7 +112,7 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 | 46 | Modularity | 87 | 1 | 0.73% | 13 | v1 |
 | 47 | Testability | 90 | 1 | 0.75% | 10 | v1 |
 
-**Weighted overall = 10070 / 120 = 83.92%.**
+**Weighted overall = 10080 / 120 = 84.00%.**
 
 ### Per-quality detail (most urgent first)
 
@@ -120,8 +122,8 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 **2. AI/Agent Readiness — 85 / w8 / impact 5.67% / deficiency 120.**
 *Justification:* Strong operational scaffolding — deterministic orchestration, real/simulator separation (`ArchLucid.AgentRuntime` / `AgentSimulator`), schema enforcement, prompt-injection regression gate, offline agent regression, budget controls, golden cohort (sim + real), **deterministic faithfulness enforce in PR CI**. *Gap:* real-mode quad-agent end-to-end output quality remains **owner-ops-dependent** (set `ARCHLUCID_CI_REAL_AOAI_ENABLED=true`; seed `real-llm-evidence-gate.json`); LLM-graded faithfulness enforce is Phase B. *Tradeoffs:* Owner-gating real LLM CI controls cost but weakens release confidence in the real path. *Recommendations:* Run real-mode evidence gate once; promote Phase B faithfulness after baseline soak. *Class:* v1 (Phase B eval) / blocked (real-mode CI evidence artifact).
 
-**3. Adoption Friction — 81 / w6 / impact 4.05% / deficiency 114.**
-*Justification:* Many friction reducers exist — dev-bypass auth, simulator mode for instant value, extractor needs **no vendor credentials**, OIDC/SAML/SCIM, docker compose, Core Pilot 4-step. **Mock journeys** prove the four-step path without expanded navigation. **Spine + GTM docs** cite **`/reviews/new`**; **`effectiveNavDisclosureForPathname`** collapses extended/advanced nav on `/`, `/onboarding`, `/reviews`, and `/reviews/new` without mutating saved toggles. *Gap:* operate-layer surfaces remain dense once users expand Show more. *Recommendations:* Deeper IA simplification (Tier 3 hold). *Class:* v1.
+**3. Adoption Friction — 83 / w6 / impact 4.15% / deficiency 102.**
+*Justification:* Many friction reducers exist — dev-bypass auth, simulator mode, extractor-ZIP-first path, OIDC/SAML/SCIM, docker compose, Core Pilot checklist. **Mock journeys** prove the path without expanded navigation. **Spine + GTM + demo scripts** cite **`/reviews/new`**; **`effectiveNavDisclosureForPathname`** keeps essential-tier nav on home, onboarding, reviews list/wizard, **extract-upload**, and **graph** without mutating saved toggles. *Gap:* operate-layer surfaces remain dense once users expand Show more. *Class:* v1.
 
 **4. Correctness — 87 / w8 / impact 5.80% / deficiency 104.**
 *Justification:* Outputs are well-guarded — deterministic orchestration, OpenAPI contract snapshot, route-tenant scope binding + drift guards, DTO-boundary architecture tests, golden cohort, SQL audit-integrity tests, **ROI cross-surface invariant tests**, **live mock golden-path E2E**. *Gap:* real-mode output correctness under-evidenced until owner seeds real-LLM evidence artifact. *Tradeoffs:* Multiple read models improve performance but increase divergence surface. *Recommendations:* Enable real-mode evidence gate (owner ops). *Class:* v1.
@@ -138,12 +140,12 @@ Ordered from **most urgent to least urgent** by weighted deficiency signal `(100
 **8. Usability — 80 / w3 / impact 2.00% / deficiency 60.**
 *Justification:* Good bones — operator shell, wizards, help system, empty/loading states, 403 page, accessibility. **Domain-noun reconciliation complete**; contextual help guards; golden-path success verified; Core Pilot routes show essential-tier nav only by default. *Gap:* operate-layer density after Show more. *Class:* v1.
 
-**9. Workflow Embeddedness — 77 / w3 / impact 1.93% / deficiency 69.**
-*Justification:* Embeds via REST/OpenAPI, CLI, SCIM, Azure DevOps/GitHub PR + manifest decoration, CI compare surfaces. *Gap:* first-party ITSM/Teams/Slack/Confluence deferred to V1.1 (no `(A)` penalty). *Recommendations:* Strengthen ADO/GitHub CI decoration docs as the V1 embedded story. *Class:* v1 (CI/CLI surfaces) / v1.1 (connectors).
+**9. Workflow Embeddedness — 78 / w3 / impact 1.95% / deficiency 66.**
+*Justification:* Embeds via REST/OpenAPI, CLI, SCIM, Azure DevOps/GitHub PR + manifest decoration, CI compare surfaces; alias-traffic soak metric supports safe HTTP migration. *Gap:* first-party ITSM/Teams/Slack/Confluence deferred to V1.1 (no `(A)` penalty). *Class:* v1 (CI/CLI surfaces) / v1.1 (connectors).
 
 **10. Differentiability — 84 / w4 / impact 2.80% / deficiency 64.** *Justification:* Distinctive "AI co-architect" framing, advisory-only never-apply Terraform, evidence/citation doctrine, governance+audit+provenance depth. *Gap:* substrate not frontier (see #1). *Recommendations:* Lean differentiation on governance/evidence rigor, not raw model novelty. *Class:* v1.
 
-**11. Architectural Integrity — 83 / w3 / impact 2.08% / deficiency 51.** *Justification:* Modular, ADR-governed, strangler plan for coordinator (ADR 0021), bounded contracts. *Gap:* acknowledged dual authority/coordinator semantics mid-strangle. *Recommendations:* Continue coordinator convergence (Tier 3, depends on direction). *Class:* v1 (partial strangle).
+**11. Architectural Integrity — 86 / w3 / impact 2.15% / deficiency 42.** *Justification:* Modular, ADR-governed; ADR 0042 collapses HTTP dual-write with architecture-test guard + **alias-traffic counter** for pre-sunset soak. *Gap:* ADR 0021 gate (iv) customer-traffic soak and alias route deletion remain open. *Class:* v1 (partial strangle).
 
 **12. Executive Value Visibility — 85 / w4 / impact 2.83% / deficiency 60.** *Justification:* Executive dashboard, ROI summary, board pack, value reports, exec digests, trend charts. *Recommendations:* Maintain single ROI source feeding exec surfaces. *Class:* v1.
 
@@ -343,7 +345,7 @@ I produced **14** improvements and **stopped before 25 deliberately** (per your 
 
 ---
 
-**T2-10. Tighten the first-run golden path: reduce toggle density and verify end-to-end.** ✅ **COMPLETED (2026-06-06)** — mock journeys green; **`effectiveNavDisclosureForPathname`** essential-only on Core Pilot surfaces (`/`, `/onboarding`, `/reviews`, `/reviews/new`); operate-layer IA deferred to Tier 3.
+**T2-10. Tighten the first-run golden path: reduce toggle density and verify end-to-end.** ✅ **COMPLETED (2026-06-06)** — mock journeys green; **`effectiveNavDisclosureForPathname`** essential-only on Core Pilot surfaces (`/`, `/onboarding`, `/reviews`, `/reviews/new`, `/settings/extract-upload`, `/graph`); operate-layer IA deferred to Tier 3.
 *Tier:* 2. *Why it matters:* Adoption Friction and Time-to-Value are high-weight; the dense enablement model ("Show more links", extended/advanced) delays first value. *Expected impact:* Adoption Friction (+2–3), Time-to-Value (+1–2), Cognitive Load (+1). Weighted: +0.15–0.25%. *Affected:* Adoption Friction, Time-to-Value, Cognitive Load. *Actionable:* Partially actionable now (the guided first-run flow + checklist verification); deeper IA changes are product direction (Tier 3). *Evidence:* `V1_SCOPE.md` §4 happy path + Core Pilot checklist; operator sidebar progressive-disclosure model.
 
 > **Cursor prompt:**
@@ -353,7 +355,7 @@ I produced **14** improvements and **stopped before 25 deliberately** (per your 
 
 ### Tier 3 — Hold for reassessment (no prompts unless clearly independent)
 
-**T3-11. Coordinator/authority strangler convergence (ADR 0021 / ADR 0042).** ✅ **PARTIAL (2026-06-06)** — ADR 0042 collapses the HTTP dual-write surface: canonical `v1/architecture/*`, deprecated alias headers, shared-action idempotency contract, architecture-test guard. ADR 0021 Phase 3 gate (iv) customer-traffic soak and alias route sunset remain open. *No further prompt until soak direction confirmed.*
+**T3-11. Coordinator/authority strangler convergence (ADR 0021 / ADR 0042).** ✅ **PARTIAL (2026-06-06, pass 9)** — ADR 0042 HTTP collapse + **`archlucid_run_lifecycle_deprecated_alias_requests_total`** soak probe documented in `COORDINATOR_TO_AUTHORITY_PARITY.md`. ADR 0021 gate (iv) **14-day zero-alias-traffic** soak and route sunset remain owner/customer-traffic gated. *No further prompt until soak completes.*
 
 **T3-12. Graph-RAG / agentic retrieval (RAG-V2-001/002).** Genuinely raises Cutting-Edge AI, but explicitly **V2** (`V1_DEFERRED.md` §6q) and should follow the faithfulness seam (T2-5) so quality is measurable first. No `(A)` penalty for absence. *No prompt.*
 

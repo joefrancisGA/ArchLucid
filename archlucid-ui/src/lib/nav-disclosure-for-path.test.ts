@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { effectiveNavDisclosureForPathname } from "./nav-disclosure-for-path";
 
 describe("effectiveNavDisclosureForPathname", () => {
-  it.each(["/", "/onboarding", "/reviews/new", "/reviews"])(
+  it.each(["/", "/onboarding", "/reviews/new", "/reviews", "/settings/extract-upload", "/graph"])(
     "forces essential tier on Core Pilot path %s without changing stored preference semantics at call site",
     (path) => {
       expect(effectiveNavDisclosureForPathname(path, true, true)).toEqual({

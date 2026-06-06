@@ -51,6 +51,15 @@ public sealed class RunWriteLifecycleRoutesTests
         RunWriteLifecycleRoutes.CanonicalFor("v{version:apiVersion}/architecture/request").Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("v{version:apiVersion}/requests", "create")]
+    [InlineData("v{version:apiVersion}/runs/{runId}/submit", "execute")]
+    [InlineData("v{version:apiVersion}/runs/{runId}/manifest/finalize", "commit")]
+    public void DeprecatedAliasOperation_maps_alias_to_operation_id(string alias, string expectedOperation)
+    {
+        RunWriteLifecycleRoutes.DeprecatedAliasOperation(alias).Should().Be(expectedOperation);
+    }
+
     [Fact]
     public void All_exposes_exactly_three_lifecycle_operations()
     {
