@@ -9,27 +9,6 @@ import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-
 import { downloadValueReportDocx } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { buildAuthMeProxyRequestInit } from "@/lib/current-principal";
-import { DEFAULT_DEV_TENANT_ID } from "@/lib/scope-defaults";
-
-const ME_PATH = "/api/proxy/api/auth/me";
-
-async function resolveTenantIdFromMe(): Promise<string | null> {
-  const init = await buildAuthMeProxyRequestInit();
-  const res = await fetch(ME_PATH, init);
-
-  if (!res.ok) return null;
-
-  const body: unknown = await res.json();
-
-  if (typeof body !== "object" || body === null || !("claims" in body)) return null;
-
-  const claims = (body as { claims?: ReadonlyArray<{ type: string; value: string }> }).claims;
-  const row = claims?.find((c) => c.type === "tenant_id");
-
-  return row?.value?.trim() ?? null;
-}
-
 /** One-click sponsor DOCX for the current scope (last 30 days UTC). */
 export function GenerateSponsorValueReportButton() {
   const canMutate = useOperateCapability();
@@ -47,7 +26,6 @@ export function GenerateSponsorValueReportButton() {
     setError(null);
 
     try {
-      const tenantId = (await resolveTenantIdFromMe()) ?? DEFAULT_DEV_TENANT_ID;
       const to = new Date();
       const from = new Date(to);
 
@@ -56,7 +34,7 @@ export function GenerateSponsorValueReportButton() {
       const fromIso = from.toISOString();
       const toIso = to.toISOString();
 
-      await downloadValueReportDocx(tenantId, fromIso, toIso);
+      await downloadValueReportDocx(fromIso, toIso);
     } catch (e: unknown) {
       if (isApiRequestError(e)) {
         setError({

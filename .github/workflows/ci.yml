@@ -274,6 +274,9 @@ jobs:
       - name: Route tenant scope batch unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_route_tenant_batch.py"
 
+      - name: Route tenant P1 batch unit tests (TB-279–282, TB-281)
+        run: python -m unittest discover -s scripts/ci/tests -p "test_route_tenant_p1_batch.py"
+
       - name: DTO boundary batch unit tests (TB-285–287)
         run: python -m unittest discover -s scripts/ci/tests -p "test_dto_boundary_batch.py"
 

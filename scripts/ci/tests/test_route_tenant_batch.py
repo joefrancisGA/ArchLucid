@@ -11,7 +11,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 ROUTE_TENANT_MATRIX_ROUTES = (
-    "/api/authority/executive-summary/",
     "/v1/admin/tenants/",
     "/v1/admin/metering/tenants/",
     "/v1/value-report/",
@@ -45,7 +44,14 @@ class TestRouteTenantBatch(unittest.TestCase):
         path = REPO_ROOT / "ArchLucid.Api.Tests" / "Security" / "ScopedSnapshotReadIdorIntegrationTests.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("AssertMatchingTenantRouteNotForbiddenAsync", text)
-        self.assertIn("tb292", text.lower())
+        # TB-292 matrix shipped with tb292 markers; batch 5DU-route-tenant-p1 retargeted scope-only routes (TB-279/280/281).
+        has_positive_path_marker = (
+            "tb292" in text.lower()
+            or "tb279" in text.lower()
+            or "tb280" in text.lower()
+            or "tb281" in text.lower()
+        )
+        self.assertTrue(has_positive_path_marker, "positive-path matrix must retain TB-292 or scope-only successor markers")
 
     def test_route_tenant_scope_binding_filter_source_exists(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api" / "Security" / "RouteTenantScopeBindingFilter.cs"

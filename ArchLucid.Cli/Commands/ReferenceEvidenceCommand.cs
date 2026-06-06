@@ -63,7 +63,7 @@ internal static class ReferenceEvidenceCommand
         string query = includeDemo ? "?includeDemo=true" : string.Empty;
 
         using HttpResponseMessage response = await http.GetAsync(
-            $"v1/admin/tenants/{tenantId:D}/reference-evidence{query}",
+            $"v1/admin/reference-evidence{query}",
             cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.NotFound)

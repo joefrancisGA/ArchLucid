@@ -227,50 +227,42 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     [SkippableFact]
-    public async Task Tenant_a_matching_route_tenant_executive_summary_is_not_forbidden_sql_tb292()
+    public async Task Tenant_a_scope_only_executive_summary_is_not_forbidden_sql_tb280()
     {
         await AssertMatchingTenantRouteNotForbiddenAsync(
             "executive summary",
-            static (client, tenantId) => client.GetAsync($"/api/authority/executive-summary/{tenantId:D}"));
+            static (client, _) => client.GetAsync("/v1/reports/executive-summary"));
     }
 
     [SkippableFact]
-    public async Task Tenant_a_matching_route_tenant_reference_evidence_is_not_forbidden_sql_tb292()
+    public async Task Tenant_a_scope_only_reference_evidence_is_not_forbidden_sql_tb279()
     {
         await AssertMatchingTenantRouteNotForbiddenAsync(
             "reference evidence export",
-            static (client, tenantId) =>
-                client.GetAsync($"/v1/admin/tenants/{tenantId:D}/reference-evidence?includeDemo=false"));
+            static (client, _) =>
+                client.GetAsync("/v1/admin/reference-evidence?includeDemo=false"));
     }
 
     [SkippableFact]
-    public async Task Tenant_a_matching_route_tenant_metering_summary_is_not_forbidden_sql_tb292()
+    public async Task Tenant_a_scope_only_metering_summary_is_not_forbidden_sql_tb279()
     {
         DateTimeOffset start = DateTimeOffset.UtcNow.AddDays(-7);
         DateTimeOffset end = DateTimeOffset.UtcNow;
 
         await AssertMatchingTenantRouteNotForbiddenAsync(
             "metering summary",
-            (client, tenantId) =>
+            (client, _) =>
                 client.GetAsync(
-                    $"/v1/admin/metering/tenants/{tenantId:D}/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
+                    $"/v1/admin/metering/summary?periodStart={Uri.EscapeDataString(start.ToString("O"))}&periodEnd={Uri.EscapeDataString(end.ToString("O"))}"));
     }
 
     [SkippableFact]
-    public async Task Tenant_a_matching_route_tenant_value_report_generate_is_not_forbidden_sql_tb292()
+    public async Task Tenant_a_scope_only_value_report_generate_is_not_forbidden_sql_tb281()
     {
         await AssertMatchingTenantRouteNotForbiddenAsync(
             "value report generate",
-            static (client, tenantId) =>
-                client.PostAsync($"/v1/value-report/{tenantId:D}/generate", content: null));
-    }
-
-    [SkippableFact]
-    public async Task Tenant_b_cannot_read_tenant_a_executive_summary_by_route_tenant_sql_tb274()
-    {
-        await AssertCrossTenantTenantRouteDeniedAsync(
-            "executive summary",
-            static (client, tenantId) => client.GetAsync($"/api/authority/executive-summary/{tenantId:D}"));
+            static (client, _) =>
+                client.PostAsync("/v1/value-report/generate", content: null));
     }
 
     [SkippableFact]

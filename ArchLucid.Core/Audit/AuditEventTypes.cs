@@ -243,7 +243,7 @@ public static class AuditEventTypes
 
     /// <summary>
     ///     Stakeholder DOCX value report generated for the current scope (
-    ///     <c>POST /v1/value-report/{{tenantId}}/generate</c>).
+    ///     <c>POST /v1/value-report/generate</c>).
     /// </summary>
     public const string ValueReportGenerated = "ValueReportGenerated";
 

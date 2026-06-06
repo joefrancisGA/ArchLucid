@@ -8359,39 +8359,6 @@
         },
         "type": "object"
       },
-      "ExecutiveSummaryResponse": {
-        "properties": {
-          "complianceAlignmentScore": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "latestRunCompletedUtc": {
-            "format": "date-time",
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "latestRunId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "securityPostureScore": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "techDebtRiskScore": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "tenantId": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "ExecutiveSummaryResult": {
         "properties": {
           "costWasteUsd": {
@@ -22178,101 +22145,6 @@
         "x-archlucid-audience": "operator"
       }
     },
-    "/api/authority/executive-summary/{tenantId}": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "tenantId",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExecutiveSummaryResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExecutiveSummaryResponse"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExecutiveSummaryResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Forbidden"
-          }
-        },
-        "tags": [
-          "ExecutiveSummary"
-        ],
-        "x-archlucid-audience": "operator"
-      }
-    },
     "/robots.txt": {
       "get": {
         "responses": {
@@ -22674,7 +22546,7 @@
           }
         },
         "tags": [
-          "Admin"
+          "AdminCrossTenantUsageRollup"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -24875,6 +24747,83 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/admin/metering/summary": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "periodStart",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "periodEnd",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantUsageSummary"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantUsageSummary"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantUsageSummary"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "MeteringAdmin"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/admin/metering/tenants/{tenantId}/summary": {
       "get": {
         "parameters": [
@@ -25126,6 +25075,46 @@
         },
         "tags": [
           "AdminRagHealth"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/reference-evidence": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "includeDemo",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "ReferenceEvidenceAdmin"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -26636,7 +26625,7 @@
           }
         },
         "tags": [
-          "ReferenceEvidenceAdmin"
+          "ReferenceEvidenceAdminLegacy"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -62289,6 +62278,137 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/value-report/generate": {
+      "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileContentResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileContentResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileContentResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "ValueReport"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/value-report/jobs/{jobId}/docx": {
       "get": {
         "parameters": [
@@ -62831,6 +62951,9 @@
       "name": "AdminAuthDiagnostics"
     },
     {
+      "name": "AdminCrossTenantUsageRollup"
+    },
+    {
       "name": "AdminCustomerSuccess"
     },
     {
@@ -63147,6 +63270,9 @@
     },
     {
       "name": "ReferenceEvidenceAdmin"
+    },
+    {
+      "name": "ReferenceEvidenceAdminLegacy"
     },
     {
       "name": "Registration"

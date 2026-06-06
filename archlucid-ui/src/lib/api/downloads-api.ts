@@ -369,17 +369,13 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
 }
 
 /** POST sponsor value report DOCX (`ExecuteAuthority`, Standard+ tier on API). Browser-only download. */
-export async function downloadValueReportDocx(
-  tenantId: string,
-  fromIso: string,
-  toIso: string,
-): Promise<void> {
+export async function downloadValueReportDocx(fromIso: string, toIso: string): Promise<void> {
   if (!isBrowser()) {
     throw new Error("downloadValueReportDocx is only supported in the browser.");
   }
 
   await ensureOidcBearerReady();
-  const path = `/v1/value-report/${encodeURIComponent(tenantId)}/generate?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`;
+  const path = `/v1/value-report/generate?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`;
   const url = `/api/proxy${path}`;
   const headers = new Headers();
   headers.set(
@@ -411,7 +407,7 @@ export async function downloadValueReportDocx(
 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
-    `ArchLucid-value-report-${tenantId}.docx`;
+    "ArchLucid-value-report.docx";
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");

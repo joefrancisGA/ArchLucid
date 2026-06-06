@@ -86,7 +86,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         Uri url = new(
-            $"/v1/value-report/{ScopeIds.DefaultTenant:D}/generate?from=2026-01-01T00:00:00.0000000Z&to=2026-01-10T00:00:00.0000000Z",
+            "/v1/value-report/generate?from=2026-01-01T00:00:00.0000000Z&to=2026-01-10T00:00:00.0000000Z",
             UriKind.Relative);
 
         using HttpResponseMessage res = await client.PostAsync(url, null);

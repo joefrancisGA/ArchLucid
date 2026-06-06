@@ -75,6 +75,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /settings/api-keys |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
+| `Admin/AdminCrossTenantUsageRollupController.cs` | `/v1/admin/analytics` | none | RequireOperatorRole |  |  |
 | `Admin/AdminCustomerSuccessController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminFleetLlmCogsController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AdminIdentityProviderDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
@@ -100,9 +101,9 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/JobsController.cs` | `/v1/jobs` | none | ReadAuthority |  |  |
 | `Admin/MarketingPricingQuoteAgingAdminController.cs` | `/v1/admin/marketing/pricing-quote-aging` | none | AdminAuthority |  |  |
 | `Admin/MarketingPricingQuoteFollowUpAdminController.cs` | `/v1/admin/marketing/pricing-quote-requests` | none | AdminAuthority |  |  |
-| `Admin/MeteringAdminController.cs` | `/v1/admin/metering` | none | AdminAuthority | /settings/tenant-cost |  |
 | `Admin/PromptVariantsAdminController.cs` | `/v1/admin/prompt-variants` | none | AdminAuthority |  |  |
-| `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/tenants/{tenantId:guid}/reference-evidence` | none | AdminAuthority |  |  |
+| `Admin/ReferenceEvidenceAdminController.cs` | `/v1/admin/reference-evidence` | none | AdminAuthority |  |  |
+| `Admin/ReferenceEvidenceAdminLegacyController.cs` | `/v1/admin/tenants/{tenantId:guid}/reference-evidence` | none | AdminAuthority |  |  |
 | `Admin/RoiBulletinAdminController.cs` | `/v1/admin/roi-bulletin-preview` | none | AdminAuthority |  |  |
 | `Admin/ScimTokensAdminController.cs` | `/v1/admin/scim/tokens` | none | AdminAuthority |  |  |
 | `Admin/ScopeDebugController.cs` | `/v1/scope` | none | ReadAuthority |  |  |
@@ -139,7 +140,6 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/AzureExtractorUploadController.cs` | `/v1/azure-extractor` | none | ReadAuthority |  |  |
 | `Authority/DocxExportController.cs` | `/v1/docx` | standard | ReadAuthority |  |  |
 | `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/run/{runId:guid}/evidence` | none | ExecuteAuthority |  |  |
-| `Authority/ExecutiveSummaryController.cs` | `/api/authority/executive-summary` | none | ReadAuthority |  | non_versioned_executive_api |
 | `Authority/ExportsController.cs` | `/v1/architecture` | standard | ReadAuthority |  |  |
 | `Authority/FastPathContextController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |
 | `Authority/ImportRequestFileController.cs` | `/v1/architecture` | none | ReadAuthority |  |  |

@@ -11,12 +11,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
-/// <summary>Admin-only export of reference-evidence ZIP bundles for the ambient tenant scope (TB-279).</summary>
+/// <summary>Deprecated tenant-in-path alias for <see cref="ReferenceEvidenceAdminController" /> (TB-279).</summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/admin/reference-evidence")]
-public sealed class ReferenceEvidenceAdminController(
+[Route("v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence")]
+[Obsolete("Use GET /v1/admin/reference-evidence — tenant is resolved from scope only.")]
+public sealed class ReferenceEvidenceAdminLegacyController(
     IReferenceEvidenceAdminExportService exportService,
     IScopeContextProvider scopeContextProvider,
     IConfiguration configuration) : ControllerBase
@@ -30,15 +31,12 @@ public sealed class ReferenceEvidenceAdminController(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    /// <summary>
-    ///     ZIP containing <c>pilot-run-deltas.json</c>, first-value Markdown/PDF, optional sponsor one-pager, and a README.
-    /// </summary>
-    /// <param name="includeDemo">When <see langword="true" />, allow Contoso demo seed runs as the anchor.</param>
     [HttpGet]
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
-    public Task<IActionResult> GetReferenceEvidenceZipAsync(
+    public Task<IActionResult> GetReferenceEvidenceZipLegacyAsync(
+        Guid tenantId,
         [FromQuery] bool includeDemo = false,
         CancellationToken cancellationToken = default)
     {
@@ -52,7 +50,7 @@ public sealed class ReferenceEvidenceAdminController(
             scope,
             baseForLinks,
             includeDemo,
-            scope.TenantId,
+            tenantId,
             cancellationToken);
     }
 }

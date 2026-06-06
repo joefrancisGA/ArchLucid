@@ -148,7 +148,13 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 
 CLI: `archlucid first-value-report <runId> [--save]` · `archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the operator-shell page renders it whenever the run has a golden manifest.
 
-**Admin reference bundle (ZIP):** `GET /v1/admin/tenants/{tenantId}/reference-evidence?includeDemo=false` — **AdminAuthority**. Returns **`application/zip`** (`pilot-run-deltas.json`, first-value Markdown/PDF when build succeeds, sponsor one-pager when Standard-tier path succeeds, `README.txt`) scoped to the tenant’s latest committed non-demo run unless `includeDemo=true`. **404** when no suitable run exists. CLI: `archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]`.
+**Admin reference bundle (ZIP):** `GET /v1/admin/reference-evidence?includeDemo=false` — **AdminAuthority**; tenant from ambient scope only (TB-279). Legacy alias `GET /v1/admin/tenants/{tenantId}/reference-evidence` remains one release with route↔scope binding. Returns **`application/zip`** (`pilot-run-deltas.json`, first-value Markdown/PDF when build succeeds, sponsor one-pager when Standard-tier path succeeds, `README.txt`) scoped to the tenant’s latest committed non-demo run unless `includeDemo=true`. **404** when no suitable run exists. CLI: `archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]` (calls scope-only route; `--tenant` names output only).
+
+**Tenant value report (DOCX):** `POST /v1/value-report/generate?from=&to=` — **ExecuteAuthority** + **Standard** tier; tenant from ambient scope (TB-281). Legacy alias `POST /v1/value-report/{tenantId}/generate` remains one release with route↔scope binding.
+
+**Admin metering summary:** `GET /v1/admin/metering/summary?periodStart=&periodEnd=` — **AdminAuthority**; tenant from ambient scope (TB-279). Legacy alias `GET /v1/admin/metering/tenants/{tenantId}/summary` remains one release with route↔scope binding.
+
+**Executive summary (reports):** `GET /v1/reports/executive-summary` — **ReadAuthority**; canonical ambient-scope contract (TB-280). Legacy `GET api/authority/executive-summary/{tenantId}` removed.
 
 **Admin marketing pricing quote aging:** `GET /v1/admin/marketing/pricing-quote-aging` — **AdminAuthority**. Returns **`MarketingPricingQuoteAgingResponse`** — open rows from **`dbo.MarketingPricingQuoteRequestsAging`** with **`warnCount`** / **`breachCount`** aggregates for operator triage (Improvement #6). Operator UI: **`/admin/pricing-quote-aging`**. Runbook: **`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`**.
 

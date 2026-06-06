@@ -53,7 +53,7 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         await commit.EnsureSuccessForTestAsync();
 
         HttpResponseMessage export = await client.GetAsync(
-            $"/v1/admin/tenants/{ScopeIds.DefaultTenant:D}/reference-evidence?includeDemo=false");
+            "/v1/admin/reference-evidence?includeDemo=false");
         export.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound);
 
         if (export.StatusCode == HttpStatusCode.NotFound)

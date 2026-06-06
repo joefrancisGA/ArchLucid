@@ -55,18 +55,21 @@ public sealed class ValueReportController(
     private readonly IValueReportRenderer _valueReportRenderer =
         valueReportRenderer ?? throw new ArgumentNullException(nameof(valueReportRenderer));
 
-    /// <summary>Generates a DOCX value report for the tenant (sync) or enqueues background generation for large windows.</summary>
+    /// <summary>Generates a DOCX value report for the ambient tenant scope (TB-281).</summary>
     // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("generate")]
     [HttpPost("{tenantId:guid}/generate")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GenerateAsync(
-        Guid tenantId,
+        Guid? tenantId,
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
         CancellationToken cancellationToken)
     {
+        _ = tenantId;
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         DateTimeOffset end = to ?? TimeProvider.System.GetUtcNow();
@@ -98,7 +101,8 @@ public sealed class ValueReportController(
 
         byte[] bytes = await _valueReportRenderer.RenderAsync(snapshot, cancellationToken);
 
-        string fileName = $"ArchLucid-value-report-{tenantId:N}-{start:yyyyMMdd}-{end:yyyyMMdd}.docx";
+        string fileName =
+            $"ArchLucid-value-report-{scope.TenantId:N}-{start:yyyyMMdd}-{end:yyyyMMdd}.docx";
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -107,7 +111,7 @@ public sealed class ValueReportController(
                 DataJson = JsonSerializer.Serialize(
                     new
                     {
-                        tenantId,
+                        tenantId = scope.TenantId,
                         from = start,
                         to = end,
                         byteCount = bytes.Length,
@@ -122,7 +126,7 @@ public sealed class ValueReportController(
             fileName);
     }
 
-    /// <summary>Polls async value-report generation started by <see cref="GenerateAsync" />.</summary>
+    /// <summary>Polls async value-report generation started by generate endpoints.</summary>
     [HttpGet("jobs/{jobId:guid}/docx")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

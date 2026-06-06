@@ -32,6 +32,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Admin/AdminCrossTenantUsageRollupController.cs",
+      "class_name": "AdminCrossTenantUsageRollupController",
+      "route_template": "v{version:apiVersion}/admin/analytics",
+      "normalized_prefix": "/v1/admin/analytics",
+      "commercial_tier": "none",
+      "class_policy": "RequireOperatorRole",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Admin/AdminCustomerSuccessController.cs",
       "class_name": "AdminCustomerSuccessController",
       "route_template": "v{version:apiVersion}/admin",
@@ -282,16 +292,6 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Admin/MeteringAdminController.cs",
-      "class_name": "MeteringAdminController",
-      "route_template": "v{version:apiVersion}/admin/metering",
-      "normalized_prefix": "/v1/admin/metering",
-      "commercial_tier": "none",
-      "class_policy": "AdminAuthority",
-      "exemption": null,
-      "nav_operator_href": "/settings/tenant-cost"
-    },
-    {
       "controller_file": "Admin/PromptVariantsAdminController.cs",
       "class_name": "PromptVariantsAdminController",
       "route_template": "v{version:apiVersion}/admin/prompt-variants",
@@ -304,6 +304,16 @@
     {
       "controller_file": "Admin/ReferenceEvidenceAdminController.cs",
       "class_name": "ReferenceEvidenceAdminController",
+      "route_template": "v{version:apiVersion}/admin/reference-evidence",
+      "normalized_prefix": "/v1/admin/reference-evidence",
+      "commercial_tier": "none",
+      "class_policy": "AdminAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Admin/ReferenceEvidenceAdminLegacyController.cs",
+      "class_name": "ReferenceEvidenceAdminLegacyController",
       "route_template": "v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence",
       "normalized_prefix": "/v1/admin/tenants/{tenantId:guid}/reference-evidence",
       "commercial_tier": "none",
@@ -669,16 +679,6 @@
       "commercial_tier": "none",
       "class_policy": "ExecuteAuthority",
       "exemption": null,
-      "nav_operator_href": null
-    },
-    {
-      "controller_file": "Authority/ExecutiveSummaryController.cs",
-      "class_name": "ExecutiveSummaryController",
-      "route_template": "api/authority/executive-summary",
-      "normalized_prefix": "/api/authority/executive-summary",
-      "commercial_tier": "none",
-      "class_policy": "ReadAuthority",
-      "exemption": "non_versioned_executive_api",
       "nav_operator_href": null
     },
     {

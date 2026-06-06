@@ -31,7 +31,7 @@ public sealed class MeteringAdminControllerTests
     }
 
     [SkippableFact]
-    public async Task GetTenantSummaryAsync_returns_bad_request_when_period_end_not_after_start()
+    public async Task GetSummaryAsync_returns_bad_request_when_period_end_not_after_start()
     {
         Mock<IUsageMeteringService> metering = new();
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -39,7 +39,7 @@ public sealed class MeteringAdminControllerTests
         DateTimeOffset start = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
         DateTimeOffset end = start;
 
-        IActionResult result = await sut.GetTenantSummaryAsync(tenantId, start, end, CancellationToken.None);
+        IActionResult result = await sut.GetSummaryAsync(start, end, CancellationToken.None);
 
         ObjectResult problem = result.Should().BeOfType<ObjectResult>().Subject;
         problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -50,7 +50,7 @@ public sealed class MeteringAdminControllerTests
     }
 
     [SkippableFact]
-    public async Task GetTenantSummaryAsync_returns_rows_from_metering()
+    public async Task GetSummaryAsync_returns_rows_from_metering()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         DateTimeOffset periodStart = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
@@ -70,7 +70,7 @@ public sealed class MeteringAdminControllerTests
         MeteringAdminController sut = CreateSut(metering.Object, tenantId);
 
         IActionResult result =
-            await sut.GetTenantSummaryAsync(tenantId, periodStart, periodEnd, CancellationToken.None);
+            await sut.GetSummaryAsync(periodStart, periodEnd, CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         IReadOnlyList<TenantUsageSummary> body = ok.Value.Should().BeAssignableTo<IReadOnlyList<TenantUsageSummary>>()

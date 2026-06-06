@@ -163,7 +163,7 @@ if ($seed.StatusCode -notin @(200, 204)) {
 
 $from = "2025-03-01T00:00:00.0000000Z"
 $to = "2025-04-01T00:00:00.0000000Z"
-$genUrl = "$base/v1.0/value-report/$defaultTenant/generate?from=$([uri]::EscapeDataString($from))&to=$([uri]::EscapeDataString($to))"
+$genUrl = "$base/v1.0/value-report/generate?from=$([uri]::EscapeDataString($from))&to=$([uri]::EscapeDataString($to))"
 
 Write-Host "POST $genUrl"
 $genReq = @{

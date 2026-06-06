@@ -4,10 +4,7 @@ import { useCallback, useState } from "react";
 
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
-import { DEFAULT_DEV_TENANT_ID } from "@/lib/scope-defaults";
-
 import type { ValueReportPageServerLoad } from "./load-value-report-page-data";
-import { resolveTenantIdFromMe } from "./resolve-tenant-id-from-me";
 import { toValueReportActionError } from "./to-value-report-action-error";
 import type { ValueReportActionError } from "./value-report-action-error";
 
@@ -46,11 +43,10 @@ export function useValueReportPage(loaded: ValueReportPageServerLoad): UseValueR
     setError(null);
 
     try {
-      const tenantId = (await resolveTenantIdFromMe()) ?? DEFAULT_DEV_TENANT_ID;
       const fromIso = new Date(fromUtc).toISOString();
       const toIso = new Date(toUtc).toISOString();
 
-      await downloadValueReportDocx(tenantId, fromIso, toIso);
+      await downloadValueReportDocx(fromIso, toIso);
     } catch (e: unknown) {
       setError(toValueReportActionError(e, "Could not generate value report."));
     } finally {

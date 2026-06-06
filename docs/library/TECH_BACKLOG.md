@@ -2,7 +2,7 @@
 
 ## Cursor-actionable backlog — remaining by architectural quality
 
-**Updated:** 2026-06-05 (after batch **5DX-trust-p2** — **TB-288**, **TB-301** Done). **~28 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
+**Updated:** 2026-06-05 (after batch **5DU-route-tenant-p1** — **TB-279–282**, **TB-281** Done). **~24 unique** engineering tasks (BE/SEC register pairs counted once). Excludes **TB-135**, **TB-136** (V1.1 assurance backlog), **TB-138** (owner Azure OpenAI secrets), and **TB-140** / G-REAL (owner/credentialed). Sorted **descending**.
 
 | Architectural quality | Remaining tasks |
 | --- | ---: |
@@ -11,14 +11,14 @@
 | Reliability | 3 |
 | Deployability | 5 |
 | AI/Agent readiness | 5 |
-| Architectural integrity | 6 |
+| Architectural integrity | 4 |
 | Adoption friction | 4 |
 | Commercial / marketability | 3 |
 | Data consistency | 3 |
 | Cutting-edge AI | 3 |
 | Explainability | 3 |
 | Proof-of-ROI / executive value | 3 |
-| Trustworthiness | 2 |
+| Trustworthiness | 0 |
 | Maintainability | 2 |
 | Traceability | 2 |
 | Interoperability | 2 |
@@ -27,9 +27,9 @@
 | Scalability | 1 |
 | Cost-effectiveness | 1 |
 | Supportability | 1 |
-| **Total (unique)** | **~28** |
+| **Total (unique)** | **~24** |
 
-**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–278** **Done** (batch **5DU-route-tenant-p0**); **TB-279–282** remain. **DTO boundary:** **TB-283–288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **5DU-route-tenant-p1** (**TB-281** first) or remaining **TB-279–282**. Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
+**BDA register:** all **150** buyer-demo defects are **BDA-001…150** under **TB-273** (detail table in `## TB-273` below). **TB-275** **Done** (batch **5DT-demo-revalidate-p0**). **Route-tenant:** **TB-276–282** **Done** (batches **5DU-route-tenant-p0**, **5DU-route-tenant-p1**). **DTO boundary:** **TB-283–288** **Done** (batches **5DW-trust-pilot-p0**, **5DW-trust-paid-p1a**, **5DX-trust-p2**). **Coverage hardening:** **TB-289–294** **Done** (batch **5DW-trust-pilot-p0**); **TB-295–300** **Done** (batch **5DW-trust-paid-p1b**); **TB-301** **Done** (batch **5DX-trust-p2**). **TB-274 INV-009:** mutating-route posture register **complete** (batches **5DS–5DV**; **0** grandfathered unclassified). **Next recommended batch:** **TB-106–108** (run-detail operator fidelity) or **TB-138** (owner Azure OpenAI). Index: [`TECH_BACKLOG_TB274_INDEX.md`](TECH_BACKLOG_TB274_INDEX.md), buyer-demo: [`TECH_BACKLOG_BDA_INDEX.md`](TECH_BACKLOG_BDA_INDEX.md).
 
 ---
 
@@ -241,10 +241,10 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-276 | Route tenant scope binding filter — replace per-controller `RouteTenantScopeAuthorization.ForbidWhenRouteTenantDiffersFromScope` calls with a global `IAsyncActionFilter` (or endpoint convention) that forbids `{tenantId}` / `{id}` route values when they differ from `IScopeContextProvider.GetCurrentScope().TenantId`; **exclude** routes under `PlatformTenantDeletionAuthority` and `/internal/*` cross-tenant surfaces; remove duplicated controller guards once filter is registered | Trustworthiness P0 — closes IDOR regression class from BE-014–016; single HTTP enforcement point after `HttpScopeContextProvider` | M |
 | TB-277 | Route `{tenantId}` CI drift guard — `scripts/ci/assert_route_tenant_scope_guard.py` fails when a controller action binds `{tenantId:guid}` (or `{id:guid}` on tenant-admin paths) without the filter attribute/convention or an explicit allowlist entry; wire into API CI | Trustworthiness P1 — prevents new unguarded tenant-in-route endpoints | S |
 | TB-278 | Route tenant IDOR integration test matrix — for each tenant-scoped `{tenantId}` route (executive summary, reference-evidence, metering, value-report): tenant A token + tenant B route → **403**; matching tenant → **200**/expected status; no dedicated tests exist today | Testability P1 — proves BE-014–016 binding holds under auth permutations | S |
-| TB-281 | Value-report scope-only URL — change `POST /v1/value-report/{tenantId}/generate` to scope-only `POST /v1/value-report/generate` (tenant from `IScopeContextProvider` only); update OpenAPI, generated client, `downloads-api.ts` / `GenerateSponsorValueReportButton.tsx`; keep old route as deprecated alias returning 308 or 403-on-mismatch for one release if needed | Trustworthiness P1 — completes TB-075 item 3 (client-chosen tenant in path) | S |
-| TB-279 | Tenant-scoped admin route migration — collapse redundant `{tenantId}` segments on tenant-admin surfaces to ambient scope: e.g. `GET /v1/admin/metering/summary`, `GET /v1/admin/reference-evidence`, align naming in OpenAPI; update UI/CLI callers; document that `AdminAuthority` is tenant-scoped, not platform cross-tenant | Architectural integrity P2 — removes misleading `/admin/tenants/{tenantId}/…` platform-admin URL shape | M |
-| TB-280 | Retire legacy `GET api/authority/executive-summary/{tenantId}` — redirect clients to `GET /v1/reports/executive-summary` (ambient scope); remove duplicate controller or mark obsolete + CI guard against new callers | Architectural integrity P2 — one executive-summary contract | XS |
-| TB-282 | Reclassify cross-tenant usage rollup — move `AdminController.GetCrossTenantUsageSummary` (`GET …/admin/analytics/cross-tenant-summary`) from `AdminAuthority` to `RequireOperatorRole` (or document + enforce platform-only break-glass); tenant admins must not reach fleet-wide aggregates via tenant-admin policy | Trustworthiness P2 — policy/URL semantics alignment | XS |
+| ~~TB-281~~ | ~~Value-report scope-only URL~~ — **Done** (batch **5DU-route-tenant-p1**): `POST /v1/value-report/generate` + UI/CLI callers; legacy `{tenantId}` alias retained | Trustworthiness P1 | S |
+| ~~TB-279~~ | ~~Tenant-scoped admin route migration~~ — **Done** (batch **5DU-route-tenant-p1**): scope-only reference-evidence + metering summary; legacy aliases retained | Architectural integrity P2 | M |
+| ~~TB-280~~ | ~~Retire legacy authority executive-summary `{tenantId}` route~~ — **Done** (batch **5DU-route-tenant-p1**): removed `ExecutiveSummaryController`; CI guard in `test_route_tenant_p1_batch.py` | Architectural integrity P2 | XS |
+| ~~TB-282~~ | ~~Cross-tenant usage rollup policy alignment~~ — **Done** (batch **5DU-route-tenant-p1**): `AdminCrossTenantUsageRollupController` + **RequireOperatorRole**; RBAC integration tests | Trustworthiness P2 | XS |
 | ~~TB-283~~ | ~~Buyer run detail summary DTO~~ — **Done** (batch **5DW-trust-pilot-p0**): `BuyerRunDetailSummaryDto`, `RunDetailBuyerMapper`, `GET /v1/authority/runs/{runId}/buyer-summary`, buyer-polished UI loader | Architectural integrity P0 | M |
 | ~~TB-284~~ | ~~Audience-tier Problem Details~~ — **Done** (batch **5DW-trust-pilot-p0**): `ProblemDetailsAudience`, `x-archlucid-audience: buyer`, buyer-safe `supportHint` copy + golden tests | Trustworthiness P0 | S |
 | ~~TB-285~~ | ~~CI forbidden-property guard for buyer OpenAPI schemas~~ — **Done** (batch **5DW-trust-paid-p1a**): `ProofSurfaceForbiddenPropertyDriftTests`, `buyer_dto_forbidden_properties.txt`, `test_dto_boundary_batch.py` | Testability P1 | S |
@@ -9059,100 +9059,33 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 
 ---
 
-## TB-281 — Value-report scope-only URL (P1)
+## TB-281 — Value-report scope-only URL (P1) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
-**Source:** Route-based tenant addressing assessment, 2026-06-04. Completes **TB-075** item 3 (marked Done for proxy posture but path tenant remains).
-
-**Problem:** `POST /v1/value-report/{tenantId}/generate` lets the client supply tenant in the URL; `downloads-api.ts` builds the path with a caller-supplied `tenantId`. Even with **TB-276**, this is unnecessary attack surface and duplicates scope.
-
-**What to do:**
-
-1. Add `POST /v1/value-report/generate` — tenant from `IScopeContextProvider` only.
-2. Update `ValueReportController`; deprecate `{tenantId}` route (403 on mismatch during transition, then remove).
-3. Update `archlucid-ui/src/lib/api/downloads-api.ts`, generated OpenAPI types, and any CLI callers.
-4. Integration test: generate without path tenant; cross-tenant path param denied.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api/Controllers/ValueReports/ValueReportController.cs`
-- `archlucid-ui/src/lib/api/downloads-api.ts`
-- `archlucid-ui/src/components/GenerateSponsorValueReportButton.tsx`
-- OpenAPI / `api-types.generated.ts`
-
-**Size estimate:** **S** — ~4–6 hours.
+**Shipped:** `POST /v1/value-report/generate`; legacy `{tenantId}` alias retained; `downloads-api.ts` + UI callers updated; `test_route_tenant_p1_batch.py`.
 
 **Cross-ref:** **TB-075**, **TB-276**, **TB-279**.
 
 ---
 
-## TB-279 — Tenant-scoped admin route migration (P2)
+## TB-279 — Tenant-scoped admin route migration (P2) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
-**Source:** Route-based tenant addressing assessment, 2026-06-04.
-
-**Problem:** `AdminAuthority` URLs like `/v1/admin/tenants/{tenantId}/reference-evidence` imply platform operators can target arbitrary tenants; auth only permits **tenant admin of the token tenant**. Misleading for security review and OpenAPI consumers.
-
-**What to do:**
-
-1. Introduce scope-only routes: `GET /v1/admin/reference-evidence`, `GET /v1/admin/metering/summary` (tenant from scope).
-2. Keep old routes as deprecated aliases (same **403** binding) for one release if external clients exist; document in `API_CONTRACTS.md`.
-3. Update UI/admin CLI references; regenerate client.
-4. Do **not** change `AdminTenantsController` (`PlatformTenantDeletionAuthority`) — that route shape is intentional.
-
-**Affected files / projects:**
-
-- `ReferenceEvidenceAdminController.cs`, `MeteringAdminController.cs`
-- `docs/library/API_CONTRACTS.md`
-- Generated client + any admin scripts
-
-**Size estimate:** **M** — ~1 eng day (includes client regen + caller updates).
+**Shipped:** `GET /v1/admin/reference-evidence`, `GET /v1/admin/metering/summary`; legacy aliases + `ReferenceEvidenceAdminLegacyController`; CLI scope-only path; `API_CONTRACTS.md`.
 
 **Cross-ref:** **TB-276**, **TB-281**, **TB-280**.
 
 ---
 
-## TB-280 — Retire legacy authority executive-summary `{tenantId}` route (P2)
+## TB-280 — Retire legacy authority executive-summary `{tenantId}` route (P2) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
-**Source:** Route-based tenant addressing assessment, 2026-06-04.
-
-**Problem:** Two executive-summary endpoints coexist: legacy `GET api/authority/executive-summary/{tenantId}` and canonical `GET /v1/reports/executive-summary` (ambient scope). Duplicate contracts confuse integrators.
-
-**What to do:**
-
-1. Audit callers (UI, tests, generated client); migrate to `/v1/reports/executive-summary`.
-2. Obsolete or remove `ArchLucid.Api.Controllers.Authority.ExecutiveSummaryController`.
-3. CI guard: fail if new references to `api/authority/executive-summary/{tenantId}` appear outside allowlist.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api/Controllers/Authority/ExecutiveSummaryController.cs`
-- `ArchLucid.Api/Controllers/Reports/ExecutiveSummaryController.cs`
-- `archlucid-ui` / client grep targets
-
-**Size estimate:** **XS** — ~2–3 hours.
+**Shipped:** removed `Authority/ExecutiveSummaryController`; positive-path matrix uses `/v1/reports/executive-summary`; CI guard blocks new legacy references.
 
 **Cross-ref:** **TB-279**, EVV cluster (**TB-244–249**).
 
 ---
 
-## TB-282 — Cross-tenant usage rollup policy alignment (P2)
+## TB-282 — Cross-tenant usage rollup policy alignment (P2) — **Done (2026-06-05 batch 5DU-route-tenant-p1)**
 
-**Source:** Route-based tenant addressing assessment, 2026-06-04.
-
-**Problem:** `AdminController.GetCrossTenantUsageSummary` (`GET …/admin/analytics/cross-tenant-summary`) uses **`AdminAuthority`** (tenant admin) but returns **fleet-wide** aggregates. Tenant admins should not reach cross-tenant rollups via the same policy as tenant metering admin.
-
-**What to do:**
-
-1. Change authorization to **`RequireOperatorRole`** (match `InternalCrossTenantAnalyticsController` posture) **or** move under `/v1/internal/analytics/…`.
-2. Add integration test: tenant-admin JWT → **403**; operator role → **200**.
-3. Document in `docs/SECURITY.md` RBAC table: cross-tenant analytics = operator/platform only.
-
-**Affected files / projects:**
-
-- `ArchLucid.Api/Controllers/Admin/AdminController.cs`
-- `docs/SECURITY.md`
-- `ArchLucid.Api.Tests` (RBAC test)
-
-**Size estimate:** **XS** — ~2 hours.
+**Shipped:** `AdminCrossTenantUsageRollupController` with **RequireOperatorRole**; `AdminCrossTenantUsageRollupAuthorizationIntegrationTests`; RBAC note in `contributor-reference/SECURITY.md`.
 
 **Cross-ref:** `InternalCrossTenantAnalyticsController`, **TB-274** trust register.
 
