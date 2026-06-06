@@ -73,7 +73,7 @@ class TestRouteTenantP1Batch(unittest.TestCase):
                 if LEGACY_EXECUTIVE_SUMMARY_FRAGMENT in text:
                     self.fail(f"TB-280: legacy executive-summary reference in {path.relative_to(REPO_ROOT)}")
 
-    def test_cross_tenant_rollup_requires_operator_role(self) -> None:
+    def test_cross_tenant_rollup_requires_platform_cross_tenant_read(self) -> None:
         path = (
             REPO_ROOT
             / "ArchLucid.Api"
@@ -83,7 +83,7 @@ class TestRouteTenantP1Batch(unittest.TestCase):
         )
         self.assertTrue(path.is_file(), f"Missing {path}")
         text = path.read_text(encoding="utf-8")
-        self.assertIn("RequireOperatorRole", text)
+        self.assertIn("PlatformCrossTenantReadAuthority", text)
         self.assertIn("cross-tenant-summary", text)
 
         admin = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin" / "AdminController.cs"

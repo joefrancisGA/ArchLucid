@@ -37,7 +37,7 @@
       "route_template": "v{version:apiVersion}/admin/analytics",
       "normalized_prefix": "/v1/admin/analytics",
       "commercial_tier": "none",
-      "class_policy": "RequireOperatorRole",
+      "class_policy": "PlatformCrossTenantReadAuthority",
       "exemption": null,
       "nav_operator_href": null
     },
@@ -527,7 +527,7 @@
       "route_template": "v{version:apiVersion}/internal/analytics",
       "normalized_prefix": "/v1/internal/analytics",
       "commercial_tier": "none",
-      "class_policy": "RequireOperatorRole",
+      "class_policy": "PlatformCrossTenantReadAuthority",
       "exemption": "internal_cross_tenant_analytics",
       "nav_operator_href": null
     },

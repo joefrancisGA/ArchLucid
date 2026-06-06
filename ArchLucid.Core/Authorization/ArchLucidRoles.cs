@@ -40,8 +40,10 @@ public static class ArchLucidRoles
     public const string Sponsor = "Sponsor";
 
     /// <summary>
-    ///     Internal platform operator (hosted / break-glass). Mapped to <c>platform:tenant-delete</c> permission for
-    ///     tenant offboarding jobs — grant only via IdP or DevelopmentBypass <c>DevRole</c>.
+    ///     Internal platform operator (hosted / break-glass). Mapped to
+    ///     <see cref="ArchLucidPlatformPermissionClaims.TenantDelete" /> and
+    ///     <see cref="ArchLucidPlatformPermissionClaims.CrossTenantRead" /> — grant only via IdP or DevelopmentBypass
+    ///     <c>DevRole</c>.
     /// </summary>
     public const string PlatformOperator = "PlatformOperator";
 

@@ -88,7 +88,12 @@ public static class ArchLucidAuthorizationPoliciesExtensions
             .AddPolicy(ArchLucidPolicies.PlatformTenantDeletionAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireClaim("permission", "platform:tenant-delete");
+                policy.RequireClaim("permission", ArchLucidPlatformPermissionClaims.TenantDelete);
+            })
+            .AddPolicy(ArchLucidPolicies.PlatformCrossTenantReadAuthority, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim("permission", ArchLucidPlatformPermissionClaims.CrossTenantRead);
             });
 
         return services;

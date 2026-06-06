@@ -6,7 +6,7 @@
 
 | Actor | Access |
 |-------|--------|
-| JWT with **Operator** (or higher) internal role | `GET/POST /v1/internal/analytics/cross-tenant/daily*` via `RequireOperatorRole` |
+| JWT with **PlatformOperator** (ArchLucid staff IdP role) | `GET/POST /v1/internal/analytics/cross-tenant/daily*` via `PlatformCrossTenantReadAuthority` |
 | Platform engineers / founders | Same APIs or read `dbo.InternalCrossTenantRollupDaily` on the **system catalog** with break-glass SQL credentials |
 | Tenant users | **No access** — no UI opt-in; rollups are internal BI only |
 

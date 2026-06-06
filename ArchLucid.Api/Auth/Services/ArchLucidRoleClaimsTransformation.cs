@@ -100,7 +100,8 @@ public sealed class ArchLucidRoleClaimsTransformation(
 
         if (roles.Contains(ArchLucidRoles.PlatformOperator))
         {
-            AddPermission("platform:tenant-delete");
+            AddPermission(ArchLucidPlatformPermissionClaims.TenantDelete);
+            AddPermission(ArchLucidPlatformPermissionClaims.CrossTenantRead);
             mappedARole = true;
         }
         else if (roles.Contains(ArchLucidRoles.Admin))

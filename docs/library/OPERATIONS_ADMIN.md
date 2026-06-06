@@ -13,7 +13,7 @@ Privileged routes under **`GET /v1/admin/...`** require **`AdminAuthority`** pol
 |-------|---------|
 | `GET /v1/admin/diagnostics/quality-gates` | Effective agent output quality gate floors (global + per-agent), PilotStrict faithfulness minimums, enforcement flags. |
 | `GET /v1/admin/diagnostics/outboxes` | Pending authority pipeline and retrieval indexing work (depth snapshot). |
-| `GET /v1/admin/analytics/cross-tenant-summary` | Aggregate-only SQL counters across tenants (`dbo.Runs` — distinct tenants, committed vs total); **RequireOperatorRole** (TB-282); tenant admins receive **403**. |
+| `GET /v1/admin/analytics/cross-tenant-summary` | Aggregate-only SQL counters across tenants (`dbo.Runs` — distinct tenants, committed vs total); **PlatformCrossTenantReadAuthority** (TB-282); tenant admins and tenant operators receive **403**. |
 | `GET /v1/admin/diagnostics/leases` | SQL host leader lease rows (empty when not applicable). |
 | `GET /v1/admin/features/async-authority-pipeline` | Effective feature flag state. |
 

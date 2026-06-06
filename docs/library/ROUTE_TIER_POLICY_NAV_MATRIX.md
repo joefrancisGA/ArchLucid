@@ -75,7 +75,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Admin/AdminApiKeySettingsController.cs` | `/v1/admin/settings/api-keys` | none | AdminAuthority | /settings/api-keys |  |
 | `Admin/AdminAuthDiagnosticsController.cs` | `/v1/admin` | none | AdminAuthority |  | auth_debug_api |
 | `Admin/AdminController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
-| `Admin/AdminCrossTenantUsageRollupController.cs` | `/v1/admin/analytics` | none | RequireOperatorRole |  |  |
+| `Admin/AdminCrossTenantUsageRollupController.cs` | `/v1/admin/analytics` | none | PlatformCrossTenantReadAuthority |  |  |
 | `Admin/AdminCustomerSuccessController.cs` | `/v1/admin` | none | AdminAuthority |  |  |
 | `Admin/AdminFleetLlmCogsController.cs` | `/v1/admin/operational` | none | AdminAuthority |  |  |
 | `Admin/AdminIdentityProviderDiagnosticsController.cs` | `/v1/admin/diagnostics` | none | AdminAuthority |  |  |
@@ -124,7 +124,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Alerts/AlertTuningController.cs` | `/v1/alert-tuning` | standard | ReadAuthority | /alerts |  |
 | `Alerts/AlertsController.cs` | `/v1/alerts` | standard | ReadAuthority | /alerts |  |
 | `Alerts/CompositeAlertRulesController.cs` | `/v1/composite-alert-rules` | standard | ReadAuthority | /alerts |  |
-| `Analytics/InternalCrossTenantAnalyticsController.cs` | `/v1/internal/analytics` | none | RequireOperatorRole |  | internal_cross_tenant_analytics |
+| `Analytics/InternalCrossTenantAnalyticsController.cs` | `/v1/internal/analytics` | none | PlatformCrossTenantReadAuthority |  | internal_cross_tenant_analytics |
 | `Analytics/PatternInsightsController.cs` | `/v1/analytics/patterns` | none | Authorize |  |  |
 | `Analytics/RoiAnalyticsController.cs` | `/v1/analytics` | none | ReadAuthority |  |  |
 | `Auth/TrialLocalIdentityAuthController.cs` | `/v1/auth/trial/local` | none | AllowAnonymous |  | trial_local_identity_auth |

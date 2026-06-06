@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>HTTP coverage for <c>GET /v1/internal/analytics/cross-tenant</c> (operator RBAC).</summary>
+/// <summary>HTTP coverage for <c>GET /v1/internal/analytics/cross-tenant</c> (platform operator RBAC).</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class InternalCrossTenantAnalyticsEndpointTests
@@ -15,7 +15,7 @@ public sealed class InternalCrossTenantAnalyticsEndpointTests
     [Fact]
     public async Task GetCrossTenant_returns_ok_with_numeric_shape()
     {
-        await using OperatorRoleArchLucidApiFactory factory = new();
+        await using PlatformOperatorRoleArchLucidApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/v1/internal/analytics/cross-tenant");
@@ -38,7 +38,7 @@ public sealed class InternalCrossTenantAnalyticsEndpointTests
     [Fact]
     public async Task GetDailyRollups_returns_ok_with_list_shape()
     {
-        await using OperatorRoleArchLucidApiFactory factory = new();
+        await using PlatformOperatorRoleArchLucidApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/v1/internal/analytics/cross-tenant/daily");
@@ -49,7 +49,7 @@ public sealed class InternalCrossTenantAnalyticsEndpointTests
     [Fact]
     public async Task ExportDailyRollups_csv_does_not_contain_guid_literals()
     {
-        await using OperatorRoleArchLucidApiFactory factory = new();
+        await using PlatformOperatorRoleArchLucidApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response =

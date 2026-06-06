@@ -63,7 +63,14 @@ public static class ArchLucidPolicies
 
     /// <summary>
     ///     Queues durable tenant offboarding (SQL + blobs + platform audit). Requires
-    ///     <c>platform:tenant-delete</c> (see <see cref="ArchLucidRoles.PlatformOperator" />).
+    ///     <see cref="ArchLucidPlatformPermissionClaims.TenantDelete" /> (see <see cref="ArchLucidRoles.PlatformOperator" />).
     /// </summary>
     public const string PlatformTenantDeletionAuthority = "PlatformTenantDeletionAuthority";
+
+    /// <summary>
+    ///     Fleet-wide usage rollups and internal cross-tenant analytics. Requires
+    ///     <see cref="ArchLucidPlatformPermissionClaims.CrossTenantRead" />; tenant <see cref="ArchLucidRoles.Admin" />
+    ///     principals are denied.
+    /// </summary>
+    public const string PlatformCrossTenantReadAuthority = "PlatformCrossTenantReadAuthority";
 }

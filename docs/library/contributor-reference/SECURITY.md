@@ -65,7 +65,7 @@ JWT **`roles`** / **`ClaimTypes.Role`** and DevelopmentBypass **`ArchLucidAuth:D
 | **Admin** | `Admin` | Operator capabilities plus policy packs, advisory schedules, system configuration surfaces protected with **`AdminAuthority`** / **`RequireAdmin`**. Tenant-scoped admin routes (`/v1/admin/reference-evidence`, `/v1/admin/metering/summary`) resolve tenant from ambient scope — not platform cross-tenant targeting (TB-279). |
 | **Auditor** | `Auditor` | Read-only scope plus **`GET /v1/audit/export`** and other endpoints that require **`RequireAuditor`** (Auditor or Admin role). |
 
-**Cross-tenant analytics (TB-282):** **`GET /v1/admin/analytics/cross-tenant-summary`** requires **`RequireOperatorRole`** (execute-capability operators). Tenant **Admin** principals receive **403** — fleet-wide rollups are not tenant-admin surfaces.
+**Cross-tenant analytics (TB-282):** Fleet-wide rollups and internal cross-tenant analytics require **`PlatformCrossTenantReadAuthority`** (`platform:cross-tenant-read` claim on **`PlatformOperator`**). Tenant **Admin**, **WorkspaceAdmin**, and tenant **Operator** principals receive **403**.
 
 Fine-grained **`permission`** claims (for example **`commit:run`**, **`export:consulting-docx`**) are still issued by **`ArchLucidRoleClaimsTransformation`** so existing permission policies remain meaningful for JWT and DevelopmentBypass. **ApiKey** mode maps keys to **Admin** or **Reader** roles only; use JWT with an **Auditor** app role when audit export is required for a principal.
 

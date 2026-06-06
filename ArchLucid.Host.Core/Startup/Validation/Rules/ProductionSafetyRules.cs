@@ -188,10 +188,15 @@ internal static class ProductionSafetyRules
     /// </summary>
     public static void CollectSingleCatalogDisallowedInProductionLike(
         IConfiguration configuration,
+        IHostEnvironment environment,
         List<string> errors)
     {
         ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(environment);
         ArgumentNullException.ThrowIfNull(errors);
+
+        if (!HostEnvironmentClassification.IsProductionOrStagingLike(environment, configuration))
+            return;
 
         SqlTopologyOptions topology =
             configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>()

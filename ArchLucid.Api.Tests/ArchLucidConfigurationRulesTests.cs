@@ -2485,6 +2485,32 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
+    public void CollectErrors_WhenDevelopmentAndArchLucidProductionAndSingleCatalog_contains_topology_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ARCHLUCID_ENVIRONMENT"] = "Production",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
+            ["ArchLucid:ContentSafety:Endpoint"] = "https://content-safety.example",
+            ["ArchLucid:ContentSafety:ApiKey"] = "test-key",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["ArchLucid:SqlTopology:Mode"] = "SingleCatalog",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("SingleCatalog", StringComparison.Ordinal)
+            && e.Contains("SystemWithPerTenantCatalogs", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndPerTenantCatalogsTopology_does_not_contain_topology_error()
     {
         IConfiguration configuration =

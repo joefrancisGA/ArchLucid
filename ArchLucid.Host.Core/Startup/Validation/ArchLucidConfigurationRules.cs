@@ -29,6 +29,7 @@ public static class ArchLucidConfigurationRules
             environment,
             archLucidOptions,
             errors);
+        ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, environment, errors);
         CosmosPolyglotRules.Collect(configuration, environment, errors);
         AuthenticationRules.CollectApiKeyWhenEnabled(configuration, errors);
         AuthenticationRules.CollectJwtBearerLocalSigningKey(configuration, errors);
@@ -55,9 +56,6 @@ public static class ArchLucidConfigurationRules
         LlmMonthlyTenantDollarBudgetRules.Collect(configuration, errors);
         E2EHarnessRules.Collect(configuration, environment, errors);
 
-        if (environment.IsStaging())
-            ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
-
         errors.AddRange(
             ProductionDangerousMisconfigurationLint.DescribeFailFastFindings(configuration, environment.EnvironmentName)
                 .Select(finding => $"[{finding.RuleName}] {finding.Message}"));
@@ -76,7 +74,6 @@ public static class ArchLucidConfigurationRules
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {
-            ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
             ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
             ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
             ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);
@@ -93,7 +90,6 @@ public static class ArchLucidConfigurationRules
             return errors;
         }
 
-        ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
         ProductionSafetyRules.CollectCors(configuration, errors);
         ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
         ProductionSafetyRules.CollectTrialAuthExternalId(configuration, errors);

@@ -14,9 +14,9 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Analytics;
 
-/// <summary>Internal cross-tenant product metrics (never tenant-scoped; operator RBAC only).</summary>
+/// <summary>Internal cross-tenant product metrics (never tenant-scoped; platform operator RBAC only).</summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
+[Authorize(Policy = ArchLucidPolicies.PlatformCrossTenantReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/internal/analytics")]
 [EnableRateLimiting("fixed")]

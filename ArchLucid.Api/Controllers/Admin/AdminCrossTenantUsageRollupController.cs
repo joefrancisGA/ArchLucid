@@ -9,10 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-///     Fleet-wide usage rollup — operator/platform only (TB-282). Tenant admins must not reach cross-tenant aggregates.
+///     Fleet-wide usage rollup — platform operator only (TB-282). Tenant admins and tenant operators must not reach
+///     cross-tenant aggregates.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
+[Authorize(Policy = ArchLucidPolicies.PlatformCrossTenantReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/analytics")]
 public sealed class AdminCrossTenantUsageRollupController(IAdminDiagnosticsService diagnostics) : ControllerBase

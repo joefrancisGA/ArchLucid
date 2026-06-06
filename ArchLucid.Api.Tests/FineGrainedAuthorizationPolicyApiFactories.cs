@@ -149,6 +149,16 @@ public sealed class OperatorRoleArchLucidApiFactory : ArchLucidApiFactory
     }
 }
 
+public sealed class PlatformOperatorRoleArchLucidApiFactory : ArchLucidApiFactory
+{
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = ArchLucidRoles.PlatformOperator }));
+    }
+}
+
 public sealed class OperatorWithoutCommitRunPermissionApiFactory : OperatorWithoutOnePermissionArchLucidApiFactory
 {
     protected override string OmitPermission => "commit:run";
