@@ -99,7 +99,6 @@ POST /v1/requests
 POST /v1/runs/{runId}/manifest/finalize
 POST /v1/tenant/billing/checkout
 POST /v1/tenant/customer-success/product-feedback
-POST /v1/value-report/{tenantId}/generate
 PUT /scim/v2/Groups/{id}
 PUT /scim/v2/Users/{id}
 PUT /v1/azure-extractor/upload-sessions/{sessionId}/chunks/{chunkIndex}
