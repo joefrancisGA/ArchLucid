@@ -7,7 +7,7 @@
 
 **Audience:** Customers and internal operators; complements internal runbooks (not duplicated here).
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-06-06
 
 **Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 

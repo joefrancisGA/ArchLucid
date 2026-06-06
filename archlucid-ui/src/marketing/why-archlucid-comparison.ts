@@ -38,15 +38,15 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
   },
   {
     claim:
-      "ArchLucid enforces **tenant isolation at SQL Server** using `SESSION_CONTEXT`-driven row-level security policies wired through the persistence layer, not only application-layer filters.",
+      "ArchLucid isolates **hosted tenant product data in dedicated SQL catalogs** (`SystemWithPerTenantCatalogs`) with scoped repositories and route-tenant HTTP guards — not shared-database RLS.",
     archlucidEvidence:
-      "`docs/security/MULTI_TENANT_RLS.md` · `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` · SQL migrations under `ArchLucid.Persistence` (RLS objects)",
+      "`docs/architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md` · `docs/security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md` · `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike` · `ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs`",
     competitorBaseline:
       "Multi-tenant products that rely on **per-customer schemas** or ad-hoc database splits often add **8–20 DBA/engineering hours** per new tenant for provisioning, migration, and backup policy (**first-party assertion (no external citation yet)**).",
     citation:
-      "https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17",
+      "https://learn.microsoft.com/en-us/azure/azure-sql/database/elastic-pools-overview",
     narrativeParagraph:
-      "RLS is boring on purpose: the session context is set on connections so even an honest mistake in a repository query still cannot cross tenants. The integration tests lock the ArchLucid scope keys the API relies on. The security doc explains what is deployed versus what remains historical naming. That combination is what lets hosted SaaS teams sleep during a noisy neighbor incident.",
+      "Each production tenant gets its own product catalog on the elastic pool; bindings and startup validation block the unsafe SingleCatalog mode. Repositories and integration tests enforce scope within the catalog. ADR 0037 records the explicit decision not to rely on SQL RLS so reviewers do not chase a control that was removed in migration 148.",
   },
   {
     claim:
