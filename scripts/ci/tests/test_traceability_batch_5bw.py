@@ -18,7 +18,8 @@ class TestTraceabilityBatch5BW(unittest.TestCase):
     def test_tb_250_executor_writes_outcomes(self) -> None:
         path = (
             REPO_ROOT
-            / "ArchLucid.Persistence"
+            / "ArchLucid.Application"
+            / "Runs"
             / "Orchestration"
             / "Pipeline"
             / "AuthorityPipelineStagesExecutor.cs"
