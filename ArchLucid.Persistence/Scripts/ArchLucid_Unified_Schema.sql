@@ -3998,12 +3998,39 @@ BEGIN
         Quantity       BIGINT           NOT NULL,
         RecordedUtc    DATETIMEOFFSET   NOT NULL CONSTRAINT DF_UsageEvents_RecordedUtc2 DEFAULT SYSUTCDATETIME(),
         CorrelationId  NVARCHAR(256)    NULL,
+        IdempotencyKey NVARCHAR(256)    NULL,
         CONSTRAINT PK_UsageEvents2 PRIMARY KEY CLUSTERED (Id),
         CONSTRAINT CK_UsageEvents_Quantity2 CHECK (Quantity >= 0)
     );
 
     CREATE NONCLUSTERED INDEX IX_UsageEvents_TenantRecorded2 ON dbo.UsageEvents (TenantId, RecordedUtc);
     CREATE NONCLUSTERED INDEX IX_UsageEvents_KindRecorded2 ON dbo.UsageEvents (Kind, RecordedUtc);
+    CREATE UNIQUE NONCLUSTERED INDEX UX_UsageEvents_TenantId_IdempotencyKey2
+        ON dbo.UsageEvents (TenantId, IdempotencyKey)
+        WHERE IdempotencyKey IS NOT NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.UsageEvents', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.UsageEvents', N'IdempotencyKey') IS NULL
+BEGIN
+    ALTER TABLE dbo.UsageEvents ADD IdempotencyKey NVARCHAR(256) NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.UsageEvents', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.UsageEvents', N'IdempotencyKey') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'UX_UsageEvents_TenantId_IdempotencyKey2'
+          AND object_id = OBJECT_ID(N'dbo.UsageEvents'))
+BEGIN
+    CREATE UNIQUE NONCLUSTERED INDEX UX_UsageEvents_TenantId_IdempotencyKey2
+        ON dbo.UsageEvents (TenantId, IdempotencyKey)
+        WHERE IdempotencyKey IS NOT NULL;
 END;
 
 GO

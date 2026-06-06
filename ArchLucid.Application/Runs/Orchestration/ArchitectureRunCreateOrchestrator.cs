@@ -274,7 +274,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
                         Kind = UsageMeterKind.ArchitectureRun,
                         Quantity = 1,
                         RecordedUtc = _timeProvider.GetUtcNow(),
-                        CorrelationId = runId
+                        CorrelationId = runId,
+                        IdempotencyKey = UsageEventIdempotencyKeys.ForArchitectureRun(runId)
                     }, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

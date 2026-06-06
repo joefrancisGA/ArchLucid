@@ -64,9 +64,10 @@ internal sealed class ApiRequestMeteringMiddleware(
                         Kind = UsageMeterKind.ApiRequest,
                         Quantity = 1,
                         RecordedUtc = TimeProvider.System.GetUtcNow(),
-                        CorrelationId = context.TraceIdentifier
+                        CorrelationId = context.TraceIdentifier,
+                        IdempotencyKey = UsageEventIdempotencyKeys.ForApiRequest(context.TraceIdentifier)
                     },
-                    context.RequestAborted)
+                    CancellationToken.None)
                 .ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

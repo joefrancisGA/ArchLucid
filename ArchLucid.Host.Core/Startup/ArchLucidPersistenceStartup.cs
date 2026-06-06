@@ -2,6 +2,7 @@ using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Startup.Validation.Rules;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
@@ -197,6 +198,8 @@ public static class ArchLucidPersistenceStartup
 
                 if (app.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(catalogConnectionString))
                     DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
+
+                TryValidateAuditImmutabilityIfRequired(app, archLucidOptions);
             }
         }
 
@@ -227,5 +230,25 @@ public static class ArchLucidPersistenceStartup
 
                 app.Logger.LogWarning(ex, "Startup: demo seed failed; continuing without demo data.");
         }
+    }
+
+    private static void TryValidateAuditImmutabilityIfRequired(WebApplication app, ArchLucidOptions archLucidOptions)
+    {
+        if (!SqlAuditImmutabilityRules.ShouldValidate(app.Environment, app.Configuration, archLucidOptions))
+            return;
+
+        string? connectionString = SqlAuditImmutabilityRules.ResolveAuditCatalogConnectionString(app.Configuration);
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException(
+                "Audit immutability validation requires a tenant catalog connection in production-like hosts. "
+                + "Configure ConnectionStrings:ArchLucid (SingleCatalog) or ArchLucid:SqlTopology:DevelopmentTenantConnectionString "
+                + "(SystemWithPerTenantCatalogs template catalog).");
+        }
+
+        app.Logger.LogInformation("Startup: validating audit immutability on tenant catalog.");
+
+        SqlAuditImmutabilityRules.ValidateOrThrow(connectionString, app.Logger);
     }
 }

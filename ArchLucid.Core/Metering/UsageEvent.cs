@@ -50,4 +50,11 @@ public sealed class UsageEvent
         get;
         init;
     }
+
+    /// <summary>When set, inserts dedupe on <c>(TenantId, IdempotencyKey)</c>.</summary>
+    public string? IdempotencyKey
+    {
+        get;
+        init;
+    }
 }

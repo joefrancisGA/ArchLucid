@@ -27,4 +27,18 @@ Get-ChildItem -LiteralPath $Source -File | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
 }
 
+$sourceNames = @(Get-ChildItem -LiteralPath $Source -File | ForEach-Object { $_.Name })
+Get-ChildItem -LiteralPath $Target -File -ErrorAction SilentlyContinue | ForEach-Object {
+    if ($sourceNames -contains $_.Name) {
+        return
+    }
+
+    if ($WhatIf) {
+        Write-Host "Would remove stale target file $($_.FullName)"
+        return
+    }
+
+    Remove-Item -LiteralPath $_.FullName -Force
+}
+
 Write-Host "Synced hosted production Terraform scaffold to $Target"

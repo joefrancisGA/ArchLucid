@@ -294,7 +294,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     promptTok,
                     completionTok);
 
-                _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, cancellationToken);
+                _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None);
             }
         }
     }
@@ -441,7 +441,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                     promptTok,
                     completionTok);
 
-                _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, cancellationToken);
+                _ = TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None);
             }
         }
     }
@@ -457,6 +457,16 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
         DateTimeOffset recordedUtc = TimeProvider.System.GetUtcNow();
         string? correlationId = Activity.Current?.Id;
+        string scopeKey = !string.IsNullOrWhiteSpace(correlationId)
+            ? correlationId
+            : string.Concat(
+                scope.TenantId.ToString("N"),
+                ":",
+                scope.WorkspaceId.ToString("N"),
+                ":",
+                scope.ProjectId.ToString("N"),
+                ":",
+                recordedUtc.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         try
         {
@@ -472,7 +482,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                             Kind = UsageMeterKind.LlmPromptTokens,
                             Quantity = promptTok,
                             RecordedUtc = recordedUtc,
-                            CorrelationId = correlationId
+                            CorrelationId = correlationId,
+                            IdempotencyKey = UsageEventIdempotencyKeys.ForLlmTokens(scopeKey, UsageMeterKind.LlmPromptTokens)
                         },
                         cancellationToken)
                     .ConfigureAwait(false);
@@ -489,7 +500,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                             Kind = UsageMeterKind.LlmCompletionTokens,
                             Quantity = completionTok,
                             RecordedUtc = recordedUtc,
-                            CorrelationId = correlationId
+                            CorrelationId = correlationId,
+                            IdempotencyKey = UsageEventIdempotencyKeys.ForLlmTokens(scopeKey, UsageMeterKind.LlmCompletionTokens)
                         },
                         cancellationToken)
                     .ConfigureAwait(false);

@@ -10,6 +10,17 @@ namespace ArchLucid.Persistence.Tenancy;
 
 public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionFactory) : IUsageEventRepository
 {
+    private const string InsertSql = """
+                                     INSERT INTO dbo.UsageEvents (Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId, IdempotencyKey)
+                                     SELECT @Id, @TenantId, @WorkspaceId, @ProjectId, @Kind, @Quantity, @RecordedUtc, @CorrelationId, @IdempotencyKey
+                                     WHERE @IdempotencyKey IS NULL
+                                        OR NOT EXISTS (
+                                            SELECT 1
+                                            FROM dbo.UsageEvents e WITH (UPDLOCK, HOLDLOCK)
+                                            WHERE e.TenantId = @TenantId
+                                              AND e.IdempotencyKey = @IdempotencyKey);
+                                     """;
+
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
@@ -19,25 +30,10 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
-        const string sql = """
-                           INSERT INTO dbo.UsageEvents (Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId)
-                           VALUES (@Id, @TenantId, @WorkspaceId, @ProjectId, @Kind, @Quantity, @RecordedUtc, @CorrelationId);
-                           """;
-
         await connection.ExecuteAsync(
             new CommandDefinition(
-                sql,
-                new
-                {
-                    usageEvent.Id,
-                    usageEvent.TenantId,
-                    usageEvent.WorkspaceId,
-                    usageEvent.ProjectId,
-                    Kind = UsageMeterKindSql.ToKindString(usageEvent.Kind),
-                    usageEvent.Quantity,
-                    usageEvent.RecordedUtc,
-                    usageEvent.CorrelationId
-                },
+                InsertSql,
+                MapParameters(usageEvent),
                 cancellationToken: ct));
     }
 
@@ -50,27 +46,12 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
-        const string sql = """
-                           INSERT INTO dbo.UsageEvents (Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId)
-                           VALUES (@Id, @TenantId, @WorkspaceId, @ProjectId, @Kind, @Quantity, @RecordedUtc, @CorrelationId);
-                           """;
-
-        foreach (UsageEvent e in events)
+        foreach (UsageEvent usageEvent in events)
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        e.Id,
-                        e.TenantId,
-                        e.WorkspaceId,
-                        e.ProjectId,
-                        Kind = UsageMeterKindSql.ToKindString(e.Kind),
-                        e.Quantity,
-                        e.RecordedUtc,
-                        e.CorrelationId
-                    },
+                    InsertSql,
+                    MapParameters(usageEvent),
                     cancellationToken: ct));
     }
 
@@ -120,7 +101,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         string sql = """
-                     SELECT TOP (@Take) Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId
+                     SELECT TOP (@Take) Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId, IdempotencyKey
                      FROM dbo.UsageEvents
                      WHERE TenantId = @TenantId
                        AND RecordedUtc >= @PeriodStart
@@ -152,6 +133,20 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
 
         return rows.Select(static r => r.ToUsageEvent()).ToList();
     }
+
+    private static object MapParameters(UsageEvent usageEvent) =>
+        new
+        {
+            usageEvent.Id,
+            usageEvent.TenantId,
+            usageEvent.WorkspaceId,
+            usageEvent.ProjectId,
+            Kind = UsageMeterKindSql.ToKindString(usageEvent.Kind),
+            usageEvent.Quantity,
+            usageEvent.RecordedUtc,
+            usageEvent.CorrelationId,
+            usageEvent.IdempotencyKey
+        };
 
     private sealed class SummaryRow
     {
@@ -236,6 +231,12 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
             init;
         }
 
+        public string? IdempotencyKey
+        {
+            get;
+            init;
+        }
+
         internal UsageEvent ToUsageEvent()
         {
             return new UsageEvent
@@ -247,7 +248,8 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                 Kind = UsageMeterKindSql.ParseKind(Kind),
                 Quantity = Quantity,
                 RecordedUtc = RecordedUtc,
-                CorrelationId = CorrelationId
+                CorrelationId = CorrelationId,
+                IdempotencyKey = IdempotencyKey
             };
         }
     }

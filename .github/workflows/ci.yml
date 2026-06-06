@@ -950,7 +950,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot]
+        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot, infra/terraform/prod]
     steps:
       - uses: actions/checkout@v5
 
@@ -1035,6 +1035,23 @@ jobs:
           path: |
             artifacts/release/iac-parity-scan.json
             artifacts/release/iac-parity-scan.md
+
+  hosted-prod-terraform-sync-parity:
+    name: "IaC: hosted prod scaffold sync parity"
+    needs:
+      - gitleaks
+      - doc-markdown-links
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Sync deploy/hosted-prod-terraform to infra/terraform/prod
+        shell: pwsh
+        run: ./scripts/ci/sync-hosted-prod-terraform-to-infra.ps1
+
+      - name: Assert infra/terraform/prod matches deploy/hosted-prod-terraform
+        run: git diff --exit-code -- infra/terraform/prod
 
   openapi-contract-snapshot:
     name: ".NET: OpenAPI v1 contract snapshot (fail-fast)"
@@ -1227,6 +1244,7 @@ jobs:
       - openapi-contract-snapshot
       - terraform-advisory-snippets-validate
       - iac-parity-scan
+      - hosted-prod-terraform-sync-parity
       - terraform-validate-private
       - terraform-validate-public-stacks
     runs-on: ubuntu-latest
@@ -1266,6 +1284,7 @@ jobs:
       - openapi-contract-snapshot
       - terraform-advisory-snippets-validate
       - iac-parity-scan
+      - hosted-prod-terraform-sync-parity
       - terraform-validate-private
       - terraform-validate-public-stacks
       - guards-pre-corset

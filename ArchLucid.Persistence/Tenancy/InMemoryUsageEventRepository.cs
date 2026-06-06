@@ -15,6 +15,16 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         ArgumentNullException.ThrowIfNull(usageEvent);
         _ = ct;
 
+        if (!string.IsNullOrWhiteSpace(usageEvent.IdempotencyKey))
+        {
+            bool duplicate = _events.Any(e =>
+                e.TenantId == usageEvent.TenantId
+                && string.Equals(e.IdempotencyKey, usageEvent.IdempotencyKey, StringComparison.Ordinal));
+
+            if (duplicate)
+                return Task.CompletedTask;
+        }
+
         _events.Add(usageEvent);
 
         return Task.CompletedTask;
@@ -25,8 +35,20 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         ArgumentNullException.ThrowIfNull(events);
         _ = ct;
 
-        foreach (UsageEvent e in events)
-            _events.Add(e);
+        foreach (UsageEvent usageEvent in events)
+        {
+            if (!string.IsNullOrWhiteSpace(usageEvent.IdempotencyKey))
+            {
+                bool duplicate = _events.Any(e =>
+                    e.TenantId == usageEvent.TenantId
+                    && string.Equals(e.IdempotencyKey, usageEvent.IdempotencyKey, StringComparison.Ordinal));
+
+                if (duplicate)
+                    continue;
+            }
+
+            _events.Add(usageEvent);
+        }
 
         return Task.CompletedTask;
     }

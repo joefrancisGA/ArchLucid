@@ -28,6 +28,7 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 | `Terraform: validate main / edge / entra (no backend) (infra/terraform)` |
 | `Terraform: validate main / edge / entra (no backend) (infra/terraform-edge)` |
 | `Terraform: validate main / edge / entra (no backend) (infra/terraform-entra)` |
+| `IaC: hosted prod scaffold sync parity` |
 | `.NET: fast core (corset)` |
 | `.NET: full regression (SQL)` |
 | `Operator UI: unit (Vitest)` |
@@ -46,7 +47,7 @@ Checks from **`.NET: full regression (SQL)`** through **`Containers: Docker buil
 
 Create a ruleset targeting your default branch, enable **Require status checks**, and add the same check names. Rulesets can target multiple branches in one place.
 
-**PR vs full CI:** On **pull_request** (into `main`/`master`), `.github/workflows/ci.yml` runs jobs **before** `.NET: fast core (corset)` plus a **trimmed** corset (same check name; skips CycloneDX SBOM, coverlet/ReportGenerator, and the finding-engine template test). Everything **after** corset—including `.NET: full regression`, UI/Docker/k6/ZAP/Schemathesis—runs only on **Actions → CI → Run workflow** (`workflow_dispatch`).
+**PR vs full CI:** On **pull_request** (into `main`/`master`), `.github/workflows/ci.yml` runs jobs **before** `.NET: fast core (corset)` plus a **trimmed** corset (same check name; skips CycloneDX SBOM, coverlet/ReportGenerator, and the finding-engine template test). Terraform validate (all matrix legs including `infra/terraform/prod`), hosted-prod sync parity, gitleaks, and guard jobs run on PR. Everything **after** corset—including `.NET: full regression`, UI/Docker/k6/ZAP/Schemathesis—runs only on **Actions → CI → Run workflow** (`workflow_dispatch`).
 
 ## Automatic staging deploy (supplements branch protection)
 
