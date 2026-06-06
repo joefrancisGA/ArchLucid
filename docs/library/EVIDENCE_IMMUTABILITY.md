@@ -1,4 +1,4 @@
-> **Scope:** Commit-sealed vs pre-commit mutable evidence (TB-303 / ADR 0039).
+> **Scope:** Contributor-reference — commit-sealed vs pre-commit mutable evidence inventory (TB-303 / ADR 0039); not a buyer-facing trust claim.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
