@@ -43,6 +43,7 @@ internal sealed class RunAliasDeprecationMiddleware(RequestDelegate next)
                 context.Response.Headers.Append(
                     "Link",
                     $"</{canonicalTemplate}>; rel=\"successor-version\"; title=\"{RunWriteLifecycleRoutes.DeprecationAdr}\"");
+            }
 
             return Task.CompletedTask;
         });
