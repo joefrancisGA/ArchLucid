@@ -146,7 +146,7 @@ public sealed class ExecutiveRoiSummaryService(
             projectId,
             cancellationToken).ConfigureAwait(false);
 
-        decimal totalSavings = basisBreakdown.OpenEstimatedUsd + basisBreakdown.NeedsEvidenceUsd;
+        decimal totalSavings = ComputeHeadlineSavingsFromBasis(basisBreakdown);
         (int resolvedCount, int newlyDiscoveredCount) =
             await ExecutiveRoiTrailing30DayMetricsCalculator.ComputeAsync(
                 _runDetailQueryService,
@@ -309,10 +309,15 @@ public sealed class ExecutiveRoiSummaryService(
                     continue;
 
                 latestDetails.Add(detail);
-                decimal? savings = await TryResolveEstimatedUsdSavingsAsync(detail.Run.FindingsSnapshotId, cancellationToken).ConfigureAwait(false);
-                totalSavings += savings ?? 0m;
             }
 
+            ExecutiveRoiBasisBreakdown tenantBasis = await BuildBasisBreakdownAsync(
+                latestDetails,
+                tenantId,
+                projectId: null,
+                cancellationToken).ConfigureAwait(false);
+
+            totalSavings += ComputeHeadlineSavingsFromBasis(tenantBasis);
             totalSystems += latestDetails.Count;
 
             IEnumerable<ArchitectureFinding> allFindings = latestDetails
@@ -824,5 +829,16 @@ public sealed class ExecutiveRoiSummaryService(
             return "(uncategorized)";
 
         return category.Trim();
+    }
+
+    /// <summary>
+    ///     Authoritative portfolio headline: open + needs-evidence estimated USD (V1 §2.8).
+    ///     Shared by single-tenant summary, board pack, and cross-tenant portfolio rollup.
+    /// </summary>
+    internal static decimal ComputeHeadlineSavingsFromBasis(ExecutiveRoiBasisBreakdown basis)
+    {
+        ArgumentNullException.ThrowIfNull(basis);
+
+        return basis.OpenEstimatedUsd + basis.NeedsEvidenceUsd;
     }
 }

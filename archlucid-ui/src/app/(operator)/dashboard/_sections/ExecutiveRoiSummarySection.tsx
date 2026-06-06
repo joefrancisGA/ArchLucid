@@ -255,8 +255,9 @@ export function ExecutiveRoiSummarySection() {
             <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
           ) : (
             <>
-              Latest committed run per system in this workspace. Data from{" "}
-              <span className="font-mono">GET /v1/roi/executive-summary</span>.
+              Latest committed review per system in this workspace. Headline savings use the disposition-aware
+              basis (open + needs-evidence); per-system rows below are pre-disposition components and may not sum
+              to the headline. Data from <span className="font-mono">GET /v1/roi/executive-summary</span>.
             </>
           )}
         </CardDescription>
@@ -315,7 +316,7 @@ export function ExecutiveRoiSummarySection() {
             </div>
           </div>
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Latest runs included</div>
+            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Latest reviews included</div>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {data.latestRunCount}
             </div>
@@ -335,7 +336,7 @@ export function ExecutiveRoiSummarySection() {
           </div>
         ) : (
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            No committed runs with findings yet — run an architecture review to populate this summary.
+            No committed reviews with findings yet — run an architecture review to populate this summary.
           </p>
         )}
 

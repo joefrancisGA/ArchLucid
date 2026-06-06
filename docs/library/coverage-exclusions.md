@@ -13,17 +13,17 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 
 | Metric | Threshold | Script | CI job | Failure behavior |
 |--------|-----------|--------|--------|------------------|
-| Merged **line** | **75%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../../scripts/ci/assert_merged_line_coverage_min.py) (positional **`75`**; **V1.1** target **95%** + `.coverage-floor` ratchet) | `.NET: merge coverage + gates` (`dotnet-coverage-merge`) | Exit **1** if root `line-rate` × 100 is below the floor. |
+| Merged **line** | **95%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../../scripts/ci/assert_merged_line_coverage_min.py) (positional **`95`** in **`.github/workflows/ci.yml`** `dotnet-coverage-merge`) | `.NET: merge coverage + gates` (`dotnet-coverage-merge`) | Exit **1** if root `line-rate` × 100 is below the floor. |
 | Merged **branch** | **63%** | same (`--min-branch-pct 63`) | same | Exit **1** if root `branch-rate` × 100 is below the floor. |
 | Per-product **line** | **63%** | same (`--min-package-line-pct 63`; script default **60**) | same | Exit **1** if any gated **`ArchLucid.*`** product package is below the floor or has coverable lines but missing `line-rate`. **No** **`--skip-package-line-gate`** in CI (every gated package must meet the floor). |
 
-**Ratchet (merged line only) — deferred:** **[`.coverage-floor`](../../.coverage-floor)** remains the committed anchor for **`assert_coverage_floor_ratchet.py`**, but CI does **not** invoke that script until **V1.1** — see **[`V1_DEFERRED.md`](V1_DEFERRED.md)** (**CI — merged line ≥ 95% + coverage ratchet**).
+**Ratchet (merged line):** **[`.coverage-floor`](../../.coverage-floor)** is the committed anchor; **`assert_coverage_floor_ratchet.py`** runs in **`dotnet-coverage-merge`** after the merged-line floor (shipped **V1 GA**, owner reconciliation **2026-06-06**). See **[`V1_DEFERRED.md`](V1_DEFERRED.md)** (**CI — merged line ≥ 95% + coverage ratchet**).
 
 **Advisory per-package band (non-blocking):** When **`--warn-below-package-line-pct`** (default **70**) is greater than **`--min-package-line-pct`**, packages that **pass** the merge floor but sit **below** the advisory ceiling get plain-text lines written to **`--annotations-file`** (e.g. **`coverage-annotations-assert.txt`** in the **`coverage-metrics`** artifact). The **`coverage-pr-comment`** job appends that file to **`coverage-annotations.txt`** and emits each line as a GitHub **`::warning::`** for visibility. This does **not** fail the build.
 
 **Exit 2** (script-wide): merged file missing/unparseable, or root **`line-rate`** or **`branch-rate`** missing so gates cannot be evaluated without silently passing.
 
-**Rationale:** **75 / 63 / 63** (merged line + branch + per-package line) are merge-blocking on merged Cobertura. **95%** merged line and the **`.coverage-floor`** ratchet remain a **V1.1** restore ( **`V1_DEFERRED.md`**). If CI is red on any gate, add tests (or justified **`[ExcludeFromCodeCoverage]`** per **Exclusion Policy** below), then re-run full regression — do not lower those floors without explicit sign-off.
+**Rationale:** **95 / 63 / 63** (merged line + branch + per-product-package line) are merge-blocking on merged Cobertura, with the **`.coverage-floor`** ratchet enabled on merged line. If CI is red on any gate, add tests (or justified **`[ExcludeFromCodeCoverage]`** per **Exclusion Policy** below), then re-run full regression — do not lower those floors without explicit sign-off.
 
 **PR comment:** **`scripts/ci/build_coverage_pr_comment.py`** lists any product **`ArchLucid.*`** package under the per-package merge floor as the **same CI gate** as [`assert_merged_line_coverage_min.py`](../../scripts/ci/assert_merged_line_coverage_min.py) on merged Cobertura (not a separate “warning” threshold).
 

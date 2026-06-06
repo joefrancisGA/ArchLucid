@@ -230,7 +230,23 @@ For first-pilot sponsor handoff, do not rely on a loose statement that "agent qu
 3. `archlucid real-llm-evidence summarize --from-json <fixture-or-export>` for any real-mode session record. The summarizer exits non-zero when required fields are missing or the quality gate outcome is not passing.
 4. `python scripts/ci/eval_agent_faithfulness.py --enforce` and `python scripts/ci/eval_retrieval_ir.py --enforce` reports when retrieval-backed claims are part of the sponsor packet.
 
-**Faithfulness floor override:** set `ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO` (for example `0.80`) before `eval_agent_faithfulness.py` to override `minSupportRatio` in `tests/eval-datasets/faithfulness-golden/cases.json`. Default PR CI remains warn-only; merge-blocking `--enforce` is opt-in per workflow (see `Invoke-FaithfulnessTrendReport.ps1 -EnforceFaithfulness`).
+### Offline golden faithfulness eval (TB-021 Phase A)
+
+Deterministic **retrieval citation faithfulness** for agent output text against fixture retrieval hits — no live AOAI.
+
+| Item | Detail |
+| --- | --- |
+| **Fixture corpus** | `tests/eval-datasets/faithfulness-golden/cases.json` |
+| **Runner** | `python scripts/ci/eval_agent_faithfulness.py` (add `--enforce` for merge-blocking) |
+| **Report** | `docs/quality/faithfulness-report.md` (auto-generated) |
+| **PR CI** | `.github/workflows/ci.yml` → `ci-agent-offline-regression` runs **`--enforce`** (Phase A) |
+| **Positive readiness floor** | Mean support ratio **≥ 0.80** (`minPositiveSupportRatio`) |
+| **Negative-control ceiling** | Mean support ratio **≤ 0.35** (`maxNegativeSupportRatio`) — missing-citation, wrong-corpus, and unsupported ROI/cost cases must flag detectors |
+| **Combined diagnostic ratio** | Historical all-case view only; **not** merge-blocking when split cohorts are both present |
+
+**Env overrides:** `ARCHLUCID_FAITHFULNESS_MIN_POSITIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MAX_NEGATIVE_SUPPORT_RATIO`, `ARCHLUCID_FAITHFULNESS_MIN_SUPPORT_RATIO` (combined diagnostic floor when no split cohorts).
+
+**Phase B (LLM-graded):** nightly/release **`LlmFaithfulnessScore`** on real-mode golden cohort — warn-only soak until baselines stabilize, then enforce per Owner Decision Addendum in **`docs/assessments/LATEST_GPT55.md`** (p50 ≥ 0.65 → ratchet 0.70). See `Invoke-FaithfulnessTrendReport.ps1 -EnforceFaithfulness` for local trend runs.
 
 If any item fails, classify the sponsor packet as not ready and follow [`QUALITY_GATE_REJECTION.md`](../runbooks/QUALITY_GATE_REJECTION.md) or [`RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md`](../runbooks/RETRIEVAL_GROUNDING_OPERATOR_GUIDE.md) before handoff.
 

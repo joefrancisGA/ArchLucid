@@ -41,8 +41,23 @@ VALID_WORKFLOW = textwrap.dedent(
         runs-on: ubuntu-latest
         steps:
           - id: budget
-            run: python scripts/golden_cohort_budget_probe.py
-          - if: ${{ steps.budget.outputs.exit_code == '0' }}
+            run: bash scripts/ci/run_golden_cohort_budget_probe_ci.sh "Golden cohort real LLM"
+          - if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
+            run: dotnet test
+    """
+)
+
+VALID_CI_WORKFLOW = textwrap.dedent(
+    """\
+    name: ci
+    on: [push]
+    jobs:
+      dotnet-azure-openai-live-post-regression:
+        runs-on: ubuntu-latest
+        steps:
+          - id: budget
+            run: bash scripts/ci/run_golden_cohort_budget_probe_ci.sh "CI live Azure OpenAI"
+          - if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
             run: dotnet test
     """
 )
@@ -61,7 +76,15 @@ def _write(path: Path, contents: str) -> None:
     path.write_text(contents, encoding="utf-8")
 
 
-def _materialize_fixture(tmp: Path, *, config: dict | None = None, workflow: str | None = None, probe: bool = True) -> Path:
+def _materialize_fixture(
+    tmp: Path,
+    *,
+    config: dict | None = None,
+    workflow: str | None = None,
+    ci_workflow: str | None = VALID_CI_WORKFLOW,
+    probe: bool = True,
+    probe_wrapper: bool = True,
+) -> Path:
     """Builds a synthetic repo root with the kill-switch shape and returns it."""
     root = tmp / "repo"
     root.mkdir()
@@ -72,8 +95,14 @@ def _materialize_fixture(tmp: Path, *, config: dict | None = None, workflow: str
     if workflow is not None:
         _write(root / ".github" / "workflows" / "golden-cohort-nightly.yml", workflow)
 
+    if ci_workflow is not None:
+        _write(root / ".github" / "workflows" / "ci.yml", ci_workflow)
+
     if probe:
         _write(root / "scripts" / "golden_cohort_budget_probe.py", "# probe\n")
+
+    if probe_wrapper:
+        _write(root / "scripts" / "ci" / "run_golden_cohort_budget_probe_ci.sh", "#!/usr/bin/env bash\n")
 
     return root
 
@@ -145,7 +174,10 @@ class GoldenCohortKillSwitchGuardTests(unittest.TestCase):
             self.assertIn("missing workflow", proc.stderr)
 
     def test_fails_when_workflow_drops_probe_reference(self) -> None:
-        bad_workflow = VALID_WORKFLOW.replace("scripts/golden_cohort_budget_probe.py", "echo no-probe")
+        bad_workflow = VALID_WORKFLOW.replace(
+            "scripts/ci/run_golden_cohort_budget_probe_ci.sh",
+            "echo no-probe",
+        )
 
         with tempfile.TemporaryDirectory() as raw_tmp:
             root = _materialize_fixture(Path(raw_tmp), config=VALID_CONFIG, workflow=bad_workflow)
@@ -168,6 +200,18 @@ class GoldenCohortKillSwitchGuardTests(unittest.TestCase):
             proc = _run(root)
             self.assertNotEqual(proc.returncode, 0)
             self.assertIn("missing probe script", proc.stderr)
+
+    def test_fails_when_probe_wrapper_deleted(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_tmp:
+            root = _materialize_fixture(
+                Path(raw_tmp),
+                config=VALID_CONFIG,
+                workflow=VALID_WORKFLOW,
+                probe_wrapper=False,
+            )
+            proc = _run(root)
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertIn("missing CI wrapper", proc.stderr)
 
 
 if __name__ == "__main__":

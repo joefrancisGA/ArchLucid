@@ -51,7 +51,7 @@
         { "sourceId": "ai-gov-human-review-required", "title": "Human review required", "corpusKind": "PriorManifest" },
         { "sourceId": "ai-gov-audit-log-retention", "title": "Audit log retention", "corpusKind": "PolicyPack" }
       ],
-      "agentOutputText": "AI governance requires Human review required (ai-gov-human-review-required) and Audit log retention (ai-gov-audit-log-retention)."
+      "agentOutputText": "AI governance requires reviewer oversight and audit retention controls without citing retrieved evidence ids."
     },
     {
       "id": "healthcare-claims-policy-review-citation-required",
@@ -72,7 +72,7 @@
       "retrievalHits": [
         { "sourceId": "azure-app-service-p1v3", "title": "App Service P1v3", "corpusKind": "AzureRetail" }
       ],
-      "agentOutputText": "The review should save $42,000 per quarter by resizing App Service P1v3."
+      "agentOutputText": "The review should save $42,000 per quarter by resizing the application tier without citing a cost baseline."
     },
     {
       "id": "azure-saas-private-endpoint-cited",
@@ -131,7 +131,7 @@
         { "sourceId": "clinical-trial-consent", "title": "Clinical trial consent", "corpusKind": "PriorManifest" },
         { "sourceId": "claims-prior-auth", "title": "Prior authorization", "corpusKind": "PolicyPack" }
       ],
-      "agentOutputText": "Prior authorization (claims-prior-auth) must reference Clinical trial consent (clinical-trial-consent) controls."
+      "agentOutputText": "Claims intake workflows must reference consent controls without citing retrieved policy evidence."
     },
     {
       "id": "roi-cost-supported-with-baseline",
@@ -163,7 +163,7 @@
       "retrievalHits": [
         { "sourceId": "azure-sql-hyperscale", "title": "SQL Hyperscale", "corpusKind": "AzureRetail" }
       ],
-      "agentOutputText": "Guaranteed 35% savings by moving to SQL Hyperscale without citing azure-cost-baseline-q2."
+      "agentOutputText": "Guaranteed 35% savings by moving to hyperscale SQL with no cost baseline evidence attached."
     },
     {
       "id": "demo-derived-evidence-labeled",
@@ -191,7 +191,7 @@
         { "sourceId": "azure-retail-app-service-price", "title": "App Service retail price", "corpusKind": "AzureRetail" },
         { "sourceId": "policy-pack-encryption", "title": "Encryption at rest policy", "corpusKind": "PolicyPack" }
       ],
-      "agentOutputText": "Encryption at rest policy (policy-pack-encryption) applies; App Service retail price (azure-retail-app-service-price) was retrieved from pricing corpus."
+      "agentOutputText": "Encryption at rest policy applies; retail pricing guidance was retrieved from the wrong corpus and is not cited here."
     },
     {
       "id": "missing-citation-multi-hit",
@@ -253,7 +253,7 @@
       "retrievalHits": [
         { "sourceId": "customer-review-hours", "title": "Customer review hours", "corpusKind": "CustomerProvided" }
       ],
-      "agentOutputText": "Annualized $180,000 labor savings from Customer review hours without customer-labor-rate-usd evidence."
+      "agentOutputText": "Annualized $180,000 labor savings from review effort with no labor-rate evidence attached."
     }
   ]
 }

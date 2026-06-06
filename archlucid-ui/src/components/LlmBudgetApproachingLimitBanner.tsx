@@ -88,7 +88,7 @@ export function LlmBudgetApproachingLimitBanner() {
     >
       <div>
         <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">
-          Approaching monthly LLM budget limit. Runs may be paused soon.
+          Approaching monthly LLM budget limit. Reviews may be paused soon.
         </p>
         <p className="m-0 mt-1 text-xs leading-snug text-amber-900/90 dark:text-amber-200/90">
           Review utilization in{" "}

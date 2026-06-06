@@ -51,7 +51,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "governance-workflow": {
     text:
       "Submit governed changes for approval, promote manifest versions, and activate environments. Execute role required for mutations; readers can review pending items.",
-    learnMoreUrl: "/docs/library/contributor-reference/GOVERNANCE.md",
+    learnMoreUrl: "/docs/library/governance_workflow_ui.md",
   },
   "replay-run": {
     text: "Replay re-validates a stored comparison. Verify mode detects drift since the original comparison.",
@@ -116,7 +116,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
   "system-health": {
-    text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
+    text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights from the Observability help topic.",
     learnMoreUrl: "/docs/library/OBSERVABILITY.md",
   },
 };

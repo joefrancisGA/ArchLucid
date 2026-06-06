@@ -38,7 +38,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 BUDGET_CONFIG_REL = Path("tests/golden-cohort/budget.config.json")
 WORKFLOW_REL = Path(".github/workflows/golden-cohort-nightly.yml")
+CI_WORKFLOW_REL = Path(".github/workflows/ci.yml")
 PROBE_REL = Path("scripts/golden_cohort_budget_probe.py")
+PROBE_CI_WRAPPER_REL = Path("scripts/ci/run_golden_cohort_budget_probe_ci.sh")
 
 REQUIRED_WARN_PERCENT = 80
 REQUIRED_KILL_PERCENT = 95
@@ -97,33 +99,55 @@ def _as_int(raw: object) -> int | None:
 
 
 def _check_probe_script(repo_root: Path) -> list[str]:
+    errors: list[str] = []
     probe_path = repo_root / PROBE_REL
+    wrapper_path = repo_root / PROBE_CI_WRAPPER_REL
 
     if not probe_path.is_file():
-        return [f"missing probe script: {PROBE_REL} — workflow has no MTD signal without it"]
+        errors.append(f"missing probe script: {PROBE_REL} — workflow has no MTD signal without it")
 
-    return []
+    if not wrapper_path.is_file():
+        errors.append(f"missing CI wrapper: {PROBE_CI_WRAPPER_REL} — shared budget probe step missing")
+
+    return errors
 
 
-def _check_workflow(repo_root: Path) -> list[str]:
+def _workflow_has_budget_probe(text: str, workflow_label: str) -> list[str]:
     errors: list[str] = []
-    workflow_path = repo_root / WORKFLOW_REL
+    has_probe_ref = (
+        "scripts/golden_cohort_budget_probe.py" in text
+        or "scripts/ci/run_golden_cohort_budget_probe_ci.sh" in text
+    )
 
-    if not workflow_path.is_file():
-        errors.append(f"missing workflow: {WORKFLOW_REL}")
-        return errors
-
-    text = workflow_path.read_text(encoding="utf-8")
-
-    if "scripts/golden_cohort_budget_probe.py" not in text:
+    if not has_probe_ref:
         errors.append(
-            f"{WORKFLOW_REL}: no step references scripts/golden_cohort_budget_probe.py — kill-switch missing"
+            f"{workflow_label}: no step references the golden-cohort budget probe — kill-switch missing"
         )
 
     if "steps.budget.outputs.exit_code" not in text:
         errors.append(
-            f"{WORKFLOW_REL}: no downstream step gates on steps.budget.outputs.exit_code — kill-switch not enforced"
+            f"{workflow_label}: no downstream step gates on steps.budget.outputs.exit_code — kill-switch not enforced"
         )
+
+    return errors
+
+
+def _check_workflow(repo_root: Path) -> list[str]:
+    errors: list[str] = []
+    nightly_path = repo_root / WORKFLOW_REL
+    ci_path = repo_root / CI_WORKFLOW_REL
+
+    if not nightly_path.is_file():
+        errors.append(f"missing workflow: {WORKFLOW_REL}")
+    else:
+        errors.extend(_workflow_has_budget_probe(nightly_path.read_text(encoding="utf-8"), str(WORKFLOW_REL)))
+
+    if not ci_path.is_file():
+        errors.append(f"missing workflow: {CI_WORKFLOW_REL}")
+    else:
+        ci_text = ci_path.read_text(encoding="utf-8")
+        if "dotnet-azure-openai-live-post-regression" in ci_text:
+            errors.extend(_workflow_has_budget_probe(ci_text, f"{CI_WORKFLOW_REL} (dotnet-azure-openai-live-post-regression)"))
 
     return errors
 

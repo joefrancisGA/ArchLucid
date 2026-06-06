@@ -45,7 +45,8 @@ Pre-commit stages may rewrite draft rows; after commit, sealed tables accept **I
 
 ## Out of scope (V1)
 
-- Cryptographic hash-linked lineage / WORM storage (#6)
+- **Platform WORM / immutable blob tier** — see [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md); customer may apply immutability on exported copies
+- Application-layer hash-linked lineage (#6 — in-scope when prioritized; not WORM)
 - Sealing `dbo.Runs` header or FK repoint detection
 - Versioned evidence rows
 

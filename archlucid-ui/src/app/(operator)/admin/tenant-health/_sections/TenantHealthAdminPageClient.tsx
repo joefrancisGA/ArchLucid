@@ -106,7 +106,7 @@ export function TenantHealthAdminPageClient() {
             <EnterpriseTableHeaderCell>Engagement</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Governance</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Funnel stage</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Runs (7d)</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Reviews (7d)</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Last active</EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>

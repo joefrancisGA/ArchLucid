@@ -45,6 +45,30 @@ describe("contextualHelpByKey", () => {
     }
   });
 
+  it("does not leak engineering-only doc paths in visible help copy", () => {
+    const forbiddenInText = [/docs\/library\//i, /\.csproj\b/i, /github\.com\//i];
+
+    for (const key of Object.keys(contextualHelpByKey)) {
+      const entry = contextualHelpByKey[key];
+
+      for (const pattern of forbiddenInText) {
+        expect(entry.text, key).not.toMatch(pattern);
+      }
+    }
+  });
+
+  it("does not link to contributor-reference engineering docs", () => {
+    for (const key of Object.keys(contextualHelpByKey)) {
+      const u = contextualHelpByKey[key].learnMoreUrl;
+
+      if (u == null) {
+        continue;
+      }
+
+      expect(u.toLowerCase(), key).not.toContain("contributor-reference");
+    }
+  });
+
   it("toDocsBlobUrl resolves in-app help routes", () => {
     const url = toDocsBlobUrl("/docs/CORE_PILOT.md#x");
 

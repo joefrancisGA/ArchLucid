@@ -115,7 +115,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "First-pilot troubleshooting decision tree",
     "sectionSlug": "3-auth-401-403",
     "sectionHeading": "3. Auth 401 / 403",
-    "excerpt": "→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](../library/API_KEY_ROTATION.md) · Settings → Identity providers (OIDC discovery strip)"
+    "excerpt": "→ [`GENERIC_OIDC_SETUP.md`](GENERIC_OIDC_SETUP.md) · [`API_KEY_ROTATION.md`](API_KEY_ROTATION.md)) · Settings → Identity providers (OIDC discovery strip)"
   },
   {
     "docPath": "docs/runbooks/FIRST_PILOT_TROUBLESHOOTING.md",
@@ -196,70 +196,70 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "",
-    "sectionHeading": "Troubleshooting for pilots and operators (56R) — overview",
+    "sectionHeading": "Engineering troubleshooting runbook — overview",
     "excerpt": "Goal: Faster triage without reading the whole codebase."
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "first-line-steps-try-in-order",
     "sectionHeading": "First-line steps (try in order)",
     "excerpt": "1. See [Common operator errors (top 10)](COMMON_ERRORS.md) for step-by-step fixes to startup, auth, migrations, OpenAI, rate limits, concurrency, and readiness checks. 2. `GET /health/live` — process up? Then `GET /health/ready` — read JSON `entries[]` for the first `Unhealthy` / `Degraded` check. 2. `GET /version` …"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "orchestrator-degraded-health",
     "sectionHeading": "Orchestrator degraded health",
     "excerpt": "When `OrchestratorHealthCheck` reports Degraded or Unhealthy on `GET /health/ready`, or runs stall in Executing without task progress:"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "problem-details-applicationproblemjson-and-supporthint",
     "sectionHeading": "Problem Details (`application/problem+json`) and `supportHint`",
     "excerpt": "Shape follows RFC 9457 (Problem Details for HTTP APIs; obsoletes RFC 7807). API error responses may include:"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "quick-matrix",
     "sectionHeading": "Quick matrix",
     "excerpt": "Quick matrix"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "api-startup-failures",
     "sectionHeading": "API startup failures",
     "excerpt": "1. Read the console output from first line to first `InvalidOperationException` / stack stop. 2. Configuration validation runs right after the host is built: errors are logged as `Startup configuration error:` — fix each listed setting. 3. If `ConnectionStrings:ArchLucid` is unset while `ArchLucid:StorageProvider` i…"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "logs-what-to-search-for",
     "sectionHeading": "Logs — what to search for",
     "excerpt": "- `RunId=` — ties log lines to a single architecture run. - `X-Correlation-ID` you sent on the request (or the ID the server returned) — ties client attempts to server handling; if you only have a problem JSON body, use `correlationId` there (same value). - `Authority pipeline` / `Architecture run execution failed` …"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "artifact-list-empty-or-download-404",
     "sectionHeading": "Artifact list empty or download 404",
     "excerpt": "- An empty artifact list (`[]`) can be valid: manifest exists but no synthesized files yet or none stored for that manifest. - Bundle ZIP 404 can mean “no bundle” vs “manifest not found” depending on API ProblemDetails — compare `title` / `type` / `detail` in the response."
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "support-bundle-attach-to-tickets",
     "sectionHeading": "Support bundle (attach to tickets)",
     "excerpt": "With the API running, from repo root (or set `ARCHLUCID_API_URL` to your API base):"
   },
   {
     "docPath": "docs/runbooks/TROUBLESHOOTING.md",
-    "docTitle": "Troubleshooting for pilots and operators (56R)",
+    "docTitle": "Engineering troubleshooting runbook",
     "sectionSlug": "still-stuck",
     "sectionHeading": "Still stuck?",
     "excerpt": "1. Run `dotnet run --project ArchLucid.Cli -- doctor` with the API up. 2. Run `support-bundle --zip` (above) and attach the archive after redacting anything your policy still forbids. 3. Run `scripts\\run-readiness-check.cmd` (or `scripts\\run-readiness-check.ps1`) to confirm build + fast core + UI unit tests on your …"
@@ -277,6 +277,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "sectionSlug": "testing-non-production",
     "sectionHeading": "Testing (non-production)",
     "excerpt": "Testing (non-production)"
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
+    "sectionSlug": "public-marketing-site-archlucid-ui-build-time",
+    "sectionHeading": "Public marketing site (`archlucid-ui`, build-time)",
+    "excerpt": "These keys are not in `ConfigurationKeyCatalog` (Next.js `NEXT_PUBLIC_*` only). They apply to the `(marketing)` subtree and signup funnel — see TB-019 / TB-020 and [`PUBLIC_MARKETING_SITE_TOPOLOGY.md`](PUBLIC_MARKETING_SITE_TOPOLOGY.md)."
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
@@ -311,7 +318,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Configuration reference",
     "sectionSlug": "pilot-configuration-profiles",
     "sectionHeading": "Pilot configuration profiles",
-    "excerpt": "These profiles are operator shortcuts, not new configuration modes. Use them to decide which existing keys and checks must be present before a handoff."
+    "excerpt": "These profiles are operator shortcuts, not new configuration modes. Use them to decide which existing keys and checks must be present before a handoff. Before deploy: [`PILOT_PREREQUISITES.md`](../runbooks/PILOT_PREREQUISITES.md) (resource checklist, cost table, Azure AI Search blocking callout) and `.\\scripts\\Test-…"
   },
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",

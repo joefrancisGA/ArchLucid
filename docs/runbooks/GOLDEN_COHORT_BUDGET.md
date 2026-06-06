@@ -7,9 +7,9 @@
 
 ## Decision (2026-04-22, refined 2026-04-24)
 
-Owner Q&A ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) items **15** / **25**): dedicated golden-cohort Azure OpenAI usage is capped at **$50 / calendar month**.
+Owner Q&A ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) items **15** / **25**): dedicated golden-cohort Azure OpenAI usage is capped at **$15 / calendar month** (owner decision **2026-06-06**; was $50 through 2026-06-05).
 
-> **Updated 2026-04-24 (Improvement 11 — Prompt 11):** the single 90% kill switch was split into a **two-band** Q15-conditional kill-switch: **warn at 80%** ($40 MTD — workflow continues but posts an issue) and **kill at 95%** ($47.50 MTD — workflow skips the cohort run for the rest of the month, does not count as failure). Threshold ratios **0.80 / 0.95** are pinned by [`scripts/ci/assert_golden_cohort_kill_switch_present.py`](../../scripts/ci/assert_golden_cohort_kill_switch_present.py); a PR that weakens them is blocked at merge time. End-to-end operator instructions (including how to flip the gate from disabled to required and how to read the new Workbook) live in [`GOLDEN_COHORT_REAL_LLM_GATE.md`](./GOLDEN_COHORT_REAL_LLM_GATE.md).
+> **Updated 2026-04-24 (Improvement 11 — Prompt 11):** the single 90% kill switch was split into a **two-band** Q15-conditional kill-switch: **warn at 80%** ($12 MTD at $15 cap — workflow continues but posts an issue) and **kill at 95%** ($14.25 MTD — workflow skips the cohort run for the rest of the month, emits a CI **`::warning::`**, does not count as failure). Threshold ratios **0.80 / 0.95** are pinned by [`scripts/ci/assert_golden_cohort_kill_switch_present.py`](../../scripts/ci/assert_golden_cohort_kill_switch_present.py); a PR that weakens them is blocked at merge time. End-to-end operator instructions (including how to flip the gate from disabled to required and how to read the new Workbook) live in [`GOLDEN_COHORT_REAL_LLM_GATE.md`](./GOLDEN_COHORT_REAL_LLM_GATE.md).
 
 **Currency:** the probe reads **Cost Management `ActualCost`** for the filtered resource. The numeric cap in `budget.config.json` is expressed in **USD** in-repo; ensure the subscription’s Cost Management **billing currency** matches your intent (use a USD-billed subscription for this cohort, or edit the cap and this doc to match another currency).
 

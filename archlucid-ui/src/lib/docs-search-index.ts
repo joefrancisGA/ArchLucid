@@ -99,7 +99,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
     category: "Architecture",
     title: "Architecture flows",
-    description: "Run lifecycle, exports, compare/replay narratives.",
+    description: "Review lifecycle, exports, compare/replay narratives.",
     relativeDocsPath: "docs/library/ARCHITECTURE_FLOWS.md",
   },
   {

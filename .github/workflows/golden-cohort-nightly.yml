@@ -6,7 +6,7 @@
 # **run_live_invoke=true**, or (**b**) the **Sunday 06:00 UTC** schedule when **vars** below enable it —
 # gated on **preflight budget exit** 0/1 only (warn/kill-skip suppresses live the same as preflight dotnet steps).
 # Budget probe (**scripts/golden_cohort_budget_probe.py**) exit codes:
-#        0 → continue normally (MTD < 80% of $50 cap)
+#        0 → continue normally (MTD < 80% of $15 cap)
 #        1 → WARN: continue but post a GitHub issue (MTD ≥ 80% < 95%)
 #        2 → SKIP: post issue, do NOT count as workflow failure (MTD ≥ 95%)
 #        3 → probe failed: skip + summary, do NOT count as workflow failure
@@ -174,61 +174,12 @@ jobs:
       # Thresholds 0.80 / 0.95 are enforced at merge time by
       # scripts/ci/assert_golden_cohort_kill_switch_present.py.
       - id: budget
-        name: Golden cohort budget probe ($50/mo cap, 80% warn / 95% kill)
+        name: Golden cohort budget probe ($15/mo cap, 80% warn / 95% kill)
         if: steps.eligibility.outputs.enabled == 'true'
         env:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
-        run: |
-          # GitHub's default bash -e would abort on probe exit 1–3 before we map codes to a green skip.
-          set -uo pipefail
-          set +e
-          set -o pipefail
-          python scripts/golden_cohort_budget_probe.py --usage-ledger tests/golden-cohort/usage-mtd.json 2>&1 | tee "${RUNNER_TEMP}/golden-cohort-budget-probe.log"
-          code=${PIPESTATUS[0]}
-          set -e
-          set +o pipefail
-          mtd_line=$(grep '^EXPORT_MTD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
-          mtd_val="${mtd_line#EXPORT_MTD_USD=}"
-          warn_line=$(grep '^EXPORT_WARN_THRESHOLD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
-          warn_val="${warn_line#EXPORT_WARN_THRESHOLD_USD=}"
-          kill_line=$(grep '^EXPORT_KILL_THRESHOLD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
-          kill_val="${kill_line#EXPORT_KILL_THRESHOLD_USD=}"
-          {
-            echo "exit_code=${code}"
-            echo "mtd_usd=${mtd_val}"
-            echo "warn_threshold_usd=${warn_val}"
-            echo "kill_threshold_usd=${kill_val}"
-          } >> "${GITHUB_OUTPUT}"
-          case "${code}" in
-            0)
-              {
-                echo "## Golden cohort real LLM"
-                echo "Continue: MTD spend \$${mtd_val:-?} is under the warn threshold (\$${warn_val:-?})."
-              } >> "${GITHUB_STEP_SUMMARY}"
-              ;;
-            1)
-              {
-                echo "## Golden cohort real LLM (WARN)"
-                echo "MTD spend \$${mtd_val:-?} crossed the **warn** threshold (\$${warn_val:-?}, 80% of cap)."
-                echo "Cohort run continues; an issue will be opened so the owner is aware before kill threshold."
-              } >> "${GITHUB_STEP_SUMMARY}"
-              ;;
-            2)
-              {
-                echo "## Golden cohort real LLM (SKIP — KILL SWITCH)"
-                echo "MTD spend \$${mtd_val:-?} crossed the **kill** threshold (\$${kill_val:-?}, 95% of cap)."
-                echo "Real-LLM cohort SKIPPED for the rest of the month. Workflow does not count as failure."
-              } >> "${GITHUB_STEP_SUMMARY}"
-              ;;
-            *)
-              {
-                echo "## Golden cohort real LLM (SKIP — probe failed)"
-                echo "Budget probe failed (exit ${code}). See docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md § Probe failure."
-              } >> "${GITHUB_STEP_SUMMARY}"
-              ;;
-          esac
-          exit 0
+        run: bash scripts/ci/run_golden_cohort_budget_probe_ci.sh "Golden cohort real LLM"
 
       # Improvement 11 (2026-04-24) — owner visibility for warn (continue) and kill (skip) states.
       # Uses gh CLI bundled on ubuntu-latest. We DO NOT --label so the issue doesn't require

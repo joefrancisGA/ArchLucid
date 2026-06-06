@@ -250,6 +250,74 @@ public sealed class ExecutiveRoiSummaryInvariantTests
     }
 
     [Fact]
+    public void ComputeHeadlineSavingsFromBasis_uses_open_plus_needs_evidence_only()
+    {
+        ExecutiveRoiBasisBreakdown basis = new()
+        {
+            OpenEstimatedUsd = 100m,
+            NeedsEvidenceUsd = 25m,
+            AcceptedRiskUsd = 50m,
+            DeferredUsd = 10m,
+            WaivedUsd = 5m,
+            RealizedUsd = 200m,
+        };
+
+        ExecutiveRoiSummaryService.ComputeHeadlineSavingsFromBasis(basis).Should().Be(125m);
+    }
+
+    [Fact]
+    public async Task BuildAsync_headline_matches_basis_open_plus_needs_evidence()
+    {
+        DateTime committedUtc = TimeProvider.System.UtcNowDateTime().AddDays(-1);
+        Guid runId = Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        Guid snapshotId = Guid.Parse("ffffffffffffffffffffffffffffffff");
+
+        RunSummary summary = new()
+        {
+            RunId = runId.ToString("N"),
+            SystemName = "Payments",
+            Status = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = committedUtc,
+            CurrentManifestVersion = "v1",
+        };
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(query => query.ListRunSummariesKeysetAsync(null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new[] { summary }, false, null));
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildDetailWithFindings(runId, committedUtc, []));
+
+        ArchitectureRunDetail detail = BuildDetailWithFindings(runId, committedUtc, []);
+        detail.Run.FindingsSnapshotId = snapshotId;
+
+        runQuery
+            .Setup(query => query.GetRunDetailAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        ExecutiveRoiSummaryService service = ExecutiveRoiSummaryServiceTestSupport.CreateService(
+            runQuery.Object,
+            Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
+            scope: new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId },
+            configureFindingsSnapshots: mock =>
+            {
+                mock
+                    .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(ExecutiveRoiSummaryServiceTestSupport.CreateOpenFindingSnapshot(900m));
+            }).Service;
+
+        ExecutiveRoiSummaryResponse response = await service.BuildAsync(CancellationToken.None);
+
+        decimal expectedHeadline = response.BasisBreakdown is null
+            ? 0m
+            : ExecutiveRoiSummaryService.ComputeHeadlineSavingsFromBasis(response.BasisBreakdown);
+
+        response.TotalEstimatedUsdSavings.Should().Be(expectedHeadline);
+    }
+
+    [Fact]
     public void Orphan_candidate_count_uses_single_pipeline_not_double_markers()
     {
         // Regression guard for TB-103 — structured + legacy orphan markers on one finding must count once.

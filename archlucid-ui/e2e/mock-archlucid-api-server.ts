@@ -300,7 +300,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         req.method === "POST" &&
         (pathname === "/v1/diagnostics/client-error" ||
           pathname === "/v1/diagnostics/first-tenant-funnel" ||
-          pathname === "/v1/diagnostics/core-pilot-rail-step")
+          pathname === "/v1/diagnostics/core-pilot-rail-step" ||
+          pathname === "/v1/diagnostics/sponsor-banner-first-commit-badge")
       ) {
         res.writeHead(204);
         res.end();

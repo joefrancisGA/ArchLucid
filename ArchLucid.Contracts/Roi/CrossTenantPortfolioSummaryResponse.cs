@@ -6,7 +6,10 @@ namespace ArchLucid.Contracts.Roi;
 /// </summary>
 public sealed class CrossTenantPortfolioSummaryResponse
 {
-    /// <summary>Sum of estimated USD savings across all accessible tenants.</summary>
+    /// <summary>
+    ///     Sum of disposition-aware headline savings (open + needs-evidence USD) across accessible tenants —
+    ///     same semantics as <see cref="ExecutiveRoiSummaryResponse.TotalEstimatedUsdSavings"/>.
+    /// </summary>
     public decimal TotalEstimatedUsdSavings { get; set; }
 
     /// <summary>Total number of distinct systems across all accessible tenants.</summary>

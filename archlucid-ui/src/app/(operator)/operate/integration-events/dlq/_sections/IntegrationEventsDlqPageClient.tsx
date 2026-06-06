@@ -266,7 +266,7 @@ export function IntegrationEventsDlqPageClient() {
                   <tr className="border-b border-neutral-200 dark:border-neutral-700">
                     <th className="py-2 pr-3 font-medium">Tenant</th>
                     <th className="py-2 pr-3 font-medium">Event</th>
-                    <th className="py-2 pr-3 font-medium">Run</th>
+                    <th className="py-2 pr-3 font-medium">Review</th>
                     <th className="py-2 pr-3 font-medium">Age</th>
                     <th className="py-2 pr-3 font-medium">Dead-lettered (UTC)</th>
                     <th className="py-2 pr-3 font-medium">Retries</th>

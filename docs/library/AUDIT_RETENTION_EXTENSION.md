@@ -67,7 +67,7 @@ Estimates depend on tenant activity (runs/month, governance events, integration 
 **A:** Yes as an **Enterprise extension**: periodic CSV exports to immutable blob storage for the full contracted period, while interactive SQL retention follows the negotiated hot window (often 1–2 years unless otherwise contracted).
 
 **Q: Is the audit log tamper-evident?**  
-**A:** Interactive inserts are append-only for the app principal (`DENY UPDATE/DELETE` on `dbo.AuditEvents` for `ArchLucidApp`). Long-term integrity relies on export cadence + customer-controlled WORM/immutability on blob copies.
+**A:** Interactive inserts are append-only for the app principal (`DENY UPDATE/DELETE` on `dbo.AuditEvents` for `ArchLucidApp`). Long-term integrity relies on export cadence plus customer-controlled retention on blob copies. **Platform WORM is out of scope** ([ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md)); application hash lineage (#6) is the in-platform track when prioritized.
 
 **Q: How do we export compliance drift for a point-in-time review?**  
 **A:** Operators run `archlucid compliance export-drift --start-date <utc> --end-date <utc>` (CSV or Markdown) against `GET /v1/governance/compliance-drift-trend`.

@@ -5,7 +5,7 @@ export type PermissionGroup = {
 
 export const CUSTOM_ROLE_PERMISSION_GROUPS: readonly PermissionGroup[] = [
   {
-    area: "Runs",
+    area: "Reviews",
     permissions: [
       { id: "Runs.Read", label: "Read runs" },
       { id: "Runs.Create", label: "Create runs" },

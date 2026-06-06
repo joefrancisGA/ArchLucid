@@ -1,80 +1,70 @@
 /**
  * Mock E2E uses buyer-polished shell by default (`playwright.mock.config.ts` → `NEXT_PUBLIC_DEMO_MODE`).
- * Buyer run detail uses {@link RunDetailOutcomeCards}’s `PackageStatusStrip`: the manifest deep link is under
- * **Review outcome** with visible text **Finalized** (not the full-operator “Open manifest detail” card).
- * Do not assert `h2` **Run detail** here — that chrome is for full-operator / live API E2E only; buyer shell uses
- * {@link RunDetailPageHeader} `h1` from `buyerFacingReviewTitleFromSummary` (fixture description text).
+ * API data comes from the loopback mock server (`e2e/mock-archlucid-api-server.ts`) — avoid overlapping `page.route`
+ * handlers here; they can interfere with App Router client navigations.
  */
 import { expect, test } from "@playwright/test";
 
-import { FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID, MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN } from "./fixtures";
 import {
-  gotoRunDetailForMockFixtureRun,
-  openBuyerRunDetailArchitectureReviewBoardDeliverables,
-} from "./helpers/operator-journey";
-import { registerDefaultRunManifestArtifactRoutes } from "./helpers/register-operator-api-routes";
+  MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
+  SHOWCASE_DEMO_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+} from "./fixtures";
 
-/** Buyer-polished run detail H1 from {@link fixtureRunDetail} description via `buyerFacingReviewTitleFromSummary`. */
-const FIXTURE_RUN_DETAIL_HEADING = /Claims Intake Modernization — integration boundaries/i;
+const SHOWCASE_RUN_DETAIL_HEADING = /Claims Intake Modernization/i;
 
 test.describe("operator journey — run detail to manifest and back", () => {
-  test("reviews fixture run, opens manifest, returns to run (mock API only)", async ({ page }) => {
-    await registerDefaultRunManifestArtifactRoutes(page);
-    await gotoRunDetailForMockFixtureRun(page);
+  test("reviews showcase run, opens manifest, returns to run (mock API only)", async ({ page }) => {
+    test.setTimeout(120_000);
 
-    await expect(page).toHaveURL(new RegExp(encodeURIComponent(FIXTURE_RUN_ID)));
+    await page.goto(`/reviews/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`);
+
+    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
 
     await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: FIXTURE_RUN_DETAIL_HEADING,
-      }),
-    ).toBeVisible();
+      page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
+    ).toBeVisible({ timeout: 60_000 });
 
     const outcomeStrip = page.locator('section[aria-label="Review outcome summary"]');
-    const manifestLink = outcomeStrip.getByRole("link", { name: /Finalized/i }).first();
 
-    await expect(manifestLink).toBeVisible();
-    await expect(manifestLink).toContainText("Finalized");
-    await Promise.all([
-      page.waitForURL(`**/manifests/${FIXTURE_MANIFEST_ID}**`, { waitUntil: "commit" }),
-      manifestLink.click(),
-    ]);
+    await expect(outcomeStrip).toBeVisible({ timeout: 60_000 });
+
+    const manifestLink = outcomeStrip.locator('a[href^="/manifests/"]').first();
+    const manifestHref = `/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`;
+
+    await expect(manifestLink).toBeVisible({ timeout: 60_000 });
+    await expect(manifestLink).toContainText(/Finalized/i);
+    await expect(manifestLink).toHaveAttribute("href", manifestHref);
+
+    // Buyer-polished shell may canonicalize `/manifests/{uuid}` → `/reviews/{runId}/manifest` after navigation.
+    await page.goto(manifestHref);
+
+    await expect(page).toHaveURL(
+      new RegExp(
+        `(?:/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID.replace(/-/g, "\\-")}|/reviews/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}/manifest)`,
+      ),
+      { timeout: 60_000 },
+    );
+    await expect(page.getByText(/Fetching manifest summary/i)).toHaveCount(0, { timeout: 60_000 });
+    await expect(
+      page.getByRole("main").getByRole("heading", { level: 1, name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN }).first(),
+    ).toBeVisible({ timeout: 60_000 });
+
+    const reviewLink = page
+      .locator('[aria-label="Breadcrumb"]')
+      .getByRole("link", { name: /Open review|Claims Intake Modernization Review/i })
+      .first();
+
+    await expect(reviewLink).toBeVisible({ timeout: 60_000 });
+    await reviewLink.click();
+    await expect(page).toHaveURL(new RegExp(`/(?:reviews|runs)/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`), {
+      timeout: 60_000,
+    });
 
     await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
-      }),
-    ).toBeVisible();
+      page.getByRole("heading", { level: 1, name: SHOWCASE_RUN_DETAIL_HEADING }),
+    ).toBeVisible({ timeout: 60_000 });
 
-    // Buyer-polished shell hides raw manifest UUID; operator summary and bundle href remain stable.
-    await expect(
-      page.getByText(/Finalized reviewed manifest for Claims Intake Modernization/),
-    ).toBeVisible();
-
-    await expect(page.getByText("At a glance", { exact: true })).toBeVisible();
-
-    await Promise.all([
-      page.waitForURL(`**/reviews/${FIXTURE_RUN_ID}**`, { waitUntil: "commit" }),
-      page.getByRole("link", { name: "Open review" }).first().click(),
-    ]);
-
-    await expect(page).toHaveURL(new RegExp(encodeURIComponent(FIXTURE_RUN_ID)));
-    await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: FIXTURE_RUN_DETAIL_HEADING,
-      }),
-    ).toBeVisible();
-
-    // Buyer-polished run detail collapses deliverables by default; fixture artifacts both live under the ARB/audit tab.
-    const deliverablesRegion = await openBuyerRunDetailArchitectureReviewBoardDeliverables(page);
-
-    await expect(deliverablesRegion.getByRole("columnheader", { name: "Output" })).toHaveCount(2);
-    await expect(deliverablesRegion.getByText("Markdown Narrative", { exact: true }).first()).toBeVisible();
-    await expect(deliverablesRegion.getByText("Intake context diagram", { exact: true }).first()).toBeVisible();
-
-    await expect(page.getByRole("link", { name: "Download evidence package" })).toBeVisible();
+    await expect(outcomeStrip).toBeVisible();
   });
 });

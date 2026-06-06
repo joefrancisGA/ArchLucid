@@ -16,7 +16,7 @@
 
 Both paths honor probe semantics (see section 3): exit **2** skips downstream cohort steps **including live** without failing the workflow.
 
-The Q15 ($50/month) approval was **conditional on the kill-switch being shipped** ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Q15). If the kill-switch is bypassed, real-LLM execution must revert to disabled until the kill-switch is restored.
+The Q15 budget approval (**$15/month** as of **2026-06-06**; was $50) was **conditional on the kill-switch being shipped** ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Q15). If the kill-switch is bypassed, real-LLM execution must revert to disabled until the kill-switch is restored.
 
 **Pilot / release session record:** [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) — use for ad-hoc real-mode validations outside the nightly cohort.
 
@@ -42,11 +42,11 @@ Keep secrets (**`ARCHLUCID_GOLDEN_COHORT_API_HOST`**, Azure OpenAI IDs/keys/fede
 
 ## 3. Probe exit-code semantics (the kill-switch)
 
-| Exit code | MTD spend (default cap = $50) | Workflow behavior | Issue created? |
+| Exit code | MTD spend (default cap = $15) | Workflow behavior | Issue created? |
 | --------- | ----------------------------- | ----------------- | -------------- |
-| **0** | < **80%** of cap (< $40) | Cohort runs normally | No |
-| **1** | â‰¥ **80%** and < **95%** ($40 â‰¤ MTD < $47.50) | Cohort **still runs** (yellow band); workflow summary shows WARN | **Yes** â€” title `Golden cohort kill-switch WARN â€” YYYY-MM-DD` |
-| **2** | â‰¥ **95%** of cap (â‰¥ $47.50) | Cohort **SKIPPED** for the rest of the month; workflow does **not** count as failure | **Yes** â€” title `Golden cohort kill-switch KILL â€” SKIPPED â€” YYYY-MM-DD` |
+| **0** | < **80%** of cap (< $12) | Cohort runs normally | No |
+| **1** | â‰¥ **80%** and < **95%** ($12 â‰¤ MTD < $14.25) | Cohort **still runs** (yellow band); workflow summary shows WARN | **Yes** â€” title `Golden cohort kill-switch WARN â€” YYYY-MM-DD` |
+| **2** | â‰¥ **95%** of cap (â‰¥ $14.25) | Cohort **SKIPPED** for the rest of the month; CI emits **`::warning::`**; workflow does **not** count as failure | **Yes** â€” title `Golden cohort kill-switch KILL â€” SKIPPED â€” YYYY-MM-DD` |
 | **3** | Probe failed (auth, RBAC, network) | Cohort skipped; workflow does **not** count as failure | No (probe was unable to attribute spend) |
 
 Threshold ratios **0.80 / 0.95** are pinned by [`scripts/ci/assert_golden_cohort_kill_switch_present.py`](../../scripts/ci/assert_golden_cohort_kill_switch_present.py); a PR that weakens them is blocked at merge time.

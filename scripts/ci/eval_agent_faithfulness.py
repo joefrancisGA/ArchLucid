@@ -258,7 +258,8 @@ def _enforce_faithfulness_floors(
             f"negative-control support ratio {negative_mean:.4f} exceeds ceiling {max_negative_ratio:.4f}"
         )
 
-    if mean_ratio < min_ratio:
+    # Combined ratio is diagnostic only when split cohort floors are in play (Phase A PR gate).
+    if mean_ratio < min_ratio and not (positive_cases and negative_cases):
         failures.append(f"combined diagnostic support ratio {mean_ratio:.4f} is below floor {min_ratio:.4f}")
 
     failures.extend(_detector_failures(cases))
