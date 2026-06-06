@@ -1,4 +1,4 @@
-﻿# TB-093 — consumed Azure OpenAI contract validation (US East pilot default: eastus).
+# TB-093 — consumed Azure OpenAI contract validation (US East pilot default: eastus).
 
 check "openai_existing_requires_contract" {
   assert {
