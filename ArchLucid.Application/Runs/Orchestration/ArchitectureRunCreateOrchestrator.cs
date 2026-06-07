@@ -8,6 +8,7 @@ using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Authority;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
@@ -49,6 +50,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IUsageMeteringService usageMetering,
     IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock,
     IOptions<ArchitectureRunCreateOptions> createRunOptions,
+    IAsyncAuthorityPipelineModeResolver asyncAuthorityPipelineModeResolver,
     IRunStateTransitionService runStateTransitionService,
     TimeProvider timeProvider,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
@@ -74,6 +76,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
     private readonly IDistributedCreateRunIdempotencyLock _distributedCreateRunIdempotencyLock =
         distributedCreateRunIdempotencyLock ?? throw new ArgumentNullException(nameof(distributedCreateRunIdempotencyLock));
+
+    private readonly IAsyncAuthorityPipelineModeResolver _asyncAuthorityPipelineModeResolver =
+        asyncAuthorityPipelineModeResolver ?? throw new ArgumentNullException(nameof(asyncAuthorityPipelineModeResolver));
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
@@ -155,15 +160,80 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private async Task<CreateRunResult> CreateRunWithCoordinationAsync(ArchitectureRequest request, CreateRunIdempotencyState? idempotency,
         CancellationToken cancellationToken)
     {
+        bool useEnlistedUnitOfWork = await _asyncAuthorityPipelineModeResolver
+            .ShouldQueueContextAndGraphStagesAsync(cancellationToken);
+
+        if (useEnlistedUnitOfWork)
+            return await CreateRunWithEnlistedCoordinationAsync(request, idempotency, cancellationToken);
+
+        return await CreateRunWithSyncCoordinationAsync(request, idempotency, cancellationToken);
+    }
+
+    private async Task<CreateRunResult> CreateRunWithSyncCoordinationAsync(
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        CancellationToken cancellationToken)
+    {
         string actor = _actorContext.GetActor();
+        CoordinationResult coordination = await _authorityCoordination.CreateRunAsync(request, cancellationToken);
+
+        if (!coordination.Success)
+        {
+            string detail = string.Join("; ", coordination.Errors);
+            await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, request.RequestId,
+                $"Coordination failed: {detail}", cancellationToken);
+            throw new InvalidOperationException($"CreateRun failed: {detail}");
+        }
+
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformationCreatingArchitectureRun(coordination.Run.RunId, request.RequestId, request.SystemName, request.Environment);
+
         bool inserted;
-        CoordinationResult? coordination = null;
+
         try
         {
             await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+
+            try
+            {
+                inserted = await PersistCreateRunRowsAsync(request, coordination, idempotency, uow, cancellationToken);
+
+                if (inserted || idempotency is null)
+                    await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, coordination.Run.RunId,
+                $"Persist failed: {ex.GetType().Name}", cancellationToken);
+            throw;
+        }
+
+        return await FinalizeSuccessfulCreateRunAsync(request, idempotency, coordination, inserted, actor, cancellationToken);
+    }
+
+    private async Task<CreateRunResult> CreateRunWithEnlistedCoordinationAsync(
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        CancellationToken cancellationToken)
+    {
+        string actor = _actorContext.GetActor();
+        bool inserted;
+        CoordinationResult? coordination = null;
+
+        try
+        {
+            await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+
             try
             {
                 coordination = await _authorityCoordination.CreateRunAsync(request, cancellationToken, uow);
+
                 if (!coordination.Success)
                 {
                     string detail = string.Join("; ", coordination.Errors);
@@ -203,13 +273,24 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformationCreatingArchitectureRun(coordination!.Run.RunId, request.RequestId, request.SystemName, request.Environment);
 
+        return await FinalizeSuccessfulCreateRunAsync(request, idempotency, coordination!, inserted, actor, cancellationToken);
+    }
+
+    private async Task<CreateRunResult> FinalizeSuccessfulCreateRunAsync(
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        CoordinationResult coordination,
+        bool inserted,
+        string actor,
+        CancellationToken cancellationToken)
+    {
         if (idempotency is not null && !inserted)
         {
             CreateRunResult? winner = await ResolveIdempotencyRaceAsync(idempotency, cancellationToken);
             return winner ?? throw new InvalidOperationException("Idempotency insert failed but no winning row was found; retry the request.");
         }
 
-        await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCreated, actor, coordination!.Run.RunId,
+        await _baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunCreated, actor, coordination.Run.RunId,
             $"RequestId={request.RequestId}; Environment={request.Environment}; SystemName={request.SystemName}", cancellationToken);
 
         ScopeContext scopeCtx = _scopeContextProvider.GetCurrentScope();
@@ -256,6 +337,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 await _auditService.LogAsync(requestLocked, ct);
             }, _logger, $"{AuditEventTypes.RequestLocked}:{LogSanitizer.Sanitize(coordination.Run.RunId)}", cancellationToken,
             auditEventTypeForMetrics: AuditEventTypes.RequestLocked);
+
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Architecture run created: RunId={RunId}, TaskCount={TaskCount}", LogSanitizer.Sanitize(coordination.Run.RunId),
                 coordination.Tasks.Count);

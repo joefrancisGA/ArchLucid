@@ -11,6 +11,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Authority;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
@@ -174,6 +175,11 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("test-actor");
 
+        Mock<IAsyncAuthorityPipelineModeResolver> asyncModeResolver = new();
+        asyncModeResolver
+            .Setup(m => m.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         ArchitectureRunCreateOrchestrator sut = new(
             coordinationMock.Object,
             Mock.Of<IArchitectureRequestRepository>(),
@@ -189,6 +195,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             Mock.Of<IUsageMeteringService>(),
             new InProcessCreateRunIdempotencyLock(),
             Microsoft.Extensions.Options.            Options.Create(new ArchitectureRunCreateOptions()),
+            asyncModeResolver.Object,
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
@@ -286,6 +293,11 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             .Setup(e => e.CreateAsync(It.IsAny<EvidenceBundle>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IAsyncAuthorityPipelineModeResolver> asyncModeResolver = new();
+        asyncModeResolver
+            .Setup(m => m.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         ArchitectureRunCreateOrchestrator sut = new(
             coordination.Object,
             requestRepository.Object,
@@ -301,6 +313,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             Mock.Of<IUsageMeteringService>(),
             new InProcessCreateRunIdempotencyLock(),
             Microsoft.Extensions.Options.            Options.Create(new ArchitectureRunCreateOptions()),
+            asyncModeResolver.Object,
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),

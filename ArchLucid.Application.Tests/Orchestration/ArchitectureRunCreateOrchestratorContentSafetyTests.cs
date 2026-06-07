@@ -3,6 +3,7 @@ using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Authority;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
@@ -61,6 +62,7 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
             Mock.Of<IUsageMeteringService>(),
             new InProcessCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),
+            new DisabledAsyncAuthorityPipelineModeResolver(),
             Mock.Of<IRunStateTransitionService>(),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
