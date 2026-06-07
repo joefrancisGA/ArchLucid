@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory)]
     [int]$ShardIndex,
 
-    [int]$ShardCount = 3,
+    [int]$ShardCount = 4,
 
     [string]$ProjectPath = 'ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj',
 
