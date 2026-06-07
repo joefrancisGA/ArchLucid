@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:254 -->
+<!-- audit-core-const-count:257 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -328,6 +328,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RunExportBlobPushQueued` | `RunExportBlobPushQueued` | `ArtifactExportController` (HTTP 202 accepts enqueue; background `RunExportBlobPushService` emits succeeded/failed) |
 | `RunExportBlobPushSucceeded` | `RunExportBlobPushSucceeded` | `RunExportBlobPushService` (`ArtifactExportController` queues background PUT to customer SAS) |
 | `RunExportBlobPushFailed` | `RunExportBlobPushFailed` | `RunExportBlobPushService` (non-success HTTP or exception; same enqueue path as succeeded) |
+| `RunExportBlobPushDeadLettered` | `RunExportBlobPushDeadLettered` | `RunExportBlobPushOutboxProcessor` (retries exhausted or destination re-validation failed at processing time) |
 | `TerraformAdvisoryExportDownloaded` | `TerraformAdvisoryExportDownloaded` | `ArtifactExportController` |
 | `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
 | `ArchitectureDefinitionCsvImportDryRunExecuted` | `ArchitectureDefinitionCsvImportDryRunExecuted` | `ArchitectureDefinitionImportController` (`POST /v1/architecture/import` dry-run) |
@@ -394,6 +395,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `PolicyPackDuplicated` | `PolicyPackDuplicated` | `PolicyPacksAppService` (`POST /v1/policy-packs/{policyPackId}/duplicate`) |
 | `PolicyPackCatalogPromoted` | `PolicyPackCatalogPromoted` | `PolicyPacksController` (`POST /v1/policy-packs/catalog/promote`) |
 | `PolicyPackCatalogDemoted` | `PolicyPackCatalogDemoted` | `PolicyPacksController` (`POST /v1/policy-packs/catalog/demote`) |
+| `PostCommitProjectionDeadLettered` | `PostCommitProjectionDeadLettered` | `PostCommitProjectionOutboxProcessor` (retries exhausted during background projection side-effects) |
 | `GovernanceResolutionExecuted` | `GovernanceResolutionExecuted` | `GovernanceResolutionController` |
 | `GovernanceConflictDetected` | `GovernanceConflictDetected` | `GovernanceResolutionController` |
 | `GovernanceApprovalSubmitted` | `GovernanceApprovalSubmitted` | `GovernanceWorkflowService` |
