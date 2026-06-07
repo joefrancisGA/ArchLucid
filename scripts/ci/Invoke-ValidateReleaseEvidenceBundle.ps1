@@ -31,7 +31,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $pythonScript = Join-Path $PSScriptRoot 'release_evidence_bundle.py'
 
-[string[]] $args = @(
+[string[]] $pythonArgs = @(
     $pythonScript,
     'validate',
     '--dir', $BundleDir,
@@ -39,8 +39,8 @@ $pythonScript = Join-Path $PSScriptRoot 'release_evidence_bundle.py'
 )
 
 if (-not [string]::IsNullOrWhiteSpace($JsonOut)) {
-    $args += @('--json-out', $JsonOut)
+    $pythonArgs += @('--json-out', $JsonOut)
 }
 
-& python @args
+& python @pythonArgs
 exit $LASTEXITCODE

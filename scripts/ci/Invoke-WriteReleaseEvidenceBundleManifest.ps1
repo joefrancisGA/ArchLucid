@@ -36,7 +36,7 @@ $ErrorActionPreference = 'Stop'
 
 $pythonScript = Join-Path $PSScriptRoot 'release_evidence_bundle.py'
 
-[string[]] $args = @(
+[string[]] $pythonArgs = @(
     $pythonScript,
     'emit',
     '--dir', $BundleDir,
@@ -47,8 +47,8 @@ $pythonScript = Join-Path $PSScriptRoot 'release_evidence_bundle.py'
 )
 
 if (-not [string]::IsNullOrWhiteSpace($Environment)) {
-    $args += @('--environment', $Environment)
+    $pythonArgs += @('--environment', $Environment)
 }
 
-& python @args
+& python @pythonArgs
 exit $LASTEXITCODE

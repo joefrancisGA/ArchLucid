@@ -35,21 +35,21 @@ function Invoke-PythonReport {
         [switch] $HonorRequireTelemetryExport
     )
 
-    [string[]] $args = @(
+    [string[]] $reportArgs = @(
         "scripts/report_observability_export_readiness.py",
         "--environment", $EnvName,
         "--out", $OutFile
     )
 
     if ($Strict) {
-        $args += "--strict-exit-code"
+        $reportArgs += "--strict-exit-code"
     }
 
     if ($HonorRequireTelemetryExport) {
-        $args += "--honor-require-telemetry-export-config"
+        $reportArgs += "--honor-require-telemetry-export-config"
     }
 
-    & python @args
+    & python @reportArgs
     return $LASTEXITCODE
 }
 
@@ -149,6 +149,57 @@ function Invoke-LiveJsonProbe {
             Set-Content -LiteralPath $OutFile -Encoding utf8
 
         return [ordered]@{ exitCode = 1; detail = "GET $RelativePath failed; see artifact" }
+    }
+}
+
+function Get-RealModeAiEvidenceVerdict {
+    param([string] $EvidencePath)
+
+    if (-not (Test-Path -LiteralPath $EvidencePath)) {
+        return [ordered]@{
+            verdict = "SKIPPED"
+            detail = "No real-llm-evidence-gate.json attached; release claims stay simulator-only unless an approved override is present."
+        }
+    }
+
+    try {
+        [object] $evidence = Get-Content -LiteralPath $EvidencePath -Raw | ConvertFrom-Json
+        [datetime] $generatedUtc = [datetime]::Parse([string]$evidence.generatedUtc).ToUniversalTime()
+        [double] $ageDays = ([DateTime]::UtcNow - $generatedUtc).TotalDays
+        [string] $outcome = ([string]$evidence.overallOutcome).ToUpperInvariant()
+        [string] $executionMode = ([string]$evidence.executionMode).ToLowerInvariant()
+
+        if ($ageDays -gt 30) {
+            return [ordered]@{
+                verdict = "WARN"
+                detail = "Real-mode AI evidence artifact is stale; re-run Invoke-RealLlmEvidenceGate.ps1 before claiming current real-mode status."
+            }
+        }
+
+        if ($outcome -eq "PASS" -and $executionMode -eq "real") {
+            return [ordered]@{
+                verdict = "PASS"
+                detail = "Current full real-mode AI evidence artifact attached."
+            }
+        }
+
+        if ($outcome -eq "WARN") {
+            return [ordered]@{
+                verdict = "WARN"
+                detail = "Partial or marginal real-mode AI evidence attached; use partial-real wording."
+            }
+        }
+
+        return [ordered]@{
+            verdict = "WARN"
+            detail = "Real-mode AI quality gate is HOLD or not full real mode; release claims stay limited."
+        }
+    }
+    catch {
+        return [ordered]@{
+            verdict = "FAIL"
+            detail = "real-llm-evidence-gate.json is present but unreadable: $($_.Exception.Message)"
+        }
     }
 }
 
@@ -286,6 +337,10 @@ else {
 [string] $realLlmReqVerdict = if ($realLlmReqExit -eq 0) { "PASS" } else { "FAIL" }
 Add-CheckRow $checks "Real-mode release requirement (opt-in env)" $realLlmReqVerdict "exit $realLlmReqExit when ARCHLUCID_REQUIRE_REAL_LLM_RELEASE_EVIDENCE=1" "real-llm-release-requirement.md"
 
+[string] $realLlmEvidencePath = Join-Path $OutDir "real-llm-evidence-gate.json"
+[object] $realLlmEvidence = Get-RealModeAiEvidenceVerdict -EvidencePath $realLlmEvidencePath
+Add-CheckRow $checks "Real-mode AI evidence artifact (claim boundary)" $realLlmEvidence.verdict $realLlmEvidence.detail "real-llm-evidence-gate.json"
+
 [string] $retrievalIrSource = Join-Path $root "docs/quality/retrieval-ir-report.md"
 [string] $retrievalIrDest = Join-Path $OutDir "retrieval-ir-report.md"
 
@@ -328,7 +383,7 @@ Do not attach live tfvars, customer cover letters, or procurement NDA material t
 [int] $warnCount = @($checks | Where-Object { $_.verdict -eq "WARN" }).Count
 [string] $rollup = if ($failCount -gt 0) { "FAIL" } elseif ($warnCount -gt 0) { "WARN" } else { "PASS" }
 
-[ordered] $jsonDoc = [ordered]@{
+$jsonDoc = [ordered]@{
     schema = "archlucid.release-readiness-index.v1"
     generatedUtc = $generatedUtc
     environment = $Environment

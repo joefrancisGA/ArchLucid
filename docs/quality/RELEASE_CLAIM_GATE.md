@@ -20,6 +20,8 @@ This is a **release-candidate packaging guard**, not a branch-protection gate. L
 
 The gate requires a `real-llm-evidence-gate.json` (and/or `.md`) artifact in `artifacts/release/`. This artifact is produced by `scripts/Invoke-RealLlmEvidenceGate.ps1`, which runs the Azure OpenAI golden-cohort test suite when credentials are available.
 
+When the artifact is copied into a release evidence bundle, `scripts/ci/release_evidence_bundle.py` records a non-live `realModeAiEvidence` status in `release-evidence-bundle-manifest.json`. The validator never calls Azure OpenAI; it only classifies attached evidence as `MISSING`, `PASS`, `WARN`, `HOLD`, or `STALE` and applies the wording boundary below.
+
 ### 2.1 Required fields in `real-llm-evidence-gate.json`
 
 | Field | Required | Notes |

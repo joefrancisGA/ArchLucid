@@ -23,6 +23,7 @@ Release, RC drill, and staging handoff flows each emit many artifacts. This sche
 | `requiredMinimum` | Profile definition snapshot |
 | `missingRequired` | Populated at emit time when artifacts are absent |
 | `artifacts` | Per-file `path`, `sha256`, `sizeBytes` (manifest excluded) |
+| `realModeAiEvidence` | Missing/current/stale/PASS/WARN/HOLD status for `real-llm-evidence-gate.json` without making live Azure calls |
 
 Profile definitions live in [`scripts/ci/data/release_evidence_bundle_profiles.v1.json`](../../scripts/ci/data/release_evidence_bundle_profiles.v1.json).
 
@@ -82,7 +83,19 @@ Required patterns:
 
 - `observability-export-readiness-*.md` — at least **3** files (Production, Staging, strict)
 
-Optional (operator-attached when available): `health-ready.json`, `version.json`, `deployment-evidence.md`, `hosted-availability-rollup.md`, `retrieval-ir-report.md`, `claim-evidence-consistency.md`.
+Optional (operator-attached when available): `health-ready.json`, `version.json`, `deployment-evidence.md`, `hosted-availability-rollup.md`, `retrieval-ir-report.md`, `claim-evidence-consistency.md`, `real-llm-evidence-gate.json`, `real-llm-evidence-gate.md`, `simulator-only-override.md`.
+
+## Real-mode AI evidence status
+
+The bundle validator never calls Azure OpenAI. It only reads an attached `real-llm-evidence-gate.json` produced by [`scripts/Invoke-RealLlmEvidenceGate.ps1`](../../scripts/Invoke-RealLlmEvidenceGate.ps1).
+
+| Status | Meaning | Claim boundary |
+| --- | --- | --- |
+| `MISSING` | No `real-llm-evidence-gate.json` in the bundle | Simulator-only unless an approved simulator-only override is present |
+| `PASS` | Current `archlucid.real-llm-evidence-gate.v2`, `overallOutcome=PASS`, `executionMode=real`, all four agent paths present | Full real-mode AI evidence wording allowed |
+| `WARN` | Current artifact reports partial/marginal evidence | Partial-real wording only |
+| `HOLD` | Current artifact is invalid, failed, or not full real mode | Claims limited to simulator-only or partial-real posture |
+| `STALE` | Artifact is older than 30 days or missing `generatedUtc` | Re-run `Invoke-RealLlmEvidenceGate.ps1` before claiming current real-mode status |
 
 ## Related
 

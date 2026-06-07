@@ -28,4 +28,18 @@
 2. Update this table and the proof run log in the same PR or ops note.
 3. Do not advance marketing claims past the highest fully-passed stage ([`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md)).
 
+## G5 release-evidence workflow
+
+`G5` stays **HOLD** until an owner-approved real-mode run produces a current `real-llm-evidence-gate.json` with `overallOutcome=PASS`, `executionMode=real`, and Topology, Cost, Compliance, and Critic agent paths.
+
+1. Generate real-mode evidence when approved credentials are available:
+
+   ```powershell
+   .\scripts\Invoke-RealLlmEvidenceGate.ps1
+   ```
+
+2. Copy `real-llm-evidence-gate.json` and `.md` into the release evidence folder before emitting the final bundle.
+3. Run `.\scripts\Emit-ReleaseReadinessEvidence.ps1`; the bundle manifest reports `realModeAiEvidence.status`.
+4. Keep `G5` as **HOLD** for `MISSING`, `STALE`, or `HOLD`. Use partial-real wording for `WARN`. Advance `G5` only when the release bundle reports `PASS` and the proof run log references the same artifact.
+
 **Cross-refs:** [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout · [`CLAIM_READINESS_CHECKLIST.md`](CLAIM_READINESS_CHECKLIST.md)

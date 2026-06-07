@@ -23,6 +23,8 @@ class TestReleaseReadinessEvidenceScript(unittest.TestCase):
         self.assertIn("Invoke-WriteReleaseEvidenceBundleManifest.ps1", text)
         self.assertIn("Invoke-ValidateReleaseEvidenceBundle.ps1", text)
         self.assertIn("release-evidence-bundle-manifest.json", text)
+        self.assertIn("Real-mode AI evidence artifact (claim boundary)", text)
+        self.assertIn("real-llm-evidence-gate.json", text)
 
 
 if __name__ == "__main__":
