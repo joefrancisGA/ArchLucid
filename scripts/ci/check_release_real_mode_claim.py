@@ -73,6 +73,28 @@ def _gate_is_fresh(payload: dict[str, object], max_age_days: int) -> tuple[bool,
     return True, "fresh"
 
 
+def resolve_claim_wording_class(
+    disposition: str,
+    *,
+    allow_simulator_only: bool,
+    gate_present: bool,
+    gate_pass: bool,
+) -> str:
+    if allow_simulator_only:
+        return "simulator-only"
+
+    if disposition == "PASS" and gate_pass:
+        return "full-real-mode"
+
+    if gate_present and disposition in {"WARN", "HOLD"}:
+        return "partial-real-mode"
+
+    if disposition == "WARN":
+        return "partial-real-mode"
+
+    return "simulator-only"
+
+
 def evaluate_release_real_mode_claim(
     *,
     agent_results_dir: Path,
@@ -80,7 +102,8 @@ def evaluate_release_real_mode_claim(
     require_gate: bool,
     max_gate_age_days: int,
     allow_simulator_only: bool,
-) -> tuple[str, list[dict[str, str]]]:
+    rc_strict_claims: bool = False,
+) -> tuple[str, list[dict[str, str]], str]:
     rows: list[dict[str, str]] = []
 
     if allow_simulator_only:
@@ -91,7 +114,7 @@ def evaluate_release_real_mode_claim(
                 "detail": "ARCHLUCID_RELEASE_SIMULATOR_ONLY=1 — full real-mode claim not required",
             }
         )
-        return "PASS", rows
+        return "PASS", rows, "simulator-only"
 
     fixture_types = _agent_types_in_fixtures(agent_results_dir)
     missing_fixture_types = sorted(_REQUIRED_AGENT_TYPES - fixture_types)
@@ -132,7 +155,13 @@ def evaluate_release_real_mode_claim(
             )
 
         disposition = "HOLD" if missing_fixture_types or require_gate else "WARN"
-        return disposition, rows
+        wording = resolve_claim_wording_class(
+            disposition,
+            allow_simulator_only=allow_simulator_only,
+            gate_present=False,
+            gate_pass=False,
+        )
+        return disposition, rows, wording
 
     try:
         gate = _parse_gate_json(gate_json)
@@ -144,7 +173,7 @@ def evaluate_release_real_mode_claim(
                 "detail": str(exc),
             }
         )
-        return "HOLD", rows
+        return "HOLD", rows, "partial-real-mode"
 
     schema = gate.get("schema")
     disposition = str(gate.get("disposition", "")).upper()
@@ -208,15 +237,27 @@ def evaluate_release_real_mode_claim(
     )
 
     if blocking:
-        return "HOLD", rows
+        return "HOLD", rows, "partial-real-mode"
 
     if gate_result == "WARN":
-        return "WARN", rows
+        wording = resolve_claim_wording_class(
+            "WARN",
+            allow_simulator_only=False,
+            gate_present=True,
+            gate_pass=False,
+        )
+        return "WARN", rows, wording
 
-    return "PASS", rows
+    wording = resolve_claim_wording_class(
+        "PASS",
+        allow_simulator_only=False,
+        gate_present=True,
+        gate_pass=True,
+    )
+    return "PASS", rows, wording
 
 
-def render_markdown(disposition: str, rows: list[dict[str, str]]) -> str:
+def render_markdown(disposition: str, rows: list[dict[str, str]], claim_wording_class: str) -> str:
     utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
         "# Release real-mode claim gate (TB-166)",
@@ -224,6 +265,7 @@ def render_markdown(disposition: str, rows: list[dict[str, str]]) -> str:
         f"Generated (UTC): **{utc}**",
         "",
         f"**Disposition:** **{disposition}**",
+        f"**Claim wording class:** **{claim_wording_class}** (full-real-mode | partial-real-mode | simulator-only)",
         "",
         "Full real-mode AI release claims require committed quad-agent fixtures plus a fresh PASS gate json with full pipeline profile.",
         "",
@@ -263,21 +305,56 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Honest simulator-only release — skips quad-agent and gate requirements.",
     )
+    parser.add_argument(
+        "--rc-strict-claims",
+        action="store_true",
+        help="RC signoff mode: fail unless PASS with full-real-mode or explicit simulator-only override.",
+    )
+    parser.add_argument("--json-out", type=Path, default=None)
     args = parser.parse_args(argv)
 
-    disposition, rows = evaluate_release_real_mode_claim(
+    rc_strict = args.rc_strict_claims or __import__("os").environ.get("ARCHLUCID_RC_STRICT_CLAIMS", "").strip() in {
+        "1",
+        "true",
+        "TRUE",
+        "yes",
+        "YES",
+    }
+    require_gate = args.require_gate or rc_strict
+
+    disposition, rows, claim_wording_class = evaluate_release_real_mode_claim(
         agent_results_dir=args.agent_results_dir,
         gate_json=args.gate_json if args.gate_json else None,
-        require_gate=args.require_gate,
+        require_gate=require_gate,
         max_gate_age_days=args.max_gate_age_days,
         allow_simulator_only=args.allow_simulator_only,
+        rc_strict_claims=rc_strict,
     )
+
+    payload = {
+        "schema": "archlucid.real-mode-claim-gate.v1",
+        "generatedUtc": datetime.now(timezone.utc).isoformat(),
+        "disposition": disposition,
+        "claimWordingClass": claim_wording_class,
+        "claimDisposition": disposition,
+        "checks": rows,
+    }
+
+    if args.json_out is not None:
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        args.json_out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     if args.markdown_out is not None:
         args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
-        args.markdown_out.write_text(render_markdown(disposition, rows), encoding="utf-8")
+        args.markdown_out.write_text(render_markdown(disposition, rows, claim_wording_class), encoding="utf-8")
 
-    print(f"Release real-mode claim disposition: {disposition}")
+    print(f"Release real-mode claim disposition: {disposition} ({claim_wording_class})")
+
+    if rc_strict and claim_wording_class not in {"full-real-mode", "simulator-only"}:
+        return 1
+
+    if rc_strict and disposition != "PASS" and not args.allow_simulator_only:
+        return 1
 
     if disposition == "HOLD":
         return 1

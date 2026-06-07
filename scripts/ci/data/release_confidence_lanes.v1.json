@@ -41,6 +41,16 @@
       "detail": "check_doc_links.py result; attach after CI or local run."
     },
     {
+      "id": "azure-extractor-terraform",
+      "label": "Azure extractor + Terraform emit acceptance",
+      "releaseBlocking": true,
+      "statusFiles": [
+        "azure-extractor-terraform-emit-status.json",
+        "artifacts/ci/azure-extractor-terraform-emit-status.json"
+      ],
+      "detail": "Customer-controlled extractor + advisory-only Terraform acceptance lane."
+    },
+    {
       "id": "ui-unit",
       "label": "UI unit tests",
       "releaseBlocking": false,

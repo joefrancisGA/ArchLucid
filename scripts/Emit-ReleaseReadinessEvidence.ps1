@@ -20,7 +20,8 @@
 param(
     [string] $Environment = "Production",
     [string] $OutDir = "artifacts/release-readiness",
-    [string] $ApiBaseUrl = ""
+    [string] $ApiBaseUrl = "",
+    [switch] $StrictRc
 )
 
 $ErrorActionPreference = "Stop"
@@ -450,7 +451,7 @@ function Write-ReleaseReadinessIndexArtifacts {
     [void] $summaryBuilder.AppendLine("")
     [void] $summaryBuilder.AppendLine("**Generate:** ``pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1 [-ApiBaseUrl https://staging.example]``")
     [void] $summaryBuilder.AppendLine("")
-    [void] $summaryBuilder.AppendLine("Machine-readable index: ``release-readiness-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Confidence rollup: ``release-confidence-rollup.json``. Redaction policy: ``redaction-note.md``.")
+    [void] $summaryBuilder.AppendLine("Machine-readable index: ``release-readiness-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Confidence rollup: ``release-confidence-rollup.json``. RC verdict: ``rc-go-no-go-verdict.json``. Deploy handoff: ``deploy-handoff.json``. Redaction policy: ``redaction-note.md``.")
     [void] $summaryBuilder.AppendLine("")
     [void] $summaryBuilder.AppendLine("See ``docs/library/DEPLOYMENT_RUNBOOK.md`` and ``docs/library/OBSERVABILITY.md``.")
 
@@ -495,13 +496,125 @@ if ($bundleValidateExit -ne 0) {
 
 [string] $confidenceJsonPath = Join-Path $OutDir "release-confidence-rollup.json"
 [string] $confidenceMarkdownPath = Join-Path $OutDir "release-confidence-rollup.md"
-& python (Join-Path $root "scripts/ci/build_release_confidence_rollup.py") `
-    --bundle-dir $OutDir `
-    --json-out $confidenceJsonPath `
-    --markdown-out $confidenceMarkdownPath
+[string] $azureExtractorStatusPath = Join-Path $OutDir "azure-extractor-terraform-emit-status.json"
+& python (Join-Path $root "scripts/ci/check_azure_extractor_terraform_emit_acceptance.py") `
+    --json-out $azureExtractorStatusPath
+[int] $azureExtractorExit = $LASTEXITCODE
+[string] $azureExtractorVerdict = if ($azureExtractorExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "Azure extractor + Terraform emit acceptance" $azureExtractorVerdict "exit $azureExtractorExit" "azure-extractor-terraform-emit-status.json"
+
+[string] $claimGateJsonPath = Join-Path $OutDir "real-mode-claim-gate.json"
+[string] $claimGateMarkdownPath = Join-Path $OutDir "real-mode-claim-gate.md"
+[string[]] $claimGateArgs = @(
+    (Join-Path $root "scripts/ci/check_release_real_mode_claim.py"),
+    "--json-out", $claimGateJsonPath,
+    "--markdown-out", $claimGateMarkdownPath,
+    "--gate-json", (Join-Path $OutDir "real-llm-evidence-gate.json")
+)
+
+if ($StrictRc) {
+    $claimGateArgs += "--rc-strict-claims"
+}
+
+if ($env:ARCHLUCID_RELEASE_SIMULATOR_ONLY -eq '1') {
+    $claimGateArgs += '--allow-simulator-only'
+}
+
+& python @claimGateArgs
+[int] $claimGateExit = $LASTEXITCODE
+[string] $claimGateVerdict = if ($claimGateExit -eq 0) { "PASS" } elseif ($claimGateExit -eq 1) { "FAIL" } else { "WARN" }
+Add-CheckRow $checks "Real-mode claim gate (RC boundary)" $claimGateVerdict "exit $claimGateExit" "real-mode-claim-gate.json"
+
+[string[]] $confidenceArgs = @(
+    (Join-Path $root "scripts/ci/build_release_confidence_rollup.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $confidenceJsonPath,
+    "--markdown-out", $confidenceMarkdownPath
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $confidenceArgs += "--strict-rc"
+}
+
+& python @confidenceArgs
 [int] $confidenceExit = $LASTEXITCODE
 [string] $confidenceVerdict = if ($confidenceExit -eq 0) { "PASS" } else { "FAIL" }
-Add-CheckRow $checks "Release confidence rollup" $confidenceVerdict "validation lanes summarized without running full regression" "release-confidence-rollup.json"
+Add-CheckRow $checks "Release confidence rollup" $confidenceVerdict "strict-rc exit $confidenceExit" "release-confidence-rollup.json"
+
+[string] $rcTestManifestJson = Join-Path $OutDir "rc-test-evidence-manifest.json"
+[string] $rcTestManifestMd = Join-Path $OutDir "rc-test-evidence-manifest.md"
+& python (Join-Path $root "scripts/ci/build_rc_test_evidence_manifest.py") `
+    --bundle-dir $OutDir `
+    --json-out $rcTestManifestJson `
+    --markdown-out $rcTestManifestMd
+Add-CheckRow $checks "RC test evidence manifest" (Map-ExitToVerdict $LASTEXITCODE).verdict "suite statuses from confidence lanes" "rc-test-evidence-manifest.json"
+
+[string] $azureParityJson = Join-Path $OutDir "azure-iac-parity-proof.json"
+[string] $azureParityMd = Join-Path $OutDir "azure-iac-parity-proof.md"
+[string[]] $azureParityArgs = @(
+    (Join-Path $root "scripts/ci/build_azure_iac_parity_proof.py"),
+    "--json-out", $azureParityJson,
+    "--markdown-out", $azureParityMd
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $azureParityArgs += "--strict-rc"
+}
+
+& python @azureParityArgs
+Add-CheckRow $checks "Azure IaC parity proof" (Map-ExitToVerdict $LASTEXITCODE).verdict "Terraform/config parity scan for hosted path" "azure-iac-parity-proof.json"
+
+[string] $managedIdentityJson = Join-Path $OutDir "managed-identity-verification.json"
+[string] $managedIdentityMd = Join-Path $OutDir "managed-identity-verification.md"
+[string[]] $managedIdentityArgs = @(
+    (Join-Path $root "scripts/ci/verify_managed_identity_release.py"),
+    "--hosted-profile",
+    "--json-out", $managedIdentityJson,
+    "--markdown-out", $managedIdentityMd
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $managedIdentityArgs += "--strict-rc"
+}
+
+& python @managedIdentityArgs
+Add-CheckRow $checks "Managed identity verification" (Map-ExitToVerdict $LASTEXITCODE).verdict "hosted profile MI posture" "managed-identity-verification.json"
+
+[string] $rcVerdictJson = Join-Path $OutDir "rc-go-no-go-verdict.json"
+[string] $rcVerdictMd = Join-Path $OutDir "rc-go-no-go-verdict.md"
+[string[]] $rcVerdictArgs = @(
+    (Join-Path $root "scripts/ci/build_rc_go_no_go_verdict.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $rcVerdictJson,
+    "--markdown-out", $rcVerdictMd
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $rcVerdictArgs += "--strict-rc"
+}
+
+& python @rcVerdictArgs
+[int] $rcVerdictExit = $LASTEXITCODE
+[string] $rcVerdictLabel = if ($rcVerdictExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "RC go/no-go verdict" $rcVerdictLabel "synthesized signoff artifact; exit $rcVerdictExit" "rc-go-no-go-verdict.json"
+
+[string] $deployHandoffJson = Join-Path $OutDir "deploy-handoff.json"
+[string] $deployHandoffMd = Join-Path $OutDir "deploy-handoff.md"
+[string[]] $deployHandoffArgs = @(
+    (Join-Path $root "scripts/ci/build_deploy_handoff.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $deployHandoffJson,
+    "--markdown-out", $deployHandoffMd,
+    "--environment", $Environment,
+    "--config-profile", "production-like-hosted-pilot"
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $deployHandoffArgs += "--strict-rc"
+}
+
+& python @deployHandoffArgs
+Add-CheckRow $checks "Deploy handoff artifact" (Map-ExitToVerdict $LASTEXITCODE).verdict "commit/profile/Azure metadata for operations" "deploy-handoff.json"
 $indexState = Write-ReleaseReadinessIndexArtifacts -CheckRows $checks -GeneratedUtc $generatedUtc -OutputDirectory $OutDir
 $rollup = [string]$indexState.rollup
 $failCount = [int]$indexState.failCount

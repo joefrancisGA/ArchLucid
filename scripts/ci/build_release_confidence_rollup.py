@@ -5,46 +5,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+_CI_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_CI_DIR))
+
+from release_evidence_common import evaluate_strict_rc, load_json, parse_datetime, repo_root  # noqa: E402
+
 _SCHEMA = "archlucid.release-confidence-rollup.v1"
-_LANES_PATH = Path(__file__).resolve().parent / "data" / "release_confidence_lanes.v1.json"
+_LANES_PATH = _CI_DIR / "data" / "release_confidence_lanes.v1.json"
 _STALE_AFTER_DAYS = 7
-
-
-def repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
-
-
-def load_json(path: Path) -> dict[str, Any] | None:
-    if not path.is_file():
-        return None
-
-    try:
-        value = json.loads(path.read_text(encoding="utf-8-sig"))
-    except json.JSONDecodeError:
-        return None
-
-    return value if isinstance(value, dict) else None
-
-
-def parse_datetime(value: Any) -> datetime | None:
-    if not isinstance(value, str) or not value.strip():
-        return None
-
-    normalized = value.strip().replace("Z", "+00:00")
-
-    try:
-        parsed = datetime.fromisoformat(normalized)
-    except ValueError:
-        return None
-
-    if parsed.tzinfo is None:
-        return parsed.replace(tzinfo=timezone.utc)
-
-    return parsed.astimezone(timezone.utc)
 
 
 def find_status_file(root: Path, bundle_dir: Path, relative_paths: list[str]) -> tuple[Path | None, str]:
@@ -143,7 +117,7 @@ def rollup_disposition(lanes: list[dict[str, Any]]) -> str:
     return "PASS"
 
 
-def build_rollup(root: Path, bundle_dir: Path) -> dict[str, Any]:
+def build_rollup(root: Path, bundle_dir: Path, *, strict_rc: bool = False) -> dict[str, Any]:
     lane_config = json.loads(_LANES_PATH.read_text(encoding="utf-8"))
     lane_rows: list[dict[str, Any]] = []
 
@@ -163,19 +137,30 @@ def build_rollup(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
 
     readiness = load_json(bundle_dir / "release-readiness-index.json")
+    strict_disposition, strict_reasons = evaluate_strict_rc(lane_rows)
 
-    return {
+    payload: dict[str, Any] = {
         "schema": _SCHEMA,
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "disposition": rollup_disposition(lane_rows),
         "staleAfterDays": _STALE_AFTER_DAYS,
         "releaseReadinessRollup": readiness.get("rollup") if readiness else None,
         "lanes": lane_rows,
+        "strictDisposition": strict_disposition,
+        "strictBlockingReasons": strict_reasons,
+        "strictRcEnabled": strict_rc,
         "interpretation": (
             "Lanes are explicit: MISSING and STALE are not PASS. "
             "Full regression is not executed by the default local emitter."
         ),
     }
+
+    if strict_rc:
+        payload["interpretation"] += (
+            " Strict RC mode fails when any release-blocking lane is MISSING, STALE, WARN, or HOLD."
+        )
+
+    return payload
 
 
 def validate_rollup(payload: dict[str, Any]) -> list[str]:
@@ -222,14 +207,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--bundle-dir", type=Path, required=True)
     parser.add_argument("--json-out", type=Path, required=True)
     parser.add_argument("--markdown-out", type=Path, required=True)
+    parser.add_argument(
+        "--strict-rc",
+        action="store_true",
+        help="Exit non-zero when strictDisposition is HOLD (also enabled by ARCHLUCID_STRICT_RC=1).",
+    )
     return parser.parse_args(argv)
+
+
+def resolve_strict_rc(args: argparse.Namespace) -> bool:
+    if args.strict_rc:
+        return True
+
+    return os.environ.get("ARCHLUCID_STRICT_RC", "").strip() in {"1", "true", "TRUE", "yes", "YES"}
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     root = args.repo_root.resolve()
     bundle_dir = args.bundle_dir.resolve()
-    summary = build_rollup(root, bundle_dir)
+    strict_rc = resolve_strict_rc(args)
+    summary = build_rollup(root, bundle_dir, strict_rc=strict_rc)
     errors = validate_rollup(summary)
 
     if errors:
@@ -239,6 +237,10 @@ def main(argv: list[str] | None = None) -> int:
     args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
     args.json_out.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     args.markdown_out.write_text(render_markdown(summary), encoding="utf-8")
+
+    if strict_rc and summary.get("strictDisposition") == "HOLD":
+        return 1
+
     return 0
 
 

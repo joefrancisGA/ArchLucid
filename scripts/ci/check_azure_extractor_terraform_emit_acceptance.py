@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
+import argparse
+import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 _REQUIRED = [
@@ -16,8 +19,7 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def main() -> int:
-    root = repo_root()
+def evaluate_acceptance(root: Path) -> tuple[str, list[str]]:
     errors: list[str] = []
 
     for relative in _REQUIRED:
@@ -37,9 +39,41 @@ def main() -> int:
     if "terraform-drift-preflight.json" not in bundle_profile.read_text(encoding="utf-8"):
         errors.append("release-readiness profile missing terraform-drift-preflight.json")
 
+    disposition = "PASS" if not errors else "HOLD"
+    return disposition, errors
+
+
+def write_status_json(path: Path, disposition: str, errors: list[str]) -> None:
+    payload = {
+        "schema": "archlucid.azure-extractor-terraform-emit-status.v1",
+        "generatedUtc": datetime.now(timezone.utc).isoformat(),
+        "status": disposition,
+        "disposition": disposition,
+        "detail": "; ".join(errors) if errors else "Azure extractor + Terraform emit acceptance OK",
+        "exitCode": 0 if disposition == "PASS" else 1,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--json-out", type=Path, default=None)
+    parser.add_argument("--strict-rc", action="store_true")
+    args = parser.parse_args(argv)
+
+    root = repo_root()
+    disposition, errors = evaluate_acceptance(root)
+
+    if args.json_out is not None:
+        write_status_json(args.json_out, disposition, errors)
+
     if errors:
         for error in errors:
             print(error)
+
+        if args.strict_rc or args.json_out is None:
+            return 1
 
         return 1
 

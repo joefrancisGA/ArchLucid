@@ -394,6 +394,22 @@ try
     Write-Host 'V1 RC drill completed successfully.' -ForegroundColor Green
     Write-Host "  Run A: $($runA.RunId)  manifest: $($runA.ManifestId)" -ForegroundColor DarkGray
     Write-Host "  Run B: $($runB.RunId)  manifest: $($runB.ManifestId)" -ForegroundColor DarkGray
+
+    [string] $drillResultPath = Join-Path $root 'artifacts/v1-rc-drill-result.json'
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $drillResultPath) | Out-Null
+    [ordered]@{
+        schema               = 'archlucid.v1-rc-drill-result.v1'
+        generatedUtc         = [DateTime]::UtcNow.ToString('o')
+        apiBaseUrl           = $ApiBaseUrl
+        deployReadinessStatus = 'PASS'
+        blockers             = @()
+        runA                 = @{ runId = $runA.RunId; manifestId = $runA.ManifestId }
+        runB                 = @{ runId = $runB.RunId; manifestId = $runB.ManifestId }
+        informationalVersion = [string]$ver.informationalVersion
+        commitSha            = [string]$ver.commitSha
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $drillResultPath -Encoding utf8
+
+    Write-Host "Wrote drill result: $drillResultPath (deployReadinessStatus=PASS)" -ForegroundColor DarkGray
     exit 0
 }
 finally

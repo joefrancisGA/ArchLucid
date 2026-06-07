@@ -15,7 +15,7 @@ from check_release_real_mode_claim import evaluate_release_real_mode_claim  # no
 
 def test_committed_fixtures_cover_all_four_agent_types() -> None:
     agent_dir = _REPO_ROOT / "tests" / "eval-corpus" / "agent-results"
-    disposition, rows = evaluate_release_real_mode_claim(
+    disposition, rows, wording = evaluate_release_real_mode_claim(
         agent_results_dir=agent_dir,
         gate_json=None,
         require_gate=False,
@@ -26,10 +26,11 @@ def test_committed_fixtures_cover_all_four_agent_types() -> None:
     fixture_row = next(row for row in rows if row["check"].startswith("Committed"))
     assert fixture_row["result"] == "PASS"
     assert disposition in {"WARN", "PASS"}
+    assert wording in {"partial-real-mode", "simulator-only", "full-real-mode"}
 
 
 def test_missing_agent_type_fails() -> None:
-    disposition, rows = evaluate_release_real_mode_claim(
+    disposition, rows, wording = evaluate_release_real_mode_claim(
         agent_results_dir=_REPO_ROOT / "tests" / "eval-corpus" / "agent-results",
         gate_json=_REPO_ROOT / "artifacts" / "release" / "missing-gate.json",
         require_gate=True,
@@ -39,10 +40,11 @@ def test_missing_agent_type_fails() -> None:
 
     assert disposition == "HOLD"
     assert any(row["result"] == "FAIL" for row in rows)
+    assert wording == "partial-real-mode"
 
 
 def test_simulator_only_override_passes() -> None:
-    disposition, rows = evaluate_release_real_mode_claim(
+    disposition, rows, wording = evaluate_release_real_mode_claim(
         agent_results_dir=_REPO_ROOT / "tests" / "eval-corpus" / "agent-results",
         gate_json=None,
         require_gate=True,
@@ -52,6 +54,7 @@ def test_simulator_only_override_passes() -> None:
 
     assert disposition == "PASS"
     assert rows[0]["check"] == "Simulator-only override"
+    assert wording == "simulator-only"
 
 
 def test_gate_pass_with_pipeline_profile(tmp_path: Path) -> None:
@@ -68,7 +71,7 @@ def test_gate_pass_with_pipeline_profile(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    disposition, rows = evaluate_release_real_mode_claim(
+    disposition, rows, wording = evaluate_release_real_mode_claim(
         agent_results_dir=_REPO_ROOT / "tests" / "eval-corpus" / "agent-results",
         gate_json=gate,
         require_gate=True,
@@ -78,3 +81,4 @@ def test_gate_pass_with_pipeline_profile(tmp_path: Path) -> None:
 
     assert disposition == "PASS"
     assert any(row["check"] == "Full pipeline profile" and row["result"] == "PASS" for row in rows)
+    assert wording == "full-real-mode"

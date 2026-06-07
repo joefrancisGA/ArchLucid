@@ -95,7 +95,19 @@ Missing optional sources are explicit and do not become PASS by inference.
 
 ## Release confidence rollup
 
-`release-confidence-rollup.json` summarizes validation **lanes** (full regression, outbox-focused tests, release evidence tests, doc link check, UI unit). Lane definitions live in [`scripts/ci/data/release_confidence_lanes.v1.json`](../../scripts/ci/data/release_confidence_lanes.v1.json). The default local emitter does **not** execute full regression; MISSING and STALE are explicit.
+`release-confidence-rollup.json` summarizes validation **lanes** (full regression, outbox-focused tests, release evidence tests, doc link check, UI unit, Azure extractor + Terraform emit acceptance). Lane definitions live in [`scripts/ci/data/release_confidence_lanes.v1.json`](../../scripts/ci/data/release_confidence_lanes.v1.json). The default local emitter does **not** execute full regression; MISSING and STALE are explicit. For buyer-facing RC signoff, enable **strict RC** (`--strict-rc` / `ARCHLUCID_STRICT_RC=1`) so `strictDisposition` and `strictBlockingReasons` are populated and non-PASS release-blocking lanes fail the script.
+
+**RC signoff artifacts (additive):**
+
+| Artifact | Schema | Purpose |
+| --- | --- | --- |
+| `rc-go-no-go-verdict.json` | `archlucid.rc-go-no-go-verdict.v1` | Unified PASS/HOLD/WARN verdict with blocker list |
+| `deploy-handoff.json` | `archlucid.deploy-handoff.v1` | Deterministic deploy handoff + Azure metadata |
+| `rc-test-evidence-manifest.json` | `archlucid.rc-test-evidence-manifest.v1` | Suite/gate status snapshot for RC audit |
+| `real-mode-claim-gate.json` | `archlucid.real-mode-claim-gate.v1` | Claim boundary + `claimWordingClass` |
+| `azure-iac-parity-proof.json` | `archlucid.azure-iac-parity-proof.v1` | IaC/config parity proof for hosted Azure |
+| `managed-identity-verification.json` | `archlucid.managed-identity-verification.v1` | Hosted MI posture verification |
+| `azure-extractor-terraform-emit-status.json` | `archlucid.azure-extractor-terraform-emit-status.v1` | Extractor + Terraform emit acceptance lane |
 
 ## Documentation ownership
 
