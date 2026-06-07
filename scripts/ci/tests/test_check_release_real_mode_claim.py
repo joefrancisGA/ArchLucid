@@ -32,7 +32,7 @@ def test_committed_fixtures_cover_all_four_agent_types() -> None:
 def test_missing_agent_type_fails() -> None:
     disposition, rows, wording = evaluate_release_real_mode_claim(
         agent_results_dir=_REPO_ROOT / "tests" / "eval-corpus" / "agent-results",
-        gate_json=_REPO_ROOT / "artifacts" / "release" / "missing-gate.json",
+        gate_json=_REPO_ROOT / "scripts" / "ci" / "fixtures" / "release" / "missing-gate.json",
         require_gate=True,
         max_gate_age_days=30,
         allow_simulator_only=False,

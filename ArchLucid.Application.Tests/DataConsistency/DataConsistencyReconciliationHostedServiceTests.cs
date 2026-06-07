@@ -69,14 +69,27 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
 
         await sut.StartAsync(cts.Token);
 
-        await Task.Delay(750, CancellationToken.None);
-
         DataConsistencyReconciliationHealthState health = sp.GetRequiredService<DataConsistencyReconciliationHealthState>();
-        health.TrySnapshot(out bool hasRun, out DataConsistencyReport? report, out string? error);
+        bool hasRun = false;
+        DataConsistencyReport? report = null;
+        string? error = null;
+
+        for (int attempt = 0; attempt < 50; attempt++)
+        {
+            health.TrySnapshot(out hasRun, out report, out error);
+
+            if (hasRun)
+            {
+                break;
+            }
+
+            await Task.Delay(100, CancellationToken.None);
+        }
+
         hasRun.Should().BeTrue();
         error.Should().BeNull();
         report.Should().NotBeNull();
-        report.IsHealthy.Should().BeTrue();
+        report!.IsHealthy.Should().BeTrue();
 
         publisher.Verify(
             p => p.PublishAsync(
@@ -126,11 +139,23 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
 
         await sut.StartAsync(cts.Token);
 
-        await Task.Delay(750, CancellationToken.None);
-
         DataConsistencyReconciliationHealthState health = sp.GetRequiredService<DataConsistencyReconciliationHealthState>();
-        health.TrySnapshot(out _, out DataConsistencyReport? report, out string? error);
-        report.Should().BeNull();
+        bool hasRun = false;
+        string? error = null;
+
+        for (int attempt = 0; attempt < 50; attempt++)
+        {
+            health.TrySnapshot(out hasRun, out _, out error);
+
+            if (hasRun)
+            {
+                break;
+            }
+
+            await Task.Delay(100, CancellationToken.None);
+        }
+
+        hasRun.Should().BeTrue();
         error.Should().Contain("boom");
 
         await sut.StopAsync(CancellationToken.None);

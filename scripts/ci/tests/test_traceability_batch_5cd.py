@@ -18,11 +18,20 @@ class TestTraceabilityBatch5CD(unittest.TestCase):
             / "Orchestration"
             / "AuthorityDrivenArchitectureRunCommitOrchestrator.cs"
         )
+        enqueuer = (
+            REPO_ROOT
+            / "ArchLucid.Application"
+            / "Runs"
+            / "Orchestration"
+            / "PostCommitProjectionEnqueuer.cs"
+        )
         access_text = access.read_text(encoding="utf-8")
         orchestrator_text = orchestrator.read_text(encoding="utf-8")
+        enqueuer_text = enqueuer.read_text(encoding="utf-8")
         self.assertIn("TryMaterializeSnapshotAsync", access_text)
         self.assertIn("RecordProvenanceSnapshotWrite", access_text)
-        self.assertIn("TryScheduleProvenanceSnapshotMaterialization", orchestrator_text)
+        self.assertIn("PostCommitProjectionEnqueuer", orchestrator_text)
+        self.assertIn("ProvenanceSnapshotMaterialization", enqueuer_text)
 
     def test_tb_055_reasoning_trace_on_findings(self) -> None:
         factory = (

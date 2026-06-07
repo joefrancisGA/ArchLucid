@@ -1,5 +1,5 @@
 > **Scope:** Security reviewer evidence packet template — controls map and honest attestation boundaries.
-> **Canonical sources:** [`TRUST_CENTER.md`](../../go-to-market/trust-center.md), [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md), [`SYSTEM_THREAT_MODEL.md`](SYSTEM_THREAT_MODEL.md).
+> **Canonical sources:** [`TRUST_CENTER.md`](../../go-to-market/trust-center.md), [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../TENANT_ISOLATION_DEFENSE_IN_DEPTH.md), [`SYSTEM_THREAT_MODEL.md`](../SYSTEM_THREAT_MODEL.md).
 
 # Evidence packet — security reviewer (template)
 
@@ -14,9 +14,9 @@
 | Artifact | What it proves | Honest boundary |
 | --- | --- | --- |
 | [`TRUST_CENTER.md`](../../go-to-market/trust-center.md) | Data handling, subprocessors, control narrative | Self-attested |
-| [`SOC2_SELF_ASSESSMENT_2026.md`](SOC2_SELF_ASSESSMENT_2026.md) | Control mapping readiness | **Not** CPA SOC 2 report — roadmap only |
-| [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) | Database-per-tenant + optional RLS (ADR 0037) | Design intent — verify deployed config |
-| [`SYSTEM_THREAT_MODEL.md`](SYSTEM_THREAT_MODEL.md) | STRIDE coverage | Living document |
+| [`SOC2_SELF_ASSESSMENT_2026.md`](../SOC2_SELF_ASSESSMENT_2026.md) | Control mapping readiness | **Not** CPA SOC 2 report — roadmap only |
+| [`TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) | Database-per-tenant + optional RLS (ADR 0037) | Design intent — verify deployed config |
+| [`SYSTEM_THREAT_MODEL.md`](../SYSTEM_THREAT_MODEL.md) | STRIDE coverage | Living document |
 | OpenAPI buyer snapshot | API surface boundary | `buyer-contract.openapi.snapshot.json` — excludes `/v1/internal/*` |
 | Staging readiness capture | Live auth/TLS/health posture | **Staging** environment — Bearer default |
 

@@ -22,7 +22,7 @@
 | 2 | Sign in; open **New review** (`/reviews/new`). | Wizard loads without auth errors. | [DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md) |
 | 3 | Create request; note **run id**. | Run appears in Reviews. | [operator-shell.md](operator-shell.md) |
 | 4 | Upload Azure extractor ZIP (Tier 1) or attach evidence. | Upload 200; evidence on run. | [AZURE_EXTRACTOR.md](AZURE_EXTRACTOR.md) |
-| 5 | **Execute** agents. | **Ready for commit** or actionable failure + correlation id. | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
+| 5 | **Execute** agents. | **Ready for commit** or actionable failure + correlation id. | [TROUBLESHOOTING.md](../runbooks/TROUBLESHOOTING.md) |
 | 6 | Resolve governance warnings; **Commit** manifest. | Manifest id visible; execution mode persisted. | [V1_SCOPE.md](V1_SCOPE.md) |
 | 7 | Verify run detail shows **execution mode** and **evidence basis**. | Real/Simulator/Fallback/Mixed + basis labels. | [CLAIM_READINESS_STATUS.md](../go-to-market/CLAIM_READINESS_STATUS.md) |
 | 8 | Collect proof packet. | `collect-first-pilot-proof.ps1` PASS/WARN with limitations.md. | [FIRST_RUN_EVIDENCE_CHECKLIST.md](../runbooks/FIRST_RUN_EVIDENCE_CHECKLIST.md) |
@@ -44,4 +44,4 @@
 
 - [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)
 - [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md)
-- [STRICT_RC_EVIDENCE_CAPTURE.md](STRICT_RC_EVIDENCE_CAPTURE.md)
+- [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) (strict RC via `ARCHLUCID_STRICT_RC=1`)

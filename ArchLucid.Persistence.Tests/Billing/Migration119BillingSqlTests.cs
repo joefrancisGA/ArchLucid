@@ -28,7 +28,8 @@ public sealed class Migration119BillingSqlTests
         sql.Should().Contain("sp_Billing_AppendStateHistory");
         sql.Should().Contain("sp_Billing_UpsertPending");
         sql.Should().Contain("DENY INSERT ON dbo.BillingSubscriptionStateHistory");
-        sql.Should().Contain("ADD FILTER PREDICATE");
-        sql.Should().Contain("BillingSubscriptionStateHistory");
+        sql.Should().Contain("TenantId");
+        sql.Should().Contain("WorkspaceId");
+        sql.Should().Contain("ProjectId");
     }
 }

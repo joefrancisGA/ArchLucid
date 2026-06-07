@@ -2,7 +2,7 @@
   Persistence contract-test supplement (TB-070).
 
   Applied after DbUp on isolated test catalogs — NOT a substitute for production DDL in
-  ArchLucid.Persistence/Scripts/ArchLucid.sql or incremental Migrations/*.sql.
+  ArchLucid.Persistence/Scripts/ArchLucid.sql or incremental Migrations/NNN_Name.sql files.
 
   Intentional divergences from production ArchLucid.sql:
   - Omits FK hardening between ContextSnapshots, GraphSnapshots, and Runs so tests can seed

@@ -77,10 +77,10 @@ if ($shardClassNames.Count -eq 0) {
     exit 0
 }
 
-$filterChunks = Split-ApiIntegrationTestClassFilterChunks `
+$filterChunks = @(Split-ApiIntegrationTestClassFilterChunks `
     -ClassNames $shardClassNames `
     -BaseFilter $BaseFilter `
-    -ChunkSize $FilterChunkSize
+    -ChunkSize $FilterChunkSize)
 
 $diagLogPath = Join-Path $ResultsDirectory "vstest-api-integration-shard-$ShardIndex.diag.log"
 $failed = $false
