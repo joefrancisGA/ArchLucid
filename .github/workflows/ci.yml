@@ -1921,9 +1921,9 @@ jobs:
           path: ${{ runner.temp }}/greenfield-boot.log
           if-no-files-found: warn
 
-  # Non-slow full regression: Api.Tests split by Category (Integration vs non-Integration). Integration runs as four
+  # Non-slow full regression: Api.Tests split by Category (Integration vs non-Integration). Integration runs as six
   # parallel shards (scripts/ci/Invoke-ApiIntegrationTestShard.ps1) because the suite is sequential (xunit.runner.json)
-  # and a monolithic job can run ~4h with minimal console output. Each shard uses normal logging + blame-hang.
+  # and a monolithic job can run ~4h with minimal console output. Each shard uses minimal console logging + TRX/diag/blame artifacts.
   dotnet-full-regression-core-api-integration:
     name: ".NET: full regression â€” Api.Tests integration shard ${{ matrix.shard_label }} (SQL)"
     needs:
@@ -1932,19 +1932,23 @@ jobs:
       - sql-dbup-empty-catalog
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       matrix:
         include:
           - shard: 0
-            shard_label: "1/4"
+            shard_label: "1/6"
           - shard: 1
-            shard_label: "2/4"
+            shard_label: "2/6"
           - shard: 2
-            shard_label: "3/4"
+            shard_label: "3/6"
           - shard: 3
-            shard_label: "4/4"
+            shard_label: "4/6"
+          - shard: 4
+            shard_label: "5/6"
+          - shard: 5
+            shard_label: "6/6"
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -1984,7 +1988,7 @@ jobs:
         run: >
           pwsh -NoProfile -File ./scripts/ci/Invoke-ApiIntegrationTestShard.ps1
           -ShardIndex ${{ matrix.shard }}
-          -ShardCount 4
+          -ShardCount 6
           -BlameHangTimeout 75min
           -ResultsDirectory "${{ runner.temp }}/coverage-full-core-api-integration-shard-${{ matrix.shard }}"
 
@@ -2089,14 +2093,26 @@ jobs:
           if-no-files-found: warn
 
   dotnet-full-regression-core-libs:
-    name: ".NET: full regression â€” core libraries shard (SQL, non-Api Category!=Slow)"
+    name: ".NET: full regression â€” core libraries shard ${{ matrix.shard_label }} (SQL, non-Api Category!=Slow)"
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
       - sql-dbup-empty-catalog
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: 0
+            shard_label: "1/4"
+          - shard: 1
+            shard_label: "2/4"
+          - shard: 2
+            shard_label: "3/4"
+          - shard: 3
+            shard_label: "4/4"
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -2134,35 +2150,30 @@ jobs:
       - name: Test â€” non-Api test assemblies (exclude Category=Slow)
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
-        run: |
-          set -euo pipefail
-          mapfile -t test_projects < <(dotnet sln ArchLucid.sln list | grep '\.Tests\.csproj$' | grep -v 'Api\.Tests' || true)
-          if [ "${#test_projects[@]}" -lt 1 ]; then
-            echo "::error::No non-Api *.Tests.csproj entries from dotnet sln list (expected at least one)."
-            exit 1
-          fi
-
-          # SDK 10+ MSBuild rejects multiple projects in one dotnet test invocation (MSB1008).
-          for proj in "${test_projects[@]}"; do
-            dotnet test "$proj" \
-              --no-build -c Release --settings coverage.runsettings \
-              --filter "Category!=Slow" \
-              --collect:"XPlat Code Coverage" \
-              --results-directory "${{ runner.temp }}/coverage-full-core-libs" \
-              --logger "trx;LogFilePrefix=full-core-libs-"
-          done
+        run: >
+          pwsh -NoProfile -File ./scripts/ci/Invoke-CoreLibsTestShard.ps1
+          -ShardIndex ${{ matrix.shard }}
+          -ShardCount 4
+          -ResultsDirectory "${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}"
 
       - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: dotnet-trx-full-core-libs
-          path: ${{ runner.temp }}/coverage-full-core-libs/**/*.trx
+          name: dotnet-trx-full-core-libs-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/*.trx
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: core-libs-shard-manifest-${{ matrix.shard }}
+          path: ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/core-libs-shard-*.json
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         with:
-          name: coverage-full-regression-core-libs
-          path: ${{ runner.temp }}/coverage-full-core-libs/**/coverage.cobertura.xml
+          name: coverage-full-regression-core-libs-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/coverage.cobertura.xml
           if-no-files-found: warn
 
   dotnet-full-regression-core-complete:
@@ -2410,7 +2421,8 @@ jobs:
 
       - uses: actions/download-artifact@v6
         with:
-          name: coverage-full-regression-core-libs
+          pattern: coverage-full-regression-core-libs-shard-*
+          merge-multiple: true
           path: merge-cov/core-libs
 
       - uses: actions/download-artifact@v6

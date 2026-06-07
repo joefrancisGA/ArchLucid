@@ -31,7 +31,7 @@ class TestAiReadinessBatch5BU(unittest.TestCase):
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("GenerateIacStubsOptions", text)
-        self.assertIn("TryScheduleIacStubGeneration", text)
+        self.assertIn("enqueueIacStubGeneration", text)
 
     def test_tb_188_ui_stub_panel(self) -> None:
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "FindingIacStubPanel.tsx"

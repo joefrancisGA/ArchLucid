@@ -1,4 +1,4 @@
-> **Scope:** Release owner — which environment class is authoritative for RC and sponsor proof evidence.
+> **Scope:** Contributor-reference — release-owner matrix for which environment class is authoritative for RC and sponsor proof evidence.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

@@ -88,29 +88,37 @@ $chunkNumber = 0
 
 foreach ($filter in $filterChunks) {
     $chunkNumber++
-    Write-Host (
-        "Shard {0}/{1}: running chunk {2}/{3}." -f
-        ($ShardIndex + 1),
-        $ShardCount,
-        $chunkNumber,
-        $filterChunks.Count
-    )
+    $chunkLabel = "Shard {0}/{1}: chunk {2}/{3}" -f ($ShardIndex + 1), $ShardCount, $chunkNumber, $filterChunks.Count
+    Write-Host $chunkLabel
 
-    & dotnet test $ProjectPath `
-        --no-build `
-        -c $Configuration `
-        --settings $RunSettingsPath `
-        --filter $filter `
-        --collect:'XPlat Code Coverage' `
-        --results-directory $ResultsDirectory `
-        --logger 'console;verbosity=normal' `
-        --logger "trx;LogFilePrefix=full-core-api-integration-shard-$ShardIndex-chunk$chunkNumber-" `
-        --diag $diagLogPath `
-        --blame-hang `
-        --blame-hang-timeout $BlameHangTimeout
+    $inGitHubActions = [bool]$env:GITHUB_ACTIONS
 
-    if ($LASTEXITCODE -ne 0) {
-        $failed = $true
+    if ($inGitHubActions) {
+        Write-Host "::group::$chunkLabel"
+    }
+
+    try {
+        & dotnet test $ProjectPath `
+            --no-build `
+            -c $Configuration `
+            --settings $RunSettingsPath `
+            --filter $filter `
+            --collect:'XPlat Code Coverage' `
+            --results-directory $ResultsDirectory `
+            --logger 'console;verbosity=minimal' `
+            --logger "trx;LogFilePrefix=full-core-api-integration-shard-$ShardIndex-chunk$chunkNumber-" `
+            --diag $diagLogPath `
+            --blame-hang `
+            --blame-hang-timeout $BlameHangTimeout
+
+        if ($LASTEXITCODE -ne 0) {
+            $failed = $true
+        }
+    }
+    finally {
+        if ($inGitHubActions) {
+            Write-Host '::endgroup::'
+        }
     }
 }
 
