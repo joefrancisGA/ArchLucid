@@ -118,6 +118,7 @@ Each area carries the same six-section structure: **Score · Weighted Score · J
 - Lift `ArchLucid.Api` per-package line to **≥ 79 %** with controller + middleware unit tests covering pagination cursors, range result, scope debug, auth debug, demo seed, metering admin (the same surfaces already trickled in late-session per `COVERAGE_GAP_ANALYSIS.md`).
 - Remove the `Billing:AzureMarketplace:GaEnabled=false` short-circuit by validating `planId → tier` substring map and seat counts in a sandbox tenant, then default the flag to `true` with an explicit rollback runbook.
 - Expand RLS coverage from "covered tables" to **all `dbo.*` tables that hold tenant-scoped data**; convert `RLS_RISK_ACCEPTANCE.md` from a template into a populated, dated register.
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 
 ---
 
@@ -214,6 +215,7 @@ Each area carries the same six-section structure: **Score · Weighted Score · J
 **Justification.** Layered defense: Entra ID + JWT + optional API keys (with fail-closed default — `Enabled=false` rejects callers, not the opposite), three policy tiers (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`), RLS using `SESSION_CONTEXT`, deny-by-default CORS in production, CSP / X-Frame-Options / X-Content-Type-Options baseline, gitleaks + Trivy + CodeQL + ZAP + Schemathesis in CI, threat models (System STRIDE + Ask/RAG STRIDE), explicit "never expose SMB / port 445" workspace rule, key rotation runbook, secret-validation startup checks (rejects placeholder API keys).
 
 **The drag.** Self-stated gaps are **real**: no formal pen test (per the threat model "gaps to track"), incomplete RLS coverage, no systematic PII redaction in LLM prompts, SOC 2 Type II not yet attested. The discount stack in `PRICING_PHILOSOPHY.md` (`−25 %` trust discount) is the commercial cost of these gaps.
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 
 **Trade-offs.** A pen test is a one-time cost that immediately removes a list of "we don't actually know yet" answers; SOC 2 Type II is a sustained operational commitment.
 

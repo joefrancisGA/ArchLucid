@@ -29,15 +29,16 @@ public sealed class TenantIsolationDefenseInDepthArchitectureTests
     }
 
     [Fact]
-    public void Migration_148_remove_rls_exists()
+    public void ArchLucid_sql_contains_no_rls_objects()
     {
-        string path = Path.Combine(
-            RepoRoot,
-            "ArchLucid.Persistence",
-            "Migrations",
-            "148_RemoveRowLevelSecurity.sql");
+        string path = Path.Combine(RepoRoot, "ArchLucid.Persistence", "Scripts", "ArchLucid.sql");
+        string sql = File.ReadAllText(path);
 
-        File.Exists(path).Should().BeTrue();
+        // ADR 0037: RLS was removed; the consolidated schema must never re-introduce it.
+        sql.Should().NotContainAny(
+            "CREATE SCHEMA rls",
+            "CREATE SECURITY POLICY",
+            "CREATE FUNCTION rls.");
     }
 
     [Fact]

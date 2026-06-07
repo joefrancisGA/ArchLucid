@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;
@@ -53,7 +53,7 @@ public sealed class MigrationReplayIdempotencySqlIntegrationTests(SqlServerPersi
     }
 
     [SkippableFact]
-    public async Task DatabaseMigrator_re_applies_129_RlsAuthorityChildTableScopeDenorm_after_journal_row_removed_without_error()
+    public async Task DatabaseMigrator_re_applies_129_AuthorityChildTableScopeDenorm_after_journal_row_removed_without_error()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
@@ -77,7 +77,7 @@ public sealed class MigrationReplayIdempotencySqlIntegrationTests(SqlServerPersi
             await using SqlCommand delete = new(
                 """
                 DELETE FROM dbo.SchemaVersions
-                WHERE ScriptName LIKE N'%129_RlsAuthorityChildTableScopeDenorm%';
+                WHERE ScriptName LIKE N'%129_AuthorityChildTableScopeDenorm%';
                 """,
                 connection);
 

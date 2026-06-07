@@ -13,7 +13,7 @@ Every **Source File** cell below repeats an existing procurement-index path only
 | Buyer-wide index | Self-asserted | [trust-center.md](trust-center.md) |
 | Engineering security narrative | Self-asserted | [docs/library/SECURITY.md](../library/SECURITY.md) |
 | STRIDE / boundary threat model | Self-asserted | [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) |
-| Tenant SQL RLS | Implemented | [docs/security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) |
+| Tenant isolation (database-per-tenant) | Implemented | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
 | SOC 2 procurement wording (status, not issuance) | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) |
 | SOC 2 self-assessment (not CPA audit) | Self-asserted | [docs/security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) |
 | SOC 2 roadmap / timing | Deferred **V1.1** (see linked file — not an auditor opinion) | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) |

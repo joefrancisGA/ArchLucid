@@ -123,7 +123,7 @@ Use these surfaces when the next question is analytical: what changed, why it ch
 
 - **78 typed audit events** in an append-only SQL store with CSV export ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md)).
 - **Audit log** — filter by event type, actor, run ID, correlation ID, time window.
-- **Row-level security (RLS)** — SQL `SESSION_CONTEXT` tenant isolation ([security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)).
+- **Tenant isolation: database-per-tenant catalogs (ADR 0037)** — `SystemWithPerTenantCatalogs` topology + app-layer scope predicates.
 - **Compliance drift trend** — tracking and operator UI chart.
 
 #### 2.11 Alerts

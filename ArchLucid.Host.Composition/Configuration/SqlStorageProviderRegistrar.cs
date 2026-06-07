@@ -76,6 +76,7 @@ using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Coordination.Projection;
 using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.CustomerSuccess;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Feedback;

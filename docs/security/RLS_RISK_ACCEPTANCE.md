@@ -1,3 +1,5 @@
+> **[Superseded 2026-06-06]** SQL RLS removed per ADR 0037. Database-per-tenant catalogs + app-layer scope predicates are the production controls. This document is retained as historical context only.
+
 > **Scope:** Row-level security (RLS) — residual risk acceptance (template) - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).

@@ -74,7 +74,6 @@ Before approving a new helper, search the repo and the change description for an
 
 - `docs/library/V1_DEFERRED.md` §3 / `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md` (brownfield rename narrative)
 - `docs/BREAKING_CHANGES.md` rows documenting **removed** legacy spellings
-- `docs/MULTI_TENANT_RLS.md` SQL object names: `rls.ArchiforgeTenantScope`, `rls.archiforge_scope_predicate`, migration file `036_RlsArchiforgeTenantScope.sql`
 - `.gitleaks.toml` dev-password allowlist entries
 
 ## C# / .NET coding conventions

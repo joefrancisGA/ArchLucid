@@ -70,9 +70,9 @@ Answers are pointers only; pull quotations from targets during diligence.
 |17 | Trial / identity edge auth behaviour? | Self-asserted | [TRIAL_AUTH.md](../security/TRIAL_AUTH.md) |
 |18 | Tenant isolation narrative for buyers (logical)? | Self-asserted | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
 |19 | Detailed customer trust / connectivity discussion? | Self-asserted | [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
-| 20 | Row-level isolation / `SESSION_CONTEXT` for SQL tenancy? | Implemented | [MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) |
-|21 | Accepted RLS residual risks / acceptance notes? | Self-asserted | [RLS_RISK_ACCEPTANCE.md](../security/RLS_RISK_ACCEPTANCE.md) |
-|22 | Implementation notes bridging RLS to product behaviour? | Self-asserted | [TENANT_ISOLATION_IMPLEMENTATION_NOTES.md](../security/TENANT_ISOLATION_IMPLEMENTATION_NOTES.md) |
+| 20 | Database-per-tenant SQL isolation? | Implemented | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) |
+|21 | Tenant table isolation classifications? | Self-asserted | [TENANT_TABLE_ISOLATION_CLASSIFICATION.md](../security/TENANT_TABLE_ISOLATION_CLASSIFICATION.md) |
+|22 | Implementation notes for defense-in-depth? | Self-asserted | [TENANT_ISOLATION_DEFENSE_IN_DEPTH.md](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) |
 |23 | Managed identities for SQL/Blob boundaries? | Self-asserted | [MANAGED_IDENTITY_SQL_BLOB.md](../security/MANAGED_IDENTITY_SQL_BLOB.md) |
 |24 | Authorization-boundary regression inventory? | Self-asserted | [AUTHORIZATION_BOUNDARY_TEST_INVENTORY.md](../security/AUTHORIZATION_BOUNDARY_TEST_INVENTORY.md) |
 |25 | Secret-scanning guidance (supply chain hygiene)? | Self-asserted | [GITLEAKS_PRE_RECEIVE.md](../security/GITLEAKS_PRE_RECEIVE.md) |

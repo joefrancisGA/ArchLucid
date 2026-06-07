@@ -77,7 +77,7 @@ public sealed class CommittedRunHeaderImmutabilityArchitectureTests
 
         string startupText = File.ReadAllText(startupPath);
         startupText.Should().Contain("TryValidateCommittedRunHeaderImmutabilityIfRequired");
-        startupText.Should().Contain(nameof(SqlCommittedRunHeaderImmutabilityRules.ValidateOrThrow));
+        startupText.Should().Contain("ValidateOrThrow");
     }
 
     private static string FindRepoRoot()

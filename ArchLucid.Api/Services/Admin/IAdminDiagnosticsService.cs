@@ -50,6 +50,12 @@ public interface IAdminDiagnosticsService
         GetDataConsistencyOrphanCountsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Counts committed run header pointers referencing missing or cross-run child evidence rows (detection-only).
+    /// </summary>
+    Task<DataConsistencyHeaderRepointCounts> GetDataConsistencyHeaderRepointCountsAsync(
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Lists or deletes up to <paramref name="maxRows" /> orphan <c>dbo.ComparisonRecords</c> rows (missing
     ///     <c>dbo.Runs</c>).
     ///     When <paramref name="dryRun" /> is true, no rows are modified. Emits durable audit on successful delete.

@@ -135,6 +135,31 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Assert.Equal(new DataConsistencyOrphanCounts(0, 0, 0, 0, 0, 0), counts);
     }
 
+    [Fact]
+    public async Task GetDataConsistencyHeaderRepointCountsAsync_InMemory_returns_zeros_without_database()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        AdminDiagnosticsService sut =
+            CreateDiagnosticsService(
+                factory,
+                InMemoryOptions(),
+                audit,
+                actor,
+                out _,
+                out _,
+                out _,
+                out _,
+                out _);
+
+        DataConsistencyHeaderRepointCounts counts =
+            await sut.GetDataConsistencyHeaderRepointCountsAsync(CancellationToken.None);
+
+        Assert.Equal(new DataConsistencyHeaderRepointCounts(0, 0, 0, 0, 0, 0), counts);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

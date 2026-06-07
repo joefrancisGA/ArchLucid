@@ -50,6 +50,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0043](0043-durable-run-export-blob-push-outbox.md) | Durable run-export blob push outbox — replaces fire-and-forget `Task.Run` with `dbo.RunExportBlobPushOutbox` (**Status: Accepted**) |
 | [0044](0044-durable-post-commit-projection-outbox.md) | Durable post-commit projection outbox — replaces five commit-path `Task.Run` side effects with `dbo.PostCommitProjectionOutbox` (**Status: Accepted**) |
 | [0045](0045-committed-run-header-immutability.md) | Committed run header evidence-anchor immutability — `TR_Runs_SealCommittedHeader` on anchor columns when `GoldenManifestId` is set (**Status: Accepted**) |
+| [0046](0046-committed-run-header-fk-repoint-detection.md) | Committed run header FK repoint detection — dangling/cross-run child links on evidence pointers (**Status: Accepted**) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

@@ -57,7 +57,6 @@ public sealed class SqlInternalCrossTenantMetricsCollector(
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(connection, cancellationToken);
 
         IReadOnlyList<InternalCrossTenantSqlMetricsQueries.TenantRunTotalsRow> runTotals =
             await InternalCrossTenantSqlMetricsQueries.QueryPerTenantRunTotalsAsync(connection, cancellationToken);
@@ -128,7 +127,6 @@ public sealed class SqlInternalCrossTenantMetricsCollector(
 
         await using SqlConnection tenantConnection = new(tenantConnectionString);
         await tenantConnection.OpenAsync(cancellationToken);
-        await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(tenantConnection, cancellationToken);
 
         InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow totals =
             await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(tenantConnection, cancellationToken);

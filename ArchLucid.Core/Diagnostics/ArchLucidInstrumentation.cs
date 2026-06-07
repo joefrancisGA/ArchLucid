@@ -992,6 +992,15 @@ public static class ArchLucidInstrumentation
             "archlucid_data_consistency_orphans_detected_total",
             description: "Orphan authority-chain rows detected (labels table, column; e.g. GoldenManifests.RunId).");
 
+    /// <summary>
+    ///     Committed run header pointer violations (labels <c>pointer</c> — e.g. ContextSnapshotId).
+    /// </summary>
+    public static readonly Counter<long> DataConsistencyHeaderRepointsDetected =
+        AppMeter.CreateCounter<long>(
+            "archlucid_data_consistency_header_repoints_detected_total",
+            description:
+            "Committed dbo.Runs evidence pointers referencing missing or cross-run child rows (label pointer).");
+
     /// <summary>Executive ROI background jobs skipped a tenant because tenant/workspace/project scope failed validation (fail-closed).</summary>
     public static readonly Counter<long> ExecutiveRoiBackgroundScopeViolationsTotal =
         AppMeter.CreateCounter<long>(

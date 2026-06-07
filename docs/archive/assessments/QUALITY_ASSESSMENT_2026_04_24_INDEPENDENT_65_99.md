@@ -206,11 +206,13 @@ Qualities ordered from most urgent (highest weighted deficiency) to least urgent
 **Justification:** Security architecture is thoughtfully designed: STRIDE threat model covering all trust boundaries, RLS with SESSION_CONTEXT for tenant isolation, fail-closed auth via AuthSafetyGuard, OWASP ZAP and Schemathesis in CI, LLM prompt redaction with deny-list patterns, private endpoints, managed identity for SQL/Blob, CORS deny-by-default, rate limiting, circuit breakers. However: RLS has known gaps per MULTI_TENANT_RLS.md §9 (some tables lack scope columns), DevelopmentBypass exists with guardrails, the pen test is in flight but incomplete, and SOC 2 is self-assessed only.
 
 **Tradeoffs:** Defense-in-depth controls are present but not externally validated. The honest acknowledgment of residual risks (RLS gaps, uncovered tables) is mature engineering but leaves gaps.
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 
 **Improvement Recommendations:**
 - Track and close the residual uncovered RLS tables documented in MULTI_TENANT_RLS.md §9
 - Complete the pen test and establish a remediation tracking process
 - Add CI-enforced RLS coverage assertions so new tables cannot be added without scope columns
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 
 ---
 

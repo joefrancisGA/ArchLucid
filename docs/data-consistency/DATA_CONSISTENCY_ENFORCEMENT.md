@@ -25,6 +25,8 @@ Gradually escalate responses when coordinator rows reference **missing** `dbo.Ru
 
 **Detection (unchanged):** Orphan probes and reconciliation queries count rows in `dbo.GoldenManifests`, `dbo.FindingsSnapshots`, `dbo.ContextSnapshots`, `dbo.GraphSnapshots`, and (reconciliation only) `dbo.ArtifactBundles` whose `RunId` has no matching `dbo.Runs` row. Legacy rows remain visible; operators reconcile via existing runbooks and optional quarantine.
 
+**Header repoint detection (TB-311):** On the same orphan probe pass, six `COUNT_BIG` queries evaluate committed `dbo.Runs` headers (`GoldenManifestId IS NOT NULL`) for evidence pointers that reference missing child rows or child rows whose `RunId` differs from the header. Detection-only — emits **`archlucid_data_consistency_header_repoints_detected_total`** (label `pointer`); admin surface **`GET /admin/diagnostics/data-consistency/header-repoints`**. See ADR 0046.
+
 **Prevention (SQL path):** Foreign keys from the committed-run authority chain to `dbo.Runs` (`FK_*_Runs_RunId` and related chain FKs on manifests, snapshots, traces, artifact bundles) are defined in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** using **`ALTER TABLE … WITH NOCHECK ADD CONSTRAINT`** when the constraint is absent. That allows brownfield catalogs that already contain historical orphans to **install** constraints without a failing full-table validation pass, while **new** inserts and updates must still reference a real `dbo.Runs` row and the snapshot chain.
 
 - **DbUp 134** (`134_FK_Authority_Chain_Runs_DbUpParity.sql`) still adds the same constraint **names** when the catalog has **no** rows that would violate them (trusted add where supported).

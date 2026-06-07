@@ -75,7 +75,7 @@ Start at **[`../START_HERE.md`](../START_HERE.md)** and follow the contributor t
 ## Security model (read once)
 
 - **Authentication modes** and fail-closed defaults are summarized in **[`library/SECURITY.md`](SECURITY.md))** and repo-root **[`SECURITY.md`](SECURITY.md)))**.
-- **Tenant isolation / RLS** deep dive: [`security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md).
+- **Tenant isolation** deep dive: [`security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md`](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md).
 
 ## Operational considerations
 

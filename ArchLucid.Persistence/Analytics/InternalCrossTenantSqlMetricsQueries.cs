@@ -17,18 +17,6 @@ internal static class InternalCrossTenantSqlMetricsQueries
         long TotalCompletedRuns,
         double SumCompletionSeconds);
 
-    internal static async Task ApplyRowLevelSecurityBypassAsync(
-        SqlConnection connection,
-        CancellationToken cancellationToken)
-    {
-        await using SqlCommand cmd = connection.CreateCommand();
-        cmd.CommandText = RowLevelSecurityBypassSql;
-        SqlParameter bypass = cmd.Parameters.Add("@Bypass", SqlDbType.Int);
-        bypass.Value = 1;
-
-        await cmd.ExecuteNonQueryAsync(cancellationToken);
-    }
-
     internal static async Task<IReadOnlyList<TenantRunTotalsRow>> QueryPerTenantRunTotalsAsync(
         SqlConnection connection,
         CancellationToken cancellationToken)

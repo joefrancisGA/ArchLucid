@@ -27,11 +27,11 @@ python3 scripts/ci/assert_rollback_scripts_exist.py
 
 if [[ -n "${ARCHLUCID_GIT_DIFF_RANGE:-}" ]]; then
   python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
-  python3 scripts/ci/assert_rls_residual_risk_classifications.py
+  python3 scripts/ci/assert_tenant_table_isolation_classifications.py
 fi
 
 python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
-python -m unittest discover -s scripts/ci/tests -p "test_assert_rls_residual_risk_classifications.py"
+python -m unittest discover -s scripts/ci/tests -p "test_assert_tenant_table_isolation_classifications.py"
 
 python3 scripts/ci/check_migration_numbering.py || true
 

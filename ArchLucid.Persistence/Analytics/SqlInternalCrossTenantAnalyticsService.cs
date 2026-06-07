@@ -12,9 +12,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Persistence.Analytics;
 
 /// <summary>
-///     Reads anonymized aggregates from tenant product catalogs. Uses <c>al_rls_bypass</c> session context so optional
-///     SQL RLS policies see all rows in single-catalog deployments; in per-tenant-catalog mode, opens each active
-///     binding (no tenant ids in the HTTP payload).
+///     Reads anonymized aggregates from tenant product catalogs. Opens each active tenant catalog binding (per-tenant-catalog mode; no tenant ids in the HTTP payload).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Azure SQL integration; validated via host integration and manual operator checks.")]
 public sealed class SqlInternalCrossTenantAnalyticsService(
@@ -76,7 +74,6 @@ public sealed class SqlInternalCrossTenantAnalyticsService(
         if (snapshot.Mode == SqlTopologyMode.SingleCatalog)
         {
             await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-            await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(connection, cancellationToken);
 
             InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow rowTotals =
                 await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(connection, cancellationToken);
@@ -137,7 +134,6 @@ public sealed class SqlInternalCrossTenantAnalyticsService(
 
         await using SqlConnection tenantConnection = new(tenantConnectionString);
         await tenantConnection.OpenAsync(cancellationToken);
-        await InternalCrossTenantSqlMetricsQueries.ApplyRowLevelSecurityBypassAsync(tenantConnection, cancellationToken);
 
         InternalCrossTenantSqlMetricsQueries.CatalogRunTotalsRow part =
             await InternalCrossTenantSqlMetricsQueries.QueryCatalogRunTotalsAsync(tenantConnection, cancellationToken);

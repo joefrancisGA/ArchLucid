@@ -26,7 +26,7 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | Third-party pen-test SoW (planning template) | Template | [../security/pen-test-summaries/2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) | For use when a vendor is selected. |
 | Third-party pen-test redacted summary (when executed) | External/NDA-gated | [../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) | Working surface; not a public assurance claim. |
 | Audit coverage matrix | Self-attested | [../library/AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) | Typed audit event surface mapping. |
-| Multi-tenant SQL RLS | Implemented | [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | Design and session-context posture documented. |
+| Tenant isolation (database-per-tenant) | Implemented | [../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) | ADR 0037 adopted; SQL RLS not used in production. |
 | security.txt | Self-attested | [../../archlucid-ui/public/.well-known/security.txt](../../archlucid-ui/public/.well-known/security.txt) | Coordinated disclosure routing (published path). |
 | SLA summary (targets) | Self-attested | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Summary targets — contractual SLA only if MSA/order form says so. |
 | Trust Center evidence pack (ZIP download) | Self-attested | [trust-center.md](trust-center.md) | Anonymous download; contents listed in Trust Center section. |
@@ -38,7 +38,7 @@ Use this table for RFP spreadsheets and security portals that need a **single st
 | Trust Center (buyer index) | Self-asserted | 2026-05-01 | [trust-center.md](trust-center.md) | Central index links only to in-repo evidence; distinguishes self-assessed vs deferred third-party artefacts. |
 | Security overview | Self-asserted | 2026-05-01 | [docs/library/SECURITY.md](../library/SECURITY.md) | Describes scanning, boundaries, authentication modes documented in-repo. |
 | System threat model (STRIDE) | Self-asserted | 2026-05-01 | [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | Internal architectural threat enumeration — not substitute for customer architecture review. |
-| Multi-tenant RLS | Implemented | 2026-05-01 | [docs/security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | SQL `SESSION_CONTEXT` design and risk posture documented; engineering controls described in-linked implementation notes. |
+| Tenant isolation (database-per-tenant) | Implemented | 2026-06-06 | [ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md) | Database-per-tenant catalogs + app-layer scope predicates per ADR 0037. SQL RLS was evaluated and not adopted. |
 | SOC 2 procurement statement | Self-asserted | 2026-04-24 | [docs/go-to-market/SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md) | States Type II issuance not yet claimed; directs to roadmap and self-assessment. |
 | SOC 2 self-assessment narrative | Self-asserted | 2026-04-24 | [docs/security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Internal CC mapping narrative — explicitly not a CPA audit opinion. |
 | SOC 2 roadmap | Deferred V1.1 | 2026-04-24 | [docs/go-to-market/SOC2_ROADMAP.md](SOC2_ROADMAP.md) | Planned programme timing only; confirms no SOC 2 report yet. |

@@ -57,7 +57,7 @@ Regulated reviewers ask whether a committed run can repoint its evidence chain a
 
 - **Positive:** Honest answer to “can committed run evidence pointers change?” is **no** at DB layer.
 - **Negative:** Operators must apply migration 250; anchor column list is a second registry to keep in sync (architecture test guards parity).
-- **Follow-ups:** Optional seal of `ArchitectureRequestId`; FK repoint detection (#6); table-split if product needs full `DENY` reuse on a narrow anchor table.
+- **Follow-ups:** Optional seal of `ArchitectureRequestId`; table-split if product needs full `DENY` reuse on a narrow anchor table. FK repoint detection — **Done** (TB-311 / ADR 0046).
 
 ## Links
 

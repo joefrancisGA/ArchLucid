@@ -20,6 +20,7 @@ Pre-commit stages may rewrite draft rows; after commit, sealed tables accept **I
 | Run header anchors | `TR_Runs_SealCommittedHeader` on `dbo.Runs` when `GoldenManifestId` is set (migration 250, TB-310) |
 | Run header registry | `CommittedRunHeaderAnchorRegistry` — anchor column list + trigger name |
 | Run header startup probe | `SqlCommittedRunHeaderImmutabilityRules` — production-like SQL hosts fail closed |
+| Header FK repoint detection | `CommittedRunHeaderFkRepointRegistry` + background probe (TB-311 / ADR 0046) — detection-only |
 | Agent results | Insert-only on `dbo.AgentResults`; post-commit writes → `dbo.AgentResultEnrichments` |
 | Evidence packages | Insert-only; unique index on `RunId` |
 | Audit | Existing migration 051 pattern (included in sealed registry) |
@@ -50,14 +51,14 @@ Pre-commit stages may rewrite draft rows; after commit, sealed tables accept **I
 
 - **Platform WORM / immutable blob tier** — see [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md); customer may apply immutability on exported copies
 - Application-layer hash-linked lineage (#6 — **Done** TB-307 / ADR 0040; not WORM)
-- Sealing `dbo.Runs` header or FK repoint detection — **header anchors Done** (TB-310 / ADR 0045); FK repoint detection still open
+- FK repoint detection — **Done** (TB-311 / ADR 0046); detection-only background probe + admin counts
 - Versioned evidence rows
 
 ## Verification
 
 ```bash
-dotnet test ArchLucid.Architecture.Tests --filter "Sealed_evidence|Committed_run_header|Suite=Core"
-dotnet test ArchLucid.Persistence.Tests --filter "SealedEvidence|CommittedRunHeader"
+dotnet test ArchLucid.Architecture.Tests --filter "Sealed_evidence|Committed_run_header|HeaderRepoint|Suite=Core"
+dotnet test ArchLucid.Persistence.Tests --filter "SealedEvidence|CommittedRunHeader|HeaderRepoint"
 dotnet test ArchLucid.Host.Core.Tests --filter "SqlSealedEvidenceImmutabilityRulesTests|SqlCommittedRunHeaderImmutabilityRulesTests"
 dotnet test ArchLucid.Core.Tests --filter "CommittedRunHeaderAnchorGuard"
 ```

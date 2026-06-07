@@ -1,3 +1,5 @@
+> **[Superseded 2026-06-06]** SQL RLS removed per ADR 0037. Database-per-tenant catalogs + app-layer scope predicates are the production controls. This document is retained as historical context only.
+
 > **Scope:** Multi-tenant row-level security (SQL) — design sketch - full detail, tables, and links in the sections below.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
@@ -129,7 +131,7 @@ When **`096`** has run, these tables use **tenant id only** (no workspace/projec
 
 **Risk acceptance (governance):** when RLS is **ON** with residual uncovered tables or bypass procedures, capture sign-off using [RLS_RISK_ACCEPTANCE.md](RLS_RISK_ACCEPTANCE.md).
 
-**Residual coverage matrix (tables vs defense depth):** operator-facing mapping of uncovered surfaces, blast-radius framing, and compensating controls lives in [MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md](MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md).
+**Residual coverage matrix (tables vs defense depth):** operator-facing mapping of uncovered surfaces, blast-radius framing, and compensating controls lives in [TENANT_TABLE_ISOLATION_CLASSIFICATION.md](TENANT_TABLE_ISOLATION_CLASSIFICATION.md).
 
 ## 10. Evolution
 

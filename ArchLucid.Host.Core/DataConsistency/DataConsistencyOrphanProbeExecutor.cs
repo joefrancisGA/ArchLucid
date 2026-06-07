@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -76,6 +77,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
             orphanCounts[registration.TableName] = count;
         }
+
+        await RunHeaderRepointProbesAsync(connection, cancellationToken).ConfigureAwait(false);
 
         long goldenCount = orphanCounts["GoldenManifests"];
         long findingsCount = orphanCounts["FindingsSnapshots"];
@@ -420,6 +423,45 @@ public sealed class DataConsistencyOrphanProbeExecutor(
             ids.Add(reader.GetGuid(0).ToString("D", CultureInfo.InvariantCulture));
 
         return ids;
+    }
+
+    private async Task RunHeaderRepointProbesAsync(DbConnection connection, CancellationToken ct)
+    {
+        foreach (CommittedRunHeaderFkRepointRegistration registration in CommittedRunHeaderFkRepointRegistry.All)
+        {
+            string countSql = CommittedRunHeaderFkRepointProbeRegistry.ResolveCountSql(registration);
+
+            await LogAndCountHeaderRepointsAsync(
+                    connection,
+                    countSql,
+                    registration.PointerColumnName,
+                    ct)
+                .ConfigureAwait(false);
+        }
+    }
+
+    private async Task LogAndCountHeaderRepointsAsync(
+        DbConnection connection,
+        string sql,
+        string pointerColumnName,
+        CancellationToken ct)
+    {
+        await using DbCommand command = connection.CreateCommand();
+        command.CommandText = sql;
+        object? scalar = await command.ExecuteScalarAsync(ct).ConfigureAwait(false);
+        long count = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
+
+        if (count <= 0)
+            return;
+
+        _logger.LogWarning(
+            "Data consistency: {Count} committed run(s) have a dangling or cross-run header pointer ({PointerColumn}).",
+            count,
+            pointerColumnName);
+
+        ArchLucidInstrumentation.DataConsistencyHeaderRepointsDetected.Add(
+            count,
+            new KeyValuePair<string, object?>("pointer", pointerColumnName));
     }
 
     private async Task<long> LogAndCountOrphansAsync(

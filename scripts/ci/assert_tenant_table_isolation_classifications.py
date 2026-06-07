@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 r"""
-Ensure every current or newly changed dbo table has an RLS residual-risk classification.
+Ensure every current or newly changed dbo table has a tenant table isolation classification.
 
 The guard intentionally uses lightweight SQL extraction instead of a full parser because
-the invariant is limited to table declarations and reviewable security classifications.
+the invariant is limited to table declarations and reviewable isolation classifications.
 
 Local:
-  python scripts/ci/assert_rls_residual_risk_classifications.py
+  python scripts/ci/assert_tenant_table_isolation_classifications.py
 
 CI with changed migrations:
   ARCHLUCID_GIT_DIFF_RANGE="${BASE_SHA}...${HEAD_SHA}" \
-    python scripts/ci/assert_rls_residual_risk_classifications.py
+    python scripts/ci/assert_tenant_table_isolation_classifications.py
 """
 
 from __future__ import annotations
@@ -25,17 +25,17 @@ from pathlib import Path
 
 
 ARCHLUCID_SQL_PATH = Path("ArchLucid.Persistence/Scripts/ArchLucid.sql")
-MATRIX_PATH = Path("docs/security/MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md")
+MATRIX_PATH = Path("docs/security/TENANT_TABLE_ISOLATION_CLASSIFICATION.md")
 FORWARD_MIGRATION_PATTERN = re.compile(
     r"^ArchLucid\.Persistence/Migrations/\d{3}_[A-Za-z0-9_]+\.sql$"
 )
 VALID_CLASSIFICATIONS = {
-    "rls-covered-scope-triple",
-    "tenant-only-covered",
-    "database-per-tenant/system-plane-only",
-    "child-table-with-compensating-control",
-    "operational-table",
-    "explicit-accepted-residual-risk",
+    "scope-triple-on-row",
+    "tenant-id-on-row",
+    "system-plane-only",
+    "child-via-parent",
+    "operational",
+    "accepted-residual",
 }
 CREATE_TABLE_PATTERN = re.compile(
     r"\bCREATE\s+TABLE\s+"
@@ -113,7 +113,7 @@ def parse_matrix_classifications(matrix_text: str) -> tuple[dict[str, str], list
 
         if not tables:
             errors.append(
-                f"Matrix line {line_number}: classification `{classification}` has no backticked tables."
+                f"Registry line {line_number}: classification `{classification}` has no backticked tables."
             )
             continue
 
@@ -122,7 +122,7 @@ def parse_matrix_classifications(matrix_text: str) -> tuple[dict[str, str], list
 
             if previous is not None and previous != classification:
                 errors.append(
-                    f"Matrix line {line_number}: dbo.{table} is classified as both "
+                    f"Registry line {line_number}: dbo.{table} is classified as both "
                     f"`{previous}` and `{classification}`."
                 )
                 continue
@@ -153,7 +153,7 @@ def evaluate_tables(
             for table in missing
         )
         errors.append(
-            "Unclassified dbo table(s) would bypass the RLS residual-risk matrix:\n"
+            "Unclassified dbo table(s) would bypass the tenant table isolation registry:\n"
             f"{details}\n"
             f"Add each table to {MATRIX_PATH.as_posix()} under one of: "
             + ", ".join(f"`{name}`" for name in sorted(VALID_CLASSIFICATIONS))
@@ -166,7 +166,7 @@ def evaluate_tables(
     return DriftEvaluation(
         0,
         "OK: "
-        f"{len(required_tables)} dbo table(s) have RLS residual-risk classifications "
+        f"{len(required_tables)} dbo table(s) have tenant table isolation classifications "
         f"across {len(set(classifications.values()))} classification bucket(s).",
     )
 
@@ -267,7 +267,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if not matrix_path.is_file():
-        print(f"Missing RLS residual-risk matrix: {matrix_path}", file=sys.stderr)
+        print(f"Missing tenant table isolation registry: {matrix_path}", file=sys.stderr)
         return 2
 
     try:

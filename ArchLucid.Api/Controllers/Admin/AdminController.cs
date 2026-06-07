@@ -254,6 +254,17 @@ public sealed class AdminController(
         return Ok(counts);
     }
 
+    /// <summary>Detection-only committed run header FK repoint counts (same SQL as the background probe).</summary>
+    [HttpGet("diagnostics/data-consistency/header-repoints")]
+    [ProducesResponseType(typeof(DataConsistencyHeaderRepointCounts), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDataConsistencyHeaderRepoints(CancellationToken cancellationToken = default)
+    {
+        DataConsistencyHeaderRepointCounts counts =
+            await _diagnostics.GetDataConsistencyHeaderRepointCountsAsync(cancellationToken);
+
+        return Ok(counts);
+    }
+
     /// <summary>
     ///     Lists or deletes orphan <c>ComparisonRecords</c> whose run ids are missing from <c>dbo.Runs</c>.
     ///     Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.

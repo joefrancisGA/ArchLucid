@@ -90,7 +90,7 @@ When the host is **Production**, **Staging**, or **`ARCHLUCID_ENVIRONMENT`** is 
 
 ## SQL RLS break-glass bypass
 
-**`SqlRowLevelSecurityBypassAmbient.Enter()`** is only permitted when **`SqlServer:RowLevelSecurity:ApplySessionContext`** is **true** **and** both **`ARCHLUCID_ALLOW_RLS_BYPASS=true`** and **`ArchLucid:Persistence:AllowRlsBypass=true`** are set. This replaces env-only bypass. When enabled on a **production-like** host, Prometheus records **`archlucid_rls_bypass_enabled_info{scope="production_like"}==1`** and alert **`ArchLucidRlsBypassEnabledInProduction`** may fire; see **`infra/prometheus/archlucid-alerts.yml`**.
+> **[Removed 2026-06-06]** SQL Row-Level Security was removed per ADR 0037. `SqlRowLevelSecurityBypassAmbient`, `ARCHLUCID_ALLOW_RLS_BYPASS`, and related controls no longer exist. Database-per-tenant catalogs are the primary isolation mechanism; see ADR 0037.
 
 ## Log injection (CWE-117)
 

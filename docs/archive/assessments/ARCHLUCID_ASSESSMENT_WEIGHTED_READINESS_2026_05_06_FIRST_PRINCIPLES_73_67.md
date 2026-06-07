@@ -1100,12 +1100,13 @@ Phase 3 — Remove application/session plumbing:
 - Update `ArchLucidConfigurationRules` / posture report (improvement #7) to drop “RLS/session context expectation” rows or reword to “not applicable; per-tenant catalogs only.”
 
 Phase 4 — Docs and trust narrative:
-- Supersede or archive `MULTI_TENANT_RLS.md`, `RLS_RISK_ACCEPTANCE.md`, `RLS_DENORM_GAP_ANALYSIS_*.md`, `MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md`, and `adr/0003-sql-rls-session-context.md` (mark superseded; link to new short “Tenant isolation = catalog boundary” note).
+- Supersede or archive `MULTI_TENANT_RLS.md`, `RLS_RISK_ACCEPTANCE.md`, `RLS_DENORM_GAP_ANALYSIS_*.md`, `TENANT_TABLE_ISOLATION_CLASSIFICATION.md`, and `adr/0003-sql-rls-session-context.md` (mark superseded; link to new short “Tenant isolation = catalog boundary” note).
 - Update `TENANT_DATABASE_TOPOLOGY.md`, `day-one-security.md`, `SECURITY.md`, and any CAIQ/SIG rows that claim RLS as an active control.
 - Grep remaining “RLS” references in buyer-facing trust material; ensure no over-claim that RLS still enforces rows in production.
 
 Acceptance criteria:
 - **No** `SECURITY POLICY` / RLS predicate functions remain on the product SQL schema after migration runs forward.
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 - No application code path sets `SESSION_CONTEXT` keys for ArchLucid RLS (`al_*` RLS keys).
 - All SQL integration tests pass without SingleCatalog unless an explicitly documented, non-default dev shim exists.
 - Configuration posture / startup validation no longer implies RLS is part of production defense-in-depth.

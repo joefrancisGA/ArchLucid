@@ -16,6 +16,7 @@
 | 3 | Evolvability | 6 | 73 | 438 | 162 | Config gates and ADRs solid; rename debt and deferred Terraform |
 | 4 | Traceability | 7 | 77 | 539 | 161 | Excellent OTel + correlation; UI trace visualization limited |
 | 5 | Security | 6 | 76 | 456 | 144 | Defense in depth; API key reload + live ApiKey E2E; RLS gaps and static-key blast radius remain |
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 | 6 | Reliability | 5 | 70 | 350 | 150 | Resilience primitives in place; no systemic proof under load |
 | 7 | Architectural Integrity | 7 | 79 | 553 | 147 | NetArchTest-enforced layering; dual namespace and large controller |
 | 8 | Usability | 4 | 64 | 256 | 144 | Functional operator shell; UX polish and feedback gaps |

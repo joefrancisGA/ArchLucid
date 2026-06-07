@@ -147,6 +147,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 - **Weighted impact on readiness:** 2.41 percentage points
 - **Weighted deficiency signal:** 54
 - **Justification:** Trustworthiness is supported by citations, manifests, findings, decision traces, audit events, self-assessment, and buyer honesty. It is limited by AI-output semantic validation, residual RLS coverage gaps, and reliance on owner-conducted assurance rather than third-party evidence.
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 - **Tradeoffs:** The current stance is honest and affordable; procurement-grade assurance is slower and more expensive.
 - **Improvement recommendations:** Increase product-native evidence chains and model-output quality gates before spending effort on cosmetic trust polish.
 - **Disposition:** Fixable in V1 for product trust; CPA SOC 2 and third-party pen testing are out-of-scope for headline scoring.
@@ -779,6 +780,7 @@ Create an RLS residual-risk closure plan with targeted tests for the highest-ris
 
 Goal:
 Turn the current documented RLS uncovered-table list into an actionable, tested risk register that separates "acceptable application-enforced" from "should denormalize scope and attach RLS predicate."
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 
 Start by reading:
 - docs/security/MULTI_TENANT_RLS.md

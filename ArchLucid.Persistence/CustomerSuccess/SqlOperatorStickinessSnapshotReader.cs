@@ -12,15 +12,11 @@ namespace ArchLucid.Persistence.CustomerSuccess;
 
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent reader.")]
 public sealed class SqlOperatorStickinessSnapshotReader(
-    IReadOnlyDbConnectionFactory connectionFactory,
-    IRlsSessionContextApplicator rlsSessionContextApplicator)
+    IReadOnlyDbConnectionFactory connectionFactory)
     : IOperatorStickinessSnapshotReader
 {
     private readonly IReadOnlyDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
-    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
-        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
 
     public async Task<OperatorStickinessSignals> GetOperatorSignalsAsync(
         Guid tenantId,
@@ -68,9 +64,6 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await _rlsSessionContextApplicator
-            .ApplyAsync(connection, tenantId, workspaceId, projectId, cancellationToken)
-            .ConfigureAwait(false);
 
         OperatorSignalsRow row = await connection.QuerySingleAsync<OperatorSignalsRow>(
             new CommandDefinition(

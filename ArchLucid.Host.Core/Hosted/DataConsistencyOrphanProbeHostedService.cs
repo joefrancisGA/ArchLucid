@@ -6,8 +6,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
-/// Periodically counts orphan coordinator rows (comparison left/right run ids, golden manifests, findings snapshots)
-/// against <c>dbo.Runs</c>, emits warnings + Prometheus counters (detection-only). Optionally logs admin-equivalent
+/// Periodically counts orphan coordinator rows and committed run header FK repoint violations,
+/// emits warnings + Prometheus counters (detection-only). Optionally logs admin-equivalent
 /// <c>SELECT</c> samples when <see cref="Configuration.DataConsistencyProbeOptions.OrphanProbeRemediationDryRunLogMaxRows"/> is set; never deletes.
 /// </summary>
 public sealed class DataConsistencyOrphanProbeHostedService(

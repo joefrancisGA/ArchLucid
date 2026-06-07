@@ -168,16 +168,16 @@ sequenceDiagram
 | **023–030** | Relational snapshot children, performance indexes, idempotency, retrieval outbox, governance workflow extras, archival flags, RLS pilot on **`dbo.Runs`** (superseded by 036), etc. |
 | **031_ProductLearningPilotSignals.sql** | **58R:** Scoped pilot/product signals (trust / reject / revise / follow-up) with optional **`PatternKey`** for aggregation. |
 | **035_AuditProvenanceConversationTables.sql** | **`AuditEvents`**, **`ProvenanceSnapshots`**, **`ConversationThreads`**, and **`HostLeaderLeases`** (host DDL merged here so **`035_*`** stays unique under DbUp lexical ordering). |
-| **036_RlsArchiforgeTenantScope.sql** | RLS **`rls.ArchiforgeTenantScope`** on all scope-keyed authority tables (replaces pilot **`RunsScopeFilter`**). See **`docs/security/MULTI_TENANT_RLS.md`**. |
+| **036_RlsArchiforgeTenantScope.sql** | (removed: ADR 0037) RLS machinery removed; scope-triple columns and app-layer predicates are the isolation control per ADR 0037. |
 | **038_GovernanceWorkflow.sql** | Governance approval / promotion / environment activation tables (renumbered from 017 to avoid duplicate **`017_*`** prefix with graph parents). |
 | **032_ProductLearningPlanningBridge.sql** | **59R:** Improvement themes, bounded plans (`BoundedActionsJson`), links to **`ArchitectureRuns`**, **`ProductLearningPilotSignals`**, and authority bundle artifacts / pilot hints. |
 | **047_DropForeignKeysToArchitectureRuns.sql** | Drops **15** FK constraints from coordinator / learning tables to **`dbo.ArchitectureRuns`** (see migration header for names). Does **not** add FKs to **`dbo.Runs`** (**`UNIQUEIDENTIFIER`** vs legacy **`NVARCHAR(64)`** **`RunId`**). |
 | **049_DropArchitectureRunsTable.sql** | **`DROP TABLE dbo.ArchitectureRuns`** when present (after **047**). Greenfield **`ArchLucid.sql`** no longer creates **`ArchitectureRuns`**. |
-| **050_PolicyPackChangeLog.sql** | Append-only **`dbo.PolicyPackChangeLog`** (policy pack / version / assignment mutations) plus RLS predicate when **`ArchiforgeTenantScope`** exists. |
+| **050_PolicyPackChangeLog.sql** | Append-only **`dbo.PolicyPackChangeLog`** (policy pack / version / assignment mutations). |
 | **051_AuditEvents_DenyUpdateDelete.sql** | When database role **`ArchLucidApp`** exists: **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** (append-only enforcement). Skips if role absent. See **`docs/AUDIT_COVERAGE_MATRIX.md`**. |
 | **116_CheckJson_CorePayloadColumns.sql** | **`CHECK (ISJSON(…) = 1)`** on selected **`NVARCHAR(MAX)`** JSON contract columns when no row violates the predicate. Rollback: **`Rollback/R116_CheckJson_CorePayloadColumns.sql`**. |
-| **096_RlsTenantIdOnlyTables.sql** | Adds **`rls.archiforge_tenant_predicate(@TenantId)`** and attaches **FILTER + BLOCK** predicates on **`dbo.SentEmails`**, **`dbo.TenantLifecycleTransitions`**, **`dbo.TenantTrialSeatOccupants`** to existing **`rls.ArchiforgeTenantScope`** (idempotent). Rollback: **`Rollback/R096_RlsTenantIdOnlyTables.sql`**. |
-| **097_TenantOnboardingState.sql** | **`dbo.TenantOnboardingState`** (`TenantId` PK, **`FirstSessionCompletedUtc`**) + tenant-only RLS when **`096`** predicate exists. Rollback: **`Rollback/R097_*.sql`**. |
+| **096_RlsTenantIdOnlyTables.sql** | (removed: ADR 0037) RLS machinery removed. `dbo.SentEmails`, `dbo.TenantLifecycleTransitions`, `dbo.TenantTrialSeatOccupants` are classified `tenant-id-on-row` per `TENANT_TABLE_ISOLATION_CLASSIFICATION.md`. |
+| **097_TenantOnboardingState.sql** | **`dbo.TenantOnboardingState`** (`TenantId` PK, **`FirstSessionCompletedUtc`**). Rollback: **`Rollback/R097_*.sql`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 

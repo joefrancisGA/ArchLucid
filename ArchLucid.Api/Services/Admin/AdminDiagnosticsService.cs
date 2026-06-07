@@ -234,6 +234,51 @@ public sealed class AdminDiagnosticsService(
     }
 
     /// <inheritdoc />
+    public async Task<DataConsistencyHeaderRepointCounts> GetDataConsistencyHeaderRepointCountsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+            return new DataConsistencyHeaderRepointCounts(0, 0, 0, 0, 0, 0);
+
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        long contextSnapshotId = await ExecuteCountAsync(
+            connection,
+            CommittedRunHeaderFkRepointProbeSql.ContextSnapshotId,
+            cancellationToken);
+        long graphSnapshotId = await ExecuteCountAsync(
+            connection,
+            CommittedRunHeaderFkRepointProbeSql.GraphSnapshotId,
+            cancellationToken);
+        long findingsSnapshotId = await ExecuteCountAsync(
+            connection,
+            CommittedRunHeaderFkRepointProbeSql.FindingsSnapshotId,
+            cancellationToken);
+        long goldenManifestId = await ExecuteCountAsync(
+            connection,
+            CommittedRunHeaderFkRepointProbeSql.GoldenManifestId,
+            cancellationToken);
+        long decisionTraceId = await ExecuteCountAsync(
+            connection,
+            CommittedRunHeaderFkRepointProbeSql.DecisionTraceId,
+            cancellationToken);
+        long artifactBundleId = await ExecuteCountAsync(
+            connection,
+            CommittedRunHeaderFkRepointProbeSql.ArtifactBundleId,
+            cancellationToken);
+
+        return new DataConsistencyHeaderRepointCounts(
+            contextSnapshotId,
+            graphSnapshotId,
+            findingsSnapshotId,
+            goldenManifestId,
+            decisionTraceId,
+            artifactBundleId);
+    }
+
+    /// <inheritdoc />
     public async Task<CrossTenantUsageRollup> GetCrossTenantUsageRollupAsync(
         CancellationToken cancellationToken = default)
     {

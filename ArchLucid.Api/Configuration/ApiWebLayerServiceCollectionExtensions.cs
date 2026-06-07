@@ -110,7 +110,7 @@ public static class ApiWebLayerServiceCollectionExtensions
             .AddCheck<ContentSafetyHealthCheck>(
                 "azure_content_safety",
                 failureStatus: HealthStatus.Unhealthy,
-                tags: [ReadinessTags.Ready])
+                tags: [ReadinessTags.Ready]);
 
         return services;
     }

@@ -670,6 +670,7 @@ Qualities ordered from most urgent (highest weighted deficiency) to least urgent
 2. **No in-product guided onboarding for enterprise operators.** Enterprise operators evaluating ArchLucid for their team need to understand the product quickly. The current onboarding relies on external documentation. An in-product tour or guided wizard walkthrough would reduce time-to-evaluation for procurement-stage demos.
 
 3. **Residual RLS coverage gaps.** RLS with SESSION_CONTEXT is implemented and threat-modeled, but the residual uncovered tables documented in `MULTI_TENANT_RLS.md` §9 are a known gap. Enterprise security teams doing a deep review will flag these as incomplete isolation boundaries.
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 
 4. **Complex configuration surface for pilot setup.** Enterprise operators setting up a pilot must navigate auth modes, storage providers, agent execution modes, governance settings, and integration options. The configuration documentation is thorough but spread across multiple files. A single "enterprise pilot configuration guide" would reduce implementation friction.
 

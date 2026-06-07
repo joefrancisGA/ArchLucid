@@ -73,7 +73,7 @@ flowchart LR
 
 - **Identity:** Prefer **managed identity** from compute to SQL, Key Vault, and storage APIs; fall back to Key Vaultâ€“backed secrets only where required.
 - **Network:** Private endpoints for data planes; no public SQL; align with workspace SMB rule for any file share access.
-- **RLS:** Production hosts with `ArchLucid:StorageProvider=Sql` must set `SqlServer:RowLevelSecurity:ApplySessionContext=true` (validated at startup â€” see `ArchLucidConfigurationRules`).
+- **Tenant isolation:** Production hosts with `ArchLucid:StorageProvider=Sql` must set `ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs` (validated at startup � see `ArchLucidConfigurationRules`). SQL RLS is not used; see ADR 0037.
 
 ## Operational considerations
 

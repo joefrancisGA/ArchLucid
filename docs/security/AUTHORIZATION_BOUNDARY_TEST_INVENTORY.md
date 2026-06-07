@@ -1,4 +1,4 @@
-> **Scope:** Developers finding Core integration tests for RBAC, API keys, and tenant RLS — not a complete threat model or compliance attestation.
+> **Scope:** Developers finding Core integration tests for RBAC, API keys, and tenant isolation — not a complete threat model or compliance attestation.
 
 # Authorization boundary test inventory
 
@@ -15,7 +15,7 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter "Suite=Core&
 | File | Purpose |
 |------|---------|
 | [ArchLucid.Api.Tests/Security/AuthorizationBoundaryTests.cs](../../ArchLucid.Api.Tests/Security/AuthorizationBoundaryTests.cs) | API key: Reader vs policies, anonymous 401, health |
-| [ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs](../../ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs) | SQL + RLS: two tenants, run visibility |
+| [ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs](../../ArchLucid.Api.Tests/Security/TenantIsolationSmokeTests.cs) | SQL: two tenants, run visibility (database-per-tenant isolation) |
 | [ArchLucid.Api.Tests/Security/ApiKeyReaderAndAdminArchLucidApiFactory.cs](../../ArchLucid.Api.Tests/Security/ApiKeyReaderAndAdminArchLucidApiFactory.cs) | `WebApplicationFactory` with `ArchLucidAuth:Mode=ApiKey` and read + admin keys |
 | [ArchLucid.Api.Tests/Security/GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs) | `GreenfieldSqlApiFactory` + `SqlServer:RowLevelSecurity:ApplySessionContext=true` |
 
@@ -40,15 +40,15 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter "Suite=Core&
 
 ## Tenant isolation (`TenantIsolationSmokeTests`)
 
-These run only when **either** `ARCHLUCID_API_TEST_SQL` **or** `ARCHLUCID_SQL_TEST` is set to a **reachable** SQL Server (same as other explicit SQL work in [docs/engineering/BUILD.md](../engineering/BUILD.md)) **and** a **4s connect probe** to `master` succeeds. RLS is verified only in that configuration (localhost-only Windows is intentionally **not** used here so a stopped LocalDB does not block the test host for minutes). If the check fails, the test is **skipped** (via **Xunit.SkippableFact** — there is no custom `[SkipIfNoSql]` attribute; the skip reason matches the “no SQL/RLS for this run” intent).
+These run only when **either** `ARCHLUCID_API_TEST_SQL` **or** `ARCHLUCID_SQL_TEST` is set to a **reachable** SQL Server (same as other explicit SQL work in [docs/engineering/BUILD.md](../engineering/BUILD.md)) **and** a **4s connect probe** to `master` succeeds. Tenant isolation is verified only in that configuration (localhost-only Windows is intentionally **not** used here so a stopped LocalDB does not block the test host for minutes). If the check fails, the test is **skipped** (via **Xunit.SkippableFact**).
 
 | # | Test (method) | HTTP / action | Expected |
 |---|---------------|---------------|----------|
 | 1 | `Tenant_b_cannot_see_tenant_a_run_sql_rls` | Tenant **A** `POST /v1/architecture/request` → `runId`; tenant **B** `GET`/`GET` list with different `x-tenant-id` (and matching workspace / project) | B: `GET /v1/architecture/run/{runId}` → **404**; list for B does not contain the run; A: `GET` same run → **2xx** |
 
-**Factory note:** [GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs) layers `SqlServer:RowLevelSecurity:ApplySessionContext` on the greenfield SQL `WebApplicationFactory` so the API’s `RlsSessionContextApplicator` applies `al_tenant_id` (and related keys) on each connection.
+**Factory note:** [GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs) configures the greenfield SQL `WebApplicationFactory` for tenant isolation smoke tests.
 
-**Operational note:** RLS is described in [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md). Break-glass configuration does not replace per-tenant `SESSION_CONTEXT` for normal app traffic; greenfield test hosts may still set break-glass for bootstrap—see in-repo comments on `SqlRowLevelSecurityBypassAmbient` and [GreenfieldSqlApiFactory.cs](../../ArchLucid.Api.Tests/GreenfieldSqlApiFactory.cs).
+**Operational note:** Tenant isolation architecture is described in [TENANT_ISOLATION_DEFENSE_IN_DEPTH.md](TENANT_ISOLATION_DEFENSE_IN_DEPTH.md). Database-per-tenant catalogs are the primary isolation mechanism per ADR 0037.
 
 ## Policy reference (read-only; attributes are not changed in tests)
 

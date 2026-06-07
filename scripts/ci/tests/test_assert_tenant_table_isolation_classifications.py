@@ -1,4 +1,4 @@
-"""Tests for assert_rls_residual_risk_classifications."""
+"""Tests for assert_tenant_table_isolation_classifications."""
 
 from __future__ import annotations
 
@@ -11,10 +11,10 @@ _CI_DIR = Path(__file__).resolve().parents[1]
 if str(_CI_DIR) not in sys.path:
     sys.path.insert(0, str(_CI_DIR))
 
-import assert_rls_residual_risk_classifications as sut
+import assert_tenant_table_isolation_classifications as sut
 
 
-class TestRlsResidualRiskClassifications(unittest.TestCase):
+class TestTenantTableIsolationClassifications(unittest.TestCase):
     def test_extract_dbo_create_tables_ignores_comments_and_parses_supported_forms(self) -> None:
         sql = """
         /* CREATE TABLE dbo.CommentedOut (Id INT NOT NULL); */
@@ -48,12 +48,12 @@ class TestRlsResidualRiskClassifications(unittest.TestCase):
         matrix = """
         | Classification | Tables |
         |----------------|--------|
-        | `rls-covered-scope-triple` | `dbo.ScopeCovered` |
-        | `tenant-only-covered` | `dbo.TenantOnly` |
-        | `database-per-tenant/system-plane-only` | `dbo.SystemPlane` |
-        | `child-table-with-compensating-control` | `dbo.ChildWithControl` |
-        | `operational-table` | `dbo.Operational` |
-        | `explicit-accepted-residual-risk` | `dbo.AcceptedResidual` |
+        | `scope-triple-on-row` | `dbo.ScopeCovered` |
+        | `tenant-id-on-row` | `dbo.TenantOnly` |
+        | `system-plane-only` | `dbo.SystemPlane` |
+        | `child-via-parent` | `dbo.ChildWithControl` |
+        | `operational` | `dbo.Operational` |
+        | `accepted-residual` | `dbo.AcceptedResidual` |
         """
         classifications, errors = sut.parse_matrix_classifications(matrix)
 
@@ -64,18 +64,18 @@ class TestRlsResidualRiskClassifications(unittest.TestCase):
 
     def test_evaluate_fails_for_unknown_table_with_actionable_message(self) -> None:
         classifications, errors = sut.parse_matrix_classifications(
-            "| `rls-covered-scope-triple` | `dbo.ScopeCovered` |\n"
+            "| `scope-triple-on-row` | `dbo.ScopeCovered` |\n"
         )
 
         result = sut.evaluate_tables({"ScopeCovered", "UnknownTenantTable"}, {}, classifications, errors)
 
         self.assertEqual(result.exit_code, 1)
         self.assertIn("dbo.UnknownTenantTable", result.message)
-        self.assertIn("MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md", result.message)
+        self.assertIn("TENANT_TABLE_ISOLATION_CLASSIFICATION.md", result.message)
 
     def test_changed_migration_table_requires_classification_even_before_consolidated_sql(self) -> None:
         classifications, errors = sut.parse_matrix_classifications(
-            "| `operational-table` | `dbo.CurrentOperational` |\n"
+            "| `operational` | `dbo.CurrentOperational` |\n"
         )
 
         result = sut.evaluate_tables(
@@ -91,8 +91,8 @@ class TestRlsResidualRiskClassifications(unittest.TestCase):
     def test_duplicate_matrix_classification_fails(self) -> None:
         classifications, errors = sut.parse_matrix_classifications(
             """
-            | `tenant-only-covered` | `dbo.DuplicateTable` |
-            | `operational-table` | `dbo.DuplicateTable` |
+            | `tenant-id-on-row` | `dbo.DuplicateTable` |
+            | `operational` | `dbo.DuplicateTable` |
             """
         )
 

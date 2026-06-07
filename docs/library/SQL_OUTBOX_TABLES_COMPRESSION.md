@@ -20,7 +20,7 @@ Decide how (or whether) to apply **data compression**, **schema shape**, or **re
 ## Constraints
 
 - **Do not** apply **`PAGE`** compression to these tables without measurement: high insert/update rates can increase CPU on compression-aware code paths and encourage **page splits** if row size varies.
-- **RLS** and **tenant scope** predicates already attach to these tables (see **`docs/security/MULTI_TENANT_RLS.md`**); any **memory-optimized** option must preserve the same security boundary (separate migration and explicit security review).
+- **Scope columns** (TenantId/WorkspaceId/ProjectId) are present; app-layer predicates enforce isolation per ADR 0037 Layer D. Any **memory-optimized** option must preserve the same security boundary (separate migration and explicit security review).
 - **Historical migrations 001–028** stay immutable; any future outbox change is **new** migration numbers only.
 
 ## Architecture overview
@@ -30,7 +30,7 @@ Decide how (or whether) to apply **data compression**, **schema shape**, or **re
 | **Uncompressed + retention** | Default baseline | Lowest risk: aggressive delete/archive keeps leaf page count bounded; no rebuild surprise. |
 | **ROW compression** | Lighter than PAGE on narrow rows | Often acceptable on **update-heavy** narrow payloads; less dictionary work than PAGE for volatile pages. |
 | **PAGE compression** | Maximum density for scan-heavy, append-mostly | **Poor default** here: same drawbacks as forcing PAGE on a queue without proof. |
-| **Memory-optimized OLTP** | Lock-free-ish queues on supported SKUs | Possible for **IntegrationEventOutbox**-class workloads **only** after SKU confirmation, HA/replica implications, and RLS redesign on natively compiled boundaries. |
+| **Memory-optimized OLTP** | Lock-free-ish queues on supported SKUs | Possible for **IntegrationEventOutbox**-class workloads **only** after SKU confirmation, HA/replica implications, and app-layer scope predicate validation on natively compiled boundaries. |
 
 ## Component breakdown
 
@@ -41,7 +41,7 @@ Decide how (or whether) to apply **data compression**, **schema shape**, or **re
 
 ## Data flow
 
-1. **Producer** inserts a pending row (scoped by tenant/workspace/project per RLS).
+1. **Producer** inserts a pending row (scoped by tenant/workspace/project per app-layer scope predicates).
 2. **Worker** updates status and payload pointers; completes with delete or terminal state.
 3. **Reader** (dispatcher) seeks by **status + time** or **PK**; scans are narrow and short.
 
@@ -49,7 +49,7 @@ Compression changes **inputs** (CPU during insert/update, log bytes during rebui
 
 ## Security model
 
-- **No change** to RLS predicates from this document alone; any physical redesign (e.g. memory-optimized) must re-validate **filter** and **block** predicates for **`ArchLucidApp`** and session context.
+- **No change** to scope column layout from this document alone; any physical redesign (e.g. memory-optimized) must re-validate app-layer predicates for **`ArchLucidApp`** per ADR 0037.
 - **Least privilege:** outbox writers remain constrained to app role; compression DDL is **admin** migration only.
 
 ## Operational considerations

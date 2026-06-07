@@ -565,6 +565,7 @@ Qualities are ordered by **weighted deficiency signal**, calculated as `Weight Ã
 
 1. **Real-agent output quality could fall below reviewer trust thresholds without blocking.**
 2. **Application-enforced consistency and partial RLS coverage require disciplined repository usage and operational probes.**
+<!-- [Resolved ADR 0037: RLS removed; catalog-per-tenant is the isolation control] -->
 3. **Configuration drift across auth, tier gates, UI shaping, and API policies could expose inconsistent buyer experiences.**
 4. **Observability may miss high-value traces in production if head-based sampling drops the wrong requests.**
 5. **The broad module and documentation surface can slow safe changes unless contributor checklists stay current.**

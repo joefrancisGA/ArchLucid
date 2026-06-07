@@ -9569,6 +9569,26 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 4. `SqlCommittedRunHeaderImmutabilityRules` startup probe (production-like SQL hosts fail closed).
 5. ADR **0045**, [`EVIDENCE_IMMUTABILITY.md`](EVIDENCE_IMMUTABILITY.md), architecture + SQL + Core unit tests.
 
-**Out of scope:** Sealing `ArchitectureRequestId`; FK repoint detection (#6); table-split into `dbo.RunEvidenceAnchors`.
+**Out of scope:** Sealing `ArchitectureRequestId`; table-split into `dbo.RunEvidenceAnchors`.
 
 **Refs:** ADR-0039; ADR-0045; TB-303.
+
+---
+
+## TB-311 — Committed run header FK repoint detection
+
+**Status:** **Done** (2026-06-07).
+
+**Problem:** TB-310 prevents post-commit pointer mutation but does not detect committed headers that reference missing child rows or child rows owned by another run (brownfield `NOCHECK` FK drift, pre-commit bugs).
+
+**Shipped:**
+
+1. `CommittedRunHeaderFkRepointRegistry` — six evidence pointer probes (Core).
+2. `CommittedRunHeaderFkRepointProbeSql` + resolver — dangling/cross-run `COUNT_BIG` queries (Host.Core).
+3. `DataConsistencyOrphanProbeExecutor` — runs repoint probes on each orphan probe pass; emits **`archlucid_data_consistency_header_repoints_detected_total`**.
+4. Admin **`GET /admin/diagnostics/data-consistency/header-repoints`** → `DataConsistencyHeaderRepointCounts`.
+5. ADR **0046**, architecture + SQL integration + Host.Core unit tests.
+
+**Out of scope:** Blocking triggers; auto-delete of forensic evidence; quarantine inserts.
+
+**Refs:** ADR-0045; ADR-0046; TB-310.

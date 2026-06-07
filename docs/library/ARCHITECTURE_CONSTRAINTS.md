@@ -113,7 +113,7 @@ dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integrat
 
 If the solution gains new **leaf** or **foundation** assemblies, update **`ForbiddenFromCore`** / **`ForbiddenFromContracts`** / **`ForbiddenFromContractsAbstractions`** so Tier 1 stays complete. If persistence splits further, add Tier 2-style assembly reference facts mirroring the intended DAG.
 
-**DDL smoke (tenant scope on `dbo.Runs`):** **`TenantScopedTableDdlTests`** in **`ArchLucid.Architecture.Tests`** reads **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** and asserts the **`dbo.Runs`** `CREATE TABLE` block includes **`TenantId`**, **`WorkspaceId`**, and **`ProjectId`** — a cheap guard when extending the master DDL (not a substitute for full RLS reviews; see **`docs/security/MULTI_TENANT_RLS.md`**).
+**DDL smoke (tenant scope on `dbo.Runs`):** **`TenantScopedTableDdlTests`** in **`ArchLucid.Architecture.Tests`** reads **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** and asserts the **`dbo.Runs`** `CREATE TABLE` block includes **`TenantId`**, **`WorkspaceId`**, and **`ProjectId`** — a cheap guard when extending the master DDL (scope columns are the app-layer isolation anchor per ADR 0037).
 
 **Batch 5 boundary guards (2026-05-28):**
 

@@ -100,7 +100,7 @@ CI validates references with `--dry-run`.
 
 | Doc | Content |
 |-----|---------|
-| [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | RLS design, `SESSION_CONTEXT`, covered tables |
+| [../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) | Defense-in-depth architecture per ADR 0037; database-per-tenant + app-layer scope predicates |
 | [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | STRIDE, trust boundaries |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Edge, identity, private connectivity |
 | [SECURITY.md](../library/SECURITY.md) | RBAC, rate limiting, CI security tests, PII |
