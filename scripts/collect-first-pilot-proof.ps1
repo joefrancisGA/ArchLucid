@@ -2195,6 +2195,52 @@ function Add-SecurityReviewerOnePagerFinding {
     Add-ProofFinding -Disposition 'WARN' -Name 'security-reviewer-one-pager' -Detail 'Security reviewer one-pager was not generated.' -Remediation 'Run scripts/ci/report_security_reviewer_one_pager.py.'
 }
 
+function Invoke-RoiBaselineSendEvaluation {
+    param(
+        [Parameter(Mandatory = $true)][string] $ProofDirectory,
+        [Parameter(Mandatory = $true)][hashtable] $SummaryPayload
+    )
+
+    $partialPath = Join-Path $ProofDirectory 'go-no-go-summary.partial.json'
+    $evaluationPath = Join-Path $ProofDirectory 'roi-baseline-send-evaluation.json'
+    $overridePath = Join-Path $ProofDirectory 'roi-baseline-send-override.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\evaluate_roi_baseline_send.py'
+
+    $SummaryPayload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $partialPath -Encoding UTF8
+
+    $args = @(
+        $scriptPath,
+        '--go-no-go-summary', $partialPath,
+        '--json-out', $evaluationPath
+    )
+
+    if (Test-Path -LiteralPath $overridePath) {
+        $args += @('--override-json', $overridePath)
+    }
+
+    & python @args 2>&1 | Out-Null
+
+    if (-not (Test-Path -LiteralPath $evaluationPath)) {
+        return [ordered]@{
+            baselineCompletenessStatus = 'NOT_COLLECTED'
+            sendEligible               = $false
+            overrideApplied            = $false
+            sendBlockReasons           = @('evaluation artifact missing')
+            missingRequiredBaselineFields = @('reviewCycleHoursBaseline', 'architectHoursPerReviewBaseline', 'roiBasisSource')
+        }
+    }
+
+    $evaluation = Get-Content -LiteralPath $evaluationPath -Raw | ConvertFrom-Json -ErrorAction Stop
+
+    return [ordered]@{
+        baselineCompletenessStatus    = [string]$evaluation.baselineCompletenessStatus
+        sendEligible                  = [bool]$evaluation.sendEligible
+        overrideApplied               = [bool]$evaluation.overrideApplied
+        sendBlockReasons              = @($evaluation.sendBlockReasons)
+        missingRequiredBaselineFields = @($evaluation.missingRequiredBaselineFields)
+    }
+}
+
 function Add-QuoteToProofReadinessFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -2212,6 +2258,12 @@ function Add-QuoteToProofReadinessFinding {
 
     if (Test-Path -LiteralPath $closeoutPath) {
         $args += @('--commercial-closeout', $closeoutPath)
+    }
+
+    $overridePath = Join-Path $ProofDirectory 'roi-baseline-send-override.json'
+
+    if (Test-Path -LiteralPath $overridePath) {
+        $args += @('--override-json', $overridePath)
     }
 
     & python @args 2>&1 | Out-Null
@@ -2837,6 +2889,14 @@ if (Test-Path -LiteralPath (Join-Path $proofDir 'commercial-next-step.json')) {
     }
 }
 
+$baselineSendEval = Invoke-RoiBaselineSendEvaluation -ProofDirectory $proofDir -SummaryPayload ([ordered]@{
+        roiBasisStatus           = $script:roiBasisStatus
+        roiSponsorSafe           = $script:roiSponsorSafe
+        blockCount               = $blockCount
+        sponsorPacketDisposition = $sponsorPacketDisposition
+        runId                    = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
+    })
+
 $closeoutPaths = Write-FirstPilotCommercialCloseoutArtifacts `
     -ProofDirectory $proofDir `
     -SponsorPacketDisposition $sponsorPacketDisposition `
@@ -2845,9 +2905,16 @@ $closeoutPaths = Write-FirstPilotCommercialCloseoutArtifacts `
     -BlockCount $blockCount `
     -DeferredScopeReasons @($deferredScopeReasons) `
     -CommercialStep $commercialStepPayload `
+    -BaselineCompletenessStatus ([string]$baselineSendEval.baselineCompletenessStatus) `
+    -SendEligible ([bool]$baselineSendEval.sendEligible) `
+    -OverrideApplied ([bool]$baselineSendEval.overrideApplied) `
+    -SendBlockReasons @($baselineSendEval.sendBlockReasons) `
+    -MissingRequiredBaselineFields @($baselineSendEval.missingRequiredBaselineFields) `
     -DataConsistencyStatus $script:dataConsistencyStatus `
     -ProcurementDisposition $procurementDispositionForCloseout `
     -RunId $RunId
+
+Add-ProofArtifact -Name 'roi-baseline-send-evaluation.json' -Path 'roi-baseline-send-evaluation.json' -Purpose 'ROI baseline completeness and commercial SEND eligibility evaluation.'
 
 Add-ProofArtifact -Name 'commercial-closeout.md' -Path 'commercial-closeout.md' -Purpose 'Single commercial closeout with deterministic next action from proof states.'
 Add-ProofArtifact -Name 'commercial-closeout.json' -Path 'commercial-closeout.json' -Purpose 'Machine-readable commercial closeout payload.'
@@ -2933,6 +3000,11 @@ $summary = [ordered]@{
     }
     roiBasisStatus            = $script:roiBasisStatus
     roiSponsorSafe            = $script:roiSponsorSafe
+    baselineCompletenessStatus = [string]$baselineSendEval.baselineCompletenessStatus
+    sendEligible              = [bool]$baselineSendEval.sendEligible
+    overrideApplied           = [bool]$baselineSendEval.overrideApplied
+    sendBlockReasons          = @($baselineSendEval.sendBlockReasons)
+    missingRequiredBaselineFields = @($baselineSendEval.missingRequiredBaselineFields)
     aiQualityProof            = $script:aiQualityProof
     aiReadinessGate           = $script:aiReadinessGate
     commandCenter             = [ordered]@{
@@ -2976,6 +3048,8 @@ $lines.Add("| Data consistency status | **$($script:dataConsistencyStatus)** |")
 $lines.Add("| Data consistency summary | ``data-consistency-readiness/data-consistency-summary.json`` |")
 $lines.Add("| Timing budget | ``first-pilot-timing-budget.md`` |")
 $lines.Add("| ROI basis status | **$($script:roiBasisStatus)** |")
+$lines.Add("| Baseline completeness | **$($baselineSendEval.baselineCompletenessStatus)** |")
+$lines.Add("| SEND eligible | **$($baselineSendEval.sendEligible)** |")
 $lines.Add("| ROI sponsor-safe | **$($script:roiSponsorSafe)** |")
 $lines.Add("| Blocking findings | $blockCount |")
 $lines.Add("| Warnings | $warnCount |")

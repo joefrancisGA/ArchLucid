@@ -124,7 +124,7 @@ def evaluate_send_eligibility(
     if sponsor == "DEFERRED_SCOPE":
         send_block_reasons.append("sponsorPacketDisposition=DEFERRED_SCOPE")
 
-    if threshold.get("requiresRoiSponsorSafe") and not roi_safe:
+    if threshold.get("requiresRoiSponsorSafe") and not roi_safe and not override_valid:
         send_block_reasons.append("roiSponsorSafe=false")
 
     if completeness != "COMPLETE" and not override_valid:

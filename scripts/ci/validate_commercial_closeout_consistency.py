@@ -54,6 +54,12 @@ def consistency_violations(summary: dict[str, object], closeout: dict[str, objec
     if bool(closeout.get("roiSponsorSafe")) != bool(summary.get("roiSponsorSafe")):
         violations.append("closeout roiSponsorSafe diverges from go-no-go-summary")
 
+    if str(closeout.get("baselineCompletenessStatus") or "") != str(summary.get("baselineCompletenessStatus") or ""):
+        violations.append("closeout baselineCompletenessStatus diverges from go-no-go-summary")
+
+    if bool(closeout.get("sendEligible")) != bool(summary.get("sendEligible")):
+        violations.append("closeout sendEligible diverges from go-no-go-summary")
+
     return violations
 
 
