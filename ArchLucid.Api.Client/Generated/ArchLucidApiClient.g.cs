@@ -328,6 +328,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<DataConsistencyHeaderRepointCounts> HeaderRepointsAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<DataConsistencyHeaderRepointCounts> HeaderRepointsAsync(System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<OrphanComparisonRemediationResult> OrphanComparisonRecordsAsync(bool? dryRun, int? maxRows);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -1945,6 +1954,15 @@ namespace ArchLucid.Api.Client.Generated
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task PushAsync(System.Guid runId, RunExportBlobPushRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<RunExportLineageVerificationResponse> VerifyAsync(System.Guid runId);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<RunExportLineageVerificationResponse> VerifyAsync(System.Guid runId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -7254,6 +7272,84 @@ namespace ArchLucid.Api.Client.Generated
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<AdminCacheDiagnosticsResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<DataConsistencyHeaderRepointCounts> HeaderRepointsAsync()
+        {
+            return HeaderRepointsAsync(System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<DataConsistencyHeaderRepointCounts> HeaderRepointsAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/admin/diagnostics/data-consistency/header-repoints"
+                    urlBuilder_.Append("v1/admin/diagnostics/data-consistency/header-repoints");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<DataConsistencyHeaderRepointCounts>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -26208,6 +26304,119 @@ namespace ArchLucid.Api.Client.Generated
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new ArchLucidApiException<ProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Unauthorized", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Forbidden", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<RunExportLineageVerificationResponse> VerifyAsync(System.Guid runId)
+        {
+            return VerifyAsync(runId, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<RunExportLineageVerificationResponse> VerifyAsync(System.Guid runId, System.Threading.CancellationToken cancellationToken)
+        {
+            if (runId == null)
+                throw new System.ArgumentNullException("runId");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/artifacts/runs/{runId}/export/verify"
+                    urlBuilder_.Append("v1/artifacts/runs/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture)));
+                    urlBuilder_.Append("/export/verify");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<RunExportLineageVerificationResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
                         }
                         else
                         if (status_ == 401)
@@ -61589,8 +61798,17 @@ namespace ArchLucid.Api.Client.Generated
     public partial class CrossTenantPortfolioSummaryResponse
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("headlineSavingsScopeCode")]
+        public string? HeadlineSavingsScopeCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("headlineSavingsScopeDescription")]
+        public string? HeadlineSavingsScopeDescription { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("isKAnonymitySatisfied")]
         public bool? IsKAnonymitySatisfied { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("portfolioScopeDescription")]
+        public string? PortfolioScopeDescription { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topSystemicIssues")]
         public System.Collections.Generic.ICollection<SystemicIssueSummary>? TopSystemicIssues { get; set; } = default!;
@@ -61944,6 +62162,51 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("data")]
         [System.ComponentModel.DataAnnotations.Required]
         public CytoscapeNodeData Data { get; set; } = new CytoscapeNodeData();
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class DataConsistencyHeaderRepointCounts
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactBundleIdRepoints")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long ArtifactBundleIdRepoints { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotIdRepoints")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long ContextSnapshotIdRepoints { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionTraceIdRepoints")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long DecisionTraceIdRepoints { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotIdRepoints")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long FindingsSnapshotIdRepoints { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("goldenManifestIdRepoints")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long GoldenManifestIdRepoints { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotIdRepoints")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long GraphSnapshotIdRepoints { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -64008,6 +64271,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("firstCommitUtc")]
         public System.DateTimeOffset? FirstCommitUtc { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("headlineSavingsScopeCode")]
+        public string? HeadlineSavingsScopeCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("headlineSavingsScopeDescription")]
+        public string? HeadlineSavingsScopeDescription { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("historicalTrends")]
         public System.Collections.Generic.ICollection<ExecutiveRoiSystemicIssueTrendSeries>? HistoricalTrends { get; set; } = default!;
 
@@ -64041,6 +64310,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("systemCount")]
         public int? SystemCount { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("systemRowSavingsScopeCode")]
+        public string? SystemRowSavingsScopeCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("systemRowSavingsScopeDescription")]
+        public string? SystemRowSavingsScopeDescription { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("systems")]
         public System.Collections.Generic.ICollection<SystemLatestRunRoi>? Systems { get; set; } = default!;
 
@@ -64050,6 +64325,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("totalEstimatedUsdSavings")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? TotalEstimatedUsdSavings { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("trailing30DayActivityScopeDescription")]
+        public string? Trailing30DayActivityScopeDescription { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -64118,6 +64396,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? CostWasteUsd { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("headlineSavingsScopeCode")]
+        public string? HeadlineSavingsScopeCode { get; set; } = "headline-disposition-aware-open-needs-evidence";
+
+        [System.Text.Json.Serialization.JsonPropertyName("headlineSavingsScopeDescription")]
+        public string? HeadlineSavingsScopeDescription { get; set; } = "Single-tenant portfolio headline: disposition-aware open + needs-evidence estimated USD from the latest committed run per system (cap 200). Excludes remediated, waived, deferred, and accepted-risk findings.";
+
         [System.Text.Json.Serialization.JsonPropertyName("pendingGovernanceDecisionCount")]
         public int? PendingGovernanceDecisionCount { get; set; } = 0;
 
@@ -64137,6 +64421,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("totalRiskReductionScore")]
         public int TotalRiskReductionScore { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("trailing30DayActivityScopeDescription")]
+        public string? Trailing30DayActivityScopeDescription { get; set; } = "Trailing 30-day UTC activity: distinct finding IDs resolved via review trail or discovered on committed runs. Counts only \u2014 not USD savings.";
 
         [System.Text.Json.Serialization.JsonPropertyName("uniqueFindingCount")]
         public int UniqueFindingCount { get; set; } = default!;
@@ -70034,6 +70321,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("periodEnd")]
         public System.DateTimeOffset? PeriodEnd { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("periodScopeCode")]
+        public string? PeriodScopeCode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("periodScopeDescription")]
+        public string? PeriodScopeDescription { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("periodStart")]
         public System.DateTimeOffset? PeriodStart { get; set; } = default!;
 
@@ -73988,6 +74281,39 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("exports")]
         public System.Collections.Generic.ICollection<RunExportRecord>? Exports { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunExportLineageVerificationResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("committedManifestHash")]
+        public string? CommittedManifestHash { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("detail")]
+        public string? Detail { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
+        public System.Guid? ManifestId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("recomputedManifestHash")]
+        public string? RecomputedManifestHash { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runId")]
+        public System.Guid? RunId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        public string? Status { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
