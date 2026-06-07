@@ -85,6 +85,14 @@ Required patterns:
 
 Optional (operator-attached when available): `health-ready.json`, `version.json`, `deployment-evidence.md`, `hosted-availability-rollup.md`, `retrieval-ir-report.md`, `claim-evidence-consistency.md`, `real-llm-evidence-gate.json`, `real-llm-evidence-gate.md`, `simulator-only-override.md`.
 
+Release readiness also emits `ai-quality-release-summary.json` and `.md` when `scripts/Emit-ReleaseReadinessEvidence.ps1` runs. The summary labels source evidence separately as:
+
+- **offline fixture** — retrieval IR and faithfulness reports from repo quality gates,
+- **committed-run** — `retrieval-grounding.json` and `go-no-go-summary.json` when attached,
+- **live-real-mode** — `real-llm-evidence-gate.json` when attached.
+
+Missing optional sources are explicit and do not become PASS by inference.
+
 ## Real-mode AI evidence status
 
 The bundle validator never calls Azure OpenAI. It only reads an attached `real-llm-evidence-gate.json` produced by [`scripts/Invoke-RealLlmEvidenceGate.ps1`](../../scripts/Invoke-RealLlmEvidenceGate.ps1).

@@ -347,10 +347,33 @@ Add-CheckRow $checks "Real-mode AI evidence artifact (claim boundary)" $realLlmE
 if (Test-Path -LiteralPath $retrievalIrSource) {
     Copy-Item -LiteralPath $retrievalIrSource -Destination $retrievalIrDest -Force
     Add-CheckRow $checks "Retrieval IR evidence (offline)" "PASS" "golden-fixture recall@5/MRR report attached" "retrieval-ir-report.md"
+
+    [string] $retrievalIrSummarySource = Join-Path $root "docs/quality/retrieval-ir-summary.json"
+
+    if (Test-Path -LiteralPath $retrievalIrSummarySource) {
+        Copy-Item -LiteralPath $retrievalIrSummarySource -Destination (Join-Path $OutDir "retrieval-ir-summary.json") -Force
+    }
 }
 else {
     Add-CheckRow $checks "Retrieval IR evidence (offline)" "WARN" "run: python scripts/ci/eval_retrieval_ir.py --enforce" "(none)"
 }
+
+[string] $faithfulnessSource = Join-Path $root "docs/quality/faithfulness-report.md"
+
+if (Test-Path -LiteralPath $faithfulnessSource) {
+    Copy-Item -LiteralPath $faithfulnessSource -Destination (Join-Path $OutDir "faithfulness-report.md") -Force
+}
+
+[string] $aiQualityJsonPath = Join-Path $OutDir "ai-quality-release-summary.json"
+[string] $aiQualityMarkdownPath = Join-Path $OutDir "ai-quality-release-summary.md"
+& python (Join-Path $root "scripts/ci/build_ai_quality_release_summary.py") `
+    --bundle-dir $OutDir `
+    --json-out $aiQualityJsonPath `
+    --markdown-out $aiQualityMarkdownPath
+[int] $aiQualityExit = $LASTEXITCODE
+[string] $aiQualityVerdict = if ($aiQualityExit -eq 0) { "PASS" } else { "FAIL" }
+[string] $aiQualityDetail = if ($aiQualityExit -eq 0) { "offline retrieval/faithfulness and optional committed-run/live evidence summarized" } else { "AI quality summary builder failed; exit $aiQualityExit" }
+Add-CheckRow $checks "AI quality release summary" $aiQualityVerdict $aiQualityDetail "ai-quality-release-summary.json"
 
 [int] $deploymentEvidenceExit = 999
 

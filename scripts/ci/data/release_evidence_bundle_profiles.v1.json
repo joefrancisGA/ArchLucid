@@ -35,6 +35,12 @@
         "deployment-evidence.md",
         "hosted-availability-rollup.md",
         "retrieval-ir-report.md",
+        "retrieval-ir-summary.json",
+        "faithfulness-report.md",
+        "retrieval-grounding.json",
+        "go-no-go-summary.json",
+        "ai-quality-release-summary.json",
+        "ai-quality-release-summary.md",
         "real-llm-evidence-gate.json",
         "real-llm-evidence-gate.md",
         "simulator-only-override.md"

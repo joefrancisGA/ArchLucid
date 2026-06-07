@@ -25,6 +25,8 @@ class TestReleaseReadinessEvidenceScript(unittest.TestCase):
         self.assertIn("release-evidence-bundle-manifest.json", text)
         self.assertIn("Real-mode AI evidence artifact (claim boundary)", text)
         self.assertIn("real-llm-evidence-gate.json", text)
+        self.assertIn("AI quality release summary", text)
+        self.assertIn("ai-quality-release-summary.json", text)
 
 
 if __name__ == "__main__":
