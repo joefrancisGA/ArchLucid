@@ -60,6 +60,13 @@ internal static class SponsorPacketWriter
             .Select(static name => name!)
             .ToList();
 
+        string buyerBrief = SponsorPacketBuyerDecisionBriefBuilder.BuildFromDirectory(dir);
+        await File.WriteAllTextAsync(
+            Path.Combine(dir, SponsorPacketArtifactCatalog.BuyerDecisionBriefFileName),
+            buyerBrief,
+            Utf8NoBom,
+            cancellationToken);
+
         string indexMarkdown = SponsorPacketIndexBuilder.Build(runId, dir, presentFiles);
         await File.WriteAllTextAsync(
             Path.Combine(dir, SponsorPacketArtifactCatalog.IndexFileName),

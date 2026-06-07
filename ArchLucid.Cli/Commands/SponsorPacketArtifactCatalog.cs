@@ -19,11 +19,14 @@ public static class SponsorPacketArtifactCatalog
 
     public const string PilotRunDeltasFileName = "pilot-run-deltas.json";
 
+    public const string BuyerDecisionBriefFileName = "buyer-decision-brief.md";
+
     public const string ProvenanceSchema = "archlucid.sponsor-packet.provenance.v1";
 
     public static IReadOnlyList<SponsorPacketArtifactEntry> IndexEntries { get; } =
     [
         new(IndexFileName, "Start here — explains every file in this bundle."),
+        new(BuyerDecisionBriefFileName, "One-page buyer decision brief: outcome, value, caveats, and next commercial step."),
         new(FirstValueReportFileName, "Sponsor narrative for the committed run (ROI basis labels included)."),
         new(ExecutiveReviewPacketFileName, "Consolidated review packet: manifest, findings, ROI disposition basis, decisions."),
         new(ExecutiveSummaryFileName, "Tenant portfolio ROI snapshot (`GET /v1/roi/executive-summary`) with scope labels."),
