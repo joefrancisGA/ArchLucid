@@ -14,7 +14,11 @@ from pathlib import Path
 from typing import Any
 
 _MANIFEST_SCHEMA = "archlucid.release-evidence-bundle.v1"
-_PROFILES_PATH = Path(__file__).resolve().parent / "data" / "release_evidence_bundle_profiles.v1.json"
+_CI_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_CI_DIR))
+from release_evidence_profile_helpers import load_profiles as _load_profiles_from_helpers
+
+_PROFILES_PATH = _CI_DIR / "data" / "release_evidence_bundle_profiles.v1.json"
 _REAL_LLM_EVIDENCE_SCHEMA = "archlucid.real-llm-evidence-gate.v2"
 _REAL_LLM_EVIDENCE_FILE = "real-llm-evidence-gate.json"
 _REAL_LLM_EVIDENCE_STALE_AFTER_DAYS = 30
@@ -36,7 +40,7 @@ def repo_root() -> Path:
 
 
 def load_profiles() -> dict[str, Any]:
-    return json.loads(_PROFILES_PATH.read_text(encoding="utf-8"))
+    return _load_profiles_from_helpers()
 
 
 def sha256_hex(content: bytes) -> str:

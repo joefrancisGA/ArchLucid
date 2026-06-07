@@ -1,0 +1,54 @@
+{
+  "schema": "archlucid.release-confidence-lanes.v1",
+  "lanes": [
+    {
+      "id": "full-regression",
+      "label": "Full .NET regression (SQL)",
+      "releaseBlocking": true,
+      "statusFiles": [
+        "full-regression-status.json",
+        "artifacts/ci/full-regression-status.json"
+      ],
+      "detail": "Merge-blocking dotnet-full-regression CI job; not run by default local emitter."
+    },
+    {
+      "id": "outbox-focused",
+      "label": "Focused outbox correctness tests",
+      "releaseBlocking": true,
+      "statusFiles": [
+        "outbox-focused-tests-status.json",
+        "artifacts/ci/outbox-focused-tests-status.json"
+      ],
+      "detail": "Targeted outbox/export correctness lane; attach CI or local pytest/dotnet result JSON."
+    },
+    {
+      "id": "release-evidence-tests",
+      "label": "Release evidence bundle tests",
+      "releaseBlocking": true,
+      "statusFiles": [
+        "release-evidence-bundle-validation.json"
+      ],
+      "detail": "Profile validation from Invoke-ValidateReleaseEvidenceBundle.ps1."
+    },
+    {
+      "id": "doc-link-check",
+      "label": "Documentation link integrity",
+      "releaseBlocking": true,
+      "statusFiles": [
+        "doc-link-check-status.json",
+        "artifacts/ci/doc-link-check-status.json"
+      ],
+      "detail": "check_doc_links.py result; attach after CI or local run."
+    },
+    {
+      "id": "ui-unit",
+      "label": "UI unit tests",
+      "releaseBlocking": false,
+      "statusFiles": [
+        "ui-unit-status.json",
+        "artifacts/ci/ui-unit-status.json"
+      ],
+      "detail": "archlucid-ui unit test lane when UI is in release scope."
+    }
+  ]
+}

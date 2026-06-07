@@ -4,6 +4,20 @@
   "profiles": {
     "release-readiness": {
       "description": "Unified repo-local release readiness bundle from Emit-ReleaseReadinessEvidence.ps1",
+      "docOwners": [
+        {
+          "path": "docs/library/V1_RELEASE_CHECKLIST.md",
+          "purpose": "Release owner signoff checklist"
+        },
+        {
+          "path": "docs/quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md",
+          "purpose": "Bundle manifest schema and profiles"
+        },
+        {
+          "path": "docs/runbooks/ROLE_INDEX.md",
+          "purpose": "Persona entry map for release/proof flows"
+        }
+      ],
       "requiredFiles": [
         "release-readiness-index.json",
         "release-readiness-summary.md",
@@ -41,6 +55,11 @@
         "go-no-go-summary.json",
         "ai-quality-release-summary.json",
         "ai-quality-release-summary.md",
+        "release-confidence-rollup.json",
+        "release-confidence-rollup.md",
+        "support-bundle-status.json",
+        "azure-ai-search-readiness.json",
+        "deployed-evidence-freshness.json",
         "real-llm-evidence-gate.json",
         "real-llm-evidence-gate.md",
         "simulator-only-override.md"

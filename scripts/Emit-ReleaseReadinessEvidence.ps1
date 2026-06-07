@@ -401,58 +401,74 @@ This bundle is repo-local and secret-safe by design:
 Do not attach live tfvars, customer cover letters, or procurement NDA material to this folder.
 "@ | Set-Content -LiteralPath $redactionPath -Encoding utf8
 
+function Write-ReleaseReadinessIndexArtifacts {
+    param(
+        [System.Collections.Generic.List[object]] $CheckRows,
+        [string] $GeneratedUtc,
+        [string] $OutputDirectory
+    )
+
+    [int] $localFailCount = @($CheckRows | Where-Object { $_.verdict -eq "FAIL" }).Count
+    [int] $localWarnCount = @($CheckRows | Where-Object { $_.verdict -eq "WARN" }).Count
+    [string] $localRollup = if ($localFailCount -gt 0) { "FAIL" } elseif ($localWarnCount -gt 0) { "WARN" } else { "PASS" }
+
+    $indexDoc = [ordered]@{
+        schema = "archlucid.release-readiness-index.v1"
+        generatedUtc = $GeneratedUtc
+        environment = $Environment
+        gitCommitSha = $gitCommitSha
+        archLucidCliVersion = $cliVersion
+        rollup = $localRollup
+        failCount = $localFailCount
+        warnCount = $localWarnCount
+        checks = @($CheckRows)
+    }
+
+    [string] $indexJsonPath = Join-Path $OutputDirectory "release-readiness-index.json"
+    $indexDoc | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $indexJsonPath -Encoding utf8
+
+    [string] $summaryFilePath = Join-Path $OutputDirectory "release-readiness-summary.md"
+    [System.Text.StringBuilder] $summaryBuilder = [System.Text.StringBuilder]::new()
+    [void] $summaryBuilder.AppendLine("# Release readiness evidence (unified)")
+    [void] $summaryBuilder.AppendLine("")
+    [void] $summaryBuilder.AppendLine("Generated (UTC): **$GeneratedUtc**")
+    [void] $summaryBuilder.AppendLine("Environment label: **$Environment**")
+    [void] $summaryBuilder.AppendLine("Commit/version: **$gitCommitSha** / ArchLucid CLI **$cliVersion**")
+    [void] $summaryBuilder.AppendLine("")
+    [void] $summaryBuilder.AppendLine("Rollup: **$localRollup** (FAIL=$localFailCount, WARN=$localWarnCount)")
+    [void] $summaryBuilder.AppendLine("")
+    [void] $summaryBuilder.AppendLine("Missing optional evidence is labeled **SKIPPED** instead of inferred. This bundle does not claim production SLA compliance unless live probe, migration, and smoke artifacts are attached.")
+    [void] $summaryBuilder.AppendLine("")
+    [void] $summaryBuilder.AppendLine("| Check | Verdict | Owner | Artifact | Detail |")
+    [void] $summaryBuilder.AppendLine("| --- | --- | --- | --- | --- |")
+
+    foreach ($row in $CheckRows) {
+        [string] $rowDetail = [string]$row.detail -replace '\|', '/'
+        [void] $summaryBuilder.AppendLine("| $($row.name) | $($row.verdict) | $($row.owner) | ``$($row.artifact)`` | $rowDetail |")
+    }
+
+    [void] $summaryBuilder.AppendLine("")
+    [void] $summaryBuilder.AppendLine("**Generate:** ``pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1 [-ApiBaseUrl https://staging.example]``")
+    [void] $summaryBuilder.AppendLine("")
+    [void] $summaryBuilder.AppendLine("Machine-readable index: ``release-readiness-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Confidence rollup: ``release-confidence-rollup.json``. Redaction policy: ``redaction-note.md``.")
+    [void] $summaryBuilder.AppendLine("")
+    [void] $summaryBuilder.AppendLine("See ``docs/library/DEPLOYMENT_RUNBOOK.md`` and ``docs/library/OBSERVABILITY.md``.")
+
+    Set-Content -LiteralPath $summaryFilePath -Value $summaryBuilder.ToString() -Encoding utf8
+    Copy-Item -LiteralPath $summaryFilePath -Destination (Join-Path $OutputDirectory "release-readiness-index.md") -Force
+
+    return [ordered]@{
+        rollup = $localRollup
+        failCount = $localFailCount
+        warnCount = $localWarnCount
+    }
+}
+
 [string] $generatedUtc = [DateTime]::UtcNow.ToString("o")
-[int] $failCount = @($checks | Where-Object { $_.verdict -eq "FAIL" }).Count
-[int] $warnCount = @($checks | Where-Object { $_.verdict -eq "WARN" }).Count
-[string] $rollup = if ($failCount -gt 0) { "FAIL" } elseif ($warnCount -gt 0) { "WARN" } else { "PASS" }
-
-$jsonDoc = [ordered]@{
-    schema = "archlucid.release-readiness-index.v1"
-    generatedUtc = $generatedUtc
-    environment = $Environment
-    gitCommitSha = $gitCommitSha
-    archLucidCliVersion = $cliVersion
-    rollup = $rollup
-    failCount = $failCount
-    warnCount = $warnCount
-    checks = @($checks)
-}
-
-[string] $jsonPath = Join-Path $OutDir "release-readiness-index.json"
-$jsonDoc | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonPath -Encoding utf8
-
-[string] $summaryPath = Join-Path $OutDir "release-readiness-summary.md"
-[System.Text.StringBuilder] $md = [System.Text.StringBuilder]::new()
-[void] $md.AppendLine("# Release readiness evidence (unified)")
-[void] $md.AppendLine("")
-[void] $md.AppendLine("Generated (UTC): **$generatedUtc**")
-[void] $md.AppendLine("Environment label: **$Environment**")
-[void] $md.AppendLine("Commit/version: **$gitCommitSha** / ArchLucid CLI **$cliVersion**")
-[void] $md.AppendLine("")
-[void] $md.AppendLine("Rollup: **$rollup** (FAIL=$failCount, WARN=$warnCount)")
-[void] $md.AppendLine("")
-[void] $md.AppendLine("Missing optional evidence is labeled **SKIPPED** instead of inferred. This bundle does not claim production SLA compliance unless live probe, migration, and smoke artifacts are attached.")
-[void] $md.AppendLine("")
-[void] $md.AppendLine("| Check | Verdict | Owner | Artifact | Detail |")
-[void] $md.AppendLine("| --- | --- | --- | --- | --- |")
-
-foreach ($c in $checks) {
-    [string] $detail = [string]$c.detail -replace '\|', '/'
-    [void] $md.AppendLine("| $($c.name) | $($c.verdict) | $($c.owner) | ``$($c.artifact)`` | $detail |")
-}
-
-[void] $md.AppendLine("")
-[void] $md.AppendLine("**Generate:** ``pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1 [-ApiBaseUrl https://staging.example]``")
-[void] $md.AppendLine("")
-[void] $md.AppendLine("Machine-readable index: ``release-readiness-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Redaction policy: ``redaction-note.md``.")
-[void] $md.AppendLine("")
-[void] $md.AppendLine("See ``docs/library/DEPLOYMENT_RUNBOOK.md`` and ``docs/library/OBSERVABILITY.md``.")
-
-Set-Content -LiteralPath $summaryPath -Value $md.ToString() -Encoding utf8
-
-# Legacy markdown index retained for backward-compatible links.
-[string] $legacyIndexPath = Join-Path $OutDir "release-readiness-index.md"
-Copy-Item -LiteralPath $summaryPath -Destination $legacyIndexPath -Force
+[object] $indexState = Write-ReleaseReadinessIndexArtifacts -CheckRows $checks -GeneratedUtc $generatedUtc -OutputDirectory $OutDir
+[string] $rollup = [string]$indexState.rollup
+[int] $failCount = [int]$indexState.failCount
+[int] $warnCount = [int]$indexState.warnCount
 
 & pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-WriteReleaseEvidenceBundleManifest.ps1") `
     -BundleDir $OutDir `
@@ -476,6 +492,28 @@ if ($LASTEXITCODE -ne 0) {
 if ($bundleValidateExit -ne 0) {
     Write-Warning "Release evidence bundle schema validation failed (exit $bundleValidateExit). See release-evidence-bundle-validation.json."
 }
+
+[string] $confidenceJsonPath = Join-Path $OutDir "release-confidence-rollup.json"
+[string] $confidenceMarkdownPath = Join-Path $OutDir "release-confidence-rollup.md"
+& python (Join-Path $root "scripts/ci/build_release_confidence_rollup.py") `
+    --bundle-dir $OutDir `
+    --json-out $confidenceJsonPath `
+    --markdown-out $confidenceMarkdownPath
+[int] $confidenceExit = $LASTEXITCODE
+[string] $confidenceVerdict = if ($confidenceExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "Release confidence rollup" $confidenceVerdict "validation lanes summarized without running full regression" "release-confidence-rollup.json"
+$indexState = Write-ReleaseReadinessIndexArtifacts -CheckRows $checks -GeneratedUtc $generatedUtc -OutputDirectory $OutDir
+$rollup = [string]$indexState.rollup
+$failCount = [int]$indexState.failCount
+$warnCount = [int]$indexState.warnCount
+
+& pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-WriteReleaseEvidenceBundleManifest.ps1") `
+    -BundleDir $OutDir `
+    -Profile "release-readiness" `
+    -Rollup $rollup `
+    -GitCommitSha $gitCommitSha `
+    -CliVersion $cliVersion `
+    -Environment $Environment | Out-Null
 
 Write-Host "Wrote release readiness bundle to $OutDir (rollup=$rollup)"
 

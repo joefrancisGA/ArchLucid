@@ -371,8 +371,22 @@ function Write-FirstPilotCommandCenterArtifacts {
     $mdLines = Format-FirstPilotCommandCenterMarkdown -CommandCenter $CommandCenter
     Set-Content -LiteralPath $mdPath -Value $mdLines -Encoding UTF8
 
+    $next = $CommandCenter.nextAction
+    $nextLines = @(
+        '# First-pilot next action',
+        '',
+        "| Label | **$($next.label)** |",
+        "| Operator path | $($next.operatorPathPhase) |",
+        "| Action | $($next.summary) |",
+        "| Remediation | [$($next.remediationDocLink)](../../$($next.remediationDocLink)) |",
+        ''
+    )
+    $nextPath = Join-Path $ProofDirectory 'first-pilot-next-action.md'
+    Set-Content -LiteralPath $nextPath -Value $nextLines -Encoding UTF8
+
     return [ordered]@{
         jsonPath = 'first-pilot-command-center.json'
         mdPath   = 'first-pilot-command-center.md'
+        nextActionPath = 'first-pilot-next-action.md'
     }
 }

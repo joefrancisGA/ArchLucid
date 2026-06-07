@@ -93,6 +93,14 @@ Release readiness also emits `ai-quality-release-summary.json` and `.md` when `s
 
 Missing optional sources are explicit and do not become PASS by inference.
 
+## Release confidence rollup
+
+`release-confidence-rollup.json` summarizes validation **lanes** (full regression, outbox-focused tests, release evidence tests, doc link check, UI unit). Lane definitions live in [`scripts/ci/data/release_confidence_lanes.v1.json`](../../scripts/ci/data/release_confidence_lanes.v1.json). The default local emitter does **not** execute full regression; MISSING and STALE are explicit.
+
+## Documentation ownership
+
+Each profile may declare `docOwners` — canonical docs that must stay aligned when profile artifacts change. See [`release_evidence_bundle_profiles.v1.json`](../../scripts/ci/data/release_evidence_bundle_profiles.v1.json).
+
 ## Real-mode AI evidence status
 
 The bundle validator never calls Azure OpenAI. It only reads an attached `real-llm-evidence-gate.json` produced by [`scripts/Invoke-RealLlmEvidenceGate.ps1`](../../scripts/Invoke-RealLlmEvidenceGate.ps1).
