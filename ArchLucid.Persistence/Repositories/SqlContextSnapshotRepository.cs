@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.ContextSnapshots;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -376,6 +377,9 @@ public sealed class SqlContextSnapshotRepository(
     /// <summary>
     ///     Inserts relational slices that are still empty while JSON columns contain data (idempotent per slice).
     /// </summary>
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Backfill scope lookup by SnapshotId surrogate key before slice insert.")]
     internal static async Task BackfillRelationalSlicesAsync(
         ContextSnapshot snapshot,
         IDbConnection connection,

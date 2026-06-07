@@ -9,6 +9,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tenancy.Diagnostics;
 
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Trial funnel operational metrics aggregate within tenant catalog for monitoring.")]
 public sealed class DapperTrialFunnelOperationalMetricsReader(ISqlConnectionFactory connectionFactory)
     : ITrialFunnelOperationalMetricsReader
 {

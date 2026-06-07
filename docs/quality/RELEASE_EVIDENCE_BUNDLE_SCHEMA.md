@@ -102,7 +102,9 @@ Missing optional sources are explicit and do not become PASS by inference.
 | Artifact | Schema | Purpose |
 | --- | --- | --- |
 | `rc-go-no-go-verdict.json` | `archlucid.rc-go-no-go-verdict.v1` | Unified PASS/HOLD/WARN verdict with blocker list |
-| `deploy-handoff.json` | `archlucid.deploy-handoff.v1` | Deterministic deploy handoff + Azure metadata |
+| `deploy-handoff.json` | `archlucid.deploy-handoff.v1` | Deterministic deploy handoff + Azure metadata; includes `authoritativeLiveEvidenceEnvironment` (**Staging**) |
+
+**Authoritative live environment:** **Staging** is contract-authoritative for RC drill, live API probes, and sponsor proof attachment. Repo-local `-Environment Production` on the emitter labels **appsettings** reports only. See [`RC_TARGET_ENVIRONMENT_MATRIX.md`](../library/RC_TARGET_ENVIRONMENT_MATRIX.md) and [`scripts/ci/data/rc_target_environment_matrix.v1.json`](../../scripts/ci/data/rc_target_environment_matrix.v1.json).
 | `rc-test-evidence-manifest.json` | `archlucid.rc-test-evidence-manifest.v1` | Suite/gate status snapshot for RC audit |
 | `real-mode-claim-gate.json` | `archlucid.real-mode-claim-gate.v1` | Claim boundary + `claimWordingClass` |
 | `azure-iac-parity-proof.json` | `archlucid.azure-iac-parity-proof.v1` | IaC/config parity proof for hosted Azure |

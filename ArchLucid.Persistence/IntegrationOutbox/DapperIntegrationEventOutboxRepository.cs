@@ -1,4 +1,5 @@
 using System.Data;
+using ArchLucid.Core.Tenancy;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Integration;
@@ -12,6 +13,7 @@ namespace ArchLucid.Persistence.IntegrationOutbox;
 
 /// <summary>Dapper implementation over <c>dbo.IntegrationEventOutbox</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Outbox worker dequeues by outbox id within tenant catalog; enqueue carries scope triple on row.")]
 public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory connectionFactory)
     : IIntegrationEventOutboxRepository
 {

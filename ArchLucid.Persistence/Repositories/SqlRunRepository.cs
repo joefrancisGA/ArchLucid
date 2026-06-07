@@ -153,6 +153,7 @@ public sealed class SqlRunRepository(
         }
     }
 
+    [TenantScopeExempt(TenantScopeExemptReason.Operational, "Admin run lookup by id within the active tenant catalog.")]
     public async Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct)
     {
         Stopwatch sw = Stopwatch.StartNew();
@@ -539,6 +540,7 @@ public sealed class SqlRunRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(TenantScopeExemptReason.Operational, "Tenant-catalog retention archival; updates runs by CreatedUtc cutoff within the active catalog.")]
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc,
         CancellationToken ct)
     {
@@ -596,6 +598,7 @@ public sealed class SqlRunRepository(
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(TenantScopeExemptReason.Operational, "Tenant-catalog retention archival; archives explicit run ids within the active catalog.")]
     public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
     {
         if (runIds.Count == 0)

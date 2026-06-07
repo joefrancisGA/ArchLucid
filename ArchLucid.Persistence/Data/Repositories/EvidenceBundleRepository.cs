@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -16,6 +17,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 ///     from the <c>EvidenceBundles</c> table.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+[TenantScopeExempt(TenantScopeExemptReason.AcceptedResidual, "Legacy EvidenceBundles surface; access stays behind scoped application APIs per classification doc.")]
 public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFactory) : IEvidenceBundleRepository
 {
     public async Task CreateAsync(

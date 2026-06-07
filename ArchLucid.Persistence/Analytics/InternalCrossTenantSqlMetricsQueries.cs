@@ -1,9 +1,11 @@
 using Dapper;
+using ArchLucid.Core.Tenancy;
 
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Analytics;
 
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Platform-operator cross-tenant analytics; explicit RBAC at caller; not a tenant-session repository path.")]
 internal static class InternalCrossTenantSqlMetricsQueries
 {
     internal sealed record TenantRunTotalsRow(

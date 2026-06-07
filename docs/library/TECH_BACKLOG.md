@@ -9592,3 +9592,22 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope:** Blocking triggers; auto-delete of forensic evidence; quarantine inserts.
 
 **Refs:** ADR-0045; ADR-0046; TB-310.
+
+---
+
+## TB-312 — Tenant-scoped persistence SQL Roslyn guard (ARCH006)
+
+**Status:** **Done** (2026-06-07).
+
+**Problem:** ADR 0037 Layer D relied on manual repository SQL discipline with no compile-time backstop for scoped tables.
+
+**Shipped:**
+
+1. `TenantScopedQueryScopeBindingAnalyzer` (**ARCH006**) — Dapper call-site guard on `ArchLucid.Persistence`.
+2. `scripts/ci/data/tenant_scoped_tables.v1.json` + generator — consumes scope-triple + tenant-id buckets from the classification matrix.
+3. `TenantScopeExemptAttribute` + finite operational/residual exemptions on worker/admin paths.
+4. ADR **0047**, analyzer unit tests, architecture parity test.
+
+**Out of scope:** SQL RLS; child-via-parent bucket (future tightening).
+
+**Refs:** ADR-0037; ADR-0047.

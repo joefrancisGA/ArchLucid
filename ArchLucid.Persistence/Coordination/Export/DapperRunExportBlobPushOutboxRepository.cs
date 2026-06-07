@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Orchestration;
@@ -14,6 +15,7 @@ namespace ArchLucid.Persistence.Coordination.Export;
 ///     <c>dbo.RunExportBlobPushOutbox</c>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Outbox worker dequeues by outbox id within tenant catalog; enqueue carries scope triple on row.")]
 public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactory connectionFactory)
     : IRunExportBlobPushOutboxRepository
 {

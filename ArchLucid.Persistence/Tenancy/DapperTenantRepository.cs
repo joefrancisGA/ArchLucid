@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Tenancy;
 
+[TenantScopeExempt(TenantScopeExemptReason.SystemPlaneOnly, "Tenant registry and lifecycle SQL against system-plane tables and cross-catalog provisioning commands.")]
 public sealed class DapperTenantRepository(
     ISystemSqlConnectionFactory catalogConnectionFactory,
     ISqlConnectionFactory tenantPlaneConnectionFactory,

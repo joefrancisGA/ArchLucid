@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.Artifacts;
@@ -21,6 +22,7 @@ namespace ArchLucid.Persistence.Coordination.Backfill;
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
     "Entirely SQL-dependent; every method runs Dapper queries and transactions against live SQL Server.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Relational backfill orchestration runs under dedicated job identity within tenant catalogs.")]
 public sealed class SqlRelationalBackfillService(
     ISqlConnectionFactory connectionFactory,
     SqlContextSnapshotRepository contextSnapshotRepository,

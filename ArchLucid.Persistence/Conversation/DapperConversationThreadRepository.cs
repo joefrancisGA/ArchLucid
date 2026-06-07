@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -156,6 +157,9 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Cross-tenant retention job archives stale threads by LastUpdatedUtc cutoff.")]
     public async Task<int> ArchiveThreadsLastUpdatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
     {
         const string sql = """

@@ -10,6 +10,11 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
         [Parameter(Mandatory = $true)][int] $BlockCount,
         [Parameter(Mandatory = $true)][string[]] $DeferredScopeReasons,
         [Parameter(Mandatory = $true)][object] $CommercialStep,
+        [Parameter(Mandatory = $true)][string] $BaselineCompletenessStatus,
+        [Parameter(Mandatory = $true)][bool] $SendEligible,
+        [Parameter(Mandatory = $false)][bool] $OverrideApplied = $false,
+        [string[]] $SendBlockReasons = @(),
+        [string[]] $MissingRequiredBaselineFields = @(),
         [string] $DataConsistencyStatus = 'NOT_RUN',
         [string] $ProcurementDisposition = 'NOT_RUN',
         [string] $TierRecommendation = 'Agree with buyer after PASS proof',
@@ -47,6 +52,9 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
     $lines.Add("| Sponsor packet disposition | **$SponsorPacketDisposition** |")
     $lines.Add("| Run id | $runIdLabel |")
     $lines.Add("| ROI basis status | **$RoiBasisStatus** |")
+    $lines.Add("| Baseline completeness | **$BaselineCompletenessStatus** |")
+    $lines.Add("| SEND eligible | **$SendEligible** |")
+    $lines.Add("| Override applied | **$OverrideApplied** |")
     $lines.Add("| ROI sponsor-safe | **$RoiSponsorSafe** |")
     $lines.Add("| Data consistency status | **$DataConsistencyStatus** |")
     $lines.Add("| Procurement deal-ready | **$ProcurementDisposition** |")
@@ -56,6 +64,31 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
     $lines.Add('')
     $lines.Add($reason)
     $lines.Add('')
+    $lines.Add('- Baseline SEND policy: [`ROI_BASELINE_SEND_POLICY.md`](../../docs/go-to-market/ROI_BASELINE_SEND_POLICY.md).')
+    $lines.Add('')
+
+    if ($SendBlockReasons.Count -gt 0) {
+        $lines.Add('## SEND block reasons')
+        $lines.Add('')
+
+        foreach ($item in $SendBlockReasons) {
+            $lines.Add("- $item")
+        }
+
+        $lines.Add('')
+    }
+
+    if ($MissingRequiredBaselineFields.Count -gt 0) {
+        $lines.Add('## Missing required baseline fields')
+        $lines.Add('')
+
+        foreach ($item in $MissingRequiredBaselineFields) {
+            $lines.Add("- $item")
+        }
+
+        $lines.Add('')
+    }
+
     $lines.Add('## Caveats')
     $lines.Add('')
     $lines.Add('- Do not ask for annual conversion from a vague demo without committed-run proof (`-RunId`).')
@@ -97,8 +130,13 @@ function Write-FirstPilotCommercialCloseoutArtifacts {
         reason                  = $reason
         commercialDisposition   = $commercialDisposition
         sponsorPacketDisposition = $SponsorPacketDisposition
-        roiBasisStatus          = $RoiBasisStatus
-        roiSponsorSafe          = $RoiSponsorSafe
+        roiBasisStatus                 = $RoiBasisStatus
+        baselineCompletenessStatus     = $BaselineCompletenessStatus
+        sendEligible                   = $SendEligible
+        overrideApplied              = $OverrideApplied
+        sendBlockReasons               = @($SendBlockReasons)
+        missingRequiredBaselineFields  = @($MissingRequiredBaselineFields)
+        roiSponsorSafe                 = $RoiSponsorSafe
         dataConsistencyStatus   = $DataConsistencyStatus
         procurementDisposition  = $ProcurementDisposition
         tierRecommendation      = $TierRecommendation

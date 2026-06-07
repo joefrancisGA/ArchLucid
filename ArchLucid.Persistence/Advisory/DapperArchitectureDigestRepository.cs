@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -96,6 +97,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(TenantScopeExemptReason.Operational, "Retention archival updates digests by GeneratedUtc cutoff within the tenant catalog.")]
     public async Task<int> ArchiveDigestsGeneratedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
     {
         const string sql = """

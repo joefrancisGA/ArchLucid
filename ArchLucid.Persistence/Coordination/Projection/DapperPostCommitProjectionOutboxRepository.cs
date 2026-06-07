@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Projection;
@@ -15,6 +16,7 @@ namespace ArchLucid.Persistence.Coordination.Projection;
 ///     <c>dbo.PostCommitProjectionOutbox</c>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Outbox worker dequeues by outbox id within tenant catalog; enqueue carries scope triple on row.")]
 public sealed class DapperPostCommitProjectionOutboxRepository(ISqlConnectionFactory connectionFactory)
     : IPostCommitProjectionOutboxRepository
 {

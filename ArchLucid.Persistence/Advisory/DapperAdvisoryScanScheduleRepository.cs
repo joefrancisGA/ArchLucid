@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -61,6 +62,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
+    [TenantScopeExempt(TenantScopeExemptReason.Operational, "Scheduler worker lists due rows within the active tenant catalog.")]
     public async Task<IReadOnlyList<AdvisoryScanSchedule>> ListDueAsync(
         DateTime utcNow,
         int take,

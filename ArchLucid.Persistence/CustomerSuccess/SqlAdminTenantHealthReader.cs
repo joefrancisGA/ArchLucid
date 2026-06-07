@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
@@ -11,6 +12,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.CustomerSuccess;
 
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent reader.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Operator health snapshot reader aggregates per-tenant catalog metrics for platform dashboards.")]
 public sealed class SqlAdminTenantHealthReader(ISqlConnectionFactory connectionFactory) : IAdminTenantHealthReader
 {
     private readonly ISqlConnectionFactory _connectionFactory =

@@ -13,7 +13,8 @@ from pathlib import Path
 _CI_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_CI_DIR))
 
-from release_evidence_common import load_json, map_roi_basis_to_completeness  # noqa: E402
+from release_evidence_common import load_json  # noqa: E402
+from roi_baseline_send_policy import evaluate_send_eligibility, map_roi_basis_to_completeness  # noqa: E402
 
 _SEND_BLOCKING_COMPLETENESS = frozenset({"PARTIAL", "DEFAULTED", "NOT_COLLECTED"})
 
@@ -55,22 +56,37 @@ def resolve_proof_disposition(
     return "HOLD"
 
 
-def build_payload(summary: dict[str, object], closeout: dict[str, object] | None) -> dict[str, object]:
+def build_payload(
+    summary: dict[str, object],
+    closeout: dict[str, object] | None,
+    *,
+    evaluation: dict[str, object],
+) -> dict[str, object]:
     roi_basis = str(summary.get("roiBasisStatus") or "not-collected")
-    baseline_completeness = map_roi_basis_to_completeness(roi_basis)
+    baseline_completeness = str(evaluation.get("baselineCompletenessStatus") or map_roi_basis_to_completeness(roi_basis))
     disposition = resolve_proof_disposition(
         summary,
         closeout,
         baseline_completeness=baseline_completeness,
     )
     deferred = summary.get("deferredScopeReasons") or []
-    override = summary.get("roiBaselineOverride")
+    override_applied = evaluation.get("overrideApplied") is True
+
+    if override_applied and disposition == "HOLD" and int(summary.get("blockCount") or 0) == 0:
+        sponsor = str(summary.get("sponsorPacketDisposition") or "HOLD")
+
+        if sponsor not in {"HOLD", "DEFERRED_SCOPE", "READINESS_ONLY"}:
+            disposition = "SEND"
 
     return {
         "schema": "archlucid.quote-to-proof-readiness.v1",
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "proofDisposition": disposition,
         "baselineCompletenessStatus": baseline_completeness,
+        "sendEligible": evaluation.get("sendEligible"),
+        "sendBlockReasons": evaluation.get("sendBlockReasons"),
+        "missingRequiredBaselineFields": evaluation.get("missingRequiredBaselineFields"),
+        "overrideApplied": override_applied,
         "sponsorPacketDisposition": summary.get("sponsorPacketDisposition"),
         "verdict": summary.get("verdict"),
         "blockCount": summary.get("blockCount"),
@@ -83,8 +99,8 @@ def build_payload(summary: dict[str, object], closeout: dict[str, object] | None
         "commercialDisposition": (closeout or {}).get("commercialDisposition"),
         "followUpSlaDays": 7,
         "deferredScopeReasons": deferred,
-        "roiBaselineOverride": override,
         "checklistDoc": "docs/go-to-market/QUOTE_TO_PROOF_READINESS_CHECKLIST.md",
+        "baselineSendPolicyDoc": "docs/go-to-market/ROI_BASELINE_SEND_POLICY.md",
     }
 
 
@@ -130,6 +146,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--go-no-go-summary", type=Path, required=True)
     parser.add_argument("--commercial-closeout", type=Path, default=None)
+    parser.add_argument("--override-json", type=Path, default=None)
     parser.add_argument("--json-out", type=Path, required=True)
     parser.add_argument("--markdown-out", type=Path, required=True)
     parser.add_argument(
@@ -159,7 +176,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.commercial_closeout and args.commercial_closeout.is_file()
         else None
     )
-    payload = build_payload(summary, closeout)
+    override = (
+        load_json(args.override_json)
+        if args.override_json and args.override_json.is_file()
+        else None
+    )
+    evaluation = evaluate_send_eligibility(summary, override)
+    payload = build_payload(summary, closeout, evaluation=evaluation)
 
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
     args.json_out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
@@ -170,10 +193,8 @@ def main(argv: list[str] | None = None) -> int:
     strict_send = resolve_strict_send(args)
 
     if strict_send and payload["proofDisposition"] == "SEND":
-        completeness = str(payload.get("baselineCompletenessStatus") or "")
-
-        if completeness != "COMPLETE" and not payload.get("roiBaselineOverride"):
-            print("Strict SEND blocked: baselineCompletenessStatus is not COMPLETE", file=sys.stderr)
+        if not evaluation.get("sendEligible"):
+            print("Strict SEND blocked: sendEligible=false", file=sys.stderr)
             return 1
 
     if strict_send and payload["proofDisposition"] == "HOLD":

@@ -1,4 +1,5 @@
 using System.Data;
+using ArchLucid.Core.Tenancy;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
@@ -11,6 +12,7 @@ namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>Dapper implementation over <c>dbo.AuthorityPipelineWorkOutbox</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Authority pipeline outbox worker dequeues by work id within tenant catalog.")]
 public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory connectionFactory)
     : IAuthorityPipelineWorkRepository
 {

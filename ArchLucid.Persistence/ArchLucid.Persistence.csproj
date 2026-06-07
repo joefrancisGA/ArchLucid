@@ -74,4 +74,9 @@
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="..\scripts\ci\data\tenant_scoped_tables.v1.json"
+                     Link="Analyzers\tenant_scoped_tables.v1.json" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
 
@@ -10,6 +11,7 @@ namespace ArchLucid.Persistence.Coordination.Diagnostics;
 
 /// <summary>Single round-trip depth/age read for authority, retrieval, and integration outboxes.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent; integration environments exercise via host.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Operational outbox depth metrics aggregate within tenant catalog for monitoring dashboards.")]
 public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory connectionFactory)
     : IOutboxOperationalMetricsReader
 {

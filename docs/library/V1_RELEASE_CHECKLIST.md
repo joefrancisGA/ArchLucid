@@ -9,7 +9,7 @@
 
 **How to use:** Work top to bottom. Check boxes when the item is **done for this release** (build ID / environment recorded in your run notes). This is **operational**, not a substitute for full automated CI.
 
-**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md). **RC environment drill (API already running):** [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`**.
+**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Authoritative live environment for RC evidence:** **Staging** — see [RC_TARGET_ENVIRONMENT_MATRIX.md](RC_TARGET_ENVIRONMENT_MATRIX.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md). **RC environment drill (API already running):** [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`scripts/v1-rc-drill.ps1`**.
 
 ---
 
@@ -37,7 +37,7 @@
 - [ ] **Azure IaC parity + managed identity** artifacts present when hosted profile applies: `azure-iac-parity-proof.json`, `managed-identity-verification.json`.
 - [ ] **V1 RC drill deploy readiness**: after `scripts/v1-rc-drill.ps1`, confirm `artifacts/v1-rc-drill-result.json` reports `deployReadinessStatus`.
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `scripts/release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
-- [ ] **RC drill** (staged/prod-like API URL): run **`scripts/v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two reviews / `runId`s, compare, authority replay, export ZIP, support bundle).
+- [ ] **RC target environment** recorded: live RC drill, staging capture, and `-ApiBaseUrl` release bundle probes target **Staging** (contract-authoritative); repo-local production-like config lint is supplementary — [RC_TARGET_ENVIRONMENT_MATRIX.md](RC_TARGET_ENVIRONMENT_MATRIX.md).
 - [ ] **Integration correctness drill** (same API URL): run **`scripts/v1-integration-correctness-drill.ps1`**; store `v1-integration-correctness-drill.md` when validating authority vs coordinator semantics and commit idempotency ([V1_INTEGRATION_CORRECTNESS_DRILL.md](V1_INTEGRATION_CORRECTNESS_DRILL.md)).
 - [ ] **Staging evidence artifact** captured: `.\scripts\capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -AuthMode <mode>`; add `-RunDoctor` / `-RunRcDrill` when the target allows those checks. Store the generated `artifacts/staging-readiness/*.md` with release artifacts, not in git.
 - **Optional evidence bundle sweep:** `docs/library/RELEASE_EVIDENCE_SUMMARY.md` and `scripts/Invoke-ReleaseEvidenceSummary.ps1 -MarkdownOut <path>` (non-blocking collector; use `-FailOnError` only when you want local script failures to block the shell).

@@ -85,6 +85,7 @@ flowchart TB
 ### Layer D — Persistence
 
 - Repositories take `ScopeContext` or explicit `tenantId` parameters where **tenant-scoped** tables are listed in [`TENANT_SCOPED_TABLES_INVENTORY.md`](../library/TENANT_SCOPED_TABLES_INVENTORY.md).
+- **Build-time guard:** `TenantScopedQueryScopeBindingAnalyzer` (**ARCH006**) on `ArchLucid.Persistence` — scoped tables from [`tenant_scoped_tables.v1.json`](../../scripts/ci/data/tenant_scoped_tables.v1.json) (parity with [`TENANT_TABLE_ISOLATION_CLASSIFICATION.md`](TENANT_TABLE_ISOLATION_CLASSIFICATION.md)); see ADR **0047**.
 - **Within-tenant workspace/project predicates** are optional product discipline — not a security requirement for paying-client isolation (see decision summary above).
 - SQL integration tests under `ArchLucid.Persistence.Tests` (`*ScopeIsolationSqlIntegrationTests`) primarily guard **SingleCatalog dev/CI** fidelity and repository regressions; they do not substitute for the catalog boundary in production.
 
@@ -110,7 +111,7 @@ When scoring tenant isolation **do not** ask “is RLS enabled?” Instead verif
 
 1. Production topology is `SystemWithPerTenantCatalogs` (config + startup rules).
 2. Binding provisioning marks tenants active only after catalog migrate + mirror.
-3. Route-tenant and IDOR tests pass; ARCH001 analyzer enabled on product assemblies.
+3. Route-tenant and IDOR tests pass; ARCH001 and ARCH006 analyzers enabled on product assemblies.
 4. No product code path uses system catalog connection for tenant-scoped reads without explicit design.
 5. Cross-tenant admin endpoints require platform operator authority.
 

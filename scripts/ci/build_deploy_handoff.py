@@ -15,7 +15,12 @@ from typing import Any
 _CI_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_CI_DIR))
 
-from release_evidence_common import load_json, repo_root  # noqa: E402
+from release_evidence_common import (
+    authoritative_release_evidence_environment,
+    load_json,
+    load_rc_target_environment_matrix,
+    repo_root,
+)  # noqa: E402
 
 _SCHEMA = "archlucid.deploy-handoff.v1"
 
@@ -108,6 +113,8 @@ def build_handoff(
         deploy_readiness = "HOLD"
 
     azure = _azure_metadata_from_tf(root)
+    matrix = load_rc_target_environment_matrix(root)
+    authoritative = authoritative_release_evidence_environment(matrix) or {}
     commit_sha = readiness.get("gitCommitSha") or _read_git_sha(root)
     cli_version = readiness.get("archLucidCliVersion") or _read_cli_version(root)
     missing_fields: list[str] = []
@@ -118,6 +125,11 @@ def build_handoff(
     if not cli_version:
         missing_fields.append("archLucidCliVersion")
 
+    health_ready = bundle_dir / "health-ready.json"
+
+    if strict_rc and not health_ready.is_file():
+        missing_fields.append("stagingLiveProbe.health-ready.json")
+
     if strict_rc and missing_fields:
         deploy_readiness = "HOLD"
 
@@ -125,6 +137,10 @@ def build_handoff(
         "schema": _SCHEMA,
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "environmentLabel": environment,
+        "appsettingsReportLabel": environment,
+        "authoritativeLiveEvidenceEnvironment": authoritative.get("label") or "Staging",
+        "authoritativeLiveEvidenceEnvironmentId": authoritative.get("id") or "staging",
+        "authoritativeLiveEvidenceRole": authoritative.get("role") or "contract-authoritative",
         "configProfile": config_profile,
         "gitCommitSha": commit_sha,
         "buildVersion": cli_version,
@@ -133,6 +149,7 @@ def build_handoff(
         "releaseChecklistStatus": checklist_status,
         "rcGoNoGoVerdictRef": "rc-go-no-go-verdict.json",
         "releaseConfidenceRollupRef": "release-confidence-rollup.json",
+        "rcTargetEnvironmentMatrixRef": "scripts/ci/data/rc_target_environment_matrix.v1.json",
         "azure": azure,
         "missingCriticalFields": missing_fields,
     }
@@ -149,7 +166,8 @@ def render_markdown(payload: dict[str, Any]) -> str:
         "",
         "| Field | Value |",
         "| --- | --- |",
-        f"| Environment | {payload.get('environmentLabel')} |",
+        f"| Appsettings report label | {payload.get('appsettingsReportLabel') or payload.get('environmentLabel')} |",
+        f"| Authoritative live evidence environment | **{payload.get('authoritativeLiveEvidenceEnvironment')}** ({payload.get('authoritativeLiveEvidenceRole')}) |",
         f"| Config profile | {payload.get('configProfile')} |",
         f"| Commit SHA | {payload.get('gitCommitSha') or '(missing)'} |",
         f"| Build version | {payload.get('buildVersion') or '(missing)'} |",

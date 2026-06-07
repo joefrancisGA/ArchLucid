@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -62,6 +63,9 @@ public sealed class DapperArchitectureReviewRecurrenceScheduleRepository(ISqlCon
         await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: cancellationToken));
     }
 
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Cross-tenant scheduler poll: NextRunUtc <= UtcNow for due recurrence rows.")]
     public async Task<IReadOnlyList<ArchitectureReviewRecurrenceSchedule>> ListDueAsync(
         DateTime utcNow,
         int take,

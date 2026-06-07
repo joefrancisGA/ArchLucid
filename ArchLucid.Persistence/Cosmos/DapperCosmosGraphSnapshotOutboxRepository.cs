@@ -1,4 +1,5 @@
 using System.Data;
+using ArchLucid.Core.Tenancy;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
@@ -11,6 +12,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Cosmos;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Outbox worker dequeues by outbox id within tenant catalog; enqueue carries scope triple on row.")]
 public sealed class DapperCosmosGraphSnapshotOutboxRepository(ISqlConnectionFactory connectionFactory)
     : ICosmosGraphSnapshotOutboxRepository
 {

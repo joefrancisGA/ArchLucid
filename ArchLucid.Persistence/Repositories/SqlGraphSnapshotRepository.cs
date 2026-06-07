@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.GraphSnapshots;
@@ -324,6 +325,9 @@ public sealed class SqlGraphSnapshotRepository(
     /// <summary>
     ///     Inserts relational graph slices that are still empty while JSON columns contain data (idempotent per slice).
     /// </summary>
+    [TenantScopeExempt(
+        TenantScopeExemptReason.Operational,
+        "Backfill scope lookup by GraphSnapshotId surrogate key before slice insert.")]
     internal static async Task BackfillRelationalSlicesAsync(
         GraphSnapshot snapshot,
         IDbConnection connection,

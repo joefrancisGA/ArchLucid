@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Core.Search;
 using ArchLucid.Persistence.Connections;
@@ -10,6 +11,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Search;
 
 [ExcludeFromCodeCoverage(Justification = "SQL integration; covered via API tests.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Global search composes scoped SQL fragments at runtime; callers pass ScopeContext into builder methods.")]
 public sealed class SqlGlobalSearchRepository(ISqlConnectionFactory connectionFactory) : IGlobalSearchRepository
 {
     private readonly ISqlConnectionFactory _connectionFactory =

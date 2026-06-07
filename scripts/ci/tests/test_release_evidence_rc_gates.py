@@ -190,6 +190,15 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
         result = run_py("check_azure_doc_contract_drift.py")
         self.assertEqual(result.returncode, 0, msg=result.stderr or result.stdout)
 
+    def test_rc_target_environment_matrix_staging_authoritative(self) -> None:
+        matrix_path = CI / "data" / "rc_target_environment_matrix.v1.json"
+        matrix = json.loads(matrix_path.read_text(encoding="utf-8"))
+        authoritative = [
+            row for row in matrix["environments"] if row.get("role") == "contract-authoritative"
+        ]
+        self.assertEqual(1, len(authoritative))
+        self.assertEqual("staging", authoritative[0]["id"])
+
     def test_release_evidence_profile_contract(self) -> None:
         profiles = json.loads(
             (CI / "data" / "release_evidence_bundle_profiles.v1.json").read_text(encoding="utf-8")

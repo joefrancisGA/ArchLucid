@@ -15,6 +15,30 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def load_rc_target_environment_matrix(root: Path | None = None) -> dict[str, Any]:
+    base = root if root is not None else repo_root()
+    path = base / "scripts" / "ci" / "data" / "rc_target_environment_matrix.v1.json"
+    payload = load_json(path)
+
+    if payload is None:
+        return {}
+
+    return payload
+
+
+def authoritative_release_evidence_environment(matrix: dict[str, Any]) -> dict[str, Any] | None:
+    environments = matrix.get("environments")
+
+    if not isinstance(environments, list):
+        return None
+
+    for row in environments:
+        if isinstance(row, dict) and row.get("role") == "contract-authoritative":
+            return row
+
+    return None
+
+
 def load_json(path: Path) -> dict[str, Any] | None:
     if not path.is_file():
         return None

@@ -13,6 +13,7 @@ namespace ArchLucid.Persistence.Tenancy;
 ///     Hard-deletes tenant-scoped <c>dbo</c> rows in dependency-safe order. <c>dbo.AuditEvents</c> is skipped unless
 ///     <see cref="TenantHardPurgeOptions.DeleteTenantScopedAuditEvents" /> is enabled (offboarding).
 /// </summary>
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Tenant hard purge uses platform lifecycle identity and dynamic delete SQL within the target catalog.")]
 public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFactory) : ITenantHardPurgeService
 {
     /// <summary>

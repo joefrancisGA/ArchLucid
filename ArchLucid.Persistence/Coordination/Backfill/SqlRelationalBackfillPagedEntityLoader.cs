@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
 
@@ -11,6 +12,7 @@ namespace ArchLucid.Persistence.Coordination.Backfill;
 /// <summary>Keyset-paged header row loads for backfill stages (TB-085).</summary>
 [ExcludeFromCodeCoverage(Justification =
     "SQL-dependent paging queries; covered by SqlRelationalBackfillServiceSqlIntegrationTests.")]
+[TenantScopeExempt(TenantScopeExemptReason.Operational, "Relational backfill worker pages entities within a tenant catalog using dedicated job identity.")]
 public static class SqlRelationalBackfillPagedEntityLoader
 {
     public static async Task<IReadOnlyList<SqlRelationalBackfillGuidPageRow>> LoadGuidPageAsync(
