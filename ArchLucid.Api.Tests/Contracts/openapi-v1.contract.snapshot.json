@@ -6001,8 +6001,17 @@
       },
       "CrossTenantPortfolioSummaryResponse": {
         "properties": {
+          "headlineSavingsScopeCode": {
+            "type": "string"
+          },
+          "headlineSavingsScopeDescription": {
+            "type": "string"
+          },
           "isKAnonymitySatisfied": {
             "type": "boolean"
+          },
+          "portfolioScopeDescription": {
+            "type": "string"
           },
           "topSystemicIssues": {
             "items": {
@@ -6328,6 +6337,67 @@
         },
         "required": [
           "data"
+        ],
+        "type": "object"
+      },
+      "DataConsistencyHeaderRepointCounts": {
+        "properties": {
+          "artifactBundleIdRepoints": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "contextSnapshotIdRepoints": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "decisionTraceIdRepoints": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "findingsSnapshotIdRepoints": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "goldenManifestIdRepoints": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "graphSnapshotIdRepoints": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "artifactBundleIdRepoints",
+          "contextSnapshotIdRepoints",
+          "decisionTraceIdRepoints",
+          "findingsSnapshotIdRepoints",
+          "goldenManifestIdRepoints",
+          "graphSnapshotIdRepoints"
         ],
         "type": "object"
       },
@@ -8241,6 +8311,12 @@
               "string"
             ]
           },
+          "headlineSavingsScopeCode": {
+            "type": "string"
+          },
+          "headlineSavingsScopeDescription": {
+            "type": "string"
+          },
           "historicalTrends": {
             "items": {
               "$ref": "#/components/schemas/ExecutiveRoiSystemicIssueTrendSeries"
@@ -8303,6 +8379,12 @@
             "format": "int32",
             "type": "integer"
           },
+          "systemRowSavingsScopeCode": {
+            "type": "string"
+          },
+          "systemRowSavingsScopeDescription": {
+            "type": "string"
+          },
           "systems": {
             "items": {
               "$ref": "#/components/schemas/SystemLatestRunRoi"
@@ -8322,6 +8404,9 @@
               "number",
               "string"
             ]
+          },
+          "trailing30DayActivityScopeDescription": {
+            "type": "string"
           }
         },
         "type": "object",
@@ -8370,6 +8455,14 @@
               "string"
             ]
           },
+          "headlineSavingsScopeCode": {
+            "default": "headline-disposition-aware-open-needs-evidence",
+            "type": "string"
+          },
+          "headlineSavingsScopeDescription": {
+            "default": "Single-tenant portfolio headline: disposition-aware open \u002B needs-evidence estimated USD from the latest committed run per system (cap 200). Excludes remediated, waived, deferred, and accepted-risk findings.",
+            "type": "string"
+          },
           "pendingGovernanceDecisionCount": {
             "default": 0,
             "format": "int32",
@@ -8398,6 +8491,10 @@
           "totalRiskReductionScore": {
             "format": "int32",
             "type": "integer"
+          },
+          "trailing30DayActivityScopeDescription": {
+            "default": "Trailing 30-day UTC activity: distinct finding IDs resolved via review trail or discovered on committed runs. Counts only \u2014 not USD savings.",
+            "type": "string"
           },
           "uniqueFindingCount": {
             "format": "int32",
@@ -14399,6 +14496,12 @@
             "format": "date-time",
             "type": "string"
           },
+          "periodScopeCode": {
+            "type": "string"
+          },
+          "periodScopeDescription": {
+            "type": "string"
+          },
           "periodStart": {
             "format": "date-time",
             "type": "string"
@@ -18428,6 +18531,40 @@
               "$ref": "#/components/schemas/RunExportRecord"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RunExportLineageVerificationResponse": {
+        "properties": {
+          "committedManifestHash": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "manifestId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "recomputedManifestHash": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -23244,6 +23381,36 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminCacheDiagnosticsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/admin/diagnostics/data-consistency/header-repoints": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataConsistencyHeaderRepointCounts"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataConsistencyHeaderRepointCounts"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataConsistencyHeaderRepointCounts"
                 }
               }
             },
@@ -39493,6 +39660,107 @@
               }
             },
             "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "ArtifactExport"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/artifacts/runs/{runId}/export/verify": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunExportLineageVerificationResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunExportLineageVerificationResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunExportLineageVerificationResponse"
+                }
+              }
+            },
+            "description": "OK"
           },
           "401": {
             "content": {

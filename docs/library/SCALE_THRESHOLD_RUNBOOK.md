@@ -97,5 +97,5 @@ Before adding replicas or Redis, confirm the bottleneck is not a missing index o
 - [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md) — authoritative keys (`HotPathCache:*`, `ArchLucid:HostRole`, `IntegrationEvents:*`)
 - [OBSERVABILITY.md](OBSERVABILITY.md) — export paths and p95-friendly metrics
 - [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) — production-profile fail-fast including telemetry export
-- [TENANT_ISOLATION_DEFENSE_IN_DEPTH.md](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) � tenant isolation architecture per ADR 0037
+- [TENANT_ISOLATION_DEFENSE_IN_DEPTH.md](../security/TENANT_ISOLATION_DEFENSE_IN_DEPTH.md) — tenant isolation architecture per ADR 0037
 - [TECH_BACKLOG.md](TECH_BACKLOG.md) — TB-037 provenance materialization; TB-029 notification boundary (shipped)
