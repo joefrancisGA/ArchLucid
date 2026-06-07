@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -526,12 +527,14 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
+            await EnsureCommittedRunHeaderAnchorsUnchangedAsync(connection, transaction, run, ct);
             await ApplyUpdateAsync(connection, transaction, run, sql, ct);
 
             return;
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await EnsureCommittedRunHeaderAnchorsUnchangedAsync(owned, null, run, ct);
         await ApplyUpdateAsync(owned, null, run, sql, ct);
     }
 
@@ -838,14 +841,38 @@ public sealed class SqlRunRepository(
         };
     }
 
-    private static async Task ApplyUpdateAsync(
+    private static async Task EnsureCommittedRunHeaderAnchorsUnchangedAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         RunRecord run,
-        string sql,
         CancellationToken ct)
     {
-        byte[]? newStamp = await connection.QuerySingleOrDefaultAsync<byte[]>(
+        RunRecord? persisted = await LoadRunForAnchorGuardAsync(connection, transaction, run, ct);
+        CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, run);
+    }
+
+    private static async Task<RunRecord?> LoadRunForAnchorGuardAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        RunRecord run,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        const string sql = """
+                           SELECT
+                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc,
+                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                               GoldenManifestId, DecisionTraceId, ArtifactBundleId,
+                               CurrentManifestVersion, OtelTraceId, StructuralExecutionMode
+                           FROM dbo.Runs
+                           WHERE RunId = @RunId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId;
+                           """;
+
+        return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
                 sql,
                 new
@@ -853,33 +880,63 @@ public sealed class SqlRunRepository(
                     run.RunId,
                     run.TenantId,
                     run.WorkspaceId,
-                    run.ScopeProjectId,
-                    run.ProjectId,
-                    run.Description,
-                    run.ContextSnapshotId,
-                    run.GraphSnapshotId,
-                    run.FindingsSnapshotId,
-                    run.GoldenManifestId,
-                    run.DecisionTraceId,
-                    run.ArtifactBundleId,
-                    run.ArchivedUtc,
-                    run.ArchitectureRequestId,
-                    run.LegacyRunStatus,
-                    run.CompletedUtc,
-                    run.CurrentManifestVersion,
-                    run.IsDemoWelcomeRun,
-                    run.IsPublicShowcase,
-                    run.IsSample,
-                    run.IsPinned,
-                    run.RealModeFellBackToSimulator,
-                    run.PilotAoaiDeploymentSnapshot,
-                    StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
-                    run.RetryCount,
-                    run.LastFailureReason,
-                    run.RowVersion
+                    run.ScopeProjectId
                 },
                 transaction,
                 cancellationToken: ct));
+    }
+
+    private static async Task ApplyUpdateAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        RunRecord run,
+        string sql,
+        CancellationToken ct)
+    {
+        byte[]? newStamp;
+
+        try
+        {
+            newStamp = await connection.QuerySingleOrDefaultAsync<byte[]>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        run.RunId,
+                        run.TenantId,
+                        run.WorkspaceId,
+                        run.ScopeProjectId,
+                        run.ProjectId,
+                        run.Description,
+                        run.ContextSnapshotId,
+                        run.GraphSnapshotId,
+                        run.FindingsSnapshotId,
+                        run.GoldenManifestId,
+                        run.DecisionTraceId,
+                        run.ArtifactBundleId,
+                        run.ArchivedUtc,
+                        run.ArchitectureRequestId,
+                        run.LegacyRunStatus,
+                        run.CompletedUtc,
+                        run.CurrentManifestVersion,
+                        run.IsDemoWelcomeRun,
+                        run.IsPublicShowcase,
+                        run.IsSample,
+                        run.IsPinned,
+                        run.RealModeFellBackToSimulator,
+                        run.PilotAoaiDeploymentSnapshot,
+                        StructuralExecutionMode = run.StructuralExecutionMode.ToString(),
+                        run.RetryCount,
+                        run.LastFailureReason,
+                        run.RowVersion
+                    },
+                    transaction,
+                    cancellationToken: ct));
+        }
+        catch (SqlException ex) when (ex.Number == CommittedRunHeaderAnchorRegistry.TriggerErrorNumber)
+        {
+            throw new RunEvidenceAnchorImmutableException(run.RunId);
+        }
 
         if (newStamp is null)
         {

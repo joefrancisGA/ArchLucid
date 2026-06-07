@@ -4,6 +4,7 @@ using System.Globalization;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
@@ -262,13 +263,14 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         _ = connection;
         _ = transaction;
 
-        if (!_store.ContainsKey(run.RunId))
+        if (!_store.TryGetValue(run.RunId, out RunRecord? existing))
 
             throw new InvalidOperationException(
                 string.Format(CultureInfo.InvariantCulture, "Run '{0:D}' was not found for update.", run.RunId));
 
+        CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(existing, run);
+
         if (run.RowVersion is not null &&
-            _store.TryGetValue(run.RunId, out RunRecord? existing) &&
             existing.RowVersion is not null &&
             !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
 

@@ -20,6 +20,16 @@ internal static class SqlDatabaseImmutabilityProbeHelpers
         return scalar is not null and not DBNull;
     }
 
+    internal static bool TriggerExists(SqlConnection connection, string triggerName)
+    {
+        const string sql = "SELECT CASE WHEN OBJECT_ID(@TriggerName, N'TR') IS NULL THEN 0 ELSE 1 END;";
+
+        using SqlCommand command = new(sql, connection);
+        command.Parameters.Add(new SqlParameter("@TriggerName", SqlDbType.NVarChar, 256) { Value = triggerName });
+
+        return Convert.ToInt32(command.ExecuteScalar()) == 1;
+    }
+
     internal static bool RoleExists(SqlConnection connection, string roleName)
     {
         const string sql = """

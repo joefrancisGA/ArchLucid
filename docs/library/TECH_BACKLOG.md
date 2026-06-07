@@ -9554,3 +9554,21 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope:** transactional enqueue in the same SQL UOW as commit (commit path already durable); retroactive re-enqueue when feature flags flip.
 
 **Refs:** ADR-0004; ADR-0043; ADR-0044; TB-306.
+
+## TB-310 — Committed run header evidence-anchor immutability
+
+**Status:** **Done** (2026-06-06).
+
+**Problem:** TB-303 sealed child evidence tables but `dbo.Runs` remained fully mutable, including FK pointers to snapshots/manifest/bundle/trace. A committed run could theoretically repoint its evidence chain after commit.
+
+**Shipped:**
+
+1. `CommittedRunHeaderAnchorRegistry` — canonical list of 15 anchor columns + trigger name (Core).
+2. Migration **250** / `ArchLucid.sql` — `TR_Runs_SealCommittedHeader` (`AFTER UPDATE`) raises 50310 when `DELETED.GoldenManifestId IS NOT NULL` and any anchor column changes; commit transition (NULL → manifest id) allowed.
+3. `CommittedRunHeaderAnchorGuard` + `RunEvidenceAnchorImmutableException` — fail-fast in `SqlRunRepository.UpdateAsync` and in-memory parity; SQL 50310 mapped to same exception.
+4. `SqlCommittedRunHeaderImmutabilityRules` startup probe (production-like SQL hosts fail closed).
+5. ADR **0045**, [`EVIDENCE_IMMUTABILITY.md`](EVIDENCE_IMMUTABILITY.md), architecture + SQL + Core unit tests.
+
+**Out of scope:** Sealing `ArchitectureRequestId`; FK repoint detection (#6); table-split into `dbo.RunEvidenceAnchors`.
+
+**Refs:** ADR-0039; ADR-0045; TB-303.
