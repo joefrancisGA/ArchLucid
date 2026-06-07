@@ -22,8 +22,11 @@
 
 ## CI enforcement
 
+- `python scripts/ci/check_claim_evidence_consistency.py` (unified gate + JSON report — T2-8)
 - `python scripts/ci/check_compliance_posture_clarity.py`
 - `python scripts/ci/check_commercial_overclaim_guard.py` (includes marketing UI paths)
+
+See [`CLAIM_EVIDENCE_CONSISTENCY_GATE.md`](../quality/CLAIM_EVIDENCE_CONSISTENCY_GATE.md).
 
 ## Linked artifacts
 

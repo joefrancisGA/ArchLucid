@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Roi;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Value;
@@ -61,11 +62,16 @@ public sealed class ValueReportBuilder(IValueReportMetricsReader metricsReader, 
             reviewDeltaPercent = baselineReviewHours > 0m ? 100m * (baselineReviewHours - measuredHours) / baselineReviewHours : null;
         }
 
+        string valueWindowScopeDescription = RoiSponsorFacingScopeDescriptions.ForValueReportWindow(fromUtcInclusive, toUtcExclusive);
+
         return new ValueReportSnapshot(tenantId, workspaceId, projectId, fromUtcInclusive, toUtcExclusive, rows, raw.RunsCompletedCount,
             raw.ManifestsCommittedCount, raw.GovernanceEventCount, raw.DriftAlertEventCount, manifestHours, governanceHours, driftHours, totalHours,
             llmWindowUsd, o.EstimatedLlmCostMethodologyNote, annualizedHoursValueUsd, annualizedLlmUsd, baseline, net, roiPercent,
             raw.TenantBaselineReviewCycleHours, raw.TenantBaselineReviewCycleSource, raw.TenantBaselineReviewCycleCapturedUtc,
             raw.MeasuredAverageReviewCycleHoursForWindow, raw.MeasuredReviewCycleSampleSize, reviewProvenance, reviewDeltaHours, reviewDeltaPercent,
-            raw.FindingFeedbackNetScore, raw.FindingFeedbackVoteCount, raw.TenantBaselineManualPrepHoursPerReview, raw.TenantBaselinePeoplePerReview);
+            raw.FindingFeedbackNetScore, raw.FindingFeedbackVoteCount, raw.TenantBaselineManualPrepHoursPerReview, raw.TenantBaselinePeoplePerReview,
+            ValueWindowScopeCode: RoiSponsorFacingScopeCodes.ValueReportActivityWindow,
+            ValueWindowScopeDescription: valueWindowScopeDescription,
+            RoiMetricScopeDescription: valueWindowScopeDescription);
     }
 }

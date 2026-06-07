@@ -58,7 +58,7 @@ public sealed class ExecutiveRoiBasisBreakdown
         init;
     }
 
-    /// <summary>Sum of buckets; mirrors <see cref="ExecutiveRoiSummaryResponse.TotalEstimatedUsdSavings" /> when aligned to open+accepted+needs+deferred only.</summary>
+    /// <summary>Sum of open, accepted-risk, needs-evidence, deferred, and waived buckets (excludes realized and rejected).</summary>
     public decimal TotalPotentialUsd
     {
         get;

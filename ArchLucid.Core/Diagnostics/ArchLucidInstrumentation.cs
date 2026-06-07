@@ -464,6 +464,42 @@ public static class ArchLucidInstrumentation
             "archlucid_integration_event_delivery_failed_total",
             description: "Integration event outbox publish failures (label event_type).");
 
+    /// <summary>Run-export blob push outbox rows processed successfully (blob pushed or benign skip).</summary>
+    public static readonly Counter<long> RunExportBlobPushOutboxProcessedSuccessTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_run_export_blob_push_outbox_processed_success_total",
+            description: "Run-export blob push outbox rows marked processed without dead-letter.");
+
+    /// <summary>Run-export blob push outbox transient failures scheduled for retry.</summary>
+    public static readonly Counter<long> RunExportBlobPushOutboxRetryScheduledTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_run_export_blob_push_outbox_retry_scheduled_total",
+            description: "Run-export blob push outbox rows that recorded backoff after a processing failure.");
+
+    /// <summary>Run-export blob push outbox rows moved to dead-letter state.</summary>
+    public static readonly Counter<long> RunExportBlobPushOutboxDeadLetteredTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_run_export_blob_push_outbox_dead_lettered_total",
+            description: "Run-export blob push outbox rows dead-lettered after non-retryable failure or exhausted retries.");
+
+    /// <summary>Post-commit projection outbox rows processed successfully (side effect completed or benign skip).</summary>
+    public static readonly Counter<long> PostCommitProjectionOutboxProcessedSuccessTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_post_commit_projection_outbox_processed_success_total",
+            description: "Post-commit projection outbox rows marked processed without dead-letter.");
+
+    /// <summary>Post-commit projection outbox transient failures scheduled for retry.</summary>
+    public static readonly Counter<long> PostCommitProjectionOutboxRetryScheduledTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_post_commit_projection_outbox_retry_scheduled_total",
+            description: "Post-commit projection outbox rows that recorded backoff after a processing failure.");
+
+    /// <summary>Post-commit projection outbox rows moved to dead-letter state.</summary>
+    public static readonly Counter<long> PostCommitProjectionOutboxDeadLetteredTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_post_commit_projection_outbox_dead_lettered_total",
+            description: "Post-commit projection outbox rows dead-lettered after non-retryable failure or exhausted retries.");
+
     /// <summary>LLM completion response cache hits (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
     public static readonly Counter<long> LlmCompletionCacheHitsTotal =
         AppMeter.CreateCounter<long>(
@@ -975,16 +1011,6 @@ public static class ArchLucidInstrumentation
             description:
             "Orphan rows quarantined (inserted into dbo.DataConsistencyQuarantine; labels table, column).");
 
-    /// <summary>
-    ///     DbUp or journal-repair path touched RLS rename migration <c>108_RlsRenameToArchLucid.sql</c> (labels
-    ///     <c>migration_id</c>, <c>tenant_scope</c> SQL catalog name, <c>encounter_kind</c>).
-    /// </summary>
-    public static readonly Counter<long> CatalogMigrationRls108ReplayNotesTotal =
-        AppMeter.CreateCounter<long>(
-            "archlucid_catalog_migration_rls_108_replay_notes_total",
-            description:
-            "RLS migration 108 (ArchLucid tenant-scope rename) noted during catalog migration (labels migration_id, tenant_scope, encounter_kind).");
-
     /// <summary>Wall time for scheduled read-only data consistency reconciliation (full pass).</summary>
     public static readonly Histogram<double> DataConsistencyReconciliationDurationMilliseconds =
         AppMeter.CreateHistogram<double>(
@@ -1184,6 +1210,40 @@ public static class ArchLucidInstrumentation
             () => new Measurement<double>(s.Current.IntegrationEventOutboxOldestActionablePendingAgeSeconds),
             "s",
             "Age in seconds of the oldest actionable integration outbox publish row.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_run_export_blob_push_outbox_pending",
+            () => new Measurement<long>(s.Current.RunExportBlobPushOutboxPending),
+            description:
+            "dbo.RunExportBlobPushOutbox rows eligible for dequeue (excludes dead letters, active leases, backoff window).");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_run_export_blob_push_outbox_oldest_pending_age_seconds",
+            () => new Measurement<double>(s.Current.RunExportBlobPushOutboxOldestPendingAgeSeconds),
+            "s",
+            "Age in seconds of the oldest actionable run-export blob push outbox row.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_run_export_blob_push_outbox_dead_letter",
+            () => new Measurement<long>(s.Current.RunExportBlobPushOutboxDeadLetter),
+            description: "dbo.RunExportBlobPushOutbox rows exhausted retries (DeadLetteredUtc set).");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_post_commit_projection_outbox_pending",
+            () => new Measurement<long>(s.Current.PostCommitProjectionOutboxPending),
+            description:
+            "dbo.PostCommitProjectionOutbox rows eligible for dequeue (excludes dead letters, active leases, backoff window).");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_post_commit_projection_outbox_oldest_pending_age_seconds",
+            () => new Measurement<double>(s.Current.PostCommitProjectionOutboxOldestPendingAgeSeconds),
+            "s",
+            "Age in seconds of the oldest actionable post-commit projection outbox row.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_post_commit_projection_outbox_dead_letter",
+            () => new Measurement<long>(s.Current.PostCommitProjectionOutboxDeadLetter),
+            description: "dbo.PostCommitProjectionOutbox rows exhausted retries (DeadLetteredUtc set).");
 
         AppMeter.CreateObservableGauge(
             "archlucid_audit_retry_queue_pending",
@@ -1588,6 +1648,42 @@ public static class ArchLucidInstrumentation
     {
         string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
         IntegrationEventDeliveryFailedTotal.Add(1, new TagList { { "event_type", e } });
+    }
+
+    /// <summary>Increments <see cref="RunExportBlobPushOutboxProcessedSuccessTotal" />.</summary>
+    public static void RecordRunExportBlobPushOutboxProcessedSuccess()
+    {
+        RunExportBlobPushOutboxProcessedSuccessTotal.Add(1);
+    }
+
+    /// <summary>Increments <see cref="RunExportBlobPushOutboxRetryScheduledTotal" />.</summary>
+    public static void RecordRunExportBlobPushOutboxRetryScheduled()
+    {
+        RunExportBlobPushOutboxRetryScheduledTotal.Add(1);
+    }
+
+    /// <summary>Increments <see cref="RunExportBlobPushOutboxDeadLetteredTotal" />.</summary>
+    public static void RecordRunExportBlobPushOutboxDeadLettered()
+    {
+        RunExportBlobPushOutboxDeadLetteredTotal.Add(1);
+    }
+
+    /// <summary>Increments <see cref="PostCommitProjectionOutboxProcessedSuccessTotal" />.</summary>
+    public static void RecordPostCommitProjectionOutboxProcessedSuccess()
+    {
+        PostCommitProjectionOutboxProcessedSuccessTotal.Add(1);
+    }
+
+    /// <summary>Increments <see cref="PostCommitProjectionOutboxRetryScheduledTotal" />.</summary>
+    public static void RecordPostCommitProjectionOutboxRetryScheduled()
+    {
+        PostCommitProjectionOutboxRetryScheduledTotal.Add(1);
+    }
+
+    /// <summary>Increments <see cref="PostCommitProjectionOutboxDeadLetteredTotal" />.</summary>
+    public static void RecordPostCommitProjectionOutboxDeadLettered()
+    {
+        PostCommitProjectionOutboxDeadLetteredTotal.Add(1);
     }
 
     private static string ResolveRagRetrievalCorpusKindLabel(IReadOnlyList<RetrievalHit>? hits)
@@ -2057,29 +2153,6 @@ public static class ArchLucidInstrumentation
     {
         string r = string.IsNullOrWhiteSpace(ruleName) ? "unknown" : ruleName.Trim();
         StartupConfigWarningsTotal.Add(1, new TagList { { "rule_name", r } });
-    }
-
-    /// <summary>
-    ///     Increments <see cref="CatalogMigrationRls108ReplayNotesTotal" />. <paramref name="tenantScope" /> should be
-    ///     the SQL catalog name (e.g. <see cref="Microsoft.Data.SqlClient.SqlConnection.Database" />).
-    /// </summary>
-    public static void RecordCatalogMigrationRls108ReplayNote(
-        string migrationId,
-        string tenantScope,
-        string encounterKind)
-    {
-        string m = string.IsNullOrWhiteSpace(migrationId) ? "unknown" : migrationId.Trim();
-        string scope = string.IsNullOrWhiteSpace(tenantScope) ? "unknown" : tenantScope.Trim();
-        string k = string.IsNullOrWhiteSpace(encounterKind) ? "unknown" : encounterKind.Trim();
-
-        TagList tags = new()
-        {
-            { "migration_id", m },
-            { "tenant_scope", scope },
-            { "encounter_kind", k },
-        };
-
-        CatalogMigrationRls108ReplayNotesTotal.Add(1, tags);
     }
 
     /// <summary>Records a latency observation for TB-003 allowlisted queries (production or CI ingest).</summary>

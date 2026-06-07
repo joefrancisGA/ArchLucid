@@ -1042,8 +1042,7 @@ IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
 GO
 
 /* Relational findings — greenfield CREATE TABLE parity with DbUp 129 (scope columns on child/authority-path tables).
-   DbUp 129 replay backfills and SECURITY POLICY binds are brownfield-only (dynamic SQL / replay guards); keep this file aligned
-   with 129's final column layout. DbUp 148 may remove RLS after migrate (MULTI_TENANT_RLS.md). */
+   DbUp 129 backfills are brownfield-only; keep this file aligned with 129's final column layout. */
 -- Relational findings (dual-write with FindingsJson; typed payload only in FindingRecords.PayloadJson).
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NULL
 BEGIN
@@ -3234,6 +3233,32 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_RunExportBlobPushOutbox_Pending
         ON dbo.RunExportBlobPushOutbox (ProcessedUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL;
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'PostCommitProjectionOutbox' AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE dbo.PostCommitProjectionOutbox
+    (
+        OutboxId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_PostCommitProjectionOutbox PRIMARY KEY,
+        WorkType NVARCHAR(64) NOT NULL,
+        RunId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        PayloadJson NVARCHAR(MAX) NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        ProcessedUtc DATETIME2 NULL,
+        AttemptCount INT NOT NULL CONSTRAINT DF_PostCommitProjectionOutbox_AttemptCount DEFAULT ((0)),
+        LockedUntilUtc DATETIME2 NULL,
+        NextAttemptUtc DATETIME2 NULL,
+        LastAttemptError NVARCHAR(400) NULL,
+        DeadLetteredUtc DATETIME2 NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_PostCommitProjectionOutbox_Pending
+        ON dbo.PostCommitProjectionOutbox (ProcessedUtc, CreatedUtc)
         WHERE ProcessedUtc IS NULL;
 END;
 GO
@@ -8090,40 +8115,6 @@ BEGIN
         ON dbo.AuditEvents (RunId, OccurredUtc DESC)
         WHERE RunId IS NOT NULL;
 END;
-GO
-
-/* ---- DbUp 192 parity: drop legacy archiforge RLS predicates (see Migrations/192_DropLegacyArchiforgeRlsFunctions.sql) ---- */
-SET XACT_ABORT ON;
-GO
-
-IF OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NOT NULL
-   AND OBJECT_ID(N'sys.security_predicates', N'V') IS NOT NULL
-   AND EXISTS (
-        SELECT 1
-        FROM sys.columns AS c
-        WHERE c.object_id = OBJECT_ID(N'sys.security_predicates', N'V')
-          AND c.name = N'predicate_definition')
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS sp
-        WHERE CHARINDEX(N'rls.archiforge_scope_predicate', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0
-           OR CHARINDEX(N'[rls].[archiforge_scope_predicate]', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0)
-    EXEC (N'DROP FUNCTION rls.archiforge_scope_predicate;');
-GO
-
-IF OBJECT_ID(N'rls.archiforge_tenant_predicate', N'IF') IS NOT NULL
-   AND OBJECT_ID(N'sys.security_predicates', N'V') IS NOT NULL
-   AND EXISTS (
-        SELECT 1
-        FROM sys.columns AS c
-        WHERE c.object_id = OBJECT_ID(N'sys.security_predicates', N'V')
-          AND c.name = N'predicate_definition')
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS sp
-        WHERE CHARINDEX(N'rls.archiforge_tenant_predicate', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0
-           OR CHARINDEX(N'[rls].[archiforge_tenant_predicate]', sp.predicate_definition COLLATE Latin1_General_CI_AI) > 0)
-    EXEC (N'DROP FUNCTION rls.archiforge_tenant_predicate;');
 GO
 
 /* ---- DbUp 198 parity: HTTP idempotency replay store (see Migrations/198_IdempotencyRecords.sql) ---- */

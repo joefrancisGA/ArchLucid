@@ -64,40 +64,4 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-   AND OBJECT_ID(N'dbo.ConfluencePublishingTargets', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'ConfluencePublishingTargets')
-BEGIN
-    EXEC (N'
-ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets BEFORE DELETE;
-');
-END;
-GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-   AND OBJECT_ID(N'dbo.ConfluencePublishJobs', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'ConfluencePublishJobs')
-BEGIN
-    EXEC (N'
-ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs BEFORE DELETE;
-');
-END;
-GO

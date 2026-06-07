@@ -19,6 +19,8 @@ using ArchLucid.Host.Composition.Alerts;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Cosmos;
+using ArchLucid.Host.Core.Coordination.Export;
+using ArchLucid.Host.Core.Coordination.Projection;
 using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
@@ -33,6 +35,8 @@ using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Alerts.Simulation;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Coordination.Export;
+using ArchLucid.Persistence.Coordination.Projection;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Orchestration;
 
@@ -196,6 +200,26 @@ public static partial class ServiceCollectionExtensions
 
         services.AddHostedService<RetrievalIndexingOutboxHostedService>();
         services.AddHostedService<AuthorityPipelineWorkHostedService>();
+    }
+
+    private static void RegisterRunExportBlobPushOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
+    {
+        services.AddSingleton<IRunExportBlobPushOutboxProcessor, RunExportBlobPushOutboxProcessor>();
+
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
+            return;
+
+        services.AddHostedService<RunExportBlobPushOutboxHostedService>();
+    }
+
+    private static void RegisterPostCommitProjectionOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
+    {
+        services.AddSingleton<IPostCommitProjectionOutboxProcessor, PostCommitProjectionOutboxProcessor>();
+
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
+            return;
+
+        services.AddHostedService<PostCommitProjectionOutboxHostedService>();
     }
 
     private static void RegisterCosmosGraphSnapshotOutbox(

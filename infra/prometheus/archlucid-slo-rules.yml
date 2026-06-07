@@ -233,6 +233,9 @@ groups:
       # Mirrors OTel gauge for dashboards / recording consistency (integration event publish path).
       - record: archlucid:slo:integration_event_outbox_oldest_age_seconds
         expr: archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds
+
+      - record: archlucid:slo:run_export_blob_push_outbox_oldest_age_seconds
+        expr: archlucid_run_export_blob_push_outbox_oldest_pending_age_seconds
         labels:
           component: worker
 
@@ -244,6 +247,7 @@ groups:
           (archlucid_authority_pipeline_work_pending > 500)
           or (archlucid_retrieval_indexing_outbox_pending > 500)
           or (archlucid_integration_event_outbox_publish_pending > 500)
+          or (archlucid_run_export_blob_push_outbox_pending > 500)
         for: 15m
         labels:
           severity: critical

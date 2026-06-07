@@ -1,5 +1,3 @@
-using System.Data;
-
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -8,11 +6,6 @@ namespace ArchLucid.Persistence.Analytics;
 
 internal static class InternalCrossTenantSqlMetricsQueries
 {
-    internal const string RowLevelSecurityBypassSql = """
-        -- @read_only = 1 makes the bypass value immutable for the session lifetime.
-        EXEC sys.sp_set_session_context @key = N'al_rls_bypass', @value = @Bypass, @read_only = 1;
-        """;
-
     internal sealed record TenantRunTotalsRow(
         Guid TenantId,
         long TotalRunsNonArchived,

@@ -212,6 +212,18 @@ finally {
 
 Add-CheckRow $checks "validate-config (repo host JSON)" (Map-ExitToVerdict $validateExit).verdict (Map-ExitToVerdict $validateExit).detail "validate-config.json"
 
+& pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-ConfigLintProofStep.ps1") -OutputDir $OutDir -SkipBuild
+[int] $configLintExit = $LASTEXITCODE
+[string] $configLintVerdict = if ($configLintExit -eq 0) { "PASS" } else { "FAIL" }
+[string] $configLintDetail = if ($configLintExit -eq 0) { "production-like-hosted-pilot; RC baseline fixture; advisory findings non-blocking" } else { "blocking findings; exit $configLintExit" }
+Add-CheckRow $checks "Production-like config lint (RC baseline)" $configLintVerdict $configLintDetail "config-lint-production-like-hosted-pilot.json"
+
+& pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-ClaimEvidenceConsistencyGate.ps1") -OutputDir $OutDir
+[int] $claimEvidenceExit = $LASTEXITCODE
+[string] $claimEvidenceVerdict = if ($claimEvidenceExit -eq 0) { "PASS" } else { "FAIL" }
+[string] $claimEvidenceDetail = if ($claimEvidenceExit -eq 0) { "trust/pricing/procurement claims match evidence markers and deferred labels" } else { "unsupported or stale buyer-facing claims; exit $claimEvidenceExit" }
+Add-CheckRow $checks "Claim/evidence consistency (T2-8)" $claimEvidenceVerdict $claimEvidenceDetail "claim-evidence-consistency.json"
+
 [string] $rollbackNote = Join-Path $OutDir "rollback-readiness-note.md"
 @"
 # Rollback readiness (operator-owned)
@@ -354,7 +366,7 @@ foreach ($c in $checks) {
 [void] $md.AppendLine("")
 [void] $md.AppendLine("**Generate:** ``pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1 [-ApiBaseUrl https://staging.example]``")
 [void] $md.AppendLine("")
-[void] $md.AppendLine("Machine-readable index: ``release-readiness-index.json``. Redaction policy: ``redaction-note.md``.")
+[void] $md.AppendLine("Machine-readable index: ``release-readiness-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Redaction policy: ``redaction-note.md``.")
 [void] $md.AppendLine("")
 [void] $md.AppendLine("See ``docs/library/DEPLOYMENT_RUNBOOK.md`` and ``docs/library/OBSERVABILITY.md``.")
 
@@ -363,6 +375,29 @@ Set-Content -LiteralPath $summaryPath -Value $md.ToString() -Encoding utf8
 # Legacy markdown index retained for backward-compatible links.
 [string] $legacyIndexPath = Join-Path $OutDir "release-readiness-index.md"
 Copy-Item -LiteralPath $summaryPath -Destination $legacyIndexPath -Force
+
+& pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-WriteReleaseEvidenceBundleManifest.ps1") `
+    -BundleDir $OutDir `
+    -Profile "release-readiness" `
+    -Rollup $rollup `
+    -GitCommitSha $gitCommitSha `
+    -CliVersion $cliVersion `
+    -Environment $Environment
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to emit release-evidence-bundle-manifest.json"
+}
+
+& pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-ValidateReleaseEvidenceBundle.ps1") `
+    -BundleDir $OutDir `
+    -Profile "release-readiness" `
+    -JsonOut (Join-Path $OutDir "release-evidence-bundle-validation.json")
+
+[int] $bundleValidateExit = $LASTEXITCODE
+
+if ($bundleValidateExit -ne 0) {
+    Write-Warning "Release evidence bundle schema validation failed (exit $bundleValidateExit). See release-evidence-bundle-validation.json."
+}
 
 Write-Host "Wrote release readiness bundle to $OutDir (rollup=$rollup)"
 

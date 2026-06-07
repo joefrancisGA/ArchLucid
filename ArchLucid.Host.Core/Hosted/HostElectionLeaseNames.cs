@@ -13,6 +13,10 @@ public static class HostElectionLeaseNames
 
     public const string RetrievalIndexingOutbox = "hosted:retrieval-indexing-outbox";
 
+    public const string RunExportBlobPushOutbox = "hosted:run-export-blob-push-outbox";
+
+    public const string PostCommitProjectionOutbox = "hosted:post-commit-projection-outbox";
+
     public const string CosmosGraphSnapshotOutbox = "hosted:cosmos-graph-snapshot-outbox";
 
     public const string IntegrationEventOutbox = "hosted:integration-event-outbox";

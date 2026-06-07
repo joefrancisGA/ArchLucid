@@ -324,8 +324,9 @@ public sealed class ExecutiveRoiSummaryServiceExtendedTests
         CrossTenantPortfolioSummaryResponse response =
             await sut.GetCrossTenantPortfolioSummaryAsync("user-key", CancellationToken.None);
 
-        // Snapshot savings are per latest run per system; finding-id dedup does not collapse resolver totals.
+        // Disposition-aware headline sums open snapshot USD per latest run per system; finding-id dedup affects issues only.
         response.TotalEstimatedUsdSavings.Should().Be(8000m);
+        response.HeadlineSavingsScopeCode.Should().Be(RoiSponsorFacingScopeCodes.CrossTenantPortfolioHeadline);
         response.TopSystemicIssues.Should().ContainSingle(issue =>
             issue.Category == "CostOptimization"
             && issue.Severity == nameof(FindingSeverity.Warning)

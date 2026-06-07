@@ -66,6 +66,7 @@ function Invoke-JsonProbe {
     }
 }
 
+$lines = [System.Collections.Generic.List[string]]::new()
 $normalizedBaseUrl = $BaseUrl.TrimEnd("/")
 $timestamp = (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ")
 $outputRoot = Join-Path (Get-Location) $OutputDirectory
@@ -135,3 +136,14 @@ $lines.Add("")
 
 $lines | Set-Content -Path $outputPath -Encoding UTF8
 Write-Host "Wrote $outputPath"
+
+$manifestScript = Join-Path $PSScriptRoot 'ci/Invoke-WriteReleaseEvidenceBundleManifest.ps1'
+$validateScript = Join-Path $PSScriptRoot 'ci/Invoke-ValidateReleaseEvidenceBundle.ps1'
+
+if (Test-Path -LiteralPath $manifestScript) {
+    & $manifestScript -BundleDir $outputRoot -Profile 'staging-readiness' -Rollup 'UNKNOWN'
+
+    if (Test-Path -LiteralPath $validateScript) {
+        & $validateScript -BundleDir $outputRoot -Profile 'staging-readiness' -JsonOut (Join-Path $outputRoot 'release-evidence-bundle-validation.json')
+    }
+}

@@ -28,22 +28,6 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.CorePilotTeamChecklist', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'CorePilotTeamChecklist')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CorePilotTeamChecklist,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CorePilotTeamChecklist AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CorePilotTeamChecklist AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CorePilotTeamChecklist BEFORE DELETE;
-END;
-GO
 
 IF EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'ArchLucidApp')
    AND OBJECT_ID(N'dbo.CorePilotTeamChecklist', N'U') IS NOT NULL

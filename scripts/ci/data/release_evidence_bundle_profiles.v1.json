@@ -1,0 +1,78 @@
+{
+  "schema": "archlucid.release-evidence-bundle-profiles.v1",
+  "manifestFileName": "release-evidence-bundle-manifest.json",
+  "profiles": {
+    "release-readiness": {
+      "description": "Unified repo-local release readiness bundle from Emit-ReleaseReadinessEvidence.ps1",
+      "requiredFiles": [
+        "release-readiness-index.json",
+        "release-readiness-summary.md",
+        "release-readiness-index.md",
+        "redaction-note.md",
+        "production-profile-preflight.md",
+        "terraform-drift-preflight.json",
+        "terraform-drift-preflight.md",
+        "validate-config.json",
+        "config-lint-production-like-hosted-pilot.json",
+        "config-lint-production-like-hosted-pilot.md",
+        "claim-evidence-consistency.json",
+        "rollback-readiness-note.md",
+        "db-migration-status-note.md",
+        "k6-smoke-status-note.md",
+        "real-llm-release-requirement.md"
+      ],
+      "requiredPatterns": [
+        {
+          "pattern": "observability-export-readiness-*.md",
+          "minMatches": 3,
+          "label": "observability export reports (environment + strict)"
+        }
+      ],
+      "optionalFiles": [
+        "claim-evidence-consistency.md",
+        "health-ready.json",
+        "version.json",
+        "deployment-evidence.md",
+        "hosted-availability-rollup.md",
+        "retrieval-ir-report.md",
+        "real-llm-evidence-gate.json",
+        "real-llm-evidence-gate.md",
+        "simulator-only-override.md"
+      ]
+    },
+    "production-readiness-drill": {
+      "description": "Timestamped drill folder from production-readiness-drill.ps1",
+      "requiredFiles": [
+        "drill-summary.json",
+        "drill-summary.md"
+      ],
+      "requiredPatterns": [
+        {
+          "pattern": "config-lint/config-lint-production-like-hosted-pilot.json",
+          "minMatches": 1,
+          "label": "production-like config lint JSON"
+        }
+      ],
+      "optionalFiles": [
+        "config-lint/config-lint-production-like-hosted-pilot.md",
+        "v1-rc-drill/v1-rc-drill.log"
+      ]
+    },
+    "staging-readiness": {
+      "description": "Hosted staging capture from capture-staging-readiness-evidence.ps1",
+      "requiredFiles": [],
+      "requiredPatterns": [
+        {
+          "pattern": "staging-readiness-*.md",
+          "minMatches": 1,
+          "label": "staging readiness summary markdown"
+        }
+      ],
+      "optionalFiles": [
+        "health-ready.json",
+        "version.json",
+        "doctor.json"
+      ]
+    }
+  }
+}

@@ -1,6 +1,7 @@
-# Pilot / RC gate: Release build, CLI auth lint (`dotnet run … -- config lint`), fast-core tests in Release, optional UI Vitest. See docs/RELEASE_LOCAL.md
+# Pilot / RC gate: Release build, production-like config lint, fast-core tests in Release, optional UI Vitest. See docs/RELEASE_LOCAL.md
 param(
-    [switch] $SkipUi
+    [switch] $SkipUi,
+    [switch] $SkipConfigLint
 )
 
 Set-StrictMode -Version Latest
@@ -34,25 +35,30 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-Write-OperatorPhaseHeader -Title 'CLI config lint (auth traps only; ASPNETCORE_ENVIRONMENT=Development for empty cwd)' -Step 2 -Total $totalPhases
-Push-Location $root
-try {
-    $savedAsp = [Environment]::GetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Process')
-    [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Process')
-    dotnet run --project (Join-Path $root 'ArchLucid.Cli\ArchLucid.Cli.csproj') -c Release --no-build -- config lint
+if (-not $SkipConfigLint) {
+    Write-OperatorPhaseHeader -Title 'Production-like config lint (profile production-like-hosted-pilot; RC baseline fixture)' -Step 2 -Total $totalPhases
+    [string] $readinessEvidenceDir = Join-Path $root 'artifacts/release-readiness'
+    & (Join-Path $PSScriptRoot 'ci/Invoke-ConfigLintProofStep.ps1') `
+        -OutputDir $readinessEvidenceDir `
+        -SkipBuild
 
     if ($LASTEXITCODE -ne 0) {
-        Write-OperatorFailureTriage -Stage '2 CLI config lint' -Category 'ConfigLintFailure' `
-            -Details @('Blocking auth mis-configuration found in cwd JSON overlays (appsettings/archlucid.json) combined with simulated env.') `
+        Write-OperatorFailureTriage -Stage '2 Production-like config lint' -Category 'ConfigLintFailure' `
+            -Details @(
+            'Blocking production-like-hosted-pilot findings in fixtures/release-candidate/appsettings.json (RC baseline shape).',
+            'Artifacts: artifacts/release-readiness/config-lint-production-like-hosted-pilot.json'
+        ) `
             -NextSteps @(
-            'Inspect stderr above — fix AuthMode traps (see docs/library/CONFIGURATION_REFERENCE.md)',
-            'Re-run manually: dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj -c Release -- config lint'
+            'Inspect blocking rows in config-lint-production-like-hosted-pilot.md',
+            'Validate deployed config: archlucid config lint --profile production-like-hosted-pilot --json-out <path>',
+            'See docs/library/CONFIGURATION_REFERENCE.md — Production-like enterprise pilot',
+            'Emergency local skip only: .\scripts\run-readiness-check.ps1 -SkipConfigLint'
         )
         exit $LASTEXITCODE
     }
 }
-finally {
-    [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', $savedAsp, 'Process')
+else {
+    Write-Warning 'Skipped production-like config lint (-SkipConfigLint). Do not use for release-candidate signoff.'
 }
 
 Write-OperatorPhaseHeader -Title 'Fast core tests (Release, no rebuild)' -Step 3 -Total $totalPhases

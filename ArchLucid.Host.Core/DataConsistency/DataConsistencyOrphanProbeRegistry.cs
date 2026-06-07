@@ -50,6 +50,14 @@ public static class DataConsistencyOrphanProbeRegistry
             "RunId",
             "Transactional outbox rows are retried or dead-lettered independently of authority orphan probes."),
         OptOut(
+            "RunExportBlobPushOutbox",
+            "RunId",
+            "Transactional outbox rows are retried or dead-lettered independently of authority orphan probes."),
+        OptOut(
+            "PostCommitProjectionOutbox",
+            "RunId",
+            "Transactional outbox rows are retried or dead-lettered independently of authority orphan probes."),
+        OptOut(
             "AuthorityPipelineWorkOutbox",
             "RunId",
             "Transactional outbox rows are retried or dead-lettered independently of authority orphan probes."),

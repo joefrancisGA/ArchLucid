@@ -12,6 +12,14 @@
 
 After Phase C step **Commit** in [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) succeeds and before sending a sponsor packet or procurement follow-up.
 
+## One-command sponsor packet (committed run)
+
+For a single committed run handoff (buyer-ready folder + optional ZIP), use [`SPONSOR_PACKET.md`](SPONSOR_PACKET.md):
+
+```bash
+archlucid sponsor-packet <runId> --out artifacts/sponsor-packet/<runId>
+```
+
 ## One-command proof pipeline
 
 Use this before and after the first committed review. Without `-RunId`, the pipeline produces a readiness-only go/no-go report and records the missing run id as a **WARN**, not a blocking failure. For external sponsor handoff, pass `-SponsorHandoff`; in that mode a missing `-RunId` is a **BLOCK** and the summary emits a `sponsorPacketDisposition` of `SEND`, `HOLD`, or `DEFERRED_SCOPE`.
@@ -167,7 +175,8 @@ Creates `artifacts/first-pilot-evidence/first-pilot-evidence-<UTC>/` containing:
 | Artifact | Purpose |
 | --- | --- |
 | `run-metadata.json` | Collection stamp, run id, buyer-safe file list |
-| `artifact-manifest.json` | SHA-256 checksums for tamper-evident handoff |
+| `artifact-manifest.json` | SHA-256 checksums for tamper-evident handoff (CLI proof packet) |
+| `export-manifest.json` | *(inside API run export ZIP)* per-file SHA-256 + committed manifest hash anchor — verify via `GET /v1/artifacts/runs/{runId}/export/verify` (TB-307 / ADR 0040) |
 | `pilot-run-deltas.json` | Findings summary + proof-package completeness |
 | `first-value-report.md` | Sponsor narrative with ROI basis labels |
 | `audit-slice-metadata.json` | Recent audit event metadata (no raw payloads) |

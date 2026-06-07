@@ -2,38 +2,8 @@
   Rollback 118: remove RLS bindings, drop FKs, drop scope indexes, drop scope columns on governance tables.
 */
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        DROP FILTER PREDICATE ON dbo.GovernanceApprovalRequests,
-        DROP BLOCK PREDICATE ON dbo.GovernanceApprovalRequests FOR AFTER INSERT,
-        DROP BLOCK PREDICATE ON dbo.GovernanceApprovalRequests FOR AFTER UPDATE,
-        DROP BLOCK PREDICATE ON dbo.GovernanceApprovalRequests FOR BEFORE DELETE;
-END;
-GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        DROP FILTER PREDICATE ON dbo.GovernancePromotionRecords,
-        DROP BLOCK PREDICATE ON dbo.GovernancePromotionRecords FOR AFTER INSERT,
-        DROP BLOCK PREDICATE ON dbo.GovernancePromotionRecords FOR AFTER UPDATE,
-        DROP BLOCK PREDICATE ON dbo.GovernancePromotionRecords FOR BEFORE DELETE;
-END;
-GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        DROP FILTER PREDICATE ON dbo.GovernanceEnvironmentActivations,
-        DROP BLOCK PREDICATE ON dbo.GovernanceEnvironmentActivations FOR AFTER INSERT,
-        DROP BLOCK PREDICATE ON dbo.GovernanceEnvironmentActivations FOR AFTER UPDATE,
-        DROP BLOCK PREDICATE ON dbo.GovernanceEnvironmentActivations FOR BEFORE DELETE;
-END;
-GO
 
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
    AND EXISTS (

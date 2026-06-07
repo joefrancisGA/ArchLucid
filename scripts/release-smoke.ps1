@@ -1,4 +1,4 @@
-# End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright (mock) and -LivePlaywright (live-api parity vs CI ui-e2e-live).
+﻿# End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright (mock) and -LivePlaywright (live-api parity vs CI ui-e2e-live).
 # Named profile LiveUiSql: same gates + enforced live playwright (browser UI vs smoke SQL API). SQL required unless -SkipE2E.
 # Optional -AuthorityPipelineDtfSmoke: sets ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask for the temporary API (requires ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint in the environment — staging SQL + DTF worker validation).
 # Full detail: docs/library/RELEASE_SMOKE.md
@@ -193,6 +193,8 @@ function Write-ReleaseSmokeResultArtifact {
         [bool] $RanUiVitestAndProductionBuild,
         [bool] $SkippedUiExplicitly,
         [bool] $RanApiCliArtifacts,
+        [bool] $RanRunExportOutbox,
+        [bool] $RanProductionLikeConfigLint,
         [bool] $RanMockPlaywright,
         [bool] $RanLivePlaywright,
         [string] $ApiBaseUrlEvidence,
@@ -204,9 +206,14 @@ function Write-ReleaseSmokeResultArtifact {
     }
 
     $checks = @(
-        @{ Name = 'Release build'; Result = 'Passed'; Detail = 'ArchLucid.sln Release gate' },
-        @{ Name = 'Fast core tests'; Result = 'Passed'; Detail = 'Suite=Core excluding Slow and Integration' }
+        @{ Name = 'Release build'; Result = 'Passed'; Detail = 'ArchLucid.sln Release gate' }
     )
+
+    if ($RanProductionLikeConfigLint) {
+        $checks += @{ Name = 'Production-like config lint'; Result = 'Passed'; Detail = 'profile production-like-hosted-pilot; RC baseline fixture' }
+    }
+
+    $checks += @{ Name = 'Fast core tests'; Result = 'Passed'; Detail = 'Suite=Core excluding Slow and Integration' }
 
     if ($FullCore) {
         $checks += @{ Name = 'Full core tests'; Result = 'Passed'; Detail = '-FullCore lane' }
@@ -221,9 +228,13 @@ function Write-ReleaseSmokeResultArtifact {
 
     if ($SkipE2E) {
         $checks += @{ Name = 'SQL-backed API + CLI artifact gate'; Result = 'Skipped'; Detail = '-SkipE2E' }
+        $checks += @{ Name = 'Run-export durable outbox'; Result = 'Skipped'; Detail = '-SkipE2E' }
     }
     elseif ($RanApiCliArtifacts) {
         $checks += @{ Name = 'SQL-backed API + CLI artifact gate'; Result = 'Passed'; Detail = "Temporary API @ $ApiBaseUrlEvidence" }
+        if ($RanRunExportOutbox) {
+            $checks += @{ Name = 'Run-export durable outbox'; Result = 'Passed'; Detail = 'Enqueue, worker processing, and expected dead-letter outcome' }
+        }
     }
 
     if ($RanMockPlaywright) {
@@ -253,6 +264,8 @@ function Write-ReleaseSmokeEvidenceSummary {
         [bool] $RanUiVitestAndProductionBuild,
         [bool] $SkippedUiExplicitly,
         [bool] $RanApiCliArtifacts,
+        [bool] $RanRunExportOutbox,
+        [bool] $RanProductionLikeConfigLint,
         [bool] $RanMockPlaywright,
         [bool] $RanLivePlaywrightRequestedButSkipped,
         [bool] $RanLivePlaywright,
@@ -264,7 +277,11 @@ function Write-ReleaseSmokeEvidenceSummary {
 
     Write-Host ''
     Write-Host 'Validated this run:'
-    Write-Host '  - Release solution build gate (step 1/6)'
+    Write-Host '  - Release solution build gate (step 1/8)'
+
+    if ($RanProductionLikeConfigLint) {
+        Write-Host '  - Production-like config lint (profile production-like-hosted-pilot; artifacts/release-readiness/)'
+    }
 
     if ($RanFastCoreGate) {
         Write-Host '  - Fast Core dotnet tests Release (Suite=Core excluding Slow and Integration)'
@@ -292,15 +309,20 @@ function Write-ReleaseSmokeEvidenceSummary {
         Write-Host '  - Manifest + synthesized artifacts via HTTP (at least one descriptor)'
     }
 
+    if ($RanRunExportOutbox) {
+        Write-Host '  - Run-export durable outbox (blob push enqueue, worker poll, processing success via GET run)'
+    }
+
     Write-Host ''
 
     Write-Host 'Not asserted / not run this invocation:'
     if (-not $RanApiCliArtifacts) {
         Write-Host '  - SQL-backed smoke API + CLI artifact gate - omit -SkipE2E and supply tenant SQL'
+        Write-Host '  - Run-export durable outbox (requires API gate)'
     }
 
     if ($ExitMode -eq 'SkipE2EEarly') {
-        Write-Host '  - Playwright lanes (stopped before steps 5-7 because -SkipE2E)'
+        Write-Host '  - Playwright lanes (stopped before steps 6-8 because -SkipE2E)'
 
         if ($RanLivePlaywrightRequestedButSkipped) {
             Write-Host '  - Note: playwright-related switches have no effect with -SkipE2E'
@@ -313,7 +335,7 @@ function Write-ReleaseSmokeEvidenceSummary {
         Write-Host 'How this maps to documented lanes:'
         Write-Host '  - CI-style mock UI E2E - archlucid-ui npm run test:e2e (playwright.mock.config.ts)'
         Write-Host '  - Named UI-SQL parity - release-smoke-live-ui-sql.cmd wraps -Profile LiveUiSql'
-        Write-Host '  - Ad hoc parity switch - add -LivePlaywright (same SQL prerequisites as steps 5-7)'
+        Write-Host '  - Ad hoc parity switch - add -LivePlaywright (same SQL prerequisites as steps 6-8)'
         Write-Host '  - CI live E2E - ui-e2e-live* workflows, playwright.config.ts (live-api-*, demo-workspace-*.smoke, tagged @release-gate)'
 
         Write-Host ''
@@ -360,7 +382,7 @@ function Write-ReleaseSmokeEvidenceSummary {
         $paritySwitchVerb = '-Profile LiveUiSql'
     }
 
-    Write-Host ('  - Live UI-SQL claim - ' + $paritySwitchVerb + ' against the same smoke-started API as steps 5-7')
+    Write-Host ('  - Live UI-SQL claim - ' + $paritySwitchVerb + ' against the same smoke-started API as steps 6-8')
 
     Write-Host '  - CI ui-e2e-live* UI prebuild plus LIVE_E2E_SKIP_NEXT_BUILD, aligned to playwright.config.ts live-api + GA demo selections'
 }
@@ -505,12 +527,13 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
 try
 {
     $script:releaseSmokeUiVitestProductionBuildRan = $false
+    $script:releaseSmokeProductionLikeConfigLintRan = $false
     $cs = Get-ResolvedReleaseSmokeSqlConnectionString -FromParam $SqlConnectionString
 
-    Write-OperatorPhaseHeader -Title 'Release build' -Step 1 -Total 6
+    Write-OperatorPhaseHeader -Title 'Release build' -Step 1 -Total 8
     & (Join-Path $PSScriptRoot 'build-release.ps1')
     if ($LASTEXITCODE -ne 0) {
-        Write-OperatorFailureTriage -Stage '1/6 Release build' -Category 'BuildOrRestoreFailure' `
+        Write-OperatorFailureTriage -Stage '1/8 Release build' -Category 'BuildOrRestoreFailure' `
             -Details @('build-release.ps1 exited non-zero.') `
             -NextSteps @('Run: .\build-release.ps1', 'Then: dotnet build ArchLucid.sln -c Release')
         exit $LASTEXITCODE
@@ -529,10 +552,32 @@ try
         exit $LASTEXITCODE
     }
 
-    Write-OperatorPhaseHeader -Title 'Fast core tests (Release)' -Step 2 -Total 6
+    Write-OperatorPhaseHeader -Title 'Production-like config lint (profile production-like-hosted-pilot)' -Step 2 -Total 8
+    [string] $releaseSmokeEvidenceDir = Join-Path $root 'artifacts/release-readiness'
+    & (Join-Path $PSScriptRoot 'ci/Invoke-ConfigLintProofStep.ps1') `
+        -OutputDir $releaseSmokeEvidenceDir `
+        -SkipBuild
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-OperatorFailureTriage -Stage '2/8 Production-like config lint' -Category 'ConfigLintFailure' `
+            -Details @(
+            'Blocking production-like-hosted-pilot findings in fixtures/release-candidate/appsettings.json.',
+            'Artifacts: artifacts/release-readiness/config-lint-production-like-hosted-pilot.json'
+        ) `
+            -NextSteps @(
+            'Inspect config-lint-production-like-hosted-pilot.md for blocking rows',
+            'Validate deployed config with the same profile before RC signoff',
+            'See docs/library/CONFIGURATION_REFERENCE.md'
+        )
+        exit $LASTEXITCODE
+    }
+
+    [bool] $script:releaseSmokeProductionLikeConfigLintRan = $true
+
+    Write-OperatorPhaseHeader -Title 'Fast core tests (Release)' -Step 3 -Total 8
     dotnet test $sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"
     if ($LASTEXITCODE -ne 0) {
-        Write-OperatorFailureTriage -Stage '2/6 Fast core tests' -Category 'TestFailure' `
+        Write-OperatorFailureTriage -Stage '3/8 Fast core tests' -Category 'TestFailure' `
             -Details @('First failing test is listed above in the test log.') `
             -NextSteps @(
             'dotnet test ArchLucid.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"',
@@ -544,10 +589,10 @@ try
     if ($FullCore)
     {
         Write-Host ''
-        Write-Host '=== [2b/6] Full Core suite (optional; may require SQL) ===' -ForegroundColor Cyan
+        Write-Host '=== [3b/8] Full Core suite (optional; may require SQL) ===' -ForegroundColor Cyan
         dotnet test $sln -c Release --no-build --filter "Suite=Core"
         if ($LASTEXITCODE -ne 0) {
-            Write-OperatorFailureTriage -Stage '2b/6 Full Core suite' -Category 'TestFailure' `
+            Write-OperatorFailureTriage -Stage '3b/8 Full Core suite' -Category 'TestFailure' `
                 -Details @('-FullCore includes integration-style tests; failures often need SQL or local services.') `
                 -NextSteps @(
                 'Re-run without -FullCore to isolate E2E smoke, or fix SQL per docs/BUILD.md',
@@ -562,13 +607,13 @@ try
         $node = Get-Command node -ErrorAction SilentlyContinue
         if ($null -ne $node)
         {
-            Write-OperatorPhaseHeader -Title 'Operator UI — Vitest' -Step 3 -Total 6
+            Write-OperatorPhaseHeader -Title 'Operator UI — Vitest' -Step 4 -Total 8
             $uiRoot = Join-Path $root 'archlucid-ui'
             Push-Location $uiRoot
             & $releaseSmokeNpm ci
             if ($LASTEXITCODE -ne 0) {
                 Pop-Location
-                Write-OperatorFailureTriage -Stage '3/6 UI Vitest' -Category 'NpmCiFailure' `
+                Write-OperatorFailureTriage -Stage '4/8 UI Vitest' -Category 'NpmCiFailure' `
                     -Details @('npm ci failed in archlucid-ui.') `
                     -NextSteps @('cd archlucid-ui; npm ci', 'Or: .\scripts\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
@@ -576,17 +621,17 @@ try
             & $releaseSmokeNpm run test
             if ($LASTEXITCODE -ne 0) {
                 Pop-Location
-                Write-OperatorFailureTriage -Stage '3/6 UI Vitest' -Category 'VitestFailure' `
+                Write-OperatorFailureTriage -Stage '4/8 UI Vitest' -Category 'VitestFailure' `
                     -Details @('Vitest failed — file names above.') `
                     -NextSteps @('cd archlucid-ui; npm run test', 'Or: .\scripts\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
 
-            Write-OperatorPhaseHeader -Title 'Operator UI — production build' -Step 4 -Total 6
+            Write-OperatorPhaseHeader -Title 'Operator UI — production build' -Step 5 -Total 8
             & $releaseSmokeNpm run build
             Pop-Location
             if ($LASTEXITCODE -ne 0) {
-                Write-OperatorFailureTriage -Stage '4/6 UI production build' -Category 'NextBuildFailure' `
+                Write-OperatorFailureTriage -Stage '5/8 UI production build' -Category 'NextBuildFailure' `
                     -Details @('next build / npm run build failed.') `
                     -NextSteps @('cd archlucid-ui; npm run build', 'Or: .\scripts\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
@@ -615,7 +660,7 @@ try
         if ($null -ne $nodeForChromium -and ($script:releaseSmokeUiVitestProductionBuildRan -or (Test-Path (Join-Path $root 'archlucid-ui/node_modules/@playwright')))) {
             $uiRootEnsure = Join-Path $root 'archlucid-ui'
             Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled -UiRoot $uiRootEnsure -NpmExe $releaseSmokeNpm `
-                -TriageStage '5/6 Precheck Chromium (blocks before smoke API start)'
+                -TriageStage '6/8 Precheck Chromium (blocks before smoke API start)'
         }
         elseif (($null -eq $nodeForChromium) -and $runLiveUiSqlProfile) {
 
@@ -636,7 +681,7 @@ try
             Write-Warning 'Live parity (-LivePlaywright or -Profile LiveUiSql) skipped under -SkipE2E (steps 5–7 never ran; API not started).'
         }
 
-        Write-Host '=== 5-6/6 Skipped E2E API+CLI (-SkipE2E) ==='
+        Write-Host '=== 6-8/8 Skipped E2E API+CLI (-SkipE2E) ==='
         if ($FullCore)
         {
             Write-Host 'Release smoke finished (build + fast core + full Core suite).'
@@ -653,6 +698,8 @@ try
             -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
             -SkippedUiExplicitly:$uiExplicitSkip `
             -RanApiCliArtifacts:$false `
+            -RanRunExportOutbox:$false `
+            -RanProductionLikeConfigLint:$script:releaseSmokeProductionLikeConfigLintRan `
             -RanMockPlaywright:$false `
             -RanLivePlaywrightRequestedButSkipped:$requestedPlaywrightNotHonored `
             -RanLivePlaywright:$false `
@@ -664,6 +711,8 @@ try
             -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
             -SkippedUiExplicitly:$uiExplicitSkip `
             -RanApiCliArtifacts:$false `
+            -RanRunExportOutbox:$false `
+            -RanProductionLikeConfigLint:$script:releaseSmokeProductionLikeConfigLintRan `
             -RanMockPlaywright:$false `
             -RanLivePlaywright:$false `
             -ApiBaseUrlEvidence $ApiBaseUrl `
@@ -674,7 +723,7 @@ try
 
     if ([string]::IsNullOrWhiteSpace($cs))
     {
-        Write-OperatorFailureTriage -Stage '5/6 E2E API block (not started)' -Category 'Misconfiguration' `
+        Write-OperatorFailureTriage -Stage '6/8 E2E API block (not started)' -Category 'Misconfiguration' `
             -Details @('No SQL connection string resolved for the temporary API process.') `
             -NextSteps @(
             'Set env: $env:ARCHLUCID_SMOKE_SQL = ''Server=...;Database=...;...''',
@@ -685,7 +734,7 @@ try
         exit 1
     }
 
-    Write-OperatorPhaseHeader -Title 'Start API (Release), wait for /health/ready, CLI quick run' -Step 5 -Total 6
+    Write-OperatorPhaseHeader -Title 'Start API (Release), wait for /health/ready, CLI quick run' -Step 6 -Total 8
     $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("archlucid-smoke-" + (Get-Date -Format 'yyyyMMddHHmmss'))
     New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
@@ -708,7 +757,7 @@ try
 
     if ($null -eq $apiProc)
     {
-        Write-OperatorFailureTriage -Stage '5/6 Start API' -Category 'ProcessStartFailure' `
+        Write-OperatorFailureTriage -Stage '6/8 Start API' -Category 'ProcessStartFailure' `
             -Details @('Start-Process did not return a handle for dotnet run ArchLucid.Api.') `
             -NextSteps @('Verify dotnet on PATH', 'Run manually: dotnet run --project ArchLucid.Api -c Release --launch-profile http')
         exit 1
@@ -719,7 +768,7 @@ try
 
     for ($i = 0; $i -lt 120; $i++) {
         if ($apiProc.HasExited) {
-            Write-OperatorFailureTriage -Stage '5/6 API readiness' -Category 'ApiProcessExitedEarly' `
+            Write-OperatorFailureTriage -Stage '6/8 API readiness' -Category 'ApiProcessExitedEarly' `
                 -Details @(
                 "The API process exited before /health/ready returned 200 (exit code hint: $($apiProc.ExitCode)).",
                 'This script starts the API hidden — stdout/stderr are not shown here.'
@@ -745,7 +794,7 @@ try
     }
 
     if (-not $ready) {
-        Write-OperatorFailureTriage -Stage '5/6 API readiness' -Category 'ReadinessTimeout' `
+        Write-OperatorFailureTriage -Stage '6/8 API readiness' -Category 'ReadinessTimeout' `
             -Details @(
             'GET /health/ready did not return HTTP 200 within 120s (first blocking gate for E2E).',
             "Target: $readyUrl"
@@ -764,7 +813,7 @@ try
     $liveProbe = Get-ArchLucidHttpProbe -Uri $liveUrl -TimeoutSec 8 -Headers $releaseSmokeAuthHeaders
 
     if (-not $liveProbe.Ok -or $liveProbe.StatusCode -ne 200) {
-        Write-OperatorFailureTriage -Stage '5/6 Liveness after readiness' -Category 'LivenessFailure' `
+        Write-OperatorFailureTriage -Stage '6/8 Liveness after readiness' -Category 'LivenessFailure' `
             -Details @("GET $liveUrl returned HTTP $($liveProbe.StatusCode) (expected 200).") `
             -NextSteps @('If readiness passed but live failed, capture API logs and open an issue — unusual ordering.')
         exit 1
@@ -783,7 +832,7 @@ try
 
     $projDir = Join-Path $tempRoot 'ArchLucidSmokeRc'
     if (-not (Test-Path $projDir)) {
-        Write-OperatorFailureTriage -Stage '5/6 CLI new' -Category 'ScaffoldLayoutMissing' `
+        Write-OperatorFailureTriage -Stage '6/8 CLI new' -Category 'ScaffoldLayoutMissing' `
             -Details @("Expected project folder at $projDir after archlucid new.") `
             -NextSteps @('Re-run new in an empty folder', 'Check CLI new command output above')
         exit 1
@@ -795,7 +844,7 @@ try
     {
         dotnet run --project $cliProj -- run --quick
         if ($LASTEXITCODE -ne 0) {
-            Write-OperatorFailureTriage -Stage '5/6 CLI run --quick' -Category 'CliRunFailure' `
+            Write-OperatorFailureTriage -Stage '6/8 CLI run --quick' -Category 'CliRunFailure' `
                 -Details @('run --quick failed — stderr above often includes HTTP status and Next: hints.') `
                 -NextSteps @(
                 'Confirm API still up and ARCHLUCID_API_URL matches smoke API',
@@ -812,7 +861,7 @@ try
 
     $summaryPath = Join-Path (Join-Path $projDir 'outputs') 'run-summary.json'
     if (-not (Test-Path $summaryPath)) {
-        Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'MissingRunSummary' `
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'MissingRunSummary' `
             -Details @("Expected outputs\run-summary.json at $summaryPath") `
             -NextSteps @('Re-run run --quick with API logging visible', 'Check CLI Next: hints from step 5')
         exit 1
@@ -821,13 +870,13 @@ try
     $summary = Get-Content $summaryPath -Raw | ConvertFrom-Json
     $runId = $summary.runId
     if ([string]::IsNullOrWhiteSpace($runId)) {
-        Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'InvalidRunSummary' `
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'InvalidRunSummary' `
             -Details @('run-summary.json exists but runId is empty.') `
             -NextSteps @('Inspect run-summary.json', 'Re-run CLI run --quick')
         exit 1
     }
 
-    Write-OperatorPhaseHeader -Title "Verify manifest + synthesized artifacts (run $runId)" -Step 6 -Total 6
+    Write-OperatorPhaseHeader -Title "Verify manifest + synthesized artifacts (run $runId)" -Step 7 -Total 8
 
     $artifactGetParams = @{
         Uri    = ($ApiBaseUrl.TrimEnd('/') + '/v1/architecture/run/' + $runId)
@@ -841,7 +890,7 @@ try
     $runJson = Invoke-RestMethod @artifactGetParams
     $manifestId = $runJson.run.goldenManifestId
     if ([string]::IsNullOrWhiteSpace($manifestId)) {
-        Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'MissingGoldenManifest' `
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'MissingGoldenManifest' `
             -Details @("Run $runId has no goldenManifestId in GET /v1/architecture/run/{runId}.") `
             -NextSteps @(
             'Check API logs for commit/persistence errors for this runId',
@@ -863,7 +912,7 @@ try
         $artifacts = Invoke-RestMethod @manifestGetParams
     }
     catch {
-        Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'ArtifactsApiFailure' `
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'ArtifactsApiFailure' `
             -Details @("GET /v1/artifacts/manifests/$manifestId failed: $($_.Exception.Message)") `
             -NextSteps @('curl or browser the same URL with API up', 'Check run and manifest IDs in API logs')
         exit 1
@@ -871,7 +920,7 @@ try
 
     $artifactCount = @($artifacts).Count
     if ($artifactCount -lt 1) {
-        Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'NoSynthesizedArtifacts' `
+        Write-OperatorFailureTriage -Stage '7/8 Artifact verification' -Category 'NoSynthesizedArtifacts' `
             -Details @("Manifest $manifestId returned $artifactCount artifact(s); expected >= 1.") `
             -NextSteps @(
             'Synthesis or persistence regression — search API logs for this manifestId',
@@ -881,6 +930,80 @@ try
     }
 
     Write-Host "Smoke OK: $artifactCount artifact(s) listed for manifest $manifestId." -ForegroundColor Green
+
+    Write-OperatorPhaseHeader -Title "Verify durable run-export outbox (run $runId)" -Step 8 -Total 8
+
+    $pushParams = @{
+        Uri         = ($ApiBaseUrl.TrimEnd('/') + '/v1/artifacts/runs/' + $runId + '/export/push')
+        Method      = 'Post'
+        Body        = (@{ destinationSasUrl = "https://127.0.0.1/fake?sas=token" } | ConvertTo-Json)
+        ContentType = 'application/json'
+    }
+
+    if ($releaseSmokeAuthHeaders.Count -gt 0) {
+        $pushParams.Headers = $releaseSmokeAuthHeaders
+    }
+
+    try {
+        $pushResponse = Invoke-RestMethod @pushParams
+        Write-Host 'Smoke OK: Enqueued run-export blob push via API.' -ForegroundColor Green
+    }
+    catch {
+        Write-OperatorFailureTriage -Stage '8/8 Outbox verification' -Category 'ExportPushApiFailure' `
+            -Details @("POST /v1/artifacts/runs/$runId/export/push failed: $($_.Exception.Message)") `
+            -NextSteps @('Check API logs', 'Verify run ID and SAS validation')
+        exit 1
+    }
+
+    Write-Host 'Polling dbo.RunExportBlobPushOutbox for dead-letter outcome...'
+    $binDirRelease = Join-Path $root 'ArchLucid.Api\bin\Release\net10.0\Microsoft.Data.SqlClient.dll'
+    $binDirDebug = Join-Path $root 'ArchLucid.Api\bin\Debug\net10.0\Microsoft.Data.SqlClient.dll'
+    $sqlDllPath = if (Test-Path $binDirRelease) { $binDirRelease } else { $binDirDebug }
+    
+    if (-not (Test-Path $sqlDllPath)) {
+        Write-OperatorFailureTriage -Stage '8/8 Outbox verification' -Category 'MissingSqlDll' `
+            -Details @("Cannot find Microsoft.Data.SqlClient.dll to verify outbox row.") `
+            -NextSteps @('Ensure ArchLucid.Api is built before running smoke.')
+        exit 1
+    }
+    
+    Add-Type -Path $sqlDllPath
+    
+    $sqlConn = New-Object Microsoft.Data.SqlClient.SqlConnection $cs
+    $sqlConn.Open()
+    try {
+        $sqlCmd = $sqlConn.CreateCommand()
+        $foundDeadLetter = $false
+        for ($i = 0; $i -lt 15; $i++) {
+            $sqlCmd.CommandText = "SELECT TOP 1 ProcessedUtc, DeadLetteredUtc, AttemptCount, LastAttemptError FROM dbo.RunExportBlobPushOutbox WHERE RunId = '$runId' ORDER BY CreatedUtc DESC"
+            $reader = $sqlCmd.ExecuteReader()
+            if ($reader.Read()) {
+                if ($reader.IsDBNull(1)) { $deadLettered = $null } else { $deadLettered = $reader.GetDateTime(1) }
+                $attempts = $reader.GetInt32(2)
+                if ($reader.IsDBNull(3)) { $lastErr = $null } else { $lastErr = $reader.GetString(3) }
+
+                if ($null -ne $deadLettered) {
+                    $foundDeadLetter = $true
+                    Write-Host "Smoke OK: Export push dead-lettered as expected. (Attempts: $attempts, Error: $lastErr)" -ForegroundColor Green
+                    $reader.Close()
+                    break
+                }
+            }
+            $reader.Close()
+            Start-Sleep -Seconds 1
+        }
+
+        if (-not $foundDeadLetter) {
+            Write-OperatorFailureTriage -Stage '8/8 Outbox verification' -Category 'OutboxProcessingTimeout' `
+                -Details @("Outbox row for Run $runId did not reach DeadLetteredUtc within 15 seconds.") `
+                -NextSteps @('Check if worker loop is healthy', 'Verify HostedService logs')
+            exit 1
+        }
+    }
+    finally {
+        $sqlConn.Close()
+    }
+
     Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -RunPlaywright:$RunPlaywright -LivePlaywright:$runLivePlaywrightEffective -ApiBaseUrl $ApiBaseUrl -UiSkipped:$SkipUi -SkipE2E:$SkipE2E
 
     Write-ReleaseSmokeEvidenceSummary -ExitMode Complete `
@@ -890,6 +1013,8 @@ try
         -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
         -SkippedUiExplicitly:$uiExplicitSkip `
         -RanApiCliArtifacts:$true `
+        -RanRunExportOutbox:$true `
+        -RanProductionLikeConfigLint:$script:releaseSmokeProductionLikeConfigLintRan `
         -RanMockPlaywright:([bool]$RunPlaywright.IsPresent) `
         -RanLivePlaywrightRequestedButSkipped:$false `
         -RanLivePlaywright:$runLivePlaywrightEffective `
@@ -901,6 +1026,8 @@ try
         -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
         -SkippedUiExplicitly:$uiExplicitSkip `
         -RanApiCliArtifacts:$true `
+        -RanRunExportOutbox:$true `
+        -RanProductionLikeConfigLint:$script:releaseSmokeProductionLikeConfigLintRan `
         -RanMockPlaywright:([bool]$RunPlaywright.IsPresent) `
         -RanLivePlaywright:$runLivePlaywrightEffective `
         -ApiBaseUrlEvidence $ApiBaseUrl `

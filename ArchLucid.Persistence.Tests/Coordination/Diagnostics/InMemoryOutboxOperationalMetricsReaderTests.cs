@@ -15,5 +15,11 @@ public sealed class InMemoryOutboxOperationalMetricsReaderTests
         snapshot.RetrievalIndexingOutboxPending.Should().Be(0);
         snapshot.IntegrationEventOutboxPublishPending.Should().Be(0);
         snapshot.IntegrationEventOutboxDeadLetter.Should().Be(0);
+        snapshot.RunExportBlobPushOutboxPending.Should().Be(0);
+        snapshot.RunExportBlobPushOutboxDeadLetter.Should().Be(0);
+        snapshot.RunExportBlobPushOutboxOldestPendingAgeSeconds.Should().Be(0);
+        snapshot.PostCommitProjectionOutboxPending.Should().Be(0);
+        snapshot.PostCommitProjectionOutboxDeadLetter.Should().Be(0);
+        snapshot.PostCommitProjectionOutboxOldestPendingAgeSeconds.Should().Be(0);
     }
 }

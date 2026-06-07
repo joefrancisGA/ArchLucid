@@ -26,6 +26,8 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 | Create architecture request (review) + authority pipeline | Per-connection transactional | SQL transactions in orchestrator | Committed rows visible after successful commit. |
 | Run optimistic concurrency | Row-level | `ROWVERSION` on `dbo.Runs` (and selected tables) | Conflicting updates → `409` with conflict problem type. |
 | Retrieval indexing after commit | Eventual | Transactional enqueue + worker processing | Enqueue is tied to commit transaction where configured; indexer may lag. |
+| Run export blob push (`POST .../export/push`) | Eventual (at-least-once) | `dbo.RunExportBlobPushOutbox` + leader-elected worker | Operator action on committed run; ZIP rebuilt at processing; SAS URL re-validated; dead-letter on exhaustion. ADR 0043. |
+| Post-commit projections (authority run commit) | Eventual (at-least-once) | `dbo.PostCommitProjectionOutbox` + leader-elected worker | Provenance, review-completed, sample purge, rerank, IaC stubs; feature gates at enqueue; dead-letter on exhaustion. ADR 0044. |
 | Idempotency key on create run | Scoped replay-safe | Hash of body + scope keys | Treat as **best-effort** under extreme duplicate-key races; authority **`dbo.Runs`** is the durable header. |
 | Demo trusted-baseline seed | Transactional per repository | **`IRunRepository.SaveAsync`** / **`UpdateAsync`** on **`dbo.Runs`** plus coordinator rows | No legacy table write path. |
 | Multi-tenant isolation (SQL) | Defense in depth | RLS policies + `SESSION_CONTEXT` when `SqlServer:RowLevelSecurity:ApplySessionContext=true` | Not every table carries scope columns; see `docs/security/MULTI_TENANT_RLS.md`. |

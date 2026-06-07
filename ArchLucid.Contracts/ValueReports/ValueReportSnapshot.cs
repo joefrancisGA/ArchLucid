@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Roi;
+
 namespace ArchLucid.Contracts.ValueReports;
 
 /// <summary>
@@ -36,4 +38,7 @@ public sealed record ValueReportSnapshot(
     int FindingFeedbackNetScore,
     int FindingFeedbackVoteCount,
     decimal? TenantBaselineManualPrepHoursPerReview,
-    int? TenantBaselinePeoplePerReview);
+    int? TenantBaselinePeoplePerReview,
+    string ValueWindowScopeCode = RoiSponsorFacingScopeCodes.ValueReportActivityWindow,
+    string ValueWindowScopeDescription = RoiSponsorFacingScopeDescriptions.ValueReportActivityWindowGeneric,
+    string RoiMetricScopeDescription = RoiSponsorFacingScopeDescriptions.ValueReportActivityWindowGeneric);

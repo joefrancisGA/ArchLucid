@@ -1,6 +1,6 @@
 -- Tables required before 036_RlsArchiforgeTenantScope: those objects are created in Scripts/ArchiForge.sql
 -- when StorageProvider=Sql, but DbUp-only databases (e.g. API integration tests with InMemory storage)
--- skip ISchemaBootstrapper and must still have these tables for CREATE SECURITY POLICY targets.
+-- skip ISchemaBootstrapper and must still have these tables available.
 
 IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NULL
 BEGIN

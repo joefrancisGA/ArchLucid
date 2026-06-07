@@ -10,6 +10,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.Roi;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -161,6 +162,10 @@ public sealed class PilotsController(
             RunsInPeriod = summary.RunsInPeriod,
             RunsWithCommittedManifest = summary.RunsWithCommittedManifest,
             ExtractorCollectionTimestampUtc = summary.ExtractorCollectionTimestampUtc,
+            PeriodScopeCode = RoiSponsorFacingScopeCodes.PilotScorecardUtcWindow,
+            PeriodScopeDescription = RoiSponsorFacingScopeDescriptions.ForPilotScorecardWindow(
+                summary.PeriodStart,
+                summary.PeriodEnd),
         };
 
         return Ok(response);
@@ -475,7 +480,11 @@ public sealed class PilotsController(
             ExtractorCollectionTimestampUtc = summary.ExtractorCollectionTimestampUtc,
             HoursSaved = hoursSaved,
             RisksMitigated = risksMitigated,
-            QualitativeNotes = qualitativeNotes
+            QualitativeNotes = qualitativeNotes,
+            PeriodScopeCode = RoiSponsorFacingScopeCodes.PilotScorecardUtcWindow,
+            PeriodScopeDescription = RoiSponsorFacingScopeDescriptions.ForPilotScorecardWindow(
+                summary.PeriodStart,
+                summary.PeriodEnd),
         };
 
         return Ok(response);

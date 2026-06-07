@@ -96,6 +96,11 @@ public sealed class RunExportBlobPushService(
                     cancellationToken,
                     auditEventTypeForMetrics: httpOutcomeAudit.EventType)
                 .ConfigureAwait(false);
+
+            if (!success)
+                throw new HttpRequestException(
+                    FormattableString.Invariant(
+                        $"Run export blob push failed with HTTP status {(int)response.StatusCode}."));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

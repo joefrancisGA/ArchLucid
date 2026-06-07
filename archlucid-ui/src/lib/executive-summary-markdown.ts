@@ -1,3 +1,8 @@
+import {
+  resolveExecutiveHeadlineScopeLabel,
+  resolveExecutiveSystemRowScopeLabel,
+  resolveExecutiveTrailing30DayScopeLabel,
+} from "@/lib/roi-sponsor-scope-labels";
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
 
 export type ExecutiveRoiSystemicIssueTrendPoint = {
@@ -60,6 +65,11 @@ export type ExecutiveRoiSummary = {
   expiringWaiversCount14Days?: number;
   orphanCandidates?: ExecutiveOrphanCandidateSummary;
   firstCommitUtc?: string | null;
+  headlineSavingsScopeCode?: string;
+  headlineSavingsScopeDescription?: string;
+  systemRowSavingsScopeCode?: string;
+  systemRowSavingsScopeDescription?: string;
+  trailing30DayActivityScopeDescription?: string;
 };
 
 export type ExecutiveOrphanCandidateSummary = {
@@ -102,6 +112,7 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
 
   lines.push("# Executive summary — portfolio ROI");
   lines.push("");
+  lines.push(`- **Scope (headline):** ${resolveExecutiveHeadlineScopeLabel(summary)}`);
   lines.push(`- **Estimated USD savings:** ${formatUsd(summary.totalEstimatedUsdSavings)}`);
 
   if (summary.basisBreakdown) {
@@ -136,8 +147,17 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
     }
   }
 
+  if (
+    summary.resolvedFindingsCount30Days !== undefined
+    || summary.newlyDiscoveredFindingsCount30Days !== undefined
+  ) {
+    lines.push(`- **30-day activity scope:** ${resolveExecutiveTrailing30DayScopeLabel(summary)}`);
+  }
+
   lines.push("");
   lines.push("## Systems included");
+  lines.push("");
+  lines.push(`_${resolveExecutiveSystemRowScopeLabel(summary)}_`);
   lines.push("");
 
   if (summary.systems.length === 0) {

@@ -13,6 +13,7 @@ using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -22,7 +23,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -49,14 +49,11 @@ public sealed class ArtifactExportController(
     IDiagramImageRenderer diagramImageRenderer,
     IConfiguration configuration,
     ITerraformGitHubPrService terraformGitHubPrService,
-    IServiceScopeFactory serviceScopeFactory)
+    IRunExportPackageBuilder runExportPackageBuilder,
+    IRunExportBlobPushOutboxRepository runExportBlobPushOutbox,
+    IRunExportLineageVerifier runExportLineageVerifier)
     : ControllerBase
 {
-    private static readonly JsonSerializerOptions ExportJsonOptions = new()
-    {
-        WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     /// <summary>
     ///     Lists artifact descriptors for a golden manifest. Returns <c>200 OK</c> with a JSON array (possibly empty)
     ///     sorted by name then id; <c>404</c> when the manifest is missing in the current scope.
@@ -269,63 +266,63 @@ public sealed class ArtifactExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (runDetail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (runDetail.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{runId}' has no committed golden manifest available for export.",
-                ProblemTypes.ManifestNotFound);
-
-        IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
-            scope,
-            runDetail.GoldenManifest.ManifestId,
-            ct);
-
-        string manifestJson = JsonSerializer.Serialize(runDetail.GoldenManifest, ExportJsonOptions);
-
-        string? traceJson = runDetail.AuthorityTrace is null
-            ? null
-            : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
-
         byte[]? renderedPng = null;
 
         if (configuration.GetValue("ArchLucid:MermaidCli:Enabled", false))
         {
-            string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifacts);
+            RunDetailDto? runDetailForDiagram = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
-            if (!string.IsNullOrWhiteSpace(mermaid))
-                renderedPng = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
+            if (runDetailForDiagram?.GoldenManifest is not null)
+            {
+                IReadOnlyList<SynthesizedArtifact> artifactsForDiagram =
+                    await artifactQueryService.GetArtifactsByManifestIdAsync(
+                        scope,
+                        runDetailForDiagram.GoldenManifest.ManifestId,
+                        ct);
+
+                string? mermaid = MermaidDiagramArtifactExtractor.TryGetDiagramSource(artifactsForDiagram);
+
+                if (!string.IsNullOrWhiteSpace(mermaid))
+                    renderedPng = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
+            }
         }
 
-        ManifestDocument golden = runDetail.GoldenManifest;
-        string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
-        RunExportReadmeContext readmeContext = new()
-        {
-            ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
-            ManifestHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash,
-            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
-            OperatorShellReviewRelativePath = $"/reviews/{runId:D}",
-        };
+        RunExportPackageResult packageResult =
+            await runExportPackageBuilder.BuildAsync(scope, runId, renderedPng, ct);
 
-        ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(
-            runId,
-            golden.ManifestId,
-            artifacts,
-            manifestJson,
-            traceJson,
-            readmeContext,
-            renderedArchitectureDiagramPng: renderedPng);
+        if (!packageResult.Found)
+            return this.NotFoundProblem(packageResult.NotFoundReason!, packageResult.ProblemType);
 
         await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.RunExported,
                 RunId = runId,
-                ManifestId = runDetail.GoldenManifest.ManifestId
+                ManifestId = packageResult.ManifestId
             },
             ct);
 
-        return File(package.Content, package.ContentType, package.PackageFileName);
+        return File(packageResult.ZipContent!, packageResult.ContentType!, packageResult.PackageFileName!);
+    }
+
+    /// <summary>
+    ///     Recomputes the golden manifest hash and compares it to the commit-time <c>ManifestGenerated</c> audit anchor.
+    ///     Returns <c>200 OK</c> with status <c>Match</c>, <c>Mismatch</c>, or <c>NotAttested</c> (read-only; no repair).
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/export/verify")]
+    [ProducesResponseType(typeof(RunExportLineageVerificationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> VerifyRunExportLineage(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunExportLineageVerificationResult? result = await runExportLineageVerifier.VerifyAsync(scope, runId, ct);
+
+        if (result is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        return Ok(RunExportLineageVerificationResponse.From(result));
     }
 
     /// <summary>
@@ -356,10 +353,10 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>
-    ///     Asynchronously pushes the run export ZIP to a customer-provided Azure Blob SAS URL.
-    ///     Returns 202 Accepted immediately; the upload proceeds in the background.
+    ///     Enqueues a durable run export ZIP push to a customer-provided Azure Blob SAS URL.
+    ///     Returns 202 Accepted immediately; a leader-elected worker drains <c>dbo.RunExportBlobPushOutbox</c>.
     ///     Durable <c>RunExportBlobPushQueued</c> fires at accept; completion audits are
-    ///     <c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c>.
+    ///     <c>RunExportBlobPushSucceeded</c> / <c>RunExportBlobPushFailed</c> / <c>RunExportBlobPushDeadLettered</c>.
     /// </summary>
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("runs/{runId:guid}/export/push")]
@@ -396,61 +393,21 @@ public sealed class ArtifactExportController(
                 $"Run '{runId}' has no committed golden manifest available for export.",
                 ProblemTypes.ManifestNotFound);
 
-        IReadOnlyList<SynthesizedArtifact> artifacts =
-            await artifactQueryService.GetArtifactsByManifestIdAsync(scope, runDetail.GoldenManifest.ManifestId, ct);
-
-        string manifestJson = JsonSerializer.Serialize(runDetail.GoldenManifest, ExportJsonOptions);
-        string? traceJson = runDetail.AuthorityTrace is null
-            ? null
-            : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
-
-        ManifestDocument golden = runDetail.GoldenManifest;
-        string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
-        RunExportReadmeContext readmeContext = new()
-        {
-            ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
-            ManifestHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash,
-            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
-            OperatorShellReviewRelativePath = $"/reviews/{runId:D}"
-        };
-
-        ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(
+        await runExportBlobPushOutbox.EnqueueAsync(
             runId,
-            golden.ManifestId,
-            artifacts,
-            manifestJson,
-            traceJson,
-            readmeContext,
-            renderedArchitectureDiagramPng: null);
-
-        byte[] zipContent = package.Content;
-        string sasUrl = request.DestinationSasUrl;
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            request.DestinationSasUrl,
+            ct);
 
         await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.RunExportBlobPushQueued,
-                RunId = runId,
-                DataJson = JsonSerializer.Serialize(new { bytes = zipContent.Length })
+                RunId = runId
             },
             ct);
-
-        // Fire-and-forget: upload completes in the background while the API returns 202 immediately.
-        _ = Task.Run(async () =>
-        {
-            using IServiceScope backgroundScope = serviceScopeFactory.CreateScope();
-            IRunExportBlobPushService pushService =
-                backgroundScope.ServiceProvider.GetRequiredService<IRunExportBlobPushService>();
-
-            try
-            {
-                await pushService.PushAsync(runId, zipContent, sasUrl).ConfigureAwait(false);
-            }
-            catch
-            {
-                // Exceptions are logged inside PushAsync; swallow here to avoid unobserved task faults.
-            }
-        }, CancellationToken.None);
 
         return Accepted();
     }

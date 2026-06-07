@@ -220,9 +220,6 @@ public static class DatabaseMigrator
     {
         string body = ReadEmbeddedScript(assembly, resourceName);
 
-        if (resourceName.Contains("108_RlsRenameToArchLucid", StringComparison.OrdinalIgnoreCase))
-            return new CatalogMigration108ReplayNoteSqlScript(resourceName, body, catalogScopeLabel);
-
         return new SqlScript(resourceName, body);
     }
 

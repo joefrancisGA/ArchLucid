@@ -57,43 +57,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-   AND OBJECT_ID(N'dbo.TenantHealthScores', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'TenantHealthScores')
-BEGIN
-    EXEC (N'
-ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores BEFORE DELETE;
-');
-END;
-GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-   AND OBJECT_ID(N'dbo.ProductFeedback', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'ProductFeedback')
-BEGIN
-    EXEC (N'
-ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback BEFORE DELETE;
-');
-END;
-GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_TenantHealthScores_Upsert
     @TenantId uniqueidentifier,

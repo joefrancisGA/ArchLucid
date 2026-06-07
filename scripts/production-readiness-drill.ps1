@@ -63,15 +63,22 @@ New-Item -ItemType Directory -Force -Path $configLintDir | Out-Null
 try {
     $lintScript = Join-Path $repoRoot 'scripts/ci/Invoke-ConfigLintProofStep.ps1'
     if (Test-Path -LiteralPath $lintScript) {
-        & $lintScript -OutputDir $configLintDir 2>&1 | Out-File (Join-Path $configLintDir 'config-lint.log')
-        Add-DrillStep -Name 'config-lint' -Disposition 'PASS' -Detail 'Config lint proof step completed — review config-lint/ output.'
+        & $lintScript -OutputDir $configLintDir -SkipBuild 2>&1 | Out-File (Join-Path $configLintDir 'config-lint.log')
+        [int] $configLintExit = $LASTEXITCODE
+
+        if ($configLintExit -eq 0) {
+            Add-DrillStep -Name 'config-lint' -Disposition 'PASS' -Detail 'Production-like config lint passed — review config-lint/ artifacts.'
+        }
+        else {
+            Add-DrillStep -Name 'config-lint' -Disposition 'FAIL' -Detail "Production-like config lint failed (exit $configLintExit)." -NextAction 'Fix blocking rows in config-lint-production-like-hosted-pilot.md.'
+        }
     }
     else {
         Add-DrillStep -Name 'config-lint' -Disposition 'WARN' -Detail 'scripts/ci/Invoke-ConfigLintProofStep.ps1 not found.' -NextAction 'Run archlucid config lint manually.'
     }
 }
 catch {
-    Add-DrillStep -Name 'config-lint' -Disposition 'WARN' -Detail $_.Exception.Message -NextAction 'Fix config lint failures before production handoff.'
+    Add-DrillStep -Name 'config-lint' -Disposition 'FAIL' -Detail $_.Exception.Message -NextAction 'Fix config lint failures before production handoff.'
 }
 
 $apiUp = $false
@@ -150,6 +157,17 @@ foreach ($step in $steps) {
 $md += ''
 $md += 'See [PRODUCTION_READINESS_DRILL.md](../docs/runbooks/PRODUCTION_READINESS_DRILL.md) for interpretation.'
 $md -join "`n" | Set-Content -Path $mdPath -Encoding UTF8
+
+$manifestScript = Join-Path $repoRoot 'scripts/ci/Invoke-WriteReleaseEvidenceBundleManifest.ps1'
+$validateScript = Join-Path $repoRoot 'scripts/ci/Invoke-ValidateReleaseEvidenceBundle.ps1'
+
+if (Test-Path -LiteralPath $manifestScript) {
+    & $manifestScript -BundleDir $outDir -Profile 'production-readiness-drill' -Rollup $overall
+
+    if (Test-Path -LiteralPath $validateScript) {
+        & $validateScript -BundleDir $outDir -Profile 'production-readiness-drill' -JsonOut (Join-Path $outDir 'release-evidence-bundle-validation.json')
+    }
+}
 
 Write-Host "Wrote production readiness drill evidence: $outDir"
 Write-Host "Overall disposition: $overall"

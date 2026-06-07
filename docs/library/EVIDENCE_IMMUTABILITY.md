@@ -46,7 +46,7 @@ Pre-commit stages may rewrite draft rows; after commit, sealed tables accept **I
 ## Out of scope (V1)
 
 - **Platform WORM / immutable blob tier** — see [ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md); customer may apply immutability on exported copies
-- Application-layer hash-linked lineage (#6 — in-scope when prioritized; not WORM)
+- Application-layer hash-linked lineage (#6 — **Done** TB-307 / ADR 0040; not WORM)
 - Sealing `dbo.Runs` header or FK repoint detection
 - Versioned evidence rows
 
@@ -57,6 +57,22 @@ dotnet test ArchLucid.Architecture.Tests --filter "Sealed_evidence|Suite=Core"
 dotnet test ArchLucid.Persistence.Tests --filter "SealedEvidence"
 dotnet test ArchLucid.Host.Core.Tests --filter "SqlSealedEvidenceImmutabilityRulesTests"
 ```
+
+## Export lineage + verify (TB-307 / ADR 0040)
+
+Run export ZIPs (`GET /v1/artifacts/runs/{runId}/export`) include **`export-manifest.json`**: per-file SHA-256 checksums (UPPER hex) plus the committed `ManifestHash`, `RuleSetId`, and `RuleSetHash` anchors copied from the golden manifest at packaging time.
+
+**Verify surface:** `GET /v1/artifacts/runs/{runId}/export/verify` recomputes the golden manifest hash via `IManifestHashService` and compares it to the latest `ManifestGenerated` audit anchor for the run. Response status is one of:
+
+| Status | Meaning |
+|--------|---------|
+| `Match` | Recomputed hash equals the commit-time audit anchor |
+| `Mismatch` | Anchor present but differs from recomputed hash (tamper/divergence signal) |
+| `NotAttested` | No committed manifest or no `ManifestGenerated` anchor (not a server error) |
+
+Each verify call emits `RunExportLineageVerified` audit (run id, status, hashes only — no secrets).
+
+**Honest claim:** committed evidence is sealed in SQL; sponsor packets include checksums verifiable against commit anchors; long-term immutable retention is applied by the customer on exported copies ([ADR 0040](../architecture/adrs/0040-tamper-evident-lineage-without-worm-storage.md)).
 
 ## References
 

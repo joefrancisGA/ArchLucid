@@ -75,3 +75,7 @@ ArchLucid already has **partial** application-layer integrity: `ManifestHash` on
 - [`EVIDENCE_IMMUTABILITY.md`](../../library/EVIDENCE_IMMUTABILITY.md)
 - [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
 - [`AUDIT_RETENTION_POLICY.md`](../../library/AUDIT_RETENTION_POLICY.md) — customer cold-tier / WORM guidance
+
+## Implementation status
+
+**TB-307 (2026-06-06):** Application-layer lineage shipped — run export ZIPs include `export-manifest.json`; `GET /v1/artifacts/runs/{runId}/export/verify` recomputes manifest hash vs `ManifestGenerated` audit anchor. Platform WORM remains out of scope per Decision §1.

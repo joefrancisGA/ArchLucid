@@ -237,53 +237,5 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'GovernanceApprovalRequests')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceApprovalRequests,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceApprovalRequests AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceApprovalRequests AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceApprovalRequests BEFORE DELETE;
-END;
-GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'GovernancePromotionRecords')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernancePromotionRecords,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernancePromotionRecords AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernancePromotionRecords AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernancePromotionRecords BEFORE DELETE;
-END;
-GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'GovernanceEnvironmentActivations')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceEnvironmentActivations,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceEnvironmentActivations AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceEnvironmentActivations AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GovernanceEnvironmentActivations BEFORE DELETE;
-END;
-GO

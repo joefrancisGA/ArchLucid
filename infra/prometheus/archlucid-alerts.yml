@@ -123,6 +123,43 @@ groups:
             Gauge `archlucid_integration_event_outbox_dead_letter` counts dead-lettered integration outbox rows.
             Use admin diagnostics and dead-letter retry flows; fix root cause before clearing.
 
+
+      - alert: ArchLucidRunExportBlobPushOutboxBacklog
+        expr: |
+          archlucid_run_export_blob_push_outbox_pending > 25
+        for: 20m
+        labels:
+          severity: warning
+        annotations:
+          summary: Run-export blob push outbox backlog high
+          description: >-
+            Gauge archlucid_run_export_blob_push_outbox_pending from dbo.RunExportBlobPushOutbox.
+            Check RunExportBlobPushOutboxHostedService on the elected host and processor logs.
+
+      - alert: ArchLucidRunExportBlobPushOutboxStale
+        expr: |
+          archlucid_run_export_blob_push_outbox_oldest_pending_age_seconds > 900
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Run-export blob push outbox is aging
+          description: >-
+            Oldest actionable run-export outbox row exceeds 15 minutes.
+            See docs/runbooks/RUN_EXPORT_BLOB_PUSH_OUTBOX_OBSERVABILITY.md.
+
+      - alert: ArchLucidRunExportBlobPushOutboxDeadLetter
+        expr: |
+          archlucid_run_export_blob_push_outbox_dead_letter > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Run-export blob push outbox has dead-letter rows
+          description: >-
+            Gauge archlucid_run_export_blob_push_outbox_dead_letter is non-zero.
+            Inspect LastAttemptError, fix destination/export issues, then re-enqueue after remediation.
+
   - name: archlucid-data-consistency
     rules:
       - alert: ArchLucidDataConsistencyOrphansDetected

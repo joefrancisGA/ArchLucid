@@ -88,6 +88,12 @@ Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-o
 | **`archlucid_authority_pipeline_stage_duration_ms`** | Histogram | `ms` | **`stage`**: `context_ingestion`, `graph`, `findings`, `decisioning`, `artifacts`. **`outcome`**: `success`, `error`. Wall time per stage in **`AuthorityPipelineStagesExecutor`**. |
 | **`archlucid_authority_runs_completed_total`** | Counter | — | Authority runs completed through finalization. |
 | **`archlucid_authority_pipeline_work_pending`** | Observable gauge | — | Outbox depth (see `EnsureOutboxDepthObservableGaugesRegistered`). |
+| **`archlucid_run_export_blob_push_outbox_pending`** | Observable gauge | — | Actionable **`dbo.RunExportBlobPushOutbox`** rows (excludes dead letters, leases, backoff). |
+| **`archlucid_run_export_blob_push_outbox_oldest_pending_age_seconds`** | Observable gauge | `s` | Oldest actionable run-export outbox row age. |
+| **`archlucid_run_export_blob_push_outbox_dead_letter`** | Observable gauge | — | Run-export outbox dead-letter depth. |
+| **`archlucid_run_export_blob_push_outbox_processed_success_total`** | Counter | — | Rows marked processed by **`RunExportBlobPushOutboxProcessor`**. |
+| **`archlucid_run_export_blob_push_outbox_retry_scheduled_total`** | Counter | — | Transient failures that recorded backoff. |
+| **`archlucid_run_export_blob_push_outbox_dead_lettered_total`** | Counter | — | Rows dead-lettered during processing. |
 | **`archlucid_alert_evaluation_duration_ms`** | Histogram | `ms` | Alert evaluation. |
 | **`archlucid_governance_resolve_duration_ms`** | Histogram | `ms` | Effective governance resolution. |
 | **`archlucid_explainability_trace_completeness_ratio`** | Histogram | — | Advisory scan trace completeness. |
@@ -288,7 +294,7 @@ Wiring: **`ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling`** runs
 | File | Purpose |
 |------|---------|
 | `dashboard-archlucid-authority.json` | Authority pipeline spans and throughput; **Sales ops** row (Improvement #6) — pricing quote request age histogram (`archlucid_pricing_quote_request_age_hours` by `breach_status`) and open warn/breach stats. Operator table: **`/admin/pricing-quote-aging`**. |
-| `dashboard-archlucid-slo.json` | HTTP SLO / burn-rate style panels; integration outbox dead-letter gauge (`archlucid_integration_event_outbox_dead_letter`). |
+| `dashboard-archlucid-slo.json` | HTTP SLO / burn-rate style panels; integration outbox dead-letter gauge; run-export outbox pending/age/dead-letter and processing-rate panels. Runbook: [RUN_EXPORT_BLOB_PUSH_OUTBOX_OBSERVABILITY.md](../runbooks/RUN_EXPORT_BLOB_PUSH_OUTBOX_OBSERVABILITY.md). |
 | `dashboard-archlucid-llm-usage.json` | LLM token rates. |
 | `dashboards/archlucid-container-apps-overview.json` | Container Apps overview. |
 | **`dashboard-archlucid-run-lifecycle.json`** | Run-lifecycle / traceability: template variable **`runId`**, links to API audit search, authority stage histograms, circuit breaker rates — use with [runbooks/TRACE_A_RUN.md](../runbooks/TRACE_A_RUN.md). |

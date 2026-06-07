@@ -150,6 +150,12 @@ public static class AuditEventTypes
 
     public const string RunExported = "RunExported";
 
+    /// <summary>
+    ///     Read-only export lineage verification completed (<c>GET …/runs/{runId}/export/verify</c>).
+    ///     Payload JSON: runId, status (Match/Mismatch/NotAttested), committedHash, recomputedHash.
+    /// </summary>
+    public const string RunExportLineageVerified = "RunExportLineageVerified";
+
     /// <summary>Generic export download succeeded (DOCX/PDF/comparison file).</summary>
     public const string ExportDownloadSucceeded = "Export.DownloadSucceeded";
 
@@ -168,6 +174,12 @@ public static class AuditEventTypes
     ///     or <see cref="RunExportBlobPushFailed" />.
     /// </summary>
     public const string RunExportBlobPushQueued = "RunExportBlobPushQueued";
+
+    /// <summary>Run export blob push outbox row exhausted retries or failed destination re-validation at processing time.</summary>
+    public const string RunExportBlobPushDeadLettered = "RunExportBlobPushDeadLettered";
+
+    /// <summary>Post-commit projection outbox row exhausted retries during background side-effect processing (TB-309).</summary>
+    public const string PostCommitProjectionDeadLettered = "PostCommitProjectionDeadLettered";
 
     /// <summary>
     ///     Operator downloaded the advisory Terraform placeholder ZIP (

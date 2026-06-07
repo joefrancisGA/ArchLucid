@@ -37,18 +37,4 @@ BEGIN
 END;
 GO
 
--- RLS: add predicate when tenant scope policy exists (idempotent for re-runs).
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'PolicyPackChangeLog')
-BEGIN
-    EXEC (N'
-ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog;
-');
-END;
 GO

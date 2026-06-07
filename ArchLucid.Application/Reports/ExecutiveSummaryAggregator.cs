@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using ArchLucid.Contracts.Roi;
+
 namespace ArchLucid.Application.Reports;
 
 public sealed record ExecutiveSummaryFinding(
@@ -18,7 +20,10 @@ public sealed record ExecutiveSummaryResult(
     decimal? CostWasteUsd,
     int SecurityRiskCount,
     int ReliabilityGapCount,
-    int PendingGovernanceDecisionCount = 0);
+    int PendingGovernanceDecisionCount = 0,
+    string HeadlineSavingsScopeCode = RoiSponsorFacingScopeCodes.HeadlineDispositionAware,
+    string HeadlineSavingsScopeDescription = RoiSponsorFacingScopeDescriptions.HeadlineDispositionAware,
+    string Trailing30DayActivityScopeDescription = RoiSponsorFacingScopeDescriptions.Trailing30DayFindingEvents);
 
 public static class ExecutiveSummaryAggregator
 {

@@ -405,6 +405,14 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_commercial_overclaim_guard.py
 
+      - name: Claim/evidence consistency gate (T2-8)
+        continue-on-error: true
+        run: python scripts/ci/check_claim_evidence_consistency.py --json-out artifacts/ci/claim-evidence-consistency.json --markdown-out artifacts/ci/claim-evidence-consistency.md
+
+      - name: Claim evidence consistency unit tests (T2-8)
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_claim_evidence_consistency.py"
+
       - name: Commercial closeout batch unit tests (TB-129-134)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_commercial_closeout_batch.py"

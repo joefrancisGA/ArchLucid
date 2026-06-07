@@ -2,16 +2,6 @@
   Rollback 119: restore billing procs without state history; drop history table and helper proc.
 */
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.BillingSubscriptionStateHistory', N'U') IS NOT NULL
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        DROP FILTER PREDICATE ON dbo.BillingSubscriptionStateHistory,
-        DROP BLOCK PREDICATE ON dbo.BillingSubscriptionStateHistory FOR AFTER INSERT,
-        DROP BLOCK PREDICATE ON dbo.BillingSubscriptionStateHistory FOR AFTER UPDATE,
-        DROP BLOCK PREDICATE ON dbo.BillingSubscriptionStateHistory FOR BEFORE DELETE;
-END;
-GO
 
 IF OBJECT_ID(N'dbo.sp_Billing_AppendStateHistory', N'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_Billing_AppendStateHistory;

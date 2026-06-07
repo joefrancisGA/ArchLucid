@@ -49,6 +49,8 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 17. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
 18. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
 19. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
+20. **`RegisterRunExportBlobPushOutbox`** — **role:** `Combined` \| `Worker` → run-export blob push outbox processor + hosted drainer
+21. **`RegisterPostCommitProjectionOutbox`** — **role:** `Combined` \| `Worker` → post-commit projection outbox processor + hosted drainer
 20. **`RegisterIntegrationEventOutbox`** — **role:** `Combined` \| `Worker` → `IntegrationEventOutboxHostedService`
 21. **`RegisterIntegrationEventConsumer`** — **role:** `Worker` only — **`AzureServiceBusIntegrationEventConsumer`** + **`LoggingIntegrationEventHandler`** when Service Bus consumption is enabled (**`ServiceCollectionExtensions.SchedulingAndAlerts.cs`**)
 22. **`RegisterDataArchivalHostedService`** — **role:** `Combined` \| `Worker`

@@ -1,15 +1,11 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
-using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
-using ArchLucid.Application.Findings;
-using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs.Finalization;
-using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Contracts.Agents;
@@ -75,17 +71,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAuditService auditService,
     ITrialFunnelCommitHook trialFunnelCommitHook,
     IFirstSessionLifecycleHook firstSessionLifecycleHook,
-    ISampleRunPurgeService sampleRunPurgeService,
-    IFindingIacStubGenerator findingIacStubGenerator,
-    IFindingPriorityReranker findingPriorityReranker,
+    PostCommitProjectionEnqueuer postCommitProjectionEnqueuer,
     IRunTelemetryRepository runTelemetryRepository,
     IRunStateTransitionService runStateTransitionService,
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
     IOptions<ExplainGovernanceBlocksOptions> explainGovernanceBlocksOptions,
-    ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler reviewCompletedEventHandler,
-    IAuthorityQueryService authorityQueryService,
-    IProvenanceGraphAccessService provenanceGraphAccessService,
     IAzureDevOpsCommitStatusPublisher azureDevOpsCommitStatusPublisher,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
@@ -120,32 +111,17 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly IFirstSessionLifecycleHook _firstSessionLifecycleHook =
         firstSessionLifecycleHook ?? throw new ArgumentNullException(nameof(firstSessionLifecycleHook));
 
-    private readonly ISampleRunPurgeService _sampleRunPurgeService =
-        sampleRunPurgeService ?? throw new ArgumentNullException(nameof(sampleRunPurgeService));
-
-    private readonly IFindingIacStubGenerator _findingIacStubGenerator =
-        findingIacStubGenerator ?? throw new ArgumentNullException(nameof(findingIacStubGenerator));
+    private readonly PostCommitProjectionEnqueuer _postCommitProjectionEnqueuer =
+        postCommitProjectionEnqueuer ?? throw new ArgumentNullException(nameof(postCommitProjectionEnqueuer));
 
     private readonly IOptions<GenerateIacStubsOptions> _generateIacStubsOptions =
         generateIacStubsOptions ?? throw new ArgumentNullException(nameof(generateIacStubsOptions));
-
-    private readonly IFindingPriorityReranker _findingPriorityReranker =
-        findingPriorityReranker ?? throw new ArgumentNullException(nameof(findingPriorityReranker));
 
     private readonly IOptions<RerankFindingsOptions> _rerankFindingsOptions =
         rerankFindingsOptions ?? throw new ArgumentNullException(nameof(rerankFindingsOptions));
 
     private readonly IOptions<ExplainGovernanceBlocksOptions> _explainGovernanceBlocksOptions =
         explainGovernanceBlocksOptions ?? throw new ArgumentNullException(nameof(explainGovernanceBlocksOptions));
-
-    private readonly ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler _reviewCompletedEventHandler =
-        reviewCompletedEventHandler ?? throw new ArgumentNullException(nameof(reviewCompletedEventHandler));
-
-    private readonly IAuthorityQueryService _authorityQueryService =
-        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
-
-    private readonly IProvenanceGraphAccessService _provenanceGraphAccessService =
-        provenanceGraphAccessService ?? throw new ArgumentNullException(nameof(provenanceGraphAccessService));
 
     private readonly IRunTelemetryRepository _runTelemetryRepository =
         runTelemetryRepository ?? throw new ArgumentNullException(nameof(runTelemetryRepository));
@@ -386,8 +362,13 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         await _firstSessionLifecycleHook.OnSuccessfulManifestCommitAsync(commitScope.TenantId, cancellationToken);
         WizardPilotCommitTelemetry.RecordIfWizardSourced(request, runRecord, committedUtc.UtcDateTime);
 
-        if (!runRecord.IsSample)
-            TryScheduleSampleRunPurgeForTenant(commitScope.TenantId);
+        await _postCommitProjectionEnqueuer.EnqueueAfterCommitAsync(
+            runGuid,
+            commitScope,
+            enqueueSampleRunPurge: !runRecord.IsSample,
+            enqueueFindingPriorityRerank: _rerankFindingsOptions.Value.Enabled,
+            enqueueIacStubGeneration: _generateIacStubsOptions.Value.Enabled,
+            cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(run.RequestId))
         {
@@ -427,11 +408,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             _logger.LogWarningWithSanitizedUserArg(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
         }
 
-        TryScheduleIacStubGeneration(runId);
-        TryScheduleFindingPriorityRerank(runId);
-        TryScheduleReviewCompletedEvent(runId, scope.ProjectId.ToString("N"));
-        TryScheduleProvenanceSnapshotMaterialization(runGuid, commitScope);
-
         await TryPublishAzureDevOpsCommitStatusBestEffortAsync(runId, succeeded: true, cancellationToken);
 
         return new CommitRunResult { Manifest = contract, DecisionTraces = [DecisionTraceRecordMapper.ToDto(trace)], Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings] };
@@ -462,103 +438,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     succeeded);
             }
         }
-    }
-
-    private void TryScheduleProvenanceSnapshotMaterialization(Guid runId, ScopeContext scope)
-    {
-        _ = Task.Run(
-            async () =>
-            {
-                try
-                {
-                    RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, CancellationToken.None);
-
-                    if (detail is not null)
-                        await _provenanceGraphAccessService.TryMaterializeSnapshotAsync(scope, detail, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit provenance snapshot materialization failed for RunId={RunId}", runId.ToString("D"));
-                }
-            },
-            CancellationToken.None);
-    }
-
-    private void TryScheduleReviewCompletedEvent(string runId, string projectId)
-    {
-        _ = Task.Run(
-            async () =>
-            {
-                try
-                {
-                    await _reviewCompletedEventHandler.HandleAsync(new ArchLucid.Application.Runs.Orchestration.Events.ReviewCompletedEvent { RunId = runId, ProjectId = projectId }, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit review completed event failed for RunId={RunId}", runId);
-                }
-            },
-            CancellationToken.None);
-    }
-
-    private void TryScheduleSampleRunPurgeForTenant(Guid tenantId)
-    {
-        _ = Task.Run(
-            async () =>
-            {
-                try
-                {
-                    await _sampleRunPurgeService.PurgeForTenantAsync(tenantId, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarningWithSanitizedUserArg(
-                        ex,
-                        "Post-commit sample run purge failed for TenantId={TenantId}",
-                        tenantId.ToString("D"));
-                }
-            },
-            CancellationToken.None);
-    }
-
-    private void TryScheduleFindingPriorityRerank(string runId)
-    {
-        if (!_rerankFindingsOptions.Value.Enabled)
-            return;
-
-        _ = Task.Run(
-            async () =>
-            {
-                try
-                {
-                    await _findingPriorityReranker.RerankForRunAsync(runId, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit finding priority re-rank failed for RunId={RunId}", runId);
-                }
-            },
-            CancellationToken.None);
-    }
-
-    private void TryScheduleIacStubGeneration(string runId)
-    {
-        if (!_generateIacStubsOptions.Value.Enabled)
-            return;
-
-        _ = Task.Run(
-            async () =>
-            {
-                try
-                {
-                    await _findingIacStubGenerator.GenerateAndPersistStubsForRunAsync(runId, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarningWithSanitizedUserArg(ex, "Post-commit IaC stub generation failed for RunId={RunId}", runId);
-                }
-            },
-            CancellationToken.None);
     }
 
     private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(ManifestDocument manifestModel, DecisionTrace trace)

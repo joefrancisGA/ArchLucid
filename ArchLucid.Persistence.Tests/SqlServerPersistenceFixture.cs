@@ -268,14 +268,14 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     /// <summary>
     ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists in <c>dbo.Tenants</c> (migration 118 FK).
     ///     Uses <c>MERGE</c> with <c>HOLDLOCK</c> so priming stays atomic vs parallel deletes under the default isolation level.
-    ///     Governance SQL contract tests open connections via <see cref="RlsBypassTestDbConnectionFactory" /> (plain open;
+    ///     Governance SQL contract tests open connections via <see cref="SqlTestDbConnectionFactory" /> (plain open;
     ///     no session context) to avoid cross-test pool noise.
     /// </summary>
     public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        RlsBypassTestDbConnectionFactory factory = new(connectionString);
+        SqlTestDbConnectionFactory factory = new(connectionString);
         await using SqlConnection connection =
             (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
         await using SqlTransaction transaction =

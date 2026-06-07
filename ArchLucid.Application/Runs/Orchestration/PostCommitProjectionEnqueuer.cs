@@ -1,0 +1,90 @@
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Coordination.Projection;
+
+namespace ArchLucid.Application.Runs.Orchestration;
+
+/// <summary>Enqueues durable post-commit projection rows (TB-309).</summary>
+public sealed class PostCommitProjectionEnqueuer(IPostCommitProjectionOutboxRepository outboxRepository)
+{
+    private readonly IPostCommitProjectionOutboxRepository _outboxRepository =
+        outboxRepository ?? throw new ArgumentNullException(nameof(outboxRepository));
+
+    public Task EnqueueAfterCommitAsync(
+        Guid runGuid,
+        ScopeContext scope,
+        bool enqueueSampleRunPurge,
+        bool enqueueFindingPriorityRerank,
+        bool enqueueIacStubGeneration,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        List<Task> tasks =
+        [
+            EnqueueAsync(
+                PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
+                scope,
+                runGuid,
+                null,
+                cancellationToken),
+            EnqueueAsync(
+                PostCommitProjectionWorkTypes.ReviewCompletedEvent,
+                scope,
+                runGuid,
+                PostCommitProjectionPayloadJson.Serialize(new PostCommitProjectionPayload
+                {
+                    ProjectId = scope.ProjectId.ToString("N")
+                }),
+                cancellationToken)
+        ];
+
+        if (enqueueFindingPriorityRerank)
+        {
+            tasks.Add(EnqueueAsync(
+                PostCommitProjectionWorkTypes.FindingPriorityRerank,
+                scope,
+                runGuid,
+                null,
+                cancellationToken));
+        }
+
+        if (enqueueIacStubGeneration)
+        {
+            tasks.Add(EnqueueAsync(
+                PostCommitProjectionWorkTypes.IacStubGeneration,
+                scope,
+                runGuid,
+                null,
+                cancellationToken));
+        }
+
+        if (enqueueSampleRunPurge)
+        {
+            tasks.Add(EnqueueAsync(
+                PostCommitProjectionWorkTypes.SampleRunPurgeForTenant,
+                scope,
+                runId: null,
+                payloadJson: null,
+                cancellationToken));
+        }
+
+        return Task.WhenAll(tasks);
+    }
+
+    private Task EnqueueAsync(
+        string workType,
+        ScopeContext scope,
+        Guid? runId,
+        string? payloadJson,
+        CancellationToken cancellationToken)
+    {
+        return _outboxRepository.EnqueueAsync(
+            workType,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            runId,
+            payloadJson,
+            cancellationToken);
+    }
+}

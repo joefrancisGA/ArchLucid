@@ -17,7 +17,7 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 |--------|---------|
 | `scripts/build-release.cmd` / `scripts/build-release.ps1` | `dotnet restore` + `dotnet build ArchLucid.sln -c Release` |
 | `scripts/package-release.cmd` / `scripts/package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archlucid-ui/`. Emits **handoff metadata** next to `api/` (see below). |
-| `scripts/run-readiness-check.cmd` / `scripts/run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archlucid-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
+| `scripts/run-readiness-check.cmd` / `scripts/run-readiness-check.ps1` | Release build → **production-like config lint** (`archlucid config lint --profile production-like-hosted-pilot` via `scripts/ci/Invoke-ConfigLintProofStep.ps1`; RC baseline fixture) → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archlucid-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
 | `scripts/release-smoke.cmd` / `scripts/release-smoke.ps1` | **E2E smoke:** build + fast core (+ optional `-FullCore`) + optional UI build + temporary API + CLI **`run --quick`** + artifact API check — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | `scripts/test-core.cmd` / `scripts/test-core.ps1` | Full Core suite (default configuration, usually Debug). See [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
 | `scripts/test-fast-core.cmd` / `scripts/test-fast-core.ps1` | Core excluding Slow + Integration (default configuration) |
@@ -28,6 +28,9 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 - `scripts/package-release.ps1 -SkipUiBuild` — publish API only; no Next.js production build.
 - `scripts/package-release.ps1 -SkipChecksums` — skip per-file **SHA-256** generation (faster on huge trees; leaves a placeholder `checksums-sha256.txt` and sets `checksumsSha256Generated: false` in `release-manifest.json`).
 - `scripts/run-readiness-check.ps1 -SkipUi` — skip UI unit tests even if Node is installed.
+- `scripts/run-readiness-check.ps1 -SkipConfigLint` — emergency local skip only; **not** for release-candidate signoff.
+
+**Production-like config lint artifacts:** `artifacts/release-readiness/config-lint-production-like-hosted-pilot.json` and `.md` (evaluates `fixtures/release-candidate/appsettings.json` as the RC baseline shape). Validate deployed config with the same profile before hosted handoff — see [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md).
 
 **Merge discipline — Release fast-core:** after substantive .NET merges, run the analyzer-sensitive fast-core filter in **Release** so hygiene regressions (for example unread primary-constructor dependencies / **CS9113**) are caught before narrative readiness claims drift from CI:
 

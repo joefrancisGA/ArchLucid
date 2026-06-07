@@ -111,7 +111,6 @@ public static class ApiWebLayerServiceCollectionExtensions
                 "azure_content_safety",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
-            .AddArchLucidRlsSessionContextInfrastructureProbe();
 
         return services;
     }

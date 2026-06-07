@@ -499,13 +499,15 @@ internal static class TryCommand
     {
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
 
-        return await PilotProofPacketCommand.WriteFolderAsync(
+        SponsorPacketWriteOutcome outcome = await SponsorPacketWriter.WriteAsync(
             runId,
             apiBaseUrl,
             outputDirectory,
             config,
             Console.Error,
             cancellationToken);
+
+        return new PilotProofPacketWriteOutcome(outcome.ExitCode, outcome.OutputDirectory);
     }
 
     private static void OpenDirectoryInFileManager(string directoryPath)

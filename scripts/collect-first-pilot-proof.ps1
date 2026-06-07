@@ -910,28 +910,10 @@ function Add-ProductionLikeConfigLintFinding {
         return
     }
 
-    $jsonPath = Join-Path $ProofDirectory 'config-lint-production-like-hosted-pilot.json'
-    $markdownPath = Join-Path $ProofDirectory 'config-lint-production-like-hosted-pilot.md'
-    $cliProject = Join-Path $root 'ArchLucid.Cli\ArchLucid.Cli.csproj'
-    $lintArgs = @(
-        'run',
-        '--project', $cliProject,
-        '--',
-        'config',
-        'lint',
-        '--profile', 'production-like-hosted-pilot',
-        '--json-out', $jsonPath,
-        '--markdown-out', $markdownPath
-    )
-
-    Push-Location -LiteralPath $root
-    try {
-        & dotnet @lintArgs 2>&1 | Out-Null
-        $lintExit = $LASTEXITCODE
-    }
-    finally {
-        Pop-Location
-    }
+    $lintScript = Join-Path $root 'scripts\ci\Invoke-ConfigLintProofStep.ps1'
+    & $lintScript -OutputDir $ProofDirectory -SkipBuild 2>&1 | Out-Null
+    [int] $lintExit = $LASTEXITCODE
+    [string] $jsonPath = Join-Path $ProofDirectory 'config-lint-production-like-hosted-pilot.json'
 
     Add-ProofArtifact -Name 'config-lint-production-like-hosted-pilot.json' -Path 'config-lint-production-like-hosted-pilot.json' -Purpose 'Production-like hosted pilot config lint JSON for auth, telemetry, LLM redaction, and hosting advisor checks.'
     Add-ProofArtifact -Name 'config-lint-production-like-hosted-pilot.md' -Path 'config-lint-production-like-hosted-pilot.md' -Purpose 'Human-readable config lint disposition for production-like hosted pilot handoff.'

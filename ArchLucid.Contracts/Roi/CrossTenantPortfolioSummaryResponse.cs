@@ -23,4 +23,13 @@ public sealed class CrossTenantPortfolioSummaryResponse
 
     /// <summary>Whether k-anonymity was satisfied (k >= 5). If false, metrics are zeroed out.</summary>
     public bool IsKAnonymitySatisfied { get; set; }
+
+    /// <summary><see cref="RoiSponsorFacingScopeCodes.CrossTenantPortfolioHeadline" /> scope code.</summary>
+    public string HeadlineSavingsScopeCode { get; set; } = RoiSponsorFacingScopeCodes.CrossTenantPortfolioHeadline;
+
+    /// <summary>Human-readable scope for <see cref="TotalEstimatedUsdSavings" />.</summary>
+    public string HeadlineSavingsScopeDescription { get; set; } = RoiSponsorFacingScopeDescriptions.CrossTenantPortfolioHeadline;
+
+    /// <summary>Portfolio boundary note (multi-tenant, k-anonymity gate).</summary>
+    public string PortfolioScopeDescription { get; set; } = RoiSponsorFacingScopeDescriptions.CrossTenantPortfolioHeadline;
 }

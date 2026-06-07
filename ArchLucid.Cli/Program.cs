@@ -287,6 +287,9 @@ public static class Program
                 case "buyer-proof-pack":
                     return await BuyerProofPackCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "sponsor-packet":
+                    return await SponsorPacketCommand.RunAsync(normalized.Skip(1).ToArray());
+
                 case "first-value-report":
                     if (normalized.Length > 1)
                     {

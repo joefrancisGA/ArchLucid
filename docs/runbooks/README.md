@@ -5,9 +5,11 @@
 
 # Runbooks index
 
-**Last reviewed:** 2026-05-26
+**Last reviewed:** 2026-06-06
 
 Operational guides for ArchLucid operators. Each runbook is self-contained; cross-links point to deeper design docs where useful.
+
+**Persona entry (first pilot / release):** [`ROLE_INDEX.md`](./ROLE_INDEX.md) — maps operator, platform engineer, and release owner paths without duplicating procedures.
 
 **Availability policy:** [RTO / RPO targets by tier](../library/RTO_RPO_TARGETS.md) — development vs staging vs production (SQL geo-replication, RPO/RTO examples).
 

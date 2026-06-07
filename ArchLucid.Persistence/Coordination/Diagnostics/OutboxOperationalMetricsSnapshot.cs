@@ -56,4 +56,40 @@ public sealed class OutboxOperationalMetricsSnapshot
         get;
         init;
     }
+
+    public long RunExportBlobPushOutboxPending
+    {
+        get;
+        init;
+    }
+
+    public long RunExportBlobPushOutboxDeadLetter
+    {
+        get;
+        init;
+    }
+
+    public double RunExportBlobPushOutboxOldestPendingAgeSeconds
+    {
+        get;
+        init;
+    }
+
+    public long PostCommitProjectionOutboxPending
+    {
+        get;
+        init;
+    }
+
+    public double PostCommitProjectionOutboxOldestPendingAgeSeconds
+    {
+        get;
+        init;
+    }
+
+    public long PostCommitProjectionOutboxDeadLetter
+    {
+        get;
+        init;
+    }
 }

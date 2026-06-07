@@ -35,10 +35,34 @@ def main() -> int:
     start_here = root / "docs" / "START_HERE.md"
     operator_path = root / "docs" / "runbooks" / "FIRST_PILOT_OPERATOR_PATH.md"
 
+    role_index = root / "docs" / "runbooks" / "ROLE_INDEX.md"
+    runbooks_readme = root / "docs" / "runbooks" / "README.md"
+
     if not start_here.is_file():
         errors.append("Missing docs/START_HERE.md")
-    elif "FIRST_PILOT_OPERATOR_PATH.md" not in _head(start_here):
-        errors.append("START_HERE.md must link FIRST_PILOT_OPERATOR_PATH.md as operator checklist entry")
+    else:
+        start_head = _head(start_here)
+
+        if "FIRST_PILOT_OPERATOR_PATH.md" not in start_head:
+            errors.append("START_HERE.md must link FIRST_PILOT_OPERATOR_PATH.md as operator checklist entry")
+
+        if "ROLE_INDEX.md" not in start_head:
+            errors.append("START_HERE.md must link ROLE_INDEX.md as persona entry map")
+
+    if not role_index.is_file():
+        errors.append("Missing docs/runbooks/ROLE_INDEX.md")
+    else:
+        role_text = role_index.read_text(encoding="utf-8", errors="replace")
+
+        for persona in ("Operator", "Platform engineer", "Release owner"):
+            if persona not in role_text:
+                errors.append(f"ROLE_INDEX.md must include persona section: {persona}")
+
+        if "If this failed, go here" not in role_text:
+            errors.append("ROLE_INDEX.md must include failure-branch sections")
+
+    if runbooks_readme.is_file() and "ROLE_INDEX.md" not in _head(runbooks_readme, 25):
+        errors.append("docs/runbooks/README.md must link ROLE_INDEX.md near the top")
 
     canonical_docs = [
         root / "docs" / "START_HERE.md",

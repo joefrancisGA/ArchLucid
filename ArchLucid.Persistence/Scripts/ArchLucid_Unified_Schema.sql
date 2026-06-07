@@ -1079,8 +1079,7 @@ IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
 GO
 
 /* Relational findings — greenfield CREATE TABLE parity with DbUp 129 (scope columns on child/authority-path tables).
-   DbUp 129 replay backfills and SECURITY POLICY binds are brownfield-only (dynamic SQL / replay guards); keep this file aligned
-   with 129's final column layout. DbUp 148 may remove RLS after migrate (MULTI_TENANT_RLS.md). */
+   DbUp 129 backfills are brownfield-only; keep this file aligned with 129's final column layout. */
 -- Relational findings (dual-write with FindingsJson; typed payload only in FindingRecords.PayloadJson).
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NULL
 BEGIN

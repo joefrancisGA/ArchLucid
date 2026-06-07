@@ -192,7 +192,7 @@ public sealed class ExecutiveRoiSummaryService(
 
         DateTime? firstCommitUtc = pilotMetrics?.FirstCommitUtc?.UtcDateTime;
 
-        return new ExecutiveRoiSummaryResponse
+        ExecutiveRoiSummaryResponse response = new()
         {
             TotalEstimatedUsdSavings = totalSavings,
             SystemCount = systems.Count,
@@ -216,6 +216,10 @@ public sealed class ExecutiveRoiSummaryService(
             BusinessImpactCategoryCounts = businessImpactCategoryCounts,
             FirstCommitUtc = firstCommitUtc,
         };
+
+        RoiSponsorFacingScopeLabeler.ApplyExecutiveRoiSummary(response);
+
+        return response;
     }
 
 
@@ -358,7 +362,7 @@ public sealed class ExecutiveRoiSummaryService(
             .Take(5)
             .ToList();
 
-        return new CrossTenantPortfolioSummaryResponse
+        CrossTenantPortfolioSummaryResponse response = new()
         {
             IsKAnonymitySatisfied = true,
             TotalEstimatedUsdSavings = totalSavings,
@@ -366,6 +370,10 @@ public sealed class ExecutiveRoiSummaryService(
             TotalCriticalFindings = totalCriticalFindings,
             TopSystemicIssues = topIssues,
         };
+
+        RoiSponsorFacingScopeLabeler.ApplyCrossTenantPortfolio(response);
+
+        return response;
     }
 
     /// <inheritdoc />

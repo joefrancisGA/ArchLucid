@@ -75,22 +75,6 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-   AND OBJECT_ID(N'dbo.BillingSubscriptionStateHistory', N'U') IS NOT NULL
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'BillingSubscriptionStateHistory')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
-        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.BillingSubscriptionStateHistory,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.BillingSubscriptionStateHistory AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.BillingSubscriptionStateHistory AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.BillingSubscriptionStateHistory BEFORE DELETE;
-END;
-GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_Billing_AppendStateHistory
     @TenantId uniqueidentifier,

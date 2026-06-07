@@ -26,6 +26,10 @@ import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabula
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  resolveExecutiveHeadlineScopeLabel,
+  resolveExecutiveSystemRowScopeLabel,
+} from "@/lib/roi-sponsor-scope-labels";
 
 const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
 
@@ -255,9 +259,8 @@ export function ExecutiveRoiSummarySection() {
             <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
           ) : (
             <>
-              Latest committed review per system in this workspace. Headline savings use the disposition-aware
-              basis (open + needs-evidence); per-system rows below are pre-disposition components and may not sum
-              to the headline. Data from <span className="font-mono">GET /v1/roi/executive-summary</span>.
+              {resolveExecutiveHeadlineScopeLabel(data)} {resolveExecutiveSystemRowScopeLabel(data)} Data from{" "}
+              <span className="font-mono">GET /v1/roi/executive-summary</span>.
             </>
           )}
         </CardDescription>
@@ -265,7 +268,13 @@ export function ExecutiveRoiSummarySection() {
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings</div>
+            <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Estimated USD savings (headline)</div>
+            <p
+              className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-400"
+              data-testid="exec-roi-headline-scope-description"
+            >
+              {resolveExecutiveHeadlineScopeLabel(data)}
+            </p>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {formatUsd(data.totalEstimatedUsdSavings)}
             </div>

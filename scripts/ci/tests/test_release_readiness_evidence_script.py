@@ -20,6 +20,9 @@ class TestReleaseReadinessEvidenceScript(unittest.TestCase):
         self.assertIn("DB migration status", text)
         self.assertIn("k6 smoke status", text)
         self.assertIn("does not claim production SLA compliance", text)
+        self.assertIn("Invoke-WriteReleaseEvidenceBundleManifest.ps1", text)
+        self.assertIn("Invoke-ValidateReleaseEvidenceBundle.ps1", text)
+        self.assertIn("release-evidence-bundle-manifest.json", text)
 
 
 if __name__ == "__main__":

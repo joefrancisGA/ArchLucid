@@ -14,7 +14,8 @@
 |----------|--------|
 | Is SQL RLS required in production? | **No.** Removed by migration 148; do not reinstate without a new ADR. |
 | What is the primary isolation mechanism? | **Database-per-tenant** (`SystemWithPerTenantCatalogs`) + connection routing. |
-| What if app code omits `TenantId` in SQL? | Within a tenant catalog, wrong rows may leak **workspace/project** scope — not cross-tenant catalogs when routing is correct. |
+| What if app code omits scope predicates in SQL? | **No cross-tenant exposure** when catalog routing is correct (each paying client has a dedicated catalog). Workspace/project are **not** security boundaries within a tenant — missing predicates there are product/UX concerns, not paying-client isolation defects. |
+| Are workspace/project security boundaries within a tenant? | **No** (2026-06-06). Organizational/product dimensions only; do not score within-catalog workspace/project bleed as a security gap. |
 | Is `SingleCatalog` allowed in prod? | **No** — startup fail-fast in production-like hosts. |
 
 ## Layer model
@@ -83,8 +84,9 @@ flowchart TB
 
 ### Layer D — Persistence
 
-- Repositories take `ScopeContext` or explicit `tenantId` parameters; tenant-scoped tables listed in [`TENANT_SCOPED_TABLES_INVENTORY.md`](../library/TENANT_SCOPED_TABLES_INVENTORY.md)
-- SQL integration tests: `*ScopeIsolationSqlIntegrationTests` under `ArchLucid.Persistence.Tests`
+- Repositories take `ScopeContext` or explicit `tenantId` parameters where **tenant-scoped** tables are listed in [`TENANT_SCOPED_TABLES_INVENTORY.md`](../library/TENANT_SCOPED_TABLES_INVENTORY.md).
+- **Within-tenant workspace/project predicates** are optional product discipline — not a security requirement for paying-client isolation (see decision summary above).
+- SQL integration tests under `ArchLucid.Persistence.Tests` (`*ScopeIsolationSqlIntegrationTests`) primarily guard **SingleCatalog dev/CI** fidelity and repository regressions; they do not substitute for the catalog boundary in production.
 
 ### Layer E — Blob and auxiliary stores
 
@@ -111,6 +113,17 @@ When scoring tenant isolation **do not** ask “is RLS enabled?” Instead verif
 3. Route-tenant and IDOR tests pass; ARCH001 analyzer enabled on product assemblies.
 4. No product code path uses system catalog connection for tenant-scoped reads without explicit design.
 5. Cross-tenant admin endpoints require platform operator authority.
+
+**Do not** treat missing workspace/project SQL predicates or within-catalog single-key lookups as paying-client isolation defects.
+
+### Catalog-binding verification (automated)
+
+| Control | Location | Test coverage |
+|---------|----------|---------------|
+| `SingleCatalog` banned in Production/Staging | `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike` | `ArchLucid.Api.Tests/ArchLucidConfigurationRulesTests` (`CollectErrors_WhenProductionAndSingleCatalogTopology_*`) |
+| Per-tenant connection resolution | `TenantDatabaseResolver`, `TenantDatabaseBindings` | `ArchLucid.Persistence.Tests/TenantDatabaseResolverUnitTests` |
+| Tenant-scoped request must not hit system catalog | `ScopedRoutingSqlConnectionFactory`, `SqlCatalogRoutingGuard` | `ScopedRoutingSqlConnectionFactoryUnitTests`, `SqlTopologyPlaneIsolationSqlIntegrationTests` |
+| ADR 0037 wiring drift guard | Architecture tests | `ArchLucid.Architecture.Tests/TenantIsolationDefenseInDepthArchitectureTests` |
 
 ## Related ADRs and migrations
 

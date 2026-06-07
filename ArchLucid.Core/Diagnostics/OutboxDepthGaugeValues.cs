@@ -10,4 +10,10 @@ public readonly record struct OutboxDepthGaugeValues(
     long IntegrationEventOutboxPublishPending,
     long IntegrationEventOutboxDeadLetter,
     double IntegrationEventOutboxOldestActionablePendingAgeSeconds,
-    long AuthorityPipelineWorkDeadLetter);
+    long AuthorityPipelineWorkDeadLetter,
+    long RunExportBlobPushOutboxPending,
+    double RunExportBlobPushOutboxOldestPendingAgeSeconds,
+    long RunExportBlobPushOutboxDeadLetter,
+    long PostCommitProjectionOutboxPending,
+    double PostCommitProjectionOutboxOldestPendingAgeSeconds,
+    long PostCommitProjectionOutboxDeadLetter);

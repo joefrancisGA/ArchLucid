@@ -24,6 +24,20 @@ public sealed record RunExportReadmeContext
         init;
     }
 
+    /// <summary>Committed rule set id for <c>export-manifest.json</c>.</summary>
+    public string? RuleSetId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Committed rule set content hash for <c>export-manifest.json</c>.</summary>
+    public string? RuleSetHash
+    {
+        get;
+        init;
+    }
+
     /// <summary>Relative operator path for returning to this run (no host; safe for offline shares).</summary>
     public string? OperatorShellReviewRelativePath
     {

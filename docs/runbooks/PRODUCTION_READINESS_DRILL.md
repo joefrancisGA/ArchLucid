@@ -42,8 +42,12 @@ Each run produces a timestamped folder containing:
 |------|---------|
 | `drill-summary.json` | PASS/WARN/HOLD per step |
 | `drill-summary.md` | Human-readable rollup |
+| `release-evidence-bundle-manifest.json` | Canonical bundle manifest (profile `production-readiness-drill`) |
+| `release-evidence-bundle-validation.json` | Validator output when schema check runs |
 | `config-lint/` | Config lint output when API/config available |
 | `v1-rc-drill/` | RC drill artifacts when API reachable |
+
+Validate minimum set: `scripts/ci/Invoke-ValidateReleaseEvidenceBundle.ps1 -BundleDir <drill-folder> -Profile production-readiness-drill` — see [`RELEASE_EVIDENCE_BUNDLE_SCHEMA.md`](../quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md).
 
 **No secrets** are written to artifacts. Cloud-dependent steps are **opt-in** and labeled in the summary.
 

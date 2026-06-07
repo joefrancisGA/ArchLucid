@@ -4,7 +4,9 @@
 
 **Audience:** Buyer operators, design partners, and sales engineers guiding a first architecture review without jumping across unrelated docs.
 
-**Last reviewed:** 2026-05-28
+**Persona map (operator / platform / release owner):** [`ROLE_INDEX.md`](ROLE_INDEX.md).
+
+**Last reviewed:** 2026-06-06
 
 **Canonical four-step narrative:** [`CORE_PILOT.md`](../CORE_PILOT.md). **This file is the canonical operational checklist.** **Before you start (Azure + config):** [`PILOT_PREREQUISITES.md`](PILOT_PREREQUISITES.md). **Production-like preflight:** [`FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`FIRST_VALUE_20_MINUTES.md`](FIRST_VALUE_20_MINUTES.md). **In-product rail:** operator **Home** → **First-pilot path (about 20 minutes)** strip. **Starter pack chooser:** [`templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md`](../../templates/starter-proof-packs/STARTER_PROOF_PACK_CHOOSER.md). **Golden walkthrough:** [`docs/library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md`](../library/walkthroughs/GOLDEN_ACCELERATOR_WALKTHROUGH.md). **Evidence checklist (printable):** [`FIRST_RUN_EVIDENCE_CHECKLIST.md`](FIRST_RUN_EVIDENCE_CHECKLIST.md). **Stuck mid-pilot:** [`PILOT_RESCUE_PLAYBOOK.md`](PILOT_RESCUE_PLAYBOOK.md) · **Support triage:** [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md).
 

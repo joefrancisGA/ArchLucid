@@ -128,6 +128,20 @@ function Start-TestHeartbeat {
     return [System.Threading.Tasks.Task]::Run($action)
 }
 
+function Invoke-PreTestApiCleanup {
+    # Release stale dotnet testhost / vstest processes that may be holding locks
+    # on ArchLucid.Api.Tests output binaries from a previous interrupted run.
+    # This is a targeted, no-broad-kill helper — see scripts/Stop-DotnetTestProcesses.ps1.
+    [string] $cleanupScript = Join-Path $PSScriptRoot 'Stop-DotnetTestProcesses.ps1'
+
+    if (-not (Test-Path $cleanupScript)) {
+        Write-Host "[test.ps1] WARNING: $cleanupScript not found — skipping pre-test API cleanup." -ForegroundColor DarkYellow
+        return
+    }
+
+    & $cleanupScript
+}
+
 function Invoke-DotnetTest {
     param(
         [string] $Project,
@@ -252,9 +266,11 @@ function Invoke-Tier {
             return $LASTEXITCODE
         }
         'Full' {
+            Invoke-PreTestApiCleanup
             return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter '' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'Integration' {
+            Invoke-PreTestApiCleanup
             return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Category=Integration' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'Slow' {

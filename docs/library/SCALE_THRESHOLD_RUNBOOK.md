@@ -15,6 +15,7 @@ Operators use this runbook to decide when a **single-replica / small-fleet** pos
 | Per-tenant metric cardinality | OTel label explosion warnings | Enable tenant metric cardinality guard (see below) |
 | Integration event outbox depth | Oldest pending age >15m or dead-letter growth | Scale worker role; tune outbox batch; see **Outbox scaling** |
 | Authority pipeline outbox depth | `archlucid_authority_pipeline_work_pending` elevated | Dedicated worker; review poison messages — [`AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md) |
+| Run-export blob push outbox depth / dead-letter | `archlucid_run_export_blob_push_outbox_pending` or `archlucid_run_export_blob_push_outbox_dead_letter` elevated | Confirm elected host runs **`RunExportBlobPushOutboxHostedService`**; triage SAS/destination policy — [`RUN_EXPORT_BLOB_PUSH_OUTBOX_OBSERVABILITY.md`](../runbooks/RUN_EXPORT_BLOB_PUSH_OUTBOX_OBSERVABILITY.md) |
 
 ## Query p95 checks (V1 — observability-driven)
 

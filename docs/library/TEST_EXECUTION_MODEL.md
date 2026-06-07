@@ -262,6 +262,40 @@ Optional **local** sequence before a PR (preferred form using the consolidated d
 
 ---
 
+## Pre-test cleanup (lock contention hygiene)
+
+Targeted local test runs can fail with `MSB3021`/`MSB3027` build errors when a previous
+`dotnet testhost` or `vstest.console` process still holds a lock on the `ArchLucid.Api.Tests`
+output binaries (e.g. after an interrupted test run or a stale IDE session).
+
+### Helper script
+
+`scripts/Stop-DotnetTestProcesses.ps1` resolves this by inspecting running processes and
+stopping only those whose command-line references `ArchLucid.Api.Tests` or `ArchLucid.Api.dll`.
+It never performs a broad process kill.
+
+```powershell
+# Perform cleanup before running targeted API tests:
+.\scripts\Stop-DotnetTestProcesses.ps1
+
+# Assert no stale processes exist (no-op probe — useful in CI or runbooks):
+.\scripts\Stop-DotnetTestProcesses.ps1 -SelfTest
+```
+
+### Automatic invocation
+
+`scripts/test.ps1` calls `Invoke-PreTestApiCleanup` (which delegates to this script)
+automatically before the `Integration` and `Full` tiers. No manual intervention is needed
+for those tiers. For one-off targeted runs outside of `test.ps1`, call the script
+directly as shown above.
+
+### When this runs vs. CI
+
+The cleanup is a local-developer safety net. In CI, ephemeral agents start fresh and
+never accumulate stale processes, so the script is a guaranteed no-op there.
+
+---
+
 ## Constraints (solution)
 
 - **C#** test stack (xUnit).

@@ -9519,3 +9519,38 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope:** persisting ZIP bytes; encrypting SAS column; deduplicating repeated operator pushes.
 
 **Refs:** ADR-0004; ADR-0038; ADR-0043; TB-251; TB-305.
+
+## TB-307 — Application-layer tamper-evident export lineage + verify
+
+**Status:** **Done** (2026-06-06).
+
+**Problem:** Architecture review #6 required hash-linked integrity beyond SQL DENY (ADR 0039). Partial primitives existed (`ManifestHash`, `ManifestGenerated` audit, CLI `artifact-manifest.json`) but run exports lacked a first-class checksum manifest and there was no verify surface.
+
+**Shipped:**
+
+1. `export-manifest.json` inside run export ZIPs — per-entry SHA-256 (UPPER hex), sorted paths, committed manifest hash + rule-set anchors (`ExportManifestBuilder` in shared `BuildRunExportPackage`).
+2. `IRunExportLineageVerifier` + `GET …/runs/{runId}/export/verify` — recomputes hash vs `ManifestGenerated` anchor; returns `Match` / `Mismatch` / `NotAttested` (HTTP 200).
+3. `RunExportLineageVerified` audit on each verify call.
+4. ADR 0040 implementation note; `EVIDENCE_IMMUTABILITY.md` + `FIRST_PILOT_EVIDENCE_BUNDLE.md` updated.
+
+**Out of scope:** WORM/immutable storage tier, HSM signing, FK repoint detection, new hash columns/migrations (per ADR 0040).
+
+**Refs:** ADR-0039; ADR-0040; TB-303; TB-306; `sonnet_questions_06042026.md` Q7.
+
+## TB-309 — Durable outbox for post-commit projection side effects
+
+**Status:** **Done** (2026-06-06).
+
+**Problem:** `AuthorityDrivenArchitectureRunCommitOrchestrator` used five fire-and-forget `Task.Run` calls after commit (provenance snapshot, review-completed event, sample-run purge, finding rerank, IaC stubs). API/worker restart or unhandled exceptions lost side effects with no retry or operator signal.
+
+**Shipped:**
+
+1. `dbo.PostCommitProjectionOutbox` + Dapper/InMemory repositories (migration 249; `WorkType` discriminator + scope triple + optional `RunId`/`PayloadJson`).
+2. `PostCommitProjectionEnqueuer` replaces all five `Task.Run` call sites; feature gates apply at enqueue.
+3. `PostCommitProjectionOutboxProcessor` + leader-elected `PostCommitProjectionOutboxHostedService` — dispatches by work type with ambient scope restoration.
+4. `PostCommitProjectionDeadLettered` audit; observability gauges/counters aligned with other outboxes.
+5. ADR **0044**; data consistency matrix, orphan-probe registry, DI map updated.
+
+**Out of scope:** transactional enqueue in the same SQL UOW as commit (commit path already durable); retroactive re-enqueue when feature flags flip.
+
+**Refs:** ADR-0004; ADR-0043; ADR-0044; TB-306.

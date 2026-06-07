@@ -162,17 +162,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IAuditService>(),
             Mock.Of<ITrialFunnelCommitHook>(),
             Mock.Of<IFirstSessionLifecycleHook>(),
-            Mock.Of<ISampleRunPurgeService>(),
-            Mock.Of<IFindingIacStubGenerator>(),
-            Mock.Of<ArchLucid.Application.Findings.IFindingPriorityReranker>(),
+            new PostCommitProjectionEnqueuer(Mock.Of<ArchLucid.Persistence.Coordination.Projection.IPostCommitProjectionOutboxRepository>()),
             Mock.Of<IRunTelemetryRepository>(),
             new RunStateTransitionService(),
             Options.Create(new ArchLucid.Core.Configuration.GenerateIacStubsOptions()),
             Options.Create(new ArchLucid.Core.Configuration.RerankFindingsOptions()),
             Options.Create(new ArchLucid.Core.Configuration.ExplainGovernanceBlocksOptions()),
-            Mock.Of<ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler>(),
-            Mock.Of<ArchLucid.Persistence.Queries.IAuthorityQueryService>(),
-            Mock.Of<ArchLucid.Application.Provenance.IProvenanceGraphAccessService>(),
             Mock.Of<ArchLucid.Contracts.Abstractions.Integrations.IAzureDevOpsCommitStatusPublisher>(),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }

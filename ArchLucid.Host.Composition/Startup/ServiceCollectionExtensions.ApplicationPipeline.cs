@@ -145,6 +145,8 @@ public static partial class ServiceCollectionExtensions
             client.Timeout = TimeSpan.FromMinutes(5);
         });
         services.AddScoped<IRunExportBlobPushService, RunExportBlobPushService>();
+        services.AddScoped<IRunExportPackageBuilder, RunExportPackageBuilder>();
+        services.AddScoped<IRunExportLineageVerifier, RunExportLineageVerifier>();
         services.Configure<TerraformGitHubPrOptions>(
             configuration.GetSection(TerraformGitHubPrOptions.SectionPath));
         services.AddHttpClient(TerraformGitHubPrService.HttpClientName, static client =>
@@ -201,6 +203,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
+        services.AddScoped<PostCommitProjectionEnqueuer>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<ArchLucid.Application.Runs.Orchestration.Events.IReviewCompletedEventHandler, ArchLucid.Application.Runs.Orchestration.Events.ReviewCompletedEventHandler>();
         services.AddScoped<ISampleRunPurgeService, SampleRunPurgeService>();

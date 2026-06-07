@@ -19,6 +19,8 @@ public sealed class ValueReportSnapshotMarkdownFormatter(ExportFormatterService 
         StringBuilder sb = new();
         sb.AppendLine("# Value report snapshot (tenant window)");
         sb.AppendLine();
+        sb.AppendLine($"**Scope:** {snapshot.ValueWindowScopeDescription}");
+        sb.AppendLine();
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Metric", "Value");
         sb.AppendLine(
             CultureInfo.InvariantCulture,

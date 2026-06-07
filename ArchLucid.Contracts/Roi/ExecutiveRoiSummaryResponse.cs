@@ -6,12 +6,50 @@ namespace ArchLucid.Contracts.Roi;
 /// </summary>
 public sealed class ExecutiveRoiSummaryResponse
 {
-    /// <summary>Sum of <see cref="SystemLatestRunRoi.EstimatedUsdSavings" /> across latest runs (null savings treated as zero).</summary>
+    /// <summary>
+    ///     Disposition-aware headline: open + needs-evidence estimated USD (see <see cref="BasisBreakdown" />).
+    ///     Not a sum of <see cref="SystemLatestRunRoi.EstimatedUsdSavings" /> rows.
+    /// </summary>
     public decimal TotalEstimatedUsdSavings
     {
         get;
         set;
     }
+
+    /// <summary><see cref="RoiSponsorFacingScopeCodes.HeadlineDispositionAware" /> scope code for sponsor UI.</summary>
+    public string HeadlineSavingsScopeCode
+    {
+        get;
+        set;
+    } = RoiSponsorFacingScopeCodes.HeadlineDispositionAware;
+
+    /// <summary>Human-readable scope for <see cref="TotalEstimatedUsdSavings" />.</summary>
+    public string HeadlineSavingsScopeDescription
+    {
+        get;
+        set;
+    } = RoiSponsorFacingScopeDescriptions.HeadlineDispositionAware;
+
+    /// <summary><see cref="RoiSponsorFacingScopeCodes.SystemRowSnapshotPotential" /> scope code for per-system rows.</summary>
+    public string SystemRowSavingsScopeCode
+    {
+        get;
+        set;
+    } = RoiSponsorFacingScopeCodes.SystemRowSnapshotPotential;
+
+    /// <summary>Human-readable scope for <see cref="SystemLatestRunRoi.EstimatedUsdSavings" /> rows.</summary>
+    public string SystemRowSavingsScopeDescription
+    {
+        get;
+        set;
+    } = RoiSponsorFacingScopeDescriptions.SystemRowSnapshotPotential;
+
+    /// <summary>Scope for <see cref="ResolvedFindingsCount30Days" /> and <see cref="NewlyDiscoveredFindingsCount30Days" />.</summary>
+    public string Trailing30DayActivityScopeDescription
+    {
+        get;
+        set;
+    } = RoiSponsorFacingScopeDescriptions.Trailing30DayFindingEvents;
 
     /// <summary>Distinct systems represented in <see cref="Systems" />.</summary>
     public int SystemCount

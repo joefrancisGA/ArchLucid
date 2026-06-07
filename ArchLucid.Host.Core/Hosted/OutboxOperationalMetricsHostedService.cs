@@ -78,7 +78,13 @@ public sealed class OutboxOperationalMetricsHostedService(
             snap.IntegrationEventOutboxPublishPending,
             snap.IntegrationEventOutboxDeadLetter,
             snap.IntegrationEventOutboxOldestActionablePendingAgeSeconds,
-            snap.AuthorityPipelineWorkDeadLetter);
+            snap.AuthorityPipelineWorkDeadLetter,
+            snap.RunExportBlobPushOutboxPending,
+            snap.RunExportBlobPushOutboxOldestPendingAgeSeconds,
+            snap.RunExportBlobPushOutboxDeadLetter,
+            snap.PostCommitProjectionOutboxPending,
+            snap.PostCommitProjectionOutboxOldestPendingAgeSeconds,
+            snap.PostCommitProjectionOutboxDeadLetter);
 
         ArchLucidInstrumentation.OutboxDepthGauges.Publish(in values);
     }

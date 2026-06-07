@@ -2,22 +2,25 @@
 
 # Pilot scorecard and ROI baselines
 
-**Last reviewed:** 2026-04-27
+**Last reviewed:** 2026-06-06
 
 ## Shipped API (tenant-scoped, authenticated)
 
 | Method | Route | Role |
 |--------|-------|------|
-| `GET` | `/v1/pilots/outcome-summary` | Trailing 30-day rollup (`PilotScorecardResponse`) for the current tenant. |
+| `GET` | `/v1/pilots/outcome-summary` | Trailing 30-day rollup (`PilotScorecardResponse`) for the current tenant. Emits `periodScopeCode` / `periodScopeDescription`. |
 | `POST` | `/v1/pilots/scorecard` | JSON scorecard for a custom UTC window (`periodStart` / `periodEnd` in body). |
 | `GET` | `/v1/architecture/run/{runId}/roi` | Per-run directional analyst-hour estimate (`RunRoiScorecardDto`); multipliers **`Architecture:RunRoiEstimator`**. Complements tenant scorecard rollups; does not replace them. |
-| `GET` | `/v1/roi/executive-summary` | **Cross-run executive ROI summary** for the current tenant ([`ExecutiveRoiSummaryService`](../../ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs)). Operator UI: Home dashboard **`ExecutiveRoiSummarySection`**. **V1 aggregation ([V1_SCOPE.md](V1_SCOPE.md) §2.8):** (1) select the **latest committed run per system** (case-insensitive system name; cap 200 systems loaded per request); (2) **sum** `EstimatedUsdSavings` from each included run’s findings snapshot — no per-finding dedup on savings; (3) flatten non-muted findings from those runs, **deduplicate by stable `FindingId`** (case-insensitive) so overlapping CI reruns count once, then group by **(Category, Severity)** for **`TopSystemicIssues`** (top 5 by count). Findings with empty `FindingId` are never deduplicated against each other. **KPI semantics (TB-168):** [`EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`](EXECUTIVE_KPI_SEMANTIC_CONTRACT.json) — server-authoritative fields, freshness, and forbidden UI heuristics. |
+| `GET` | `/v1/roi/executive-summary` | **Cross-run executive ROI summary** for the current tenant ([`ExecutiveRoiSummaryService`](../../ArchLucid.Application/Roi/ExecutiveRoiSummaryService.cs)). Operator UI: Home dashboard **`ExecutiveRoiSummarySection`**. **Headline:** `totalEstimatedUsdSavings` = disposition-aware **open + needs-evidence** USD (`headlineSavingsScopeCode`). **Per-system rows:** pre-disposition snapshot potential (`systemRowSavingsScopeCode`) — rows do **not** sum to the headline. **Top systemic issues:** dedupe by stable `FindingId` across latest runs per system. **Scope labels (T2-6):** [`RoiSponsorFacingScopeCodes`](../../ArchLucid.Contracts/Roi/RoiSponsorFacingScopeCodes.cs). **KPI semantics (TB-168):** [`EXECUTIVE_KPI_SEMANTIC_CONTRACT.json`](EXECUTIVE_KPI_SEMANTIC_CONTRACT.json). |
+| `GET` | `/v1/roi/cross-tenant-portfolio-summary` | Multi-tenant portfolio (k ≥ 5). Uses the **same disposition-aware headline basis** per tenant (`cross-tenant-portfolio-headline`). |
+| `GET` | `/v1/reports/executive-summary` | Reports rollup: `totalCostSavingsUsd` aliases executive headline; `totalRiskReductionScore` = trailing 30-day resolved findings (not pending governance). |
+| `POST` | `/v1/value-report/generate` | Activity-window hours + ROI-model annualized USD (`tenant-activity-window-hours-roi-model`) — distinct from executive USD headline. |
 
 Implementation aggregates from `IRunRepository` in scope (runs in period, count with committed manifest). See `PilotScorecardBuilder` and `PilotsController` in the API project.
 
 **Run-level `/roi`:** computed on read by `RunRoiEstimator` (`ArchLucid.Application`) from the same `ArchitectureRunDetail` aggregate as `GET /v1/architecture/run/{runId}` — **no** separate scorecard table.
 
-**Named `PilotBaselines` as a first-class persisted table** is **not** required for the above — executive ROI **manual baselines** (review hours, people per review) are stored on the **tenant** model for the ROI calculator (`DapperTenantRepository.UpdateBaseline*`). Use those fields for pilot “before” numbers; re-measure with the scorecard for “after” run volumes.
+**Named `PilotBaselines` as a first-class persisted table** is **not** required for the above — executive ROI **manual baselines** (review hours, people per review) are stored on the **tenant** model for the ROI calculator (`DapperTenantRepository.UpdateBaseline*`). Use those fields for pilot "before" numbers; re-measure with the scorecard for "after" run volumes.
 
 ## Operations
 

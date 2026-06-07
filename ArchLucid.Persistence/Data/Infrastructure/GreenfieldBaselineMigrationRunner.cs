@@ -2,8 +2,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-using ArchLucid.Core.Diagnostics;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Data.Infrastructure;
@@ -114,7 +112,7 @@ public static partial class GreenfieldBaselineMigrationRunner
     ///     Stamps 001–050 into <c>dbo.SchemaVersions</c> and replays incremental scripts when <c>dbo.AuditEvents</c> is
     ///     missing
     ///     (partial catalog repair). Replays from <b>017</b> when <c>dbo.Runs</c> is absent — migrations in the 035–050 range
-    ///     (e.g. <c>039_RowVersion</c>, <c>036_Rls</c>) assume <c>dbo.Runs</c> exists (created in
+    ///     (e.g. <c>039_RowVersion</c>) assume <c>dbo.Runs</c> exists (created in
     ///     <c>017_GraphSnapshots_ParentTables</c>).
     /// </summary>
     private static void StampThrough050OrReplay035IfAuditMissingThenStamp(SqlConnection connection, Assembly assembly)
@@ -122,7 +120,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (!DboAuditEventsTableExists(connection))
         {
             // Partial catalog: stamp-only would record 001–050 as applied without creating 035 targets (AuditEvents, …).
-            // Never start at 035 if dbo.Runs is missing — 039+ ALTER dbo.Runs and 036 binds RLS on dbo.Runs.
+            // Never start at 035 if dbo.Runs is missing — 039+ ALTER dbo.Runs.
             int minInclusive = DboRunsTableExists(connection) ? 35 : 17;
 
             try
@@ -140,7 +138,6 @@ public static partial class GreenfieldBaselineMigrationRunner
         EnsureSchemaVersionsTable(connection, null);
         StampIncrementalScriptsThrough050(connection, null);
         StampRunTelemetryMigration138WhenDboTableExists(connection, null);
-        StampPostBaselineJournalEntriesWhenRowLevelSecurityRemovalDrift(connection, null);
     }
 
     /// <summary>
@@ -168,104 +165,6 @@ public static partial class GreenfieldBaselineMigrationRunner
             tx);
         stamp.Parameters.AddWithValue("@ScriptName", resourceName);
         stamp.ExecuteNonQuery();
-    }
-
-    /// <summary>
-    ///     Journal drift after <c>148_RemoveRowLevelSecurity.sql</c>: that script drops RLS policies, predicate functions,
-    ///     and often the <c>rls</c> schema. If <c>dbo.SchemaVersions</c> was emptied while the catalog already reflects all
-    ///     incremental DDL (including 148), DbUp must not replay <c>051</c>+ — statements such as
-    ///     <c>068_RlsBlockPredicatesTenantScope.sql</c> require <c>rls</c> and an existing security policy. When core tenant
-    ///     tables, <c>dbo.RunTelemetry</c>, and post-148 RLS teardown are all present, stamp every embedded migration script
-    ///     after <c>050</c> (numeric <c>051</c>+ plus <c>Migrations/System</c>) so DbUp only reconciles new scripts.
-    /// </summary>
-    private static void StampPostBaselineJournalEntriesWhenRowLevelSecurityRemovalDrift(
-        SqlConnection connection,
-        SqlTransaction? tx)
-    {
-        if (!TenantCoreTablesFromInitialMigrationExist(connection))
-            return;
-
-        if (!DboRunTelemetryUserTableExists(connection))
-            return;
-
-        if (!RowLevelSecurityTenantArtifactsRemovedAfterMigration148(connection))
-            return;
-
-        foreach (string resourceName in DatabaseMigrator.GetOrderedMigrationResourceNames())
-        {
-            Match match = MigrationNumberRegex().Match(resourceName);
-
-            if (match.Success)
-            {
-                int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-
-                if (n <= 50)
-                    continue;
-            }
-
-            using SqlCommand stamp = new(
-                """
-                IF NOT EXISTS (SELECT 1 FROM dbo.SchemaVersions WHERE ScriptName = @ScriptName)
-                    INSERT INTO dbo.SchemaVersions (ScriptName, Applied) VALUES (@ScriptName, SYSUTCDATETIME());
-                """,
-                connection,
-                tx);
-            stamp.Parameters.AddWithValue("@ScriptName", resourceName);
-
-            if (resourceName.Contains("108_RlsRenameToArchLucid", StringComparison.OrdinalIgnoreCase))
-            {
-                bool hadRow = SchemaVersionRowExistsForScript(connection, tx, resourceName);
-                stamp.ExecuteNonQuery();
-
-                if (!hadRow)
-                {
-                    string scope = string.IsNullOrWhiteSpace(connection.Database) ? "unknown" : connection.Database;
-
-                    ArchLucidInstrumentation.RecordCatalogMigrationRls108ReplayNote("108", scope, "journal_stamp_repair");
-                }
-
-                continue;
-            }
-
-            stamp.ExecuteNonQuery();
-        }
-    }
-
-    /// <summary>
-    ///     True when the catalog matches <c>148_RemoveRowLevelSecurity.sql</c> outcome (policies and legacy predicate
-    ///     function dropped). Used to avoid replaying <c>051</c>+ on journal drift — replay would fail without <c>rls</c>.
-    /// </summary>
-    private static bool RowLevelSecurityTenantArtifactsRemovedAfterMigration148(SqlConnection connection)
-    {
-        // CI rejects the legacy vendor substring in *.cs sources; split NVARCHAR fragments so SQL still matches 148_RemoveRowLevelSecurity.sql.
-        const string sql = """
-                           SELECT CASE WHEN NOT EXISTS (
-                                   SELECT 1
-                                   FROM sys.security_policies
-                                   WHERE name IN (
-                                       N'RunsScopeFilter',
-                                       N'Arch' + N'iforgeTenantScope',
-                                       N'ArchLucidTenantScope'))
-                               AND OBJECT_ID(N'rls.' + N'arch' + N'iforge_scope_predicate', N'IF') IS NULL
-                               AND OBJECT_ID(N'rls.' + N'arch' + N'iforge_tenant_predicate', N'IF') IS NULL
-                               AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NULL
-                               AND OBJECT_ID(N'rls.archlucid_tenant_predicate', N'IF') IS NULL
-                               AND OBJECT_ID(N'rls.runs_scope_predicate', N'IF') IS NULL
-                               THEN 1
-                               ELSE 0
-                           END;
-                           """;
-
-        using SqlCommand command = new(sql, connection);
-        object? scalar = command.ExecuteScalar();
-
-        if (scalar is null or DBNull)
-            return false;
-
-        if (scalar is bool asBool)
-            return asBool;
-
-        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
     private static bool SchemaVersionRowExistsForScript(SqlConnection connection, SqlTransaction? tx, string scriptName)

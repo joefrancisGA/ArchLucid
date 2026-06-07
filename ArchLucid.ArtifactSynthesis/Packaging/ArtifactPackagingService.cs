@@ -30,7 +30,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
     private static readonly HashSet<string> RunExportReservedEntryNames = new(StringComparer.OrdinalIgnoreCase)
 #pragma warning restore IDE0028 // Simplify collection initialization
     {
-        "manifest.json", "decision-trace.json", "README.txt", "package-metadata.json"
+        "manifest.json", "decision-trace.json", "README.txt", "package-metadata.json", "export-manifest.json"
     };
 
     public ArtifactFileExport BuildSingleFileExport(SynthesizedArtifact artifact)
@@ -94,27 +94,27 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, true))
         {
             HashSet<string> usedEntryNames = new(StringComparer.OrdinalIgnoreCase);
+            List<(string Path, byte[] Content)> recordedEntries = new();
 
             foreach (SynthesizedArtifact artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
             {
                 string safeName = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name),
                     RunExportReservedEntryNames);
                 string relative = $"artifacts/{AllocateUniqueEntryName(safeName, usedEntryNames)}";
-                WriteTextEntry(archive, relative, artifact.Content);
+                RecordTextEntry(archive, recordedEntries, relative, artifact.Content);
             }
 
             if (renderedArchitectureDiagramPng is { Length: > 0 })
             {
-                ZipArchiveEntry pngEntry = archive.CreateEntry("artifacts/architecture-graph.png", CompressionLevel.Fastest);
-                using (Stream pngStream = pngEntry.Open())
-                    pngStream.Write(renderedArchitectureDiagramPng, 0, renderedArchitectureDiagramPng.Length);
+                const string pngPath = "artifacts/architecture-graph.png";
+                RecordBinaryEntry(archive, recordedEntries, pngPath, renderedArchitectureDiagramPng);
             }
 
-            WriteTextEntry(archive, "manifest.json", manifestJson);
+            RecordTextEntry(archive, recordedEntries, "manifest.json", manifestJson);
 
             if (!string.IsNullOrWhiteSpace(traceJson))
 
-                WriteTextEntry(archive, "decision-trace.json", traceJson);
+                RecordTextEntry(archive, recordedEntries, "decision-trace.json", traceJson);
 
             StringBuilder readme = new StringBuilder()
                 .AppendLine("ArchLucid run export package")
@@ -156,21 +156,36 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             readme.AppendLine("  artifacts/                — synthesized artifact files (UTF-8 text)");
             readme.AppendLine("  artifacts/architecture-graph.png — optional raster of the bundled Mermaid diagram when Mermaid CLI is enabled");
             readme.AppendLine("  package-metadata.json     — export metadata (UTC timestamp, ids, counts)");
+            readme.AppendLine("  export-manifest.json      — SHA-256 checksums of every file + committed manifest hash anchor");
             readme.AppendLine("  README.txt                — this file");
             readme.AppendLine();
             readme.AppendLine(
                 "Regenerate Word packages or consulting reports from the API or operator shell when needed.");
-            WriteTextEntry(archive, "README.txt", readme.ToString());
+            RecordTextEntry(archive, recordedEntries, "README.txt", readme.ToString());
 
-            WritePackageMetadata(
-                archive,
-                new
+            DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+            RecordPackageMetadata(archive, recordedEntries, runId, manifestId, artifacts.Count, createdUtc);
+
+            List<ExportManifestFileEntry> manifestFiles = recordedEntries
+                .OrderBy(e => e.Path, StringComparer.Ordinal)
+                .Select(e => new ExportManifestFileEntry
                 {
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                    RunId = runId,
-                    ManifestId = manifestId,
-                    ArtifactCount = artifacts.Count
-                });
+                    Path = e.Path,
+                    Sha256 = ExportManifestBuilder.ComputeSha256UpperHex(e.Content),
+                    Bytes = e.Content.Length
+                })
+                .ToList();
+
+            string exportManifestJson = ExportManifestBuilder.BuildJson(
+                runId,
+                manifestId,
+                createdUtc,
+                readmeContext?.ManifestHash,
+                readmeContext?.RuleSetId,
+                readmeContext?.RuleSetHash,
+                manifestFiles);
+
+            RecordTextEntry(archive, recordedEntries, "export-manifest.json", exportManifestJson);
         }
 
         return new ArtifactPackage
@@ -242,6 +257,57 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         {
             PackageFileName = $"archlucid-terraform-advisory-{runId:N}.zip", Content = memoryStream.ToArray()
         };
+    }
+
+    private static void RecordTextEntry(
+        ZipArchive archive,
+        List<(string Path, byte[] Content)> recordedEntries,
+        string entryName,
+        string content)
+    {
+        byte[] bytes = Encoding.UTF8.GetBytes(content);
+        RecordBinaryEntry(archive, recordedEntries, entryName, bytes);
+    }
+
+    private static void RecordBinaryEntry(
+        ZipArchive archive,
+        List<(string Path, byte[] Content)> recordedEntries,
+        string entryName,
+        byte[] content)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+
+        string normalizedPath = entryName.Replace('\\', '/');
+        WriteBytesEntry(archive, normalizedPath, content);
+        recordedEntries.Add((normalizedPath, content));
+    }
+
+    private static void RecordPackageMetadata(
+        ZipArchive archive,
+        List<(string Path, byte[] Content)> recordedEntries,
+        Guid runId,
+        Guid manifestId,
+        int artifactCount,
+        DateTime createdUtc)
+    {
+        string metadataJson = JsonSerializer.Serialize(
+            new
+            {
+                CreatedUtc = createdUtc,
+                RunId = runId,
+                ManifestId = manifestId,
+                ArtifactCount = artifactCount
+            },
+            JsonWriteIndented);
+
+        RecordTextEntry(archive, recordedEntries, "package-metadata.json", metadataJson);
+    }
+
+    private static void WriteBytesEntry(ZipArchive archive, string entryName, byte[] content)
+    {
+        ZipArchiveEntry entry = archive.CreateEntry(entryName, CompressionLevel.Fastest);
+        using Stream entryStream = entry.Open();
+        entryStream.Write(content, 0, content.Length);
     }
 
     private static void WriteTextEntry(ZipArchive archive, string entryName, string content)

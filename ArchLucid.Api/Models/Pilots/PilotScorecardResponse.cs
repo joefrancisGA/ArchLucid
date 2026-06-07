@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Roi;
+
 namespace ArchLucid.Api.Models.Pilots;
 
 /// <summary>JSON scorecard returned to sponsors and finance (MVP fields).</summary>
@@ -60,4 +62,10 @@ public sealed class PilotScorecardResponse
         get;
         set;
     }
+
+    /// <summary><see cref="RoiSponsorFacingScopeCodes.PilotScorecardUtcWindow" /> scope code.</summary>
+    public string PeriodScopeCode { get; set; } = RoiSponsorFacingScopeCodes.PilotScorecardUtcWindow;
+
+    /// <summary>Human-readable scope for run/manifest counts in this window.</summary>
+    public string PeriodScopeDescription { get; set; } = RoiSponsorFacingScopeDescriptions.PilotScorecardUtcWindowGeneric;
 }

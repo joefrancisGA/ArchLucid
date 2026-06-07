@@ -1634,46 +1634,6 @@ GO
 
 GO
 
-/* ---- 030_RlsPilot_Runs.sql ---- */
--- Pilot row-level security on dbo.Runs (defense-in-depth). Policy ships with STATE = OFF; enable after app sets SESSION_CONTEXT (SqlServer:RowLevelSecurity:ApplySessionContext).
--- Trusted jobs (archival, schema bootstrap) set SESSION_CONTEXT key af_rls_bypass = 1 via the API layer.
-
-IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'rls')
-    EXEC(N'CREATE SCHEMA rls');
-GO
-
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'RunsScopeFilter')
-    DROP SECURITY POLICY rls.RunsScopeFilter;
-GO
-
-IF OBJECT_ID(N'rls.runs_scope_predicate', N'IF') IS NOT NULL
-    DROP FUNCTION rls.runs_scope_predicate;
-GO
-
-CREATE FUNCTION rls.runs_scope_predicate(
-    @TenantId uniqueidentifier,
-    @WorkspaceId uniqueidentifier,
-    @ScopeProjectId uniqueidentifier)
-RETURNS TABLE
-WITH SCHEMABINDING
-AS
-RETURN
-(
-    SELECT 1 AS access_granted
-    WHERE ISNULL(TRY_CONVERT(int, SESSION_CONTEXT(N'af_rls_bypass')), 0) = 1
-       OR (
-            @TenantId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_tenant_id'))
-        AND @WorkspaceId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_workspace_id'))
-        AND @ScopeProjectId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_project_id'))
-       )
-);
-GO
-
-CREATE SECURITY POLICY rls.RunsScopeFilter
-    ADD FILTER PREDICATE rls.runs_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs
-    WITH (STATE = OFF);
-GO
-
 GO
 
 /* ---- 031_ProductLearningPilotSignals.sql ---- */
@@ -1970,9 +1930,9 @@ GO
 GO
 
 /* ---- 035_AuditProvenanceConversationTables.sql ---- */
--- Tables required before 036_RlsArchiforgeTenantScope: those objects are created in Scripts/ArchiForge.sql
+-- Tables required before later migrations: those objects are created in Scripts/ArchiForge.sql
 -- when StorageProvider=Sql, but DbUp-only databases (e.g. API integration tests with InMemory storage)
--- skip ISchemaBootstrapper and must still have these tables for CREATE SECURITY POLICY targets.
+-- skip ISchemaBootstrapper and must still have these tables available.
 
 IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NULL
 BEGIN
@@ -2047,90 +2007,6 @@ GO
 
 GO
 
-/* ---- 036_RlsArchiforgeTenantScope.sql ---- */
-/*
-  Row-level security: tenant / workspace / project isolation on all scope-keyed authority tables.
-
-  Replaces pilot rls.RunsScopeFilter (dbo.Runs only) with rls.ArchiforgeTenantScope.
-
-  SESSION_CONTEXT keys (set by RlsSessionContextApplicator when SqlServer:RowLevelSecurity:ApplySessionContext is true):
-    af_rls_bypass, af_tenant_id, af_workspace_id, af_project_id
-
-  Tables without TenantId/WorkspaceId/ProjectId on the row (e.g. ConversationMessages, ContextSnapshots child tables,
-  PolicyPackVersions) are not covered â€” application layer must enforce; see docs/security/MULTI_TENANT_RLS.md.
-
-  Ships WITH (STATE = OFF). After enabling ApplySessionContext in the app, turn policies on:
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = ON);
-*/
-
-IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'rls')
-    EXEC(N'CREATE SCHEMA rls');
-GO
-
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'RunsScopeFilter')
-    DROP SECURITY POLICY rls.RunsScopeFilter;
-GO
-
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-    DROP SECURITY POLICY rls.ArchiforgeTenantScope;
-GO
-
-IF OBJECT_ID(N'rls.runs_scope_predicate', N'IF') IS NOT NULL
-    DROP FUNCTION rls.runs_scope_predicate;
-GO
-
-IF OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NOT NULL
-    DROP FUNCTION rls.archiforge_scope_predicate;
-GO
-
-CREATE FUNCTION rls.archiforge_scope_predicate(
-    @TenantId uniqueidentifier,
-    @WorkspaceId uniqueidentifier,
-    @ProjectScopeId uniqueidentifier)
-RETURNS TABLE
-WITH SCHEMABINDING
-AS
-RETURN
-(
-    SELECT 1 AS access_granted
-    WHERE ISNULL(TRY_CONVERT(int, SESSION_CONTEXT(N'af_rls_bypass')), 0) = 1
-       OR (
-            @TenantId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_tenant_id'))
-        AND @WorkspaceId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_workspace_id'))
-        AND @ProjectScopeId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_project_id'))
-       )
-);
-GO
-
-CREATE SECURITY POLICY rls.ArchiforgeTenantScope
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets
-    WITH (STATE = OFF);
 GO
 
 GO
@@ -2244,20 +2120,6 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_IntegrationEventOutbox_Pending
         ON dbo.IntegrationEventOutbox (ProcessedUtc, CreatedUtc)
         WHERE ProcessedUtc IS NULL;
-END;
-GO
-
--- RLS: add predicate to existing tenant scope policy when present (idempotent for re-runs).
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'IntegrationEventOutbox')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox;
 END;
 GO
 
@@ -2397,15 +2259,13 @@ GO
 
 /* ---- 046_RlsDenormalizeChildTables.sql ---- */
 /*
-  RLS defense-in-depth: denormalize tenant/workspace/project scope onto high-traffic child tables
+  Scope denormalization: denormalize tenant/workspace/project scope onto high-traffic child tables
   dbo.ContextSnapshots, dbo.FindingsSnapshots, dbo.GoldenManifestAssumptions.
 
-  ContextSnapshots already has ProjectId NVARCHAR(200) for logical project key; RLS uses
-  ScopeProjectId UNIQUEIDENTIFIER (aligned with dbo.Runs.ScopeProjectId / SESSION_CONTEXT af_project_id).
+  ContextSnapshots already has ProjectId NVARCHAR(200) for logical project key;
+  ScopeProjectId UNIQUEIDENTIFIER is aligned with dbo.Runs.ScopeProjectId for app-layer isolation.
 
-  Adds FILTER predicates to rls.ArchiforgeTenantScope idempotently (skip if already present).
-
-  See docs/security/MULTI_TENANT_RLS.md.
+  Columns support app-layer scope predicates per ADR 0037 Layer D.
 */
 
 SET XACT_ABORT ON;
@@ -2478,37 +2338,6 @@ SET
 FROM dbo.GoldenManifestAssumptions AS gma
 INNER JOIN dbo.GoldenManifests AS gm ON gma.ManifestId = gm.ManifestId
 WHERE gma.TenantId IS NULL;
-GO
-
-DECLARE @PolicyObjectId INT;
-
-SELECT @PolicyObjectId = object_id
-FROM sys.security_policies
-WHERE name = N'ArchiforgeTenantScope';
-
-IF @PolicyObjectId IS NOT NULL
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS sp
-        WHERE sp.object_id = @PolicyObjectId
-          AND sp.target_object_id = OBJECT_ID(N'dbo.ContextSnapshots', N'U'))
-        EXEC(N'ALTER SECURITY POLICY rls.ArchiforgeTenantScope ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots');
-
-    IF NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS sp
-        WHERE sp.object_id = @PolicyObjectId
-          AND sp.target_object_id = OBJECT_ID(N'dbo.FindingsSnapshots', N'U'))
-        EXEC(N'ALTER SECURITY POLICY rls.ArchiforgeTenantScope ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots');
-
-    IF NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS sp
-        WHERE sp.object_id = @PolicyObjectId
-          AND sp.target_object_id = OBJECT_ID(N'dbo.GoldenManifestAssumptions', N'U'))
-        EXEC(N'ALTER SECURITY POLICY rls.ArchiforgeTenantScope ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions');
-END;
 GO
 
 GO
@@ -2706,20 +2535,6 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_PolicyPackChangeLog_TenantId_ChangedUtc
         ON dbo.PolicyPackChangeLog (TenantId, ChangedUtc DESC);
-END;
-GO
-
--- RLS: add predicate when tenant scope policy exists (idempotent for re-runs).
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-   AND NOT EXISTS (
-        SELECT 1
-        FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS t ON t.object_id = p.target_object_id
-        WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
-          AND t.name = N'PolicyPackChangeLog')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog;
 END;
 GO
 

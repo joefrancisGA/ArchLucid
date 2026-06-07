@@ -118,7 +118,13 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(RetrievalIndexingOutboxProcessorOptions.SectionName));
         services.Configure<CosmosGraphSnapshotOutboxProcessorOptions>(
             configuration.GetSection(CosmosGraphSnapshotOutboxProcessorOptions.SectionName));
+        services.Configure<RunExportBlobPushOutboxProcessorOptions>(
+            configuration.GetSection(RunExportBlobPushOutboxProcessorOptions.SectionName));
+        services.Configure<PostCommitProjectionOutboxProcessorOptions>(
+            configuration.GetSection(PostCommitProjectionOutboxProcessorOptions.SectionName));
         RegisterRetrievalIndexingOutbox(services, hostingRole);
+        RegisterRunExportBlobPushOutbox(services, hostingRole);
+        RegisterPostCommitProjectionOutbox(services, hostingRole);
         RegisterCosmosGraphSnapshotOutbox(services, configuration, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);

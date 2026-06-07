@@ -33,6 +33,9 @@ public sealed class ExecutiveReportsSummaryService(
             CostWasteUsd: null,
             SecurityRiskCount: securityCount,
             ReliabilityGapCount: reliabilityCount,
-            PendingGovernanceDecisionCount: decisions.TotalDecisionItems);
+            PendingGovernanceDecisionCount: decisions.TotalDecisionItems,
+            HeadlineSavingsScopeCode: roi.HeadlineSavingsScopeCode,
+            HeadlineSavingsScopeDescription: roi.HeadlineSavingsScopeDescription,
+            Trailing30DayActivityScopeDescription: roi.Trailing30DayActivityScopeDescription);
     }
 }

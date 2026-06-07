@@ -26,7 +26,8 @@
 
 - [ ] **Release build** succeeds: `scripts/build-release.ps1` (or `dotnet build ArchLucid.sln -c Release`) per [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
 - [ ] **Merge-blocking .NET full regression (SQL)** on default branch is green before declaring release-ready — job **`.NET: full regression (SQL)`** (`dotnet-full-regression`) in `.github/workflows/ci.yml`; merged Cobertura + package-line gates per [COVERAGE_GAP_ANALYSIS.md](COVERAGE_GAP_ANALYSIS.md) and [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md). If CI is red, record the blocking failure; do not imply "clean regression" without that job.
-- [ ] **Readiness script** green for the agreed filter: `scripts/run-readiness-check.ps1` (Phase 2 now runs **`dotnet run … -- config lint`**; use `-SkipUi` only if UI is out of scope for this handoff).
+- [ ] **Readiness script** green for the agreed filter: `scripts/run-readiness-check.ps1` (Phase 2 runs **production-like config lint** — `archlucid config lint --profile production-like-hosted-pilot`; blocking findings fail the gate; artifacts under `artifacts/release-readiness/`; use `-SkipUi` only if UI is out of scope; **do not** use `-SkipConfigLint` for RC signoff).
+- [ ] **Release evidence bundle manifest** present and valid: `scripts/Emit-ReleaseReadinessEvidence.ps1` writes `release-evidence-bundle-manifest.json`; validate with `scripts/ci/Invoke-ValidateReleaseEvidenceBundle.ps1 -BundleDir artifacts/release-readiness -Profile release-readiness` (schema: [RELEASE_EVIDENCE_BUNDLE_SCHEMA.md](../quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md)).
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `scripts/release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
 - [ ] **RC drill** (staged/prod-like API URL): run **`scripts/v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two reviews / `runId`s, compare, authority replay, export ZIP, support bundle).
 - [ ] **Integration correctness drill** (same API URL): run **`scripts/v1-integration-correctness-drill.ps1`**; store `v1-integration-correctness-drill.md` when validating authority vs coordinator semantics and commit idempotency ([V1_INTEGRATION_CORRECTNESS_DRILL.md](V1_INTEGRATION_CORRECTNESS_DRILL.md)).
@@ -78,6 +79,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 - [ ] **Replay** of a persisted export record (if used) reproduces expected output or documents known deltas ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) Flow B).
 - [ ] **Comparison replay** — **artifact** mode returns stored payload; **regenerate** / **verify** behavior understood if pilots rely on drift checks ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) Flow C).
 - [ ] **ZIP / bundle** download (if exposed): completes; empty-manifest vs missing-manifest error semantics understood ([operator-shell.md](operator-shell.md)).
+- [ ] **Run-export outbox push** — durable background task successfully processes or dead-letters SAS URL pushes (covered by `scripts/release-smoke.ps1`).
 
 ---
 

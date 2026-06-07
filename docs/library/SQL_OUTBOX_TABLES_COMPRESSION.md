@@ -9,7 +9,7 @@
 
 Decide how (or whether) to apply **data compression**, **schema shape**, or **retention** changes to the three **write-hot, short-lived** outbox tables so that production Azure SQL stays predictable under load without adopting **`PAGE`** compression blindly the way we did for append-mostly history tables (**084**–**090**).
 
-**In scope objects:** `dbo.IntegrationEventOutbox`, `dbo.RetrievalIndexingOutbox`, `dbo.AuthorityPipelineWorkOutbox`.
+**In scope objects:** `dbo.IntegrationEventOutbox`, `dbo.RetrievalIndexingOutbox`, `dbo.RunExportBlobPushOutbox`, `dbo.AuthorityPipelineWorkOutbox`.
 
 ## Assumptions
 
@@ -36,6 +36,7 @@ Decide how (or whether) to apply **data compression**, **schema shape**, or **re
 
 - **`dbo.IntegrationEventOutbox`** — cross-cutting integration fan-out; highest write frequency of the three. Candidate for **ROW** compression or **partitioned** retention (if ever introduced), not PAGE-first.
 - **`dbo.RetrievalIndexingOutbox`** — indexing pipeline handoff; moderate churn. Same decision tree as integration outbox.
+- **`dbo.RunExportBlobPushOutbox`** — operator-initiated export push; moderate churn; includes sensitive SAS URL column (short-lived).
 - **`dbo.AuthorityPipelineWorkOutbox`** — authority pipeline steps; bounded row shape but still **state machine** updates.
 
 ## Data flow

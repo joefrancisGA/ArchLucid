@@ -19,19 +19,6 @@ IF OBJECT_ID(N'dbo.sp_TenantHealthScores_Upsert', N'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_TenantHealthScores_Upsert;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        DROP FILTER PREDICATE ON dbo.TenantHealthScores,
-        DROP BLOCK PREDICATE ON dbo.TenantHealthScores FOR AFTER INSERT,
-        DROP BLOCK PREDICATE ON dbo.TenantHealthScores FOR AFTER UPDATE,
-        DROP BLOCK PREDICATE ON dbo.TenantHealthScores FOR BEFORE DELETE,
-        DROP FILTER PREDICATE ON dbo.ProductFeedback,
-        DROP BLOCK PREDICATE ON dbo.ProductFeedback FOR AFTER INSERT,
-        DROP BLOCK PREDICATE ON dbo.ProductFeedback FOR AFTER UPDATE,
-        DROP BLOCK PREDICATE ON dbo.ProductFeedback FOR BEFORE DELETE;
-END;
-GO
 
 IF OBJECT_ID(N'dbo.ProductFeedback', N'U') IS NOT NULL
     DROP TABLE dbo.ProductFeedback;
