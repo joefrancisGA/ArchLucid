@@ -18,8 +18,8 @@ Machine-readable source: [`scripts/ci/data/rc_target_environment_matrix.v1.json`
 
 ## What to run against Staging
 
-1. `scripts/v1-rc-drill.ps1 -ApiBaseUrl https://<staging-host> [-ApiKey … | -BearerToken …]`
-2. `scripts/capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -AuthMode <mode> [-RunRcDrill]`
+1. `scripts/v1-rc-drill.ps1 -ApiBaseUrl https://<staging-host> -BearerToken $env:ARCHLUCID_BEARER_TOKEN` (default staging auth mode; ApiKey override when required)
+2. `scripts/capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -BearerToken $env:ARCHLUCID_BEARER_TOKEN [-RunRcDrill]` (`-AuthMode` defaults to **Bearer**)
 3. `scripts/Emit-ReleaseReadinessEvidence.ps1 -StrictRc -ApiBaseUrl https://<staging-host>` (live rows in release-readiness bundle)
 4. Attach staging capture + RC drill result (`artifacts/v1-rc-drill-result.json`) to release artifacts.
 
@@ -30,7 +30,9 @@ Machine-readable source: [`scripts/ci/data/rc_target_environment_matrix.v1.json`
 
 ## Auth mode
 
-Record the auth mode used for Staging in run notes and in `capture-staging-readiness-evidence.ps1` output (`-AuthMode`). Typical values: `ApiKey`, `Bearer`, `DevelopmentBypass` (lab only).
+**Default for Staging:** **Bearer** JWT (`Authorization: Bearer …`). Supply via `-BearerToken` on RC scripts or `ARCHLUCID_BEARER_TOKEN` in the operator environment.
+
+Record the auth mode used in run notes and in `capture-staging-readiness-evidence.ps1` output (`-AuthMode`, default **Bearer**). Overrides: `ApiKey` when the deployment requires it; `DevelopmentBypass` for local lab only (not Staging contract evidence).
 
 ## Base URL
 

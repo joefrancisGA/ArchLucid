@@ -1,10 +1,12 @@
+# Staging RC evidence capture. Contract default auth mode is Bearer JWT — see docs/library/RC_TARGET_ENVIRONMENT_MATRIX.md.
+# Supply -BearerToken or set ARCHLUCID_BEARER_TOKEN; override -AuthMode when using ApiKey or lab DevelopmentBypass.
 param(
     [Parameter(Mandatory = $true)]
     [string]$BaseUrl,
 
     [string]$OutputDirectory = "artifacts/staging-readiness",
 
-    [string]$AuthMode = "unspecified",
+    [string]$AuthMode = "Bearer",
 
     [switch]$RunDoctor,
 

@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
-"""Shared helpers for release evidence CI scripts."""
+"""Shared helpers for release evidence CI scripts.
 
+New release-evidence scripts should import from this module for:
+- `repo_root`, `load_json`, `parse_datetime`
+- RC environment matrix helpers
+- strict RC lane evaluation (`evaluate_strict_rc`, `strict_rc_lane_reason`)
+
+See also `release_evidence_profile_helpers.py` for bundle profile loading.
+"""
 from __future__ import annotations
 
 import json

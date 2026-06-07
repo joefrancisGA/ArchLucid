@@ -13,16 +13,15 @@ from typing import Any
 _CI_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_CI_DIR))
 
-from build_release_confidence_rollup import build_rollup, repo_root  # noqa: E402
+from build_release_confidence_rollup import build_rollup  # noqa: E402
+from release_evidence_common import load_json, repo_root  # noqa: E402
 
 _SCHEMA = "archlucid.rc-test-evidence-manifest.v1"
 
 
 def build_manifest(root: Path, bundle_dir: Path) -> dict[str, Any]:
     rollup = build_rollup(root, bundle_dir)
-    readiness = json.loads((bundle_dir / "release-readiness-index.json").read_text(encoding="utf-8-sig")) if (
-        bundle_dir / "release-readiness-index.json"
-    ).is_file() else {}
+    readiness = load_json(bundle_dir / "release-readiness-index.json") or {}
 
     suites: list[dict[str, Any]] = []
 

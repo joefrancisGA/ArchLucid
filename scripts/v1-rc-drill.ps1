@@ -2,6 +2,7 @@
 # Does not build, deploy, or start the API. See docs/library/V1_RC_DRILL.md
 #
 # Authentication:
+# - Staging (contract-authoritative RC target): Bearer JWT by default — use -BearerToken or ARCHLUCID_BEARER_TOKEN (see RC_TARGET_ENVIRONMENT_MATRIX.md).
 # - Omit -BearerToken and -ApiKey with no ARCHLUCID_BEARER_TOKEN / ARCHLUCID_API_KEY env for DevelopmentBypass labs (unchanged).
 # - -BearerToken <jwt>: sends Authorization: Bearer on script HTTP (Invoke-RestMethod / export download).
 # - -ApiKey <key>: sends X-Api-Key on script HTTP and temporarily sets ARCHLUCID_API_KEY for CLI steps

@@ -8,6 +8,18 @@
 
 ---
 
+## Role-specific packet templates
+
+Use these when assembling handoff folders — they map artifacts to decision needs without duplicating policy:
+
+| Role | Template |
+| --- | --- |
+| Buyer / executive sponsor | [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md) |
+| Operator / pilot lead | [`evidence-packet-operator.template.md`](../go-to-market/templates/evidence-packet-operator.template.md) |
+| Security reviewer | [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md) |
+
+Minimum doc routing: [`V1_CRITICAL_PATH_MAP.md`](../library/V1_CRITICAL_PATH_MAP.md).
+
 ## When to run
 
 After Phase C step **Commit** in [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) succeeds and before sending a sponsor packet or procurement follow-up.

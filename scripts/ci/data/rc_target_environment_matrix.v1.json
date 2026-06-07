@@ -1,7 +1,7 @@
 {
   "schema": "archlucid.rc-target-environment-matrix.v1",
   "effectiveUtc": "2026-06-07T00:00:00Z",
-  "ownerDecision": "Release owner 2026-06-07 — staging is contract-authoritative for RC and sponsor proof live evidence.",
+  "ownerDecision": "Release owner 2026-06-07 — staging is contract-authoritative for RC and sponsor proof live evidence; default staging auth mode is Bearer JWT.",
   "environments": [
     {
       "id": "staging",
@@ -14,7 +14,11 @@
         "deployment-evidence and doctor/support-bundle against deployed API",
         "Sponsor proof packet live environment.json attachment"
       ],
-      "authMode": "Operator-supplied per deployment (ApiKey and/or Bearer JWT); record in run notes and staging-readiness artifact",
+      "defaultAuthMode": "Bearer",
+      "authMode": "Bearer JWT (Authorization: Bearer) by default; supply via -BearerToken or ARCHLUCID_BEARER_TOKEN. ApiKey is an operator override when deployment requires it. Record the mode used in run notes and staging-readiness artifact.",
+      "credentialEnvVars": [
+        "ARCHLUCID_BEARER_TOKEN"
+      ],
       "baseUrlSource": "GitHub staging environment secret / operator runbook — not committed to git",
       "notes": "Primary environment for buyer-facing RC signoff live evidence."
     },

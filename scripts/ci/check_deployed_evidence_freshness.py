@@ -10,12 +10,13 @@ import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 
+_CI_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_CI_DIR))
+
+from release_evidence_common import repo_root  # noqa: E402
+
 _STALE_DAYS = 14
 _DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
-
-
-def repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
 
 
 def parse_date(text: str) -> date | None:

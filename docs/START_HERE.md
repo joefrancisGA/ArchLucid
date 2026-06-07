@@ -7,6 +7,8 @@ Use this page to pick **one** door based on your role.
 
 > **Role-based entry (3–4 docs per persona):** [`runbooks/ROLE_INDEX.md`](runbooks/ROLE_INDEX.md) — operator, platform engineer, and release owner sequences with failure branches.
 
+> **V1 critical path (minimum doc set):** [`library/V1_CRITICAL_PATH_MAP.md`](library/V1_CRITICAL_PATH_MAP.md) — one-page map for buyer, operator, security reviewer, and RC signoff; excludes deferred v1.1/v2 distractions.
+
 > **Canonical first-pilot checklist (operators):** [`runbooks/FIRST_PILOT_OPERATOR_PATH.md`](runbooks/FIRST_PILOT_OPERATOR_PATH.md) — start here for READY/WARN/HOLD steps. **Production-like preflight:** [`runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md`](runbooks/FIRST_PILOT_PRODUCTION_LIKE_PREFLIGHT.md). **Time-boxed evaluators:** [`runbooks/FIRST_VALUE_20_MINUTES.md`](runbooks/FIRST_VALUE_20_MINUTES.md). [`CORE_PILOT.md`](CORE_PILOT.md) is the four-step narrative only.
 
 ```text

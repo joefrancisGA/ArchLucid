@@ -40,6 +40,8 @@
 
 **Operator narrative:** `docs/library/LIVE_E2E_HAPPY_PATH.md` (HTTP request → commit → retrieval parity); **`docs/library/FIRST_RUN_WALKTHROUGH.md`** for the operator wizard surface.
 
+**Integration starter fixtures (V1 buyer automation):** Machine-readable workflow contracts with sanitized request shapes and OpenAPI path validation — [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json). CI gate: `scripts/ci/check_v1_integration_starter_contracts.py`. Covers create → execute → commit → export → compare → ROI summary paths.
+
 ## Run DTO shapes under `/v1`
 
 Two JSON shapes represent an architecture run on different routes. Integrators must not assume one schema applies everywhere.

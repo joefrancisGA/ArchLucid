@@ -198,6 +198,11 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
         ]
         self.assertEqual(1, len(authoritative))
         self.assertEqual("staging", authoritative[0]["id"])
+        self.assertEqual("Bearer", authoritative[0].get("defaultAuthMode"))
+
+    def test_v1_integration_starter_contracts_gate(self) -> None:
+        result = run_py("check_v1_integration_starter_contracts.py")
+        self.assertEqual(result.returncode, 0, msg=result.stderr or result.stdout)
 
     def test_release_evidence_profile_contract(self) -> None:
         profiles = json.loads(

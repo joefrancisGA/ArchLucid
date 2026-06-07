@@ -1,0 +1,62 @@
+> **Scope:** Buyer-facing evidence packet template — map artifacts to sponsor decision needs with strict claim boundaries.
+> **Canonical sources:** Do not restate policy here; link to [`PROCUREMENT_PACK_INDEX.md`](../PROCUREMENT_PACK_INDEX.md) and [`ROI_BASELINE_SEND_POLICY.md`](../ROI_BASELINE_SEND_POLICY.md).
+
+# Evidence packet — buyer / executive sponsor (template)
+
+**Audience:** Executive sponsor, procurement champion, buyer evaluator.
+
+**Live evidence environment:** **Staging** (contract-authoritative) unless release owner documents an approved exception — [`RC_TARGET_ENVIRONMENT_MATRIX.md`](../../library/RC_TARGET_ENVIRONMENT_MATRIX.md).
+
+---
+
+## Required artifacts (V1 SEND)
+
+| Artifact | Purpose | Claim boundary |
+| --- | --- | --- |
+| `go-no-go-summary.json` | Consolidated disposition | Use `sponsorPacketDisposition` verbatim: `SEND`, `HOLD`, `DEFERRED_SCOPE` only |
+| `first-pilot-command-center.md` | Phase rollup | **READY** phases only — do not upgrade WARN/HOLD rows |
+| `quote-to-proof-packet.md` | Value narrative | ROI figures require `roiSponsorSafe=true` and `baselineCompletenessStatus=COMPLETE` or valid override |
+| Staging capture `staging-readiness-*.md` | Live API proof | Cite **Staging** URL class; do not paste secrets |
+| `rc-go-no-go-verdict.json` | RC signoff | Use `verdict` field; strict RC HOLD blocks SEND |
+| [`TRUST_CENTER.md`](../trust-center.md) | Security posture | Self-assessment — **not** CPA SOC 2 attestation |
+
+## Optional artifacts (strengthen narrative)
+
+| Artifact | Purpose | Claim boundary |
+| --- | --- | --- |
+| `deploy-handoff.json` | Deploy readiness | Operational — not a buyer SLA |
+| `release-confidence-rollup.json` | Gate rollup | Reference lane labels; do not invent PASS where HOLD |
+| Sponsor packet ZIP (`archlucid sponsor-packet`) | Committed-run proof | One run only — label commit SHA and environment |
+| [`DIFFERENTIATION_PROOF_PACKET.md`](../DIFFERENTIATION_PROOF_PACKET.md) | Why not generic AI | Evidence-linked claims only |
+
+## Deferred scope — label explicitly (do not imply V1 delivery)
+
+| Buyer ask | V1 label |
+| --- | --- |
+| CPA SOC 2 Type I/II report | **DEFERRED / (B)** |
+| Third-party penetration test publication | **DEFERRED / (B)** |
+| Live Marketplace checkout | **DEFERRED / (B)** |
+| First-party ITSM/chat/doc connectors | **V1.1** |
+
+## Strict claim language
+
+- **May claim:** committed review artifact exists; governance audit trail; PilotStrict signals when `aiQualityProof.disposition=PASS`; Staging live probes when attached.
+- **May not claim:** production SLA, invoiced Azure savings, SOC 2 certification, or real-mode AI quality when simulator-only or `roiSponsorSafe=false`.
+- **SEND gate:** see [`ROI_BASELINE_SEND_POLICY.md`](../ROI_BASELINE_SEND_POLICY.md) — override requires `executive-owner` or `cfo-delegate` with template on file.
+
+## Collection command (reference)
+
+```powershell
+./scripts/collect-first-pilot-proof.ps1 `
+  -BaseUrl $env:ARCHLUCID_API_BASE_URL `
+  -BearerToken $env:ARCHLUCID_BEARER_TOKEN `
+  -RunId <committed-run-guid> `
+  -SponsorHandoff `
+  -OutputDirectory artifacts/first-pilot-proof
+```
+
+## Related
+
+- [`FIRST_PILOT_EVIDENCE_BUNDLE.md`](../../runbooks/FIRST_PILOT_EVIDENCE_BUNDLE.md)
+- [`PROCUREMENT_DEAL_READY_ONE_PAGER.md`](../PROCUREMENT_DEAL_READY_ONE_PAGER.md)
+- [`RELEASE_EVIDENCE_BUNDLE_SCHEMA.md`](../../quality/RELEASE_EVIDENCE_BUNDLE_SCHEMA.md)

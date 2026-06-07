@@ -449,3 +449,12 @@ Use `--enforce` to fail CI when a generated sponsor artifact contains forbidden 
 | **4** | Operation failed: HTTP/API error after connect, local validation, filesystem error, or readiness failure after connect (`doctor`). |
 
 Automation can combine exit codes with leading **`--json`** for structured stderr lines: `{"ok":false,"exitCode":3,"error":"api_unreachable","message":"..."}`.
+
+---
+
+## REST integration starter fixtures
+
+For HTTP automation against the V1 buyer path (create → execute → commit → export → compare → ROI), use the sanitized workflow contracts validated in CI:
+
+- [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json)
+- Companion narrative: [`API_CONTRACTS.md`](API_CONTRACTS.md), [`LIVE_E2E_HAPPY_PATH.md`](LIVE_E2E_HAPPY_PATH.md)

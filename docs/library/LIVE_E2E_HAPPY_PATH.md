@@ -138,3 +138,5 @@ Shared helpers: **`commitRunRaw`**, **`waitForReadyForCommit`** (exported from *
 4. `npx playwright test`
 
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) and [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md).
+
+**Integration starter fixtures:** Sanitized V1 workflow contracts (paths, status semantics, claim boundaries) — [`scripts/ci/data/v1_integration_starter_contracts.v1.json`](../../scripts/ci/data/v1_integration_starter_contracts.v1.json).

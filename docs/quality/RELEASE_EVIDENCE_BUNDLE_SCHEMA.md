@@ -115,6 +115,10 @@ Missing optional sources are explicit and do not become PASS by inference.
 
 Each profile may declare `docOwners` — canonical docs that must stay aligned when profile artifacts change. See [`release_evidence_bundle_profiles.v1.json`](../../scripts/ci/data/release_evidence_bundle_profiles.v1.json).
 
+**Shared CI helpers:** Release-evidence Python scripts should reuse [`scripts/ci/release_evidence_common.py`](../../scripts/ci/release_evidence_common.py) for JSON loading, strict RC evaluation, and RC environment matrix lookups.
+
+**Role-specific packet templates:** [`evidence-packet-buyer.template.md`](../go-to-market/templates/evidence-packet-buyer.template.md), [`evidence-packet-operator.template.md`](../go-to-market/templates/evidence-packet-operator.template.md), [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md).
+
 ## Real-mode AI evidence status
 
 The bundle validator never calls Azure OpenAI. It only reads an attached `real-llm-evidence-gate.json` produced by [`scripts/Invoke-RealLlmEvidenceGate.ps1`](../../scripts/Invoke-RealLlmEvidenceGate.ps1).

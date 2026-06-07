@@ -1,0 +1,151 @@
+{
+  "schema": "archlucid.v1-integration-starter-contracts.v1",
+  "effectiveUtc": "2026-06-07T00:00:00Z",
+  "description": "Sanitized V1 REST/CLI integration starter contracts for buyer automation paths. Paths are validated against the OpenAPI snapshot; bodies are shape examples only (no secrets).",
+  "docRefs": [
+    "docs/library/API_CONTRACTS.md",
+    "docs/library/CLI_USAGE.md",
+    "docs/library/LIVE_E2E_HAPPY_PATH.md"
+  ],
+  "workflows": [
+    {
+      "id": "review-lifecycle",
+      "label": "Create request, execute, commit",
+      "cliHints": [
+        "archlucid architecture request",
+        "archlucid architecture execute <runId>",
+        "archlucid architecture commit <runId>"
+      ],
+      "steps": [
+        {
+          "id": "create-request",
+          "method": "POST",
+          "path": "/v1/architecture/request",
+          "expectedSuccessStatuses": [200, 201],
+          "responseShape": "ArchitectureRun",
+          "requestShapeExample": {
+            "systemName": "claims-intake-modernization",
+            "projectId": "default",
+            "description": "Integration starter — sanitized example only"
+          },
+          "errorSemantics": [
+            {
+              "status": 400,
+              "meaning": "Validation failure — empty or malformed body"
+            },
+            {
+              "status": 401,
+              "meaning": "Missing or invalid Bearer/API key auth"
+            }
+          ]
+        },
+        {
+          "id": "execute-run",
+          "method": "POST",
+          "path": "/v1/architecture/run/{runId}/execute",
+          "expectedSuccessStatuses": [200, 202],
+          "responseShape": "ArchitectureRun",
+          "errorSemantics": [
+            {
+              "status": 404,
+              "meaning": "Unknown runId or tenant scope mismatch"
+            },
+            {
+              "status": 409,
+              "meaning": "Run not in an executable state"
+            }
+          ]
+        },
+        {
+          "id": "poll-run",
+          "method": "GET",
+          "path": "/v1/architecture/run/{runId}",
+          "expectedSuccessStatuses": [200],
+          "responseShape": "ArchitectureRun",
+          "pollUntil": {
+            "field": "status",
+            "values": ["ReadyForCommit", "Committed"]
+          }
+        },
+        {
+          "id": "commit-run",
+          "method": "POST",
+          "path": "/v1/architecture/run/{runId}/commit",
+          "expectedSuccessStatuses": [200],
+          "responseShape": "CommitRunResponse",
+          "errorSemantics": [
+            {
+              "status": 400,
+              "meaning": "Run not ready for commit or governance block"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifacts-retrieval",
+      "label": "Export committed run artifacts",
+      "dependsOn": "review-lifecycle",
+      "steps": [
+        {
+          "id": "export-zip",
+          "method": "GET",
+          "path": "/v1/artifacts/runs/{runId}/export",
+          "expectedSuccessStatuses": [200],
+          "responseShape": "application/zip",
+          "errorSemantics": [
+            {
+              "status": 404,
+              "meaning": "Run not found or not committed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compare-runs",
+      "label": "Compare two committed runs",
+      "dependsOn": "review-lifecycle",
+      "steps": [
+        {
+          "id": "compare-runs-query",
+          "method": "GET",
+          "path": "/v1/authority/compare/runs",
+          "expectedSuccessStatuses": [200],
+          "queryParameters": ["leftRunId", "rightRunId"],
+          "responseShape": "RunComparisonResponse",
+          "errorSemantics": [
+            {
+              "status": 404,
+              "meaning": "One or both run ids not found"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "roi-summary",
+      "label": "Per-run ROI summary",
+      "dependsOn": "review-lifecycle",
+      "steps": [
+        {
+          "id": "run-roi",
+          "method": "GET",
+          "path": "/v1/architecture/run/{runId}/roi",
+          "expectedSuccessStatuses": [200],
+          "responseShape": "RunRoiSummaryResponse",
+          "claimBoundary": "Estimates only — not invoiced Azure OpenAI spend; sponsor-safe SEND requires baselineCompletenessStatus per ROI_BASELINE_SEND_POLICY.md"
+        },
+        {
+          "id": "analytics-roi",
+          "method": "GET",
+          "path": "/v1/analytics/roi",
+          "expectedSuccessStatuses": [200],
+          "responseShape": "ExecutiveRoiSummaryResponse",
+          "optional": true,
+          "claimBoundary": "Aggregate analytics — requires sufficient committed runs and configured baseline inputs"
+        }
+      ]
+    }
+  ]
+}
