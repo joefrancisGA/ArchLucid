@@ -14,6 +14,7 @@ namespace ArchLucid.Api.Tests;
 public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 {
     private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("Sql");
+    private readonly IntegrationTestSqlCatalogEnvironment? _sqlCatalogEnvironment;
 
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
@@ -31,6 +32,7 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
 
             SqlConnectionString = builder.ConnectionString;
             SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
+            _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(SqlConnectionString);
         }
         catch (Exception ex)
         {
@@ -93,7 +95,10 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     protected override void Dispose(bool disposing)
     {
         if (disposing)
+        {
+            _sqlCatalogEnvironment?.Dispose();
             _storageProviderEnvironment.Dispose();
+        }
 
         base.Dispose(disposing);
 

@@ -34,6 +34,7 @@ namespace ArchLucid.Api.Tests;
 public class ArchLucidApiFactory : BaseIntegrationTestFixture
 {
     private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment;
+    private readonly IntegrationTestSqlCatalogEnvironment? _sqlCatalogEnvironment;
     private readonly bool _ownsSqlCatalog;
     private readonly string _storageProvider;
 
@@ -51,6 +52,9 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
         _ownsSqlCatalog = true;
         SqlConnectionString = CreateEphemeralSqlConnectionString();
         SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
+
+        if (_storageProvider == "Sql")
+            _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(SqlConnectionString);
     }
 
     /// <summary>Reuses an existing SQL catalog (second host in the same integration test).</summary>
@@ -61,6 +65,7 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
         _storageProviderEnvironment = new IntegrationTestStorageProviderEnvironment(_storageProvider);
         _ownsSqlCatalog = false;
         SqlConnectionString = existingSqlConnectionString;
+        _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(SqlConnectionString);
     }
 
     private static string CreateEphemeralSqlConnectionString()
@@ -115,7 +120,10 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
     protected override void Dispose(bool disposing)
     {
         if (disposing)
+        {
+            _sqlCatalogEnvironment?.Dispose();
             _storageProviderEnvironment.Dispose();
+        }
 
         base.Dispose(disposing);
 
