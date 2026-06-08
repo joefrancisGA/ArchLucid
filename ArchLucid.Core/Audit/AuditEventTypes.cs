@@ -57,6 +57,9 @@ public static class AuditEventTypes
     /// <summary>What-if branch draft cloned from a parent with a single override (R12).</summary>
     public const string DraftIntakeBranched = "DraftIntake.Branched";
 
+    /// <summary>Terminal intake drafts purged by the background reaper (ADR 0048).</summary>
+    public const string DraftIntakeTerminalPurged = "DraftIntake.TerminalPurged";
+
     /// <summary>Operator answered an elicitation question on a Socratic intake draft.</summary>
     public const string DraftIntakeQuestionAnswered = "DraftIntake.QuestionAnswered";
 

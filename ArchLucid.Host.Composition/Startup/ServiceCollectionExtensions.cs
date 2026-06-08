@@ -69,6 +69,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchitectureProjectRetentionPurgeOptions.SectionName));
         services.Configure<SampleRunPurgeOptions>(
             configuration.GetSection(SampleRunPurgeOptions.SectionName));
+        services.Configure<DraftIntakeReaperOptions>(
+            configuration.GetSection(DraftIntakeReaperOptions.SectionName));
         services.Configure<TenantErasurePurgeOptions>(configuration.GetSection(TenantErasurePurgeOptions.SectionName));
         services.Configure<OrphanedTenantCatalogCleanupOptions>(
             configuration.GetSection(OrphanedTenantCatalogCleanupOptions.SectionName));
@@ -136,6 +138,7 @@ public static partial class ServiceCollectionExtensions
         RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);
         RegisterArchitectureProjectRetentionPurgeHostedService(services, hostingRole);
         RegisterSampleRunTtlHostedService(services, hostingRole);
+        RegisterDraftIntakeReaperHostedService(services, hostingRole);
         RegisterTenantErasureEligiblePurgeHostedService(services, hostingRole);
         RegisterOrphanedTenantCleanupHostedService(services, hostingRole);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);

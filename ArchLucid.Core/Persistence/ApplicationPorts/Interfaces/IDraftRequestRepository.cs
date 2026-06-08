@@ -30,4 +30,14 @@ public interface IDraftRequestRepository
         string? redirectReason,
         string? spawnedRunId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Hard-deletes up to <paramref name="batchSize" /> terminal drafts
+    ///     (<see cref="DraftRequestStatus.Redirected" /> / <see cref="DraftRequestStatus.Abandoned" />)
+    ///     with <c>UpdatedUtc</c> before <paramref name="updatedBeforeUtc" />.
+    /// </summary>
+    Task<DraftIntakeReaperBatchResult> HardDeleteTerminalDraftsBatchAsync(
+        DateTimeOffset updatedBeforeUtc,
+        int batchSize,
+        CancellationToken cancellationToken);
 }

@@ -191,6 +191,35 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         return refreshed;
     }
 
+    /// <inheritdoc />
+    public async Task<DraftIntakeReaperBatchResult> HardDeleteTerminalDraftsBatchAsync(
+        DateTimeOffset updatedBeforeUtc,
+        int batchSize,
+        CancellationToken cancellationToken)
+    {
+        int effectiveBatchSize = Math.Clamp(batchSize, 1, 10_000);
+        DateTime cutoff = updatedBeforeUtc.UtcDateTime;
+
+        const string sql = """
+                           DELETE TOP (@BatchSize) dr
+                           OUTPUT DELETED.DraftId
+                           FROM dbo.DraftRequests dr
+                           WHERE dr.Status IN (N'Redirected', N'Abandoned')
+                             AND dr.UpdatedUtc < @UpdatedBeforeUtc;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<Guid> deleted = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new { BatchSize = effectiveBatchSize, UpdatedBeforeUtc = cutoff },
+                cancellationToken: cancellationToken));
+
+        List<Guid> deletedDraftIds = deleted.ToList();
+
+        return new DraftIntakeReaperBatchResult { DeletedDraftIds = deletedDraftIds };
+    }
+
     private static DraftRequestResponse MapRow(DraftRequestRow row)
     {
         DraftRequestDocument? document =

@@ -135,6 +135,17 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<SampleRunTtlHostedService>();
     }
 
+    private static void RegisterDraftIntakeReaperHostedService(
+        IServiceCollection services,
+        ArchLucidHostingRole hostingRole)
+    {
+        // Api-only hosts register ArchLucid.Api.Workers.DraftIntakeReaperWorker in Program (same lease + purge logic).
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        services.AddHostedService<DraftIntakeReaperHostedService>();
+    }
+
     private static void RegisterTenantErasureEligiblePurgeHostedService(
         IServiceCollection services,
         ArchLucidHostingRole hostingRole)

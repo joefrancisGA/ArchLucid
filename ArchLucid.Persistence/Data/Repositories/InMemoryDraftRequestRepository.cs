@@ -89,6 +89,36 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         return Task.FromResult<DraftRequestResponse?>(Map(stored));
     }
 
+    /// <inheritdoc />
+    public Task<DraftIntakeReaperBatchResult> HardDeleteTerminalDraftsBatchAsync(
+        DateTimeOffset updatedBeforeUtc,
+        int batchSize,
+        CancellationToken cancellationToken)
+    {
+        int effectiveBatchSize = Math.Clamp(batchSize, 1, 10_000);
+        DateTime cutoff = updatedBeforeUtc.UtcDateTime;
+        List<Guid> deleted = [];
+
+        foreach (KeyValuePair<Guid, StoredDraft> entry in _drafts.ToArray())
+        {
+            if (deleted.Count >= effectiveBatchSize)
+                break;
+
+            StoredDraft stored = entry.Value;
+
+            if (stored.Status is not (DraftRequestStatus.Redirected or DraftRequestStatus.Abandoned))
+                continue;
+
+            if (stored.UpdatedUtc >= cutoff)
+                continue;
+
+            if (_drafts.TryRemove(entry.Key, out _))
+                deleted.Add(entry.Key);
+        }
+
+        return Task.FromResult(new DraftIntakeReaperBatchResult { DeletedDraftIds = deleted });
+    }
+
     private static DraftRequestResponse Map(StoredDraft stored) =>
         new()
         {

@@ -102,6 +102,7 @@ public partial class Program
             builder.Services.AddHostedService<RetentionPurgeWorker>();
             builder.Services.AddHostedService<TenantErasurePurgeWorker>();
             builder.Services.AddHostedService<SampleRunTtlPurgeWorker>();
+            builder.Services.AddHostedService<DraftIntakeReaperWorker>();
         }
 
         if (hostingRole != ArchLucidHostingRole.Worker)

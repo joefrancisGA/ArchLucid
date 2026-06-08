@@ -55,6 +55,8 @@ public static class HostElectionLeaseNames
 
     public const string SampleRunTtlPurge = "hosted:sample-run-ttl-purge";
 
+    public const string DraftIntakeReaper = "hosted:draft-intake-reaper";
+
     public const string IntegrationEventDlqRetry = "hosted:integration-event-dlq-retry";
 
     public const string ExecutiveRoiCacheWarmup = "hosted:executive-roi-cache-warmup";
