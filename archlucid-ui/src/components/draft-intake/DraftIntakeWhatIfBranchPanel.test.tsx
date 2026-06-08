@@ -2,9 +2,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const branchDraftRequest = vi.fn();
+const getDraftBranchQuota = vi.fn();
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
   branchDraftRequest: (...args: unknown[]) => branchDraftRequest(...args),
+  getDraftBranchQuota: (...args: unknown[]) => getDraftBranchQuota(...args),
 }));
 
 import { DraftIntakeWhatIfBranchPanel } from "./DraftIntakeWhatIfBranchPanel";
@@ -12,6 +14,15 @@ import { DraftIntakeWhatIfBranchPanel } from "./DraftIntakeWhatIfBranchPanel";
 describe("DraftIntakeWhatIfBranchPanel", () => {
   it("posts a branch request and notifies the parent", async () => {
     const onBranched = vi.fn();
+
+    getDraftBranchQuota.mockResolvedValue({
+      draftId: "parent-1",
+      existingBranchCount: 0,
+      maxBranchesPerParent: 3,
+      remainingBranches: 3,
+      canBranch: true,
+      estimatedBranchRunCostUsd: 1,
+    });
 
     branchDraftRequest.mockResolvedValue({
       parentDraftId: "parent-1",
@@ -60,5 +71,33 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
     });
 
     expect(onBranched).toHaveBeenCalled();
+    expect(screen.getByTestId("draft-intake-what-if-quota")).toHaveTextContent(/branches used: 0\/3/i);
+  });
+
+  it("disables branch submit when quota is exhausted", async () => {
+    getDraftBranchQuota.mockResolvedValue({
+      draftId: "parent-1",
+      existingBranchCount: 3,
+      maxBranchesPerParent: 3,
+      remainingBranches: 0,
+      canBranch: false,
+      estimatedBranchRunCostUsd: 1,
+    });
+
+    render(
+      <DraftIntakeWhatIfBranchPanel
+        draftId="parent-1"
+        intent="Intent"
+        outcome="Outcome"
+        systemName=""
+        defaultOpen
+        questionOptions={[]}
+        onBranched={vi.fn()}
+      />,
+    );
+
+    await screen.findByText(/branch cap reached/i);
+
+    expect(screen.getByTestId("draft-intake-what-if-submit")).toBeDisabled();
   });
 });

@@ -32,4 +32,7 @@ public interface IDraftRequestService
 
     Task<BranchDraftResponse?> BranchAsync(ScopeContext scope, Guid parentDraftId, string actorUserId,
         BranchDraftRequest request, CancellationToken cancellationToken);
+
+    Task<DraftBranchQuotaResponse?> GetBranchQuotaAsync(ScopeContext scope, Guid draftId,
+        CancellationToken cancellationToken);
 }

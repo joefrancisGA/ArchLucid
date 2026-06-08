@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -63,7 +64,8 @@ public sealed class DraftRequestServiceQuestionTests
             new DraftRequestProjector(),
             _runCreateOrchestrator.Object,
             _contentSafety.Object,
-            verdictBuilder);
+            verdictBuilder,
+            new FixedDraftIntakeBranchOptionsMonitor(new DraftIntakeBranchOptions()));
     }
 
     [Fact]

@@ -119,6 +119,23 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         return Task.FromResult(new DraftIntakeReaperBatchResult { DeletedDraftIds = deleted });
     }
 
+    /// <inheritdoc />
+    public Task<int> CountChildBranchesAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid parentDraftId,
+        CancellationToken cancellationToken)
+    {
+        int count = _drafts.Values.Count(stored =>
+            stored.TenantId == tenantId
+            && stored.WorkspaceId == workspaceId
+            && stored.ProjectId == projectId
+            && stored.Document.ParentDraftId == parentDraftId);
+
+        return Task.FromResult(count);
+    }
+
     private static DraftRequestResponse Map(StoredDraft stored) =>
         new()
         {

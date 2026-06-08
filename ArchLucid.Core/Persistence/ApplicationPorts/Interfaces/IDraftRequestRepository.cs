@@ -40,4 +40,12 @@ public interface IDraftRequestRepository
         DateTimeOffset updatedBeforeUtc,
         int batchSize,
         CancellationToken cancellationToken);
+
+    /// <summary>Counts drafts whose document <c>parentDraftId</c> matches <paramref name="parentDraftId" />.</summary>
+    Task<int> CountChildBranchesAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid parentDraftId,
+        CancellationToken cancellationToken);
 }

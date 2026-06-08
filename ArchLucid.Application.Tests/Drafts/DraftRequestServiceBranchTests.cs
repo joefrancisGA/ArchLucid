@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -67,7 +68,8 @@ public sealed class DraftRequestServiceBranchTests
             new DraftRequestProjector(),
             _runCreateOrchestrator.Object,
             _contentSafety.Object,
-            verdictBuilder);
+            verdictBuilder,
+            new FixedDraftIntakeBranchOptionsMonitor(new DraftIntakeBranchOptions { MaxBranchesPerParentDraft = 3 }));
     }
 
     [Fact]
@@ -158,6 +160,56 @@ public sealed class DraftRequestServiceBranchTests
 
         branchSubmit.Should().NotBeNull();
         branchSubmit!.ParentSpawnedRunId.Should().Be(parentSubmit.RunId);
+    }
+
+    [Fact]
+    public async Task BranchAsync_Throws_WhenBranchCapReached()
+    {
+        DraftRequestResponse parent = await CreateAdmittedParentAsync();
+
+        for (int index = 0; index < 3; index++)
+        {
+            await _service.BranchAsync(
+                _scope,
+                parent.DraftId,
+                "operator-1",
+                new BranchDraftRequest
+                {
+                    OverrideKind = DraftBranchOverrideKind.BusinessOutcome,
+                    OverrideValue = $"Outcome variant {index}",
+                },
+                CancellationToken.None);
+        }
+
+        Func<Task> act = () => _service.BranchAsync(
+            _scope,
+            parent.DraftId,
+            "operator-1",
+            new BranchDraftRequest
+            {
+                OverrideKind = DraftBranchOverrideKind.BusinessOutcome,
+                OverrideValue = "One branch too many",
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*branch cap*");
+    }
+
+    [Fact]
+    public async Task GetBranchQuotaAsync_ReturnsRemainingCapacity()
+    {
+        DraftRequestResponse parent = await CreateAdmittedParentAsync();
+
+        DraftBranchQuotaResponse? quota = await _service.GetBranchQuotaAsync(
+            _scope,
+            parent.DraftId,
+            CancellationToken.None);
+
+        quota.Should().NotBeNull();
+        quota!.MaxBranchesPerParent.Should().Be(3);
+        quota.RemainingBranches.Should().Be(3);
+        quota.CanBranch.Should().BeTrue();
     }
 
     [Fact]

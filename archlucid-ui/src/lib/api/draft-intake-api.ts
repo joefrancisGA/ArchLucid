@@ -2,6 +2,7 @@ import type {
   ActorSet,
   BranchDraftRequest,
   BranchDraftResponse,
+  DraftBranchQuotaResponse,
   DraftAdmissionResponse,
   DraftIntakeReasonResponse,
   DraftQuestionsResponse,
@@ -92,6 +93,13 @@ export async function reasonDraftRequest(
   return apiPostJson<DraftIntakeReasonResponse>(
     `${DRAFT_BASE}/${encodeURIComponent(draftId)}/reason`,
     { message: message.trim() },
+  );
+}
+
+/** Branch quota and estimated run cost for an admitted parent draft (R12). */
+export async function getDraftBranchQuota(draftId: string): Promise<DraftBranchQuotaResponse> {
+  return apiGet<DraftBranchQuotaResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch-quota`,
   );
 }
 

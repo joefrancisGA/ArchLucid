@@ -5,9 +5,12 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Persistence.Data.Repositories;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Drafts;
 
@@ -19,7 +22,8 @@ public sealed class DraftRequestService(
     IDraftRequestProjector projector,
     IArchitectureRunCreateOrchestrator runCreateOrchestrator,
     IRequestContentSafetyPrecheck contentSafetyPrecheck,
-    FeasibilityVerdictBuilder feasibilityVerdictBuilder) : IDraftRequestService
+    FeasibilityVerdictBuilder feasibilityVerdictBuilder,
+    IOptionsMonitor<DraftIntakeBranchOptions> branchOptionsMonitor) : IDraftRequestService
 {
     private readonly IDraftAdmissionGate _admissionGate =
         admissionGate ?? throw new ArgumentNullException(nameof(admissionGate));
@@ -41,6 +45,9 @@ public sealed class DraftRequestService(
 
     private readonly FeasibilityVerdictBuilder _feasibilityVerdictBuilder =
         feasibilityVerdictBuilder ?? throw new ArgumentNullException(nameof(feasibilityVerdictBuilder));
+
+    private readonly IOptionsMonitor<DraftIntakeBranchOptions> _branchOptionsMonitor =
+        branchOptionsMonitor ?? throw new ArgumentNullException(nameof(branchOptionsMonitor));
 
     /// <inheritdoc />
     public async Task<DraftRequestResponse> CreateAsync(
@@ -398,6 +405,24 @@ public sealed class DraftRequestService(
                 $"Draft '{parentDraftId}' cannot branch from status '{parent.Status}'.");
         }
 
+        DraftIntakeBranchOptions branchOptions = _branchOptionsMonitor.CurrentValue;
+        int existingBranches = await _draftRepository.CountChildBranchesAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            parentDraftId,
+            cancellationToken);
+        DraftBranchQuotaResponse quota = DraftIntakeBranchQuotaComposer.Compose(
+            parentDraftId,
+            existingBranches,
+            branchOptions);
+
+        if (!quota.CanBranch)
+        {
+            throw new InvalidOperationException(
+                $"Draft '{parentDraftId}' reached the what-if branch cap ({quota.MaxBranchesPerParent} per parent draft).");
+        }
+
         DraftRequestDocument branchDocument = DraftRequestDocumentCloner.Clone(parent.Document);
         branchDocument.ParentDraftId = parentDraftId;
         branchDocument.ConversationThreadId = null;
@@ -454,6 +479,38 @@ public sealed class DraftRequestService(
             ParentSpawnedRunId = parent.SpawnedRunId,
             Branch = branch,
         };
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftBranchQuotaResponse?> GetBranchQuotaAsync(
+        ScopeContext scope,
+        Guid draftId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsBranch(existing.Status))
+        {
+            throw new InvalidOperationException(
+                $"Draft '{draftId}' does not expose branch quota in status '{existing.Status}'.");
+        }
+
+        int existingBranches = await _draftRepository.CountChildBranchesAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            cancellationToken);
+
+        return DraftIntakeBranchQuotaComposer.Compose(
+            draftId,
+            existingBranches,
+            _branchOptionsMonitor.CurrentValue);
     }
 
     /// <inheritdoc />

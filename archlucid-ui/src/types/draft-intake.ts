@@ -53,6 +53,15 @@ export type BranchDraftResponse = {
   branch: DraftRequestResponse;
 };
 
+export type DraftBranchQuotaResponse = {
+  draftId: string;
+  existingBranchCount: number;
+  maxBranchesPerParent: number;
+  remainingBranches: number;
+  canBranch: boolean;
+  estimatedBranchRunCostUsd: number;
+};
+
 export type DraftRequestResponse = {
   draftId: string;
   tenantId: string;

@@ -201,6 +201,32 @@ public sealed class DraftRequestsController(
         }
     }
 
+    /// <summary>Returns what-if branch quota and estimated run cost for an admitted parent draft (R12).</summary>
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [HttpGet("{draftId:guid}/branch-quota")]
+    [ProducesResponseType(typeof(DraftBranchQuotaResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDraftBranchQuota(Guid draftId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        try
+        {
+            DraftBranchQuotaResponse? quota =
+                await _draftRequestService.GetBranchQuotaAsync(scope, draftId, cancellationToken);
+
+            if (quota is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
+            return Ok(quota);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
     /// <summary>Clones an admitted or run-spawned draft with one ceteris-paribus override (R12).</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [HttpPost("{draftId:guid}/branch")]

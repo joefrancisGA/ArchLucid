@@ -220,6 +220,41 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         return new DraftIntakeReaperBatchResult { DeletedDraftIds = deletedDraftIds };
     }
 
+    /// <inheritdoc />
+    public async Task<int> CountChildBranchesAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid parentDraftId,
+        CancellationToken cancellationToken)
+    {
+        ScopedRepositoryScopeValidation.RequireEntityTenant(tenantId);
+
+        const string sql = """
+                           SELECT COUNT(1)
+                           FROM dbo.DraftRequests
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND JSON_VALUE(DocumentJson, '$.parentDraftId') = @ParentDraftId;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int count = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    ParentDraftId = parentDraftId.ToString("D"),
+                },
+                cancellationToken: cancellationToken));
+
+        return count;
+    }
+
     private static DraftRequestResponse MapRow(DraftRequestRow row)
     {
         DraftRequestDocument? document =

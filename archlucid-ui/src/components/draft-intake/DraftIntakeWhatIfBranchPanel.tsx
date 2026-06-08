@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -14,12 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { branchDraftRequest } from "@/lib/api/draft-intake-api";
+import { branchDraftRequest, getDraftBranchQuota } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { formatDraftBranchQuotaSummary } from "@/lib/draft-branch-quota-display";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import type {
   BranchDraftResponse,
   DraftBranchOverrideKind,
+  DraftBranchQuotaResponse,
   DraftElicitationQuestion,
 } from "@/types/draft-intake";
 
@@ -72,6 +74,8 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   const [overrideKey, setOverrideKey] = useState(defaultQuestionKey);
   const [overrideValue, setOverrideValue] = useState("");
   const [busy, setBusy] = useState(false);
+  const [quota, setQuota] = useState<DraftBranchQuotaResponse | null>(null);
+  const [quotaError, setQuotaError] = useState<string | null>(null);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -79,6 +83,36 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   } | null>(null);
 
   const panelDisabled = props.disabled === true || busy;
+  const quotaAllowsBranch = quota?.canBranch !== false;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadQuota(): Promise<void> {
+      setQuotaError(null);
+
+      try {
+        const loaded = await getDraftBranchQuota(props.draftId);
+
+        if (!cancelled) {
+          setQuota(loaded);
+        }
+      } catch (loadError: unknown) {
+        if (!cancelled) {
+          setQuota(null);
+          setQuotaError(
+            loadError instanceof Error ? loadError.message : "Failed to load branch quota.",
+          );
+        }
+      }
+    }
+
+    void loadQuota();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [props.draftId]);
 
   const selectedKindMeta = useMemo(
     () => OVERRIDE_KIND_OPTIONS.find((option) => option.value === overrideKind) ?? OVERRIDE_KIND_OPTIONS[0],
@@ -158,6 +192,25 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
           Clone this admitted draft with one change, submit it as a separate architecture run, then use{" "}
           <strong>Compare two reviews</strong> to diff the committed manifests (R12).
         </p>
+
+        {quota !== null ? (
+          <p
+            className="m-0 text-xs text-neutral-600 dark:text-neutral-400"
+            data-testid="draft-intake-what-if-quota"
+          >
+            {formatDraftBranchQuotaSummary(quota)}
+          </p>
+        ) : null}
+
+        {quotaError !== null ? (
+          <p className="m-0 text-xs text-amber-700 dark:text-amber-300">{quotaError}</p>
+        ) : null}
+
+        {!quotaAllowsBranch ? (
+          <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">
+            Branch cap reached for this parent draft — submit an existing branch or start a new intake.
+          </p>
+        ) : null}
 
         <div className="space-y-2">
           <Label htmlFor={`draft-intake-what-if-kind-${props.draftId}`}>Override dimension</Label>
@@ -240,7 +293,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
           type="button"
           variant="outline"
           size="sm"
-          disabled={panelDisabled || !canBranch}
+          disabled={panelDisabled || !canBranch || !quotaAllowsBranch}
           data-testid="draft-intake-what-if-submit"
           onClick={() => {
             void submitBranch();
