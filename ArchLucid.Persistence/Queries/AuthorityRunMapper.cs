@@ -48,7 +48,8 @@ internal static class AuthorityRunMapper
             WarningCount = manifest.Warnings.Count,
             UnresolvedIssueCount = manifest.UnresolvedIssues.Items.Count,
             Status = manifest.Metadata.Status,
-            TopDecisionSynopses = ManifestDecisionSynopsisFormatter.FormatTopSynopses(manifest.Decisions)
+            TopDecisionSynopses = ManifestDecisionSynopsisFormatter.FormatTopSynopses(manifest.Decisions),
+            FeasibilityVerdict = manifest.FeasibilityVerdict
         };
     }
 }

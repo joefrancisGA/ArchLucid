@@ -371,7 +371,8 @@ public sealed class AuthorityQueryController(
             HasUnresolvedIssues = result.UnresolvedIssueCount > 0,
             OperatorSummary =
                 $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
-            TopDecisionSynopses = result.TopDecisionSynopses
+            TopDecisionSynopses = result.TopDecisionSynopses,
+            FeasibilityVerdict = result.FeasibilityVerdict
         });
     }
 

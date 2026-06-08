@@ -11,6 +11,7 @@ import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import type { ManifestSummary } from "@/types/authority";
 
+import { RunDetailFeasibilityVerdictSection } from "./RunDetailFeasibilityVerdictSection";
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailManifestSummarySectionProps = {
@@ -70,6 +71,10 @@ export function RunDetailManifestSummarySection(
           </dl>
         </CardContent>
       </Card>
+
+      {manifestSummary.feasibilityVerdict !== undefined && manifestSummary.feasibilityVerdict !== null ? (
+        <RunDetailFeasibilityVerdictSection verdict={manifestSummary.feasibilityVerdict} />
+      ) : null}
 
       <OperatorEvidenceLimitsFooter
         runId={manifestSummary.runId}

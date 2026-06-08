@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Architecture;
+
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
@@ -77,4 +79,11 @@ public class ManifestSummaryDto
         get;
         set;
     } = [];
+
+    /// <summary>Authority-pipeline feasibility classification when present on the manifest (ADR 0050).</summary>
+    public FeasibilityVerdict? FeasibilityVerdict
+    {
+        get;
+        set;
+    }
 }

@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Architecture;
+
 namespace ArchLucid.Api.Contracts;
 
 /// <summary>
@@ -107,4 +109,11 @@ public class ManifestSummaryResponse
         get;
         set;
     } = [];
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.FeasibilityVerdict" />
+    public FeasibilityVerdict? FeasibilityVerdict
+    {
+        get;
+        set;
+    }
 }

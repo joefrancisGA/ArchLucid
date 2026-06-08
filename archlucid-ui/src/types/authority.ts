@@ -1,4 +1,5 @@
 import type { components } from "@/lib/openapi-schemas";
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 /**
  * Optional list enrichments not yet on OpenAPI `RunSummaryResponse` but returned by some endpoints.
@@ -45,7 +46,10 @@ export type ManifestSummary = ManifestSummaryResponseSchema &
       | "unresolvedIssueCount"
       | "status"
     >
-  >;
+  > & {
+    /** Present when authority pipeline attached ADR 0050 verdict to the manifest. */
+    feasibilityVerdict?: ManifestFeasibilityVerdict | null;
+  };
 
 /** A single diff entry from run or manifest comparison (section/key/before/after). */
 export type DiffItem = {
