@@ -27,11 +27,30 @@ export type ActorSet = {
   actors: ActorDescriptor[];
 };
 
+export type DraftBranchOverrideKind =
+  | "QuestionAnswer"
+  | "BusinessOutcome"
+  | "FreeTextIntent"
+  | "SystemName";
+
 export type DraftRequestDocument = {
   freeTextIntent: string;
   systemName?: string;
   businessOutcome?: string;
   actorSet: ActorSet;
+  parentDraftId?: string;
+};
+
+export type BranchDraftRequest = {
+  overrideKind: DraftBranchOverrideKind;
+  overrideKey?: string;
+  overrideValue: string;
+};
+
+export type BranchDraftResponse = {
+  parentDraftId: string;
+  parentSpawnedRunId?: string;
+  branch: DraftRequestResponse;
 };
 
 export type DraftRequestResponse = {

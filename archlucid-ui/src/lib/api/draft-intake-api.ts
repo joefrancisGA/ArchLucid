@@ -1,5 +1,7 @@
 import type {
   ActorSet,
+  BranchDraftRequest,
+  BranchDraftResponse,
   DraftAdmissionResponse,
   DraftIntakeReasonResponse,
   DraftQuestionsResponse,
@@ -90,5 +92,16 @@ export async function reasonDraftRequest(
   return apiPostJson<DraftIntakeReasonResponse>(
     `${DRAFT_BASE}/${encodeURIComponent(draftId)}/reason`,
     { message: message.trim() },
+  );
+}
+
+/** Clone an admitted draft with one ceteris-paribus override (R12). */
+export async function branchDraftRequest(
+  draftId: string,
+  body: BranchDraftRequest,
+): Promise<BranchDraftResponse> {
+  return apiPostJson<BranchDraftResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
+    body,
   );
 }

@@ -39,6 +39,10 @@ vi.mock("@/components/draft-intake/DraftIntakeReasoningPanel", () => ({
   DraftIntakeReasoningPanel: () => <div data-testid="draft-intake-reasoning-stub">Reasoning stub</div>,
 }));
 
+vi.mock("@/components/draft-intake/DraftIntakeWhatIfBranchPanel", () => ({
+  DraftIntakeWhatIfBranchPanel: () => <div data-testid="draft-intake-what-if-stub">What-if stub</div>,
+}));
+
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 
 describe("SocraticIntakeWizard", () => {
@@ -54,7 +58,20 @@ describe("SocraticIntakeWizard", () => {
     getDraftQuestions.mockResolvedValue({
       draftId: "draft-1",
       status: "Admitted",
-      selection: { allQuestions: [], requiredMustQuestionKeys: [], pendingMustQuestions: [] },
+      selection: {
+        allQuestions: [
+          {
+            questionKey: "l0.pillar.security",
+            prompt: "How is data protected?",
+            tier: "Must",
+            answerKind: "FreeText",
+            source: "L0Universal",
+            ruleKeys: [],
+          },
+        ],
+        requiredMustQuestionKeys: [],
+        pendingMustQuestions: [],
+      },
     });
 
     render(<SocraticIntakeWizard />);
@@ -75,5 +92,6 @@ describe("SocraticIntakeWizard", () => {
 
     expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(/step 2 of 3/i);
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("draft-intake-what-if-stub")).toBeInTheDocument();
   });
 });

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
+import { DraftIntakeWhatIfBranchPanel } from "@/components/draft-intake/DraftIntakeWhatIfBranchPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +26,7 @@ import {
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
-import type { DraftElicitationQuestion } from "@/types/draft-intake";
+import type { BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 
 const MIN_INTENT_CHARS = 10;
 const MIN_OUTCOME_CHARS = 10;
@@ -49,7 +50,9 @@ export function SocraticIntakeWizard() {
   const [systemName, setSystemName] = useState("");
 
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [parentDraftId, setParentDraftId] = useState<string | null>(null);
   const [redirectReason, setRedirectReason] = useState<string | null>(null);
+  const [allQuestions, setAllQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
@@ -65,8 +68,24 @@ export function SocraticIntakeWizard() {
 
   const refreshQuestions = useCallback(async (id: string) => {
     const questions = await getDraftQuestions(id);
+    setAllQuestions(questions.selection.allQuestions);
     setPendingQuestions(questions.selection.pendingMustQuestions);
   }, []);
+
+  const applyBranchDraft = useCallback(
+    async (response: BranchDraftResponse) => {
+      const branch = response.branch;
+      setDraftId(branch.draftId);
+      setParentDraftId(response.parentDraftId);
+      setFreeTextIntent(branch.document.freeTextIntent);
+      setBusinessOutcome(branch.document.businessOutcome ?? "");
+      setSystemName(branch.document.systemName ?? "");
+      setAnswers({});
+      await refreshQuestions(branch.draftId);
+      showSuccess("What-if branch created — you are now editing the branch draft.");
+    },
+    [refreshQuestions],
+  );
 
   const runAdmission = useCallback(async () => {
     setBusy(true);
@@ -204,11 +223,37 @@ export function SocraticIntakeWizard() {
         />
       ) : null}
 
+      {parentDraftId !== null ? (
+        <Card className="border-sky-300 bg-sky-50 dark:border-sky-800 dark:bg-sky-950/40">
+          <CardHeader>
+            <CardTitle className="text-base">What-if branch</CardTitle>
+            <CardDescription>
+              Editing branch draft {draftId} forked from parent {parentDraftId}. Submit as a separate run, then Compare.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : null}
+
       {draftId !== null && step >= 1 ? (
         <DraftIntakeReasoningPanel
           draftId={draftId}
           disabled={busy || blocksLlmExecution}
           defaultOpen={false}
+        />
+      ) : null}
+
+      {draftId !== null && step >= 1 ? (
+        <DraftIntakeWhatIfBranchPanel
+          draftId={draftId}
+          intent={freeTextIntent}
+          outcome={businessOutcome}
+          systemName={systemName}
+          questionOptions={allQuestions}
+          disabled={busy}
+          defaultOpen={false}
+          onBranched={(response) => {
+            void applyBranchDraft(response);
+          }}
         />
       ) : null}
 
