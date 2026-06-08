@@ -27,9 +27,10 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   answerDraftQuestion: vi.fn(),
   skipDraftQuestion: vi.fn(),
   submitDraftRequest: (...args: unknown[]) => submitDraftRequest(...args),
-  buildDefaultActorSet: () => ({
-    actors: [{ kind: "Human", trustOrigin: "Internal", contract: "Sync", origin: "Asserted", confidence: 100 }],
-  }),
+}));
+
+vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
+  DraftIntakeActorEditor: () => <div data-testid="draft-intake-actor-editor-stub">Actor editor stub</div>,
 }));
 
 vi.mock("@/lib/toast", () => ({
@@ -84,11 +85,21 @@ describe("SocraticIntakeWizard", () => {
     fireEvent.change(screen.getByTestId("socratic-outcome"), {
       target: { value: "Reduce manual triage time by thirty percent." },
     });
+    expect(screen.getByTestId("draft-intake-actor-editor-stub")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("socratic-admit"));
 
     await waitFor(() => {
       expect(createDraftRequest).toHaveBeenCalled();
-      expect(patchDraftRequest).toHaveBeenCalled();
+      expect(patchDraftRequest).toHaveBeenCalledWith(
+        "draft-1",
+        expect.objectContaining({
+          actorSet: expect.objectContaining({
+            actors: expect.arrayContaining([
+              expect.objectContaining({ origin: "Asserted", confidence: 100 }),
+            ]),
+          }),
+        }),
+      );
       expect(admitDraftRequest).toHaveBeenCalledWith("draft-1");
     });
 

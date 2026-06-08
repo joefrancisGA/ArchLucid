@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
+import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { DraftIntakeWhatIfBranchPanel } from "@/components/draft-intake/DraftIntakeWhatIfBranchPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -17,7 +18,6 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExc
 import {
   admitDraftRequest,
   answerDraftQuestion,
-  buildDefaultActorSet,
   createDraftRequest,
   getDraftQuestions,
   patchDraftRequest,
@@ -29,13 +29,20 @@ import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigatio
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
-import type { BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
+import {
+  assertActorSetForAdmission,
+  buildSuggestedActorSet,
+} from "@/lib/draft-intake-actor-suggestions";
+import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 
 const MIN_INTENT_CHARS = 10;
 const MIN_OUTCOME_CHARS = 10;
 
 const INTAKE_STEPS = [
-  { label: "Intent & outcome", description: "Describe what you are building and the business result." },
+  {
+    label: "Intent, outcome & actors",
+    description: "Describe what you are building, the business result, and who uses the system.",
+  },
   { label: "MUST questions", description: "Answer pack-driven intake questions before the run starts." },
   { label: "Start review", description: "Submit the admitted draft to the authority pipeline." },
 ] as const;
@@ -51,6 +58,7 @@ export function SocraticIntakeWizard() {
   const [freeTextIntent, setFreeTextIntent] = useState("");
   const [businessOutcome, setBusinessOutcome] = useState("");
   const [systemName, setSystemName] = useState("");
+  const [actorSet, setActorSet] = useState<ActorSet>(() => buildSuggestedActorSet(""));
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [parentDraftId, setParentDraftId] = useState<string | null>(null);
@@ -63,6 +71,7 @@ export function SocraticIntakeWizard() {
   const canAdvanceIntent =
     freeTextIntent.trim().length >= MIN_INTENT_CHARS &&
     businessOutcome.trim().length >= MIN_OUTCOME_CHARS &&
+    actorSet.actors.length > 0 &&
     !busy;
 
   const allMustAnswered = pendingQuestions.length === 0;
@@ -85,6 +94,11 @@ export function SocraticIntakeWizard() {
       setFreeTextIntent(branch.document.freeTextIntent);
       setBusinessOutcome(branch.document.businessOutcome ?? "");
       setSystemName(branch.document.systemName ?? "");
+      setActorSet(
+        branch.document.actorSet.actors.length > 0
+          ? branch.document.actorSet
+          : buildSuggestedActorSet(branch.document.freeTextIntent),
+      );
       setAnswers({});
       await refreshQuestions(branch.draftId);
       showSuccess("What-if branch created — you are now editing the branch draft.");
@@ -106,7 +120,7 @@ export function SocraticIntakeWizard() {
         freeTextIntent: freeTextIntent.trim(),
         businessOutcome: businessOutcome.trim(),
         systemName: systemName.trim() || undefined,
-        actorSet: buildDefaultActorSet(),
+        actorSet: assertActorSetForAdmission(actorSet),
       });
 
       const admission = await admitDraftRequest(id);
@@ -129,7 +143,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [businessOutcome, freeTextIntent, refreshQuestions, systemName]);
+  }, [actorSet, businessOutcome, freeTextIntent, refreshQuestions, systemName]);
 
   const saveAnswer = useCallback(
     async (questionKey: string) => {
@@ -333,6 +347,14 @@ export function SocraticIntakeWizard() {
                 data-testid="socratic-system-name"
               />
             </div>
+            <DraftIntakeActorEditor
+              actorSet={actorSet}
+              disabled={busy}
+              onChange={setActorSet}
+              onResuggest={() => {
+                setActorSet(buildSuggestedActorSet(freeTextIntent));
+              }}
+            />
             <Button
               type="button"
               disabled={!canAdvanceIntent}
