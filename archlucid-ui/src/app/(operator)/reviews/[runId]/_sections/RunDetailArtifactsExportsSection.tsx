@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { BuyerDeliverablesArtifactTabs } from "@/components/BuyerDeliverablesArtifactTabs";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -25,7 +26,9 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -42,6 +45,19 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly samplePolicyPackContextLine: string | null;
   readonly requestId?: string | null;
 };
+
+function resolveFeasibilityVerdict(
+  manifestSummaryForUi: ManifestSummary | null,
+  manifestSummary: ManifestSummary | null,
+): ManifestFeasibilityVerdict | null {
+  const verdict = manifestSummaryForUi?.feasibilityVerdict ?? manifestSummary?.feasibilityVerdict;
+
+  if (verdict === undefined || verdict === null) {
+    return null;
+  }
+
+  return verdict;
+}
 
 export function RunDetailArtifactsExportsSection(
   props: RunDetailArtifactsExportsSectionProps,
@@ -61,6 +77,10 @@ export function RunDetailArtifactsExportsSection(
     requestId,
   } = props;
 
+  const feasibilityVerdict = resolveFeasibilityVerdict(manifestSummaryForUi, manifestSummary);
+  const showDecisionReceipt =
+    feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
+
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
       <div className="relative overflow-visible pr-9 sm:pr-10">
@@ -72,6 +92,15 @@ export function RunDetailArtifactsExportsSection(
           defaultOpen={!buyerPolishedArtifactTable}
         >
           <div className="mb-4 flex flex-wrap gap-3">
+            {showDecisionReceipt ? (
+              <DecisionReceiptExportButton
+                context={{
+                  source: "committed-run",
+                  runId,
+                  verdict: feasibilityVerdict,
+                }}
+              />
+            ) : null}
             <Button variant="primary" asChild>
               <FunnelTelemetryExportAnchor href={getArtifactDownloadUrl(manifestId, "architecture-review-board")}>
                 Download Sponsor Export (DOCX)
@@ -150,13 +179,31 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 ? (
-          <OperatorEmptyState title="No artifacts generated yet">
-            <div className="flex flex-col items-center justify-center space-y-2 py-4 text-center">
-              <p className="m-0 text-sm font-medium text-neutral-500">
-                No artifacts generated yet. Wait for the review to commit.
-              </p>
-            </div>
-          </OperatorEmptyState>
+            showDecisionReceipt ? (
+              <OperatorEmptyState title="Decision delivered — design not feasible">
+                <div className="flex flex-col items-center justify-center space-y-3 py-4 text-center">
+                  <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+                    A defensible &ldquo;no&rdquo; is a complete deliverable. Export the decision receipt for audit,
+                    sponsor handoff, or portfolio records.
+                  </p>
+                  <DecisionReceiptExportButton
+                    context={{
+                      source: "committed-run",
+                      runId,
+                      verdict: feasibilityVerdict,
+                    }}
+                  />
+                </div>
+              </OperatorEmptyState>
+            ) : (
+              <OperatorEmptyState title="No artifacts generated yet">
+                <div className="flex flex-col items-center justify-center space-y-2 py-4 text-center">
+                  <p className="m-0 text-sm font-medium text-neutral-500">
+                    No artifacts generated yet. Wait for the review to commit.
+                  </p>
+                </div>
+              </OperatorEmptyState>
+            )
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 ? (
