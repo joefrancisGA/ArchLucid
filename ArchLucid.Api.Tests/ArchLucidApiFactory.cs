@@ -37,7 +37,13 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
     private readonly string _storageProvider;
 
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
-    public ArchLucidApiFactory(bool sqlAuthorityStorage = false)
+    public ArchLucidApiFactory()
+        : this(sqlAuthorityStorage: false)
+    {
+    }
+
+    /// <summary>Ephemeral catalog with SQL authority storage (forensics cross-host probes).</summary>
+    internal ArchLucidApiFactory(bool sqlAuthorityStorage)
     {
         _storageProvider = sqlAuthorityStorage ? "Sql" : "InMemory";
         _storageProviderEnvironment = new IntegrationTestStorageProviderEnvironment(_storageProvider);
