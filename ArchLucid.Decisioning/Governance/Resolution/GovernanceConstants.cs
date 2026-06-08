@@ -19,6 +19,7 @@ public static class GovernanceConstants
         public const string CompositeAlertRule = "CompositeAlertRule";
         public const string AdvisoryDefault = "AdvisoryDefault";
         public const string Metadata = "Metadata";
+        public const string ElicitationQuestion = "ElicitationQuestion";
     }
 
     /// <summary>Conflict classification tokens on <see cref="GovernanceConflictRecord.ConflictType" />.</summary>

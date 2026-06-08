@@ -4,8 +4,8 @@
 
 # ADR 0048: Socratic intake — mutable draft-request lifecycle in front of the single-shot run create
 
-**Status:** Proposed
-**Date:** 2026-06-07
+**Status:** Accepted
+**Date:** 2026-06-07 (Accepted 2026-06-08)
 **Deciders:** Owner + Architecture review
 **Related:** [ADR 0042](0042-canonical-run-write-surface.md) (canonical run write surface), [ADR 0049](0049-actor-descriptor-model.md), [ADR 0050](0050-feasibility-classification-transparency-trail.md), [ADR 0051](0051-question-selection-engine.md), `docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` (R3, R7, R11), SAQ-013
 

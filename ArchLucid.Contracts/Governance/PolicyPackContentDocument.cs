@@ -61,4 +61,17 @@ public class PolicyPackContentDocument
         get;
         set;
     } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///     Elicitation questions owned by this pack (ADR 0051 / R8).
+    ///     Each question carries the <c>complianceRuleKeys</c> it informs, its tier (MUST/SHOULD),
+    ///     and the expected answer kind.  Optional — existing packs without questions deserialize
+    ///     to an empty list; no migration is required.
+    /// </summary>
+    [JsonPropertyName("elicitationQuestions")]
+    public List<ElicitationQuestion> ElicitationQuestions
+    {
+        get;
+        set;
+    } = [];
 }

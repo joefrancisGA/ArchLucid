@@ -1,5 +1,6 @@
 using ArchLucid.Capabilities.Cost;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
@@ -62,6 +63,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingsOrchestrator>(static sp =>
             (Di.IFindingsOrchestrator)sp.GetRequiredService<ArchLucid.Core.Persistence.Ports.IFindingsOrchestrator>());
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
+        services.AddSingleton<IFeasibilityVerdictValidator, FeasibilityVerdictValidator>();
+        services.AddSingleton<FeasibilityVerdictBuilder>();
         services.AddSingleton<FindingConfidenceCalculator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();
         services.AddSingleton<Di.IDecisionRuleProvider, Dr.InMemoryDecisionRuleProvider>();

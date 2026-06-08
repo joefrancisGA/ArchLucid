@@ -188,6 +188,8 @@ public sealed class EffectiveGovernanceResolver(
                 x => x.Content.Metadata,
                 (content, dict) => content.Metadata = dict);
 
+            ResolveElicitationQuestionList(result, resolvedPacks);
+
             result.Notes.Add(string.Format(GovernanceConstants.Notes.ResolvedAssignmentCount, resolvedPacks.Count));
             result.Notes.Add(string.Format(GovernanceConstants.Notes.ProducedDecisionCount, result.Decisions.Count));
             result.Notes.Add(string.Format(GovernanceConstants.Notes.DetectedConflictCount, result.Conflicts.Count));
@@ -522,6 +524,109 @@ public sealed class EffectiveGovernanceResolver(
         }
 
         setter(result.EffectiveContent, effective);
+    }
+
+    /// <summary>
+    ///     Merges <see cref="PolicyPackContentDocument.ElicitationQuestions" /> by <see cref="ElicitationQuestion.QuestionKey" />
+    ///     with the same precedence rules as other list facets.
+    /// </summary>
+    private static void ResolveElicitationQuestionList(
+        EffectiveGovernanceResolutionResult result,
+        List<ResolvedPackRow> packs)
+    {
+        List<string> allKeys = packs
+            .SelectMany(static row => row.Content.ElicitationQuestions)
+            .Select(static question => question.QuestionKey)
+            .Where(static key => !string.IsNullOrWhiteSpace(key))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        List<ElicitationQuestion> effective = [];
+
+        foreach (string key in allKeys)
+        {
+            List<GovernanceResolutionCandidate> candidates = OrderCandidates(
+                packs
+                    .Where(row => row.Content.ElicitationQuestions.Exists(question =>
+                        string.Equals(question.QuestionKey, key, StringComparison.OrdinalIgnoreCase)))
+                    .Select(row =>
+                    {
+                        ElicitationQuestion question = row.Content.ElicitationQuestions.First(q =>
+                            string.Equals(q.QuestionKey, key, StringComparison.OrdinalIgnoreCase));
+
+                        string valueJson = JsonSerializer.Serialize(question, PolicyPackJsonSerializerOptions.Default);
+
+                        return ToCandidate(row, valueJson);
+                    }));
+
+            if (candidates.Count == 0)
+                continue;
+
+            candidates[0].WasSelected = true;
+
+            ElicitationQuestion? winningQuestion = JsonSerializer.Deserialize<ElicitationQuestion>(
+                candidates[0].ValueJson,
+                PolicyPackJsonSerializerOptions.Default);
+
+            if (winningQuestion is null)
+                continue;
+
+            effective.Add(winningQuestion);
+
+            string canonicalKey = packs
+                .SelectMany(static row => row.Content.ElicitationQuestions)
+                .Select(static question => question.QuestionKey)
+                .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
+
+            result.Decisions.Add(new GovernanceResolutionDecision
+            {
+                ItemType = GovernanceConstants.ItemTypes.ElicitationQuestion,
+                ItemKey = canonicalKey,
+                WinningPolicyPackId = candidates[0].PolicyPackId,
+                WinningPolicyPackName = candidates[0].PolicyPackName,
+                WinningVersion = candidates[0].Version,
+                WinningScopeLevel = candidates[0].ScopeLevel,
+                ResolutionReason = BuildResolutionReason(candidates),
+                Candidates = candidates
+            });
+
+            if (candidates.Count > 1)
+
+                result.Conflicts.Add(new GovernanceConflictRecord
+                {
+                    ItemType = GovernanceConstants.ItemTypes.ElicitationQuestion,
+                    ItemKey = canonicalKey,
+                    ConflictType = GovernanceConstants.ConflictTypes.DuplicateDefinition,
+                    Description = string.Format(
+                        GovernanceConstants.Notes.DuplicateDefinitionKey,
+                        GovernanceConstants.ItemTypes.ElicitationQuestion),
+                    Candidates = candidates
+                });
+
+            if (candidates.Count <= 1)
+                continue;
+
+            int distinctValues = candidates
+                .Select(static candidate => candidate.ValueJson)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Count();
+
+            if (distinctValues > 1)
+
+                result.Conflicts.Add(new GovernanceConflictRecord
+                {
+                    ItemType = GovernanceConstants.ItemTypes.ElicitationQuestion,
+                    ItemKey = canonicalKey,
+                    ConflictType = GovernanceConstants.ConflictTypes.ValueConflict,
+                    Description = string.Format(
+                        GovernanceConstants.Notes.ValueConflict,
+                        GovernanceConstants.ItemTypes.ElicitationQuestion,
+                        canonicalKey),
+                    Candidates = candidates
+                });
+        }
+
+        result.EffectiveContent.ElicitationQuestions = effective;
     }
 
     /// <summary>

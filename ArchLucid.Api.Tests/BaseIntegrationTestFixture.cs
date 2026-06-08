@@ -1,6 +1,10 @@
+using ArchLucid.Core.Configuration;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests;
 
@@ -21,6 +25,7 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
         builder.UseSetting("HostLeaderElection:Enabled", "false");
         // appsettings.Advanced.json defaults BlobProvider=None; bulk evidence writes require a writable store.
         builder.UseSetting("ArtifactLargePayload:BlobProvider", "Local");
+        builder.UseSetting(EvidenceBulkUploadOptions.MaxFilesKey, "200");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
@@ -49,12 +54,18 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 // Each integration host indexes platform ADR + policy-pack corpora by default; skip in tests (CI memory/time).
                 ["Retrieval:PlatformDocs:IndexOnStartup"] = "false",
                 ["Retrieval:PolicyPackCorpus:IndexOnStartup"] = "false",
+                [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
             };
 
             AddCustomSettings(settings);
             ApiTestWebHostLogging.AddQuietDefaultLogLevel(settings);
             config.AddInMemoryCollection(settings);
         });
+
+        // Development.json caps bulk upload at 30; integration tests assert the GA limit (200).
+        builder.ConfigureTestServices(services =>
+            services.Configure<EvidenceBulkUploadOptions>(static options =>
+                options.EvidenceBulkUploadMaxFiles = 200));
     }
 
     /// <summary>

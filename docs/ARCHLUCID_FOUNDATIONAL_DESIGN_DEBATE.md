@@ -117,6 +117,28 @@ Admitting an input (agreeing to reason about it) is a far lower bar than produci
   - **Asserted-vs-inferred (R4) stays honest:** a confirmed triple is *asserted*; an unconfirmed-but-proceeded triple is *inferred* and carries lower confidence into scoring.
   - **Actors are a set, not a single triple.** Real systems have several actors (external human customer + internal ops human + machine webhook caller). ArchLucid must first infer *how many distinct actors* exist, then each one's axes. **Getting the count wrong is worse than getting an axis wrong** — a missed actor is an entire unassessed attack surface / trust boundary. So the highest-value confirmation question is often **"are there other kinds of users I'm missing?"** *before* refining any single actor's axes. Resolves **O2**.
 
+### R12 — What-if branching reuses the Compare engine; a branch is a ceteris-paribus run. [CONVERGED · 2026-06-07]
+
+- **[AI] proposal, [OWNER] ratified ("agree"):** The existing **Compare engine** (`AuthorityCompareService` / `ComparisonController`) diffs **two committed golden manifests** from **two existing runs** and emits structured deltas in exactly the sections a trade-off needs — Requirements, Topology, **Security**, **Cost**, Issues, **Assumptions**, Warnings, Decisions — plus an AI "major changes / tradeoffs" narrative. What-if branching **reuses this unchanged** rather than introducing a draft-diff primitive.
+- **A branch is a *run*, not a new compare surface:** snapshot the parent draft → **override only the invariant(s) under test** → execute → new run + golden manifest → call `Compare(baseRun, branchRun)`.
+- **Ceteris-paribus rule:** a branch inherits the parent's confirmed actors, outcome, and answered MUST questions and changes *one thing*; otherwise deltas aren't attributable and the comparison is meaningless. This makes **R5's envelope concrete** — "at 3s: feasible, cost X, these findings; at 5s: feasible, cost X−Δ, findings gone" — the Compare delta sections *are* the envelope.
+- **Three ruled constraints:**
+  1. **Gate:** a branch is comparable only once it clears the **same MUST-set / admission gate** as any run (Compare requires a committed golden manifest on both sides — no diffing half-elicited drafts).
+  2. **Cost:** each branch is a **billable, full-pipeline run** (≈ the "$1 of GPU" figure). Branching must **surface its cost and be capped**, or it breaks the "ten minutes for a dollar" promise. Hands a thread to **O3**.
+  3. **Provenance per branch (R4):** branches may differ in what was *inferred*; the existing **Assumptions-delta** section surfaces this divergence automatically.
+- **Rejected alternative:** a draft-level diff engine comparing two mutable, manifest-less intent drafts — duplicates shipped functionality and diffs state too unstable to trust. Resolves **O4**.
+
+### R13 — A reasoned "no" is the product; sell it as a seat license for a repeat professional. [CONVERGED · 2026-06-07]
+
+- **[OWNER] core thesis:** "Rejected designs are good things." A definitive, well-reasoned **"no"** is valuable — the anti-gravity-machine builder *values* being told no by something credible. This is **counter-trained**: AIs learn from data humans feed them, and humans "document their successes far more than their failures," so an AI structurally **under-values the no** and over-values the yes.
+- **[AI] extensions (converged):**
+  - **Decision-as-product.** The deliverable is the *decision*, not the design. A "no" — with R5's unsat-core + envelope and R4's transparency trail — is a complete, first-class, often more-valuable product. The analyst leaves with "ArchLucid says no, here is the law it violates, here is what would change."
+  - **Survivorship-bias moat.** Because the market and every naive LLM tool are trained on survivorship-biased data, competitors are optimized to say "yes, here's a design" (hallucinated feasibility). A *credible no* is differentiated and hard to copy — it requires the discipline (hard/soft, unsat-core, provenance) the market doesn't know to value. ArchLucid monetizes what the market **under-prices**.
+  - **"No" ships as a dignified, exportable, cost-quantified artifact** — never an error page; the receipt quantifies *avoided* cost ("ten minutes, ~$1, vs ~$25k over weeks").
+- **Pricing granularity — [OWNER] OVERRODE [AI]:** [AI] proposed *pay-per-session / per-verdict, not seats*. **[OWNER] corrected:** the typical user is **not** an anonymous one-shot dreamer but a **qualified repeat professional** — a senior developer, data-warehouse manager, or security SME with deep expertise in one dimension and general competence across others — who uses ArchLucid often and becomes the **org's hub** for design decisions. Others route problems through them, "the same way a business analyst approaches a DBA with specialized tools to work on a data model." ⇒ **Seat license for the expert operator**, not pay-per-session. (Also rejects [AI]'s per-question guardrail as moot.)
+- **Reconciliation with R6 (captured to avoid a false contradiction):** R6's "90% bounce is a win" is **per-*idea/session*, not per-*person***. The seatholder is retained by the tool's value to their job; individual ideas are freely allowed to bounce — the high rejection rate is *why* the seat is worth holding. **License the hub (expert operators), not the spokes (downstream requesters)** — same as licensing DBAs, not everyone who asks a DBA for a data model. Resolves **O3**.
+- **Persona-coherence note (reconciles R13 with R3/R7/R11 and SAQ-013) [CONVERGED · 2026-06-07]:** the Socratic intake was motivated by the *naive* user, yet the seatholder is a *qualified SME* — the opposite. These reconcile: **the Socratic loop serves the naive *requester* through the expert *operator*.** The senior dev / DBA-equivalent drives the tool; the business analyst or domain person who walks up to them supplies the raw, inarticulate intent. The elicitation machinery (R7, R11) is therefore not aimed at the seatholder — it is what lets the seatholder **absorb a vague request and convert it into a defensible yes/no.** Same hub-and-spoke shape as the pricing model.
+
 ---
 
 ## 3. Working conceptual model (current best synthesis)
@@ -155,8 +177,8 @@ Admitting an input (agreeing to reason about it) is a far lower bar than produci
 
 - **O1 — Question selection & termination.** *[Largely resolved by R7.]* Order = value-of-information ranking within the bounded set; stopping = all MUST questions for active pillars/packs answered (deterministic). LLM is a bounded selector, not a generator. **Remaining sub-question:** the precise VoI ranking function (deterministic policy) and when the LLM is allowed to break ties / handle novelty within L2.
 - **O2 — Where exactly is the actor descriptor confirmed?** *[Resolved → R11.]* Infer-then-confirm a *set* of actor triples; the count of distinct actors is inferred first, and "are there other users I'm missing?" is the highest-value confirmation.
-- **O3 — Monetization consequence of "90% bounce is a win."** If success = a defensible "no" rather than retention, the commercial model likely cannot depend on seats/expansion; it points toward **pay-per-session / pay-per-verdict**. Does the owner accept that the philosophy reshapes pricing? *(Cross-cuts `(B)` procurement realism; not an `(A)` scoring item.)*
-- **O4 — What-if branching.** The conference-room persona implies mid-session scenario forking ("what if we relax 3s → 5s?"). Should the mutable draft support branching that reuses the existing **Compare two runs** engine?
+- **O3 — Monetization consequence of "90% bounce is a win."** *[Resolved → R13.]* The reasoned "no" is the product (decision-as-product + survivorship-bias moat); pricing is a **seat license for the repeat expert operator** (hub-and-spoke), not pay-per-session. R6's bounce is per-idea, not per-person.
+- **O4 — What-if branching.** *[Resolved → R12.]* A what-if is a ceteris-paribus run spawned from a parent-draft snapshot; comparison reuses the existing Compare engine unchanged; branches must clear the MUST-gate and are explicit, capped, billable runs.
 - **O5 — Ratify R5 (hard/soft infeasibility) and the R4 transparency conditional.** *[Resolved → R5 + R4.]* Owner ratified both: hard requires a provable contradiction/law (else soft); the asserted/inferred/skipped transparency trail is a mandatory output.
 - **O6 — Promotion-gate integrity & question bias.** *[Resolved → R9.]* Human-in-the-loop approval is mandatory but lives **outside** the ArchLucid runtime; the system provides only versioned, non-silent, auditable promotion.
 - **O7 — Cross-tenant learning wall ratification.** *[Resolved → R10.]* k-anonymized aggregates + curated platform packs only; raw cross-tenant Q&A reuse forbidden (ADR 0031).
@@ -165,6 +187,20 @@ Admitting an input (agreeing to reason about it) is a far lower bar than produci
 ---
 
 ## 5. Cross-references
+
+### Resolved positions → ADRs (Proposed, 2026-06-07)
+
+The hardened positions were promoted to ADRs under `docs/architecture/adrs/` (all **Status: Proposed**):
+
+| Position(s) | ADR |
+| --- | --- |
+| R3, R7, R11 (intake/draft lifecycle) | [0048 — Socratic intake: mutable draft-request lifecycle](architecture/adrs/0048-socratic-intake-mutable-draft-lifecycle.md) |
+| R1, R11 (actor model) | [0049 — Actor descriptor model](architecture/adrs/0049-actor-descriptor-model.md) |
+| R4, R5, R6 (feasibility + transparency) | [0050 — Feasibility classification + transparency trail](architecture/adrs/0050-feasibility-classification-transparency-trail.md) |
+| R7–R10 (question engine) | [0051 — Question selection engine](architecture/adrs/0051-question-selection-engine.md) |
+| R6, R13 (monetization) | [0052 — Monetization posture: decision-as-product](architecture/adrs/0052-monetization-posture-decision-as-product.md) |
+
+*This debate doc remains the living rationale; the ADRs are the binding extracts. O1-remainder (the VoI ranking function) is explicitly carried as OPEN in ADR 0051.*
 
 - **`docs/library/SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`** — **SAQ-013** (Socratic intake gap; the three fundamental additions: pre-run reasoning surface, mutable draft lifecycle, semantic admission gate).
 - **`docs/library/V1_SCOPE.md`** — current shipped contract (single-shot `POST /v1/architecture/request`; `AskService` is post-hoc / manifest-anchored).
@@ -183,3 +219,7 @@ Admitting an input (agreeing to reason about it) is a far lower bar than produci
 | 2026-06-07 | Owner + AI (Opus) | Owner rulings resolved O6/O7/O8 → **R8** (packs own their questions), **R9** (human-in-the-loop promotion is mandatory but out of scope for the ArchLucid runtime; system provides only the versioned/auditable mechanism), **R10** (learning flows through k-anonymized aggregates + curated platform packs only). |
 | 2026-06-07 | Owner + AI (Opus) | Owner ratified **R11** (actor descriptor is inferred-then-confirmed as a *set* of triples; actor count inferred first; "are there other users I'm missing?" is the highest-value confirmation). Resolves O2. |
 | 2026-06-07 | Owner + AI (Opus) | Owner ratified **R5** (classify HARD only on a provable contradiction/law; uncertain ⇒ SOFT, per the false-hard-is-worse asymmetry) and the **R4 transparency conditional** (asserted/inferred/skipped trail is a mandatory output that earns the liability stance). Resolves O5. |
+| 2026-06-07 | Owner + AI (Opus) | Owner ratified **R12** (what-if branching reuses the Compare engine unchanged; a branch is a ceteris-paribus run from a parent-draft snapshot, must clear the MUST-gate, and is an explicit/capped/billable run). Resolves O4. |
+| 2026-06-07 | Owner + AI (Opus) | **R13** — owner thesis: a reasoned "no" is a valuable first-class product (AIs under-value it via survivorship bias). AI extensions converged: decision-as-product, survivorship-bias moat, "no" as cost-quantified artifact. **Owner overrode AI's per-session proposal → seat license for the repeat expert operator (hub-and-spoke; DBA-with-specialized-tools persona).** Reconciled with R6 (bounce is per-idea, not per-person). Resolves O3. |
+| 2026-06-07 | Owner + AI (Opus) | Promoted hardened positions to **ADRs 0048–0052** (Status: Proposed): 0048 draft lifecycle (R3/R7/R11), 0049 actor model (R1/R11), 0050 feasibility + transparency trail (R4/R5/R6), 0051 question engine (R7–R10), 0052 monetization (R6/R13). O1-remainder carried as OPEN in ADR 0051. See §5 mapping. |
+| 2026-06-08 | Owner + AI | **ADRs 0048–0052 → Accepted** after implementation: draft aggregate + lifecycle (Phase 2), actor/trail/question contracts (Phase 1), and deterministic L0/L1 question selection with pack-owned questions merged through effective governance (Phase 3). **L2 LLM selector + VoI ranking remain OPEN** (O1-remainder) and are blocked until golden-cohort calibration data exists. |

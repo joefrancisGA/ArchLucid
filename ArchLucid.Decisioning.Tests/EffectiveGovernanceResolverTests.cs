@@ -743,4 +743,113 @@ public sealed class EffectiveGovernanceResolverTests
             c.ConflictType == "DuplicateDefinition"
             && string.Equals(c.ItemKey, "RULE-A", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public async Task Project_scope_wins_for_same_elicitation_question_key()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        Guid tenantPackId = Guid.NewGuid();
+        Guid projectPackId = Guid.NewGuid();
+
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = tenantPackId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "Tenant baseline",
+                Description = "",
+                PackType = PolicyPackType.TenantCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = projectPackId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "Project override",
+                Description = "",
+                PackType = PolicyPackType.ProjectCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = tenantPackId,
+                Version = "1.0.0",
+                ContentJson =
+                    """{"complianceRuleIds":[],"complianceRuleKeys":["rule-a"],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"elicitationQuestions":[{"questionKey":"logging","prompt":"Tenant logging?","tier":"Must","answerKind":"Text","ruleKeys":["rule-a"]}]}""",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = projectPackId,
+                Version = "1.0.0",
+                ContentJson =
+                    """{"complianceRuleIds":[],"complianceRuleKeys":["rule-a"],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{},"elicitationQuestions":[{"questionKey":"logging","prompt":"Project logging?","tier":"Must","answerKind":"Text","ruleKeys":["rule-a"]}]}""",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                PolicyPackId = tenantPackId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Tenant,
+                AssignedUtc = TimeProvider.System.UtcNowDateTime().AddMinutes(-1),
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                PolicyPackId = projectPackId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Project,
+                AssignedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+
+        EffectiveGovernanceResolutionResult result =
+            await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+
+        result.EffectiveContent.ElicitationQuestions.Should().ContainSingle();
+        result.EffectiveContent.ElicitationQuestions[0].Prompt.Should().Be("Project logging?");
+        result.Decisions.Should().Contain(d =>
+            d.ItemType == GovernanceConstants.ItemTypes.ElicitationQuestion
+            && d.ItemKey == "logging"
+            && d.WinningPolicyPackId == projectPackId);
+    }
 }

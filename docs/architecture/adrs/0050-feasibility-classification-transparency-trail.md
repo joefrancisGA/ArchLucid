@@ -4,8 +4,8 @@
 
 # ADR 0050: Feasibility classification + mandatory transparency trail
 
-**Status:** Proposed
-**Date:** 2026-06-07
+**Status:** Accepted
+**Date:** 2026-06-07 (Accepted 2026-06-08)
 **Deciders:** Owner + Architecture review
 **Related:** [ADR 0035](0035-architecture-invariant-catalog.md) (invariant catalog), [ADR 0048](0048-socratic-intake-mutable-draft-lifecycle.md), [ADR 0049](0049-actor-descriptor-model.md), `docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` (R4, R5, R6), TB-034 (provenance), SAQ-011 (claim labeling)
 

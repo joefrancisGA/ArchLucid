@@ -4,8 +4,8 @@
 
 # ADR 0049: Actor descriptor model — inferred-then-confirmed set of `(kind × trust-origin × contract)` triples
 
-**Status:** Proposed
-**Date:** 2026-06-07
+**Status:** Accepted
+**Date:** 2026-06-07 (Accepted 2026-06-08)
 **Deciders:** Owner + Architecture review
 **Related:** [ADR 0048](0048-socratic-intake-mutable-draft-lifecycle.md), [ADR 0050](0050-feasibility-classification-transparency-trail.md), [ADR 0051](0051-question-selection-engine.md), `docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md` (R1, R11)
 

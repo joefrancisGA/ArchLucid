@@ -9,6 +9,12 @@ public sealed class EvidenceBulkUploadOptions
     public const string MaxFilesKey = SectionName + ":EvidenceBulkUploadMaxFiles";
 
     /// <summary>
+    /// ASP.NET <c>RequestFormLimits.ValueCountLimit</c> for bulk upload (files plus optional
+    /// <c>paginationToken</c>); must exceed <see cref="EvidenceBulkUploadMaxFiles" />.
+    /// </summary>
+    public const int FormValueCountLimit = 256;
+
+    /// <summary>
     /// Maximum allowed number of files in a bulk evidence upload.
     /// ZIP archives count as one file each; the server expands them up to 1 000 entries.
     /// </summary>

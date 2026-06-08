@@ -45,6 +45,27 @@ public static class AuditEventTypes
     /// <summary>Architecture request draft or import persisted (namespaced <c>Request.*</c> durable type).</summary>
     public const string RequestCreated = "Request.Created";
 
+    /// <summary>Socratic intake draft created (<c>POST /v1/architecture/draft</c>, ADR 0048).</summary>
+    public const string DraftIntakeCreated = "DraftIntake.Created";
+
+    /// <summary>Operator patched a drafting intake draft (<c>PATCH /v1/architecture/draft/{draftId}</c>).</summary>
+    public const string DraftIntakePatched = "DraftIntake.Patched";
+
+    /// <summary>Operator answered an elicitation question on a Socratic intake draft.</summary>
+    public const string DraftIntakeQuestionAnswered = "DraftIntake.QuestionAnswered";
+
+    /// <summary>Operator explicitly skipped an elicitation question (recorded in the transparency trail).</summary>
+    public const string DraftIntakeQuestionSkipped = "DraftIntake.QuestionSkipped";
+
+    /// <summary>Admission gate evaluated an intake draft (admitted or redirected-not-refused).</summary>
+    public const string DraftIntakeAdmissionEvaluated = "DraftIntake.AdmissionEvaluated";
+
+    /// <summary>Admitted intake draft submitted to canonical architecture run create.</summary>
+    public const string DraftIntakeSubmitted = "DraftIntake.Submitted";
+
+    /// <summary>Intake draft abandoned by operator.</summary>
+    public const string DraftIntakeAbandoned = "DraftIntake.Abandoned";
+
     /// <summary>Request locked because a non-terminal run references it.</summary>
     public const string RequestLocked = "Request.Locked";
 

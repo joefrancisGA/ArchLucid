@@ -8687,6 +8687,36 @@ BEGIN
 END;
 GO
 
+/* Migration 251 parity: mutable Socratic intake drafts (ADR 0048). */
+IF OBJECT_ID(N'dbo.DraftRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.DraftRequests
+    (
+        DraftId          UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_DraftRequests PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ProjectId        UNIQUEIDENTIFIER NOT NULL,
+        CreatedByUserId  NVARCHAR(256)    NOT NULL,
+        Status           NVARCHAR(32)     NOT NULL,
+        DocumentJson     NVARCHAR(MAX)    NOT NULL,
+        RedirectReason   NVARCHAR(MAX)    NULL,
+        SpawnedRunId     NVARCHAR(64)     NULL,
+        CreatedUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_DraftRequests_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc       DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_DraftRequests_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_DraftRequests_DocumentJson CHECK (ISJSON(DocumentJson) = 1),
+        CONSTRAINT CK_DraftRequests_Status CHECK (Status IN (
+            N'Drafting', N'Admitted', N'Submitted', N'RunSpawned', N'Redirected', N'Abandoned')),
+        CONSTRAINT FK_DraftRequests_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE INDEX IX_DraftRequests_Scope_Status_UpdatedUtc
+        ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, Status, UpdatedUtc DESC);
+END;
+GO
+
 DECLARE @SealedTables247 TABLE (TableName SYSNAME NOT NULL PRIMARY KEY);
 INSERT INTO @SealedTables247 (TableName)
 VALUES

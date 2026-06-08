@@ -41,6 +41,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Application.Search;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Runs;
@@ -199,6 +201,10 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IEvidencePackageInjectionMitigator, EvidencePackageInjectionMitigator>();
         services.Configure<SupportBundleOptions>(configuration.GetSection(SupportBundleOptions.SectionPath));
         services.AddSingleton<IRunStateTransitionService, RunStateTransitionService>();
+        services.AddScoped<IDraftAdmissionGate, DraftAdmissionGate>();
+        services.AddScoped<IQuestionSelectionEngine, QuestionSelectionEngine>();
+        services.AddScoped<IDraftRequestProjector, DraftRequestProjector>();
+        services.AddScoped<IDraftRequestService, DraftRequestService>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector

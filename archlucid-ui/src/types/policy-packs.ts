@@ -64,6 +64,31 @@ export type PolicyPackContentDocument = {
   compositeAlertRuleIds: string[];
   advisoryDefaults: Record<string, string>;
   metadata: Record<string, string>;
+  /** Elicitation questions owned by this pack (ADR 0051 / R8). Optional — absent on legacy packs. */
+  elicitationQuestions?: ElicitationQuestion[];
+};
+
+/** Whether an elicitation question must be answered before submission or only improves confidence. */
+export type ElicitationQuestionTier = "Must" | "Should";
+
+/** The expected data type for the user's answer to an elicitation question. */
+export type ElicitationAnswerKind = "Text" | "Bool" | "Number" | "Enum";
+
+/** A single elicitation question owned by a policy pack (ADR 0051 / R8). */
+export type ElicitationQuestion = {
+  /** Stable, unique key within the pack (e.g. "network-encryption-at-rest"). Max 200 chars. */
+  questionKey: string;
+  /** Human-readable question text shown in the Socratic intake loop. Max 1 000 chars. */
+  prompt: string;
+  /** Must = blocks submission; Should = improves confidence only. */
+  tier: ElicitationQuestionTier;
+  /** Expected answer data type. */
+  answerKind: ElicitationAnswerKind;
+  /**
+   * complianceRuleKeys in the same pack that this question informs.
+   * Every entry must match a key in the owning pack's complianceRuleKeys.
+   */
+  ruleKeys: string[];
 };
 
 /** Promoted platform catalog row (`GET /v1/policy-packs/catalog`). */

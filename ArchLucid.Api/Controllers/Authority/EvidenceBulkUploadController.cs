@@ -46,7 +46,7 @@ public sealed class EvidenceBulkUploadController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     [RequestSizeLimit(100 * 1024 * 1024)] // 100MB batch limit
-    [RequestFormLimits(ValueCountLimit = 128)]
+    [RequestFormLimits(ValueCountLimit = EvidenceBulkUploadOptions.FormValueCountLimit)]
     public async Task<IActionResult> UploadBulkEvidenceAsync(
         Guid runId,
         CancellationToken cancellationToken)

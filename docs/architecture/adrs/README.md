@@ -52,6 +52,11 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0045](0045-committed-run-header-immutability.md) | Committed run header evidence-anchor immutability — `TR_Runs_SealCommittedHeader` on anchor columns when `GoldenManifestId` is set (**Status: Accepted**) |
 | [0046](0046-committed-run-header-fk-repoint-detection.md) | Committed run header FK repoint detection — dangling/cross-run child links on evidence pointers (**Status: Accepted**) |
 | [0047](0047-tenant-scoped-query-roslyn-guard.md) | Tenant-scoped persistence SQL Roslyn guard (ARCH006) — compile-time scope binding without RLS (**Status: Accepted**) |
+| [0048](0048-socratic-intake-mutable-draft-lifecycle.md) | Socratic intake — mutable **draft-request lifecycle** in front of the single-shot run create (**Status: Accepted**; debate R3/R7/R11, SAQ-013) |
+| [0049](0049-actor-descriptor-model.md) | Actor descriptor model — inferred-then-confirmed **set** of `(kind × trust-origin × contract)` triples (**Status: Accepted**; debate R1/R11) |
+| [0050](0050-feasibility-classification-transparency-trail.md) | Feasibility classification (hard vs soft; hard is citation-gated) + **mandatory transparency trail** (**Status: Accepted**; debate R4/R5/R6) |
+| [0051](0051-question-selection-engine.md) | Question selection engine — deterministic-first, LLM as **bounded selector**, packs own questions, k-anon learning (**Status: Accepted**; L0/L1 shipped, L2/VoI OPEN per O1-remainder; debate R7–R10) |
+| [0052](0052-monetization-posture-decision-as-product.md) | Monetization posture — **decision-as-product**, seat license for the expert operator (**Status: Accepted**; debate R6/R13) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

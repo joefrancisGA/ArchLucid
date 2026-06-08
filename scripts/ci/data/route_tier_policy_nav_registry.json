@@ -552,6 +552,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Architecture/DraftRequestsController.cs",
+      "class_name": "DraftRequestsController",
+      "route_template": "v{version:apiVersion}/architecture/draft",
+      "normalized_prefix": "/v1/architecture/draft",
+      "commercial_tier": "standard",
+      "class_policy": "AuthenticatedUserOnly",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Auth/TrialLocalIdentityAuthController.cs",
       "class_name": "TrialLocalIdentityAuthController",
       "route_template": "v{version:apiVersion}/auth/trial/local",

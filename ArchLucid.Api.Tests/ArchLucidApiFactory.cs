@@ -90,7 +90,6 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
         settings["ArchLucid:StorageProvider"] = _storageProvider;
         settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
-        settings["ArchLucid:EvidenceBulkUploadMaxFiles"] = "200";
     }
 
     /// <inheritdoc />

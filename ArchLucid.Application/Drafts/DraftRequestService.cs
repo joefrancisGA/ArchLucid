@@ -1,0 +1,547 @@
+using ArchLucid.Application;
+using ArchLucid.Application.Drafts.QuestionSelection;
+using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Drafts;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Feasibility;
+using ArchLucid.Persistence.Data.Repositories;
+
+namespace ArchLucid.Application.Drafts;
+
+/// <inheritdoc cref="IDraftRequestService" />
+public sealed class DraftRequestService(
+    IDraftRequestRepository draftRepository,
+    IDraftAdmissionGate admissionGate,
+    IQuestionSelectionEngine questionSelectionEngine,
+    IDraftRequestProjector projector,
+    IArchitectureRunCreateOrchestrator runCreateOrchestrator,
+    IRequestContentSafetyPrecheck contentSafetyPrecheck,
+    FeasibilityVerdictBuilder feasibilityVerdictBuilder) : IDraftRequestService
+{
+    private readonly IDraftAdmissionGate _admissionGate =
+        admissionGate ?? throw new ArgumentNullException(nameof(admissionGate));
+
+    private readonly IDraftRequestRepository _draftRepository =
+        draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
+
+    private readonly IRequestContentSafetyPrecheck _contentSafetyPrecheck =
+        contentSafetyPrecheck ?? throw new ArgumentNullException(nameof(contentSafetyPrecheck));
+
+    private readonly IQuestionSelectionEngine _questionSelectionEngine =
+        questionSelectionEngine ?? throw new ArgumentNullException(nameof(questionSelectionEngine));
+
+    private readonly IDraftRequestProjector _projector =
+        projector ?? throw new ArgumentNullException(nameof(projector));
+
+    private readonly IArchitectureRunCreateOrchestrator _runCreateOrchestrator =
+        runCreateOrchestrator ?? throw new ArgumentNullException(nameof(runCreateOrchestrator));
+
+    private readonly FeasibilityVerdictBuilder _feasibilityVerdictBuilder =
+        feasibilityVerdictBuilder ?? throw new ArgumentNullException(nameof(feasibilityVerdictBuilder));
+
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse> CreateAsync(
+        ScopeContext scope,
+        string actorUserId,
+        CreateDraftRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
+
+        string intent = request.FreeTextIntent.Trim();
+
+        if (intent.Length < 10)
+            throw new InvalidOperationException("FreeTextIntent must be at least 10 characters after trim.");
+
+        DraftRequestDocument document = new() { FreeTextIntent = intent };
+
+        return await _draftRepository.CreateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            actorUserId,
+            document,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<DraftRequestResponse?> GetAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return _draftRepository.GetAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> PatchAsync(
+        ScopeContext scope,
+        Guid draftId,
+        PatchDraftRequest patch,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(patch);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.IsMutable(existing.Status))
+            throw new InvalidOperationException($"Draft '{draftId}' is not mutable in status '{existing.Status}'.");
+
+        ApplyPatch(existing.Document, patch);
+        SyncTransparencyFromDocument(existing.Document);
+
+        return await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            existing.Status,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> AnswerQuestionAsync(
+        ScopeContext scope,
+        Guid draftId,
+        AnswerDraftQuestionRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (string.IsNullOrWhiteSpace(request.QuestionKey))
+            throw new InvalidOperationException("QuestionKey is required.");
+
+        if (string.IsNullOrWhiteSpace(request.Answer))
+            throw new InvalidOperationException("Answer is required.");
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsQuestionAnswers(existing.Status))
+            throw new InvalidOperationException(
+                $"Draft '{draftId}' does not accept answers in status '{existing.Status}'.");
+
+        existing.Document.QuestionAnswers[request.QuestionKey.Trim()] = request.Answer.Trim();
+        RemoveSkippedQuestion(existing.Document, request.QuestionKey.Trim());
+        RecordAssertedAnswer(existing.Document, request.QuestionKey.Trim(), request.Answer.Trim());
+
+        return await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            existing.Status,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> SkipQuestionAsync(
+        ScopeContext scope,
+        Guid draftId,
+        SkipDraftQuestionRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (string.IsNullOrWhiteSpace(request.QuestionKey))
+            throw new InvalidOperationException("QuestionKey is required.");
+
+        string questionKey = request.QuestionKey.Trim();
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsQuestionAnswers(existing.Status))
+            throw new InvalidOperationException(
+                $"Draft '{draftId}' does not accept skips in status '{existing.Status}'.");
+
+        QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            existing.Document,
+            cancellationToken);
+
+        DraftElicitationQuestion? question = selection.AllQuestions
+            .FirstOrDefault(candidate =>
+                string.Equals(candidate.QuestionKey, questionKey, StringComparison.OrdinalIgnoreCase));
+
+        if (question is null)
+            throw new InvalidOperationException($"Question '{questionKey}' is not part of the current selection.");
+
+        existing.Document.QuestionAnswers.Remove(questionKey);
+        UpsertSkipped(existing.Document, questionKey, question.Tier);
+
+        return await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            existing.Status,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftAdmissionResponse?> RequestAdmissionAsync(
+        ScopeContext scope,
+        Guid draftId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsAdmission(existing.Status))
+            throw new InvalidOperationException(
+                $"Draft '{draftId}' cannot request admission from status '{existing.Status}'.");
+
+        ArchitectureRequest safetyProbe = _projector.Project(existing.Document, draftId);
+        RequestContentSafetyResult safety =
+            await _contentSafetyPrecheck.EvaluateAsync(safetyProbe, cancellationToken);
+
+        if (!safety.IsAllowed)
+        {
+            string reason = string.Join("; ", safety.Reasons);
+
+            DraftRequestResponse? redirected = await _draftRepository.UpdateAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                draftId,
+                DraftRequestStatus.Redirected,
+                existing.Document,
+                reason,
+                existing.SpawnedRunId,
+                cancellationToken);
+
+            return BuildAdmissionResponse(redirected!, admitted: false, reason);
+        }
+
+        DraftAdmissionEvaluation evaluation = _admissionGate.Evaluate(existing.Document);
+
+        if (!evaluation.Admitted)
+        {
+            DraftRequestResponse? redirected = await _draftRepository.UpdateAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                draftId,
+                DraftRequestStatus.Redirected,
+                existing.Document,
+                evaluation.RedirectReason,
+                existing.SpawnedRunId,
+                cancellationToken);
+
+            return BuildAdmissionResponse(redirected!, admitted: false, evaluation.RedirectReason);
+        }
+
+        QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            existing.Document,
+            cancellationToken);
+
+        existing.Document.RequiredMustQuestionKeys = selection.RequiredMustQuestionKeys.ToList();
+
+        DraftRequestResponse? admitted = await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftRequestStatus.Admitted,
+            existing.Document,
+            redirectReason: null,
+            existing.SpawnedRunId,
+            cancellationToken);
+
+        return BuildAdmissionResponse(admitted!, admitted: true, redirectReason: null, selection);
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftQuestionsResponse?> GetQuestionsAsync(
+        ScopeContext scope,
+        Guid draftId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsQuestionAnswers(existing.Status))
+        {
+            throw new InvalidOperationException(
+                $"Draft '{draftId}' does not expose questions in status '{existing.Status}'.");
+        }
+
+        QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            existing.Document,
+            cancellationToken);
+
+        return new DraftQuestionsResponse
+        {
+            DraftId = draftId,
+            Status = existing.Status,
+            Selection = selection,
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<SubmitDraftResponse?> SubmitAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsSubmit(existing.Status))
+            throw new InvalidOperationException($"Draft '{draftId}' cannot be submitted from status '{existing.Status}'.");
+
+        EnsureMustQuestionsAnswered(existing.Document);
+
+        ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
+
+        await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftRequestStatus.Submitted,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+
+        CreateRunResult createResult =
+            await _runCreateOrchestrator.CreateRunAsync(architectureRequest, idempotency: null, cancellationToken);
+
+        DraftRequestResponse? spawned = await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftRequestStatus.RunSpawned,
+            existing.Document,
+            existing.RedirectReason,
+            createResult.Run.RunId,
+            cancellationToken);
+
+        return new SubmitDraftResponse
+        {
+            DraftId = draftId,
+            Status = spawned!.Status,
+            RunId = createResult.Run.RunId,
+            RequestId = architectureRequest.RequestId,
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> AbandonAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsAbandon(existing.Status))
+            throw new InvalidOperationException($"Draft '{draftId}' cannot be abandoned from status '{existing.Status}'.");
+
+        return await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftRequestStatus.Abandoned,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+    }
+
+    private static void ApplyPatch(DraftRequestDocument document, PatchDraftRequest patch)
+    {
+        if (patch.FreeTextIntent is not null)
+        {
+            string intent = patch.FreeTextIntent.Trim();
+
+            if (intent.Length < 10)
+                throw new InvalidOperationException("FreeTextIntent must be at least 10 characters after trim.");
+
+            document.FreeTextIntent = intent;
+        }
+
+        if (patch.SystemName is not null)
+            document.SystemName = patch.SystemName.Trim();
+
+        if (patch.BusinessOutcome is not null)
+            document.BusinessOutcome = patch.BusinessOutcome.Trim();
+
+        if (patch.ActorSet is not null)
+            document.ActorSet = patch.ActorSet;
+    }
+
+    private static void SyncTransparencyFromDocument(DraftRequestDocument document)
+    {
+        if (!string.IsNullOrWhiteSpace(document.BusinessOutcome))
+        {
+            UpsertAsserted(document.TransparencyTrail, "businessOutcome", document.BusinessOutcome.Trim());
+        }
+
+        foreach (ActorDescriptor actor in document.ActorSet.Actors)
+        {
+            string key = string.IsNullOrWhiteSpace(actor.Label)
+                ? $"actor.{actor.Kind}.{actor.TrustOrigin}.{actor.Contract}"
+                : $"actor.{actor.Label}";
+
+            if (actor.Origin == ActorOrigin.Asserted)
+            {
+                UpsertAsserted(
+                    document.TransparencyTrail,
+                    key,
+                    $"{actor.Kind}/{actor.TrustOrigin}/{actor.Contract}");
+            }
+            else
+            {
+                UpsertInferred(
+                    document.TransparencyTrail,
+                    key,
+                    $"{actor.Kind}/{actor.TrustOrigin}/{actor.Contract}",
+                    actor.Confidence);
+            }
+        }
+    }
+
+    private static void EnsureMustQuestionsAnswered(DraftRequestDocument document)
+    {
+        foreach (string mustKey in document.RequiredMustQuestionKeys)
+        {
+            if (!document.QuestionAnswers.TryGetValue(mustKey, out string? answer) || string.IsNullOrWhiteSpace(answer))
+            {
+                throw new InvalidOperationException(
+                    $"MUST question '{mustKey}' must be answered before submit.");
+            }
+        }
+    }
+
+    private static void RemoveSkippedQuestion(DraftRequestDocument document, string questionKey)
+    {
+        document.TransparencyTrail.Skipped.RemoveAll(entry =>
+            string.Equals(entry.QuestionKey, questionKey, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static void UpsertSkipped(DraftRequestDocument document, string questionKey, ElicitationQuestionTier tier)
+    {
+        SkippedQuestionTrailEntry? existing = document.TransparencyTrail.Skipped.Find(entry =>
+            string.Equals(entry.QuestionKey, questionKey, StringComparison.OrdinalIgnoreCase));
+
+        if (existing is null)
+        {
+            document.TransparencyTrail.Skipped.Add(
+                new SkippedQuestionTrailEntry { QuestionKey = questionKey, Tier = tier });
+
+            return;
+        }
+
+        existing.Tier = tier;
+    }
+
+    private static void RecordAssertedAnswer(DraftRequestDocument document, string questionKey, string answer)
+    {
+        UpsertAsserted(document.TransparencyTrail, $"answer.{questionKey}", answer);
+    }
+
+    private static void UpsertAsserted(TransparencyTrail trail, string key, string value)
+    {
+        AssertedTrailEntry? existing = trail.Asserted.Find(entry =>
+            string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase));
+
+        if (existing is null)
+        {
+            trail.Asserted.Add(new AssertedTrailEntry { Key = key, Value = value });
+
+            return;
+        }
+
+        existing.Value = value;
+    }
+
+    private static void UpsertInferred(TransparencyTrail trail, string key, string value, int confidence)
+    {
+        InferredTrailEntry? existing = trail.Inferred.Find(entry =>
+            string.Equals(entry.Key, key, StringComparison.OrdinalIgnoreCase));
+
+        if (existing is null)
+        {
+            trail.Inferred.Add(new InferredTrailEntry { Key = key, Value = value, Confidence = confidence });
+
+            return;
+        }
+
+        existing.Value = value;
+        existing.Confidence = confidence;
+    }
+
+    private DraftAdmissionResponse BuildAdmissionResponse(
+        DraftRequestResponse draft,
+        bool admitted,
+        string? redirectReason,
+        QuestionSelectionResult? selection = null)
+    {
+        FeasibilityVerdict verdict = admitted
+            ? _feasibilityVerdictBuilder.Feasible(
+                "Draft contains sufficient designable intent for admission.",
+                draft.Document.TransparencyTrail)
+            : _feasibilityVerdictBuilder.FromIntakeRedirect(
+                redirectReason ?? "Draft redirected.",
+                draft.Document.TransparencyTrail,
+                "Draft does not yet meet minimum designable-intent requirements.");
+
+        return new DraftAdmissionResponse
+        {
+            Admitted = admitted,
+            Status = draft.Status,
+            RedirectReason = redirectReason,
+            Draft = draft,
+            PendingMustQuestions = selection?.PendingMustQuestions ?? [],
+            RequiredMustQuestionKeys = selection?.RequiredMustQuestionKeys
+                ?? draft.Document.RequiredMustQuestionKeys,
+            Verdict = verdict,
+        };
+    }
+}
