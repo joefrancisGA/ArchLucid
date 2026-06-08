@@ -22,6 +22,19 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     {
     }
 
+    /// <summary>No-op for in-memory; SQL Server ensures FK parent <c>PolicyPacks</c> row exists.</summary>
+    protected virtual Task EnsurePolicyPackRowAsync(Guid policyPackId, Guid tenantId, CancellationToken cancellationToken) =>
+        Task.CompletedTask;
+
+    private async Task AppendEntryAsync(
+        IPolicyPackChangeLogRepository repo,
+        PolicyPackChangeLogEntry entry,
+        CancellationToken cancellationToken)
+    {
+        await EnsurePolicyPackRowAsync(entry.PolicyPackId, entry.TenantId, cancellationToken);
+        await repo.AppendAsync(entry, cancellationToken);
+    }
+
     private static PolicyPackChangeLogEntry CreateEntry(
         Guid policyPackId,
         Guid tenantId,
@@ -50,7 +63,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         IPolicyPackChangeLogRepository repo = CreateRepository();
         Guid packId = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1");
 
-        await repo.AppendAsync(CreateEntry(packId, TenantA, "first"), CancellationToken.None);
+        await AppendEntryAsync(repo, CreateEntry(packId, TenantA, "first"), CancellationToken.None);
 
         IReadOnlyList<PolicyPackChangeLogEntry> list =
             await repo.GetByPolicyPackIdAsync(packId, 50, CancellationToken.None);
@@ -68,9 +81,9 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         DateTime t1 = t0.AddHours(1);
         DateTime t2 = t0.AddHours(2);
 
-        await repo.AppendAsync(CreateEntry(packId, TenantA, "old", t0), CancellationToken.None);
-        await repo.AppendAsync(CreateEntry(packId, TenantA, "mid", t1), CancellationToken.None);
-        await repo.AppendAsync(CreateEntry(packId, TenantA, "new", t2), CancellationToken.None);
+        await AppendEntryAsync(repo, CreateEntry(packId, TenantA, "old", t0), CancellationToken.None);
+        await AppendEntryAsync(repo, CreateEntry(packId, TenantA, "mid", t1), CancellationToken.None);
+        await AppendEntryAsync(repo, CreateEntry(packId, TenantA, "new", t2), CancellationToken.None);
 
         IReadOnlyList<PolicyPackChangeLogEntry> list =
             await repo.GetByPolicyPackIdAsync(packId, 50, CancellationToken.None);
@@ -89,8 +102,8 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         Guid packA = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid packB = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-        await repo.AppendAsync(CreateEntry(packA, TenantA, "tenant-a"), CancellationToken.None);
-        await repo.AppendAsync(CreateEntry(packB, TenantB, "tenant-b"), CancellationToken.None);
+        await AppendEntryAsync(repo, CreateEntry(packA, TenantA, "tenant-a"), CancellationToken.None);
+        await AppendEntryAsync(repo, CreateEntry(packB, TenantB, "tenant-b"), CancellationToken.None);
 
         IReadOnlyList<PolicyPackChangeLogEntry> forA =
             await repo.GetByTenantAsync(TenantA, 100, CancellationToken.None);
@@ -109,7 +122,8 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
 
         for (int i = 0; i < SeededChangeLogRowsForMaxRowsContractTest; i++)
         {
-            await repo.AppendAsync(
+            await AppendEntryAsync(
+                repo,
                 CreateEntry(packId, TenantA, $"row-{i}", t0.AddMinutes(i)),
                 CancellationToken.None);
         }
@@ -131,16 +145,20 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         DateTime from = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime to = new(2026, 6, 2, 0, 0, 0, DateTimeKind.Utc);
 
-        await repo.AppendAsync(
+        await AppendEntryAsync(
+            repo,
             CreateEntry(packId, TenantA, "before", from.AddHours(-1)),
             CancellationToken.None);
-        await repo.AppendAsync(
+        await AppendEntryAsync(
+            repo,
             CreateEntry(packId, TenantA, "in1", from.AddHours(1)),
             CancellationToken.None);
-        await repo.AppendAsync(
+        await AppendEntryAsync(
+            repo,
             CreateEntry(packId, TenantA, "in2", from.AddHours(2)),
             CancellationToken.None);
-        await repo.AppendAsync(
+        await AppendEntryAsync(
+            repo,
             CreateEntry(packId, TenantA, "after", to),
             CancellationToken.None);
 

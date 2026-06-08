@@ -45,7 +45,13 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                         cancellationToken: cancellationToken))
             ;
 
-        return row is null ? null : new ArchitectureRunIdempotencyLookup { RunId = row.RunId, RequestFingerprint = row.RequestFingerprint ?? [] };
+        return row is null
+            ? null
+            : new ArchitectureRunIdempotencyLookup
+            {
+                RunId = row.RunId.ToString("N"),
+                RequestFingerprint = row.RequestFingerprint ?? []
+            };
     }
 
     /// <inheritdoc />
@@ -125,11 +131,11 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
 
     private sealed class ArchitectureRunIdempotencyRow
     {
-        public string RunId
+        public Guid RunId
         {
             get;
             init;
-        } = string.Empty;
+        }
 
         public byte[]? RequestFingerprint
         {

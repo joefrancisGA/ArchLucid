@@ -505,6 +505,9 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             new
             {
                 RunId = RunChildRunScopeSql.ToSqlRunId(runId),
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
                 Offset = clampedOffset,
                 Limit = clampedLimit
             },
@@ -607,16 +610,14 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             },
                 cancellationToken: cancellationToken));
 
-        Dictionary<string, List<string>> grouped = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<Guid, List<string>> grouped = [];
 
         foreach (LlmFallbackAgentTypeRow row in rows)
         {
-            string rid = row.RunId.Trim();
-
-            if (!grouped.TryGetValue(rid, out List<string>? list))
+            if (!grouped.TryGetValue(row.RunId, out List<string>? list))
             {
                 list = [];
-                grouped[rid] = list;
+                grouped[row.RunId] = list;
             }
 
             if (!string.IsNullOrWhiteSpace(row.AgentType))
@@ -627,7 +628,9 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         foreach (string rid in normalized)
         {
-            if (!grouped.TryGetValue(rid, out List<string>? agents))
+            Guid runKey = RunChildRunScopeSql.ToSqlRunId(rid);
+
+            if (!grouped.TryGetValue(runKey, out List<string>? agents))
             {
                 result[rid] = [];
 
@@ -709,11 +712,11 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
     private sealed class LlmFallbackAgentTypeRow
     {
-        public string RunId
+        public Guid RunId
         {
             get;
             init;
-        } = string.Empty;
+        }
 
         public string AgentType
         {

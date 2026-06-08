@@ -62,20 +62,7 @@ public sealed class FindingsSnapshotRelationalReadOrderedAlternativePathsDirectS
 
         headerRow.Should().NotBeNull();
 
-        const string insertRecord = """
-                                    INSERT INTO dbo.FindingRecords
-                                    (
-                                        FindingRecordId, FindingsSnapshotId, SortOrder,
-                                        FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                                        Severity, Title, Rationale, PayloadType, PayloadJson
-                                    )
-                                    VALUES
-                                    (
-                                        @FindingRecordId, @FindingsSnapshotId, @SortOrder,
-                                        @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
-                                        @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
-                                    );
-                                    """;
+        string insertRecord = RelationalScopeChildInsertSql.FindingRecordFromSnapshot;
 
         await connection.ExecuteAsync(
             new CommandDefinition(

@@ -230,8 +230,9 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                 new CommandDefinition(
                     """
                     INSERT INTO dbo.GoldenManifestDecisions
-                    (ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
-                    VALUES (@M, 0, N'd1', N'cat', N'title', N'opt', N'rat', NULL);
+                    (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
+                    SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'd1', N'cat', N'title', N'opt', N'rat', NULL
+                    FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
                     INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
                     VALUES (@M, N'd1', 0, N'fid');
                     """,
@@ -245,8 +246,9 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                 new CommandDefinition(
                     """
                     INSERT INTO dbo.GoldenManifestDecisions
-                    (ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
-                    VALUES (@M, 0, N'd2', N'cat', N'title', N'opt', N'rat', NULL);
+                    (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
+                    SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'd2', N'cat', N'title', N'opt', N'rat', NULL
+                    FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
                     INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
                     VALUES (@M, N'd2', 0, N'nid');
                     """,

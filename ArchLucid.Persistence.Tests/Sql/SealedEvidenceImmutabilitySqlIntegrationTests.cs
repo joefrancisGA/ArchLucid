@@ -76,8 +76,8 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
                 CancellationToken.None);
 
             const string insertSql = """
-                                     INSERT INTO dbo.AgentResults (ResultId, TaskId, RunId, ResultJson, CreatedUtc)
-                                     VALUES (@ResultId, @TaskId, @RunId, N'{}', SYSUTCDATETIME());
+                                     INSERT INTO dbo.AgentResults (ResultId, TaskId, RunId, AgentType, Confidence, ResultJson, CreatedUtc)
+                                     VALUES (@ResultId, @TaskId, @RunId, N'Analyzer', 1.0, N'{}', SYSUTCDATETIME());
                                      """;
 
             await setup.ExecuteAsync(

@@ -135,11 +135,13 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedDecisionsNonMonoton
             new CommandDefinition(
                 """
                 INSERT INTO dbo.GoldenManifestDecisions
-                (ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
-                VALUES (@M, 1, N'd-second', N'c', N't2', N'o', N'r', NULL);
+                (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
+                SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, 1, N'd-second', N'c', N't2', N'o', N'r', NULL
+                FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
                 INSERT INTO dbo.GoldenManifestDecisions
-                (ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
-                VALUES (@M, 0, N'd-first', N'c', N't1', N'o', N'r', NULL);
+                (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
+                SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'd-first', N'c', N't1', N'o', N'r', NULL
+                FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
                 INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
                 VALUES (@M, N'd-second', 0, N'f-second');
                 INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)

@@ -23,6 +23,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
 
         await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
         using HttpClient readerClient = readerFactory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(readerClient);
 
         HttpResponseMessage tracesResponse =
             await readerClient.GetAsync($"/v1/architecture/run/{runId}/traces");
@@ -48,6 +49,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
 
         await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
         using HttpClient readerClient = readerFactory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(readerClient);
 
         HttpResponseMessage toolForensics =
             await readerClient.GetAsync($"/v1/architecture/run/{runId}/tool-invocation-forensics");
@@ -66,6 +68,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
 
         await using OperatorRoleArchLucidApiFactory operatorFactory = new(seedFactory.SqlConnectionString);
         using HttpClient operatorClient = operatorFactory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(operatorClient);
 
         HttpResponseMessage response =
             await operatorClient.GetAsync($"/v1/internal/architecture/run/{runId}/traces/forensics");

@@ -445,10 +445,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertProvFinding = """
-                                         INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, SortOrder, FindingId)
-                                         VALUES (@ManifestId, @SortOrder, @FindingId);
-                                         """;
+        string insertProvFinding = RelationalScopeChildInsertSql.GoldenManifestProvenanceSourceFindingFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -606,11 +603,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertDecision = """
-                                      INSERT INTO dbo.GoldenManifestDecisions
-                                      (ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
-                                      VALUES (@ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson);
-                                      """;
+        string insertDecision = RelationalScopeChildInsertSql.GoldenManifestDecisionFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -819,11 +812,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertDecision = """
-                                      INSERT INTO dbo.GoldenManifestDecisions
-                                      (ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
-                                      VALUES (@ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson);
-                                      """;
+        string insertDecision = RelationalScopeChildInsertSql.GoldenManifestDecisionFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(

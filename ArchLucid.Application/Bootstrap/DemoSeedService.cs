@@ -246,20 +246,6 @@ public sealed class DemoSeedService(
             committedFindingsOverride: findings);
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, scopeContextProvider, _actorContext, logger, welcomeRunGuid, systemName, authorityChain,
             "trial-welcome-seed", richFindingsAndGraph: true, cancellationToken);
-        RunRecord? authorityCommitted = await runRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken);
-
-        if (authorityCommitted is not null)
-        {
-            authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-            authorityCommitted.CurrentManifestVersion = manifestVersion;
-            authorityCommitted.CompletedUtc = TrialWelcomeSeedUtc;
-            authorityCommitted.ContextSnapshotId = authorityChain.ContextSnapshotId;
-            authorityCommitted.GraphSnapshotId = authorityChain.GraphSnapshotId;
-            authorityCommitted.FindingsSnapshotId = authorityChain.FindingsSnapshotId;
-            authorityCommitted.GoldenManifestId = authorityChain.GoldenManifestId;
-            authorityCommitted.DecisionTraceId = authorityChain.DecisionTraceId;
-            await runRepository.UpdateAsync(authorityCommitted, cancellationToken);
-        }
 
         Guid bundleId = TrialWelcomeSeedIds.ArtifactBundleId(welcomeRunGuid);
         Guid manifestKey = authorityChain.GoldenManifestId;
@@ -296,12 +282,20 @@ public sealed class DemoSeedService(
             Trace = new SynthesisTrace()
         };
         await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? withBundle = await runRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken);
+        RunRecord? authorityCommitted = await runRepository.GetByIdAsync(scope, welcomeRunGuid, cancellationToken);
 
-        if (withBundle is not null)
+        if (authorityCommitted is not null)
         {
-            withBundle.ArtifactBundleId = bundleId;
-            await runRepository.UpdateAsync(withBundle, cancellationToken);
+            authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            authorityCommitted.CurrentManifestVersion = manifestVersion;
+            authorityCommitted.CompletedUtc = TrialWelcomeSeedUtc;
+            authorityCommitted.ContextSnapshotId = authorityChain.ContextSnapshotId;
+            authorityCommitted.GraphSnapshotId = authorityChain.GraphSnapshotId;
+            authorityCommitted.FindingsSnapshotId = authorityChain.FindingsSnapshotId;
+            authorityCommitted.GoldenManifestId = authorityChain.GoldenManifestId;
+            authorityCommitted.DecisionTraceId = authorityChain.DecisionTraceId;
+            authorityCommitted.ArtifactBundleId = bundleId;
+            await runRepository.UpdateAsync(authorityCommitted, cancellationToken);
         }
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -998,21 +992,6 @@ public sealed class DemoSeedService(
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
             "Contoso Cloud Platform", persisted, "product-tour-demo-seed", richFindingsAndGraph: true, cancellationToken);
 
-        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (committed is not null)
-        {
-            committed.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-            committed.CurrentManifestVersion = ProductTourWorkspaceSeed.ManifestVersionLiteral;
-            committed.CompletedUtc = utc;
-            committed.ContextSnapshotId = persisted.ContextSnapshotId;
-            committed.GraphSnapshotId = persisted.GraphSnapshotId;
-            committed.FindingsSnapshotId = persisted.FindingsSnapshotId;
-            committed.GoldenManifestId = persisted.GoldenManifestId;
-            committed.DecisionTraceId = persisted.DecisionTraceId;
-            await _runRepository.UpdateAsync(committed, cancellationToken);
-        }
-
         Guid bundleId = DemoTourWorkspaceIds.ArtifactBundleId(runGuid);
         ArtifactBundle bundle = new()
         {
@@ -1049,12 +1028,20 @@ public sealed class DemoSeedService(
         };
 
         await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? withBundle = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
-        if (withBundle is not null)
+        if (committed is not null)
         {
-            withBundle.ArtifactBundleId = bundleId;
-            await _runRepository.UpdateAsync(withBundle, cancellationToken);
+            committed.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            committed.CurrentManifestVersion = ProductTourWorkspaceSeed.ManifestVersionLiteral;
+            committed.CompletedUtc = utc;
+            committed.ContextSnapshotId = persisted.ContextSnapshotId;
+            committed.GraphSnapshotId = persisted.GraphSnapshotId;
+            committed.FindingsSnapshotId = persisted.FindingsSnapshotId;
+            committed.GoldenManifestId = persisted.GoldenManifestId;
+            committed.DecisionTraceId = persisted.DecisionTraceId;
+            committed.ArtifactBundleId = bundleId;
+            await _runRepository.UpdateAsync(committed, cancellationToken);
         }
 
         await EnsureNorthwindTourExportStubAsync(runGuid, scope.TenantId, cancellationToken);
@@ -1223,21 +1210,6 @@ public sealed class DemoSeedService(
         await AuthorityCommittedChainDurableAudit.TryLogAsync(_auditService, _scopeContextProvider, _actorContext, logger, runGuid,
             alpineSystemName, persisted, "regulated-scenario-demo-seed", richFindingsAndGraph: true, cancellationToken);
 
-        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (committed is not null)
-        {
-            committed.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-            committed.CurrentManifestVersion = RegulatedScenarioWorkspaceSeed.ManifestVersionLiteral;
-            committed.CompletedUtc = utc;
-            committed.ContextSnapshotId = persisted.ContextSnapshotId;
-            committed.GraphSnapshotId = persisted.GraphSnapshotId;
-            committed.FindingsSnapshotId = persisted.FindingsSnapshotId;
-            committed.GoldenManifestId = persisted.GoldenManifestId;
-            committed.DecisionTraceId = persisted.DecisionTraceId;
-            await _runRepository.UpdateAsync(committed, cancellationToken);
-        }
-
         Guid bundleId = DemoRegulatedScenarioWorkspaceIds.ArtifactBundleId(runGuid);
 
         ArtifactBundle bundle = new()
@@ -1284,12 +1256,20 @@ public sealed class DemoSeedService(
         };
 
         await _artifactBundleRepository.SaveAsync(bundle, cancellationToken);
-        RunRecord? withBundle = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        RunRecord? committed = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
-        if (withBundle is not null)
+        if (committed is not null)
         {
-            withBundle.ArtifactBundleId = bundleId;
-            await _runRepository.UpdateAsync(withBundle, cancellationToken);
+            committed.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
+            committed.CurrentManifestVersion = RegulatedScenarioWorkspaceSeed.ManifestVersionLiteral;
+            committed.CompletedUtc = utc;
+            committed.ContextSnapshotId = persisted.ContextSnapshotId;
+            committed.GraphSnapshotId = persisted.GraphSnapshotId;
+            committed.FindingsSnapshotId = persisted.FindingsSnapshotId;
+            committed.GoldenManifestId = persisted.GoldenManifestId;
+            committed.DecisionTraceId = persisted.DecisionTraceId;
+            committed.ArtifactBundleId = bundleId;
+            await _runRepository.UpdateAsync(committed, cancellationToken);
         }
 
         await EnsureMeridianAlpineRegulatedExportStubAsync(runGuid, scope.TenantId, cancellationToken);

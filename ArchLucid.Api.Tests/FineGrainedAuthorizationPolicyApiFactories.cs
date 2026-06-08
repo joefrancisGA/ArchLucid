@@ -21,7 +21,7 @@ public sealed class ReaderRoleArchLucidApiFactory : ArchLucidApiFactory
     {
     }
 
-    public ReaderRoleArchLucidApiFactory(string existingSqlConnectionString)
+    internal ReaderRoleArchLucidApiFactory(string existingSqlConnectionString)
         : base(existingSqlConnectionString)
     {
     }
@@ -154,7 +154,7 @@ public sealed class OperatorRoleArchLucidApiFactory : ArchLucidApiFactory
     {
     }
 
-    public OperatorRoleArchLucidApiFactory(string existingSqlConnectionString)
+    internal OperatorRoleArchLucidApiFactory(string existingSqlConnectionString)
         : base(existingSqlConnectionString)
     {
     }

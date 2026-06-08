@@ -281,8 +281,9 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
-                INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, SortOrder, FindingId)
-                VALUES (@ManifestId, 0, N'finding-fr');
+                INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, FindingId)
+                SELECT @ManifestId, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'finding-fr'
+                FROM dbo.GoldenManifests m WHERE m.ManifestId = @ManifestId;
                 INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
                 VALUES (@ManifestId, 0, N'rule-fr');
                 """,

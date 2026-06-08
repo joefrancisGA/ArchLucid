@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
@@ -103,6 +104,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
             await RunPersistenceContractSupplementAsync(connectionString);
 
+            await EnsureArchLucidAppSealedTableDeniesAsync(connectionString);
+
             await PrimeGovernanceContractTenantAsync(connectionString);
 
             ConnectionString = connectionString;
@@ -126,6 +129,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             DatabaseMigrator.Run(connectionString);
 
             await RunPersistenceContractSupplementAsync(connectionString);
+
+            await EnsureArchLucidAppSealedTableDeniesAsync(connectionString);
 
             await PrimeGovernanceContractTenantAsync(connectionString);
 
@@ -313,5 +318,45 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
                 "Governance contract priming committed but tenant "
                 + tenantId.ToString("N") + " was not visible on follow-up connect (count "
                 + visible.ToString() + ").");
+    }
+
+    /// <summary>
+    ///     Migration 247 applies DENY only when <c>[ArchLucidApp]</c> already exists; test catalogs create the role after
+    ///     DbUp and mirror the migration's deny loop so sealed-evidence integration tests see production permissions.
+    /// </summary>
+    private static async Task EnsureArchLucidAppSealedTableDeniesAsync(string connectionString)
+    {
+        await using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync(CancellationToken.None);
+
+        const string ensureRoleSql = """
+                                     IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NULL
+                                         CREATE ROLE [ArchLucidApp];
+                                     """;
+
+        await connection.ExecuteAsync(ensureRoleSql);
+
+        foreach (string tableName in SealedEvidenceTableRegistry.SealedTableNames)
+        {
+            const string denySql = """
+                                   IF OBJECT_ID(@TableName, N'U') IS NOT NULL
+                                      AND NOT EXISTS (
+                                          SELECT 1
+                                          FROM sys.database_permissions AS dp
+                                          INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+                                          WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+                                            AND dp.major_id = OBJECT_ID(@TableName)
+                                            AND dp.permission_name = @Permission
+                                            AND dp.state_desc = N'DENY'
+                                            AND gp.name = N'ArchLucidApp')
+                                   BEGIN
+                                       DECLARE @Sql NVARCHAR(MAX) = N'DENY ' + @Permission + N' ON ' + @TableName + N' TO [ArchLucidApp];';
+                                       EXEC sp_executesql @Sql;
+                                   END
+                                   """;
+
+            await connection.ExecuteAsync(denySql, new { TableName = tableName, Permission = "UPDATE" });
+            await connection.ExecuteAsync(denySql, new { TableName = tableName, Permission = "DELETE" });
+        }
     }
 }
