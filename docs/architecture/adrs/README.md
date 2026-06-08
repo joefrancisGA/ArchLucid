@@ -5,7 +5,7 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-04-29
+**Last reviewed:** 2026-06-08
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
 
