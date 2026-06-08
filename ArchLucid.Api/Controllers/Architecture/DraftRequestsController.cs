@@ -201,6 +201,55 @@ public sealed class DraftRequestsController(
         }
     }
 
+    /// <summary>Clones an admitted or run-spawned draft with one ceteris-paribus override (R12).</summary>
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [HttpPost("{draftId:guid}/branch")]
+    [ProducesResponseType(typeof(BranchDraftResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> BranchDraft(
+        Guid draftId,
+        [FromBody] BranchDraftRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorUserId = _actorContext.GetActorId();
+
+        try
+        {
+            BranchDraftResponse? result = await _draftRequestService.BranchAsync(
+                scope,
+                draftId,
+                actorUserId,
+                body,
+                cancellationToken);
+
+            if (result is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
+            await _auditService.LogAsync(
+                BuildDraftAuditEvent(
+                    scope,
+                    AuditEventTypes.DraftIntakeBranched,
+                    new
+                    {
+                        parentDraftId = draftId,
+                        branchDraftId = result.Branch.DraftId,
+                        overrideKind = body.OverrideKind.ToString(),
+                    }),
+                cancellationToken);
+
+            return CreatedAtAction(nameof(GetDraft), new { draftId = result.Branch.DraftId }, result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
     /// <summary>Pre-run manifest-free reasoning turn on the draft (SAQ-013).</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [HttpPost("{draftId:guid}/reason")]

@@ -16,6 +16,10 @@ public static class DraftRequestStateMachine
     public static bool AllowsReasoning(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;
 
+    /// <summary>Returns <see langword="true" /> when a what-if branch may be cloned from the draft (R12).</summary>
+    public static bool AllowsBranch(DraftRequestStatus status) =>
+        status is DraftRequestStatus.Admitted or DraftRequestStatus.RunSpawned;
+
     /// <summary>Returns <see langword="true" /> when admission may be requested.</summary>
     public static bool AllowsAdmission(DraftRequestStatus status) => status == DraftRequestStatus.Drafting;
 

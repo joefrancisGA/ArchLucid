@@ -370,6 +370,87 @@ public sealed class DraftRequestService(
     }
 
     /// <inheritdoc />
+    public async Task<BranchDraftResponse?> BranchAsync(
+        ScopeContext scope,
+        Guid parentDraftId,
+        string actorUserId,
+        BranchDraftRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorUserId);
+
+        DraftRequestResponse? parent = await GetAsync(scope, parentDraftId, cancellationToken);
+
+        if (parent is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsBranch(parent.Status))
+        {
+            throw new InvalidOperationException(
+                $"Draft '{parentDraftId}' cannot branch from status '{parent.Status}'.");
+        }
+
+        DraftRequestDocument branchDocument = DraftRequestDocumentCloner.Clone(parent.Document);
+        branchDocument.ParentDraftId = parentDraftId;
+        branchDocument.ConversationThreadId = null;
+
+        DraftBranchOverrideApplicator.Apply(branchDocument, request);
+        SyncTransparencyFromDocument(branchDocument);
+
+        if (request.OverrideKind == DraftBranchOverrideKind.QuestionAnswer
+            && !string.IsNullOrWhiteSpace(request.OverrideKey))
+        {
+            RecordAssertedAnswer(
+                branchDocument,
+                request.OverrideKey.Trim(),
+                request.OverrideValue.Trim());
+        }
+
+        DraftRequestResponse branch = await _draftRepository.CreateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            actorUserId,
+            branchDocument,
+            cancellationToken);
+
+        DraftAdmissionEvaluation evaluation = _admissionGate.Evaluate(branchDocument);
+
+        if (evaluation.Admitted)
+        {
+            QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                branchDocument,
+                cancellationToken);
+
+            branchDocument.RequiredMustQuestionKeys = selection.RequiredMustQuestionKeys.ToList();
+
+            branch = await _draftRepository.UpdateAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                branch.DraftId,
+                DraftRequestStatus.Admitted,
+                branchDocument,
+                redirectReason: null,
+                spawnedRunId: null,
+                cancellationToken)
+                ?? branch;
+        }
+
+        return new BranchDraftResponse
+        {
+            ParentDraftId = parentDraftId,
+            ParentSpawnedRunId = parent.SpawnedRunId,
+            Branch = branch,
+        };
+    }
+
+    /// <inheritdoc />
     public async Task<DraftRequestResponse?> AbandonAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);

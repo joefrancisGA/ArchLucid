@@ -54,6 +54,9 @@ public static class AuditEventTypes
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
     public const string DraftIntakeReasoned = "DraftIntake.Reasoned";
 
+    /// <summary>What-if branch draft cloned from a parent with a single override (R12).</summary>
+    public const string DraftIntakeBranched = "DraftIntake.Branched";
+
     /// <summary>Operator answered an elicitation question on a Socratic intake draft.</summary>
     public const string DraftIntakeQuestionAnswered = "DraftIntake.QuestionAnswered";
 
