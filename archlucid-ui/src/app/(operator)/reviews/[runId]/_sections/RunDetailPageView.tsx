@@ -197,7 +197,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {!m.buyerPolishedArtifactTable ? (
         <Suspense fallback={null}>
-          <WhatIfBranchCompareBanner currentRunId={m.resolvedDetail.run.runId} />
+          <WhatIfBranchCompareBanner
+            currentRunId={m.resolvedDetail.run.runId}
+            hasCurrentManifest={Boolean(m.manifestId)}
+          />
         </Suspense>
       ) : null}
 

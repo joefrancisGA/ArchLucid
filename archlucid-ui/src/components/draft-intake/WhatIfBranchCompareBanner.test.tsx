@@ -7,13 +7,17 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => useSearchParams(),
 }));
 
+vi.mock("@/hooks/useWhatIfBranchAutoCompare", () => ({
+  useWhatIfBranchAutoCompare: () => "idle",
+}));
+
 import { WhatIfBranchCompareBanner } from "./WhatIfBranchCompareBanner";
 
 describe("WhatIfBranchCompareBanner", () => {
   it("renders compare link when parentRunId is present in the query string", () => {
     useSearchParams.mockReturnValue(new URLSearchParams("parentRunId=parent-run"));
 
-    render(<WhatIfBranchCompareBanner currentRunId="branch-run" />);
+    render(<WhatIfBranchCompareBanner currentRunId="branch-run" hasCurrentManifest={false} />);
 
     expect(screen.getByTestId("what-if-branch-compare-banner")).toBeInTheDocument();
     expect(screen.getByTestId("what-if-branch-compare-link")).toHaveAttribute(

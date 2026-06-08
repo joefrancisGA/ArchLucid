@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { DRAFT_BRANCH_AUTO_COMPARE_QUERY_KEY } from "./draft-branch-auto-compare";
 import {
   DRAFT_BRANCH_PARENT_RUN_QUERY_KEY,
   runDetailHrefWithParentRun,
@@ -8,7 +9,7 @@ import {
 describe("runDetailHrefWithParentRun", () => {
   it("appends parentRunId when a parent run is known", () => {
     expect(runDetailHrefWithParentRun("branch-run", "parent-run")).toBe(
-      `/reviews/branch-run?${DRAFT_BRANCH_PARENT_RUN_QUERY_KEY}=parent-run`,
+      `/reviews/branch-run?${DRAFT_BRANCH_PARENT_RUN_QUERY_KEY}=parent-run&${DRAFT_BRANCH_AUTO_COMPARE_QUERY_KEY}=1`,
     );
   });
 

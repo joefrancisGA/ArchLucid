@@ -148,7 +148,9 @@ describe("SocraticIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("socratic-submit"));
 
     await waitFor(() => {
-      expect(routerPush).toHaveBeenCalledWith("/reviews/branch-run?parentRunId=parent-run");
+      expect(routerPush).toHaveBeenCalledWith(
+        "/reviews/branch-run?parentRunId=parent-run&autoCompare=1",
+      );
     });
   });
 });

@@ -1,3 +1,5 @@
+import { DRAFT_BRANCH_AUTO_COMPARE_QUERY_KEY } from "@/lib/draft-branch-auto-compare";
+
 /** Query key used when a run detail page should surface parent-vs-branch Compare (R12). */
 export const DRAFT_BRANCH_PARENT_RUN_QUERY_KEY = "parentRunId";
 
@@ -12,6 +14,7 @@ export function runDetailHrefWithParentRun(runId: string, parentRunId: string | 
 
   const qs = new URLSearchParams();
   qs.set(DRAFT_BRANCH_PARENT_RUN_QUERY_KEY, trimmedParent);
+  qs.set(DRAFT_BRANCH_AUTO_COMPARE_QUERY_KEY, "1");
 
   return `/reviews/${encodeURIComponent(trimmedRunId)}?${qs.toString()}`;
 }
