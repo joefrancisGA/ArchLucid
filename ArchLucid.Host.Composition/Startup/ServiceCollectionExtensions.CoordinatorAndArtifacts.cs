@@ -96,6 +96,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ConversationContextOptions.SectionPath));
         services.AddScoped<IConversationContextCompressor, ConversationContextCompressor>();
         services.AddScoped<IAskService, AskService>();
+        services.AddScoped<IDraftIntakeReasoningService, DraftIntakeReasoningService>();
         services.AddScoped<IPreCommitGovernanceBlockExplainer, PreCommitGovernanceBlockExplainer>();
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();

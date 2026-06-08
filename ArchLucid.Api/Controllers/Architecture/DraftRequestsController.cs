@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Ask;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -29,6 +30,7 @@ public sealed class DraftRequestsController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IDraftRequestService draftRequestService,
+    IDraftIntakeReasoningService draftIntakeReasoningService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IActorContext _actorContext =
@@ -39,6 +41,9 @@ public sealed class DraftRequestsController(
 
     private readonly IDraftRequestService _draftRequestService =
         draftRequestService ?? throw new ArgumentNullException(nameof(draftRequestService));
+
+    private readonly IDraftIntakeReasoningService _draftIntakeReasoningService =
+        draftIntakeReasoningService ?? throw new ArgumentNullException(nameof(draftIntakeReasoningService));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -189,6 +194,48 @@ public sealed class DraftRequestsController(
                 cancellationToken);
 
             return Ok(updated);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
+    /// <summary>Pre-run manifest-free reasoning turn on the draft (SAQ-013).</summary>
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [HttpPost("{draftId:guid}/reason")]
+    [ProducesResponseType(typeof(DraftIntakeReasonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReasonDraft(
+        Guid draftId,
+        [FromBody] DraftIntakeReasonRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        try
+        {
+            DraftIntakeReasonResponse? result = await _draftIntakeReasoningService.ReasonAsync(
+                draftId,
+                body,
+                scope,
+                cancellationToken);
+
+            if (result is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
+            await _auditService.LogAsync(
+                BuildDraftAuditEvent(
+                    scope,
+                    AuditEventTypes.DraftIntakeReasoned,
+                    new { draftId, conversationThreadId = result.ConversationThreadId }),
+                cancellationToken);
+
+            return Ok(result);
         }
         catch (InvalidOperationException ex)
         {

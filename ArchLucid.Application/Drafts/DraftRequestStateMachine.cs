@@ -12,6 +12,10 @@ public static class DraftRequestStateMachine
     public static bool AllowsQuestionAnswers(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;
 
+    /// <summary>Returns <see langword="true" /> when pre-run intake reasoning may be invoked (SAQ-013).</summary>
+    public static bool AllowsReasoning(DraftRequestStatus status) =>
+        status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;
+
     /// <summary>Returns <see langword="true" /> when admission may be requested.</summary>
     public static bool AllowsAdmission(DraftRequestStatus status) => status == DraftRequestStatus.Drafting;
 

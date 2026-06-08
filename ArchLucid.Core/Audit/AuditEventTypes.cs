@@ -51,6 +51,9 @@ public static class AuditEventTypes
     /// <summary>Operator patched a drafting intake draft (<c>PATCH /v1/architecture/draft/{draftId}</c>).</summary>
     public const string DraftIntakePatched = "DraftIntake.Patched";
 
+    /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
+    public const string DraftIntakeReasoned = "DraftIntake.Reasoned";
+
     /// <summary>Operator answered an elicitation question on a Socratic intake draft.</summary>
     public const string DraftIntakeQuestionAnswered = "DraftIntake.QuestionAnswered";
 

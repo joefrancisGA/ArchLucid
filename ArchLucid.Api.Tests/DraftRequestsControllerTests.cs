@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Core.Ask;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
@@ -30,6 +31,7 @@ public sealed class DraftRequestsControllerTests
     private readonly Mock<IScopeContextProvider> _scopeProvider = new();
     private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IDraftRequestService> _service = new();
+    private readonly Mock<IDraftIntakeReasoningService> _reasoning = new();
     private readonly Mock<IAuditService> _audit = new();
 
     public DraftRequestsControllerTests()
@@ -40,7 +42,7 @@ public sealed class DraftRequestsControllerTests
     }
 
     private DraftRequestsController BuildSut() =>
-        new(_scopeProvider.Object, _actorContext.Object, _service.Object, _audit.Object)
+        new(_scopeProvider.Object, _actorContext.Object, _service.Object, _reasoning.Object, _audit.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
