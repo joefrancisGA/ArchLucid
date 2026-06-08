@@ -18,9 +18,12 @@ import { showError, showSuccess } from "@/lib/toast";
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
+import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 
 /** Persisted when the operator switches paths; missing key defaults to Quick review (onboarding-friendly). */
-const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v1";
+const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
+
+type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 
 /** Contoso Retail / Order Management sample (same narrative as documentation presets). */
 export const CONTOSO_RETAIL_SAMPLE_BRIEF =
@@ -34,7 +37,7 @@ const QUICK_REVIEW_STEPS = [
   { label: "Confirm and start architecture review", description: "Create the request and open pipeline progress." },
 ] as const;
 
-function readStoredPathMode(): "quick-review" | "detailed" {
+function readStoredPathMode(): ReviewsNewPathMode {
   if (typeof window === "undefined") {
     return "quick-review";
   }
@@ -42,8 +45,14 @@ function readStoredPathMode(): "quick-review" | "detailed" {
   try {
     const raw = window.localStorage.getItem(REVIEWS_NEW_PATH_STORAGE_KEY);
 
-    if (raw === "detailed" || raw === "quick-review") {
+    if (raw === "detailed" || raw === "quick-review" || raw === "guided-intake") {
       return raw;
+    }
+
+    const legacy = window.localStorage.getItem("archlucid_reviews_new_path_v1");
+
+    if (legacy === "detailed" || legacy === "quick-review") {
+      return legacy;
     }
   } catch {
     /* ignore */
@@ -52,7 +61,7 @@ function readStoredPathMode(): "quick-review" | "detailed" {
   return "quick-review";
 }
 
-function persistPathMode(mode: "quick-review" | "detailed"): void {
+function persistPathMode(mode: ReviewsNewPathMode): void {
   try {
     window.localStorage.setItem(REVIEWS_NEW_PATH_STORAGE_KEY, mode);
   } catch {
@@ -323,7 +332,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 export function ReviewsNewPathSwitcher() {
   const searchParams = useSearchParams();
   const baselineFirst = searchParams?.get("baseline") === "1";
-  const [pathMode, setPathMode] = useState<"quick-review" | "detailed">("quick-review");
+  const [pathMode, setPathMode] = useState<ReviewsNewPathMode>("quick-review");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -340,6 +349,11 @@ export function ReviewsNewPathSwitcher() {
   const selectQuick = () => {
     setPathMode("quick-review");
     persistPathMode("quick-review");
+  };
+
+  const selectGuidedIntake = () => {
+    setPathMode("guided-intake");
+    persistPathMode("guided-intake");
   };
 
   const selectDetailed = () => {
@@ -373,6 +387,17 @@ export function ReviewsNewPathSwitcher() {
           <Button
             type="button"
             role="tab"
+            aria-selected={pathMode === "guided-intake"}
+            variant={pathMode === "guided-intake" ? "default" : "outline"}
+            className="min-w-[10rem]"
+            onClick={selectGuidedIntake}
+            data-testid="reviews-new-path-guided-intake"
+          >
+            Guided intake
+          </Button>
+          <Button
+            type="button"
+            role="tab"
             aria-selected={pathMode === "detailed"}
             variant={pathMode === "detailed" ? "default" : "outline"}
             className="min-w-[10rem]"
@@ -386,14 +411,22 @@ export function ReviewsNewPathSwitcher() {
       {ready ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
           {pathMode === "quick-review"
-            ? "Quick review: one-page brief and submit. Choose Full guided review for import, presets, evidence upload, and every configuration step."
-            : "Full guided review: step-by-step wizard. Use Quick review above for the fastest path when you already have a brief."}
+            ? "Quick review: one-page brief and submit. Guided intake adds admission and MUST questions before the run. Full guided review includes import, presets, and evidence upload."
+            : pathMode === "guided-intake"
+              ? "Guided intake: Socratic draft lifecycle with admission gate, MUST questions, and transparency trail before the authority pipeline."
+              : "Full guided review: step-by-step wizard with every configuration step."}
         </p>
       ) : null}
       {ready ? null : (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
-      {!ready ? null : pathMode === "quick-review" ? <QuickReviewWizard /> : <NewRunWizardClient />}
+      {!ready ? null : pathMode === "quick-review" ? (
+        <QuickReviewWizard />
+      ) : pathMode === "guided-intake" ? (
+        <SocraticIntakeWizard />
+      ) : (
+        <NewRunWizardClient />
+      )}
     </div>
   );
 }

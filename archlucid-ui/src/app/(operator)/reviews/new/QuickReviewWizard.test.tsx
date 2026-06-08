@@ -26,6 +26,10 @@ vi.mock("./NewRunWizardClient", () => ({
   NewRunWizardClient: () => <div data-testid="detailed-wizard-stub">Detailed wizard stub</div>,
 }));
 
+vi.mock("./SocraticIntakeWizard", () => ({
+  SocraticIntakeWizard: () => <div data-testid="guided-intake-stub">Guided intake stub</div>,
+}));
+
 import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   QuickReviewWizard,
@@ -112,9 +116,27 @@ describe("ReviewsNewPathSwitcher", () => {
       expect(screen.getByTestId("reviews-new-path-hint")).toBeInTheDocument();
     });
 
-    const quickVisible = screen.queryByTestId("quick-review-progress") !== null;
-    const detailedVisible = screen.queryByTestId("detailed-wizard-stub") !== null;
+    const visiblePaths = [
+      screen.queryByTestId("quick-review-progress"),
+      screen.queryByTestId("guided-intake-stub"),
+      screen.queryByTestId("detailed-wizard-stub"),
+    ].filter((node) => node !== null);
 
-    expect(quickVisible !== detailedVisible).toBe(true);
+    expect(visiblePaths).toHaveLength(1);
+  });
+
+  it("toggles to Guided intake stub", async () => {
+    localStorage.clear();
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-path-guided-intake")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
+    });
   });
 });

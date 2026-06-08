@@ -1,0 +1,369 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
+
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
+import {
+  admitDraftRequest,
+  answerDraftQuestion,
+  buildDefaultActorSet,
+  createDraftRequest,
+  getDraftQuestions,
+  patchDraftRequest,
+  skipDraftQuestion,
+  submitDraftRequest,
+} from "@/lib/api/draft-intake-api";
+import { isApiRequestError } from "@/lib/api-request-error";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import { showError, showSuccess } from "@/lib/toast";
+import type { DraftElicitationQuestion } from "@/types/draft-intake";
+
+const MIN_INTENT_CHARS = 10;
+const MIN_OUTCOME_CHARS = 10;
+
+const INTAKE_STEPS = [
+  { label: "Intent & outcome", description: "Describe what you are building and the business result." },
+  { label: "MUST questions", description: "Answer pack-driven intake questions before the run starts." },
+  { label: "Start review", description: "Submit the admitted draft to the authority pipeline." },
+] as const;
+
+export function SocraticIntakeWizard() {
+  const router = useRouter();
+  const { llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+
+  const [step, setStep] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [submitError, setSubmitError] = useState<unknown | null>(null);
+
+  const [freeTextIntent, setFreeTextIntent] = useState("");
+  const [businessOutcome, setBusinessOutcome] = useState("");
+  const [systemName, setSystemName] = useState("");
+
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [redirectReason, setRedirectReason] = useState<string | null>(null);
+  const [pendingQuestions, setPendingQuestions] = useState<DraftElicitationQuestion[]>([]);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+
+  const canAdvanceIntent =
+    freeTextIntent.trim().length >= MIN_INTENT_CHARS &&
+    businessOutcome.trim().length >= MIN_OUTCOME_CHARS &&
+    !busy;
+
+  const allMustAnswered = pendingQuestions.length === 0;
+  const canSubmit = draftId !== null && allMustAnswered && !busy && !blocksLlmExecution;
+
+  const stepLabel = useMemo(() => `Step ${step + 1} of ${INTAKE_STEPS.length}`, [step]);
+
+  const refreshQuestions = useCallback(async (id: string) => {
+    const questions = await getDraftQuestions(id);
+    setPendingQuestions(questions.selection.pendingMustQuestions);
+  }, []);
+
+  const runAdmission = useCallback(async () => {
+    setBusy(true);
+    setSubmitError(null);
+    setRedirectReason(null);
+
+    try {
+      const created = await createDraftRequest(freeTextIntent.trim());
+      const id = created.draftId;
+      setDraftId(id);
+
+      await patchDraftRequest(id, {
+        freeTextIntent: freeTextIntent.trim(),
+        businessOutcome: businessOutcome.trim(),
+        systemName: systemName.trim() || undefined,
+        actorSet: buildDefaultActorSet(),
+      });
+
+      const admission = await admitDraftRequest(id);
+
+      if (!admission.admitted) {
+        setRedirectReason(admission.redirectReason ?? admission.verdict.summary);
+        showError("Guided intake", admission.redirectReason ?? "Admission gate redirected this draft.");
+        return;
+      }
+
+      setPendingQuestions(admission.pendingMustQuestions);
+      await refreshQuestions(id);
+      setStep(1);
+      showSuccess("Draft admitted — answer the MUST questions to continue.");
+    } catch (error) {
+      setSubmitError(error);
+      if (isApiRequestError(error)) {
+        showError("Guided intake", error.message);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [businessOutcome, freeTextIntent, refreshQuestions, systemName]);
+
+  const saveAnswer = useCallback(
+    async (questionKey: string) => {
+      if (draftId === null) {
+        return;
+      }
+
+      const answer = answers[questionKey]?.trim() ?? "";
+
+      if (answer.length === 0) {
+        showError("Guided intake", "Enter an answer or skip the question explicitly.");
+        return;
+      }
+
+      setBusy(true);
+      setSubmitError(null);
+
+      try {
+        await answerDraftQuestion(draftId, questionKey, answer);
+        await refreshQuestions(draftId);
+        showSuccess("Answer recorded.");
+      } catch (error) {
+        setSubmitError(error);
+        if (isApiRequestError(error)) {
+          showError("Guided intake", error.message);
+        }
+      } finally {
+        setBusy(false);
+      }
+    },
+    [answers, draftId, refreshQuestions],
+  );
+
+  const skipQuestion = useCallback(
+    async (questionKey: string) => {
+      if (draftId === null) {
+        return;
+      }
+
+      setBusy(true);
+      setSubmitError(null);
+
+      try {
+        await skipDraftQuestion(draftId, questionKey);
+        await refreshQuestions(draftId);
+        showSuccess("Question skipped — recorded on the transparency trail.");
+      } catch (error) {
+        setSubmitError(error);
+        if (isApiRequestError(error)) {
+          showError("Guided intake", error.message);
+        }
+      } finally {
+        setBusy(false);
+      }
+    },
+    [draftId, refreshQuestions],
+  );
+
+  const submitDraft = useCallback(async () => {
+    if (draftId === null) {
+      return;
+    }
+
+    setBusy(true);
+    setSubmitError(null);
+
+    try {
+      const result = await submitDraftRequest(draftId);
+      recordFirstTenantFunnelEvent("first_run_started");
+      showSuccess("Architecture review started from guided intake.");
+      router.push(`/reviews/${result.runId}`);
+    } catch (error) {
+      setSubmitError(error);
+      if (isApiRequestError(error)) {
+        showError("Guided intake", error.message);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [draftId, router]);
+
+  return (
+    <div className="space-y-4" data-testid="socratic-intake-wizard">
+      <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="socratic-intake-progress">
+        {stepLabel} — {INTAKE_STEPS[step]?.label}
+      </p>
+
+      {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
+
+      {submitError !== null ? (
+        <OperatorApiProblem
+          problem={isApiRequestError(submitError) ? submitError.problem : null}
+          fallbackMessage={
+            isApiRequestError(submitError) ? submitError.message : "Guided intake request failed."
+          }
+        />
+      ) : null}
+
+      {redirectReason !== null ? (
+        <Card className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
+          <CardHeader>
+            <CardTitle className="text-base">Admission redirect</CardTitle>
+            <CardDescription>{redirectReason}</CardDescription>
+          </CardHeader>
+        </Card>
+      ) : null}
+
+      {step === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{INTAKE_STEPS[0].label}</CardTitle>
+            <CardDescription>{INTAKE_STEPS[0].description}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="socratic-intent">Architecture intent</Label>
+              <Textarea
+                id="socratic-intent"
+                value={freeTextIntent}
+                onChange={(event) => setFreeTextIntent(event.target.value)}
+                rows={5}
+                disabled={busy}
+                data-testid="socratic-intent"
+              />
+              <p className="text-xs text-neutral-500">Minimum {MIN_INTENT_CHARS} characters.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="socratic-outcome">Business outcome (required)</Label>
+              <Textarea
+                id="socratic-outcome"
+                value={businessOutcome}
+                onChange={(event) => setBusinessOutcome(event.target.value)}
+                rows={3}
+                disabled={busy}
+                data-testid="socratic-outcome"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="socratic-system-name">System name (optional)</Label>
+              <Input
+                id="socratic-system-name"
+                value={systemName}
+                onChange={(event) => setSystemName(event.target.value)}
+                disabled={busy}
+                data-testid="socratic-system-name"
+              />
+            </div>
+            <Button
+              type="button"
+              disabled={!canAdvanceIntent}
+              onClick={() => {
+                void runAdmission();
+              }}
+              data-testid="socratic-admit"
+            >
+              {busy ? "Checking admission…" : "Continue to questions"}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {step === 1 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{INTAKE_STEPS[1].label}</CardTitle>
+            <CardDescription>
+              {pendingQuestions.length === 0
+                ? "All MUST questions are answered or explicitly skipped."
+                : `${pendingQuestions.length} MUST question(s) remaining.`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {pendingQuestions.map((question) => (
+              <div key={question.questionKey} className="space-y-2 rounded-md border p-3" data-testid="socratic-question">
+                <p className="text-sm font-medium">{question.prompt}</p>
+                <p className="text-xs text-neutral-500">
+                  {question.tier} · {question.source}
+                </p>
+                <Textarea
+                  value={answers[question.questionKey] ?? ""}
+                  onChange={(event) =>
+                    setAnswers((current) => ({
+                      ...current,
+                      [question.questionKey]: event.target.value,
+                    }))
+                  }
+                  rows={2}
+                  disabled={busy}
+                  aria-label={question.prompt}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={busy}
+                    onClick={() => {
+                      void saveAnswer(question.questionKey);
+                    }}
+                  >
+                    Save answer
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => {
+                      void skipQuestion(question.questionKey);
+                    }}
+                  >
+                    Skip (trail)
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button
+              type="button"
+              disabled={!allMustAnswered || busy}
+              onClick={() => setStep(2)}
+              data-testid="socratic-questions-done"
+            >
+              Review & submit
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {step === 2 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{INTAKE_STEPS[2].label}</CardTitle>
+            <CardDescription>
+              Submit launches the canonical run-create path — same authority pipeline as other review entry points.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
+              <li>Intent: {freeTextIntent.trim().slice(0, 120)}{freeTextIntent.trim().length > 120 ? "…" : ""}</li>
+              <li>Outcome: {businessOutcome.trim()}</li>
+              {systemName.trim() ? <li>System: {systemName.trim()}</li> : null}
+            </ul>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="outline" disabled={busy} onClick={() => setStep(1)}>
+                Back to questions
+              </Button>
+              <Button
+                type="button"
+                disabled={!canSubmit}
+                onClick={() => {
+                  void submitDraft();
+                }}
+                data-testid="socratic-submit"
+              >
+                {busy ? "Starting review…" : "Start architecture review"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+    </div>
+  );
+}
