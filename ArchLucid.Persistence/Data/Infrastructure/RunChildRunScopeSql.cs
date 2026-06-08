@@ -49,4 +49,7 @@ internal static class RunChildRunScopeSql
 
         return parsed;
     }
+
+    /// <summary>Maps authority <c>dbo.Runs.RunId</c> keys to API contract run id strings (<c>N</c> format).</summary>
+    internal static string ToContractRunId(Guid runId) => runId.ToString("N");
 }

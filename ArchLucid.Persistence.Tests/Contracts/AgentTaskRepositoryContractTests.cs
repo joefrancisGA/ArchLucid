@@ -55,6 +55,7 @@ public abstract class AgentTaskRepositoryContractTests
         loaded.Should().HaveCount(2);
         loaded[0].TaskId.Should().Be("t1");
         loaded[1].TaskId.Should().Be("t2");
+        loaded.Should().OnlyContain(t => t.RunId == runId);
     }
 
     [SkippableFact]
