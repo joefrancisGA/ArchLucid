@@ -1,6 +1,78 @@
 {
   "components": {
     "schemas": {
+      "ActorDescriptor": {
+        "properties": {
+          "confidence": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "contract": {
+            "$ref": "#/components/schemas/InteractionContract"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ActorKind"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "origin": {
+            "$ref": "#/components/schemas/ActorOrigin"
+          },
+          "trustOrigin": {
+            "$ref": "#/components/schemas/TrustOrigin"
+          }
+        },
+        "type": "object"
+      },
+      "ActorKind": {
+        "enum": [
+          "Human",
+          "Machine",
+          "Both"
+        ]
+      },
+      "ActorOrigin": {
+        "enum": [
+          "Asserted",
+          "Inferred"
+        ]
+      },
+      "ActorSet": {
+        "properties": {
+          "actors": {
+            "items": {
+              "$ref": "#/components/schemas/ActorDescriptor"
+            },
+            "type": "array"
+          },
+          "assertedActors": {
+            "items": {
+              "$ref": "#/components/schemas/ActorDescriptor"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "inferredActors": {
+            "items": {
+              "$ref": "#/components/schemas/ActorDescriptor"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "meetsAdmissionMinimum": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "AdminApiKeyRotateRequest": {
         "properties": {
           "invalidatePrevious": {
@@ -2535,6 +2607,17 @@
         },
         "type": "object"
       },
+      "AnswerDraftQuestionRequest": {
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "questionKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ApiKeySlotStatusDto": {
         "properties": {
           "expiresAtUtc": {
@@ -3176,6 +3259,16 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "intakeTransparencyTrail": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TransparencyTrail"
+              }
+            ]
           },
           "isArchived": {
             "type": "boolean"
@@ -3936,6 +4029,17 @@
         },
         "type": "object"
       },
+      "AssertedTrailEntry": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AssignPolicyPackRequest": {
         "properties": {
           "isPinned": {
@@ -4320,6 +4424,41 @@
           "year": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "BranchDraftRequest": {
+        "properties": {
+          "overrideKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "overrideKind": {
+            "$ref": "#/components/schemas/DraftBranchOverrideKind"
+          },
+          "overrideValue": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BranchDraftResponse": {
+        "properties": {
+          "branch": {
+            "$ref": "#/components/schemas/DraftRequestResponse"
+          },
+          "parentDraftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "parentSpawnedRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -5798,6 +5937,14 @@
         },
         "type": "object"
       },
+      "CreateDraftRequest": {
+        "properties": {
+          "freeTextIntent": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CreateGovernanceActivationRequest": {
         "properties": {
           "environment": {
@@ -7244,6 +7391,41 @@
         },
         "type": "object"
       },
+      "DraftAdmissionResponse": {
+        "properties": {
+          "admitted": {
+            "type": "boolean"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/DraftRequestResponse"
+          },
+          "pendingMustQuestions": {
+            "items": {
+              "$ref": "#/components/schemas/DraftElicitationQuestion"
+            },
+            "type": "array"
+          },
+          "redirectReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requiredMustQuestionKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DraftRequestStatus"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/FeasibilityVerdict"
+          }
+        },
+        "type": "object"
+      },
       "DraftArchitectureRequestInput": {
         "properties": {
           "freeTextDescription": {
@@ -7291,6 +7473,99 @@
         },
         "type": "object"
       },
+      "DraftBranchOverrideKind": {
+        "enum": [
+          "QuestionAnswer",
+          "BusinessOutcome",
+          "FreeTextIntent",
+          "SystemName"
+        ]
+      },
+      "DraftBranchQuotaResponse": {
+        "properties": {
+          "canBranch": {
+            "type": "boolean"
+          },
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "estimatedBranchRunCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "existingBranchCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "maxBranchesPerParent": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "remainingBranches": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "DraftElicitationQuestion": {
+        "properties": {
+          "answerKind": {
+            "$ref": "#/components/schemas/ElicitationAnswerKind"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "ruleKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ElicitationQuestionSource"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/ElicitationQuestionTier"
+          }
+        },
+        "type": "object"
+      },
+      "DraftIntakeReasonRequest": {
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DraftIntakeReasonResponse": {
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "conversationThreadId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DraftRequestStatus"
+          }
+        },
+        "type": "object"
+      },
       "DraftPolicyPackInput": {
         "properties": {
           "freeTextIntent": {
@@ -7313,6 +7588,134 @@
           }
         },
         "type": "object"
+      },
+      "DraftQuestionsResponse": {
+        "properties": {
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/QuestionSelectionResult"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DraftRequestStatus"
+          }
+        },
+        "type": "object"
+      },
+      "DraftRequestDocument": {
+        "properties": {
+          "actorSet": {
+            "$ref": "#/components/schemas/ActorSet"
+          },
+          "businessOutcome": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "conversationThreadId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "freeTextIntent": {
+            "type": "string"
+          },
+          "parentDraftId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "questionAnswers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "requiredMustQuestionKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "schemaVersion": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "transparencyTrail": {
+            "$ref": "#/components/schemas/TransparencyTrail"
+          }
+        },
+        "type": "object"
+      },
+      "DraftRequestResponse": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "document": {
+            "$ref": "#/components/schemas/DraftRequestDocument"
+          },
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "redirectReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "spawnedRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/DraftRequestStatus"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DraftRequestStatus": {
+        "enum": [
+          "Drafting",
+          "Admitted",
+          "Submitted",
+          "RunSpawned",
+          "Redirected",
+          "Abandoned"
+        ]
       },
       "DriftAnalysisResponse": {
         "properties": {
@@ -7417,6 +7820,50 @@
           }
         },
         "type": "object"
+      },
+      "ElicitationAnswerKind": {
+        "enum": [
+          "Text",
+          "Bool",
+          "Number",
+          "Enum"
+        ]
+      },
+      "ElicitationQuestion": {
+        "properties": {
+          "answerKind": {
+            "$ref": "#/components/schemas/ElicitationAnswerKind"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "questionKey": {
+            "type": "string"
+          },
+          "ruleKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/ElicitationQuestionTier"
+          }
+        },
+        "type": "object"
+      },
+      "ElicitationQuestionSource": {
+        "enum": [
+          "L0Universal",
+          "L1PackExplicit",
+          "L1PackDerived"
+        ]
+      },
+      "ElicitationQuestionTier": {
+        "enum": [
+          "Must",
+          "Should"
+        ]
       },
       "EndToEndReplayComparisonExportResponse": {
         "properties": {
@@ -8875,6 +9322,86 @@
           }
         },
         "type": "object"
+      },
+      "FeasibilityCitationKind": {
+        "enum": [
+          "NamedLaw",
+          "NamedTheorem",
+          "InvariantContradiction"
+        ]
+      },
+      "FeasibilityHardCitation": {
+        "properties": {
+          "invariantKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FeasibilityCitationKind"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FeasibilityVerdict": {
+        "properties": {
+          "confidence": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "hardCitations": {
+            "items": {
+              "$ref": "#/components/schemas/FeasibilityHardCitation"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FeasibilityVerdictKind"
+          },
+          "proposedRelaxations": {
+            "items": {
+              "$ref": "#/components/schemas/ProposedRelaxation"
+            },
+            "type": "array"
+          },
+          "softEnvelope": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SoftInfeasibilityEnvelope"
+              }
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "transparencyTrail": {
+            "$ref": "#/components/schemas/TransparencyTrail"
+          },
+          "unsatCoreInvariantKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "FeasibilityVerdictKind": {
+        "enum": [
+          "Feasible",
+          "SoftInfeasible",
+          "HardInfeasible"
+        ]
       },
       "FileContentResult": {
         "properties": {
@@ -11457,6 +11984,21 @@
         },
         "type": "object"
       },
+      "InferredTrailEntry": {
+        "properties": {
+          "confidence": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "InfrastructureDeclarationRequest": {
         "properties": {
           "content": {
@@ -11606,6 +12148,14 @@
           }
         },
         "type": "object"
+      },
+      "InteractionContract": {
+        "enum": [
+          "Sync",
+          "AsyncBatch",
+          "Event",
+          "Streaming"
+        ]
       },
       "InternalCrossTenantAnalyticsResponse": {
         "properties": {
@@ -12897,6 +13447,16 @@
             },
             "type": "array"
           },
+          "feasibilityVerdict": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FeasibilityVerdict"
+              }
+            ]
+          },
           "findingsSnapshotId": {
             "format": "uuid",
             "type": "string"
@@ -13199,6 +13759,16 @@
           "decisionCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "feasibilityVerdict": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FeasibilityVerdict"
+              }
+            ]
           },
           "hasUnresolvedIssues": {
             "type": "boolean"
@@ -13780,6 +14350,39 @@
           "totalCount": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PatchDraftRequest": {
+        "properties": {
+          "actorSet": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ActorSet"
+              }
+            ]
+          },
+          "businessOutcome": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "freeTextIntent": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -15028,6 +15631,12 @@
             },
             "type": "array"
           },
+          "elicitationQuestions": {
+            "items": {
+              "$ref": "#/components/schemas/ElicitationQuestion"
+            },
+            "type": "array"
+          },
           "metadata": {
             "additionalProperties": {
               "type": "string"
@@ -16221,6 +16830,17 @@
         },
         "type": "object"
       },
+      "ProposedRelaxation": {
+        "properties": {
+          "invariantKey": {
+            "type": "string"
+          },
+          "tradeOffDescription": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ProvenanceEdge": {
         "properties": {
           "fromNodeId": {
@@ -16284,6 +16904,29 @@
           },
           "version": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QuestionSelectionResult": {
+        "properties": {
+          "allQuestions": {
+            "items": {
+              "$ref": "#/components/schemas/DraftElicitationQuestion"
+            },
+            "type": "array"
+          },
+          "pendingMustQuestions": {
+            "items": {
+              "$ref": "#/components/schemas/DraftElicitationQuestion"
+            },
+            "type": "array"
+          },
+          "requiredMustQuestionKeys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -19934,6 +20577,47 @@
         },
         "type": "object"
       },
+      "SkipDraftQuestionRequest": {
+        "properties": {
+          "questionKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SkippedQuestionTrailEntry": {
+        "properties": {
+          "questionKey": {
+            "type": "string"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/ElicitationQuestionTier"
+          }
+        },
+        "type": "object"
+      },
+      "SoftInfeasibilityEnvelope": {
+        "properties": {
+          "confidenceHigh": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "confidenceLow": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "costOfBeingWrong": {
+            "type": "string"
+          },
+          "envelopeDescription": {
+            "type": "string"
+          },
+          "softAssumption": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SponsorBannerFirstCommitBadgeRequest": {
         "properties": {
           "daysSinceFirstCommitBucket": {
@@ -20139,6 +20823,30 @@
         "properties": {
           "resultId": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SubmitDraftResponse": {
+        "properties": {
+          "draftId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "parentSpawnedRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DraftRequestStatus"
           }
         },
         "type": "object"
@@ -21761,6 +22469,35 @@
         },
         "type": "object"
       },
+      "TransparencyTrail": {
+        "properties": {
+          "asserted": {
+            "items": {
+              "$ref": "#/components/schemas/AssertedTrailEntry"
+            },
+            "type": "array"
+          },
+          "hasSkippedMustQuestions": {
+            "type": "boolean"
+          },
+          "hasValidInferredConfidences": {
+            "type": "boolean"
+          },
+          "inferred": {
+            "items": {
+              "$ref": "#/components/schemas/InferredTrailEntry"
+            },
+            "type": "array"
+          },
+          "skipped": {
+            "items": {
+              "$ref": "#/components/schemas/SkippedQuestionTrailEntry"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "TriageQueueItem": {
         "properties": {
           "affectedArtifactTypeOrWorkflowArea": {
@@ -22016,6 +22753,13 @@
           }
         },
         "type": "object"
+      },
+      "TrustOrigin": {
+        "enum": [
+          "Internal",
+          "External",
+          "PublicAnonymous"
+        ]
       },
       "UnresolvedIssuesSection": {
         "properties": {
@@ -30628,6 +31372,1165 @@
         },
         "tags": [
           "Comparisons"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateDraftRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateDraftRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CreateDraftRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PatchDraftRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PatchDraftRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PatchDraftRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/abandon": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/admit": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftAdmissionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftAdmissionResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftAdmissionResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/answer": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AnswerDraftQuestionRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AnswerDraftQuestionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AnswerDraftQuestionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/branch": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BranchDraftRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BranchDraftRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BranchDraftRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDraftResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDraftResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchDraftResponse"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/branch-quota": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftBranchQuotaResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftBranchQuotaResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftBranchQuotaResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/questions": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftQuestionsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftQuestionsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftQuestionsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/reason": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DraftIntakeReasonRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DraftIntakeReasonRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DraftIntakeReasonRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftIntakeReasonResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftIntakeReasonResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftIntakeReasonResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/skip": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SkipDraftQuestionRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SkipDraftQuestionRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SkipDraftQuestionRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftRequestResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/architecture/draft/{draftId}/submit": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "draftId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitDraftResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitDraftResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitDraftResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DraftRequests"
         ],
         "x-archlucid-audience": "operator"
       }
@@ -63379,6 +65282,9 @@
     },
     {
       "name": "DocxExport"
+    },
+    {
+      "name": "DraftRequests"
     },
     {
       "name": "EnterpriseComparisonMarketing"
