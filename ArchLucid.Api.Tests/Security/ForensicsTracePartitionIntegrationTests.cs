@@ -21,7 +21,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
         await using ArchLucidApiFactory seedFactory = new();
         string runId = await CreateExecutedRunAsync(seedFactory);
 
-        await using ReaderRoleArchLucidApiFactory readerFactory = new();
+        await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
         using HttpClient readerClient = readerFactory.CreateClient();
 
         HttpResponseMessage tracesResponse =
@@ -46,7 +46,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
         await using ArchLucidApiFactory seedFactory = new();
         string runId = await CreateExecutedRunAsync(seedFactory);
 
-        await using ReaderRoleArchLucidApiFactory readerFactory = new();
+        await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
         using HttpClient readerClient = readerFactory.CreateClient();
 
         HttpResponseMessage toolForensics =
@@ -64,7 +64,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
         await using ArchLucidApiFactory seedFactory = new();
         string runId = await CreateExecutedRunAsync(seedFactory);
 
-        await using OperatorRoleArchLucidApiFactory operatorFactory = new();
+        await using OperatorRoleArchLucidApiFactory operatorFactory = new(seedFactory.SqlConnectionString);
         using HttpClient operatorClient = operatorFactory.CreateClient();
 
         HttpResponseMessage response =

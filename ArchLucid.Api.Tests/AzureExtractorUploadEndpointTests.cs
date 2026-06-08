@@ -81,10 +81,6 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         using MultipartFormDataContent form = UploadForm(BuildZipWithMalformedManifest());
 
-        using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
-
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
-
         await using SqlConnection conn = new(fixture.SqlConnectionString);
 
         await conn.OpenAsync();
@@ -93,9 +89,15 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         cmd.CommandText = "SELECT COUNT(1) FROM dbo.AzureExtractorPackages";
 
-        object? scalar = await cmd.ExecuteScalarAsync();
+        int packageCountBefore = Convert.ToInt32(await cmd.ExecuteScalarAsync(), System.Globalization.CultureInfo.InvariantCulture);
 
-        scalar.Should().Be(0);
+        using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+        int packageCountAfter = Convert.ToInt32(await cmd.ExecuteScalarAsync(), System.Globalization.CultureInfo.InvariantCulture);
+
+        packageCountAfter.Should().Be(packageCountBefore);
 
     }
 

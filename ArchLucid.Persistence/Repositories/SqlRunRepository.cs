@@ -45,6 +45,8 @@ public sealed class SqlRunRepository(
         ScopedRepositoryScopeValidation.RequireEntityTenant(run.TenantId);
 
         const string sql = """
+                           DECLARE @RunInsertOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
+
                            INSERT INTO dbo.Runs
                            (
                                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
@@ -55,7 +57,7 @@ public sealed class SqlRunRepository(
                                StructuralExecutionMode,
                                RetryCount, LastFailureReason
                            )
-                           OUTPUT inserted.RowVersionStamp
+                           OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput
                            VALUES
                            (
                                @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
@@ -66,6 +68,8 @@ public sealed class SqlRunRepository(
                                @StructuralExecutionMode,
                                @RetryCount, @LastFailureReason
                            );
+
+                           SELECT RowVersionStamp FROM @RunInsertOutput;
                            """;
 
         object insertParams = CreateRunInsertParameters(run);
@@ -491,6 +495,8 @@ public sealed class SqlRunRepository(
         ScopedRepositoryScopeValidation.RequireEntityTenant(run.TenantId);
 
         const string sql = """
+                           DECLARE @RunUpdateOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
+
                            UPDATE dbo.Runs
                            SET
                                TenantId = @TenantId,
@@ -518,12 +524,14 @@ public sealed class SqlRunRepository(
                                StructuralExecutionMode = @StructuralExecutionMode,
                                RetryCount = @RetryCount,
                                LastFailureReason = @LastFailureReason
-                           OUTPUT inserted.RowVersionStamp
+                           OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                            WHERE RunId = @RunId
                              AND TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
                              AND ScopeProjectId = @ScopeProjectId
                              AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
+
+                           SELECT RowVersionStamp FROM @RunUpdateOutput;
                            """;
 
         if (connection is not null)

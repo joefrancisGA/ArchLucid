@@ -33,9 +33,25 @@ namespace ArchLucid.Api.Tests;
 public class ArchLucidApiFactory : BaseIntegrationTestFixture
 {
     private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("InMemory");
+    private readonly bool _ownsSqlCatalog;
 
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchLucidApiFactory()
+    {
+        _ownsSqlCatalog = true;
+        SqlConnectionString = CreateEphemeralSqlConnectionString();
+        SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
+    }
+
+    /// <summary>Reuses an existing SQL catalog (second host in the same integration test).</summary>
+    protected ArchLucidApiFactory(string existingSqlConnectionString)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(existingSqlConnectionString);
+        _ownsSqlCatalog = false;
+        SqlConnectionString = existingSqlConnectionString;
+    }
+
+    private static string CreateEphemeralSqlConnectionString()
     {
         string databaseName = "ArchLucidTest_" + Guid.NewGuid().ToString("N");
         string raw = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
@@ -45,8 +61,7 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
             ConnectTimeout = 120
         };
 
-        SqlConnectionString = builder.ConnectionString;
-        SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
+        return builder.ConnectionString;
     }
 
     /// <summary>
@@ -84,7 +99,7 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
 
         base.Dispose(disposing);
 
-        if (!disposing)
+        if (!disposing || !_ownsSqlCatalog)
             return;
 
         try

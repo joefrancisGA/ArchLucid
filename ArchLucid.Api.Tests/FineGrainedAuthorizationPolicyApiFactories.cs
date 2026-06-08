@@ -17,6 +17,15 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public sealed class ReaderRoleArchLucidApiFactory : ArchLucidApiFactory
 {
+    public ReaderRoleArchLucidApiFactory()
+    {
+    }
+
+    public ReaderRoleArchLucidApiFactory(string existingSqlConnectionString)
+        : base(existingSqlConnectionString)
+    {
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
@@ -141,6 +150,15 @@ public abstract class OperatorWithoutOnePermissionArchLucidApiFactory : ArchLuci
 
 public sealed class OperatorRoleArchLucidApiFactory : ArchLucidApiFactory
 {
+    public OperatorRoleArchLucidApiFactory()
+    {
+    }
+
+    public OperatorRoleArchLucidApiFactory(string existingSqlConnectionString)
+        : base(existingSqlConnectionString)
+    {
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
