@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -34,6 +35,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
 
         Guid runId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
+        DateTime createdUtc = await NextContextSnapshotBackfillCreatedUtcAsync(connection, CancellationToken.None);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -45,7 +47,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 {
                     RunId = runId,
                     ProjectId = "proj-bf",
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    CreatedUtc = createdUtc,
                     TenantId,
                     WorkspaceId,
                     ScopeProjectId = ProjectId
@@ -91,7 +93,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                     TenantId,
                     WorkspaceId,
                     ScopeProjectId = ProjectId,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    CreatedUtc = createdUtc,
                     CanonicalObjectsJson = canonicalJson,
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
@@ -122,7 +124,14 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
             CancellationToken.None);
 
         report1.FailureCount.Should().Be(0);
-        report1.StageTimings.Should().ContainSingle(t => t.Stage == "ContextSnapshots" && t.ProcessedCount == 1);
+
+        SqlRelationalBackfillStageTiming contextStage =
+            report1.StageTimings.Should().ContainSingle(t => t.Stage == "ContextSnapshots").Subject;
+
+        // Shared ArchLucidPersistenceTests catalog may already contain JSON-only snapshots from earlier
+        // collection tests; the backfill cursor advances globally — assert our row hydrated, not an exact batch size.
+        contextStage.ProcessedCount.Should().BeGreaterThan(0);
+        contextStage.FailureCount.Should().Be(0);
 
         int afterFirst = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
@@ -212,6 +221,40 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
         SqlRelationalBackfillReport second = await backfill.RunAsync(options, CancellationToken.None);
         second.SkippedQuarantinedCount.Should().Be(1);
         second.FailureCount.Should().Be(0);
+    }
+
+    /// <summary>
+    ///     Returns a <c>CreatedUtc</c> strictly after the persisted backfill cursor and any existing snapshot rows so
+    ///     keyset paging cannot skip a freshly inserted test row on a reused CI catalog.
+    /// </summary>
+    private static async Task<DateTime> NextContextSnapshotBackfillCreatedUtcAsync(
+        SqlConnection connection,
+        CancellationToken cancellationToken)
+    {
+        DateTime baseline = SqlRelationalBackfillCursor.Start.LastProcessedCreatedUtc;
+
+        DateTime? maxRowUtc = await connection.ExecuteScalarAsync<DateTime?>(
+            new CommandDefinition(
+                "SELECT MAX(CreatedUtc) FROM dbo.ContextSnapshots;",
+                cancellationToken: cancellationToken));
+
+        if (maxRowUtc is { } rowMax && rowMax > baseline)
+            baseline = rowMax;
+
+        DateTime? checkpointUtc = await connection.ExecuteScalarAsync<DateTime?>(
+            new CommandDefinition(
+                """
+                SELECT LastProcessedCreatedUtc
+                FROM dbo.BackfillCheckpoints
+                WHERE Stage = @Stage;
+                """,
+                new { Stage = "ContextSnapshots" },
+                cancellationToken: cancellationToken));
+
+        if (checkpointUtc is { } cp && cp > baseline)
+            baseline = cp;
+
+        return baseline.AddSeconds(1);
     }
 
     private static SqlRelationalBackfillService CreateService(SqlConnectionFactory factory)
