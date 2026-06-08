@@ -1,8 +1,9 @@
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Manifest.Builders;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Tests.Feasibility;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -58,13 +59,13 @@ public sealed class RuleBasedDecisionEngineActionDifferentiationTests
                 Action = "prefer",
             });
 
-        RuleBasedDecisionEngine engine = new(
-            ruleProvider,
-            new DefaultGoldenManifestBuilder(),
-            new GoldenManifestValidator(),
-            new ManifestHashService());
+        RuleBasedDecisionEngine engine = RuleBasedDecisionEngineTestDependencies.CreateEngine(ruleProvider);
 
-        (_, DecisionTraceDto trace) = await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
+        (ManifestDocument manifest, DecisionTraceDto trace) =
+            await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
+
+        manifest.FeasibilityVerdict.Should().NotBeNull();
+        manifest.FeasibilityVerdict!.TransparencyTrail.Should().NotBeNull();
 
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
         audit.RequiredFindingIds.Should().ContainSingle().Which.Should().Be("finding-required");

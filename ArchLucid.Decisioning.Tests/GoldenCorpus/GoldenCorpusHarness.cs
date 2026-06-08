@@ -65,11 +65,8 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
 
         FindingsSnapshot findings = await orchestrator.GenerateFindingsSnapshotAsync(runId, contextSnapshotId, graph, ct);
 
-        RuleBasedDecisionEngine decisionEngine = new(
-            new InMemoryDecisionRuleProvider(),
-            new DefaultGoldenManifestBuilder(),
-            new GoldenManifestValidator(),
-            new ManifestHashService());
+        RuleBasedDecisionEngine decisionEngine = Feasibility.RuleBasedDecisionEngineTestDependencies.CreateEngine(
+            new InMemoryDecisionRuleProvider());
 
         (ManifestDocument manifest, DecisionTraceDto trace) =
             await decisionEngine.DecideAsync(runId, contextSnapshotId, graph, findings, ct);

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Contracts.Requests;
@@ -163,6 +164,16 @@ public sealed class ArchitectureRequest
     ///     <c>blank</c>) for wizard-to-commit histogram tagging.
     /// </summary>
     public string? WizardPresetUsed
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Socratic intake provenance copied from <c>DraftRequestDocument.TransparencyTrail</c> when
+    ///     <see cref="RequestSource" /> is <c>draft-intake</c> (ADR 0048 / ADR 0050).
+    /// </summary>
+    public TransparencyTrail? IntakeTransparencyTrail
     {
         get;
         set;

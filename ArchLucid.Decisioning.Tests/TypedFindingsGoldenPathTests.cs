@@ -157,11 +157,8 @@ public sealed class TypedFindingsGoldenPathTests
         snapshot.Findings.Should().Contain(f =>
             f.FindingType == "SecurityControlFinding" && f.RelatedNodeIds.Contains("t1"));
 
-        RuleBasedDecisionEngine decisionEngine = new(
-            new InMemoryDecisionRuleProvider(),
-            new DefaultGoldenManifestBuilder(),
-            new GoldenManifestValidator(),
-            new ManifestHashService());
+        RuleBasedDecisionEngine decisionEngine = Feasibility.RuleBasedDecisionEngineTestDependencies.CreateEngine(
+            new InMemoryDecisionRuleProvider());
 
         (ManifestDocument manifest, _) = await decisionEngine.DecideAsync(runId, ctxId, graph, snapshot, CancellationToken.None);
 

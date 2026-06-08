@@ -29,6 +29,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             Assumptions = assumptions,
             RequestSource = "draft-intake",
             InlineRequirements = BuildInlineRequirements(document),
+            IntakeTransparencyTrail = CloneTransparencyTrail(document.TransparencyTrail),
         };
     }
 
@@ -82,5 +83,15 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         }
 
         return assumptions;
+    }
+
+    private static TransparencyTrail CloneTransparencyTrail(TransparencyTrail trail)
+    {
+        ArgumentNullException.ThrowIfNull(trail);
+
+        string json = System.Text.Json.JsonSerializer.Serialize(trail);
+        TransparencyTrail? clone = System.Text.Json.JsonSerializer.Deserialize<TransparencyTrail>(json);
+
+        return clone ?? new TransparencyTrail();
     }
 }

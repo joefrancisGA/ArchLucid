@@ -59,7 +59,8 @@ public sealed class ManifestHashService : IManifestHashService
             Assumptions = manifest.Assumptions.OrderBy(x => x).ToArray(),
             Warnings = manifest.Warnings.OrderBy(x => x).ToArray(),
             manifest.Policy,
-            manifest.Provenance
+            manifest.Provenance,
+            manifest.FeasibilityVerdict
         });
 
         using SHA256 sha = SHA256.Create();

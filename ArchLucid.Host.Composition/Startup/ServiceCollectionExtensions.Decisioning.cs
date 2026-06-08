@@ -65,6 +65,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
         services.AddSingleton<IFeasibilityVerdictValidator, FeasibilityVerdictValidator>();
         services.AddSingleton<FeasibilityVerdictBuilder>();
+        services.AddSingleton<IAuthorityFeasibilityVerdictComposer, AuthorityFeasibilityVerdictComposer>();
+        services.TryAddSingleton<IDecisionIntakeTrailProvider, NullDecisionIntakeTrailProvider>();
         services.AddSingleton<FindingConfidenceCalculator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();
         services.AddSingleton<Di.IDecisionRuleProvider, Dr.InMemoryDecisionRuleProvider>();

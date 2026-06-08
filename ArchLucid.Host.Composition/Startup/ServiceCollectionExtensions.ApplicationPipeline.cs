@@ -206,6 +206,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDraftRequestProjector, DraftRequestProjector>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
         services.AddScoped<IDraftIntakeReaperService, DraftIntakeReaperService>();
+        services.AddScoped<ArchLucid.Decisioning.Feasibility.IDecisionIntakeTrailProvider,
+            ArchLucid.Application.Runs.Feasibility.ArchitectureRequestIntakeTrailProvider>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector

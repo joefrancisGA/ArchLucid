@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Manifest.Sections;
 
 namespace ArchLucid.Core.Manifest;
@@ -177,4 +178,13 @@ public class ManifestDocument
         get;
         set;
     } = new();
+
+    /// <summary>
+    ///     Authority-pipeline feasibility classification with mandatory transparency trail (ADR 0050).
+    /// </summary>
+    public FeasibilityVerdict? FeasibilityVerdict
+    {
+        get;
+        set;
+    }
 }

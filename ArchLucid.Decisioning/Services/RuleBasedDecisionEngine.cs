@@ -2,7 +2,9 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.DecisionTraces;
+using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 
@@ -30,9 +32,17 @@ public class RuleBasedDecisionEngine(
     IDecisionRuleProvider ruleProvider,
     IGoldenManifestBuilder manifestBuilder,
     IGoldenManifestValidator manifestValidator,
-    IManifestHashService manifestHashService)
+    IManifestHashService manifestHashService,
+    IAuthorityFeasibilityVerdictComposer feasibilityVerdictComposer,
+    IDecisionIntakeTrailProvider intakeTrailProvider)
     : IDecisionEngine
 {
+    private readonly IAuthorityFeasibilityVerdictComposer _feasibilityVerdictComposer =
+        feasibilityVerdictComposer ?? throw new ArgumentNullException(nameof(feasibilityVerdictComposer));
+
+    private readonly IDecisionIntakeTrailProvider _intakeTrailProvider =
+        intakeTrailProvider ?? throw new ArgumentNullException(nameof(intakeTrailProvider));
+
     /// <inheritdoc />
     public async Task<(ManifestDocument Manifest, DecisionTraceDto Trace)> DecideAsync(
         Guid runId,
@@ -135,6 +145,10 @@ public class RuleBasedDecisionEngine(
             findingsSnapshot,
             trace,
             ruleSet);
+
+        TransparencyTrail? intakeTrail =
+            await _intakeTrailProvider.TryGetTransparencyTrailAsync(runId, ct);
+        manifest.FeasibilityVerdict = _feasibilityVerdictComposer.Compose(manifest, intakeTrail);
 
         manifestValidator.Validate(manifest);
         manifest.ManifestHash = manifestHashService.ComputeHash(manifest);

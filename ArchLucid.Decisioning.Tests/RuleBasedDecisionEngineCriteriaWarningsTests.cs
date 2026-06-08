@@ -1,8 +1,8 @@
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Manifest.Builders;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Decisioning.Tests.Feasibility;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -53,11 +53,7 @@ public sealed class RuleBasedDecisionEngineCriteriaWarningsTests
                 Criteria = new Dictionary<string, string> { ["payload.controlId"] = "AC-2" }
             });
 
-        RuleBasedDecisionEngine engine = new(
-            ruleProvider,
-            new DefaultGoldenManifestBuilder(),
-            new GoldenManifestValidator(),
-            new ManifestHashService());
+        RuleBasedDecisionEngine engine = RuleBasedDecisionEngineTestDependencies.CreateEngine(ruleProvider);
 
         (_, DecisionTraceDto trace) = await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
 
@@ -110,11 +106,7 @@ public sealed class RuleBasedDecisionEngineCriteriaWarningsTests
                 Criteria = new Dictionary<string, string> { ["payload.controlId"] = "AC-2" }
             });
 
-        RuleBasedDecisionEngine engine = new(
-            ruleProvider,
-            new DefaultGoldenManifestBuilder(),
-            new GoldenManifestValidator(),
-            new ManifestHashService());
+        RuleBasedDecisionEngine engine = RuleBasedDecisionEngineTestDependencies.CreateEngine(ruleProvider);
 
         (_, DecisionTraceDto trace) = await engine.DecideAsync(runId, contextSnapshotId, graph, snapshot, CancellationToken.None);
 
