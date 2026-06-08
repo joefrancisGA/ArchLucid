@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Tests;
 
@@ -62,10 +64,14 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
             config.AddInMemoryCollection(settings);
         });
 
-        // Development.json caps bulk upload at 30; integration tests assert the GA limit (200).
+        // Integration tests assert the GA bulk-upload cap (200 files per multipart request).
         builder.ConfigureTestServices(services =>
-            services.PostConfigure<EvidenceBulkUploadOptions>(static options =>
-                options.EvidenceBulkUploadMaxFiles = 200));
+        {
+            services.RemoveAll<IConfigureOptions<EvidenceBulkUploadOptions>>();
+            services.RemoveAll<IPostConfigureOptions<EvidenceBulkUploadOptions>>();
+            services.AddSingleton<IOptions<EvidenceBulkUploadOptions>>(static _ =>
+                Options.Create(new EvidenceBulkUploadOptions { EvidenceBulkUploadMaxFiles = 200 }));
+        });
     }
 
     /// <summary>
