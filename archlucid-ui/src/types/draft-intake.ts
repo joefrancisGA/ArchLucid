@@ -91,3 +91,10 @@ export type SubmitDraftResponse = {
   runId: string;
   requestId: string;
 };
+
+export type DraftIntakeReasonResponse = {
+  draftId: string;
+  conversationThreadId: string;
+  status: DraftRequestStatus;
+  answer: string;
+};

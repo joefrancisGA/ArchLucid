@@ -1,6 +1,7 @@
 import type {
   ActorSet,
   DraftAdmissionResponse,
+  DraftIntakeReasonResponse,
   DraftQuestionsResponse,
   DraftRequestResponse,
   SubmitDraftResponse,
@@ -79,4 +80,15 @@ export async function skipDraftQuestion(
 
 export async function submitDraftRequest(draftId: string): Promise<SubmitDraftResponse> {
   return apiPostJson<SubmitDraftResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`, {});
+}
+
+/** Pre-run manifest-free reasoning on an admitted or drafting intake (SAQ-013). */
+export async function reasonDraftRequest(
+  draftId: string,
+  message: string,
+): Promise<DraftIntakeReasonResponse> {
+  return apiPostJson<DraftIntakeReasonResponse>(
+    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/reason`,
+    { message: message.trim() },
+  );
 }

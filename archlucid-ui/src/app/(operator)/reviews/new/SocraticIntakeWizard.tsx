@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
+import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -200,6 +201,14 @@ export function SocraticIntakeWizard() {
           fallbackMessage={
             isApiRequestError(submitError) ? submitError.message : "Guided intake request failed."
           }
+        />
+      ) : null}
+
+      {draftId !== null && step >= 1 ? (
+        <DraftIntakeReasoningPanel
+          draftId={draftId}
+          disabled={busy || blocksLlmExecution}
+          defaultOpen={false}
         />
       ) : null}
 

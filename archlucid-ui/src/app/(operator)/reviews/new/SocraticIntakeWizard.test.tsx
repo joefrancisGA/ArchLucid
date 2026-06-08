@@ -35,6 +35,10 @@ vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
 }));
 
+vi.mock("@/components/draft-intake/DraftIntakeReasoningPanel", () => ({
+  DraftIntakeReasoningPanel: () => <div data-testid="draft-intake-reasoning-stub">Reasoning stub</div>,
+}));
+
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 
 describe("SocraticIntakeWizard", () => {
@@ -70,5 +74,6 @@ describe("SocraticIntakeWizard", () => {
     });
 
     expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(/step 2 of 3/i);
+    expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
   });
 });
