@@ -64,7 +64,7 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
 
         // Development.json caps bulk upload at 30; integration tests assert the GA limit (200).
         builder.ConfigureTestServices(services =>
-            services.Configure<EvidenceBulkUploadOptions>(static options =>
+            services.PostConfigure<EvidenceBulkUploadOptions>(static options =>
                 options.EvidenceBulkUploadMaxFiles = 200));
     }
 
