@@ -13,6 +13,7 @@ namespace ArchLucid.Api.Tests.Security;
 ///     TB-287: ReadAuthority readers get trace summaries only; operator forensics routes require elevated role.
 /// </summary>
 [Trait("Category", "Integration")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class ForensicsTracePartitionIntegrationTests
 {
     [SkippableFact]
@@ -20,7 +21,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
+        await using GreenfieldSqlApiFactory seedFactory = new();
         string runId = await CreateExecutedRunAsync(seedFactory);
 
         await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
@@ -48,7 +49,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
+        await using GreenfieldSqlApiFactory seedFactory = new();
         string runId = await CreateExecutedRunAsync(seedFactory);
 
         await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
@@ -69,7 +70,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
+        await using GreenfieldSqlApiFactory seedFactory = new();
         string runId = await CreateExecutedRunAsync(seedFactory);
 
         await using OperatorRoleArchLucidApiFactory operatorFactory = new(seedFactory.SqlConnectionString);
@@ -86,7 +87,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
         traces.GetArrayLength().Should().BeGreaterThan(0);
     }
 
-    private static async Task<string> CreateExecutedRunAsync(ArchLucidApiFactory factory)
+    private static async Task<string> CreateExecutedRunAsync(GreenfieldSqlApiFactory factory)
     {
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
