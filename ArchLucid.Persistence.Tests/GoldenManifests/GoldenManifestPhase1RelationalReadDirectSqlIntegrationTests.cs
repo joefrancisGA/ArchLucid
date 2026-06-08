@@ -291,10 +291,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertWarning = """
-                                     INSERT INTO dbo.GoldenManifestWarnings (ManifestId, SortOrder, WarningText)
-                                     VALUES (@ManifestId, @SortOrder, @WarningText);
-                                     """;
+        string insertWarning = RelationalScopeChildInsertSql.GoldenManifestWarningFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -621,10 +618,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertEvidence = """
-                                      INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
-                                      VALUES (@ManifestId, @DecisionId, @SortOrder, @FindingId);
-                                      """;
+        string insertEvidence = RelationalScopeChildInsertSql.GoldenManifestDecisionEvidenceLinkFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -638,10 +632,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 new { ManifestId = manifestId, DecisionId = "dec-rel-1", SortOrder = 1, FindingId = "f-ev-1" },
                 cancellationToken: CancellationToken.None));
 
-        const string insertNodeLink = """
-                                      INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
-                                      VALUES (@ManifestId, @DecisionId, @SortOrder, @NodeId);
-                                      """;
+        string insertNodeLink = RelationalScopeChildInsertSql.GoldenManifestDecisionNodeLinkFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -977,10 +968,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertRule = """
-                                  INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
-                                  VALUES (@ManifestId, @SortOrder, @RuleId);
-                                  """;
+        string insertRule = RelationalScopeChildInsertSql.GoldenManifestProvenanceAppliedRuleFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -1131,10 +1119,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertNode = """
-                                  INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
-                                  VALUES (@ManifestId, @SortOrder, @NodeId);
-                                  """;
+        string insertNode = RelationalScopeChildInsertSql.GoldenManifestProvenanceSourceGraphNodeFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -1142,10 +1127,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
                 new { ManifestId = manifestId, SortOrder = 0, NodeId = "prov-node-rel" },
                 cancellationToken: CancellationToken.None));
 
-        const string insertRule = """
-                                  INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
-                                  VALUES (@ManifestId, @SortOrder, @RuleId);
-                                  """;
+        string insertRule = RelationalScopeChildInsertSql.GoldenManifestProvenanceAppliedRuleFromManifest;
 
         await connection.ExecuteAsync(
             new CommandDefinition(

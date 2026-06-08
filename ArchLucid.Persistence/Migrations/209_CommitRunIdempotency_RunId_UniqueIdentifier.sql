@@ -15,7 +15,8 @@ IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunId') IS NULL
    AND COL_LENGTH(N'dbo.CommitRunIdempotency', N'RunIdGuid') IS NOT NULL
 BEGIN
-    EXEC sp_rename N'dbo.CommitRunIdempotency.RunIdGuid', N'RunId', N'COLUMN';
+    DECLARE @rename209 NVARCHAR(MAX) = N'EXEC sp_rename N''dbo.CommitRunIdempotency.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @rename209;
 END;
 GO
 
@@ -46,6 +47,7 @@ IF OBJECT_ID(N'dbo.CommitRunIdempotency', N'U') IS NOT NULL
          AND c.name = N'RunId'
          AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
+    DECLARE @migrate209 NVARCHAR(MAX) = N'
     UPDATE dbo.CommitRunIdempotency
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;
@@ -56,24 +58,25 @@ BEGIN
       AND NOT EXISTS (SELECT 1 FROM dbo.Runs AS r WHERE r.RunId = t.RunIdGuid);
 
     IF EXISTS (SELECT 1 FROM dbo.CommitRunIdempotency WHERE RunIdGuid IS NULL AND RunId IS NOT NULL)
-        THROW 50027, N'#27 CommitRunIdempotency: backfill incomplete — orphaned RunId strings found.', 1;
+        THROW 50027, N''#27 CommitRunIdempotency: backfill incomplete — orphaned RunId strings found.'', 1;
 
     ALTER TABLE dbo.CommitRunIdempotency ALTER COLUMN RunIdGuid UNIQUEIDENTIFIER NOT NULL;
 
-    IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = N'PK_CommitRunIdempotency')
+    IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = N''PK_CommitRunIdempotency'')
         ALTER TABLE dbo.CommitRunIdempotency DROP CONSTRAINT PK_CommitRunIdempotency;
 
-    IF EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_CommitRunIdempotency_RunIdLen')
+    IF EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N''CK_CommitRunIdempotency_RunIdLen'')
         ALTER TABLE dbo.CommitRunIdempotency DROP CONSTRAINT CK_CommitRunIdempotency_RunIdLen;
 
     ALTER TABLE dbo.CommitRunIdempotency DROP COLUMN RunId;
 
-    EXEC sp_rename N'dbo.CommitRunIdempotency.RunIdGuid', N'RunId', N'COLUMN';
+    EXEC sp_rename N''dbo.CommitRunIdempotency.RunIdGuid'', N''RunId'', N''COLUMN'';
 
-    IF NOT EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = N'PK_CommitRunIdempotency')
+    IF NOT EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = N''PK_CommitRunIdempotency'')
         ALTER TABLE dbo.CommitRunIdempotency
             ADD CONSTRAINT PK_CommitRunIdempotency
-            PRIMARY KEY (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash);
+            PRIMARY KEY (TenantId, WorkspaceId, ProjectId, RunId, IdempotencyKeyHash);';
+    EXEC sp_executesql @migrate209;
 END;
 GO
 

@@ -98,13 +98,12 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertRule = """
-                                  INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
-                                  VALUES (@ManifestId, 0, N'rule-rel-1');
-                                  """;
+        string insertRule = RelationalScopeChildInsertSql.GoldenManifestProvenanceAppliedRuleFromManifest;
 
         await connection.ExecuteAsync(
-            new CommandDefinition(insertRule, new { ManifestId = manifestId },
+            new CommandDefinition(
+                insertRule,
+                new { ManifestId = manifestId, SortOrder = 0, RuleId = "rule-rel-1" },
                 cancellationToken: CancellationToken.None));
 
         GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
@@ -188,13 +187,10 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
                 },
                 cancellationToken: CancellationToken.None));
 
-        const string insertNode = """
-                                  INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
-                                  VALUES (@ManifestId, 0, N'node-rel-only');
-                                  """;
-
         await connection.ExecuteAsync(
-            new CommandDefinition(insertNode, new { ManifestId = manifestId },
+            new CommandDefinition(
+                RelationalScopeChildInsertSql.GoldenManifestProvenanceSourceGraphNodeFromManifest,
+                new { ManifestId = manifestId, SortOrder = 0, NodeId = "node-rel-only" },
                 cancellationToken: CancellationToken.None));
 
         GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
@@ -284,8 +280,9 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
                 INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, FindingId)
                 SELECT @ManifestId, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'finding-fr'
                 FROM dbo.GoldenManifests m WHERE m.ManifestId = @ManifestId;
-                INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
-                VALUES (@ManifestId, 0, N'rule-fr');
+                INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, RuleId)
+                SELECT @ManifestId, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'rule-fr'
+                FROM dbo.GoldenManifests m WHERE m.ManifestId = @ManifestId;
                 """,
                 new { ManifestId = manifestId },
                 cancellationToken: CancellationToken.None));

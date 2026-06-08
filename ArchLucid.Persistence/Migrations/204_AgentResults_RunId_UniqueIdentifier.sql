@@ -15,7 +15,8 @@ IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.AgentResults', N'RunId') IS NULL
    AND COL_LENGTH(N'dbo.AgentResults', N'RunIdGuid') IS NOT NULL
 BEGIN
-    EXEC sp_rename N'dbo.AgentResults.RunIdGuid', N'RunId', N'COLUMN';
+    DECLARE @rename204 NVARCHAR(MAX) = N'EXEC sp_rename N''dbo.AgentResults.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @rename204;
 END;
 GO
 
@@ -49,6 +50,7 @@ IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
          AND c.name = N'RunId'
          AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
+    DECLARE @migrate204 NVARCHAR(MAX) = N'
     UPDATE dbo.AgentResults
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;
@@ -59,16 +61,17 @@ BEGIN
       AND NOT EXISTS (SELECT 1 FROM dbo.Runs AS r WHERE r.RunId = t.RunIdGuid);
 
     IF EXISTS (SELECT 1 FROM dbo.AgentResults WHERE RunIdGuid IS NULL AND RunId IS NOT NULL)
-        THROW 50027, N'#27 AgentResults: backfill incomplete — orphaned RunId strings found.', 1;
+        THROW 50027, N''#27 AgentResults: backfill incomplete — orphaned RunId strings found.'', 1;
 
     ALTER TABLE dbo.AgentResults ALTER COLUMN RunIdGuid UNIQUEIDENTIFIER NOT NULL;
 
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentResults') AND name = N'IX_AgentResults_RunId')
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N''dbo.AgentResults'') AND name = N''IX_AgentResults_RunId'')
         DROP INDEX IX_AgentResults_RunId ON dbo.AgentResults;
 
     ALTER TABLE dbo.AgentResults DROP COLUMN RunId;
 
-    EXEC sp_rename N'dbo.AgentResults.RunIdGuid', N'RunId', N'COLUMN';
+    EXEC sp_rename N''dbo.AgentResults.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @migrate204;
 END;
 GO
 

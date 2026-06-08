@@ -15,11 +15,11 @@ ELSE
 BEGIN
     IF COL_LENGTH(N'dbo.ComparisonRecords', N'LeftRunId') IS NULL
        AND COL_LENGTH(N'dbo.ComparisonRecords', N'LeftRunIdGuid') IS NOT NULL
-        EXEC sp_rename N'dbo.ComparisonRecords.LeftRunIdGuid', N'LeftRunId', N'COLUMN';
+        EXEC sys.sp_executesql N'EXEC sp_rename N''dbo.ComparisonRecords.LeftRunIdGuid'', N''LeftRunId'', N''COLUMN'';';
 
     IF COL_LENGTH(N'dbo.ComparisonRecords', N'RightRunId') IS NULL
        AND COL_LENGTH(N'dbo.ComparisonRecords', N'RightRunIdGuid') IS NOT NULL
-        EXEC sp_rename N'dbo.ComparisonRecords.RightRunIdGuid', N'RightRunId', N'COLUMN';
+        EXEC sys.sp_executesql N'EXEC sp_rename N''dbo.ComparisonRecords.RightRunIdGuid'', N''RightRunId'', N''COLUMN'';';
 
     IF EXISTS (
         SELECT 1

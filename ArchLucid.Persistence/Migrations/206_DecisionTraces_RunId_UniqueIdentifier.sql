@@ -15,7 +15,8 @@ IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.DecisionTraces', N'RunId') IS NULL
    AND COL_LENGTH(N'dbo.DecisionTraces', N'RunIdGuid') IS NOT NULL
 BEGIN
-    EXEC sp_rename N'dbo.DecisionTraces.RunIdGuid', N'RunId', N'COLUMN';
+    DECLARE @rename206 NVARCHAR(MAX) = N'EXEC sp_rename N''dbo.DecisionTraces.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @rename206;
 END;
 GO
 
@@ -49,6 +50,7 @@ IF OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
          AND c.name = N'RunId'
          AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
+    DECLARE @migrate206 NVARCHAR(MAX) = N'
     UPDATE dbo.DecisionTraces
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;
@@ -59,16 +61,17 @@ BEGIN
       AND NOT EXISTS (SELECT 1 FROM dbo.Runs AS r WHERE r.RunId = t.RunIdGuid);
 
     IF EXISTS (SELECT 1 FROM dbo.DecisionTraces WHERE RunIdGuid IS NULL AND RunId IS NOT NULL)
-        THROW 50027, N'#27 DecisionTraces: backfill incomplete — orphaned RunId strings found.', 1;
+        THROW 50027, N''#27 DecisionTraces: backfill incomplete — orphaned RunId strings found.'', 1;
 
     ALTER TABLE dbo.DecisionTraces ALTER COLUMN RunIdGuid UNIQUEIDENTIFIER NOT NULL;
 
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.DecisionTraces') AND name = N'IX_DecisionTraces_RunId')
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N''dbo.DecisionTraces'') AND name = N''IX_DecisionTraces_RunId'')
         DROP INDEX IX_DecisionTraces_RunId ON dbo.DecisionTraces;
 
     ALTER TABLE dbo.DecisionTraces DROP COLUMN RunId;
 
-    EXEC sp_rename N'dbo.DecisionTraces.RunIdGuid', N'RunId', N'COLUMN';
+    EXEC sp_rename N''dbo.DecisionTraces.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @migrate206;
 END;
 GO
 

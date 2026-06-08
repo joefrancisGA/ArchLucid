@@ -62,12 +62,22 @@ public static class ArchitectureCommitTestSeed
     ///     Inserts request + authority <c>dbo.Runs</c> row (idempotent on <paramref name="requestId" /> /
     ///     <paramref name="runId" />).
     /// </summary>
+    public static Task InsertRequestAndRunAsync(
+        SqlConnection connection,
+        string requestId,
+        string runId,
+        CancellationToken ct) =>
+        InsertRequestAndRunAsync(connection, requestId, runId, AsScopeContext(), ct);
+
     public static async Task InsertRequestAndRunAsync(
         SqlConnection connection,
         string requestId,
         string runId,
+        ScopeContext scope,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         if (!Guid.TryParseExact(runId, "N", out Guid runGuid))
         {
             throw new ArgumentException("runId must be a 32-character hexadecimal GUID (N format).", nameof(runId));
@@ -107,9 +117,9 @@ public static class ArchitectureCommitTestSeed
                 {
                     RunGuid = runGuid,
                     RequestId = requestId,
-                    TenantId = SeedTenantId,
-                    WorkspaceId = SeedWorkspaceId,
-                    ScopeProjectId = SeedScopeProjectId
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 },
                 cancellationToken: ct));
     }

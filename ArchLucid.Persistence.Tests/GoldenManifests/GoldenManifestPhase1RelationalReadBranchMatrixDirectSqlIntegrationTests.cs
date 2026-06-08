@@ -233,8 +233,9 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                     (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
                     SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'd1', N'cat', N'title', N'opt', N'rat', NULL
                     FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
-                    INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
-                    VALUES (@M, N'd1', 0, N'fid');
+                    INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, TenantId, WorkspaceId, ProjectId, DecisionId, SortOrder, FindingId)
+                    SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, N'd1', 0, N'fid'
+                    FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
                     """,
                     new { M = manifestId },
                     cancellationToken: CancellationToken.None));
@@ -249,8 +250,9 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                     (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
                     SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'd2', N'cat', N'title', N'opt', N'rat', NULL
                     FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
-                    INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
-                    VALUES (@M, N'd2', 0, N'nid');
+                    INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, TenantId, WorkspaceId, ProjectId, DecisionId, SortOrder, NodeId)
+                    SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, N'd2', 0, N'nid'
+                    FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
                     """,
                     new { M = manifestId },
                     cancellationToken: CancellationToken.None));
@@ -261,8 +263,9 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     """
-                    INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
-                    VALUES (@M, 0, N'rule-a');
+                    INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, TenantId, WorkspaceId, ProjectId, SortOrder, RuleId)
+                    SELECT @M, m.TenantId, m.WorkspaceId, m.ProjectId, 0, N'rule-a'
+                    FROM dbo.GoldenManifests m WHERE m.ManifestId = @M;
                     """,
                     new { M = manifestId },
                     cancellationToken: CancellationToken.None));

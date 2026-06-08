@@ -209,7 +209,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e1', N'a', N'b', N't', 1.0);
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e1', 0, N'$ArchLucid:EdgeLabel', N'from-sql-label');
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e1', 0, N'$ArchLucid:EdgeLabel', N'from-sql-label');
                 """,
                 new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
@@ -254,7 +254,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e2', N'a', N'b', N't', 1.0);
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e2', 0, N'k1', N'v1');
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e2', 0, N'k1', N'v1');
                 """,
                 new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
@@ -440,7 +440,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e6', N'a', N'b', N't', 1.0);
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e6', 0, N'$ArchLucid:EdgeLabel', N'sql-label');
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e6', 0, N'$ArchLucid:EdgeLabel', N'sql-label');
                 """,
                 new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
@@ -488,7 +488,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e7', N'a', N'b', N't', 1.0);
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e7', 0, N'from', N'sql');
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e7', 0, N'from', N'sql');
                 """,
                 new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
@@ -652,7 +652,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e9', N'a', N'b', N't', 1.0);
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'e9', 0, N'only', N'sql');
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'e9', 0, N'only', N'sql');
                 """,
                 new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));
@@ -711,7 +711,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'ea', N'1', N'2', N't', 1.0),
                 (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'eb', N'2', N'3', N't', 2.0);
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, TenantId, WorkspaceId, ScopeProjectId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, N'eb', 0, N'$ArchLucid:EdgeLabel', N'sql-b');
+                VALUES (@G, @TenantId, @WorkspaceId, @ScopeProjectId, N'eb', 0, N'$ArchLucid:EdgeLabel', N'sql-b');
                 """,
                 new { G = graphId, TenantId, WorkspaceId, ScopeProjectId },
                 cancellationToken: CancellationToken.None));

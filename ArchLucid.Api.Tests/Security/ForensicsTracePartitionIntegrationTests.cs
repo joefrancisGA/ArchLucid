@@ -18,7 +18,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
     [SkippableFact]
     public async Task Reader_can_list_trace_summaries_without_prompt_fields()
     {
-        await using ArchLucidApiFactory seedFactory = new();
+        await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
         string runId = await CreateExecutedRunAsync(seedFactory);
 
         await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
@@ -44,7 +44,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
     [SkippableFact]
     public async Task Reader_is_forbidden_from_tool_invocation_forensics_and_internal_trace_forensics()
     {
-        await using ArchLucidApiFactory seedFactory = new();
+        await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
         string runId = await CreateExecutedRunAsync(seedFactory);
 
         await using ReaderRoleArchLucidApiFactory readerFactory = new(seedFactory.SqlConnectionString);
@@ -63,7 +63,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
     [SkippableFact]
     public async Task Operator_can_read_internal_trace_forensics_with_prompt_fields_when_present()
     {
-        await using ArchLucidApiFactory seedFactory = new();
+        await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
         string runId = await CreateExecutedRunAsync(seedFactory);
 
         await using OperatorRoleArchLucidApiFactory operatorFactory = new(seedFactory.SqlConnectionString);
@@ -83,6 +83,7 @@ public sealed class ForensicsTracePartitionIntegrationTests
     private static async Task<string> CreateExecutedRunAsync(ArchLucidApiFactory factory)
     {
         using HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage createResponse = await client.PostAsync(
             "/v1/architecture/request",

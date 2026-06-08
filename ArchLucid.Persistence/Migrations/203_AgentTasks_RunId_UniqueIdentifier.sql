@@ -16,7 +16,8 @@ IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.AgentTasks', N'RunId') IS NULL
    AND COL_LENGTH(N'dbo.AgentTasks', N'RunIdGuid') IS NOT NULL
 BEGIN
-    EXEC sp_rename N'dbo.AgentTasks.RunIdGuid', N'RunId', N'COLUMN';
+    DECLARE @rename203 NVARCHAR(MAX) = N'EXEC sp_rename N''dbo.AgentTasks.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @rename203;
 END;
 GO
 
@@ -50,6 +51,7 @@ IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NOT NULL
          AND c.name = N'RunId'
          AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
+    DECLARE @migrate203 NVARCHAR(MAX) = N'
     UPDATE dbo.AgentTasks
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;
@@ -60,19 +62,20 @@ BEGIN
       AND NOT EXISTS (SELECT 1 FROM dbo.Runs AS r WHERE r.RunId = t.RunIdGuid);
 
     IF EXISTS (SELECT 1 FROM dbo.AgentTasks WHERE RunIdGuid IS NULL AND RunId IS NOT NULL)
-        THROW 50027, N'#27 AgentTasks: backfill incomplete — orphaned RunId strings found.', 1;
+        THROW 50027, N''#27 AgentTasks: backfill incomplete — orphaned RunId strings found.'', 1;
 
     ALTER TABLE dbo.AgentTasks ALTER COLUMN RunIdGuid UNIQUEIDENTIFIER NOT NULL;
 
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentTasks') AND name = N'IX_AgentTasks_RunId_AgentType')
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N''dbo.AgentTasks'') AND name = N''IX_AgentTasks_RunId_AgentType'')
         DROP INDEX IX_AgentTasks_RunId_AgentType ON dbo.AgentTasks;
 
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentTasks') AND name = N'IX_AgentTasks_RunId')
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N''dbo.AgentTasks'') AND name = N''IX_AgentTasks_RunId'')
         DROP INDEX IX_AgentTasks_RunId ON dbo.AgentTasks;
 
     ALTER TABLE dbo.AgentTasks DROP COLUMN RunId;
 
-    EXEC sp_rename N'dbo.AgentTasks.RunIdGuid', N'RunId', N'COLUMN';
+    EXEC sp_rename N''dbo.AgentTasks.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @migrate203;
 END;
 GO
 

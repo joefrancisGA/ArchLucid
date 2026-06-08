@@ -6,5 +6,6 @@ namespace ArchLucid.Persistence.Coordination.Backfill;
 [ExcludeFromCodeCoverage(Justification = "Backfill cursor DTO; no logic.")]
 public readonly record struct SqlRelationalBackfillCursor(DateTime LastProcessedCreatedUtc, Guid LastProcessedEntityId)
 {
-    public static SqlRelationalBackfillCursor Start => new(DateTime.MinValue, Guid.Empty);
+    // SQL Server datetime2 minimum is 1753-01-01; DateTime.MinValue overflows on checkpoint MERGE.
+    public static SqlRelationalBackfillCursor Start => new(new DateTime(1753, 1, 1, 0, 0, 0, DateTimeKind.Utc), Guid.Empty);
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence.Tests.Support;
 
@@ -17,11 +18,18 @@ namespace ArchLucid.Persistence.Tests.Sql;
 [Trait("Suite", "SqlServer")]
 public sealed class CommittedRunHeaderFkRepointProbeSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    private static readonly Guid SeedTenantId = ArchitectureCommitTestSeed.AsScopeContext().TenantId;
+    private static readonly Guid SeedTenantId = Guid.Parse("90909090-9090-9090-9090-909090909090");
 
-    private static readonly Guid SeedWorkspaceId = ArchitectureCommitTestSeed.AsScopeContext().WorkspaceId;
+    private static readonly Guid SeedWorkspaceId = Guid.Parse("91919191-9191-9191-9191-919191919191");
 
-    private static readonly Guid SeedScopeProjectId = ArchitectureCommitTestSeed.AsScopeContext().ProjectId;
+    private static readonly Guid SeedScopeProjectId = Guid.Parse("92929292-9292-9292-9292-929292929292");
+
+    private static ScopeContext IsolatedScope() => new()
+    {
+        TenantId = SeedTenantId,
+        WorkspaceId = SeedWorkspaceId,
+        ProjectId = SeedScopeProjectId,
+    };
 
     [SkippableFact]
     public async Task Clean_committed_run_reports_zero_repoint_violations()
@@ -173,7 +181,12 @@ public sealed class CommittedRunHeaderFkRepointProbeSqlIntegrationTests(SqlServe
         Guid decisionTraceId,
         Guid? artifactBundleId)
     {
-        await ArchitectureCommitTestSeed.InsertRequestAndRunAsync(connection, requestId, runId.ToString("N"), CancellationToken.None);
+        await ArchitectureCommitTestSeed.InsertRequestAndRunAsync(
+            connection,
+            requestId,
+            runId.ToString("N"),
+            IsolatedScope(),
+            CancellationToken.None);
 
         await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
             connection,

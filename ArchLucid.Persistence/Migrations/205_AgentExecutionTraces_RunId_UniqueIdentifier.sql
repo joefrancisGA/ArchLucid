@@ -15,7 +15,8 @@ IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunId') IS NULL
    AND COL_LENGTH(N'dbo.AgentExecutionTraces', N'RunIdGuid') IS NOT NULL
 BEGIN
-    EXEC sp_rename N'dbo.AgentExecutionTraces.RunIdGuid', N'RunId', N'COLUMN';
+    DECLARE @rename205 NVARCHAR(MAX) = N'EXEC sp_rename N''dbo.AgentExecutionTraces.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @rename205;
 END;
 GO
 
@@ -49,6 +50,7 @@ IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
          AND c.name = N'RunId'
          AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
+    DECLARE @migrate205 NVARCHAR(MAX) = N'
     UPDATE dbo.AgentExecutionTraces
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;
@@ -59,22 +61,23 @@ BEGIN
       AND NOT EXISTS (SELECT 1 FROM dbo.Runs AS r WHERE r.RunId = t.RunIdGuid);
 
     IF EXISTS (SELECT 1 FROM dbo.AgentExecutionTraces WHERE RunIdGuid IS NULL AND RunId IS NOT NULL)
-        THROW 50027, N'#27 AgentExecutionTraces: backfill incomplete — orphaned RunId strings found.', 1;
+        THROW 50027, N''#27 AgentExecutionTraces: backfill incomplete — orphaned RunId strings found.'', 1;
 
     ALTER TABLE dbo.AgentExecutionTraces ALTER COLUMN RunIdGuid UNIQUEIDENTIFIER NOT NULL;
 
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_RunId')
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N''dbo.AgentExecutionTraces'') AND name = N''IX_AgentExecutionTraces_RunId'')
         DROP INDEX IX_AgentExecutionTraces_RunId ON dbo.AgentExecutionTraces;
 
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_BlobUploadFailed')
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N''dbo.AgentExecutionTraces'') AND name = N''IX_AgentExecutionTraces_BlobUploadFailed'')
         DROP INDEX IX_AgentExecutionTraces_BlobUploadFailed ON dbo.AgentExecutionTraces;
 
-    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND name = N'IX_AgentExecutionTraces_InlineFallbackFailed')
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N''dbo.AgentExecutionTraces'') AND name = N''IX_AgentExecutionTraces_InlineFallbackFailed'')
         DROP INDEX IX_AgentExecutionTraces_InlineFallbackFailed ON dbo.AgentExecutionTraces;
 
     ALTER TABLE dbo.AgentExecutionTraces DROP COLUMN RunId;
 
-    EXEC sp_rename N'dbo.AgentExecutionTraces.RunIdGuid', N'RunId', N'COLUMN';
+    EXEC sp_rename N''dbo.AgentExecutionTraces.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @migrate205;
 END;
 GO
 

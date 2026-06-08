@@ -82,7 +82,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
 
             await setup.ExecuteAsync(
                 insertSql,
-                new { ResultId = resultId, TaskId = "sealed-evidence-task", RunId = runId });
+                new { ResultId = resultId, TaskId = "sealed-evidence-task", RunId = Guid.Parse(runId) });
         }
 
         await using SqlConnection connection = new(fixture.ConnectionString);
@@ -128,8 +128,8 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
                 CancellationToken.None);
 
             const string insertSql = """
-                                     INSERT INTO dbo.AgentResults (ResultId, TaskId, RunId, ResultJson, CreatedUtc)
-                                     VALUES (@ResultId, @TaskId, @RunId, N'{"base":true}', SYSUTCDATETIME());
+                                     INSERT INTO dbo.AgentResults (ResultId, TaskId, RunId, AgentType, Confidence, ResultJson, CreatedUtc)
+                                     VALUES (@ResultId, @TaskId, @RunId, N'Analyzer', 1.0, N'{"base":true}', SYSUTCDATETIME());
                                      """;
 
             await setup.ExecuteAsync(

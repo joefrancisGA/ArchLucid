@@ -15,7 +15,8 @@ IF OBJECT_ID(N'dbo.ArchitectureRunIdempotency', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.ArchitectureRunIdempotency', N'RunId') IS NULL
    AND COL_LENGTH(N'dbo.ArchitectureRunIdempotency', N'RunIdGuid') IS NOT NULL
 BEGIN
-    EXEC sp_rename N'dbo.ArchitectureRunIdempotency.RunIdGuid', N'RunId', N'COLUMN';
+    DECLARE @rename208 NVARCHAR(MAX) = N'EXEC sp_rename N''dbo.ArchitectureRunIdempotency.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @rename208;
 END;
 GO
 
@@ -49,6 +50,7 @@ IF OBJECT_ID(N'dbo.ArchitectureRunIdempotency', N'U') IS NOT NULL
          AND c.name = N'RunId'
          AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
+    DECLARE @migrate208 NVARCHAR(MAX) = N'
     UPDATE dbo.ArchitectureRunIdempotency
     SET RunIdGuid = TRY_CAST(RunId AS UNIQUEIDENTIFIER)
     WHERE RunIdGuid IS NULL;
@@ -59,13 +61,14 @@ BEGIN
       AND NOT EXISTS (SELECT 1 FROM dbo.Runs AS r WHERE r.RunId = t.RunIdGuid);
 
     IF EXISTS (SELECT 1 FROM dbo.ArchitectureRunIdempotency WHERE RunIdGuid IS NULL AND RunId IS NOT NULL)
-        THROW 50027, N'#27 ArchitectureRunIdempotency: backfill incomplete — orphaned RunId strings found.', 1;
+        THROW 50027, N''#27 ArchitectureRunIdempotency: backfill incomplete — orphaned RunId strings found.'', 1;
 
     ALTER TABLE dbo.ArchitectureRunIdempotency ALTER COLUMN RunIdGuid UNIQUEIDENTIFIER NOT NULL;
 
     ALTER TABLE dbo.ArchitectureRunIdempotency DROP COLUMN RunId;
 
-    EXEC sp_rename N'dbo.ArchitectureRunIdempotency.RunIdGuid', N'RunId', N'COLUMN';
+    EXEC sp_rename N''dbo.ArchitectureRunIdempotency.RunIdGuid'', N''RunId'', N''COLUMN'';';
+    EXEC sp_executesql @migrate208;
 END;
 GO
 

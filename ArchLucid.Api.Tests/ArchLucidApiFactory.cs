@@ -32,12 +32,15 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 public class ArchLucidApiFactory : BaseIntegrationTestFixture
 {
-    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("InMemory");
+    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment;
     private readonly bool _ownsSqlCatalog;
+    private readonly string _storageProvider;
 
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
-    public ArchLucidApiFactory()
+    public ArchLucidApiFactory(bool sqlAuthorityStorage = false)
     {
+        _storageProvider = sqlAuthorityStorage ? "Sql" : "InMemory";
+        _storageProviderEnvironment = new IntegrationTestStorageProviderEnvironment(_storageProvider);
         _ownsSqlCatalog = true;
         SqlConnectionString = CreateEphemeralSqlConnectionString();
         SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
@@ -47,6 +50,8 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
     protected ArchLucidApiFactory(string existingSqlConnectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(existingSqlConnectionString);
+        _storageProvider = "Sql";
+        _storageProviderEnvironment = new IntegrationTestStorageProviderEnvironment(_storageProvider);
         _ownsSqlCatalog = false;
         SqlConnectionString = existingSqlConnectionString;
     }
@@ -76,9 +81,10 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
 
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
-        settings["ArchLucid:StorageProvider"] = "InMemory";
+        settings["ArchLucid:StorageProvider"] = _storageProvider;
         settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+        settings["ArchLucid:EvidenceBulkUploadMaxFiles"] = "200";
     }
 
     /// <inheritdoc />
