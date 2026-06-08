@@ -18,6 +18,8 @@ public sealed class ForensicsTracePartitionIntegrationTests
     [SkippableFact]
     public async Task Reader_can_list_trace_summaries_without_prompt_fields()
     {
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
+
         await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
         string runId = await CreateExecutedRunAsync(seedFactory);
 
@@ -44,6 +46,8 @@ public sealed class ForensicsTracePartitionIntegrationTests
     [SkippableFact]
     public async Task Reader_is_forbidden_from_tool_invocation_forensics_and_internal_trace_forensics()
     {
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
+
         await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
         string runId = await CreateExecutedRunAsync(seedFactory);
 
@@ -63,6 +67,8 @@ public sealed class ForensicsTracePartitionIntegrationTests
     [SkippableFact]
     public async Task Operator_can_read_internal_trace_forensics_with_prompt_fields_when_present()
     {
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
+
         await using ArchLucidApiFactory seedFactory = new(sqlAuthorityStorage: true);
         string runId = await CreateExecutedRunAsync(seedFactory);
 

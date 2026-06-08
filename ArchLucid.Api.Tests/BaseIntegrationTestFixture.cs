@@ -1,6 +1,7 @@
 using ArchLucid.Core.Configuration;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -82,5 +83,69 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
     /// </summary>
     protected virtual void AddCustomSettings(Dictionary<string, string?> settings)
     {
+    }
+
+    /// <summary>
+    ///     Minimal-hosting <see cref="WebApplicationFactory{TEntryPoint}" /> can register DI before
+    ///     <see cref="IWebHostBuilder.ConfigureAppConfiguration" /> wins over <c>appsettings.json</c>
+    ///     (<c>ConnectionStrings:ArchLucid</c> defaults to <c>Trusted_Connection=True</c>). Sql-backed factories must
+    ///     merge the test catalog connection string early so schema bootstrap does not attempt SSPI on Linux CI.
+    /// </summary>
+    protected void ApplySqlPersistenceHostOverrides(
+        IWebHostBuilder builder,
+        string sqlConnectionString,
+        IReadOnlyDictionary<string, string?>? additionalOverrides = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sqlConnectionString);
+
+        Dictionary<string, string?> overrides = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] = sqlConnectionString
+        };
+
+        Dictionary<string, string?> customSettings = new();
+        AddCustomSettings(customSettings);
+
+        foreach (KeyValuePair<string, string?> pair in customSettings)
+            overrides[pair.Key] = pair.Value;
+
+        if (additionalOverrides is not null)
+        {
+            foreach (KeyValuePair<string, string?> pair in additionalOverrides)
+                overrides[pair.Key] = pair.Value;
+        }
+
+        foreach (KeyValuePair<string, string?> pair in overrides)
+        {
+            if (pair.Value is null)
+                continue;
+
+            builder.UseSetting(pair.Key, pair.Value);
+        }
+
+        IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(overrides).Build();
+        builder.UseConfiguration(bootstrap);
+
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(overrides));
+    }
+
+    /// <summary>
+    ///     Merges test-only settings without replacing the early Sql <see cref="IWebHostBuilder.UseConfiguration" />
+    ///     bootstrap (subclasses such as marketplace webhook tests add billing keys this way).
+    /// </summary>
+    protected void ApplyAdditionalHostOverrides(
+        IWebHostBuilder builder,
+        IReadOnlyDictionary<string, string?> additionalOverrides)
+    {
+        foreach (KeyValuePair<string, string?> pair in additionalOverrides)
+        {
+            if (pair.Value is null)
+                continue;
+
+            builder.UseSetting(pair.Key, pair.Value);
+        }
+
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(additionalOverrides));
     }
 }

@@ -1,5 +1,6 @@
 using ArchLucid.TestSupport;
 
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 
@@ -90,6 +91,15 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
         settings["ArchLucid:StorageProvider"] = _storageProvider;
         settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+    }
+
+    /// <inheritdoc />
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+
+        if (_storageProvider == "Sql")
+            ApplySqlPersistenceHostOverrides(builder, SqlConnectionString);
     }
 
     /// <inheritdoc />

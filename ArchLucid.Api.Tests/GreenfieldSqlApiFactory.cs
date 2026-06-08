@@ -2,7 +2,6 @@ using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests;
 
@@ -58,98 +57,13 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture
     {
         base.ConfigureWebHost(builder);
 
-        ApplySqlPersistenceHostOverrides(builder, GetAdditionalHostConfigurationOverrides());
+        ApplySqlPersistenceHostOverrides(builder, SqlConnectionString, GetAdditionalHostConfigurationOverrides());
     }
 
     /// <summary>Subclasses add test-only host keys merged into the single early Sql <c>UseConfiguration</c> bootstrap.</summary>
     protected virtual IReadOnlyDictionary<string, string?>? GetAdditionalHostConfigurationOverrides()
     {
         return null;
-    }
-
-    /// <summary>Sql catalog overrides every greenfield host must apply before <see cref="Program" /> registers DI.</summary>
-    protected Dictionary<string, string?> CreateSqlPersistenceHostOverrides()
-    {
-        return new Dictionary<string, string?>
-        {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ConnectionStrings:ArchLucid"] = SqlConnectionString
-        };
-    }
-
-    /// <summary>
-    ///     Minimal-hosting <see cref="WebApplicationFactory{TEntryPoint}" /> can register DI before
-    ///     <see cref="IWebHostBuilder.ConfigureAppConfiguration" /> wins over
-    ///     <c>appsettings.Development.json</c> (<c>StorageProvider=InMemory</c>). Startup then runs
-    ///     <c>ISchemaBootstrapper</c> without it registered — same early-merge pattern as
-    ///     <see cref="JwtLocalSigningWebAppFactory" /> and
-    ///     <see cref="Billing.BillingCheckoutEndToEndSqlJwtFactoryBase" />.
-    /// </summary>
-    protected void ApplySqlPersistenceHostOverrides(
-        IWebHostBuilder builder,
-        IReadOnlyDictionary<string, string?>? additionalOverrides = null)
-    {
-        Dictionary<string, string?> overrides = CreateSqlPersistenceHostOverrides();
-        MergeHostConfigurationOverrides(overrides, additionalOverrides);
-
-        foreach (KeyValuePair<string, string?> pair in overrides)
-        {
-            if (pair.Value is null)
-            {
-                continue;
-            }
-
-            builder.UseSetting(pair.Key, pair.Value);
-        }
-
-        IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(overrides).Build();
-        builder.UseConfiguration(bootstrap);
-
-        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(overrides));
-    }
-
-    /// <summary>
-    ///     Merges test-only settings without replacing the early Sql <see cref="IWebHostBuilder.UseConfiguration" />
-    ///     bootstrap (subclasses such as marketplace webhook tests add billing keys this way).
-    /// </summary>
-    protected void ApplyAdditionalHostOverrides(
-        IWebHostBuilder builder,
-        IReadOnlyDictionary<string, string?> additionalOverrides)
-    {
-        foreach (KeyValuePair<string, string?> pair in additionalOverrides)
-        {
-            if (pair.Value is null)
-            {
-                continue;
-            }
-
-            builder.UseSetting(pair.Key, pair.Value);
-        }
-
-        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(additionalOverrides));
-    }
-
-    private void MergeHostConfigurationOverrides(
-        Dictionary<string, string?> overrides,
-        IReadOnlyDictionary<string, string?>? additionalOverrides)
-    {
-        Dictionary<string, string?> customSettings = new();
-        AddCustomSettings(customSettings);
-
-        foreach (KeyValuePair<string, string?> pair in customSettings)
-        {
-            overrides[pair.Key] = pair.Value;
-        }
-
-        if (additionalOverrides is null)
-        {
-            return;
-        }
-
-        foreach (KeyValuePair<string, string?> pair in additionalOverrides)
-        {
-            overrides[pair.Key] = pair.Value;
-        }
     }
 
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
