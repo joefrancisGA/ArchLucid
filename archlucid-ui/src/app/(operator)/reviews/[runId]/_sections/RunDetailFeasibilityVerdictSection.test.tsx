@@ -24,12 +24,13 @@ describe("RunDetailFeasibilityVerdictSection", () => {
       },
     };
 
-    render(<RunDetailFeasibilityVerdictSection verdict={verdict} />);
+    render(<RunDetailFeasibilityVerdictSection verdict={verdict} runId="run-1" />);
 
     expect(screen.getByTestId("run-detail-feasibility-verdict")).toBeInTheDocument();
     expect(screen.getByText(/soft infeasible/i)).toBeInTheDocument();
     expect(screen.getByText(verdict.summary)).toBeInTheDocument();
     expect(screen.getByText(/asserted \(1\)/i)).toBeInTheDocument();
     expect(screen.getByText(/skipped \(1\)/i)).toBeInTheDocument();
+    expect(screen.getByTestId("decision-receipt-export")).toBeInTheDocument();
   });
 });

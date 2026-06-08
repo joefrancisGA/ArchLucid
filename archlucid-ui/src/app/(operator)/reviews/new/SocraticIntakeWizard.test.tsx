@@ -33,6 +33,12 @@ vi.mock("@/components/draft-intake/DraftIntakeActorEditor", () => ({
   DraftIntakeActorEditor: () => <div data-testid="draft-intake-actor-editor-stub">Actor editor stub</div>,
 }));
 
+vi.mock("@/components/draft-intake/DraftIntakeDecisionReceiptCard", () => ({
+  DraftIntakeDecisionReceiptCard: () => (
+    <div data-testid="draft-intake-decision-receipt-stub">Decision receipt stub</div>
+  ),
+}));
+
 vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
   showError: vi.fn(),

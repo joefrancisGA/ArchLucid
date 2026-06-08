@@ -1,6 +1,8 @@
 import type { ReactElement } from "react";
 
+import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import {
   feasibilityVerdictKindLabel,
   feasibilityVerdictTone,
@@ -11,6 +13,7 @@ import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailFeasibilityVerdictSectionProps = {
   readonly verdict: ManifestFeasibilityVerdict;
+  readonly runId: string;
 };
 
 function toneClassName(tone: "success" | "warning" | "danger"): string {
@@ -56,6 +59,18 @@ export function RunDetailFeasibilityVerdictSection(
           <p className="mt-3 text-sm">
             Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
           </p>
+        ) : null}
+
+        {isExportableDecisionVerdict(verdict.kind) ? (
+          <div className="mt-4">
+            <DecisionReceiptExportButton
+              context={{
+                source: "committed-run",
+                runId: props.runId,
+                verdict,
+              }}
+            />
+          </div>
         ) : null}
       </div>
 

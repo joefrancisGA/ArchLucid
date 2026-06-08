@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
+import { DraftIntakeDecisionReceiptCard } from "@/components/draft-intake/DraftIntakeDecisionReceiptCard";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { DraftIntakeWhatIfBranchPanel } from "@/components/draft-intake/DraftIntakeWhatIfBranchPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -34,6 +35,7 @@ import {
   buildSuggestedActorSet,
 } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 const MIN_INTENT_CHARS = 10;
 const MIN_OUTCOME_CHARS = 10;
@@ -64,6 +66,7 @@ export function SocraticIntakeWizard() {
   const [parentDraftId, setParentDraftId] = useState<string | null>(null);
   const [parentSpawnedRunId, setParentSpawnedRunId] = useState<string | null>(null);
   const [redirectReason, setRedirectReason] = useState<string | null>(null);
+  const [redirectVerdict, setRedirectVerdict] = useState<ManifestFeasibilityVerdict | null>(null);
   const [allQuestions, setAllQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -110,6 +113,7 @@ export function SocraticIntakeWizard() {
     setBusy(true);
     setSubmitError(null);
     setRedirectReason(null);
+    setRedirectVerdict(null);
 
     try {
       const created = await createDraftRequest(freeTextIntent.trim());
@@ -127,6 +131,7 @@ export function SocraticIntakeWizard() {
 
       if (!admission.admitted) {
         setRedirectReason(admission.redirectReason ?? admission.verdict.summary);
+        setRedirectVerdict(admission.verdict);
         showError("Guided intake", admission.redirectReason ?? "Admission gate redirected this draft.");
         return;
       }
@@ -298,13 +303,15 @@ export function SocraticIntakeWizard() {
         />
       ) : null}
 
-      {redirectReason !== null ? (
-        <Card className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40">
-          <CardHeader>
-            <CardTitle className="text-base">Admission redirect</CardTitle>
-            <CardDescription>{redirectReason}</CardDescription>
-          </CardHeader>
-        </Card>
+      {redirectReason !== null && redirectVerdict !== null && draftId !== null ? (
+        <DraftIntakeDecisionReceiptCard
+          draftId={draftId}
+          redirectReason={redirectReason}
+          verdict={redirectVerdict}
+          freeTextIntent={freeTextIntent}
+          businessOutcome={businessOutcome}
+          systemName={systemName}
+        />
       ) : null}
 
       {step === 0 ? (

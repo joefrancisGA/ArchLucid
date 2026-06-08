@@ -73,7 +73,10 @@ export function RunDetailManifestSummarySection(
       </Card>
 
       {manifestSummary.feasibilityVerdict !== undefined && manifestSummary.feasibilityVerdict !== null ? (
-        <RunDetailFeasibilityVerdictSection verdict={manifestSummary.feasibilityVerdict} />
+        <RunDetailFeasibilityVerdictSection
+          verdict={manifestSummary.feasibilityVerdict}
+          runId={manifestSummary.runId}
+        />
       ) : null}
 
       <OperatorEvidenceLimitsFooter

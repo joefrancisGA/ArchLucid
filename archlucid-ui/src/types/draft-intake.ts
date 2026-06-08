@@ -1,3 +1,4 @@
+import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { ElicitationAnswerKind, ElicitationQuestionTier } from "@/types/policy-packs";
 
 /** Lifecycle state for a draft request (ADR 0048). */
@@ -96,13 +97,6 @@ export type DraftQuestionsResponse = {
   selection: QuestionSelectionResult;
 };
 
-export type FeasibilityVerdictKind = "Feasible" | "SoftInfeasible" | "HardInfeasible";
-
-export type FeasibilityVerdict = {
-  kind: FeasibilityVerdictKind;
-  summary: string;
-};
-
 export type DraftAdmissionResponse = {
   admitted: boolean;
   status: DraftRequestStatus;
@@ -110,7 +104,7 @@ export type DraftAdmissionResponse = {
   draft: DraftRequestResponse;
   pendingMustQuestions: DraftElicitationQuestion[];
   requiredMustQuestionKeys: string[];
-  verdict: FeasibilityVerdict;
+  verdict: ManifestFeasibilityVerdict;
 };
 
 export type SubmitDraftResponse = {
