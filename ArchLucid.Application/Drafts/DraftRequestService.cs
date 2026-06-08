@@ -360,12 +360,18 @@ public sealed class DraftRequestService(
             createResult.Run.RunId,
             cancellationToken);
 
+        string? parentSpawnedRunId = await ResolveParentSpawnedRunIdAsync(
+            scope,
+            existing.Document.ParentDraftId,
+            cancellationToken);
+
         return new SubmitDraftResponse
         {
             DraftId = draftId,
             Status = spawned!.Status,
             RunId = createResult.Run.RunId,
             RequestId = architectureRequest.RequestId,
+            ParentSpawnedRunId = parentSpawnedRunId,
         };
     }
 
@@ -473,6 +479,22 @@ public sealed class DraftRequestService(
             existing.RedirectReason,
             existing.SpawnedRunId,
             cancellationToken);
+    }
+
+    private async Task<string?> ResolveParentSpawnedRunIdAsync(
+        ScopeContext scope,
+        Guid? parentDraftId,
+        CancellationToken cancellationToken)
+    {
+        if (parentDraftId is null)
+            return null;
+
+        DraftRequestResponse? parent = await GetAsync(scope, parentDraftId.Value, cancellationToken);
+
+        if (parent is null || string.IsNullOrWhiteSpace(parent.SpawnedRunId))
+            return null;
+
+        return parent.SpawnedRunId;
     }
 
     private static void ApplyPatch(DraftRequestDocument document, PatchDraftRequest patch)

@@ -5,9 +5,11 @@ const admitDraftRequest = vi.fn();
 const createDraftRequest = vi.fn();
 const getDraftQuestions = vi.fn();
 const patchDraftRequest = vi.fn();
+const submitDraftRequest = vi.fn();
+const routerPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: routerPush }),
 }));
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
@@ -24,7 +26,7 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
   getDraftQuestions: (...args: unknown[]) => getDraftQuestions(...args),
   answerDraftQuestion: vi.fn(),
   skipDraftQuestion: vi.fn(),
-  submitDraftRequest: vi.fn(),
+  submitDraftRequest: (...args: unknown[]) => submitDraftRequest(...args),
   buildDefaultActorSet: () => ({
     actors: [{ kind: "Human", trustOrigin: "Internal", contract: "Sync", origin: "Asserted", confidence: 100 }],
   }),
@@ -93,5 +95,49 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("socratic-intake-progress")).toHaveTextContent(/step 2 of 3/i);
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-what-if-stub")).toBeInTheDocument();
+  });
+
+  it("routes branch submit to run detail with parentRunId when parent already spawned", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: { allQuestions: [], requiredMustQuestionKeys: [], pendingMustQuestions: [] },
+    });
+    submitDraftRequest.mockResolvedValue({
+      draftId: "draft-1",
+      status: "RunSpawned",
+      runId: "branch-run",
+      requestId: "req-branch",
+      parentSpawnedRunId: "parent-run",
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("socratic-intent"), {
+      target: { value: "Modernize the claims intake workflow for analysts." },
+    });
+    fireEvent.change(screen.getByTestId("socratic-outcome"), {
+      target: { value: "Reduce manual triage time by thirty percent." },
+    });
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-questions-done")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("socratic-questions-done"));
+    fireEvent.click(screen.getByTestId("socratic-submit"));
+
+    await waitFor(() => {
+      expect(routerPush).toHaveBeenCalledWith("/reviews/branch-run?parentRunId=parent-run");
+    });
   });
 });

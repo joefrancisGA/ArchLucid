@@ -109,6 +109,8 @@ export type SubmitDraftResponse = {
   status: DraftRequestStatus;
   runId: string;
   requestId: string;
+  /** Set when this draft is a what-if branch and the parent draft already spawned a run (R12). */
+  parentSpawnedRunId?: string;
 };
 
 export type DraftIntakeReasonResponse = {

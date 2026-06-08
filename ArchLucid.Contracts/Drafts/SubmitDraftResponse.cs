@@ -26,4 +26,13 @@ public sealed class SubmitDraftResponse
         get;
         set;
     } = string.Empty;
+
+    /// <summary>
+    ///     Parent run id when this draft is a what-if branch and the parent draft already spawned a run (R12).
+    /// </summary>
+    public string? ParentSpawnedRunId
+    {
+        get;
+        set;
+    }
 }

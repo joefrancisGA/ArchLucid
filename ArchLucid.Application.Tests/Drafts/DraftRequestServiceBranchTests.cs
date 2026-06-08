@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Feasibility;
@@ -45,6 +46,17 @@ public sealed class DraftRequestServiceBranchTests
         _contentSafety
             .Setup(static s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        _runCreateOrchestrator
+            .SetupSequence(static o => o.CreateRunAsync(It.IsAny<ArchitectureRequest>(), null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CreateRunResult
+            {
+                Run = new ArchitectureRun { RunId = "parent-run", RequestId = "req-parent" },
+            })
+            .ReturnsAsync(new CreateRunResult
+            {
+                Run = new ArchitectureRun { RunId = "branch-run", RequestId = "req-branch" },
+            });
 
         FeasibilityVerdictBuilder verdictBuilder = new(new FeasibilityVerdictValidator());
 
@@ -93,6 +105,59 @@ public sealed class DraftRequestServiceBranchTests
 
         DraftRequestResponse? parentReloaded = await _service.GetAsync(_scope, parent.DraftId, CancellationToken.None);
         parentReloaded!.Document.QuestionAnswers[mustKey].Should().Be(originalAnswer);
+    }
+
+    [Fact]
+    public async Task SubmitAsync_ReturnsParentSpawnedRunId_WhenBranchParentAlreadySpawned()
+    {
+        DraftRequestResponse parent = await CreateAdmittedParentAsync();
+
+        foreach (string key in UniversalIntakeQuestions.MustQuestions.Select(static q => q.QuestionKey))
+        {
+            await _service.AnswerQuestionAsync(
+                _scope,
+                parent.DraftId,
+                new AnswerDraftQuestionRequest { QuestionKey = key, Answer = "Addressed." },
+                CancellationToken.None);
+        }
+
+        SubmitDraftResponse? parentSubmit = await _service.SubmitAsync(
+            _scope,
+            parent.DraftId,
+            CancellationToken.None);
+
+        parentSubmit.Should().NotBeNull();
+        parentSubmit!.RunId.Should().NotBeNullOrWhiteSpace();
+
+        BranchDraftResponse? branch = await _service.BranchAsync(
+            _scope,
+            parent.DraftId,
+            "operator-1",
+            new BranchDraftRequest
+            {
+                OverrideKind = DraftBranchOverrideKind.BusinessOutcome,
+                OverrideValue = "Lower cost target for what-if.",
+            },
+            CancellationToken.None);
+
+        branch.Should().NotBeNull();
+
+        foreach (string key in branch!.Branch.Document.RequiredMustQuestionKeys)
+        {
+            await _service.AnswerQuestionAsync(
+                _scope,
+                branch.Branch.DraftId,
+                new AnswerDraftQuestionRequest { QuestionKey = key, Answer = "Addressed on branch." },
+                CancellationToken.None);
+        }
+
+        SubmitDraftResponse? branchSubmit = await _service.SubmitAsync(
+            _scope,
+            branch.Branch.DraftId,
+            CancellationToken.None);
+
+        branchSubmit.Should().NotBeNull();
+        branchSubmit!.ParentSpawnedRunId.Should().Be(parentSubmit.RunId);
     }
 
     [Fact]

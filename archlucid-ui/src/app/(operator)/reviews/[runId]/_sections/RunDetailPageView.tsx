@@ -1,4 +1,7 @@
+import { Suspense } from "react";
+
 import { ChangesSinceLastReviewBanner } from "@/components/ChangesSinceLastReviewBanner";
+import { WhatIfBranchCompareBanner } from "@/components/draft-intake/WhatIfBranchCompareBanner";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
@@ -191,6 +194,12 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       ) : null}
 
       {changesSinceLastReviewBannerEl}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <Suspense fallback={null}>
+          <WhatIfBranchCompareBanner currentRunId={m.resolvedDetail.run.runId} />
+        </Suspense>
+      ) : null}
 
       {m.savingsSummary !== null ? <RunSavingsSummary model={m.savingsSummary} /> : null}
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
@@ -23,6 +24,8 @@ import {
   skipDraftQuestion,
   submitDraftRequest,
 } from "@/lib/api/draft-intake-api";
+import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
@@ -51,6 +54,7 @@ export function SocraticIntakeWizard() {
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [parentDraftId, setParentDraftId] = useState<string | null>(null);
+  const [parentSpawnedRunId, setParentSpawnedRunId] = useState<string | null>(null);
   const [redirectReason, setRedirectReason] = useState<string | null>(null);
   const [allQuestions, setAllQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<DraftElicitationQuestion[]>([]);
@@ -77,6 +81,7 @@ export function SocraticIntakeWizard() {
       const branch = response.branch;
       setDraftId(branch.draftId);
       setParentDraftId(response.parentDraftId);
+      setParentSpawnedRunId(response.parentSpawnedRunId ?? null);
       setFreeTextIntent(branch.document.freeTextIntent);
       setBusinessOutcome(branch.document.businessOutcome ?? "");
       setSystemName(branch.document.systemName ?? "");
@@ -194,6 +199,15 @@ export function SocraticIntakeWizard() {
     try {
       const result = await submitDraftRequest(draftId);
       recordFirstTenantFunnelEvent("first_run_started");
+
+      const compareParentRunId = result.parentSpawnedRunId ?? parentSpawnedRunId;
+
+      if (compareParentRunId !== null && compareParentRunId.trim().length > 0) {
+        showSuccess("What-if branch review started — open Compare when both manifests are ready.");
+        router.push(runDetailHrefWithParentRun(result.runId, compareParentRunId));
+        return;
+      }
+
       showSuccess("Architecture review started from guided intake.");
       router.push(`/reviews/${result.runId}`);
     } catch (error) {
@@ -204,7 +218,7 @@ export function SocraticIntakeWizard() {
     } finally {
       setBusy(false);
     }
-  }, [draftId, router]);
+  }, [draftId, parentSpawnedRunId, router]);
 
   return (
     <div className="space-y-4" data-testid="socratic-intake-wizard">
@@ -229,6 +243,19 @@ export function SocraticIntakeWizard() {
             <CardTitle className="text-base">What-if branch</CardTitle>
             <CardDescription>
               Editing branch draft {draftId} forked from parent {parentDraftId}. Submit as a separate run, then Compare.
+              {parentSpawnedRunId !== null ? (
+                <>
+                  {" "}
+                  Parent run{" "}
+                  <Link
+                    href={comparePageHrefAdaptive(parentSpawnedRunId)}
+                    className="font-medium text-sky-900 underline dark:text-sky-200"
+                  >
+                    {parentSpawnedRunId}
+                  </Link>{" "}
+                  is already spawned — after submit you can diff manifests immediately.
+                </>
+              ) : null}
             </CardDescription>
           </CardHeader>
         </Card>
