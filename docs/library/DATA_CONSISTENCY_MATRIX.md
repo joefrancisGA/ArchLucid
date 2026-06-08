@@ -94,6 +94,27 @@ If a list view looks stale immediately after a write, wait briefly and refresh. 
 | **`run_golden_manifest_consistency`** (readiness) | Health check | **`RunGoldenManifestConsistencyHealthCheck`**: non-archived **`dbo.Runs`** with **`GoldenManifestId`** set but no matching **`dbo.GoldenManifests`** row → **Degraded**. Skipped when storage is InMemory. |
 | **`DataConsistencyOrphanProbeHostedService`** | Background timer | SQL only; configurable via **`DataConsistency:OrphanProbeEnabled`** / **`OrphanProbeIntervalMinutes`**. Counts orphan **`RunId`** references on authority snapshot and forensic tables registered in **`DataConsistencyOrphanProbeRegistry`** ( **`GoldenManifests`**, **`FindingsSnapshots`**, **`ContextSnapshots`**, **`GraphSnapshots`**, **`ArtifactBundles`**, **`RetrievalGroundingTrace`** ); logs warning and emits **`archlucid_data_consistency_orphans_detected_total`** (detection-only except configured quarantine for supported snapshot families). **`dbo.ComparisonRecords`** uses FK-backed **`LeftRunId`/`RightRunId`** (DbUp 137) and is an explicit registry opt-out. |
 
+## Cross-catalog write patterns (system catalog ↔ per-tenant catalog)
+
+Applies only in `SqlTopologyMode.SystemWithPerTenantCatalogs`. In `SingleCatalog` mode both references hit the same physical database.
+
+**Invariant (SAQ-005, 2026-06-07):** No operation in this codebase performs a true distributed transaction (2PC / `TransactionScope`) across the system catalog and a per-tenant catalog. This invariant is verified by the absence of `TransactionScope`, `EnlistTransaction`, or cross-database ambient transaction usage in all `.cs` product sources. Any new cross-catalog write path that requires atomicity must file a superseding ADR before implementation.
+
+| Workflow | System catalog write | Per-tenant catalog write | Atomicity | Partial-failure posture |
+|---|---|---|---|---|
+| **Tenant provisioning** (`SqlTenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync`) | `dbo.TenantDatabaseBindings` (upsert pending → active/failed); read `dbo.Tenants` for mirror | Schema migration; mirror `dbo.Tenants` row; initial workspace/project rows | **None** — sequential saga steps | Saga logs "manual cleanup may be required"; binding marked Failed on schema/migration error; idempotent retry supported |
+| **Tenant directory mirroring** (`DapperTenantRepository` lifecycle methods: `SuspendTenantAsync`, erasure offboard/restore/legal-hold) | `UPDATE dbo.Tenants` lifecycle fields | Same `UPDATE` in tenant-mirror `dbo.Tenants` | **None** — two separate connections | Column-authority matrix (TB-313) documents write ownership per column; CI guard detects authority drift; partial failure leaves visible state divergence until next admin retry |
+| **Tenant deletion** (`TenantDeletionService.DeleteTenantAsync`) | `INSERT dbo.PlatformAuditEvents` (after purge) | `DELETE` tenant-scoped rows via `SqlTenantHardPurgeService` | **None** — sequential | Purge completes first; audit append is best-effort post-step; no rollback |
+| **Cross-tenant rollup** (`InternalCrossTenantRollupProcessor`) | `INSERT/UPDATE dbo.InternalCrossTenantRollupDaily` | Reads only (no write) | N/A — read + system write | Eventual consistency by design; background job |
+
+**Core product paths write to exactly one catalog per operation (single-catalog invariant):**
+
+- Run create / execute / commit — `IArchLucidUnitOfWork` on tenant catalog only
+- Outbox enqueue (all families) — tenant catalog, inside UoW transaction
+- Usage metering — tenant catalog, post-commit best-effort
+- Run archival, retention purge — tenant catalog only
+- All authority snapshot tables — tenant catalog
+
 ## Related
 
 - `docs/architecture/adrs/0002-dual-persistence-architecture-runs-and-runs.md`

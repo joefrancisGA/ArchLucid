@@ -33,9 +33,7 @@ internal static class FindingsSnapshotRelationalRead
                                   IsMuted, MuteReason, ReasoningTrace, ReasoningTraceDigestSha256
                               FROM dbo.FindingRecords
                               WHERE FindingsSnapshotId = @FindingsSnapshotId
-                              """ + RepositoryScopePredicate.AndTripleWhere(scope) + """
-                              ORDER BY SortOrder;
-                              """;
+                              """ + RepositoryScopePredicate.AndTripleWhere(scope) + " ORDER BY SortOrder;";
 
         DynamicParameters parameters = new();
         parameters.Add("FindingsSnapshotId", row.FindingsSnapshotId);

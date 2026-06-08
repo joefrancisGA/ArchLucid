@@ -48,6 +48,22 @@ describe("api-error-toast-policy", () => {
     });
   });
 
+  it("shows API URL not configured for proxy 503 misconfiguration", () => {
+    const err = new ApiRequestError("ArchLucid API not configured", {
+      httpStatus: 503,
+      problem: {
+        supportHint: "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local.",
+      },
+      correlationId: null,
+    });
+
+    expect(resolveApiRequestErrorToastPlan(err, false)).toMatchObject({
+      action: "show",
+      title: "API URL not configured",
+      type: "error",
+    });
+  });
+
   it("keeps assistant wording for UseStream-only failures", () => {
     const err = new ApiRequestError("UseStream API unreachable: fetch failed", {
       httpStatus: 500,

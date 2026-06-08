@@ -9611,3 +9611,23 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Out of scope:** SQL RLS; child-via-parent bucket (future tightening).
 
 **Refs:** ADR-0037; ADR-0047.
+
+---
+
+## TB-316 — Cross-catalog atomic write inventory (P2)
+
+**Status:** **Done** (2026-06-07).
+
+**Finding:** Full codebase inventory (all connection factories, repositories, orchestrators). No path implements or requires 2PC across system catalog and per-tenant catalog.
+
+**Cross-catalog write paths identified (all sequential, not atomic):**
+
+1. `SqlTenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync` — provisioning saga across `dbo.TenantDatabaseBindings` (system) and tenant catalog schema + mirror row. Partial failure logged; idempotent retry supported.
+2. `DapperTenantRepository` lifecycle mirroring (`SuspendTenantAsync`, erasure offboard/restore/legal-hold methods) — dual `UPDATE dbo.Tenants` on separate connections. Mitigated by column-authority matrix (TB-313) and CI guard.
+3. `TenantDeletionService.DeleteTenantAsync` — purge tenant catalog rows, then audit-append to system `dbo.PlatformAuditEvents`; no rollback of the purge on append failure.
+
+**Invariant established:** Core product paths (run create/execute/commit, all outbox families, usage metering, run archival, retention purge) write to exactly one catalog per user-visible operation and use `IArchLucidUnitOfWork` for local SQL transactions. Cross-catalog 2PC is not implemented and not required. Any future cross-catalog write that requires atomicity must file a superseding ADR before implementation.
+
+**Documented in:** [`DATA_CONSISTENCY_MATRIX.md`](DATA_CONSISTENCY_MATRIX.md) — *Cross-catalog write patterns* section.
+
+**Refs:** SAQ-005; ADR-0038.

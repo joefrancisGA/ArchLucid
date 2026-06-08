@@ -214,3 +214,9 @@ Keep these aligned on the same **10.x** line as **`Directory.Packages.props`**.
 ## Packages that may be unavailable on restricted feeds
 
 There is **no** NuGet package **`Microsoft.Extensions.Configuration.Memory`** — use **`Microsoft.Extensions.Configuration`**, which includes **`AddInMemoryCollection`**. If a feed blocks that package, prefer tests that **mock `IConfiguration`** or use **in-repo test doubles**.
+
+## RC / release gate policy (T1-3)
+
+High-risk CI guards (tenant isolation, mutating-route idempotency, audit matrix, buyer claim drift, pricing placeholder) remain **warn-only** on ordinary PRs inside **`ci.yml`** **`Docs: guards pre-corset`**. They **block** RC and release cuts via **`.github/workflows/rc-release-gate.yml`** (tags `v*-rc*`, branches `release/**`, or manual dispatch).
+
+Policy detail: [`docs/runbooks/RC_RELEASE_GATE.md`](../runbooks/RC_RELEASE_GATE.md). Release checklist: [`docs/library/V1_RELEASE_CHECKLIST.md`](../library/V1_RELEASE_CHECKLIST.md).

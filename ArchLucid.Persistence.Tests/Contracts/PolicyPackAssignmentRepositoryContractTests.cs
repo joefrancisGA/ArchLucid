@@ -20,6 +20,19 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
     {
     }
 
+    /// <summary>SQL FK to <c>dbo.PolicyPacks</c> requires a parent row; in-memory repos skip this.</summary>
+    protected virtual Task EnsurePolicyPackRowAsync(PolicyPackAssignment assignment, CancellationToken cancellationToken) =>
+        Task.CompletedTask;
+
+    private async Task CreateAssignmentAsync(
+        IPolicyPackAssignmentRepository repository,
+        PolicyPackAssignment assignment,
+        CancellationToken cancellationToken)
+    {
+        await EnsurePolicyPackRowAsync(assignment, cancellationToken);
+        await repository.CreateAsync(assignment, cancellationToken);
+    }
+
     private static PolicyPackAssignment CreateAssignment(
         Guid tenantId,
         Guid workspaceId,
@@ -51,7 +64,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         IPolicyPackAssignmentRepository repo = CreateRepository();
         PolicyPackAssignment row = CreateAssignment(TenantA, WorkspaceW, ProjectP, GovernanceScopeLevel.Project);
 
-        await repo.CreateAsync(row, CancellationToken.None);
+        await CreateAssignmentAsync(repo, row, CancellationToken.None);
 
         IReadOnlyList<PolicyPackAssignment> list =
             await repo.ListByScopeAsync(TenantA, WorkspaceW, ProjectP, CancellationToken.None);
@@ -66,7 +79,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         IPolicyPackAssignmentRepository repo = CreateRepository();
         PolicyPackAssignment row = CreateAssignment(TenantA, Guid.Empty, Guid.Empty, GovernanceScopeLevel.Tenant);
 
-        await repo.CreateAsync(row, CancellationToken.None);
+        await CreateAssignmentAsync(repo, row, CancellationToken.None);
 
         IReadOnlyList<PolicyPackAssignment> list =
             await repo.ListByScopeAsync(TenantA, WorkspaceOther, ProjectP, CancellationToken.None);
@@ -81,7 +94,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         IPolicyPackAssignmentRepository repo = CreateRepository();
         PolicyPackAssignment row = CreateAssignment(TenantA, WorkspaceW, Guid.Empty, GovernanceScopeLevel.Workspace);
 
-        await repo.CreateAsync(row, CancellationToken.None);
+        await CreateAssignmentAsync(repo, row, CancellationToken.None);
 
         IReadOnlyList<PolicyPackAssignment> match =
             await repo.ListByScopeAsync(TenantA, WorkspaceW, ProjectP, CancellationToken.None);
@@ -100,7 +113,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         IPolicyPackAssignmentRepository repo = CreateRepository();
         PolicyPackAssignment row = CreateAssignment(TenantA, WorkspaceW, ProjectP, GovernanceScopeLevel.Project);
 
-        await repo.CreateAsync(row, CancellationToken.None);
+        await CreateAssignmentAsync(repo, row, CancellationToken.None);
         row.IsEnabled = false;
         await repo.UpdateAsync(row, CancellationToken.None);
 
@@ -119,7 +132,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         IPolicyPackAssignmentRepository repo = CreateRepository();
         PolicyPackAssignment row = CreateAssignment(TenantA, WorkspaceW, ProjectP, GovernanceScopeLevel.Project);
 
-        await repo.CreateAsync(row, CancellationToken.None);
+        await CreateAssignmentAsync(repo, row, CancellationToken.None);
         bool archived = await repo.ArchiveAsync(TenantA, row.AssignmentId, CancellationToken.None);
 
         archived.Should().BeTrue();
@@ -137,7 +150,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         IPolicyPackAssignmentRepository repo = CreateRepository();
         PolicyPackAssignment row = CreateAssignment(TenantA, WorkspaceW, ProjectP, GovernanceScopeLevel.Project);
 
-        await repo.CreateAsync(row, CancellationToken.None);
+        await CreateAssignmentAsync(repo, row, CancellationToken.None);
 
         PolicyPackAssignment? found =
             await repo.GetByTenantAndAssignmentIdAsync(TenantA, row.AssignmentId, CancellationToken.None);
@@ -165,7 +178,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         IPolicyPackAssignmentRepository repo = CreateRepository();
         PolicyPackAssignment row = CreateAssignment(TenantA, WorkspaceW, ProjectP, GovernanceScopeLevel.Project);
 
-        await repo.CreateAsync(row, CancellationToken.None);
+        await CreateAssignmentAsync(repo, row, CancellationToken.None);
 
         Guid otherTenant = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
         bool ok = await repo.ArchiveAsync(otherTenant, row.AssignmentId, CancellationToken.None);

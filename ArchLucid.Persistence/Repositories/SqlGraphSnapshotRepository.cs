@@ -79,9 +79,7 @@ public sealed class SqlGraphSnapshotRepository(
                          GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
                      FROM dbo.GraphSnapshots
                      WHERE ContextSnapshotId = @ContextSnapshotId
-                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + """
-                     ORDER BY CreatedUtc DESC;
-                     """;
+                     """ + RepositoryScopePredicate.AndScopeProjectIdTripleWhere(scope) + " ORDER BY CreatedUtc DESC;";
 
         DynamicParameters parameters = new();
         parameters.Add("ContextSnapshotId", contextSnapshotId);

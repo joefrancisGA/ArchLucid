@@ -134,7 +134,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
 
             await setup.ExecuteAsync(
                 insertSql,
-                new { ResultId = resultId, TaskId = "enrichment-task", RunId = runId });
+                new { ResultId = resultId, TaskId = "enrichment-task", RunId = Guid.Parse(runId) });
         }
 
         await enrichmentRepository.UpsertCalibratedConfidenceAsync(resultId, 0.42, CancellationToken.None);

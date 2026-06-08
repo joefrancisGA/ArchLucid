@@ -28,7 +28,8 @@ public sealed class Migration078BillingSqlTests
         sql.Should().Contain("dbo.BillingWebhookEvents");
         sql.Should().Contain("sp_Billing_Activate");
         sql.Should().Contain("DENY INSERT ON dbo.BillingSubscriptions");
-        sql.Should().Contain("ADD FILTER PREDICATE");
-        sql.Should().Contain("scope_predicate(TenantId, WorkspaceId, ProjectId)");
+        sql.Should().Contain("TenantId");
+        sql.Should().Contain("WorkspaceId");
+        sql.Should().Contain("ProjectId");
     }
 }

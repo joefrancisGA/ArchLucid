@@ -1,0 +1,111 @@
+> **Scope:** Engineering-owned register of **architecture and design questions** for strong-model review (Opus, Sonnet, or equivalent). Living document — not buyer-facing. Complements ADRs (decisions), [`TECH_BACKLOG.md`](TECH_BACKLOG.md) (engineering work), and [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) (owner product/commercial decisions).
+
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md).
+
+# Strong-model architecture & design questions (SAQ)
+
+## Why this exists
+
+First-principles questions asked of a **strong reasoning model** have repeatedly surfaced load-bearing assumptions, pre-ship risks, and ADR-worthy commitments before they became expensive rewrites. This register tracks those questions like any other backlog item: **open → reviewed → resolved** (ADR, TB, shipped fix, owner decision, or explicit defer).
+
+**Composer** (fast implementation agent) owns execution after a question is scoped or resolved. **Opus / Sonnet** own the hard review passes.
+
+## When to use a strong model (not Composer)
+
+Ask Opus or Sonnet when the question is:
+
+- **Load-bearing** — wrong answer forces rewrite, not refactor
+- **Cross-cutting** — tenancy, durability, claims/evidence, economics, scope model
+- **Pre-ship or pre-claim** — affects what we may honestly sell or operate
+- **ADR-shaped** — alternatives exist; reversal cost is high
+
+Use Composer to implement after the question is resolved or scoped to a **TB-###** item.
+
+## Workflow
+
+1. **Add** a row below (`Status: Open`, assign **P0–P2** priority).
+2. **Ask** using the prompt template; attach relevant ADRs, topology docs, and assessment excerpts.
+3. **Record outcome** in `Resolution` — one of:
+   - **ADR** — link new or existing ADR
+   - **TB** — link engineering backlog item
+   - **Acted** — shipped without ADR (small, bounded)
+   - **Owner** — move detail to `PENDING_QUESTIONS.md` if commercial/ops input required
+   - **Defer** — V1.1+ with explicit reassessment trigger
+4. **Close** the SAQ row when resolution is merged; keep the question text for history.
+5. Optional: append a one-paragraph **session note** under [Session notes](#session-notes) (date, model, gist).
+
+**RC gate (TB-318):** Open **P0** SAQs are RC blockers unless explicitly waived in release notes. Open **P1** SAQs require documented owner acceptance before strict RC signoff.
+
+## Prompt template (copy into Opus / Sonnet session)
+
+```text
+You are reviewing ArchLucid architecture for V1 controlled-pilot release.
+
+Context to read first (if present in repo):
+- docs/architecture/adrs/README.md
+- docs/library/TENANT_DATABASE_TOPOLOGY.md
+- docs/library/DATA_CONSISTENCY_MATRIX.md
+- docs/library/ARCHITECTURE_INVARIANTS.md
+- docs/library/ARCHITECTURE_CONSTRAINTS.md
+- Relevant ADRs cited in the question below
+
+Question:
+[SAQ-NNN: your question here]
+
+Answer format:
+1. Load-bearing? (yes/no — would being wrong force a costly rewrite?)
+2. Current design assumption (what the code/docs already commit to)
+3. If wrong: blast radius and earliest signal
+4. Recommendation: Act now | ADR to lock | Defer — with concrete next step (TB-### if engineering)
+5. Do NOT suggest scope creep unless the question requires it
+6. Separate architecture risk from evidence/GTM gaps (Assessment-Scope-V1_1)
+```
+
+---
+
+## Register
+
+| SAQ | Pri | Status | Question | Reviewed | Resolution |
+| --- | --- | --- | --- | --- | --- |
+| **SAQ-001** | — | **Resolved** | What are the load-bearing assumptions in this design that, if wrong, would force a costly rewrite later? | 2026-06-07 | Seven assumptions ranked. **ADR:** [0048](../architecture/adrs/0048-database-per-tenant-catalog-economics.md), [0049](../architecture/adrs/0049-tenant-scope-model-triple-and-child-via-parent.md), [0050](../architecture/adrs/0050-simulator-first-agent-verification-live-evidence-gates.md). **Locked:** [0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md), [0038](../architecture/adrs/0038-run-durability-multi-store-outbox-production-secrets.md), [0020](../architecture/adrs/0020-azure-primary-platform-permanent.md). |
+| **SAQ-002** | P1 | **Resolved** | Should we mitigate the mirror `dbo.Tenants` row inconsistency before ship, or defer DDL de-normalization? | 2026-06-07 | **Acted:** column authority matrix + CI guard + Tier/Entra dual-write ([TB-313](TECH_BACKLOG.md#tb-313--tenant-directory-mirror-column-authority--sonnet-saq-register)). **Defer:** FK/mirror removal (topology doc alternatives). |
+| **SAQ-003** | P1 | **Open** | When ADR 0048 tripwires fire (>500 catalogs/pool or 10× free:paid ratio), is shared-catalog + RLS the only reversal path, or are intermediate economics mitigations (tier gating, catalog hibernation, trial TTL hard purge) sufficient to defer that reversal? | — | **TB-314** |
+| **SAQ-004** | P1 | **Open** | What `[TenantScopeExempt]` growth rate should block release vs trigger analyzer extension? Is there a safe exemption budget per release? | — | **TB-315** |
+| **SAQ-005** | P2 | **Resolved** | Inventory all workflows: does any product path **require** atomic writes across system catalog + tenant catalog (true 2PC)? If none, document as invariant. | 2026-06-07 | **No true 2PC exists, and no path requires it.** Core product paths (runs, UoW, outbox, metering) are single-catalog. Two paths dual-write without atomicity: (1) `DapperTenantRepository` tenant lifecycle mirroring (suspend, erasure, legal hold) — tolerated via column-authority matrix + discipline; (2) `SqlTenantSqlCatalogProvisioner` provisioning saga — explicit sequential with logged "manual cleanup" on partial failure. **Invariant documented:** [`DATA_CONSISTENCY_MATRIX.md`](DATA_CONSISTENCY_MATRIX.md) cross-catalog section. **TB-316 Done.** |
+| **SAQ-006** | P1 | **Open** | For V1 regulated pilots, is workspace/project IDOR **within** a tenant catalog an accepted residual risk under ADR 0037, or do we need an explicit buyer-facing limitation + detection? | — | **TB-317** |
+| **SAQ-007** | P0 | **Open** | What is the minimum **real-mode** evidence set to advance claim stage beyond controlled-pilot (G4/G5), and who signs it? | — | Owner / **TB-138**, **TB-140**, strict RC capture |
+| **SAQ-008** | P0 | **Open** | If pilot telemetry shows systematic simulator/live divergence on **schema-valid** outputs, do we narrow claims, add retry, or block release — and on what thresholds? | — | ADR [0050](../architecture/adrs/0050-simulator-first-agent-verification-live-evidence-gates.md) reversal trigger; metrics definition still open |
+| **SAQ-009** | P1 | **Open** | Is warm standby catalog pool sizing (**TB-018**) sufficient for expected signup burst, or does signup p95 become the first economics failure mode before catalog-count tripwires? | — | **TB-314**, **TB-018** |
+| **SAQ-010** | P1 | **Open** | Which P0/P1 architecture invariants are still convention-only (`ARCHITECTURE_INVARIANTS.md`) and must be enforced before GA vs honestly deferred to V1.1? | — | `report_architecture_invariant_enforcement.py`; reassess after Tier 1 RC green |
+| **SAQ-011** | P0 | **Open** | Can any sponsor export, UI surface, or API response today imply production-grade AI or availability without execution mode + evidence basis labels? If yes, where — and is that an architecture fix or a claims/doc fix? | — | Assessment weakness #5, #9; separate `(A)` vs owner per Assessment-Scope-V1_1 |
+| **SAQ-012** | P2 | **Open** | Does cognitive load (many surfaces before first value) create **misconfiguration** risks that bypass tenancy/durability guards — e.g. wrong catalog mode, mixed simulator/live in one tenant workflow? | — | Assessment weakness #10, engineering risk #6; may yield TB or runbook only |
+| **SAQ-013** | P1 | **Open** | Should ArchLucid add a **pre-run Socratic intake loop** that elicits architecture intent from naive users (free text → clarifying questions → convergent draft → `ArchitectureRequest`)? Today every LLM surface presupposes a run/manifest: `AskService` throws without a committed manifest, and `CreateRunAsync` is single-shot. Supporting this requires three **fundamental** additions: (a) a **pre-run, manifest-free reasoning surface**; (b) a **mutable draft-request lifecycle** (`draft → submitted → run`) distinct from today's submit-once-then-frozen `ArchitectureRequest`; (c) an **LLM semantic admission / domain-fit gate** that can *reject or redirect* non-architecture input (current validator only checks `Description` length ≥ 10). Is this **V1** or **V1.1**? Does the admission gate inherit **SAQ-008** (sim/live divergence) and **SAQ-011** (claim labeling) evidence discipline, and must intake fail-open to the manual wizard under budget/LLM outage? | — | Candidate **ADR** (intake service + draft lifecycle + admission gate). Reuse: `ConversationThread.RunId` is already nullable; `IRequestContentSafetyPrecheck` already covers untrusted intake text. Golden-cohort harness (**TB-140**, `scripts/ci/eval_agent_corpus.py` + `tests/golden-cohort/expected.json`) seeded with an out-of-domain example (`upwork_grc_jd.txt` → `REJECT-AS-WRITTEN`). Strong-model review pending. **Authoritative living record:** [`docs/ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) (R1–R6, O1–O5). |
+
+---
+
+## Session notes
+
+Brief record of strong-model review passes (optional; keep SAQ table as source of truth for status).
+
+| Date | Model | SAQ(s) | Gist |
+| --- | --- | --- | --- |
+| 2026-06-07 | Sonnet | SAQ-001, SAQ-002 | Load-bearing assumptions ranked; mirror row mitigated via column authority + dual-write; ADR 0048–0050 filed. |
+| 2026-06-07 | Opus | SAQ-013 | Socratic pre-run intake gap raised. Grounded in code: `AskService` requires a committed manifest (post-hoc only); `CreateRunAsync` is single-shot; request validator has no semantic domain gate. Three fundamental additions identified (pre-run reasoning surface, mutable draft lifecycle, semantic admission gate); ~80% additive (reuse pipeline + nullable-`RunId` conversation threads). Seeded golden-cohort with an out-of-domain GRC job-description example to anchor `REJECT-AS-WRITTEN` behavior. Owner to return with questions. |
+
+---
+
+## Adding a new question
+
+1. Assign the next **SAQ-###** (never reuse IDs).
+2. Add a row with `Status: Open` and **Pri** (P0 = RC blocker candidate, P1 = pre-RC acceptance, P2 = post-pilot / V1.1).
+3. If engineering work is obvious, create **TB-###** in [`TECH_BACKLOG.md`](TECH_BACKLOG.md) and link both ways.
+4. After review, update `Reviewed` date and `Resolution`; set `Status: Resolved` or `Deferred`.
+5. Seed from assessments: each new `latest_*.md` should yield at least one net-new SAQ or explicit “no new architecture question” note in session notes.
+
+## Related
+
+- [`TECH_BACKLOG.md`](TECH_BACKLOG.md) — **TB-313+** Sonnet/SAQ cluster
+- [`TECH_BACKLOG_OPEN.md`](TECH_BACKLOG_OPEN.md) — open SAQ-linked TB items
+- [`docs/architecture/adrs/README.md`](../architecture/adrs/README.md)
+- [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) — owner decisions
+- Rolling assessments — `docs/assessments/latest_*.md` (local working copies; gitignored)

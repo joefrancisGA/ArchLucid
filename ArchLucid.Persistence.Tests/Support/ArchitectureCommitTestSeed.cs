@@ -133,7 +133,7 @@ public static class ArchitectureCommitTestSeed
                 new
                 {
                     task.TaskId,
-                    task.RunId,
+                    RunId = Guid.TryParse(task.RunId, out Guid runGuid) ? runGuid : throw new ArgumentException("task.RunId must parse as a GUID.", nameof(task)),
                     AgentType = task.AgentType.ToString(),
                     task.Objective,
                     Status = task.Status.ToString(),

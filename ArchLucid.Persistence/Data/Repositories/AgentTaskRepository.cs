@@ -125,7 +125,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             sql,
             new
             {
-                RunId = runId,
+                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
                 scope.TenantId,
                 scope.WorkspaceId,
                 ScopeProjectId = scope.ProjectId,

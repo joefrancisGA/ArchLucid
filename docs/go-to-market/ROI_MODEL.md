@@ -365,3 +365,19 @@ Portfolio and sponsor-facing ROI totals (`GET /v1/roi/executive-summary`) includ
 | **Missing** | No uploaded extractor packages in the current workspace scope. |
 
 Configure the stale threshold in host configuration (`ExecutiveRoi:CostEvidenceFreshness:StaleAfterDays`). Operator UI surfaces basis text and freshness warnings on the Home → Portfolio ROI summary panel.
+
+---
+
+## Cross-surface scope semantics (do not conflate totals)
+
+Server-authoritative labels prevent sponsor confusion when multiple ROI surfaces appear together:
+
+| Surface | Scope label gist |
+| --- | --- |
+| Executive summary headline | **Disposition-aware** open + needs-evidence estimated USD from latest committed run per system. |
+| Per-system rows | Snapshot potential USD — **do not sum** to the portfolio headline. |
+| Cross-tenant portfolio | Sums disposition-aware basis per tenant — **Not comparable** to single-tenant headline or value-report hours ROI. |
+| Value report window | Activity-window hours/annualized USD — **Distinct from executive-summary** disposition-aware USD headline. |
+| Trailing 30-day activity | **Counts only — not USD savings** (finding events, not dollars). |
+
+When comparing surfaces, read `headlineSavingsScopeDescription` on API responses before interpreting totals together.

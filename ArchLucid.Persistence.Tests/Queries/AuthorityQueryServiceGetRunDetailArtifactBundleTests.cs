@@ -152,7 +152,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 It.IsAny<ScopeContext>(),
                 It.IsAny<IReadOnlyList<string>>(),
                 It.IsAny<CancellationToken>()))
-            .Returns<IReadOnlyList<string>, CancellationToken>((ids, _) =>
+            .Returns<ScopeContext, IReadOnlyList<string>, CancellationToken>((_, ids, _) =>
             {
                 Dictionary<string, IReadOnlyList<string>> map = new(StringComparer.OrdinalIgnoreCase);
 

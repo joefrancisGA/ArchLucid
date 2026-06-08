@@ -524,6 +524,9 @@ public static class Program
 
                     return CliExitCode.UsageError;
 
+                case "onboard-preflight":
+                    return await OnboardPreflightCommand.RunAsync(normalized.Skip(1).ToArray());
+
                 case "doctor":
                 case "check":
                     return await DoctorCommand.RunAsync(CliCommandShared.TryLoadConfigFromCwd());

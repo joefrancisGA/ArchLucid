@@ -68,7 +68,7 @@ public sealed class AgentResultRepository(
         {
             result.ResultId,
             result.TaskId,
-            result.RunId,
+            RunId = RunChildRunScopeSql.ToSqlRunId(result.RunId),
             AgentType = result.AgentType.ToString(),
             result.Confidence,
             result.CalibratedConfidence,
@@ -162,7 +162,7 @@ public sealed class AgentResultRepository(
                 sql,
                 new
                 {
-                    RunId = runId,
+                    RunId = RunChildRunScopeSql.ToSqlRunId(runId),
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,

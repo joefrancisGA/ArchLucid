@@ -75,7 +75,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             deleteSql,
             new
             {
-                trace.RunId,
+                RunId = RunChildRunScopeSql.ToSqlRunId(trace.RunId),
                 trace.TaskId,
                 AgentType = trace.AgentType.ToString()
             },
@@ -86,7 +86,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             new
             {
                 trace.TraceId,
-                trace.RunId,
+                RunId = RunChildRunScopeSql.ToSqlRunId(trace.RunId),
                 trace.TaskId,
                 AgentType = trace.AgentType.ToString(),
                 trace.ParseSucceeded,
@@ -465,7 +465,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             sql,
             new
             {
-                RunId = runId,
+                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
                 scope.TenantId,
                 scope.WorkspaceId,
                 ScopeProjectId = scope.ProjectId,
@@ -504,7 +504,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             sql,
             new
             {
-                RunId = runId,
+                RunId = RunChildRunScopeSql.ToSqlRunId(runId),
                 Offset = clampedOffset,
                 Limit = clampedLimit
             },
@@ -583,7 +583,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         const string pattern = AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + "%";
 
         // List<string> is globally mapped to JSON via ListStringTypeHandler, which prevents Dapper's IN-list expansion.
-        string[] runIdsParameter = normalized.ToArray();
+        Guid[] runIdsParameter = normalized.Select(RunChildRunScopeSql.ToSqlRunId).ToArray();
 
         string sql = $"""
                       SELECT DISTINCT t.RunId, t.AgentType

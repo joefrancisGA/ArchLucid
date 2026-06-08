@@ -419,6 +419,10 @@ ArchiForge.*/
 /commit-test-log.txt
 /getrun-test-log.txt
 
+# Cursor agent session scratch at repo root (never commit)
+.cursor-tmp-*
+mojibake-count.txt
+
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 

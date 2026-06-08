@@ -2,7 +2,7 @@
 
 # Tech backlog — verified open items
 
-> **Updated:** 2026-06-01. **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md).
+> **Updated:** 2026-06-07. **Source of truth:** [`TECH_BACKLOG.md`](TECH_BACKLOG.md). **Sonnet questions:** [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md).
 
 ## Recently closed (do not re-open)
 
@@ -51,3 +51,16 @@ _(None — TB-071–TB-078 closed; see architecture stragglers below.)_
 ## GTM / owner-blocked
 
 **TB-141**, **TB-142**, **TB-135/136** (V1.1), **G-REAL-01–04**.
+
+## Sonnet architecture / design questions (SAQ)
+
+Register: [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md). **TB-313** **Done** (register + mirror authority + ADR 0048–0050).
+
+| ID | Title | SAQ |
+| --- | --- | --- |
+| TB-314 | ADR 0048 catalog economics tripwires in capacity playbook | SAQ-003, SAQ-009 |
+| TB-315 | ARCH006 TenantScopeExempt growth tripwire | SAQ-004 |
+| TB-317 | Workspace/project IDOR V1 pilot posture | SAQ-006 |
+| TB-318 | Sonnet SAQ review cadence before RC signoff | (process) |
+
+Open SAQs without TB yet: **SAQ-007** (claim stage evidence, P0), **SAQ-008** (simulator/live divergence, P0), **SAQ-010** (P0 invariant enforcement), **SAQ-011** (claim-surface consistency, P0), **SAQ-012** (operator misconfiguration, P2). **Resolved:** SAQ-005 (cross-catalog 2PC — TB-316 Done).

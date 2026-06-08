@@ -56,7 +56,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         var parameters = new
         {
             evidencePackage.EvidencePackageId,
-            evidencePackage.RunId,
+            RunId = RunChildRunScopeSql.ToSqlRunId(evidencePackage.RunId),
             evidencePackage.RequestId,
             evidencePackage.SystemName,
             evidencePackage.Environment,
@@ -113,7 +113,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new { RunId = RunChildRunScopeSql.ToSqlRunId(runId) },
             cancellationToken: cancellationToken));
 
         return DeserializePackage(json, $"run '{runId}'");
