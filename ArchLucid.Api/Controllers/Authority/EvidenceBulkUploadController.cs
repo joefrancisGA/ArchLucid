@@ -56,6 +56,17 @@ public sealed class EvidenceBulkUploadController(
         IFormCollection form = await Request.ReadFormAsync(cancellationToken);
         IFormFileCollection allFiles = form.Files;
         EvidenceBulkUploadOptions uploadOptions = bulkUploadOptions.Value;
+        int declaredFileCount = allFiles.Count;
+
+        if (declaredFileCount == 0)
+        {
+            return this.BadRequestProblem("At least 1 file is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (declaredFileCount > uploadOptions.EvidenceBulkUploadMaxFiles)
+        {
+            return this.EvidenceBulkUploadLimitProblem(uploadOptions.EvidenceBulkUploadMaxFiles, declaredFileCount);
+        }
 
         long declaredBytes = BulkEvidenceUploadBatchSelector.SumDeclaredBytes(allFiles);
 

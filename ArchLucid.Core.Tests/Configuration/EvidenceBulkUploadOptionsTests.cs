@@ -22,6 +22,8 @@ public sealed class EvidenceBulkUploadOptionsTests
     [Fact]
     public void FormValueCountLimit_exceeds_default_max_files()
     {
-        EvidenceBulkUploadOptions.FormValueCountLimit.Should().BeGreaterThan(new EvidenceBulkUploadOptions().EvidenceBulkUploadMaxFiles);
+        EvidenceBulkUploadOptions options = new();
+
+        EvidenceBulkUploadOptions.FormValueCountLimit.Should().BeGreaterThan(options.EvidenceBulkUploadMaxFiles + 1);
     }
 }

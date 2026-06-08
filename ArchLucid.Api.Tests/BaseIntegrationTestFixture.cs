@@ -1,5 +1,6 @@
 using ArchLucid.Core.Configuration;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -67,6 +68,8 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
         // Integration tests assert the GA bulk-upload cap (200 files per multipart request).
         builder.ConfigureTestServices(services =>
         {
+            services.Configure<FormOptions>(static options =>
+                options.ValueCountLimit = EvidenceBulkUploadOptions.FormValueCountLimit);
             services.RemoveAll<IConfigureOptions<EvidenceBulkUploadOptions>>();
             services.RemoveAll<IPostConfigureOptions<EvidenceBulkUploadOptions>>();
             services.AddSingleton<IOptions<EvidenceBulkUploadOptions>>(static _ =>

@@ -10,9 +10,10 @@ public sealed class EvidenceBulkUploadOptions
 
     /// <summary>
     /// ASP.NET <c>RequestFormLimits.ValueCountLimit</c> for bulk upload (files plus optional
-    /// <c>paginationToken</c>); must exceed <see cref="EvidenceBulkUploadMaxFiles" />.
+    /// <c>paginationToken</c> and multipart overhead). Must stay well above
+    /// <see cref="EvidenceBulkUploadMaxFiles" /> so limit-exceeded requests reach application validation.
     /// </summary>
-    public const int FormValueCountLimit = 256;
+    public const int FormValueCountLimit = 512;
 
     /// <summary>
     /// Maximum allowed number of files in a bulk evidence upload.
