@@ -47,6 +47,7 @@ import { isNavLinkActive } from "@/lib/nav-link-active";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { buyerGoldenPathSecondaryRouteHint } from "@/lib/buyer-golden-path-secondary-hint";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
@@ -207,8 +208,8 @@ export function SidebarNav() {
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = navDisclosurePathOverride
     ? { showExtended, showAdvanced }
     : effectiveNavDisclosureForPathname(pathname, showExtended, showAdvanced);
-  const navExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
-  const navAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const navExpanded = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
+  const navAdvanced = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
   const effectiveShellPresetId: OperatorShellPresetId = buyerPolishedShell || demoUi ? "full" : shellPresetId;
 
   const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !buyerPolishedShell && !navAllFeaturesExpanded;

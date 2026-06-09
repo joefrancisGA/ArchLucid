@@ -10,7 +10,13 @@ import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
 import { ExecutiveReviewHandoffActions } from "@/components/executive/ExecutiveReviewHandoffActions";
+import {
+  CtoDemoExecutiveAboveFold,
+  CtoDemoFindingEvidenceLink,
+  traceRowsToCtoDemoTopRisks,
+} from "@/components/executive/CtoDemoExecutiveAboveFold";
 import type { ExecutiveRiskReviewFindingMarkdownRow } from "@/lib/executive-risk-review-markdown";
+import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 
 type ExecutiveFindingRow = {
@@ -114,6 +120,8 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
     summary?.findingTraceConfidences ?? summary?.explanation?.findingTraceConfidences ?? [];
   const rows = traceToRows(traces ?? []);
   const markdownRows = traceToMarkdownFindingRows(traces ?? []);
+  const ctoDemoPack = isCtoDemoPackEnv();
+  const ctoDemoTopRisks = traceRowsToCtoDemoTopRisks(traces ?? []);
 
   return (
     <div className="space-y-6">
@@ -135,18 +143,27 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
         </Link>
       </div>
 
-      <header className="space-y-2 rounded-xl border border-neutral-200 bg-gradient-to-br from-teal-50/60 via-white to-transparent px-4 py-4 shadow-sm dark:border-neutral-800 dark:from-teal-950/25 dark:via-neutral-950 dark:to-transparent sm:px-5">
-        <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
-          Executive summary
-        </p>
-        <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{headline}</h1>
-        {summary !== null ? (
-          <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            <span className="font-medium text-neutral-800 dark:text-neutral-200">Risk posture:</span>{" "}
-            {summary.riskPosture}
+      {summary !== null && ctoDemoPack ? (
+        <CtoDemoExecutiveAboveFold
+          runId={runId}
+          headline={headline}
+          summary={summary}
+          topRisks={ctoDemoTopRisks}
+        />
+      ) : (
+        <header className="space-y-2 rounded-xl border border-neutral-200 bg-gradient-to-br from-teal-50/60 via-white to-transparent px-4 py-4 shadow-sm dark:border-neutral-800 dark:from-teal-950/25 dark:via-neutral-950 dark:to-transparent sm:px-5">
+          <p className="m-0 text-sm font-medium uppercase tracking-wide text-teal-800 dark:text-teal-300">
+            Executive summary
           </p>
-        ) : null}
-      </header>
+          <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{headline}</h1>
+          {summary !== null ? (
+            <p className="m-0 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Risk posture:</span>{" "}
+              {summary.riskPosture}
+            </p>
+          ) : null}
+        </header>
+      )}
 
       {failure !== null && summary === null ? (
         <Card className="border-rose-600/40 bg-al-surface-raised dark:border-rose-800/50">
@@ -195,6 +212,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                     <th className="px-3 py-2">Finding</th>
                     <th className="px-3 py-2">Confidence</th>
                     <th className="px-3 py-2">Recommended action</th>
+                    <th className="px-3 py-2">Evidence</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -218,6 +236,9 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                       </td>
                       <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
                         {row.recommended}
+                      </td>
+                      <td className="px-3 py-2 align-top">
+                        <CtoDemoFindingEvidenceLink runId={runId} findingId={row.findingId} />
                       </td>
                     </tr>
                   ))}
@@ -245,6 +266,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
                   </CardHeader>
                   <CardContent className="space-y-2 pt-0">
                     <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{row.recommended}</p>
+                    <CtoDemoFindingEvidenceLink runId={runId} findingId={row.findingId} />
                   </CardContent>
                 </Card>
               ))}

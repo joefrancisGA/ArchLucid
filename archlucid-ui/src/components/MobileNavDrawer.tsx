@@ -17,6 +17,7 @@ import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { isNavLinkActive } from "@/lib/nav-link-active";
@@ -108,8 +109,8 @@ export function MobileNavDrawer() {
     showAdvanced,
   );
 
-  const extendedForShell = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
-  const advancedForShell = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const extendedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
+  const advancedForShell = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
 
   const reviewNavRows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,

@@ -5,6 +5,7 @@ import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-commi
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
 import { operatorShellPresetAllowsHref, type OperatorShellPresetId } from "@/lib/operator-nav-preset";
 
 /** Buyer default shell: omit pilot distractions — golden path uses Reviews cluster + journey strip (`SidebarNav`). */
@@ -67,7 +68,15 @@ function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
     return links;
   }
 
-  return links.filter((l) => !DEMO_MODE_OMIT_OPERATOR_HREFS.has(l.href));
+  const keepExpandedDemoSpine = isCtoDemoNavExpandedEnv();
+
+  return links.filter((l) => {
+    if (keepExpandedDemoSpine && (l.href === "/graph" || l.href === "/governance" || l.href === "/audit")) {
+      return true;
+    }
+
+    return !DEMO_MODE_OMIT_OPERATOR_HREFS.has(l.href);
+  });
 }
 
 function omitBuyerPolishedShellNonGoldenNavLinks(links: NavLinkItem[]): NavLinkItem[] {

@@ -20,6 +20,8 @@ import { showError, showSuccess } from "@/lib/toast";
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
+import { CtoDemoFastCreatePanel } from "@/components/cto-demo/CtoDemoFastCreatePanel";
+import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 
 /** Persisted when the operator switches paths; missing key defaults to Quick review (onboarding-friendly). */
 const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
@@ -198,6 +200,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4 pb-36">
+      {isCtoDemoPackEnv() ? <CtoDemoFastCreatePanel /> : null}
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       <div className="space-y-1" data-testid="quick-review-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">

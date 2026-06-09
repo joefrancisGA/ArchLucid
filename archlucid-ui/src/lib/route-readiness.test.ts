@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "./route-readiness";
 
@@ -16,6 +16,18 @@ describe("shouldHideOperatorNavLinkInDemo", () => {
 
   it("does not hide when demo mode is off", () => {
     expect(shouldHideOperatorNavLinkInDemo("/replay", false)).toBe(false);
+  });
+});
+
+describe("presenter safe mode nav hiding", () => {
+  it("hides billing and settings when presenter safe mode is active", () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
+
+    expect(shouldHideOperatorNavLinkInDemo("/settings/billing", true)).toBe(true);
+    expect(shouldHideOperatorNavLinkInDemo("/graph", true)).toBe(false);
+
+    vi.unstubAllEnvs();
   });
 });
 

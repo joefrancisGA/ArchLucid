@@ -102,6 +102,28 @@ const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
   "/alerts",
 ]);
 
+import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
+
+/** Presenter safe mode hides billing, settings, and admin surfaces (#10). */
+const PRESENTER_SAFE_MODE_NAV_HIDE = new Set<string>([
+  "/settings",
+  "/settings/billing",
+  "/settings/tenant-cost",
+  "/settings/tenant",
+  "/settings/api-keys",
+  "/settings/roles",
+  "/settings/baseline",
+  "/settings/webhooks",
+  "/settings/cloud-connections",
+  "/settings/cost-reporting",
+  "/settings/identity-providers",
+  "/settings/identity/sso-wizard",
+  "/settings/scim-provisioning",
+  "/value-report",
+  "/value-report/pilot",
+  "/value-report/roi",
+]);
+
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
 const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
   "/scorecard",
@@ -120,10 +142,32 @@ function normalizeOperatorNavHrefForDemo(href: string): string {
   return trimmed;
 }
 
+function shouldHideOperatorNavLinkInPresenterSafeMode(href: string): boolean {
+  if (!isCtoDemoPresenterSafeModeEnv()) {
+    return false;
+  }
+
+  const navKey = normalizeOperatorNavHrefForDemo(href);
+
+  if (PRESENTER_SAFE_MODE_NAV_HIDE.has(navKey)) {
+    return true;
+  }
+
+  if (navKey.startsWith("/settings/") || navKey.startsWith("/admin")) {
+    return true;
+  }
+
+  return false;
+}
+
 /** In `NEXT_PUBLIC_DEMO_MODE`, omit hidden, admin-only, and non-allowlisted advanced links (buyer demos). */
 export function shouldHideOperatorNavLinkInDemo(href: string, demoMode: boolean): boolean {
   if (!demoMode) {
     return false;
+  }
+
+  if (shouldHideOperatorNavLinkInPresenterSafeMode(href)) {
+    return true;
   }
 
   const navKey = normalizeOperatorNavHrefForDemo(href);
