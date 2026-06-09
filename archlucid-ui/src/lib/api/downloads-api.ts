@@ -72,6 +72,16 @@ export function getRunExportDownloadUrl(runId: string): string {
   return `/api/proxy/v1/artifacts/runs/${runId}/export`;
 }
 
+/** Returns the proxy URL for the ADR 0052 decision receipt JSON on a committed infeasible run. */
+export function getRunDecisionReceiptDownloadUrl(runId: string): string {
+  return `/api/proxy/v1/artifacts/runs/${encodeURIComponent(runId)}/decision-receipt`;
+}
+
+/** Returns the proxy URL for the ADR 0052 decision receipt JSON on a redirected intake draft. */
+export function getDraftDecisionReceiptDownloadUrl(draftId: string): string {
+  return `/api/proxy/v1/architecture/draft/${encodeURIComponent(draftId)}/decision-receipt`;
+}
+
 /** Returns the proxy URL for the traceability ZIP (run summary + audit slice + decision traces, size-capped on API). */
 export function getTraceabilityBundleDownloadUrl(runId: string): string {
   return `/api/proxy/v1/architecture/run/${encodeURIComponent(runId)}/traceability-bundle.zip`;

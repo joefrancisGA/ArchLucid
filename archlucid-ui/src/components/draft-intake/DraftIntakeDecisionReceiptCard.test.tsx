@@ -1,23 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-
-const triggerDecisionReceiptDownload = vi.fn();
-
-vi.mock("@/lib/decision-receipt-export", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/decision-receipt-export")>(
-    "@/lib/decision-receipt-export",
-  );
-
-  return {
-    ...actual,
-    triggerDecisionReceiptDownload: (...args: unknown[]) => triggerDecisionReceiptDownload(...args),
-  };
-});
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
 import { DraftIntakeDecisionReceiptCard } from "./DraftIntakeDecisionReceiptCard";
 
 describe("DraftIntakeDecisionReceiptCard", () => {
-  it("renders redirect summary and downloads a decision receipt", () => {
+  it("renders redirect summary and links to server decision receipt export", () => {
     render(
       <DraftIntakeDecisionReceiptCard
         draftId="draft-1"
@@ -32,13 +19,10 @@ describe("DraftIntakeDecisionReceiptCard", () => {
     expect(screen.getByTestId("draft-intake-decision-receipt-card")).toBeInTheDocument();
     expect(screen.getByText(/actor set is required/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("decision-receipt-export"));
-
-    expect(triggerDecisionReceiptDownload).toHaveBeenCalledWith(
-      expect.objectContaining({
-        source: "draft-admission",
-        draftId: "draft-1",
-      }),
+    const exportLink = screen.getByTestId("decision-receipt-export");
+    expect(exportLink).toHaveAttribute(
+      "href",
+      "/api/proxy/v1/architecture/draft/draft-1/decision-receipt",
     );
   });
 });

@@ -72,6 +72,9 @@ public static class AuditEventTypes
     /// <summary>Admitted intake draft submitted to canonical architecture run create.</summary>
     public const string DraftIntakeSubmitted = "DraftIntake.Submitted";
 
+    /// <summary>Operator exported ADR 0052 decision receipt JSON (draft redirect or committed infeasible run).</summary>
+    public const string DecisionReceiptExported = "DecisionReceipt.Exported";
+
     /// <summary>Intake draft abandoned by operator.</summary>
     public const string DraftIntakeAbandoned = "DraftIntake.Abandoned";
 

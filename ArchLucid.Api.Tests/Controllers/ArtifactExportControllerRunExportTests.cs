@@ -232,7 +232,8 @@ public sealed class ArtifactExportControllerRunExportTests
             Mock.Of<ITerraformGitHubPrService>(),
             runExportPackageBuilder,
             outbox.Object,
-            runExportLineageVerifier ?? Mock.Of<IRunExportLineageVerifier>());
+            runExportLineageVerifier ?? Mock.Of<IRunExportLineageVerifier>(),
+            Mock.Of<ArchLucid.Application.Exports.IDecisionReceiptService>());
 
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 

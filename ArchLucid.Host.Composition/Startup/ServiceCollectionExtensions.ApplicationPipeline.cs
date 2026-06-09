@@ -205,6 +205,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IQuestionSelectionEngine, QuestionSelectionEngine>();
         services.AddScoped<IDraftRequestProjector, DraftRequestProjector>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
+        services.AddScoped<IDecisionReceiptService, DecisionReceiptService>();
         services.AddScoped<IDraftIntakeReaperService, DraftIntakeReaperService>();
         services.AddScoped<ArchLucid.Decisioning.Feasibility.IDecisionIntakeTrailProvider,
             ArchLucid.Application.Runs.Feasibility.ArchitectureRequestIntakeTrailProvider>();

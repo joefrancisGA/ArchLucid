@@ -5,6 +5,8 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Security;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Exports;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
@@ -51,7 +53,8 @@ public sealed class ArtifactExportController(
     ITerraformGitHubPrService terraformGitHubPrService,
     IRunExportPackageBuilder runExportPackageBuilder,
     IRunExportBlobPushOutboxRepository runExportBlobPushOutbox,
-    IRunExportLineageVerifier runExportLineageVerifier)
+    IRunExportLineageVerifier runExportLineageVerifier,
+    IDecisionReceiptService decisionReceiptService)
     : ControllerBase
 {
     /// <summary>
@@ -249,6 +252,38 @@ public sealed class ArtifactExportController(
             ct);
 
         return File(package.Content, package.ContentType, package.PackageFileName);
+    }
+
+    /// <summary>Downloads the ADR 0052 decision receipt JSON for a committed infeasible run.</summary>
+    [HttpGet("runs/{runId:guid}/decision-receipt")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadRunDecisionReceipt(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        DecisionReceiptDocument? receipt =
+            await decisionReceiptService.BuildForRunAsync(scope, runId, ct);
+
+        if (receipt is null)
+            return this.NotFoundProblem(
+                $"Decision receipt for run '{runId}' was not found or is not exportable.",
+                ProblemTypes.ManifestNotFound);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.DecisionReceiptExported,
+                RunId = runId,
+            },
+            ct);
+
+        string json = JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true });
+        byte[] body = System.Text.Encoding.UTF8.GetBytes(json);
+
+        return File(body, "application/json", DecisionReceiptComposer.BuildFilename(receipt.DraftId, receipt.RunId));
     }
 
     /// <summary>

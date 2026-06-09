@@ -4,7 +4,9 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -31,6 +33,7 @@ public sealed class DraftRequestsController(
     IActorContext actorContext,
     IDraftRequestService draftRequestService,
     IDraftIntakeReasoningService draftIntakeReasoningService,
+    IDecisionReceiptService decisionReceiptService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IActorContext _actorContext =
@@ -44,6 +47,9 @@ public sealed class DraftRequestsController(
 
     private readonly IDraftIntakeReasoningService _draftIntakeReasoningService =
         draftIntakeReasoningService ?? throw new ArgumentNullException(nameof(draftIntakeReasoningService));
+
+    private readonly IDecisionReceiptService _decisionReceiptService =
+        decisionReceiptService ?? throw new ArgumentNullException(nameof(decisionReceiptService));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -199,6 +205,36 @@ public sealed class DraftRequestsController(
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+    }
+
+    /// <summary>Downloads the ADR 0052 decision receipt JSON for a redirected intake draft.</summary>
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [HttpGet("{draftId:guid}/decision-receipt")]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadDraftDecisionReceipt(Guid draftId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        DecisionReceiptDocument? receipt =
+            await _decisionReceiptService.BuildForDraftAsync(scope, draftId, cancellationToken);
+
+        if (receipt is null)
+            return this.NotFoundProblem(
+                $"Decision receipt for draft '{draftId}' was not found or is not exportable.",
+                ProblemTypes.ValidationFailed);
+
+        await _auditService.LogAsync(
+            BuildDraftAuditEvent(
+                scope,
+                AuditEventTypes.DecisionReceiptExported,
+                new { draftId, source = receipt.Source.ToString() }),
+            cancellationToken);
+
+        string json = JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true });
+        byte[] body = System.Text.Encoding.UTF8.GetBytes(json);
+
+        return File(body, "application/json", DecisionReceiptComposer.BuildFilename(receipt.DraftId, receipt.RunId));
     }
 
     /// <summary>Returns what-if branch quota and estimated run cost for an admitted parent draft (R12).</summary>

@@ -1,6 +1,11 @@
 "use client";
 
+import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { Button } from "@/components/ui/button";
+import {
+  getDraftDecisionReceiptDownloadUrl,
+  getRunDecisionReceiptDownloadUrl,
+} from "@/lib/api/downloads-api";
 import {
   type DecisionReceiptContext,
   triggerDecisionReceiptDownload,
@@ -11,8 +16,32 @@ export type DecisionReceiptExportButtonProps = {
   readonly disabled?: boolean;
 };
 
-/** Downloads the ADR 0052 decision receipt JSON for a reasoned no or admission redirect. */
+function resolveServerDownloadUrl(context: DecisionReceiptContext): string | null {
+  if (context.runId !== undefined && context.runId.trim().length > 0) {
+    return getRunDecisionReceiptDownloadUrl(context.runId.trim());
+  }
+
+  if (context.draftId !== undefined && context.draftId.trim().length > 0) {
+    return getDraftDecisionReceiptDownloadUrl(context.draftId.trim());
+  }
+
+  return null;
+}
+
+/** Downloads the ADR 0052 decision receipt JSON (server-audited when draft/run id is present). */
 export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonProps) {
+  const serverDownloadUrl = resolveServerDownloadUrl(props.context);
+
+  if (serverDownloadUrl !== null) {
+    return (
+      <Button variant="outline" size="sm" disabled={props.disabled === true} asChild>
+        <FunnelTelemetryExportAnchor href={serverDownloadUrl} data-testid="decision-receipt-export">
+          Download decision receipt (JSON)
+        </FunnelTelemetryExportAnchor>
+      </Button>
+    );
+  }
+
   return (
     <Button
       type="button"
