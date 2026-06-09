@@ -1,8 +1,10 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.TestSupport;
 
 namespace ArchLucid.Api.Tests;
@@ -256,6 +258,27 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     }
 
     /// <summary>
+    ///     Readiness + list-runs + one create-run (proven warmup path) + execute for greenfield SQL integration seeds.
+    /// </summary>
+    internal static async Task<string> WarmGreenfieldSqlHostAndSeedExecutedRunAsync(
+        HttpClient client,
+        CancellationToken cancellationToken = default)
+    {
+        using CancellationTokenSource bootstrap = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        bootstrap.CancelAfter(GreenfieldSqlHostBootstrapBudget);
+        CancellationToken ct = bootstrap.Token;
+
+        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+        await HealthReadyProbe.EnsureReadyAsync(client, ct);
+        await WarmListRunsPathAsync(client, ct);
+
+        string runId = await WarmSingleCreateRunPathReturningRunIdAsync(client, ct);
+        await PostExecuteWithGreenfieldTransientRetryAsync(client, runId, ct);
+
+        return runId;
+    }
+
+    /// <summary>
     ///     Single POST with greenfield SQL per-attempt budgets (not InMemory-factory 65m bursts). Callers on
     ///     <see cref="GreenfieldSqlApiFactory" /> should warm via
     ///     <see cref="WarmGreenfieldSqlHostForArchitectureRequestTestsAsync" /> first when cold-start 503s are likely.
@@ -349,6 +372,13 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
     private static async Task WarmSingleCreateRunPathAsync(HttpClient client, CancellationToken cancellationToken)
     {
+        _ = await WarmSingleCreateRunPathReturningRunIdAsync(client, cancellationToken);
+    }
+
+    private static async Task<string> WarmSingleCreateRunPathReturningRunIdAsync(
+        HttpClient client,
+        CancellationToken cancellationToken)
+    {
         object body = TestRequestFactory.CreateArchitectureRequest(
             "REQ-GREENFIELD-WARM-" + Guid.NewGuid().ToString("N")[..8]);
         string idempotencyKey = "greenfield-warm-" + Guid.NewGuid().ToString("N");
@@ -357,17 +387,78 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             client,
             body,
             idempotencyKey,
-            cancellationToken);
+            cancellationToken,
+            maxAttempts: 20);
 
-        if (response.IsSuccessStatusCode)
-            return;
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                "POST /v1/architecture/request warmup failed with HTTP "
+                + (int)response.StatusCode
+                + " (expected success after transient SQL retries). See "
+                + nameof(WarmGreenfieldSqlHostForArchitectureRequestTestsAsync)
+                + ".");
+        }
+
+        CreateRunResponseDto? created = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions, cancellationToken);
+
+        return created!.Run.RunId;
+    }
+
+    internal static async Task PostExecuteWithGreenfieldTransientRetryAsync(
+        HttpClient client,
+        string runId,
+        CancellationToken cancellationToken = default,
+        int maxAttempts = 10)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+        int delayMs = 250;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            using CancellationTokenSource attemptBudget =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            attemptBudget.CancelAfter(GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+
+            try
+            {
+                using HttpResponseMessage response = await client.PostAsync(
+                    $"/v1/architecture/run/{runId}/execute",
+                    null,
+                    attemptBudget.Token);
+
+                if (response.IsSuccessStatusCode)
+                    return;
+
+                if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+                    await response.EnsureSuccessForTestAsync();
+            }
+            catch (HttpRequestException ex) when (!cancellationToken.IsCancellationRequested
+                                                  && IndicatesClientAbortedResponseBuffering(ex))
+            {
+            }
+            catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested
+                                                   && ex.InnerException is TimeoutException)
+            {
+            }
+            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+            }
+
+            await Task.Delay(delayMs, cancellationToken);
+            delayMs = Math.Min(delayMs * 2, 4000);
+        }
 
         throw new InvalidOperationException(
-            "POST /v1/architecture/request warmup failed with HTTP "
-            + (int)response.StatusCode
-            + " (expected success after transient SQL retries). See "
-            + nameof(WarmGreenfieldSqlHostForArchitectureRequestTestsAsync)
-            + ".");
+            "POST /v1/architecture/run/{runId}/execute did not succeed after "
+            + maxAttempts
+            + " greenfield transient retries.");
     }
 
     internal static void DisposeAll(HttpResponseMessage[] responses)
