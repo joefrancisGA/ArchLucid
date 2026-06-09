@@ -56,6 +56,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Creates a new draft in <see cref="DraftRequestStatus.Drafting" />.</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost]
     [ProducesResponseType(typeof(DraftRequestResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -170,6 +171,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Records an answer to an elicitation question on the draft.</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{draftId:guid}/answer")]
     [ProducesResponseType(typeof(DraftRequestResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -265,6 +267,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Clones an admitted or run-spawned draft with one ceteris-paribus override (R12).</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{draftId:guid}/branch")]
     [ProducesResponseType(typeof(BranchDraftResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -314,6 +317,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Pre-run manifest-free reasoning turn on the draft (SAQ-013).</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{draftId:guid}/reason")]
     [ProducesResponseType(typeof(DraftIntakeReasonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -356,6 +360,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Explicitly skips an elicitation question, recording it in the transparency trail (ADR 0050).</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{draftId:guid}/skip")]
     [ProducesResponseType(typeof(DraftRequestResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -395,6 +400,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Runs the semantic admission gate (redirect-not-refuse).</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{draftId:guid}/admit")]
     [ProducesResponseType(typeof(DraftAdmissionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -434,6 +440,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Submits an admitted draft to the canonical <c>POST /v1/architecture/request</c> path.</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{draftId:guid}/submit")]
     [ProducesResponseType(typeof(SubmitDraftResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -472,6 +479,7 @@ public sealed class DraftRequestsController(
 
     /// <summary>Abandons a draft in <see cref="DraftRequestStatus.Drafting" /> or <see cref="DraftRequestStatus.Admitted" />.</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{draftId:guid}/abandon")]
     [ProducesResponseType(typeof(DraftRequestResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
