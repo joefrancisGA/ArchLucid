@@ -37,7 +37,7 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             // Full create-run warmup: this test's assertion path depends on POST /v1/architecture/request succeeding
             // on a cold greenfield catalog; list/health warmup alone leaves the first create-run on the 15m retry loop.
-            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         using HttpClient client = factory.CreateClient();

@@ -66,7 +66,7 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
     return null;
   }
 
-  const statusKind = result === null ? "attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
+  const statusKind = result === null ? "needs-attention" : buyerCtoDemoReadinessStatusKind(result.verdict);
 
   return (
     <section
@@ -112,10 +112,10 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
                     check.status === "pass"
                       ? "ready"
                       : check.status === "warn"
-                        ? "attention"
+                        ? "needs-attention"
                         : check.status === "fail"
                           ? "blocked"
-                          : "attention"
+                          : "needs-attention"
                   }
                   label={check.label}
                 />

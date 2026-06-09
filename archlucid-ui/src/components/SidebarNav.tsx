@@ -216,7 +216,7 @@ export function SidebarNav() {
   const extraLinksBehindCollapsedPilot = applyCollapsedSidebarPilotFilter
     ? countSidebarLinksRevealedByShowAllFeatures(
         NAV_GROUPS,
-        navExtended,
+        navExpanded,
         navAdvanced,
         callerAuthorityRank,
         hasCommittedArchitectureReview,
@@ -459,7 +459,7 @@ export function SidebarNav() {
 
     let filtered = filterNavLinksForOperatorShell(
       candidates,
-      navExtended,
+      navExpanded,
       navAdvanced,
       callerAuthorityRank,
       false,
@@ -483,12 +483,12 @@ export function SidebarNav() {
     hasCommittedArchitectureReview,
     mounted,
     navAdvanced,
-    navExtended,
+    navExpanded,
   ]);
 
   const reviewNavRowsRaw = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
-    navExtended,
+    navExpanded,
     navAdvanced,
     callerAuthorityRank,
     applyCollapsedSidebarPilotFilter,
@@ -500,7 +500,7 @@ export function SidebarNav() {
     ? ([] as NavGroupWithVisibleLinks[])
     : listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
-        navExtended,
+        navExpanded,
         navAdvanced,
         callerAuthorityRank,
         false,
@@ -524,7 +524,7 @@ export function SidebarNav() {
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
           group,
-          navExtended,
+          navExpanded,
           navAdvanced,
           callerAuthorityRank,
           hasCommittedArchitectureReview,

@@ -1,4 +1,5 @@
 import { getRunSummary } from "@/lib/api";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS,
   resolveBuyerGoldenJourneyNav,
@@ -187,13 +188,13 @@ export async function evaluateBuyerCtoDemoReadiness(): Promise<BuyerCtoDemoReadi
 
 export function buyerCtoDemoReadinessStatusKind(
   verdict: BuyerCtoDemoReadinessVerdict,
-): "ready" | "attention" | "blocked" {
+): EnterpriseStatusKind {
   if (verdict === "ready") {
     return "ready";
   }
 
   if (verdict === "ready-with-static-fallback") {
-    return "attention";
+    return "needs-attention";
   }
 
   return "blocked";
