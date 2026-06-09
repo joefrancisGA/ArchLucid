@@ -103,7 +103,11 @@ const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
 ]);
 
 /** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
-const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>(["/scorecard", "/search"]);
+const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>([
+  "/scorecard",
+  "/search",
+  "/settings/tenant/recycle-bin",
+]);
 
 function normalizeOperatorNavHrefForDemo(href: string): string {
   const [path, query] = href.split("?", 2);

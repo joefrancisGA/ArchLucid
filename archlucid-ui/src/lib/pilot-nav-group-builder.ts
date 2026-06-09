@@ -85,7 +85,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: "Onboarding — checklist and milestones",
           tier: "essential",
           icon: ClipboardList,
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           href: "/governance/findings",
@@ -115,7 +114,6 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           title: "Help — using ArchLucid and reference documentation",
           icon: LifeBuoy,
           tier: "essential",
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           href: "/scorecard",

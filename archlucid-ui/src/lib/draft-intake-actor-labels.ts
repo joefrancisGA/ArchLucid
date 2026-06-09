@@ -1,4 +1,5 @@
 import type {
+  ActorDescriptor,
   ActorKind,
   ActorOrigin,
   InteractionContract,
@@ -30,4 +31,15 @@ export function actorOriginLabel(origin: ActorOrigin): string {
   }
 
   return "Suggested";
+}
+
+/** Buyer-facing actor card title — prefer the user-type label over internal origin badges. */
+export function formatActorCardHeading(actor: ActorDescriptor, index: number): string {
+  const label = actor.label?.trim() ?? "";
+
+  if (label.length > 0) {
+    return `User type: ${label}`;
+  }
+
+  return `User type ${index + 1} — suggested`;
 }

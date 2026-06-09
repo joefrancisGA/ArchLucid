@@ -34,6 +34,10 @@ import {
   assertActorSetForAdmission,
   buildSuggestedActorSet,
 } from "@/lib/draft-intake-actor-suggestions";
+import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
+  GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+} from "@/lib/guided-intake-copy";
 import type { ActorSet, BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
@@ -329,7 +333,7 @@ export function SocraticIntakeWizard() {
                 onChange={(event) => setFreeTextIntent(event.target.value)}
                 rows={3}
                 disabled={busy}
-                placeholder="Describe the system, major components, and how they interact."
+                placeholder={GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER}
                 data-testid="socratic-intent"
               />
               <p className="text-xs text-neutral-500">Minimum {MIN_INTENT_CHARS} characters.</p>
@@ -342,7 +346,7 @@ export function SocraticIntakeWizard() {
                 onChange={(event) => setBusinessOutcome(event.target.value)}
                 rows={2}
                 disabled={busy}
-                placeholder="Describe the business outcome this architecture must support."
+                placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
                 data-testid="socratic-outcome"
               />
             </div>

@@ -14,6 +14,7 @@ import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
+import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
@@ -410,11 +411,7 @@ export function ReviewsNewPathSwitcher() {
       ) : null}
       {ready ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
-          {pathMode === "quick-review"
-            ? "Quick review: one-page brief and submit. Guided intake adds admission and MUST questions before the run. Full guided review includes import, presets, and evidence upload."
-            : pathMode === "guided-intake"
-              ? "Guided intake: Socratic draft lifecycle with admission gate, MUST questions, and transparency trail before the authority pipeline."
-              : "Full guided review: step-by-step wizard with every configuration step."}
+          {REVIEWS_NEW_PATH_HINTS[pathMode]}
         </p>
       ) : null}
       {ready ? null : (

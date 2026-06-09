@@ -41,6 +41,16 @@ describe("DraftIntakeActorEditor", () => {
     });
   });
 
+  it("shows User type heading and suggest-actors control", () => {
+    const onChange = vi.fn();
+
+    render(<DraftIntakeActorEditor actorSet={baseActorSet} onChange={onChange} onResuggest={vi.fn()} />);
+
+    expect(screen.getByText("User type: Primary internal user")).toBeInTheDocument();
+    expect(screen.getByText(/missing a user type can hide trust boundaries/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Suggest actors from intent" })).toBeInTheDocument();
+  });
+
   it("updates label and asserts the actor", () => {
     const onChange = vi.fn();
 

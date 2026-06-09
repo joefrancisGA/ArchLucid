@@ -50,6 +50,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
+import { resolveNavLinkPresentation, resolveQuickActionNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +68,26 @@ const BUYER_POLISHED_QUICK_ACTION_LINKS = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.
   label: def.label,
   Icon: BUYER_JOURNEY_STEP_ICONS[idx]!,
 }));
+
+function presentNavLink(link: NavLinkItem, buyerPolishedShell: boolean): NavLinkItem {
+  const resolved = resolveNavLinkPresentation(link, buyerPolishedShell);
+
+  return {
+    ...link,
+    label: resolved.label,
+    title: resolved.title,
+  };
+}
+
+function presentQuickActionLink(link: NavLinkItem): NavLinkItem {
+  const resolved = resolveQuickActionNavLinkPresentation(link);
+
+  return {
+    ...link,
+    label: resolved.label,
+    title: resolved.title,
+  };
+}
 
 const OPERATOR_SHELL_PRESET_LABELS: Record<OperatorShellPresetId, string> = {
 
@@ -548,15 +569,16 @@ export function SidebarNav() {
                 {linksForRender
                   .filter((link) => GOVERNANCE_PINNED_HREFS.has(link.href))
                   .map((link) => {
-                    const active = isNavLinkActive(pathname, link.href);
-                    const Icon = link.icon;
-                    const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
+                    const presented = presentNavLink(link, buyerPolishedShell);
+                    const active = isNavLinkActive(pathname, presented.href);
+                    const Icon = presented.icon;
+                    const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
 
                     return (
                       <Link
-                        key={`pinned-${link.href}`}
-                        href={link.href}
-                        data-onboarding={onboardingTourAnchorForHref(link.href)}
+                        key={`pinned-${presented.href}`}
+                        href={presented.href}
+                        data-onboarding={onboardingTourAnchorForHref(presented.href)}
                         className={cn(
                           "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                           active
@@ -565,16 +587,16 @@ export function SidebarNav() {
                         )}
                         title={
                           advancedDemo
-                            ? `${link.title} (Advanced — optional)`
-                            : link.title
+                            ? `${presented.title} (Advanced — optional)`
+                            : presented.title
                         }
                         aria-current={active ? "page" : undefined}
                         aria-keyshortcuts={
-                          link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                          presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
                         }
                       >
                         {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                        {link.label}
+                        {presented.label}
                       </Link>
                     );
                   })}
@@ -591,37 +613,38 @@ export function SidebarNav() {
                       group.id !== "operate-governance" || !GOVERNANCE_PINNED_HREFS.has(link.href),
                   )
                   .map((link) => {
-                  const active = isNavLinkActive(pathname, link.href);
-                  const Icon = link.icon;
-                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
+                  const presented = presentNavLink(link, buyerPolishedShell);
+                  const active = isNavLinkActive(pathname, presented.href);
+                  const Icon = presented.icon;
+                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
 
                   return (
                     <Link
-                      key={link.href}
-                      href={link.href}
-                      data-onboarding={onboardingTourAnchorForHref(link.href)}
+                      key={presented.href}
+                      href={presented.href}
+                      data-onboarding={onboardingTourAnchorForHref(presented.href)}
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
                           ? DESIGN_TOKENS.interactive.navActive
                           : "text-neutral-900 dark:text-neutral-100",
-                        buyerPolishedShell && link.href === "/reviews/new"
+                        buyerPolishedShell && presented.href === "/reviews/new"
                           ? "font-normal text-neutral-600 dark:text-neutral-300"
                           : null,
                       )}
                       title={
                         advancedDemo
-                          ? `${link.title} (Advanced — optional)`
-                          : link.title
+                          ? `${presented.title} (Advanced — optional)`
+                          : presented.title
                       }
                       aria-current={active ? "page" : undefined}
                       aria-keyshortcuts={
-                        link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                        presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
                       }
                     >
                       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                      {link.label}
-                      {link.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null}
+                      {presented.label}
+                      {presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null}
                     </Link>
                   );
                 })}
@@ -705,15 +728,16 @@ export function SidebarNav() {
                   );
                 })
               : quickActionLinks.map((link) => {
-                  const active = isNavLinkActive(pathname, link.href);
-                  const Icon = link.icon;
-                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
+                  const presented = presentQuickActionLink(link);
+                  const active = isNavLinkActive(pathname, presented.href);
+                  const Icon = presented.icon;
+                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
 
                   return (
                     <Link
-                      key={`quick-${link.href}`}
-                      href={link.href}
-                      data-onboarding={onboardingTourAnchorForHref(link.href)}
+                      key={`quick-${presented.href}`}
+                      href={presented.href}
+                      data-onboarding={onboardingTourAnchorForHref(presented.href)}
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
@@ -722,16 +746,16 @@ export function SidebarNav() {
                       )}
                       title={
                         advancedDemo
-                          ? `${link.title} (Advanced — optional)`
-                          : link.title
+                          ? `${presented.title} (Advanced — optional)`
+                          : presented.title
                       }
                       aria-current={active ? "page" : undefined}
                       aria-keyshortcuts={
-                        link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                        presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
                       }
                     >
                       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                      {link.label}
+                      {presented.label}
                     </Link>
                   );
                 })}

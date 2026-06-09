@@ -23,16 +23,13 @@ describe("FirstWeekRouteGuidance", () => {
     buyerPolishedMock.on = false;
   });
 
-  it("renders new-review guidance with wizard anchor CTA", () => {
+  it("renders new-review guidance without redundant wizard CTA", () => {
     render(<FirstWeekRouteGuidance variant="new-review" />);
 
     expect(screen.getByTestId("first-week-route-guidance-new-review")).toBeInTheDocument();
     expect(screen.getByText(/Use this when:/)).toBeInTheDocument();
     expect(screen.getByText(FIRST_WEEK_ROUTE_GUIDANCE["new-review"].bridgeCopy)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Continue in wizard below" })).toHaveAttribute(
-      "href",
-      "#new-review-wizard",
-    );
+    expect(screen.queryByRole("link", { name: "Continue in wizard below" })).not.toBeInTheDocument();
   });
 
   it("renders in-progress review detail guidance with header finalize anchor (BDA-001)", () => {

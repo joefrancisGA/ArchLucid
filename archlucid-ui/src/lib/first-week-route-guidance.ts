@@ -16,7 +16,8 @@ export type FirstWeekRouteGuidanceAction = {
 export type FirstWeekRouteGuidanceConfig = {
   readonly useWhen: string;
   readonly bridgeCopy: string;
-  readonly primaryAction: FirstWeekRouteGuidanceAction;
+  /** Omitted when the page already surfaces the next step (e.g. wizard visible on `/reviews/new`). */
+  readonly primaryAction?: FirstWeekRouteGuidanceAction;
   readonly operateDeferralNote: string;
 };
 
@@ -48,11 +49,11 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
     operateDeferralNote: "Finish this four-step path before exploring Operate analysis or governance lanes.",
   },
   "new-review": {
-    useWhen: "You are ready to describe a system and start the review.",
+    useWhen: "You have enough context to start an architecture review.",
     bridgeCopy:
-      "Submitting here creates one architecture review package — you will return to review detail to finalize and export.",
-    primaryAction: { label: "Continue in wizard below", href: "#new-review-wizard" },
-    operateDeferralNote: "Policy packs and governance depth can wait until after your first committed package unless your pilot requires them.",
+      "ArchLucid will create a review package with findings, evidence, governance context, and executive-ready outputs.",
+    operateDeferralNote:
+      "Policy packs and deeper governance can wait until after your first committed package unless your pilot requires them.",
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review package.",

@@ -35,6 +35,7 @@ import {
   QuickReviewWizard,
   ReviewsNewPathSwitcher,
 } from "./QuickReviewWizard";
+import { REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 
 describe("QuickReviewWizard", () => {
   it("completes three steps, sample brief meets minimum, and submits createArchitectureRun then navigates", async () => {
@@ -125,18 +126,23 @@ describe("ReviewsNewPathSwitcher", () => {
     expect(visiblePaths).toHaveLength(1);
   });
 
-  it("toggles to Guided intake stub", async () => {
+  it("shows mode-specific path hint copy", async () => {
     localStorage.clear();
     render(<ReviewsNewPathSwitcher />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("reviews-new-path-guided-intake")).toBeInTheDocument();
+      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["quick-review"]);
     });
 
     fireEvent.click(screen.getByTestId("reviews-new-path-guided-intake"));
-
     await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS["guided-intake"]);
       expect(screen.getByTestId("guided-intake-stub")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-path-detailed"));
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-path-hint")).toHaveTextContent(REVIEWS_NEW_PATH_HINTS.detailed);
     });
   });
 });

@@ -27,6 +27,7 @@ import {
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
+import { resolveNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +35,7 @@ function renderMobileNavBlock(
   rows: NavGroupWithVisibleLinks[],
   pathname: string,
   demoUi: boolean,
+  buyerPolishedShell: boolean,
   close: () => void,
 ): ReactElement[] {
   return rows.map(({ group, visibleLinks }) => {
@@ -56,21 +58,22 @@ function renderMobileNavBlock(
         </div>
         <nav className="flex flex-col gap-0.5" aria-label={group.label}>
           {linksAfterDemo.map((link) => {
-            const active = isNavLinkActive(pathname, link.href);
+            const presented = resolveNavLinkPresentation(link, buyerPolishedShell);
+            const active = isNavLinkActive(pathname, presented.href);
             const Icon = link.icon;
 
             return (
               <Link
-                key={link.href}
-                href={link.href}
-                data-onboarding={onboardingTourAnchorForHref(link.href)}
+                key={presented.href}
+                href={presented.href}
+                data-onboarding={onboardingTourAnchorForHref(presented.href)}
                 className={cn(
                   "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                   active
                     ? "border-l-2 border-l-[var(--al-accent-interactive)] bg-[var(--al-layer-hover)] font-semibold text-al-text-primary dark:bg-neutral-800/80"
                     : "text-neutral-900 dark:text-neutral-100",
                 )}
-                title={link.title}
+                title={presented.title}
                 aria-current={active ? "page" : undefined}
                 aria-keyshortcuts={link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined}
                 onClick={() => {
@@ -78,7 +81,7 @@ function renderMobileNavBlock(
                 }}
               >
                 {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                {link.label}
+                {presented.label}
               </Link>
             );
           })}
@@ -152,7 +155,7 @@ export function MobileNavDrawer() {
             <DialogTitle className="text-base">Operator navigation</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 px-3 py-3">
-            {renderMobileNavBlock(reviewNavRows, pathname, demoUi || buyerPolishedShell, () => {
+            {renderMobileNavBlock(reviewNavRows, pathname, demoUi, buyerPolishedShell, () => {
               setOpen(false);
             })}
             {adminNavRows.length > 0 ? (
@@ -160,7 +163,7 @@ export function MobileNavDrawer() {
                 <h3 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
                   Administration
                 </h3>
-                {renderMobileNavBlock(adminNavRows, pathname, demoUi || buyerPolishedShell, () => {
+                {renderMobileNavBlock(adminNavRows, pathname, demoUi, buyerPolishedShell, () => {
                   setOpen(false);
                 })}
               </div>

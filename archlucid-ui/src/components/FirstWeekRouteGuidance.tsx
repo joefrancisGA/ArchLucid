@@ -16,29 +16,31 @@ function GuidanceBody(props: {
   readonly useWhen: string;
   readonly bridgeCopy: string;
   readonly operateDeferralNote: string;
-  readonly primaryAction: { readonly href: string; readonly label: string };
+  readonly primaryAction?: { readonly href: string; readonly label: string };
 }) {
-  const isHashLink = props.primaryAction.href.startsWith("#");
+  const primaryAction = props.primaryAction;
 
   return (
     <>
       <p className="m-0 mt-1.5 text-neutral-700 dark:text-neutral-300">{props.bridgeCopy}</p>
       <p className="m-0 mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">{props.operateDeferralNote}</p>
-      <div className="mt-2.5">
-        {isHashLink ? (
-          <Button variant="primary" size="sm" asChild>
-            <a href={props.primaryAction.href} className="no-underline">
-              {props.primaryAction.label}
-            </a>
-          </Button>
-        ) : (
-          <Button variant="primary" size="sm" asChild>
-            <Link href={props.primaryAction.href} className="no-underline">
-              {props.primaryAction.label}
-            </Link>
-          </Button>
-        )}
-      </div>
+      {primaryAction !== undefined ? (
+        <div className="mt-2.5">
+          {primaryAction.href.startsWith("#") ? (
+            <Button variant="primary" size="sm" asChild>
+              <a href={primaryAction.href} className="no-underline">
+                {primaryAction.label}
+              </a>
+            </Button>
+          ) : (
+            <Button variant="primary" size="sm" asChild>
+              <Link href={primaryAction.href} className="no-underline">
+                {primaryAction.label}
+              </Link>
+            </Button>
+          )}
+        </div>
+      ) : null}
     </>
   );
 }
