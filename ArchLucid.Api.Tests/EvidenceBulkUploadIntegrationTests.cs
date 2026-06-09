@@ -43,7 +43,8 @@ public sealed class EvidenceBulkUploadIntegrationTests(ArchLucidApiFactory facto
         HttpResponseMessage response = await Client.PostAsync($"/v1/architecture/run/{runId}/evidence/bulk", content);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        string failureBody = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.OK, failureBody);
 
         using var scope = Factory.Services.CreateScope();
         var auditRepo = scope.ServiceProvider.GetRequiredService<IAuditRepository>();

@@ -18,10 +18,14 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program>
 {
+    private IntegrationTestArtifactBlobEnvironment? _artifactBlobEnvironment;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // JWT E2E factories set process env vars that win over in-memory DevelopmentBypass settings in Program.cs.
         JwtIntegrationTestEnvironmentOverrides.Clear();
+        _artifactBlobEnvironment?.Dispose();
+        _artifactBlobEnvironment = new IntegrationTestArtifactBlobEnvironment();
 
         builder.UseEnvironment("Development");
 
@@ -101,7 +105,9 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
         Dictionary<string, string?> overrides = new()
         {
             ["ArchLucid:StorageProvider"] = "Sql",
-            ["ConnectionStrings:ArchLucid"] = sqlConnectionString
+            ["ConnectionStrings:ArchLucid"] = sqlConnectionString,
+            ["ArtifactLargePayload:BlobProvider"] = "Local",
+            [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
         };
 
         Dictionary<string, string?> customSettings = new();
@@ -147,5 +153,14 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
         }
 
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(additionalOverrides));
+    }
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            _artifactBlobEnvironment?.Dispose();
+
+        base.Dispose(disposing);
     }
 }
