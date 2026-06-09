@@ -10,10 +10,16 @@ vi.mock("@/components/FunnelTelemetryExportAnchor", () => ({
   FunnelTelemetryExportAnchor: ({
     children,
     href,
+    ...rest
   }: {
     children: React.ReactNode;
     href: string;
-  }) => <a href={href}>{children}</a>,
+    [key: string]: unknown;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/components/GoldenManifestExportMenu", () => ({

@@ -29,10 +29,6 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import {
-  GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
-  GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-} from "@/lib/guided-intake-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import {
   assertActorSetForAdmission,
@@ -333,7 +329,7 @@ export function SocraticIntakeWizard() {
                 onChange={(event) => setFreeTextIntent(event.target.value)}
                 rows={3}
                 disabled={busy}
-                placeholder={GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER}
+                placeholder="Describe the system, major components, and how they interact."
                 data-testid="socratic-intent"
               />
               <p className="text-xs text-neutral-500">Minimum {MIN_INTENT_CHARS} characters.</p>
@@ -346,7 +342,7 @@ export function SocraticIntakeWizard() {
                 onChange={(event) => setBusinessOutcome(event.target.value)}
                 rows={2}
                 disabled={busy}
-                placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
+                placeholder="Describe the business outcome this architecture must support."
                 data-testid="socratic-outcome"
               />
             </div>

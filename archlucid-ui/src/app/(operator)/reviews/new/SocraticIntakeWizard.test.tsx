@@ -54,10 +54,11 @@ vi.mock("@/components/draft-intake/DraftIntakeWhatIfBranchPanel", () => ({
 }));
 
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
-import {
-  GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
-  GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
-} from "@/lib/guided-intake-copy";
+
+const ARCHITECTURE_INTENT_PLACEHOLDER =
+  "Describe the system, major components, and how they interact.";
+const BUSINESS_OUTCOME_PLACEHOLDER =
+  "Describe the business outcome this architecture must support.";
 
 describe("SocraticIntakeWizard", () => {
   it("shows guided placeholders and Continue on step 1", () => {
@@ -65,11 +66,11 @@ describe("SocraticIntakeWizard", () => {
 
     expect(screen.getByTestId("socratic-intent")).toHaveAttribute(
       "placeholder",
-      GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
+      ARCHITECTURE_INTENT_PLACEHOLDER,
     );
     expect(screen.getByTestId("socratic-outcome")).toHaveAttribute(
       "placeholder",
-      GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+      BUSINESS_OUTCOME_PLACEHOLDER,
     );
     expect(screen.getByLabelText("Architecture intent (required)")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
