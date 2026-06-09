@@ -120,7 +120,7 @@ public sealed class ScopeIdentityBindingIntegrationTests
     [SkippableFact]
     public async Task DevBypass_with_mismatched_tenant_header_returns_forbidden_tb300()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using ScopeIdentityBindingDevBypassArchLucidApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         client.DefaultRequestHeaders.Remove("x-tenant-id");
@@ -134,7 +134,7 @@ public sealed class ScopeIdentityBindingIntegrationTests
     [SkippableFact]
     public async Task DevBypass_with_mismatched_workspace_header_returns_forbidden_tb300()
     {
-        await using ArchLucidApiFactory factory = new();
+        await using ScopeIdentityBindingDevBypassArchLucidApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         client.DefaultRequestHeaders.Remove("x-workspace-id");
