@@ -91,11 +91,14 @@ public sealed class ForensicsTracePartitionIntegrationTests
     {
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(client);
 
-        HttpResponseMessage createResponse = await client.PostAsync(
-            "/v1/architecture/request",
-            ArchitectureRequestConcurrencyTestSupport.JsonContent(
-                TestRequestFactory.CreateArchitectureRequest("REQ-FORENSICS-001")));
+        string requestId = "REQ-FORENSICS-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage createResponse =
+            await ArchitectureRequestConcurrencyTestSupport.PostSingleArchitectureRequestWithGreenfieldTransientRetryAsync(
+                client,
+                TestRequestFactory.CreateArchitectureRequest(requestId),
+                "forensics-create-" + Guid.NewGuid().ToString("N"));
 
         await createResponse.EnsureSuccessForTestAsync();
         CreateRunResponseDto? created =
