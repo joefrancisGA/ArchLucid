@@ -43,12 +43,14 @@ IF OBJECT_ID(N'dbo.ProductLearningPilotSignals', N'U') IS NOT NULL
          AND c.name = N'ArchitectureRunId'
          AND ty.name IN (N'nvarchar', N'varchar'))
 BEGIN
-    UPDATE dbo.ProductLearningPilotSignals
-    SET ArchitectureRunIdGuid = TRY_CAST(ArchitectureRunId AS UNIQUEIDENTIFIER)
-    WHERE ArchitectureRunIdGuid IS NULL
-      AND ArchitectureRunId IS NOT NULL;
+    EXEC sp_executesql N'
+        UPDATE dbo.ProductLearningPilotSignals
+        SET ArchitectureRunIdGuid = TRY_CAST(ArchitectureRunId AS UNIQUEIDENTIFIER)
+        WHERE ArchitectureRunIdGuid IS NULL
+          AND ArchitectureRunId IS NOT NULL;
 
-    ALTER TABLE dbo.ProductLearningPilotSignals DROP COLUMN ArchitectureRunId;
+        ALTER TABLE dbo.ProductLearningPilotSignals DROP COLUMN ArchitectureRunId;
+    ';
 
     EXEC sp_rename N'dbo.ProductLearningPilotSignals.ArchitectureRunIdGuid', N'ArchitectureRunId', N'COLUMN';
 END;
