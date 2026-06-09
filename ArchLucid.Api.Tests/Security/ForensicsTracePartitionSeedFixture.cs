@@ -12,6 +12,12 @@ public sealed class ForensicsTracePartitionSeedFixture : IAsyncLifetime
         private set;
     }
 
+    internal bool ShardWarmupTimedOut
+    {
+        get;
+        private set;
+    }
+
     internal GreenfieldSqlApiFactory? SeedFactory
     {
         get;
@@ -35,7 +41,19 @@ public sealed class ForensicsTracePartitionSeedFixture : IAsyncLifetime
 
         using HttpClient client = SeedFactory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
-        ExecutedRunId = await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostAndSeedExecutedRunAsync(client);
+
+        try
+        {
+            ExecutedRunId =
+                await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostAndSeedExecutedRunAsync(client);
+        }
+        catch (WarmupTimedOutException)
+        {
+            ShardWarmupTimedOut = true;
+
+            await SeedFactory.DisposeAsync();
+            SeedFactory = null;
+        }
     }
 
     public async Task DisposeAsync()

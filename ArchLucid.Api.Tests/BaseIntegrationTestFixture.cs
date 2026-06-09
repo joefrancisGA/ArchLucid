@@ -20,19 +20,25 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
 {
     private IntegrationTestArtifactBlobEnvironment? _artifactBlobEnvironment;
 
+    /// <summary>
+    ///     Process env + host settings for <c>ArtifactLargePayload:BlobProvider</c>. Most Sql integration hosts need
+    ///     <c>Local</c>; tests that assert staging-disabled behavior override to <c>None</c>.
+    /// </summary>
+    protected virtual string ArtifactBlobProviderForIntegrationTests => "Local";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // JWT E2E factories set process env vars that win over in-memory DevelopmentBypass settings in Program.cs.
         JwtIntegrationTestEnvironmentOverrides.Clear();
         _artifactBlobEnvironment?.Dispose();
-        _artifactBlobEnvironment = new IntegrationTestArtifactBlobEnvironment();
+        _artifactBlobEnvironment = new IntegrationTestArtifactBlobEnvironment(ArtifactBlobProviderForIntegrationTests);
 
         builder.UseEnvironment("Development");
 
         builder.UseSetting("DataConsistency:InitialDelaySeconds", "0");
         builder.UseSetting("HostLeaderElection:Enabled", "false");
         // appsettings.Advanced.json defaults BlobProvider=None; bulk evidence writes require a writable store.
-        builder.UseSetting("ArtifactLargePayload:BlobProvider", "Local");
+        builder.UseSetting("ArtifactLargePayload:BlobProvider", ArtifactBlobProviderForIntegrationTests);
         builder.UseSetting(EvidenceBulkUploadOptions.MaxFilesKey, "200");
 
         builder.ConfigureAppConfiguration((_, config) =>
@@ -58,7 +64,7 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 ["RateLimiting:EvidenceBulkUpload:WindowMinutes"] = "1",
                 ["Billing:Provider"] = "Noop",
                 ["ASPNETCORE_URLS"] = "http://127.0.0.1:0",
-                ["ArtifactLargePayload:BlobProvider"] = "Local",
+                ["ArtifactLargePayload:BlobProvider"] = ArtifactBlobProviderForIntegrationTests,
                 // Each integration host indexes platform ADR + policy-pack corpora by default; skip in tests (CI memory/time).
                 ["Retrieval:PlatformDocs:IndexOnStartup"] = "false",
                 ["Retrieval:PolicyPackCorpus:IndexOnStartup"] = "false",
@@ -106,7 +112,7 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
         {
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] = sqlConnectionString,
-            ["ArtifactLargePayload:BlobProvider"] = "Local",
+            ["ArtifactLargePayload:BlobProvider"] = ArtifactBlobProviderForIntegrationTests,
             [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
         };
 

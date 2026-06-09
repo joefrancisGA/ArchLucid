@@ -204,7 +204,8 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
     public async Task Chunked_begin_when_staging_disabled_returns503()
     {
-        using HttpClient client = fixture.CreateClient();
+        await using GreenfieldSqlApiFactoryWithoutChunkStaging factory = new();
+        using HttpClient client = factory.CreateClient();
 
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 

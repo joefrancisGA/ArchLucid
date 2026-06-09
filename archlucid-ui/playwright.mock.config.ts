@@ -87,6 +87,8 @@ export default defineConfig({
       NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "true",
       /** Operator `/runs` / `/manifests` static fallback for demo parity with showcase when API is down. */
       NEXT_PUBLIC_DEMO_STATIC_OPERATOR: process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "true",
+      /** CTO demo nav spine (#8): expand Graph / Governance / Audit without progressive disclosure. */
+      NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED ?? "true",
       /** Let `capture-all-screenshots` deep-link `/product-learning`, `/recommendation-learning`, … without DemoStrictNavigationGate home redirects. */
       NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: process.env.NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES ?? "1",
     },

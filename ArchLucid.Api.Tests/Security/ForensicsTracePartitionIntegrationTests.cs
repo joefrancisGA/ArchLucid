@@ -6,6 +6,8 @@ using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
+using Xunit;
+
 namespace ArchLucid.Api.Tests.Security;
 
 /// <summary>
@@ -21,6 +23,7 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
     [SkippableFact]
     public async Task Reader_can_list_trace_summaries_without_prompt_fields()
     {
+        Skip.If(seed.ShardWarmupTimedOut, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
         Skip.IfNot(seed.SqlReachable, SqlExplicitUnavailable);
 
         string runId = seed.ExecutedRunId!;
@@ -48,6 +51,7 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
     [SkippableFact]
     public async Task Reader_is_forbidden_from_tool_invocation_forensics_and_internal_trace_forensics()
     {
+        Skip.If(seed.ShardWarmupTimedOut, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
         Skip.IfNot(seed.SqlReachable, SqlExplicitUnavailable);
 
         string runId = seed.ExecutedRunId!;
@@ -68,6 +72,7 @@ public sealed class ForensicsTracePartitionIntegrationTests(ForensicsTracePartit
     [SkippableFact]
     public async Task Operator_can_read_internal_trace_forensics_with_prompt_fields_when_present()
     {
+        Skip.If(seed.ShardWarmupTimedOut, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
         Skip.IfNot(seed.SqlReachable, SqlExplicitUnavailable);
 
         string runId = seed.ExecutedRunId!;

@@ -3106,6 +3106,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
           NEXT_PUBLIC_DEMO_MODE: "true"
           NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
+          NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED: "true"
           NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
         run: |
           npm ci
