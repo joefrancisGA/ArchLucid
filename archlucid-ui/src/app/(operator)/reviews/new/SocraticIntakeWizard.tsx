@@ -29,6 +29,10 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigation";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
+  GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+} from "@/lib/guided-intake-copy";
 import { showError, showSuccess } from "@/lib/toast";
 import {
   assertActorSetForAdmission,
@@ -51,7 +55,7 @@ const INTAKE_STEPS = [
 
 export function SocraticIntakeWizard() {
   const router = useRouter();
-  const { llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+  const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -322,13 +326,14 @@ export function SocraticIntakeWizard() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="socratic-intent">Architecture intent</Label>
+              <Label htmlFor="socratic-intent">Architecture intent (required)</Label>
               <Textarea
                 id="socratic-intent"
                 value={freeTextIntent}
                 onChange={(event) => setFreeTextIntent(event.target.value)}
-                rows={5}
+                rows={3}
                 disabled={busy}
+                placeholder={GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER}
                 data-testid="socratic-intent"
               />
               <p className="text-xs text-neutral-500">Minimum {MIN_INTENT_CHARS} characters.</p>
@@ -339,8 +344,9 @@ export function SocraticIntakeWizard() {
                 id="socratic-outcome"
                 value={businessOutcome}
                 onChange={(event) => setBusinessOutcome(event.target.value)}
-                rows={3}
+                rows={2}
                 disabled={busy}
+                placeholder={GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER}
                 data-testid="socratic-outcome"
               />
             </div>
@@ -370,7 +376,7 @@ export function SocraticIntakeWizard() {
               }}
               data-testid="socratic-admit"
             >
-              {busy ? "Checking admission…" : "Continue to questions"}
+              {busy ? "Checking admission…" : "Continue"}
             </Button>
           </CardContent>
         </Card>

@@ -15,7 +15,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:257 -->
+<!-- audit-core-const-count:268 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -75,6 +75,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Architecture request soft-delete (DELETE alias of archive) | `RunsController` (`DELETE /v1/architecture/request/{requestId}`) | `ArchitectureRequestDeleted` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request restore (un-archive) | `RunsController` (`POST /v1/architecture/request/{requestId}/restore`) | `ArchitectureRequestRestored` | Tenant/Workspace/Project from ambient scope | `{ requestId }` |
 | Architecture request draft (LLM field suggest, no persistence) | `RunsController` (`POST /v1/architecture/request/draft`); `ArchitectureRequestDraftService` | — | — | Read-auth + execute-auth gated LLM assist; returns suggested wizard chips only — **no** durable audit row (same class as `POST /v1/architecture/request/{requestId}/clone`) |
+| Socratic intake drafts (ADR 0048 / 0051) | `DraftRequestsController` (`POST /v1/architecture/draft`; `POST /v1/architecture/draft/{draftId}/abandon`; `POST /v1/architecture/draft/{draftId}/admit`; `POST /v1/architecture/draft/{draftId}/answer`; `POST /v1/architecture/draft/{draftId}/branch`; `POST /v1/architecture/draft/{draftId}/reason`; `POST /v1/architecture/draft/{draftId}/skip`; `POST /v1/architecture/draft/{draftId}/submit`) | `DraftIntakeCreated`, `DraftIntakePatched`, `DraftIntakeQuestionAnswered`, `DraftIntakeQuestionSkipped`, `DraftIntakeBranched`, `DraftIntakeReasoned`, `DraftIntakeAdmissionEvaluated`, `DraftIntakeSubmitted`, `DraftIntakeAbandoned`, `DraftIntakeTerminalPurged` | Tenant/Workspace/Project from ambient scope | `{ draftId, status?, questionKey?, parentDraftId?, branchDraftId?, overrideKind? }` |
+| Decision receipt export (ADR 0052) | `DraftRequestsController` (`GET /v1/architecture/draft/{draftId}/decision-receipt`); `ArtifactExportController` (`GET /v1/artifacts/runs/{runId}/decision-receipt`) | `DecisionReceiptExported` | RunId when run-scoped; otherwise draft scope | `{ draftId?, runId?, source }` |
 | Finding-scoped Ask (conversation persist only) | `ArchitectureFindingAskController` (`POST /v1/architecture/finding/{findingId}/ask`); `IAskService.AskAboutFindingAsync` | — | — | Persists `ConversationThread` / messages via `IConversationService`; **no** durable `IAuditService` row (authority-domain state unchanged; `[MutatingAuditExcluded]` on controller) |
 | Per-finding thumbs feedback (operator instrumentation) | `RunsController` (`POST /v1/architecture/finding/{findingId}/feedback`); legacy alias `FindingFeedbackController` (`POST /v1/explain/runs/{runId}/findings/{findingId}/feedback`) | — | RunId from request/route | Append-only `dbo.FindingFeedback` row (`{ runId, findingId, score }`); optional comment on architecture route — **no** durable `IAuditService` row (value-report / pilot metrics only; allowlisted in `controller_action_audit_allowlist.txt`) |
 | Grounded Ask SSE stream (conversation persist only) | `AskController` (`POST /v1/ask/stream`); `IAskService.AskStreamAsync` | — | — | Same persistence semantics as `POST /v1/ask` (conversation thread/messages via `IConversationService`); streams `text/event-stream` token/`done` events — **no** durable `IAuditService` row |
@@ -362,6 +364,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AdvisoryScanScheduled` | `AdvisoryScanScheduled` | `AdvisoryScanRunner`, `AdvisorySchedulingController`, `AdvisoryController` |
 | `AdvisoryScanExecuted` | `AdvisoryScanExecuted` | `AdvisoryScanRunner`, `AdvisoryController` |
 | `ArchitectureDigestGenerated` | `ArchitectureDigestGenerated` | `AdvisoryScanRunner`, `AdvisoryController` |
+| `DecisionReceiptExported` | `DecisionReceipt.Exported` | `DraftRequestsController` (`GET /v1/architecture/draft/{draftId}/decision-receipt`); `ArtifactExportController` (`GET /v1/artifacts/runs/{runId}/decision-receipt`) |
 | `DigestSubscriptionCreated` | `DigestSubscriptionCreated` | `DigestSubscriptionsController` |
 | `DigestSubscriptionToggled` | `DigestSubscriptionToggled` | `DigestSubscriptionsController` |
 | `DigestDeliverySucceeded` | `DigestDeliverySucceeded` | `DigestDeliveryDispatcher` |
@@ -385,6 +388,16 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AlertThresholdRecommendationExecuted` | `AlertThresholdRecommendationExecuted` | `AlertTuningController` |
 | `OutboundWebhookDryRunProbeExecuted` | `OutboundWebhookDryRunProbeExecuted` | `OutboundWebhookDryRunController` (`POST /v1/webhooks/dry-run`) |
 | `WebhookAuthorityRunCompletedSimulationExecuted` | `WebhookAuthorityRunCompletedSimulationExecuted` | `WebhookSimulationController` (`POST /v1/integrations/webhooks/simulate`) |
+| `DraftIntakeAbandoned` | `DraftIntake.Abandoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/abandon`) |
+| `DraftIntakeAdmissionEvaluated` | `DraftIntake.AdmissionEvaluated` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/admit`) |
+| `DraftIntakeBranched` | `DraftIntake.Branched` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/branch`) |
+| `DraftIntakeCreated` | `DraftIntake.Created` | `DraftRequestsController` (`POST /v1/architecture/draft`) |
+| `DraftIntakePatched` | `DraftIntake.Patched` | `DraftRequestsController` (`PATCH /v1/architecture/draft/{draftId}`) |
+| `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
+| `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
+| `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |
+| `DraftIntakeSubmitted` | `DraftIntake.Submitted` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/submit`) |
+| `DraftIntakeTerminalPurged` | `DraftIntake.TerminalPurged` | `DraftIntakeReaperService` (background terminal draft purge) |
 | `EvidenceBulkAttached` | `EvidenceBulkAttached` | `EvidenceBulkUploadController` (`POST /v1/architecture/run/{runId}/evidence/bulk`) |
 | `EvidenceProposalPromoted` | `EvidenceProposalPromoted` | `EvidenceProposalsController` (`POST /v1/admin/evidence/proposals/{resultId}/promote`) |
 | `PolicyPackCreated` | `PolicyPackCreated` | `PolicyPacksAppService` |

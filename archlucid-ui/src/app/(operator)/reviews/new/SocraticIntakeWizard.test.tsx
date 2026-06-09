@@ -14,7 +14,8 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({
-    llmBudgetStatus: null,
+    loading: false,
+    status: null,
     blocksLlmExecution: false,
   }),
 }));
@@ -53,8 +54,27 @@ vi.mock("@/components/draft-intake/DraftIntakeWhatIfBranchPanel", () => ({
 }));
 
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
+import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
+  GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+} from "@/lib/guided-intake-copy";
 
 describe("SocraticIntakeWizard", () => {
+  it("shows guided placeholders and Continue on step 1", () => {
+    render(<SocraticIntakeWizard />);
+
+    expect(screen.getByTestId("socratic-intent")).toHaveAttribute(
+      "placeholder",
+      GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
+    );
+    expect(screen.getByTestId("socratic-outcome")).toHaveAttribute(
+      "placeholder",
+      GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
+    );
+    expect(screen.getByLabelText("Architecture intent (required)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument();
+  });
+
   it("creates, patches, and admits a draft when intent and outcome are provided", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });

@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/select";
 import {
   ACTOR_KIND_OPTIONS,
-  actorOriginLabel,
+  formatActorCardHeading,
   INTERACTION_CONTRACT_OPTIONS,
   TRUST_ORIGIN_OPTIONS,
 } from "@/lib/draft-intake-actor-labels";
+import { GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON, GUIDED_INTAKE_TRUST_BOUNDARY_HINT } from "@/lib/guided-intake-copy";
 import { createEmptyActorDescriptor } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
@@ -31,7 +32,7 @@ function updateActorAtIndex(
   index: number,
   patch: Partial<ActorDescriptor>,
 ): ActorSet {
-  const actors = actorSet.actors.map((actor, actorIndex) => {
+  const actors = actorSet.actors.map((actor, actorIndex): ActorDescriptor => {
     if (actorIndex !== index) {
       return actor;
     }
@@ -74,7 +75,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
       <div className="space-y-1">
         <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">Who uses this system?</p>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Confirm or correct the suggested actors — missing a user type hides entire trust boundaries (ADR 0049).
+          {GUIDED_INTAKE_TRUST_BOUNDARY_HINT}
         </p>
       </div>
 
@@ -85,8 +86,8 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           data-testid="draft-intake-actor-row"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-              Actor {index + 1} · {actorOriginLabel(actor.origin)}
+            <p className="m-0 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              {formatActorCardHeading(actor, index)}
             </p>
             {props.actorSet.actors.length > 1 ? (
               <Button
@@ -225,7 +226,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               props.onResuggest?.();
             }}
           >
-            Re-suggest from intent
+            {GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON}
           </Button>
         ) : null}
       </div>
