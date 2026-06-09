@@ -9,6 +9,22 @@ vi.mock("@/components/SampleFirstReviewPackageCard", () => ({
   SampleFirstReviewPackageCard: () => <div data-testid="home-block-sample-package" />,
 }));
 
+vi.mock("@/components/operator-home/BuyerPolishedHomeHeroSection", () => ({
+  BuyerPolishedHomeHeroSection: () => (
+    <section data-testid="operator-home-hero-section">
+      <div data-testid="home-block-cto-demo-readiness" />
+      <div data-testid="home-block-start-cto-demo" />
+      <div data-testid="buyer-home-secondary-panels">
+        <div data-testid="home-block-welcome" />
+        <div data-testid="home-block-core-pilot-hint" />
+        <div data-testid="home-block-before-after" />
+        <div data-testid="home-block-co-architect" />
+        <div data-testid="home-block-sample-package" />
+      </div>
+    </section>
+  ),
+}));
+
 vi.mock("@/components/operator-home/StartCtoDemoCard", () => ({
   StartCtoDemoCard: () => <div data-testid="home-block-start-cto-demo" />,
 }));

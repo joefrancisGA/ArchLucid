@@ -26,7 +26,17 @@ import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tas
 import { DOCUMENTATION_SEARCH_ITEMS, documentationSearchOpenUrl } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
+import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
+import {
+  ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
+  getStartCtoDemoTourHref,
+} from "@/lib/buyer-cto-demo-tour";
+import {
+  COMMAND_PALETTE_RESET_DEMO_LABEL,
+  COMMAND_PALETTE_START_CTO_DEMO_LABEL,
+} from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
@@ -230,6 +240,44 @@ function CommandPaletteNavGroups({
   );
 }
 
+function CommandPaletteDemoActions({
+  onNavigate,
+  onClose,
+}: {
+  onNavigate: (href: string) => void;
+  onClose: () => void;
+}) {
+  if (!isCtoDemoPackEnv()) {
+    return null;
+  }
+
+  return (
+    <CommandGroup heading="CTO demo">
+      <CommandItem
+        value={`demo ${COMMAND_PALETTE_START_CTO_DEMO_LABEL} tour start`}
+        onSelect={() => {
+          window.dispatchEvent(new Event(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT));
+          onClose();
+          onNavigate(getStartCtoDemoTourHref());
+        }}
+      >
+        {COMMAND_PALETTE_START_CTO_DEMO_LABEL}
+      </CommandItem>
+      <CommandItem
+        value={`demo ${COMMAND_PALETTE_RESET_DEMO_LABEL} reset showcase`}
+        onSelect={() => {
+          onClose();
+          void resetBuyerCtoDemoSession().then((result) => {
+            onNavigate(result.destinationHref);
+          });
+        }}
+      >
+        {COMMAND_PALETTE_RESET_DEMO_LABEL}
+      </CommandItem>
+    </CommandGroup>
+  );
+}
+
 function RunIdQuickOpen({
   onNavigate,
   allowRunIdPaste,
@@ -303,6 +351,17 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+
+      if (
+        !open &&
+        (target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          (target instanceof HTMLElement && target.isContentEditable))
+      ) {
+        return;
+      }
+
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen((previous) => !previous);
@@ -314,7 +373,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     const onOpenRequest = (): void => {
@@ -412,6 +471,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} />
+          <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks
             visibleHrefs={visibleHrefs}
             buyerPolishedShell={buyerPolishedShell}

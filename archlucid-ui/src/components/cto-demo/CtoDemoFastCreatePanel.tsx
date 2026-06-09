@@ -11,6 +11,7 @@ import {
   ctoDemoFastCreateStageIndex,
   getCtoDemoFastCreateDestinationHref,
 } from "@/lib/cto-demo-fast-create";
+import { CtoDemoLatencyBudgetIndicator } from "@/components/cto-demo/CtoDemoLatencyBudgetIndicator";
 import { CONTOSO_RETAIL_SAMPLE_BRIEF } from "@/app/(operator)/reviews/new/QuickReviewWizard";
 
 /** Deterministic 15-second simulated create for CTO demos (#5). */
@@ -81,6 +82,11 @@ export function CtoDemoFastCreatePanel(): ReactElement {
         <p className="m-0 line-clamp-2 text-xs text-neutral-600 dark:text-neutral-400">{CONTOSO_RETAIL_SAMPLE_BRIEF}</p>
         {running ? (
           <div className="space-y-2" aria-live="polite">
+            <CtoDemoLatencyBudgetIndicator
+              running={running}
+              budgetMs={CTO_DEMO_FAST_CREATE_TOTAL_MS}
+              elapsedMs={elapsedMs}
+            />
             <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
               <div
                 className="h-full rounded-full bg-teal-600 transition-[width] duration-150 dark:bg-teal-500"

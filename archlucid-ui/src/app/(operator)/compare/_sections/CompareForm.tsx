@@ -17,6 +17,7 @@ import {
 } from "@/lib/compare-url-query-params";
 import { BUYER_COMPARE_PAGE_TITLE } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import {
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoGoldenManifestComparison,
@@ -223,7 +224,7 @@ export function CompareForm() {
   }, [searchParams, leftRunId, rightRunId]);
 
   useEffect(() => {
-    if (!isBuyerPolishedOperatorShellEnv() || !isStaticDemoPayloadFallbackEnabled()) {
+    if ((!isBuyerPolishedOperatorShellEnv() && !isCtoDemoPackEnv()) || !isStaticDemoPayloadFallbackEnabled()) {
       return;
     }
 

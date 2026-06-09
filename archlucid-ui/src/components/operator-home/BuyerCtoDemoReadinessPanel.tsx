@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { CtoDemoResetButton } from "@/components/cto-demo/CtoDemoResetButton";
 import {
   BUYER_CTO_DEMO_READINESS_ARIA,
   BUYER_CTO_DEMO_READINESS_CHECKING_LABEL,
@@ -12,12 +13,14 @@ import {
   BUYER_CTO_DEMO_READINESS_READY_LABEL,
   BUYER_CTO_DEMO_READINESS_REFRESH_CTA,
   BUYER_CTO_DEMO_READINESS_STATIC_LABEL,
+  BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA,
 } from "@/lib/buyer-polish-copy";
 import {
   buyerCtoDemoReadinessStatusKind,
   evaluateBuyerCtoDemoReadiness,
   type BuyerCtoDemoReadinessResult,
 } from "@/lib/buyer-cto-demo-readiness";
+import { buildCtoDemoRunOfShowMarkdown } from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -36,6 +39,17 @@ function readinessBadgeLabel(result: BuyerCtoDemoReadinessResult | null): string
   }
 
   return BUYER_CTO_DEMO_READINESS_NOT_READY_LABEL;
+}
+
+function downloadCtoDemoRunOfShow(): void {
+  const markdown = buildCtoDemoRunOfShowMarkdown();
+  const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "archlucid-cto-demo-runofshow.md";
+  anchor.click();
+  URL.revokeObjectURL(url);
 }
 
 /** Presenter-only preflight panel — verifies showcase seed and golden journey before Start CTO demo. */
@@ -96,6 +110,18 @@ export function BuyerCtoDemoReadinessPanel(): React.JSX.Element | null {
         >
           {BUYER_CTO_DEMO_READINESS_REFRESH_CTA}
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-testid="buyer-cto-demo-run-of-show-download"
+          onClick={() => {
+            downloadCtoDemoRunOfShow();
+          }}
+        >
+          {BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA}
+        </Button>
+        <CtoDemoResetButton />
       </div>
 
       {result !== null ? (

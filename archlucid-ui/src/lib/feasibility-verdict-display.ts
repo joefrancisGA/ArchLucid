@@ -1,29 +1,16 @@
 import type { FeasibilityVerdictKind } from "@/types/feasibility-verdict";
+import {
+  verdictTierFromFeasibilityKind,
+  verdictTierLabel,
+  verdictTierTone,
+} from "@/lib/verdict-taxonomy";
 
 export function feasibilityVerdictKindLabel(kind: FeasibilityVerdictKind): string {
-  switch (kind) {
-    case "Feasible":
-      return "Feasible";
-    case "SoftInfeasible":
-      return "Soft infeasible";
-    case "HardInfeasible":
-      return "Hard infeasible";
-    default:
-      return kind;
-  }
+  return verdictTierLabel(verdictTierFromFeasibilityKind(kind));
 }
 
 export function feasibilityVerdictTone(
   kind: FeasibilityVerdictKind,
 ): "success" | "warning" | "danger" {
-  switch (kind) {
-    case "Feasible":
-      return "success";
-    case "SoftInfeasible":
-      return "warning";
-    case "HardInfeasible":
-      return "danger";
-    default:
-      return "warning";
-  }
+  return verdictTierTone(verdictTierFromFeasibilityKind(kind));
 }

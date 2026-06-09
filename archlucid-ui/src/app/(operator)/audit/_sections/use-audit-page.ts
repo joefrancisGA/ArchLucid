@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   auditEventLifecycleSortKey,
@@ -27,6 +28,13 @@ import {
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
+import {
+  CTO_DEMO_AUDIT_FILTER_QUERY_PARAM,
+  CTO_DEMO_AUDIT_FILTER_VALUE,
+  isCtoDemoAuditFilterActive,
+  isCtoDemoRelevantAuditEvent,
+} from "@/lib/cto-demo-audit-filter";
 
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
 import type { AuditSavedViewFilters } from "@/lib/operator-saved-view-types";
@@ -42,6 +50,8 @@ import { resolveAuditSearchPageForUi, shouldInjectAuditDemoOnSearchError } from 
 
 /** Page controller: audit filters, search/export, and derived buyer display state. */
 export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProps {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { currentPrincipal } = useOperatorNavAuthority();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canMutateEnterpriseShell = useOperateCapability();
@@ -69,6 +79,35 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [auditDatePreset, setAuditDatePreset] = useState<null | "24h" | "7d">(null);
   const demoAuditPrimedRef = useRef(false);
+  const ctoDemoAuditFilterActive = isCtoDemoAuditFilterActive(searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM));
+
+  const onClearCtoDemoAuditFilter = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM);
+    const query = params.toString();
+
+    router.replace(query.length > 0 ? `/audit?${query}` : "/audit", { scroll: false });
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!readBuyerCtoDemoTourActive()) {
+      return;
+    }
+
+    const existingFilter = searchParams.get(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM);
+
+    if (existingFilter !== null && existingFilter.trim().length > 0) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(CTO_DEMO_AUDIT_FILTER_QUERY_PARAM, CTO_DEMO_AUDIT_FILTER_VALUE);
+    router.replace(`/audit?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   const loadTypes = useCallback(async () => {
     setLoadingTypes(true);
@@ -424,7 +463,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     [buyerPolishedShell, callerAuthorityRank],
   );
 
-  const displayEvents = useMemo(() => {
+  const sortedDisplayEvents = useMemo(() => {
     if (!buyerPolishedShell) {
       return events;
     }
@@ -440,6 +479,14 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
       return eventA.occurredUtc.localeCompare(eventB.occurredUtc);
     });
   }, [buyerPolishedShell, events]);
+
+  const displayEvents = useMemo(() => {
+    if (!ctoDemoAuditFilterActive) {
+      return sortedDisplayEvents;
+    }
+
+    return sortedDisplayEvents.filter((event) => isCtoDemoRelevantAuditEvent(event.eventType));
+  }, [ctoDemoAuditFilterActive, sortedDisplayEvents]);
 
   const displayEventGroups = useMemo(() => {
     const eligible = buyerPolishedShell && auditEventsAreLifecycleOnlyForGrouping(displayEvents);
@@ -529,5 +576,7 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     onExportCsv,
     getAuditSavedViewPayload,
     loadAuditSavedView,
+    ctoDemoAuditFilterActive,
+    onClearCtoDemoAuditFilter,
   };
 }

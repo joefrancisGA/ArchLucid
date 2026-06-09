@@ -1,14 +1,20 @@
 import { getRunSummary } from "@/lib/api";
+import { getBearerToken } from "@/lib/api/http";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS,
   resolveBuyerGoldenJourneyNav,
 } from "@/lib/buyer-golden-journey-nav";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
+import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
 import {
+  areSpineStaticDemoPayloadsAvailable,
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoManifestSummary,
+  tryStaticDemoProvenanceGraph,
+  tryStaticDemoGovernanceApprovalRequests,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
 import {
@@ -20,7 +26,12 @@ export type BuyerCtoDemoReadinessCheckId =
   | "buyer-shell"
   | "journey-routes"
   | "showcase-committed"
-  | "api-ready";
+  | "spine-offline"
+  | "compare-seeded"
+  | "api-ready"
+  | "llm-budget"
+  | "demo-auth"
+  | "static-label";
 
 export type BuyerCtoDemoReadinessCheckStatus = "pass" | "fail" | "warn" | "pending";
 
@@ -157,6 +168,140 @@ async function evaluateBuyerCtoDemoApiReadyCheck(): Promise<BuyerCtoDemoReadines
   };
 }
 
+async function evaluateBuyerCtoDemoLlmBudgetCheck(): Promise<BuyerCtoDemoReadinessCheck> {
+  try {
+    const status = await fetchLlmMonthlyDollarBudgetStatusCached();
+
+    if (status.blocksAdditionalLlmExecution) {
+      return {
+        id: "llm-budget",
+        label: "LLM execution budget",
+        status: "fail",
+        detail: "Monthly LLM budget is exhausted — use seeded showcase or simulator paths on stage.",
+      };
+    }
+
+    return {
+      id: "llm-budget",
+      label: "LLM execution budget",
+      status: "pass",
+      detail: "LLM execution budget has headroom for optional live-create beats.",
+    };
+  } catch {
+    return {
+      id: "llm-budget",
+      label: "LLM execution budget",
+      status: "warn",
+      detail: "Budget status unavailable — prefer seeded showcase over live pipeline on stage.",
+    };
+  }
+}
+
+export function evaluateBuyerCtoDemoAuthCheck(): BuyerCtoDemoReadinessCheck {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return {
+      id: "demo-auth",
+      label: "Demo auth bypass",
+      status: "pass",
+      detail: "Demo packaging flags allow the showcase without full tenant sign-in.",
+    };
+  }
+
+  const bearer = typeof window !== "undefined" ? getBearerToken() : undefined;
+
+  if (bearer !== undefined && bearer.trim().length > 0) {
+    return {
+      id: "demo-auth",
+      label: "Demo auth bypass",
+      status: "pass",
+      detail: "Signed-in session is active for live API-backed demo data.",
+    };
+  }
+
+  return {
+    id: "demo-auth",
+    label: "Demo auth bypass",
+    status: "fail",
+    detail: "Sign in or enable demo/static operator flags before presenting live API data.",
+  };
+}
+
+export function evaluateBuyerCtoDemoSpineOfflineCheck(): BuyerCtoDemoReadinessCheck {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return {
+      id: "spine-offline",
+      label: "Offline spine payloads",
+      status: "pass",
+      detail: "Live API path — static spine payloads not required.",
+    };
+  }
+
+  const graph = tryStaticDemoProvenanceGraph(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const governance = tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const auditSampleCount = getDemoSampleAuditTrailEvents().length;
+
+  if (graph !== null && governance !== null && auditSampleCount >= 8 && areSpineStaticDemoPayloadsAvailable()) {
+    return {
+      id: "spine-offline",
+      label: "Offline spine payloads",
+      status: "pass",
+      detail: "Graph, governance, audit, manifest, and compare static payloads are available for all five steps.",
+    };
+  }
+
+  return {
+    id: "spine-offline",
+    label: "Offline spine payloads",
+    status: "warn",
+    detail: "One or more spine static payloads are missing — some demo steps may require a live API.",
+  };
+}
+
+export function evaluateBuyerCtoDemoCompareSeededCheck(): BuyerCtoDemoReadinessCheck {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return {
+      id: "compare-seeded",
+      label: "Compare demo pair",
+      status: "pass",
+      detail: "Live API path — compare uses live runs when available.",
+    };
+  }
+
+  if (areSpineStaticDemoPayloadsAvailable()) {
+    return {
+      id: "compare-seeded",
+      label: "Compare demo pair",
+      status: "pass",
+      detail: "Prior and later Claims Intake compare payloads are seeded.",
+    };
+  }
+
+  return {
+    id: "compare-seeded",
+    label: "Compare demo pair",
+    status: "warn",
+    detail: "Compare static payloads are not fully available.",
+  };
+}
+
+export function evaluateBuyerCtoDemoStaticLabelCheck(): BuyerCtoDemoReadinessCheck {
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return {
+      id: "static-label",
+      label: "Static data labeling",
+      status: "warn",
+      detail: "Static fallback is on — presenter banner will show cached showcase data to you.",
+    };
+  }
+
+  return {
+    id: "static-label",
+    label: "Static data labeling",
+    status: "pass",
+    detail: "Live API path — static-data banner appears only if the API fails mid-demo.",
+  };
+}
+
 export function deriveBuyerCtoDemoReadinessVerdict(
   checks: readonly BuyerCtoDemoReadinessCheck[],
 ): BuyerCtoDemoReadinessVerdict {
@@ -177,7 +322,12 @@ export async function evaluateBuyerCtoDemoReadiness(): Promise<BuyerCtoDemoReadi
     evaluateBuyerCtoDemoShellCheck(),
     evaluateBuyerCtoDemoJourneyRoutesCheck(),
     await evaluateBuyerCtoDemoShowcaseCommittedCheck(),
+    evaluateBuyerCtoDemoSpineOfflineCheck(),
+    evaluateBuyerCtoDemoCompareSeededCheck(),
     await evaluateBuyerCtoDemoApiReadyCheck(),
+    await evaluateBuyerCtoDemoLlmBudgetCheck(),
+    evaluateBuyerCtoDemoAuthCheck(),
+    evaluateBuyerCtoDemoStaticLabelCheck(),
   ];
 
   return {

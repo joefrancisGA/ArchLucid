@@ -439,6 +439,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailRunActionsSection
           runId={m.resolvedDetail.run.runId}
+          systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
           manifestId={m.manifestId}
           hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
           operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}

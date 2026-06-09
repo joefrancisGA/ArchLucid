@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 
 import { FunnelTelemetryExportAnchor } from "@/components/FunnelTelemetryExportAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
+import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
@@ -15,13 +16,14 @@ import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailRunActionsSectionProps = {
   readonly runId: string;
+  readonly systemName: string;
   readonly manifestId: string | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
   readonly operatorGovernanceDecision?: string | null;
 };
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
-  const { runId, manifestId, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
+  const { runId, systemName, manifestId, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
@@ -44,6 +46,11 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
             existingDecision={operatorGovernanceDecision}
           />
           {manifestId ? <GenerateSponsorValueReportButton /> : null}
+          <ShareReviewPackageButton
+            runId={runId}
+            systemName={systemName}
+            committed={manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0}
+          />
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" size="sm" asChild>
               <FunnelTelemetryExportAnchor href={getTraceabilityBundleDownloadUrl(runId)}>

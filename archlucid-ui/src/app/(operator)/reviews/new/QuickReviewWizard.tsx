@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/LlmMonthlyBudgetExceededBanner";
@@ -22,15 +22,21 @@ import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 import { CtoDemoFastCreatePanel } from "@/components/cto-demo/CtoDemoFastCreatePanel";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
+import {
+  CONTOSO_RETAIL_SAMPLE_BRIEF,
+  defaultQuickReviewSampleBriefId,
+  findQuickReviewSampleBrief,
+  QUICK_REVIEW_SAMPLE_BRIEFS,
+} from "@/lib/quick-review-sample-briefs";
 
 /** Persisted when the operator switches paths; missing key defaults to Quick review (onboarding-friendly). */
 const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
 
 type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 
-/** Contoso Retail / Order Management sample (same narrative as documentation presets). */
-export const CONTOSO_RETAIL_SAMPLE_BRIEF =
-  "Assess a lift-and-shift and selective replatform of the Contoso Order Management 3-tier web application from on-premises datacenters to Azure. Current state: IIS / .NET workloads, SQL Server on-prem clustering, Redis-like session/cache tier, file shares for batch drops. Target: Azure App Service (Linux or Windows containers) for web and API tiers, Azure SQL Database (Business Critical or General Purpose with zone redundancy where approved), Azure Cache for Redis for session/cache, private connectivity via Virtual Network integration and Private Link to PaaS. Business requires 99.95% availability for the storefront path during cutover windows, predictable monthly spend under stakeholder-approved limits, GDPR-aligned retention for EU customer subsets, baseline PCI-DSS segmentation for payment-adjacent components, TLS 1.2+ everywhere, encryption at rest for SQL and Redis, centralized secrets in Key Vault, and auditable deployment and change records.";
+export { CONTOSO_RETAIL_SAMPLE_BRIEF };
 
 const MIN_BRIEF_CHARS = 100;
 
@@ -101,6 +107,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [briefText, setBriefText] = useState("");
+  const [activeSampleBriefId, setActiveSampleBriefId] = useState<string | null>(null);
   const [runTitle, setRunTitle] = useState("");
   const [scope, setScope] = useState<Record<string, string> | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -114,6 +121,26 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
     setScope(getEffectiveBrowserProxyScopeHeaders());
   }, [step]);
+
+  const defaultBriefAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (defaultBriefAppliedRef.current) {
+      return;
+    }
+
+    defaultBriefAppliedRef.current = true;
+    const demoMode = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv();
+    const defaultId = defaultQuickReviewSampleBriefId(demoMode);
+    const sample = findQuickReviewSampleBrief(defaultId);
+
+    if (sample === null) {
+      return;
+    }
+
+    setBriefText(sample.brief);
+    setActiveSampleBriefId(sample.id);
+  }, []);
 
   const scopeTenant = scope?.["x-tenant-id"] ?? "—";
   const scopeWorkspace = scope?.["x-workspace-id"] ?? "—";
@@ -147,8 +174,19 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     setStep((s) => Math.min(QUICK_REVIEW_STEPS.length - 1, s + 1));
   };
 
+  const applySampleBrief = (briefId: string) => {
+    const sample = findQuickReviewSampleBrief(briefId);
+
+    if (sample === null) {
+      return;
+    }
+
+    setBriefText(sample.brief);
+    setActiveSampleBriefId(sample.id);
+  };
+
   const useSampleBrief = () => {
-    setBriefText(CONTOSO_RETAIL_SAMPLE_BRIEF);
+    applySampleBrief("retail");
   };
 
   const submitRun = async () => {
@@ -221,11 +259,28 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
           <CardContent className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="quick-review-brief">Architecture brief</Label>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Sample brief verticals">
+                {QUICK_REVIEW_SAMPLE_BRIEFS.map((sample) => (
+                  <Button
+                    key={sample.id}
+                    type="button"
+                    variant={activeSampleBriefId === sample.id ? "default" : "outline"}
+                    size="sm"
+                    data-testid={`quick-review-vertical-${sample.id}`}
+                    onClick={() => {
+                      applySampleBrief(sample.id);
+                    }}
+                  >
+                    {sample.label}
+                  </Button>
+                ))}
+              </div>
               <Textarea
                 id="quick-review-brief"
                 value={briefText}
                 onChange={(e) => {
                   setBriefText(e.target.value);
+                  setActiveSampleBriefId(null);
                 }}
                 className="min-h-[220px] font-mono text-sm"
                 placeholder="Example: Document the target architecture for a customer-facing retail API on Azure — App Service for APIs, Azure SQL for orders, Redis cache, PCI-scoped segregation for payment-adjacent flows, 99.9% availability during peak, EU data residency for profiles, and a phased cutover from the current on-prem monolith…"
@@ -235,6 +290,11 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
               <p id="quick-review-brief-hint" className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                 {briefText.trim().length}/{MIN_BRIEF_CHARS} characters minimum. Paste an executive summary or detailed
                 brief — it becomes the review description sent to the API.
+                {activeSampleBriefId !== null ? (
+                  <span className="mt-1 block text-xs text-neutral-500 dark:text-neutral-400">
+                    {QUICK_REVIEW_SAMPLE_BRIEF_CAPTION}
+                  </span>
+                ) : null}
               </p>
             </div>
             <Button type="button" variant="secondary" onClick={useSampleBrief} data-testid="quick-review-sample-brief">

@@ -8,7 +8,7 @@ export function OperatorDemoStaticBanner(): ReactElement {
   const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
   const bannerText = demoMode
-    ? "Claims Intake sample — demonstration data for architecture review walkthroughs."
+    ? "Cached showcase data — presenter-safe if the live API is offline."
     : "Review package aligned with the Claims Intake workspace; connect a tenant for live data.";
 
   return (

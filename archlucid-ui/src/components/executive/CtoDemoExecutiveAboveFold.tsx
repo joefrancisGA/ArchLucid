@@ -1,8 +1,12 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { operatorSemanticBadge } from "@/lib/design-tokens";
 import { getFindingEvidenceInspectHref } from "@/lib/finding-evidence-navigation";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
+import { verdictTierFromRiskPosture, verdictTierLabel, verdictTierTone } from "@/lib/verdict-taxonomy";
+import { cn } from "@/lib/utils";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -35,10 +39,27 @@ function pickRecommendedExecutiveAction(summary: RunExplanationSummary): string 
   return "Review prioritized findings below and align control owners on monitored items before the next production change window.";
 }
 
+function verdictTierBadgeClassName(tier: ReturnType<typeof verdictTierFromRiskPosture>): string {
+  const tone = verdictTierTone(tier);
+
+  if (tone === "success") {
+    return operatorSemanticBadge("ready");
+  }
+
+  if (tone === "danger") {
+    return operatorSemanticBadge("blocked");
+  }
+
+  return operatorSemanticBadge("attention");
+}
+
+const governanceStepHref = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[3]?.href ?? "/governance";
+
 /** Compact CTO demo landing hero — verdict, top risks, and sponsor action above the fold (#4). */
 export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps): ReactElement {
   const { runId, headline, summary, topRisks } = props;
   const recommendedAction = pickRecommendedExecutiveAction(summary);
+  const verdictTier = verdictTierFromRiskPosture(summary.riskPosture ?? "");
 
   return (
     <section
@@ -58,7 +79,16 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
             Verdict
           </p>
-          <p className="m-0 mt-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{summary.riskPosture}</p>
+          <span
+            className={cn(
+              "mt-1 inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold",
+              verdictTierBadgeClassName(verdictTier),
+            )}
+            data-testid="cto-demo-verdict-tier-badge"
+          >
+            {verdictTierLabel(verdictTier)}
+          </span>
+          <p className="m-0 mt-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{summary.riskPosture}</p>
           <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
             {summary.overallAssessment}
           </p>
@@ -71,11 +101,24 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
           {topRisks.length === 0 ? (
             <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">No prioritized findings surfaced.</p>
           ) : (
-            <ol className="m-0 mt-1 list-decimal space-y-1 pl-4 text-sm text-neutral-800 dark:text-neutral-200">
+            <ol className="m-0 mt-1 list-decimal space-y-2 pl-4 text-sm text-neutral-800 dark:text-neutral-200">
               {topRisks.map((risk) => (
                 <li key={risk.findingId}>
                   <span className="font-medium">{risk.title}</span>
                   <span className="text-neutral-500 dark:text-neutral-400"> · {risk.severity}</span>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-1">
+                    <CtoDemoFindingEvidenceLink runId={runId} findingId={risk.findingId} />
+                    <span className="text-neutral-400" aria-hidden>
+                      ·
+                    </span>
+                    <Link
+                      href={governanceStepHref}
+                      className="text-xs font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                      data-testid={`finding-governance-link-${risk.findingId}`}
+                    >
+                      Review controls
+                    </Link>
+                  </div>
                 </li>
               ))}
             </ol>

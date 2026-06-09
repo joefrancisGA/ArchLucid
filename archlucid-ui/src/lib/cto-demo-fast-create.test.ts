@@ -7,9 +7,12 @@ import {
 } from "@/lib/cto-demo-fast-create";
 
 describe("cto-demo-fast-create", () => {
-  it("returns a tour-enabled showcase review destination", () => {
-    expect(getCtoDemoFastCreateDestinationHref()).toContain("claims-intake-modernization");
-    expect(getCtoDemoFastCreateDestinationHref()).toContain("ctoDemoTour=1");
+  it("returns a tour-enabled showcase executive summary destination", () => {
+    const href = getCtoDemoFastCreateDestinationHref();
+
+    expect(href).toMatch(/^\/executive\/reviews\//);
+    expect(href).toContain("claims-intake-modernization");
+    expect(href).toContain("ctoDemoTour=1");
   });
 
   it("advances stages across the 15 second window", () => {

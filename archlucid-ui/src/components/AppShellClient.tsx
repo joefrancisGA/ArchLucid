@@ -31,6 +31,8 @@ import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { SidebarNav } from "@/components/SidebarNav";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { BuyerCtoDemoTourOverlay } from "@/components/BuyerCtoDemoTourOverlay";
+import { CtoDemoJourneyCaptionBar } from "@/components/cto-demo/CtoDemoJourneyCaptionBar";
+import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
@@ -276,6 +278,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <CommandPalette />
             </header>
             <LayerContextFromRoute />
+            <CtoDemoJourneyCaptionBar />
           </div>
           <div className="mx-auto flex w-full max-w-[1600px] flex-1">
             <nav
@@ -286,6 +289,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <SidebarNav />
             </nav>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
+              <CtoDemoStaticFallbackPresenterBanner />
               <ServiceBusHealthBanner />
               <LlmBudgetApproachingLimitBanner />
               <TrialUsageUpgradeNudge />

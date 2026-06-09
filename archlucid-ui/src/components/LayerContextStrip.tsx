@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import type { ResolvedBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
@@ -57,6 +58,8 @@ export type LayerContextStripProps = {
   } | null;
   /** Buyer-polished shell: previous/next links along the curated Review journey when the route is on that spine. */
   buyerGoldenJourneyNav?: ResolvedBuyerGoldenJourneyNav | null;
+  /** CTO demo pack: sample/live data indicator on golden-journey spine pages. */
+  demoDataSourceBadge?: ReactNode;
 };
 
 const DEFAULT_OPERATE_BACK = { label: "Back to home", href: "/" } as const;
@@ -72,6 +75,7 @@ export function LayerContextStrip({
   buyerRouteOrientation,
   buyerOperateBackLink = null,
   buyerGoldenJourneyNav = null,
+  demoDataSourceBadge = undefined,
 }: LayerContextStripProps) {
   const orientation = buyerRouteOrientation;
 
@@ -135,8 +139,9 @@ export function LayerContextStrip({
               ) : (
                 <span className="shrink-0 text-neutral-600 dark:text-neutral-400">← Start</span>
               )}
-              <span className="min-w-0 flex-1 text-center font-medium text-neutral-700 dark:text-neutral-300">
-                {buyerGoldenJourneyNav.summaryLine}
+              <span className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-2 text-center font-medium text-neutral-700 dark:text-neutral-300">
+                <span>{buyerGoldenJourneyNav.summaryLine}</span>
+                {demoDataSourceBadge}
               </span>
               {buyerGoldenJourneyNav.next !== null ? (
                 <Link

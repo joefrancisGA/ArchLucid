@@ -3,6 +3,10 @@ import {
   BUYER_DEMO_GOVERNANCE_APPROVER,
   BUYER_DEMO_REVIEW_OWNER_ROLE,
 } from "@/lib/buyer-demo-persona-labels";
+import {
+  BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO,
+  formatDemoRelativeTimestamp,
+} from "@/lib/buyer-cto-demo-orchestration";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -44,11 +48,15 @@ const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>>
 };
 
 function withBuyerSafeActors(meta: BuyerDemoPackageCardMeta): BuyerDemoPackageCardMeta {
+  const decisionAnchor = new Date(BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO);
+  const decisionEventIso = new Date(decisionAnchor.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString();
+
   return {
     ...meta,
     packageOwner: BUYER_DEMO_ARCHITECTURE_REVIEW_LEAD,
     riskOwner: BUYER_DEMO_REVIEW_OWNER_ROLE,
     approvalAuthority: BUYER_DEMO_GOVERNANCE_APPROVER,
+    decisionDate: formatDemoRelativeTimestamp(decisionEventIso, decisionAnchor),
   };
 }
 

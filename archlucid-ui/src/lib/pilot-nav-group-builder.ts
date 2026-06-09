@@ -12,17 +12,11 @@ import {
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-function executiveSummaryNavTitle(): string {
-  if (isCtoDemoPresenterSafeModeEnv()) {
-    return "Executive summary — sponsor-facing ROI snapshot and package overview";
-  }
-
-  return "Executive summary — sponsor-facing ROI snapshot and package overview (illustrative metrics until API lands)";
-}
+const EXECUTIVE_SUMMARY_NAV_TITLE =
+  "Executive summary — sponsor-facing ROI snapshot and package overview";
 
 /** Pilot layer — default authenticated path; essentials omit `requiredAuthority` where invariant requires it. */
 export class PilotNavGroupBuilder extends NavGroupBuilderBase {
@@ -46,7 +40,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/dashboard",
           label: OPERATOR_NAV_LINK_LABELS.executiveSummary,
-          title: executiveSummaryNavTitle(),
+          title: EXECUTIVE_SUMMARY_NAV_TITLE,
           icon: LayoutDashboard,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,

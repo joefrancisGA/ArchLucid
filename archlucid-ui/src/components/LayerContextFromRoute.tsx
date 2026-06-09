@@ -8,6 +8,8 @@ import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orient
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getLayerForRoute } from "@/lib/getLayerForRoute";
 
+import { CtoDemoDataSourceBadge } from "@/components/cto-demo/CtoDemoDataSourceBadge";
+
 import { LayerContextStrip } from "./LayerContextStrip";
 
 /** Client bridge: `usePathname()` → `getLayerForRoute()` → `LayerContextStrip` (App Router operator shell). */
@@ -38,12 +40,15 @@ export function LayerContextFromRoute() {
   }
 
   return (
-    <LayerContextStrip
-      layerId={getLayerForRoute(pathname)}
-      polishedOperateAnalysisLabel={buyerPolishedShell ? "Analysis" : undefined}
-      buyerRouteOrientation={buyerRouteOrientation ?? undefined}
-      buyerOperateBackLink={buyerOperateBackLink}
-      buyerGoldenJourneyNav={buyerGoldenJourneyNav}
-    />
+    <>
+      <LayerContextStrip
+        layerId={getLayerForRoute(pathname)}
+        polishedOperateAnalysisLabel={buyerPolishedShell ? "Analysis" : undefined}
+        buyerRouteOrientation={buyerRouteOrientation ?? undefined}
+        buyerOperateBackLink={buyerOperateBackLink}
+        buyerGoldenJourneyNav={buyerGoldenJourneyNav}
+        demoDataSourceBadge={buyerGoldenJourneyNav !== null ? <CtoDemoDataSourceBadge /> : undefined}
+      />
+    </>
   );
 }

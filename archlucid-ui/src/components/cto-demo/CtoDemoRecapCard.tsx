@@ -1,0 +1,81 @@
+"use client";
+
+import { useCallback, useMemo, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import {
+  buildStaticCtoDemoRecapPayload,
+  formatCtoDemoRecapMarkdown,
+  type CtoDemoRecapPayload,
+} from "@/lib/buyer-cto-demo-recap";
+import { BUYER_CTO_DEMO_RECAP_COPY_CTA, BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA, BUYER_CTO_DEMO_RECAP_HEADING } from "@/lib/buyer-polish-copy";
+import { showError, showSuccess } from "@/lib/toast";
+
+export type CtoDemoRecapCardProps = {
+  readonly payload?: CtoDemoRecapPayload;
+};
+
+export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Element {
+  const { payload: payloadProp } = props;
+  const [busy, setBusy] = useState(false);
+
+  const payload = useMemo(() => {
+    if (payloadProp !== undefined) {
+      return payloadProp;
+    }
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+    return buildStaticCtoDemoRecapPayload(origin);
+  }, [payloadProp]);
+
+  const markdown = useMemo(() => formatCtoDemoRecapMarkdown(payload), [payload]);
+
+  const onCopy = useCallback(async () => {
+    setBusy(true);
+
+    try {
+      await navigator.clipboard.writeText(markdown);
+      showSuccess("Executive recap copied to clipboard.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Clipboard unavailable.";
+
+      showError("Copy recap", message);
+    } finally {
+      setBusy(false);
+    }
+  }, [markdown]);
+
+  const onDownload = useCallback(() => {
+    const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    const slug = payload.systemName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+    anchor.href = url;
+    anchor.download = `executive-recap-${slug || "review"}.md`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    showSuccess("Executive recap download started.");
+  }, [markdown, payload.systemName]);
+
+  return (
+    <div
+      className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/60"
+      data-testid="cto-demo-recap-card"
+    >
+      <p className="m-0 text-xs font-semibold text-neutral-800 dark:text-neutral-100">{BUYER_CTO_DEMO_RECAP_HEADING}</p>
+      <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+        {payload.findingsCount} findings · {payload.riskPosture} · ~{payload.firstValueMinutes} min to value
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => void onCopy()} data-testid="cto-demo-recap-copy">
+          {BUYER_CTO_DEMO_RECAP_COPY_CTA}
+        </Button>
+        <Button type="button" size="sm" variant="secondary" onClick={onDownload} data-testid="cto-demo-recap-download">
+          {BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA}
+        </Button>
+      </div>
+    </div>
+  );
+}

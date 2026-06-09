@@ -9,10 +9,30 @@ import {
 
 vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => true,
+  isNextPublicDemoMode: () => true,
 }));
 
 vi.mock("@/lib/api", () => ({
   getRunSummary: vi.fn(),
+}));
+
+vi.mock("@/lib/api/http", () => ({
+  getBearerToken: vi.fn(() => "demo-token"),
+}));
+
+vi.mock("@/lib/llm-monthly-budget-status", () => ({
+  fetchLlmMonthlyDollarBudgetStatusCached: vi.fn(async () => ({
+    blocksAdditionalLlmExecution: false,
+    monthlyBudgetMonitoringActive: true,
+    utcMonth: "2026-06",
+    hardCutoffUsdPerUtcMonth: 100,
+    effectiveHardCapUsd: 100,
+    purchasedCapBumpUsd: 0,
+    estimatedUsdPressure: 10,
+    assumedNextCallReservationUsd: 1,
+    hardCapUtilizationFraction: 0.1,
+    warnFraction: 0.75,
+  })),
 }));
 
 vi.mock("@/lib/fetch-health-ready", () => ({

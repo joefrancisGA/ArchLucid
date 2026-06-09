@@ -13,6 +13,18 @@ export const BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY = "archlucid.buyerCtoDemoTou
 /** sessionStorage: collapsed rail vs expanded panel (per browser tab). */
 export const BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY = "archlucid.buyerCtoDemoTour.collapsed.v1";
 
+/** sessionStorage: presenter notes visible in the tour overlay (#19). */
+export const BUYER_CTO_DEMO_TOUR_NOTES_VISIBLE_STORAGE_KEY = "archlucid.buyerCtoDemoTour.notesVisible.v1";
+
+/** sessionStorage: full script vs one-line summary in presenter notes. */
+export const BUYER_CTO_DEMO_TOUR_NOTES_FULL_SCRIPT_STORAGE_KEY = "archlucid.buyerCtoDemoTour.notesFullScript.v1";
+
+/** sessionStorage: golden-journey step indices the presenter has actually visited. */
+export const BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY = "archlucid.buyerCtoDemoTour.visitedSteps.v1";
+
+/** Per-step pacing budget in minutes for a 30-minute CTO demo (sums to 26; 4 min buffer for open/close). */
+export const BUYER_CTO_DEMO_STEP_BUDGET_MINUTES: readonly number[] = [6, 4, 6, 5, 5];
+
 /** `window` CustomEvent — programmatic tour start (tests, future shell actions). */
 export const ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT = "archlucid-buyer-cto-demo-tour-start";
 
@@ -21,6 +33,7 @@ export type BuyerCtoDemoTourNavigation = {
   readonly stepCount: number;
   readonly summaryLine: string;
   readonly presenterLine: string;
+  readonly presenterScript: string;
   readonly prev: BuyerGoldenJourneyNavLink | null;
   readonly next: BuyerGoldenJourneyNavLink | null;
   readonly onSpine: boolean;
@@ -94,19 +107,203 @@ export function writeBuyerCtoDemoTourCollapsed(collapsed: boolean): void {
   }
 }
 
+export function readBuyerCtoDemoPresenterNotesVisible(): boolean {
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(BUYER_CTO_DEMO_TOUR_NOTES_VISIBLE_STORAGE_KEY);
+
+    if (raw === "0") {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+export function writeBuyerCtoDemoPresenterNotesVisible(visible: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (visible) {
+      window.sessionStorage.removeItem(BUYER_CTO_DEMO_TOUR_NOTES_VISIBLE_STORAGE_KEY);
+    } else {
+      window.sessionStorage.setItem(BUYER_CTO_DEMO_TOUR_NOTES_VISIBLE_STORAGE_KEY, "0");
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
+export function readBuyerCtoDemoVisitedSteps(): ReadonlySet<number> {
+  if (typeof window === "undefined") {
+    return new Set<number>();
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY);
+
+    if (raw === null || raw.trim().length === 0) {
+      return new Set<number>();
+    }
+
+    const parsed: unknown = JSON.parse(raw);
+
+    if (!Array.isArray(parsed)) {
+      return new Set<number>();
+    }
+
+    const indices = parsed.filter((value): value is number => typeof value === "number" && Number.isInteger(value));
+
+    return new Set<number>(indices);
+  } catch {
+    return new Set<number>();
+  }
+}
+
+export function writeBuyerCtoDemoVisitedStep(stepIndex: number): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!Number.isInteger(stepIndex) || stepIndex < 0) {
+    return;
+  }
+
+  try {
+    const visited = readBuyerCtoDemoVisitedSteps();
+    const next = new Set<number>(visited);
+    next.add(stepIndex);
+    window.sessionStorage.setItem(
+      BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY,
+      JSON.stringify([...next].sort((a, b) => a - b)),
+    );
+  } catch {
+    /* private mode */
+  }
+}
+
+export function clearBuyerCtoDemoVisitedSteps(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.removeItem(BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY);
+  } catch {
+    /* private mode */
+  }
+}
+
+/** Minutes remaining from the current step through the end of the 30-minute demo script. */
+export function buyerCtoDemoRemainingBudgetMinutes(stepIndex: number): number {
+  const safeIndex = Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
+
+  return BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.slice(safeIndex).reduce((sum, minutes) => sum + minutes, 0);
+}
+
+export type CtoDemoStepTimerState = {
+  readonly display: string;
+  readonly isOvertime: boolean;
+};
+
+/** Formats remaining seconds for the live step countdown (M:SS or +M:SS over). */
+export function formatCtoDemoStepTimer(remainingSeconds: number): CtoDemoStepTimerState {
+  if (remainingSeconds < 0) {
+    const over = Math.abs(remainingSeconds);
+    const minutes = Math.floor(over / 60);
+    const seconds = over % 60;
+
+    return {
+      display: `+${minutes}:${String(seconds).padStart(2, "0")} over`,
+      isOvertime: true,
+    };
+  }
+
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+
+  return {
+    display: `${minutes}:${String(seconds).padStart(2, "0")}`,
+    isOvertime: false,
+  };
+}
+
+export function buyerCtoDemoStepBudgetSeconds(stepIndex: number): number {
+  const safeIndex = Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
+  const minutes = BUYER_CTO_DEMO_STEP_BUDGET_MINUTES[safeIndex] ?? 0;
+
+  return minutes * 60;
+}
+
 export function buyerCtoDemoTourPresenterLine(stepIndex: number): string {
-  const lines = BUYER_CTO_DEMO_TOUR_PRESENTER_LINES;
+  const lines = BUYER_CTO_DEMO_TOUR_PRESENTER_SUMMARY_LINES;
   const safeIndex = Math.max(0, Math.min(stepIndex, lines.length - 1));
 
   return lines[safeIndex] ?? "";
 }
 
-const BUYER_CTO_DEMO_TOUR_PRESENTER_LINES: readonly string[] = [
+export function buyerCtoDemoTourPresenterScript(stepIndex: number): string {
+  const scripts = BUYER_CTO_DEMO_TOUR_PRESENTER_SCRIPTS;
+  const safeIndex = Math.max(0, Math.min(stepIndex, scripts.length - 1));
+
+  return scripts[safeIndex] ?? "";
+}
+
+export function readBuyerCtoDemoPresenterNotesFullScript(): boolean {
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(BUYER_CTO_DEMO_TOUR_NOTES_FULL_SCRIPT_STORAGE_KEY);
+
+    if (raw === "0") {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+export function writeBuyerCtoDemoPresenterNotesFullScript(fullScript: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (fullScript) {
+      window.sessionStorage.removeItem(BUYER_CTO_DEMO_TOUR_NOTES_FULL_SCRIPT_STORAGE_KEY);
+    } else {
+      window.sessionStorage.setItem(BUYER_CTO_DEMO_TOUR_NOTES_FULL_SCRIPT_STORAGE_KEY, "0");
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
+const BUYER_CTO_DEMO_TOUR_PRESENTER_SUMMARY_LINES: readonly string[] = [
   "Show the board condensed outcomes, posture, and monitored risks — the diligence starting point.",
   "Open the signed package: decisions, findings, and downloadable deliverables.",
   "Trace evidence → findings → decisions in the graph — not a chat transcript.",
   "Walk segregation of duties, approvals, and policy enforcement for this review.",
   "Close with the append-only audit trail and export for GRC follow-up.",
+];
+
+const BUYER_CTO_DEMO_TOUR_PRESENTER_SCRIPTS: readonly string[] = [
+  "What you are seeing is the executive summary for the Claims Intake Modernization review. Every number here comes from a structured analysis of the submitted architecture brief, not from a consultant slide deck. The monitored risks at the bottom are explicitly tracked — they are accepted with monitoring, not ignored. If you want proof, I can open any finding and show the evidence that backs it.",
+  "This signed manifest is the versioned record of decisions, findings, and downloadable deliverables for this review package. Sponsors receive the same artifact your governance team approved — nothing is regenerated silently after sign-off. Notice the manifest version and export bundle: those are what GRC and architecture boards attach to their decision records.",
+  "The evidence trail links inputs through findings to decisions — this is traceability, not a chat transcript. Each node in the graph maps to a persisted artifact in the audit record. That is how we answer “why did the AI recommend this?” without asking you to trust a black box.",
+  "Governance approval shows segregation of duties: the requester and approver are different principals. Policy packs enforced during the review are visible here, along with the approval state for this package. This is the control surface enterprise security teams expect before production changes.",
+  "The audit trail is append-only — every create, execute, commit, and export event is durable and searchable. You can filter by this review and export for GRC follow-up. This closes the loop: executive outcomes, signed package, evidence, governance, and compliance record in one walkthrough.",
 ];
 
 export function resolveBuyerCtoDemoTourNavigation(pathname: string): BuyerCtoDemoTourNavigation {
@@ -120,6 +317,7 @@ export function resolveBuyerCtoDemoTourNavigation(pathname: string): BuyerCtoDem
       stepCount,
       summaryLine: "Off the CTO demo path",
       presenterLine: "Return to the executive summary to continue the five-step diligence walkthrough.",
+      presenterScript: buyerCtoDemoTourPresenterScript(0),
       prev: null,
       next: { label: defs[0].label, href: defs[0].href },
       onSpine: false,
@@ -134,6 +332,7 @@ export function resolveBuyerCtoDemoTourNavigation(pathname: string): BuyerCtoDem
     stepCount,
     summaryLine: journeyNav.summaryLine,
     presenterLine: buyerCtoDemoTourPresenterLine(presenterIndex),
+    presenterScript: buyerCtoDemoTourPresenterScript(presenterIndex),
     prev: journeyNav.prev,
     next: journeyNav.next,
     onSpine: stepIndex !== null,
@@ -166,4 +365,36 @@ function inferSatellitePresenterIndex(journeyNav: NonNullable<ReturnType<typeof 
 
 export function getStartCtoDemoTourHref(): string {
   return appendBuyerCtoDemoTourStartQuery(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[0].href);
+}
+
+/** Printable/downloadable 30-minute CTO demo run-of-show for presenters. */
+export function buildCtoDemoRunOfShowMarkdown(): string {
+  const lines: string[] = [
+    "# ArchLucid CTO Demo — 30-Minute Run of Show",
+    "",
+    "Use **Start CTO demo** on the home page, confirm **Demo ready**, then follow the five steps below.",
+    "",
+    "**Keyboard shortcuts:** Press 1–5 to jump between journey steps. Toggle presenter notes in the tour overlay. End tour when finished.",
+    "",
+  ];
+
+  BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.forEach((def, index) => {
+    const budget = BUYER_CTO_DEMO_STEP_BUDGET_MINUTES[index] ?? 0;
+    const presenterLine = buyerCtoDemoTourPresenterLine(index);
+
+    lines.push(`## Step ${def.step}: ${def.label} (~${budget} min)`);
+    lines.push("");
+    lines.push(def.chipTooltip);
+    lines.push("");
+    lines.push(`**Presenter line:** ${presenterLine}`);
+    lines.push("");
+    lines.push(`**Route:** ${def.href}`);
+    lines.push("");
+  });
+
+  lines.push("---");
+  lines.push("");
+  lines.push("*Generated from the buyer golden journey definitions in ArchLucid.*");
+
+  return lines.join("\n");
 }

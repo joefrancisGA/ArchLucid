@@ -1,240 +1,805 @@
 "use client";
 
+
+
 import Link from "next/link";
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+
+
+import { CtoDemoRecapCard } from "@/components/cto-demo/CtoDemoRecapCard";
 
 import { Button } from "@/components/ui/button";
+
+import { CTO_DEMO_QUESTIONS } from "@/lib/buyer-cto-demo-cto-questions";
+
 import {
+
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
+
   BUYER_CTO_DEMO_TOUR_QUERY_PARAM,
+
+  buyerCtoDemoRemainingBudgetMinutes,
+
+  buyerCtoDemoStepBudgetSeconds,
+
+  formatCtoDemoStepTimer,
+
   readBuyerCtoDemoTourActive,
+
   readBuyerCtoDemoTourCollapsed,
+
+  readBuyerCtoDemoPresenterNotesFullScript,
+
+  readBuyerCtoDemoPresenterNotesVisible,
+
+  readBuyerCtoDemoVisitedSteps,
+
   resolveBuyerCtoDemoTourNavigation,
+
   writeBuyerCtoDemoTourActive,
+
   writeBuyerCtoDemoTourCollapsed,
+
+  writeBuyerCtoDemoPresenterNotesFullScript,
+
+  writeBuyerCtoDemoPresenterNotesVisible,
+
+  writeBuyerCtoDemoVisitedStep,
+
 } from "@/lib/buyer-cto-demo-tour";
+
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+
 import {
+
+  BUYER_CTO_DEMO_QUESTIONS_HIDE_CTA,
+
+  BUYER_CTO_DEMO_QUESTIONS_SHOW_CTA,
+
   BUYER_CTO_DEMO_TOUR_ARIA,
+
   BUYER_CTO_DEMO_TOUR_BACK_CTA,
+
   BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA,
+
   BUYER_CTO_DEMO_TOUR_END_CTA,
+
   BUYER_CTO_DEMO_TOUR_EXPAND_CTA,
+
   BUYER_CTO_DEMO_TOUR_HEADING,
+
+  BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT,
+
   BUYER_CTO_DEMO_TOUR_NEXT_CTA,
+
+  BUYER_CTO_DEMO_TOUR_NOTES_FULL_CTA,
+
+  BUYER_CTO_DEMO_TOUR_NOTES_HIDE_CTA,
+
+  BUYER_CTO_DEMO_TOUR_NOTES_SHOW_CTA,
+
+  BUYER_CTO_DEMO_TOUR_NOTES_SUMMARY_CTA,
+
+  buyerCtoDemoRemainingMinutesLabel,
+
 } from "@/lib/buyer-polish-copy";
+
+import { useBuyerCtoDemoTourKeyboard } from "@/hooks/useBuyerCtoDemoTourKeyboard";
+
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE, operatorSemanticBadge } from "@/lib/design-tokens";
+
 import { cn } from "@/lib/utils";
 
+
+
 /**
+
  * Persistent presenter rail for the five-step buyer golden journey — Back/Next without hunting the layer strip.
+
  */
+
 export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
+
   const pathname = usePathname() ?? "/";
+
   const searchParams = useSearchParams();
+
   const router = useRouter();
+
   const [active, setActive] = useState(false);
+
   const [collapsed, setCollapsed] = useState(false);
+
+  const [presenterNotesVisible, setPresenterNotesVisible] = useState(true);
+
+  const [presenterNotesFullScript, setPresenterNotesFullScript] = useState(true);
+
+  const [ctoQuestionsVisible, setCtoQuestionsVisible] = useState(false);
+
+  const [visitedSteps, setVisitedSteps] = useState<ReadonlySet<number>>(new Set<number>());
+
   const [mounted, setMounted] = useState(false);
 
+  const [elapsedSecondsOnStep, setElapsedSecondsOnStep] = useState(0);
+
+
+
   const activateTour = useCallback(() => {
+
     writeBuyerCtoDemoTourActive(true);
+
     setActive(true);
+
     setCollapsed(false);
+
     writeBuyerCtoDemoTourCollapsed(false);
+
   }, []);
+
+
 
   const endTour = useCallback(() => {
+
     writeBuyerCtoDemoTourActive(false);
+
     setActive(false);
+
     setCollapsed(false);
+
     writeBuyerCtoDemoTourCollapsed(false);
+
   }, []);
 
+
+
   useEffect(() => {
+
     setMounted(true);
+
     setActive(readBuyerCtoDemoTourActive());
+
     setCollapsed(readBuyerCtoDemoTourCollapsed());
+
+    setPresenterNotesVisible(readBuyerCtoDemoPresenterNotesVisible());
+
+    setPresenterNotesFullScript(readBuyerCtoDemoPresenterNotesFullScript());
+
+    setVisitedSteps(readBuyerCtoDemoVisitedSteps());
+
   }, []);
 
+
+
+  useBuyerCtoDemoTourKeyboard(active);
+
+
+
+  const navigation = useMemo(() => resolveBuyerCtoDemoTourNavigation(pathname), [pathname]);
+
+
+
   useEffect(() => {
-    if (!mounted) {
+
+    if (!mounted || !active) {
+
       return;
+
     }
+
+
+
+    if (navigation.stepIndex === null) {
+
+      return;
+
+    }
+
+
+
+    writeBuyerCtoDemoVisitedStep(navigation.stepIndex);
+
+    setVisitedSteps(readBuyerCtoDemoVisitedSteps());
+
+  }, [active, mounted, navigation.stepIndex]);
+
+
+
+  useEffect(() => {
+
+    setElapsedSecondsOnStep(0);
+
+  }, [navigation.stepIndex]);
+
+
+
+  useEffect(() => {
+
+    if (!mounted || !active || navigation.stepIndex === null) {
+
+      return;
+
+    }
+
+
+
+    const intervalId = window.setInterval(() => {
+
+      setElapsedSecondsOnStep((previous) => previous + 1);
+
+    }, 1000);
+
+
+
+    return () => {
+
+      window.clearInterval(intervalId);
+
+    };
+
+  }, [active, mounted, navigation.stepIndex]);
+
+
+
+  useEffect(() => {
+
+    if (!mounted) {
+
+      return;
+
+    }
+
+
 
     const tourQuery = searchParams.get(BUYER_CTO_DEMO_TOUR_QUERY_PARAM);
 
+
+
     if (tourQuery === "1" || tourQuery === "true") {
+
       activateTour();
+
+
 
       const params = new URLSearchParams(searchParams.toString());
+
       params.delete(BUYER_CTO_DEMO_TOUR_QUERY_PARAM);
+
       const query = params.toString();
+
       const nextUrl = query.length > 0 ? `${pathname}?${query}` : pathname;
 
+
+
       router.replace(nextUrl, { scroll: false });
+
     }
+
   }, [activateTour, mounted, pathname, router, searchParams]);
 
+
+
   useEffect(() => {
+
     function onStartTour(): void {
+
       activateTour();
+
     }
+
+
 
     window.addEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, onStartTour);
 
+
+
     return () => {
+
       window.removeEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, onStartTour);
+
     };
+
   }, [activateTour]);
 
+
+
   if (!isBuyerPolishedOperatorShellEnv() || !mounted || !active) {
+
     return null;
+
   }
 
-  const navigation = resolveBuyerCtoDemoTourNavigation(pathname);
+
+
   const stepCount = navigation.stepCount;
+
   const currentStepNumber = navigation.stepIndex !== null ? navigation.stepIndex + 1 : null;
+
   const stepLabel =
+
     currentStepNumber !== null ? `Step ${currentStepNumber} of ${stepCount}` : navigation.summaryLine;
 
+  const remainingMinutes =
+
+    navigation.stepIndex !== null ? buyerCtoDemoRemainingBudgetMinutes(navigation.stepIndex) : null;
+
+
+
+  const stepBudgetSeconds =
+
+    navigation.stepIndex !== null ? buyerCtoDemoStepBudgetSeconds(navigation.stepIndex) : null;
+
+  const stepTimer =
+
+    stepBudgetSeconds !== null
+
+      ? formatCtoDemoStepTimer(stepBudgetSeconds - elapsedSecondsOnStep)
+
+      : null;
+
+
+
+  const presenterNotesText = presenterNotesFullScript ? navigation.presenterScript : navigation.presenterLine;
+
+
+
   if (collapsed) {
+
     return (
+
       <div
+
         className="pointer-events-none fixed bottom-4 right-4 z-[9990] print:hidden"
+
         data-testid="buyer-cto-demo-tour-overlay-collapsed"
+
       >
+
         <Button
+
           type="button"
+
           size="sm"
+
           className="pointer-events-auto shadow-md"
+
           aria-label={BUYER_CTO_DEMO_TOUR_EXPAND_CTA}
+
           onClick={() => {
+
             setCollapsed(false);
+
             writeBuyerCtoDemoTourCollapsed(false);
+
           }}
+
         >
+
           {BUYER_CTO_DEMO_TOUR_HEADING}
+
           {currentStepNumber !== null ? ` · ${currentStepNumber}/${stepCount}` : ""}
+
         </Button>
+
       </div>
+
     );
+
   }
 
+
+
   return (
+
     <aside
+
       aria-label={BUYER_CTO_DEMO_TOUR_ARIA}
+
       className="pointer-events-none fixed bottom-4 right-4 z-[9990] w-[min(22rem,calc(100vw-2rem))] print:hidden"
+
       data-testid="buyer-cto-demo-tour-overlay"
+
     >
+
       <div className="pointer-events-auto rounded-lg border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+
         <div className="flex items-start justify-between gap-2">
+
           <div className="min-w-0">
+
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
+
               {BUYER_CTO_DEMO_TOUR_HEADING}
+
             </p>
+
             <p className={cn("m-0 mt-1", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{stepLabel}</p>
+
+            {stepTimer !== null ? (
+
+              <p
+
+                className={cn(
+
+                  "m-0 mt-0.5 tabular-nums",
+
+                  OPERATOR_TYPOGRAPHY.badge,
+
+                  stepTimer.isOvertime
+
+                    ? "font-medium text-amber-700 dark:text-amber-300"
+
+                    : "text-neutral-500 dark:text-neutral-400",
+
+                )}
+
+                data-testid="buyer-cto-demo-tour-step-timer"
+
+              >
+
+                {stepTimer.display}
+
+              </p>
+
+            ) : remainingMinutes !== null ? (
+
+              <p className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
+
+                {buyerCtoDemoRemainingMinutesLabel(remainingMinutes)}
+
+              </p>
+
+            ) : null}
+
           </div>
+
           <Button
+
             type="button"
+
             variant="ghost"
+
             size="sm"
+
             className="h-8 shrink-0 px-2 text-neutral-600 dark:text-neutral-400"
+
             aria-label={BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+
             onClick={() => {
+
               setCollapsed(true);
+
               writeBuyerCtoDemoTourCollapsed(true);
+
             }}
+
           >
+
             {BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+
           </Button>
+
         </div>
 
-        <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
-          {navigation.presenterLine}
-        </p>
 
-        {navigation.stepIndex !== null ? (
-          <ol
-            className="m-0 mt-3 flex list-none flex-wrap gap-1.5 p-0"
-            aria-label="CTO demo journey steps"
-            data-testid="buyer-cto-demo-tour-step-indicators"
-          >
-            {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => {
-              const current = navigation.stepIndex === idx;
-              const done = navigation.stepIndex !== null && idx < navigation.stepIndex;
 
-              const chipClass = done
-                ? operatorSemanticBadge("ready")
-                : current
-                  ? cn(operatorSemanticBadge("current"), "font-semibold ring-2 ring-[var(--al-accent-border-focus)]/40")
-                  : "border border-neutral-200 bg-white text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900";
+        {presenterNotesVisible ? (
 
-              return (
-                <li key={`${def.step}-${def.href}`}>
-                  {current ? (
-                    <span
-                      aria-current="step"
-                      title={def.chipTooltip}
-                      className={cn(
-                        "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                        chipClass,
-                      )}
-                    >
-                      <span className="tabular-nums">{def.step}.</span>
-                      <span>{def.label}</span>
-                    </span>
-                  ) : (
-                    <Link
-                      href={def.href}
-                      title={def.chipTooltip}
-                      className={cn(
-                        "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
-                        chipClass,
-                      )}
-                    >
-                      <span className="tabular-nums">{def.step}.</span>
-                      <span>{def.label}</span>
-                    </Link>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
+          <p className={cn("m-0 mt-2", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
+
+            {presenterNotesText}
+
+          </p>
+
         ) : null}
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-          <Button type="button" variant="ghost" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
-            {BUYER_CTO_DEMO_TOUR_END_CTA}
+
+
+        <p className={cn("m-0 mt-2 text-xs text-neutral-500 dark:text-neutral-400")}>{BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT}</p>
+
+
+
+        <div className="mt-2 flex flex-wrap gap-1">
+
+          <Button
+
+            type="button"
+
+            variant="ghost"
+
+            size="sm"
+
+            className="h-8 px-2 text-neutral-600 dark:text-neutral-400"
+
+            data-testid="buyer-cto-demo-tour-notes-toggle"
+
+            onClick={() => {
+
+              const next = !presenterNotesVisible;
+
+              setPresenterNotesVisible(next);
+
+              writeBuyerCtoDemoPresenterNotesVisible(next);
+
+            }}
+
+          >
+
+            {presenterNotesVisible ? BUYER_CTO_DEMO_TOUR_NOTES_HIDE_CTA : BUYER_CTO_DEMO_TOUR_NOTES_SHOW_CTA}
+
           </Button>
-          <div className="flex flex-wrap items-center gap-2">
-            {navigation.prev !== null ? (
-              <Button type="button" variant="outline" size="sm" asChild>
-                <Link href={navigation.prev.href} data-testid="buyer-cto-demo-tour-back">
-                  {BUYER_CTO_DEMO_TOUR_BACK_CTA}: {navigation.prev.label}
-                </Link>
-              </Button>
-            ) : (
-              <Button type="button" variant="outline" size="sm" disabled data-testid="buyer-cto-demo-tour-back">
-                {BUYER_CTO_DEMO_TOUR_BACK_CTA}
-              </Button>
-            )}
-            {navigation.next !== null ? (
-              <Button type="button" size="sm" asChild>
-                <Link href={navigation.next.href} data-testid="buyer-cto-demo-tour-next">
-                  {BUYER_CTO_DEMO_TOUR_NEXT_CTA}: {navigation.next.label}
-                </Link>
-              </Button>
-            ) : (
-              <Button type="button" size="sm" disabled data-testid="buyer-cto-demo-tour-next">
-                {BUYER_CTO_DEMO_TOUR_NEXT_CTA}
-              </Button>
-            )}
-          </div>
+
+          {presenterNotesVisible ? (
+
+            <Button
+
+              type="button"
+
+              variant="ghost"
+
+              size="sm"
+
+              className="h-8 px-2 text-neutral-600 dark:text-neutral-400"
+
+              data-testid="buyer-cto-demo-tour-notes-mode-toggle"
+
+              onClick={() => {
+
+                const next = !presenterNotesFullScript;
+
+                setPresenterNotesFullScript(next);
+
+                writeBuyerCtoDemoPresenterNotesFullScript(next);
+
+              }}
+
+            >
+
+              {presenterNotesFullScript ? BUYER_CTO_DEMO_TOUR_NOTES_SUMMARY_CTA : BUYER_CTO_DEMO_TOUR_NOTES_FULL_CTA}
+
+            </Button>
+
+          ) : null}
+
+          <Button
+
+            type="button"
+
+            variant="ghost"
+
+            size="sm"
+
+            className="h-8 px-2 text-neutral-600 dark:text-neutral-400"
+
+            data-testid="buyer-cto-demo-tour-cto-questions-toggle"
+
+            onClick={() => {
+
+              setCtoQuestionsVisible((previous) => !previous);
+
+            }}
+
+          >
+
+            {ctoQuestionsVisible ? BUYER_CTO_DEMO_QUESTIONS_HIDE_CTA : BUYER_CTO_DEMO_QUESTIONS_SHOW_CTA}
+
+          </Button>
+
         </div>
+
+
+
+        {ctoQuestionsVisible ? (
+
+          <ol
+
+            className="m-0 mt-2 list-decimal space-y-2 pl-4 text-xs text-neutral-700 dark:text-neutral-300"
+
+            data-testid="buyer-cto-demo-tour-cto-questions"
+
+          >
+
+            {CTO_DEMO_QUESTIONS.map((row) => (
+
+              <li key={row.id}>
+
+                <p className="m-0 font-semibold text-neutral-900 dark:text-neutral-100">{row.question}</p>
+
+                <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.answer}</p>
+
+                <Link
+
+                  href={row.proofHref}
+
+                  className="mt-0.5 inline-block text-teal-800 underline underline-offset-2 dark:text-teal-300"
+
+                >
+
+                  {row.proofLabel}
+
+                </Link>
+
+              </li>
+
+            ))}
+
+          </ol>
+
+        ) : null}
+
+
+
+        {navigation.stepIndex !== null ? (
+
+          <ol
+
+            className="m-0 mt-3 flex list-none flex-wrap gap-1.5 p-0"
+
+            aria-label="CTO demo journey steps"
+
+            data-testid="buyer-cto-demo-tour-step-indicators"
+
+          >
+
+            {BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS.map((def, idx) => {
+
+              const current = navigation.stepIndex === idx;
+
+              const done = visitedSteps.has(idx) && !current;
+
+
+
+              const chipClass = done
+
+                ? operatorSemanticBadge("ready")
+
+                : current
+
+                  ? cn(operatorSemanticBadge("current"), "font-semibold ring-2 ring-[var(--al-accent-border-focus)]/40")
+
+                  : "border border-neutral-200 bg-white text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900";
+
+
+
+              return (
+
+                <li key={`${def.step}-${def.href}`}>
+
+                  {current ? (
+
+                    <span
+
+                      aria-current="step"
+
+                      title={def.chipTooltip}
+
+                      className={cn(
+
+                        "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+
+                        chipClass,
+
+                      )}
+
+                    >
+
+                      <span className="tabular-nums">{def.step}.</span>
+
+                      <span>{def.label}</span>
+
+                    </span>
+
+                  ) : (
+
+                    <Link
+
+                      href={def.href}
+
+                      title={def.chipTooltip}
+
+                      className={cn(
+
+                        "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium no-underline transition hover:opacity-95",
+
+                        chipClass,
+
+                      )}
+
+                    >
+
+                      <span className="tabular-nums">{def.step}.</span>
+
+                      <span>{def.label}</span>
+
+                    </Link>
+
+                  )}
+
+                </li>
+
+              );
+
+            })}
+
+          </ol>
+
+        ) : null}
+
+
+
+        {navigation.stepIndex === 4 ? <CtoDemoRecapCard /> : null}
+
+
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+
+          <Button type="button" variant="ghost" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
+
+            {BUYER_CTO_DEMO_TOUR_END_CTA}
+
+          </Button>
+
+          <div className="flex flex-wrap items-center gap-2">
+
+            {navigation.prev !== null ? (
+
+              <Button type="button" variant="outline" size="sm" asChild>
+
+                <Link href={navigation.prev.href} data-testid="buyer-cto-demo-tour-back">
+
+                  {BUYER_CTO_DEMO_TOUR_BACK_CTA}: {navigation.prev.label}
+
+                </Link>
+
+              </Button>
+
+            ) : (
+
+              <Button type="button" variant="outline" size="sm" disabled data-testid="buyer-cto-demo-tour-back">
+
+                {BUYER_CTO_DEMO_TOUR_BACK_CTA}
+
+              </Button>
+
+            )}
+
+            {navigation.next !== null ? (
+
+              <Button type="button" size="sm" asChild>
+
+                <Link href={navigation.next.href} data-testid="buyer-cto-demo-tour-next">
+
+                  {BUYER_CTO_DEMO_TOUR_NEXT_CTA}: {navigation.next.label}
+
+                </Link>
+
+              </Button>
+
+            ) : (
+
+              <Button type="button" size="sm" disabled data-testid="buyer-cto-demo-tour-next">
+
+                {BUYER_CTO_DEMO_TOUR_NEXT_CTA}
+
+              </Button>
+
+            )}
+
+          </div>
+
+        </div>
+
       </div>
+
     </aside>
+
   );
+
 }
+
+

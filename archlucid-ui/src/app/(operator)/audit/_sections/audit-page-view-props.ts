@@ -62,4 +62,6 @@ export type AuditPageViewProps = {
   readonly onExportCsv: () => Promise<void>;
   readonly getAuditSavedViewPayload: () => OperatorSavedViewPayload;
   readonly loadAuditSavedView: (view: OperatorSavedView) => Promise<void>;
+  readonly ctoDemoAuditFilterActive: boolean;
+  readonly onClearCtoDemoAuditFilter: () => void;
 };

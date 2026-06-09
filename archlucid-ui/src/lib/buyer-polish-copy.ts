@@ -61,6 +61,67 @@ export const BUYER_CTO_DEMO_READINESS_CHECKING_LABEL = "Checking demo readiness�
 
 export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck";
 
+export const BUYER_CTO_DEMO_RESET_CTA = "Reset demo";
+
+export const BUYER_CTO_DEMO_RESET_BUSY_CTA = "Resetting demo…";
+
+export const BUYER_CTO_DEMO_RESET_SUCCESS = "Demo reset — restarting the five-step tour.";
+
+export const BUYER_CTO_DEMO_TOUR_NOTES_HIDE_CTA = "Hide presenter notes";
+
+export const BUYER_CTO_DEMO_TOUR_NOTES_SHOW_CTA = "Show presenter notes";
+
+export const BUYER_CTO_DEMO_TOUR_NOTES_FULL_CTA = "Full script";
+
+export const BUYER_CTO_DEMO_TOUR_NOTES_SUMMARY_CTA = "Summary";
+
+export const BUYER_CTO_DEMO_QUESTIONS_SHOW_CTA = "CTO questions";
+
+export const BUYER_CTO_DEMO_QUESTIONS_HIDE_CTA = "Hide CTO questions";
+
+export const BUYER_CTO_DEMO_RECAP_HEADING = "Executive recap for follow-up";
+
+export const BUYER_CTO_DEMO_RECAP_COPY_CTA = "Copy recap";
+
+export const BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA = "Download recap (.md)";
+
+export const BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL = "Live data";
+
+export const BUYER_CTO_DEMO_DATA_SOURCE_SAMPLE_LABEL = "Sample data — Contoso Retail";
+
+export const QUICK_REVIEW_SAMPLE_BRIEF_CAPTION = "Sample — edit freely";
+
+export const COMMAND_PALETTE_START_CTO_DEMO_LABEL = "Start CTO demo tour";
+
+export const COMMAND_PALETTE_RESET_DEMO_LABEL = "Reset demo";
+
+export const BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT = "Press 1–5 to jump between journey steps.";
+
+export function buyerCtoDemoRemainingMinutesLabel(minutes: number): string {
+  return `~${minutes} min remaining`;
+}
+
+export const BUYER_CTO_DEMO_RUN_OF_SHOW_DOWNLOAD_CTA = "Download run-of-show";
+
+export const BUYER_CTO_DEMO_SEGREGATION_CALLOUT_HEADING = "Segregation of duties";
+
+export const BUYER_CTO_DEMO_SEGREGATION_CALLOUT_BODY =
+  "The review requester and approver are different principals — neither can unilaterally finalize the package.";
+
+export const BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER =
+  "Showing demo-relevant events only — create, execute, commit, and export milestones.";
+
+export const BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA = "Show all events";
+
+export const BUYER_CTO_DEMO_EXECUTIVE_PRINT_CTA = "Print executive summary";
+
+export const BUYER_CTO_DEMO_STATIC_PRESENTER_BANNER =
+  "Presenter: all five demo steps are running on cached showcase data — live API is unavailable or static fallback is enabled.";
+
+export const BUYER_CTO_DEMO_LATENCY_OK = "Within demo latency budget";
+
+export const BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Exceeded demo latency budget — switch to seeded showcase";
+
 export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Example review package shortcuts";
 
 export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Example review package";

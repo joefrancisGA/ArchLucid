@@ -1,10 +1,15 @@
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { cn } from "@/lib/utils";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
+import {
+  BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER,
+  BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA,
+} from "@/lib/buyer-polish-copy";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -46,6 +51,19 @@ export function AuditPageView(props: AuditPageViewProps) {
           buyerAuditTrailSummaryLine={props.buyerAuditTrailSummaryLine}
           buyerAuditTrailMetrics={props.buyerAuditTrailMetrics}
         />
+      ) : null}
+
+      {props.ctoDemoAuditFilterActive ? (
+        <div
+          role="status"
+          data-testid="cto-demo-audit-filter-banner"
+          className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-teal-200/70 bg-teal-50/80 px-3 py-2 text-sm text-teal-950 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-teal-100"
+        >
+          <p className="m-0">{BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER}</p>
+          <Button type="button" variant="ghost" size="sm" className="h-8" onClick={props.onClearCtoDemoAuditFilter}>
+            {BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA}
+          </Button>
+        </div>
       ) : null}
 
       <AuditLogRankCue className="mb-2" />

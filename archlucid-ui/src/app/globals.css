@@ -213,6 +213,11 @@ kbd {
 @media print {
   [data-testid="app-shell-topbar"],
   [data-testid="sidebar-nav"],
+  [data-testid="buyer-cto-demo-tour-overlay"],
+  [data-testid="buyer-cto-demo-tour-overlay-collapsed"],
+  [data-testid="cto-demo-journey-caption-bar"],
+  nav,
+  header,
   .skip-to-main {
     display: none !important;
   }
@@ -223,9 +228,20 @@ kbd {
     max-width: 100% !important;
   }
 
+  [data-testid="executive-review-page"] {
+    max-width: 100% !important;
+  }
+
+  [data-testid="cto-demo-executive-above-fold"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    break-inside: avoid;
+  }
+
   body {
     background: white !important;
     color: black !important;
+    font-size: 12pt;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
