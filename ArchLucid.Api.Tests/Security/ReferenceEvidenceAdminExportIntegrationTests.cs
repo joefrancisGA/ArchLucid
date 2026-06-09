@@ -35,9 +35,8 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
-                primer,
-                includePostCreateRunWarmup: false);
+            // Full create-run warmup: TB-291 depends on POST /v1/architecture/request on a cold greenfield catalog.
+            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
         }
 
         using HttpClient client = factory.CreateClient();
