@@ -37,10 +37,13 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
     /// <summary>
     ///     DbUp + readiness + optional first create-run on an empty catalog (outside parallel-burst hang guards).
-    ///     Must exceed <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> so a single warm POST is not
-    ///     cancelled by the bootstrap token before the HTTP client budget elapses.
+    ///     Must cover <see cref="WarmListRunsPathAsync" /> worst-case warmup (~8 min at max backoff) plus at least two full
+    ///     <see cref="GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> cycles, so a first attempt that times out on a slow
+    ///     CI shard can be retried before the outer bootstrap token fires.
+    ///     2 × 15 min + 8 min list-runs overhead + 2 min headroom = 40 min minimum; 50 min gives one extra 15-min retry slot
+    ///     for unusually loaded shards.
     /// </summary>
-    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(30);
+    internal static readonly TimeSpan GreenfieldSqlHostBootstrapBudget = TimeSpan.FromMinutes(50);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
