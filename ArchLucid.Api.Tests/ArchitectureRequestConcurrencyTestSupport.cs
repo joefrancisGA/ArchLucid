@@ -247,14 +247,31 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         bootstrap.CancelAfter(GreenfieldSqlHostBootstrapBudget);
         CancellationToken ct = bootstrap.Token;
 
-        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
-        await HealthReadyProbe.EnsureReadyAsync(client, ct);
-        await WarmListRunsPathAsync(client, ct);
+        try
+        {
+            AlignHttpClientTimeoutForSqlIdempotencyLockChain(client, GreenfieldSqlArchitectureRequestBurstHttpTimeout);
+            await HealthReadyProbe.EnsureReadyAsync(client, ct);
+            await WarmListRunsPathAsync(client, ct);
 
-        if (!includePostCreateRunWarmup)
-            return;
+            if (!includePostCreateRunWarmup)
+                return;
 
-        await WarmSingleCreateRunPathAsync(client, ct);
+            await WarmSingleCreateRunPathAsync(client, ct);
+        }
+        catch (OperationCanceledException ex) when (bootstrap.Token.IsCancellationRequested)
+        {
+            throw new WarmupTimedOutException(
+                "Greenfield SQL host warmup exceeded "
+                + nameof(GreenfieldSqlHostBootstrapBudget)
+                + " ("
+                + GreenfieldSqlHostBootstrapBudget
+                + "). See "
+                + nameof(WarmGreenfieldSqlHostForArchitectureRequestTestsAsync)
+                + " and "
+                + nameof(WarmSingleCreateRunPathAsync)
+                + ".",
+                ex);
+        }
     }
 
     /// <summary>
