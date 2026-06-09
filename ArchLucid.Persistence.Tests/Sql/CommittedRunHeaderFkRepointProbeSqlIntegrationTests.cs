@@ -58,11 +58,12 @@ public sealed class CommittedRunHeaderFkRepointProbeSqlIntegrationTests(SqlServe
             decisionTraceId,
             artifactBundleId: null);
 
-        long contextCount = await CountAsync(connection, CommittedRunHeaderFkRepointProbeSql.ContextSnapshotId);
-        long graphCount = await CountAsync(connection, CommittedRunHeaderFkRepointProbeSql.GraphSnapshotId);
-        long findingsCount = await CountAsync(connection, CommittedRunHeaderFkRepointProbeSql.FindingsSnapshotId);
-        long manifestCount = await CountAsync(connection, CommittedRunHeaderFkRepointProbeSql.GoldenManifestId);
-        long traceCount = await CountAsync(connection, CommittedRunHeaderFkRepointProbeSql.DecisionTraceId);
+        // Probe SQL is global; other tests in this collection intentionally leave repoint violations.
+        long contextCount = await CountForRunAsync(connection, runId, CommittedRunHeaderFkRepointProbeSql.ContextSnapshotId);
+        long graphCount = await CountForRunAsync(connection, runId, CommittedRunHeaderFkRepointProbeSql.GraphSnapshotId);
+        long findingsCount = await CountForRunAsync(connection, runId, CommittedRunHeaderFkRepointProbeSql.FindingsSnapshotId);
+        long manifestCount = await CountForRunAsync(connection, runId, CommittedRunHeaderFkRepointProbeSql.GoldenManifestId);
+        long traceCount = await CountForRunAsync(connection, runId, CommittedRunHeaderFkRepointProbeSql.DecisionTraceId);
 
         contextCount.Should().Be(0);
         graphCount.Should().Be(0);
@@ -102,9 +103,9 @@ public sealed class CommittedRunHeaderFkRepointProbeSqlIntegrationTests(SqlServe
                 ContextSnapshotId = danglingContextId,
             });
 
-        long count = await CountAsync(connection, CommittedRunHeaderFkRepointProbeSql.ContextSnapshotId);
+        long count = await CountForRunAsync(connection, runId, CommittedRunHeaderFkRepointProbeSql.ContextSnapshotId);
 
-        count.Should().BeGreaterThanOrEqualTo(1);
+        count.Should().Be(1);
     }
 
     [SkippableFact]
@@ -165,9 +166,9 @@ public sealed class CommittedRunHeaderFkRepointProbeSqlIntegrationTests(SqlServe
                 DecisionTraceId = decisionTraceId,
             });
 
-        long count = await CountAsync(connection, CommittedRunHeaderFkRepointProbeSql.GraphSnapshotId);
+        long count = await CountForRunAsync(connection, violatingRunId, CommittedRunHeaderFkRepointProbeSql.GraphSnapshotId);
 
-        count.Should().BeGreaterThanOrEqualTo(1);
+        count.Should().Be(1);
     }
 
     private static async Task SeedCommittedRunAsync(
@@ -277,9 +278,11 @@ public sealed class CommittedRunHeaderFkRepointProbeSqlIntegrationTests(SqlServe
             });
     }
 
-    private static async Task<long> CountAsync(SqlConnection connection, string sql)
+    private static async Task<long> CountForRunAsync(SqlConnection connection, Guid runId, string probeSql)
     {
-        object? scalar = await connection.ExecuteScalarAsync(sql);
+        string scopedSql = probeSql.TrimEnd().TrimEnd(';') + "\n  AND r.RunId = @RunId;";
+
+        object? scalar = await connection.ExecuteScalarAsync(scopedSql, new { RunId = runId });
 
         return scalar switch
         {
