@@ -47,6 +47,20 @@ export const BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA = "Minimize";
 
 export const BUYER_CTO_DEMO_TOUR_EXPAND_CTA = "Expand CTO demo tour";
 
+export const BUYER_CTO_DEMO_READINESS_HEADING = "Demo readiness";
+
+export const BUYER_CTO_DEMO_READINESS_ARIA = "CTO demo readiness checks";
+
+export const BUYER_CTO_DEMO_READINESS_READY_LABEL = "Demo ready";
+
+export const BUYER_CTO_DEMO_READINESS_STATIC_LABEL = "Demo ready (static fallback)";
+
+export const BUYER_CTO_DEMO_READINESS_NOT_READY_LABEL = "Demo not ready";
+
+export const BUYER_CTO_DEMO_READINESS_CHECKING_LABEL = "Checking demo readiness…";
+
+export const BUYER_CTO_DEMO_READINESS_REFRESH_CTA = "Recheck";
+
 export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Example review package shortcuts";
 
 export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Example review package";

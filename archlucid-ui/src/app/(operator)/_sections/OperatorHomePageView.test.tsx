@@ -13,6 +13,10 @@ vi.mock("@/components/operator-home/StartCtoDemoCard", () => ({
   StartCtoDemoCard: () => <div data-testid="home-block-start-cto-demo" />,
 }));
 
+vi.mock("@/components/operator-home/BuyerCtoDemoReadinessPanel", () => ({
+  BuyerCtoDemoReadinessPanel: () => <div data-testid="home-block-cto-demo-readiness" />,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -97,9 +101,11 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByTestId("operator-home-setup-section")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-readiness-cockpit")).toBeInTheDocument();
 
+    expect(screen.getByTestId("home-block-cto-demo-readiness")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-start-cto-demo")).toBeInTheDocument();
 
     expect(sectionBlockOrder("operator-home-hero-section")).toEqual([
+      "home-block-cto-demo-readiness",
       "home-block-start-cto-demo",
       "home-block-welcome",
       "home-block-core-pilot-hint",

@@ -13,6 +13,7 @@ import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHom
 import { OperatorHomeGuidanceLinks } from "@/components/operator-home/OperatorHomeGuidanceLinks";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
+import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
 import { StartCtoDemoCard } from "@/components/operator-home/StartCtoDemoCard";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { AcceleratorChooserCard } from "@/components/operator-home/AcceleratorChooserCard";
@@ -112,6 +113,7 @@ function BuyerPolishedHomePageBody() {
         data-testid="operator-home-hero-section"
       >
         <div className="min-w-0 space-y-4">
+          <BuyerCtoDemoReadinessPanel />
           <StartCtoDemoCard />
           <FirstValueReachedCallout />
           <WelcomeBanner />
