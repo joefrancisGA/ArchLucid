@@ -25,7 +25,7 @@ import {
   BUYER_CTO_DEMO_TOUR_NEXT_CTA,
 } from "@/lib/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPE_SCALE, operatorSemanticBadge } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE, operatorSemanticBadge } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /**
@@ -132,7 +132,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
       <div className="pointer-events-auto rounded-lg border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.badge, "text-neutral-500 dark:text-neutral-400")}>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
               {BUYER_CTO_DEMO_TOUR_HEADING}
             </p>
             <p className={cn("m-0 mt-1", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{stepLabel}</p>
