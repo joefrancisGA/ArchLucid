@@ -24,6 +24,29 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
 
+export const BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo";
+
+export const BUYER_HOME_START_CTO_DEMO_LEAD =
+  "Open a finalized sample architecture review and walk the 5-step diligence path — no setup.";
+
+export const BUYER_HOME_START_CTO_DEMO_CTA = "Start CTO demo";
+
+export const BUYER_HOME_START_CTO_DEMO_ARIA = "Start CTO demo — sample review package walkthrough";
+
+export const BUYER_CTO_DEMO_TOUR_HEADING = "CTO demo tour";
+
+export const BUYER_CTO_DEMO_TOUR_ARIA = "CTO demo guided tour";
+
+export const BUYER_CTO_DEMO_TOUR_BACK_CTA = "Back";
+
+export const BUYER_CTO_DEMO_TOUR_NEXT_CTA = "Next";
+
+export const BUYER_CTO_DEMO_TOUR_END_CTA = "End tour";
+
+export const BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA = "Minimize";
+
+export const BUYER_CTO_DEMO_TOUR_EXPAND_CTA = "Expand CTO demo tour";
+
 export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Example review package shortcuts";
 
 export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Example review package";

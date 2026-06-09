@@ -1,0 +1,84 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { BuyerCtoDemoTourOverlay } from "@/components/BuyerCtoDemoTourOverlay";
+import {
+  BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY,
+  BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY,
+} from "@/lib/buyer-cto-demo-tour";
+import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+
+const replaceMock = vi.fn();
+
+vi.mock("@/lib/demo-ui-env", () => ({
+  isBuyerPolishedOperatorShellEnv: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => getShowcaseExecutiveHref(),
+  useRouter: () => ({ replace: replaceMock }),
+  useSearchParams: () => new URLSearchParams(""),
+}));
+
+describe("BuyerCtoDemoTourOverlay", () => {
+  beforeEach(() => {
+    replaceMock.mockReset();
+    localStorage.clear();
+    sessionStorage.clear();
+    localStorage.setItem(BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY, "1");
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it("renders expanded overlay with back disabled and next to signed manifest on step 1", async () => {
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Step 1 of 5")).toBeInTheDocument();
+    expect(screen.getByTestId("buyer-cto-demo-tour-back")).toBeDisabled();
+    expect(screen.getByTestId("buyer-cto-demo-tour-next")).toHaveAttribute("href", getShowcaseManifestHref());
+    expect(screen.getByTestId("buyer-cto-demo-tour-step-indicators")).toBeInTheDocument();
+  });
+
+  it("collapses and expands from the minimize control", async () => {
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Minimize" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay-collapsed")).toBeInTheDocument();
+    });
+    expect(sessionStorage.getItem(BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY)).toBe("1");
+
+    fireEvent.click(screen.getByRole("button", { name: "Expand CTO demo tour" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+  });
+
+  it("ends the tour and clears active storage", async () => {
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "End tour" }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("buyer-cto-demo-tour-overlay")).toBeNull();
+    });
+    expect(localStorage.getItem(BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY)).toBeNull();
+  });
+});

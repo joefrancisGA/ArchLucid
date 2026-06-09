@@ -9,6 +9,10 @@ vi.mock("@/components/SampleFirstReviewPackageCard", () => ({
   SampleFirstReviewPackageCard: () => <div data-testid="home-block-sample-package" />,
 }));
 
+vi.mock("@/components/operator-home/StartCtoDemoCard", () => ({
+  StartCtoDemoCard: () => <div data-testid="home-block-start-cto-demo" />,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -93,7 +97,10 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByTestId("operator-home-setup-section")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-readiness-cockpit")).toBeInTheDocument();
 
+    expect(screen.getByTestId("home-block-start-cto-demo")).toBeInTheDocument();
+
     expect(sectionBlockOrder("operator-home-hero-section")).toEqual([
+      "home-block-start-cto-demo",
       "home-block-welcome",
       "home-block-core-pilot-hint",
       "home-block-before-after",
@@ -117,6 +124,7 @@ describe("OperatorHomePageView", () => {
   it("keeps operator shell proof before reviews grid and setup rail at the bottom", () => {
     render(<OperatorHomePageView model={{ buyerPolishedShell: false }} />);
 
+    expect(screen.queryByTestId("home-block-start-cto-demo")).toBeNull();
     expect(screen.queryByTestId("operator-home-proof-section")).toBeNull();
     expect(screen.getByTestId("home-block-co-architect")).toBeInTheDocument();
     expect(screen.getByTestId("home-block-readiness-cockpit")).toBeInTheDocument();

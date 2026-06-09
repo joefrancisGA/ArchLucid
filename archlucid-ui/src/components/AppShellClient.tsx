@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { usePathname } from "next/navigation";
 
@@ -30,6 +30,7 @@ import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityP
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { SidebarNav } from "@/components/SidebarNav";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { BuyerCtoDemoTourOverlay } from "@/components/BuyerCtoDemoTourOverlay";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
@@ -329,6 +330,9 @@ function AppShellInner({ children }: AppShellClientProps) {
         <CorePilotWizardLauncher />
         <PilotBaselineWizardLauncher />
         <OnboardingTour />
+        <Suspense fallback={null}>
+          <BuyerCtoDemoTourOverlay />
+        </Suspense>
       </TooltipProvider>
       </WorkspaceActiveRunProvider>
     </OperatorNavAuthorityProvider>
