@@ -37,6 +37,9 @@ export const BUYER_CTO_DEMO_EXPLORE_MODE_STORAGE_KEY = "archlucid.buyerCtoDemoTo
 /** sessionStorage: presenter-only layer visible in the tour overlay (default off = audience-safe). */
 export const BUYER_CTO_DEMO_PRESENTER_LAYER_STORAGE_KEY = "archlucid.buyerCtoDemoTour.presenterLayer.v1";
 
+/** sessionStorage: agenda + readiness preflight acknowledged for the current tab session. */
+export const BUYER_CTO_DEMO_PREFLIGHT_ACKNOWLEDGED_STORAGE_KEY = "archlucid.buyerCtoDemoTour.preflightAck.v1";
+
 /** `window` CustomEvent — spotlight mode toggled (tests, spotlight overlay). */
 export const ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT = "archlucid-cto-demo-spotlight-changed";
 
@@ -348,6 +351,34 @@ export function readCtoDemoPresenterLayerVisible(): boolean {
   }
 }
 
+export function readBuyerCtoDemoPreflightAcknowledged(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.sessionStorage.getItem(BUYER_CTO_DEMO_PREFLIGHT_ACKNOWLEDGED_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeBuyerCtoDemoPreflightAcknowledged(acknowledged: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (acknowledged) {
+      window.sessionStorage.setItem(BUYER_CTO_DEMO_PREFLIGHT_ACKNOWLEDGED_STORAGE_KEY, "1");
+    } else {
+      window.sessionStorage.removeItem(BUYER_CTO_DEMO_PREFLIGHT_ACKNOWLEDGED_STORAGE_KEY);
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
 export function writeCtoDemoPresenterLayerVisible(visible: boolean): void {
   if (typeof window === "undefined") {
     return;
@@ -562,6 +593,7 @@ export function clearBuyerCtoDemoState(): void {
     BUYER_CTO_DEMO_STORY_STORAGE_KEY,
     BUYER_CTO_DEMO_EXPLORE_MODE_STORAGE_KEY,
     BUYER_CTO_DEMO_PRESENTER_LAYER_STORAGE_KEY,
+    BUYER_CTO_DEMO_PREFLIGHT_ACKNOWLEDGED_STORAGE_KEY,
   ];
 
   try {

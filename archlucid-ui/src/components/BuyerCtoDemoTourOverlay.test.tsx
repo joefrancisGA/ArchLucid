@@ -46,7 +46,19 @@ describe("BuyerCtoDemoTourOverlay", () => {
     sessionStorage.clear();
   });
 
+  it("shows preflight gate before the tour controls", async () => {
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cto-demo-preflight-gate")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("buyer-cto-demo-tour-next")).toBeNull();
+  });
+
   it("renders expanded overlay with back disabled and next to signed manifest on step 1", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
+
     render(<BuyerCtoDemoTourOverlay />);
 
     await waitFor(() => {
@@ -96,6 +108,7 @@ describe("BuyerCtoDemoTourOverlay", () => {
   });
 
   it("shows compare drift link on evidence trail step", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
     pathnameMock.mockReturnValue(`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
 
     render(<BuyerCtoDemoTourOverlay />);
@@ -114,6 +127,8 @@ describe("BuyerCtoDemoTourOverlay", () => {
   });
 
   it("shows step budget timer only in presenter layer", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
+
     render(<BuyerCtoDemoTourOverlay />);
 
     await waitFor(() => {
@@ -131,6 +146,8 @@ describe("BuyerCtoDemoTourOverlay", () => {
   });
 
   it("enables offline fallback from panic script section", async () => {
+    sessionStorage.setItem("archlucid.buyerCtoDemoTour.preflightAck.v1", "1");
+
     render(<BuyerCtoDemoTourOverlay />);
 
     await waitFor(() => {

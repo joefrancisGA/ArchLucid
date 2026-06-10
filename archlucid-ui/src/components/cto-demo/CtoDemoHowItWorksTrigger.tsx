@@ -1,7 +1,7 @@
 "use client";
 
 import { Shield } from "lucide-react";
-import { useState } from "react";
+import { cloneElement, isValidElement, useState, type ReactElement } from "react";
 
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { CtoDemoTenantIsolationProofCallout } from "@/components/cto-demo/CtoDemoTenantIsolationProofCallout";
 import { HOW_IT_WORKS_MARKDOWN } from "@/lib/how-it-works-markdown";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -20,14 +21,16 @@ const HOW_IT_WORKS_SLUG = "how-it-works";
 
 export type CtoDemoHowItWorksTriggerProps = {
   readonly variant?: "button" | "link";
+  readonly focusSection?: "isolation";
+  readonly trigger?: ReactElement;
 };
 
 export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): React.JSX.Element {
-  const { variant = "button" } = props;
+  const { variant = "button", focusSection, trigger: customTrigger } = props;
   const [open, setOpen] = useState(false);
   const entry = getProductDocumentationEntry(HOW_IT_WORKS_SLUG);
 
-  const trigger =
+  const defaultTrigger =
     variant === "link" ? (
       <button
         type="button"
@@ -43,6 +46,13 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
       </Button>
     );
 
+  const trigger =
+    customTrigger !== undefined && isValidElement(customTrigger)
+      ? cloneElement(customTrigger, {
+          "data-testid": customTrigger.props["data-testid"] ?? "cto-demo-how-it-works-custom-trigger",
+        })
+      : defaultTrigger;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -51,6 +61,7 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
           <DialogTitle>What ArchLucid does with your data</DialogTitle>
           <DialogDescription>Factual data-flow and isolation posture for CTO diligence.</DialogDescription>
         </DialogHeader>
+        {focusSection === "isolation" ? <CtoDemoTenantIsolationProofCallout /> : null}
         <HelpTopicMarkdownView
           entry={
             entry ?? {

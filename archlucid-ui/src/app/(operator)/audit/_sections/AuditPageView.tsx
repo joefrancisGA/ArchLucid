@@ -15,6 +15,7 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemoAuditIntegrityExportButton";
+import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 
 import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
@@ -47,6 +48,7 @@ export function AuditPageView(props: AuditPageViewProps) {
         actions={
           <>
             <CtoDemoAuditIntegrityExportButton />
+            <CtoDemoAuditIntegrityVerifyButton />
             <InAppHelpLink helpSlug="audit-trail" label="Audit coverage matrix documentation" />
           </>
         }

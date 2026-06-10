@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 
 import { CtoDemoHowItWorksTrigger } from "@/components/cto-demo/CtoDemoHowItWorksTrigger";
+import { CtoDemoPreflightGate } from "@/components/cto-demo/CtoDemoPreflightGate";
 import { CtoDemoRecapCard } from "@/components/cto-demo/CtoDemoRecapCard";
 import { CtoDemoSoftRestartButton } from "@/components/cto-demo/CtoDemoSoftRestartButton";
 import { CtoDemoStorySelector } from "@/components/cto-demo/CtoDemoStorySelector";
@@ -34,6 +35,7 @@ import {
   formatCtoDemoStepTimer,
   readBuyerCtoDemoAutoplay,
   readBuyerCtoDemoExploreMode,
+  readBuyerCtoDemoPreflightAcknowledged,
   readBuyerCtoDemoStoryId,
   readBuyerCtoDemoTourActive,
   readBuyerCtoDemoTourCollapsed,
@@ -44,6 +46,7 @@ import {
   resolveBuyerCtoDemoTourNavigation,
   writeBuyerCtoDemoAutoplay,
   writeBuyerCtoDemoExploreMode,
+  writeBuyerCtoDemoPreflightAcknowledged,
   writeBuyerCtoDemoTourActive,
   writeBuyerCtoDemoTourCollapsed,
   writeBuyerCtoDemoPresenterNotesFullScript,
@@ -170,6 +173,8 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   const [panicEnabled, setPanicEnabled] = useState(false);
 
+  const [preflightAcknowledged, setPreflightAcknowledged] = useState(false);
+
   const advancedForStepRef = useRef<number | null>(null);
   const telemetryStepIndexRef = useRef<number | null>(null);
   const telemetryElapsedRef = useRef(0);
@@ -198,8 +203,10 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     writeBuyerCtoDemoTourActive(false);
     writeBuyerCtoDemoExploreMode(false);
+    writeBuyerCtoDemoPreflightAcknowledged(false);
 
     setActive(false);
+    setPreflightAcknowledged(false);
     setExploreMode(false);
     setCollapsed(false);
 
@@ -231,6 +238,8 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     setExploreMode(readBuyerCtoDemoExploreMode());
 
     setPresenterLayerVisible(readCtoDemoPresenterLayerVisible());
+
+    setPreflightAcknowledged(readBuyerCtoDemoPreflightAcknowledged());
 
   }, []);
 
@@ -638,7 +647,46 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   }
 
-
+  if (!preflightAcknowledged) {
+    return (
+      <aside
+        aria-label={BUYER_CTO_DEMO_TOUR_ARIA}
+        className="pointer-events-none fixed bottom-4 right-4 z-[9990] w-[min(22rem,calc(100vw-2rem))] print:hidden"
+        data-testid="buyer-cto-demo-tour-overlay"
+      >
+        <div className="pointer-events-auto rounded-lg border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+          <div className="flex items-start justify-between gap-2">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
+              {BUYER_CTO_DEMO_TOUR_HEADING}
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 shrink-0 px-2 text-neutral-600 dark:text-neutral-400"
+              aria-label={BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+              onClick={() => {
+                setCollapsed(true);
+                writeBuyerCtoDemoTourCollapsed(true);
+              }}
+            >
+              {BUYER_CTO_DEMO_TOUR_COLLAPSE_CTA}
+            </Button>
+          </div>
+          <CtoDemoPreflightGate
+            onAcknowledged={() => {
+              setPreflightAcknowledged(true);
+            }}
+          />
+          <div className="mt-3">
+            <Button type="button" variant="ghost" size="sm" className="text-neutral-600 dark:text-neutral-400" onClick={endTour}>
+              {BUYER_CTO_DEMO_TOUR_END_CTA}
+            </Button>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
 
@@ -712,8 +760,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
           </div>
 
         </div>
-
-
 
         {showPresenterLayer && navigation.stepIndex !== null && stepTimer !== null ? (
           <div className="mt-2" data-testid="buyer-cto-demo-tour-step-budget">

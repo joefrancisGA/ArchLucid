@@ -41,6 +41,9 @@ export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_TITLE = "PHI Minimization Risk
 /** Demo tenant label for isolation cues in buyer-polished shell. */
 export const SHOWCASE_DEMO_TENANT_NAME = "Claims Intake Showcase";
 
+/** Isolated SQL catalog for the showcase tenant — shown in tenant-isolation proof UI. */
+export const SHOWCASE_DEMO_TENANT_CATALOG_ID = "al-tenant-claims-intake-showcase";
+
 /** Static provenance chains for showcase finding deep links when the API is unavailable. */
 export const SHOWCASE_FINDING_PROVENANCE: Readonly<Record<string, FindingProvenance>> = {
   "phi-minimization-risk": {

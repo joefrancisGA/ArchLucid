@@ -503,6 +503,28 @@ export const BUYER_CTO_DEMO_NEXT_STEPS_TRUST_PACK_CTA = "Get the trust pack";
 export const BUYER_CTO_DEMO_STORY_GATED_NOTE =
   "Healthcare data shown in this demo — other verticals are talk-track only until a pilot is provisioned.";
 
+export const BUYER_CTO_DEMO_PREFLIGHT_HEADING = "Before you begin";
+
+export const BUYER_CTO_DEMO_PREFLIGHT_BEGIN_CTA = "Begin demo";
+
+export const BUYER_CTO_DEMO_AGENDA_HEADING = "Your 30-minute review journey";
+
+export const BUYER_CTO_DEMO_AGENDA_SUBTEXT =
+  "Five stops from executive outcomes through signed manifest, evidence, governance, and audit trail.";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_CTA = "Verify integrity";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_BUSY = "Verifying…";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_SUCCESS = "Chain intact";
+
+export const BUYER_CTO_DEMO_AUDIT_VERIFY_FAIL = "Chain broken";
+
+export const BUYER_CTO_DEMO_ISOLATION_PROOF_HEADING = "Tenant isolation evidence";
+
+export const BUYER_CTO_DEMO_ISOLATION_PROOF_BODY =
+  "Each customer receives a dedicated database catalog. The showcase below is isolated from all other tenants.";
+
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE = "Demo preview — read-only view";
 
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
