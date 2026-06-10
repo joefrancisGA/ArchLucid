@@ -21,9 +21,9 @@ namespace ArchLucid.Api.Tests;
 public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 {
     /// <summary>
-    ///     Wall clock for the parallel idempotency burst (after greenfield bootstrap). Must exceed
-    ///     <see cref="ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout" /> times
-    ///     the waiter depth on cold CI SQL, and stay below slow-shard <c>--blame-hang-timeout</c> minus bootstrap.
+    ///     Outer wall clock for the parallel idempotency test body (after greenfield bootstrap). Must exceed
+    ///     <see cref="ParallelCreateRunBurstPhaseGuard" /> plus <see cref="ParallelCreateRunResolutionGuard" /> and stay
+    ///     below slow-shard <c>--blame-hang-timeout</c> minus bootstrap.
     ///     4 parallel POSTs serialise through <c>sp_getapplock</c>, so the last waiter can need ~4 × pipeline duration
     ///     on cold CI SQL (~6–8 min each → ~28–32 min total). An 85-min buffer over the per-attempt HTTP ceiling
     ///     (total 100 min) survived a 70-min CI cancel on run 27023705522; stays below the 105-min blame-hang.
@@ -31,6 +31,28 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     private static readonly TimeSpan ParallelCreateRunHangGuard =
         ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
         + TimeSpan.FromMinutes(85);
+
+    /// <summary>
+    ///     Reserved for <see cref="ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync" />
+    ///     after the parallel burst so a burst that consumes most of <see cref="ParallelCreateRunHangGuard" /> does not
+    ///     cancel resolution with an already-fired token.
+    /// </summary>
+    private static readonly TimeSpan ParallelCreateRunResolutionReserve = TimeSpan.FromMinutes(20);
+
+    /// <summary>
+    ///     Burst-phase budget only (parallel POST + transient 503 retries). Must stay within
+    ///     <see cref="ParallelCreateRunHangGuard" /> minus <see cref="ParallelCreateRunResolutionReserve" />.
+    /// </summary>
+    private static readonly TimeSpan ParallelCreateRunBurstPhaseGuard =
+        ParallelCreateRunHangGuard - ParallelCreateRunResolutionReserve;
+
+    /// <summary>
+    ///     Per-resolution-phase budget for replaying 503 slots after the burst (one full greenfield per-POST ceiling +
+    ///     backoff headroom).
+    /// </summary>
+    private static readonly TimeSpan ParallelCreateRunResolutionGuard =
+        ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
+        + TimeSpan.FromMinutes(5);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
@@ -78,24 +100,36 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         object body = TestRequestFactory.CreateArchitectureRequest(requestId);
 
         const int parallel = 4;
-        HttpResponseMessage[] responses =
-            await ArchitectureRequestConcurrencyTestSupport.PostParallelArchitectureRequestWithTransientRetryAsync(
+        HttpResponseMessage[] responses;
+
+        using (CancellationTokenSource burstPhaseGuard = CancellationTokenSource.CreateLinkedTokenSource(ct))
+        {
+            burstPhaseGuard.CancelAfter(ParallelCreateRunBurstPhaseGuard);
+
+            responses =
+                await ArchitectureRequestConcurrencyTestSupport.PostParallelArchitectureRequestWithTransientRetryAsync(
+                    client,
+                    body,
+                    idempotencyKey,
+                    parallel,
+                    4,
+                    500,
+                    burstPhaseGuard.Token,
+                    ParallelCreateRunBurstPhaseGuard);
+        }
+
+        using (CancellationTokenSource resolutionPhaseGuard = CancellationTokenSource.CreateLinkedTokenSource(ct))
+        {
+            resolutionPhaseGuard.CancelAfter(ParallelCreateRunResolutionGuard);
+
+            responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
                 client,
                 body,
                 idempotencyKey,
-                parallel,
-                6,
-                500,
-                ct,
-                ParallelCreateRunHangGuard);
-
-        responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
-            client,
-            body,
-            idempotencyKey,
-            responses,
-            25,
-            ct);
+                responses,
+                25,
+                resolutionPhaseGuard.Token);
+        }
 
         try
         {
