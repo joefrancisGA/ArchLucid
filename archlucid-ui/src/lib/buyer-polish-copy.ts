@@ -489,6 +489,20 @@ export const BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING = "Your diligence package is r
 export const BUYER_CTO_DEMO_AUDIT_CLOSING_SUBTEXT =
   "Download the board packet — a PDF summary of findings, decisions, and the governance record — to share with your sponsor or procurement team.";
 
+export const BUYER_CTO_DEMO_NEXT_STEPS_HEADING = "Next steps";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_SUBTEXT =
+  "Continue diligence with your team — start a pilot, book a security review, or download the trust pack for procurement.";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_PILOT_CTA = "Start a pilot";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_SECURITY_REVIEW_CTA = "Book a security review";
+
+export const BUYER_CTO_DEMO_NEXT_STEPS_TRUST_PACK_CTA = "Get the trust pack";
+
+export const BUYER_CTO_DEMO_STORY_GATED_NOTE =
+  "Healthcare data shown in this demo — other verticals are talk-track only until a pilot is provisioned.";
+
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE = "Demo preview — read-only view";
 
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =

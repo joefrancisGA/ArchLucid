@@ -24,6 +24,9 @@ export const CTO_DEMO_KNOWN_VALID_ROUTE_PREFIXES: readonly string[] = [
   "/snapshot",
   "/ask",
   "/compare",
+  "/get-started",
+  "/help",
+  "/compliance-journey",
 ];
 
 /** Anticipated CTO diligence questions with one-line answers and proof deep links. */
@@ -79,5 +82,59 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     proofHref: "/audit?runId=claims-intake-modernization",
     proofLabel: "Audit trail",
     proofQueryParam: "focus=api",
+  },
+  {
+    id: "data-retention",
+    question: "How do you handle data retention and deletion?",
+    answer:
+      "Tenant data is stored in your isolated catalog; export bundles and offboarding deletion are documented for procurement and GDPR-style DSAR workflows.",
+    proofHref: "/trust",
+    proofLabel: "Data retention",
+    proofQueryParam: "focus=data-retention",
+  },
+  {
+    id: "model-training",
+    question: "Is our data used to train models?",
+    answer:
+      "Inference uses your Azure OpenAI deployment under your data-processing terms; ArchLucid does not use customer architecture briefs to train foundation models.",
+    proofHref: "/trust",
+    proofLabel: "Model usage",
+    proofQueryParam: "focus=data-handling",
+  },
+  {
+    id: "sso",
+    question: "Does it support SSO and SCIM?",
+    answer:
+      "Enterprise tenants integrate with Entra ID, Okta, and SAML/OIDC providers; group-to-role mapping is configured per workspace.",
+    proofHref: "/trust",
+    proofLabel: "Identity integration",
+    proofQueryParam: "focus=identity",
+  },
+  {
+    id: "rbac",
+    question: "How granular is access control?",
+    answer:
+      "Role-based access separates review, approve, and administer authorities; workspace scope limits which review packages a principal can see or mutate.",
+    proofHref: "/governance",
+    proofLabel: "Governance roles",
+    proofQueryParam: "focus=rbac",
+  },
+  {
+    id: "sla",
+    question: "What uptime and support do you commit to?",
+    answer:
+      "Pilot and production tiers publish target availability and support response windows in the customer agreement; health status is visible in the operator shell.",
+    proofHref: "/trust",
+    proofLabel: "Service commitments",
+    proofQueryParam: "focus=sla",
+  },
+  {
+    id: "incident-response",
+    question: "What happens if there is a security incident?",
+    answer:
+      "Documented incident notification paths, severity tiers, and customer communication timelines are summarized in the trust center for security reviewers.",
+    proofHref: "/trust",
+    proofLabel: "Incident response",
+    proofQueryParam: "focus=incident-response",
   },
 ];

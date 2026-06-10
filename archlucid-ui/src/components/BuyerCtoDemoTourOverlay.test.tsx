@@ -113,6 +113,23 @@ describe("BuyerCtoDemoTourOverlay", () => {
     expect(screen.getByTestId("cto-demo-compare-drift-link")).toHaveAttribute("href", BUYER_CTO_DEMO_COMPARE_HREF);
   });
 
+  it("shows step budget timer only in presenter layer", async () => {
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-overlay")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("buyer-cto-demo-tour-step-timer")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("cto-demo-presenter-layer-toggle"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("buyer-cto-demo-tour-step-budget")).toBeInTheDocument();
+      expect(screen.getByTestId("buyer-cto-demo-tour-step-timer")).toBeInTheDocument();
+    });
+  });
+
   it("enables offline fallback from panic script section", async () => {
     render(<BuyerCtoDemoTourOverlay />);
 

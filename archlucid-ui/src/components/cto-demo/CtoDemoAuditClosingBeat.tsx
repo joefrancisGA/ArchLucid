@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CtoDemoLeaveBehindExportButton } from "@/components/cto-demo/CtoDemoLeaveBehindExportButton";
+import { CtoDemoNextStepsClosingSection } from "@/components/cto-demo/CtoDemoNextStepsClosingSection";
 import { CtoDemoShareSnapshotButton } from "@/components/cto-demo/CtoDemoShareSnapshotButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -113,6 +114,7 @@ export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
         <CtoDemoLeaveBehindExportButton />
         <CtoDemoShareSnapshotButton />
       </div>
+      <CtoDemoNextStepsClosingSection />
     </section>
   );
 }

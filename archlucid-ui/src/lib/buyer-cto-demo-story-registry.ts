@@ -39,6 +39,13 @@ export const CTO_DEMO_STORIES: readonly CtoDemoStory[] = [
 
 export const CTO_DEMO_DEFAULT_STORY_ID = "healthcare";
 
+/** Vertical stories with a full static showcase payload — others are talk-track only. */
+export const CTO_DEMO_STORIES_WITH_FULL_DEPTH_PAYLOAD: readonly string[] = [CTO_DEMO_DEFAULT_STORY_ID];
+
+export function isCtoDemoStoryFullyBacked(storyId: string): boolean {
+  return CTO_DEMO_STORIES_WITH_FULL_DEPTH_PAYLOAD.includes(storyId);
+}
+
 export function findCtoDemoStory(id: string): CtoDemoStory {
   const match = CTO_DEMO_STORIES.find((story) => story.id === id);
 

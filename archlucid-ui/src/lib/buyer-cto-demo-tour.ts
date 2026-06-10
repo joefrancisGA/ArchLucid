@@ -405,6 +405,14 @@ export function buyerCtoDemoStepBudgetSeconds(stepIndex: number): number {
   return minutes * 60;
 }
 
+/** Presenter-facing label for the current step pacing budget (e.g. "Budget: 6 min"). */
+export function formatCtoDemoStepBudgetLabel(stepIndex: number): string {
+  const safeIndex = Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
+  const minutes = BUYER_CTO_DEMO_STEP_BUDGET_MINUTES[safeIndex] ?? 0;
+
+  return `Budget: ${minutes} min`;
+}
+
 export function buyerCtoDemoTourPresenterLine(stepIndex: number): string {
   const lines = BUYER_CTO_DEMO_TOUR_PRESENTER_SUMMARY_LINES;
   const safeIndex = Math.max(0, Math.min(stepIndex, lines.length - 1));

@@ -33,6 +33,7 @@ import { SidebarNav } from "@/components/SidebarNav";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { BuyerCtoDemoTourOverlay } from "@/components/BuyerCtoDemoTourOverlay";
 import { CtoDemoJourneyCaptionBar } from "@/components/cto-demo/CtoDemoJourneyCaptionBar";
+import { CtoDemoOfflineAutoFallbackListener } from "@/components/cto-demo/CtoDemoOfflineAutoFallbackListener";
 import { CtoDemoPanicModeBanner } from "@/components/cto-demo/CtoDemoPanicModeBanner";
 import { CtoDemoSpotlightOverlay } from "@/components/cto-demo/CtoDemoSpotlightOverlay";
 import { CtoDemoStaticFallbackPresenterBanner } from "@/components/cto-demo/CtoDemoStaticFallbackPresenterBanner";
@@ -340,6 +341,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         <CorePilotWizardLauncher />
         <PilotBaselineWizardLauncher />
         <OnboardingTour />
+        <CtoDemoOfflineAutoFallbackListener />
         <CtoDemoPanicModeBanner />
         <CtoDemoSpotlightOverlay />
         <Suspense fallback={null}>

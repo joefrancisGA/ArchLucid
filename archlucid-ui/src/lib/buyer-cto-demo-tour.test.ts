@@ -18,6 +18,7 @@ import {
 
   clearBuyerCtoDemoVisitedSteps,
 
+  formatCtoDemoStepBudgetLabel,
   formatCtoDemoStepTimer,
 
   getStartCtoDemoTourHref,
@@ -109,6 +110,13 @@ describe("formatCtoDemoStepTimer", () => {
 });
 
 
+
+describe("formatCtoDemoStepBudgetLabel", () => {
+  it("formats the per-step budget label", () => {
+    expect(formatCtoDemoStepBudgetLabel(0)).toBe("Budget: 6 min");
+    expect(formatCtoDemoStepBudgetLabel(1)).toBe("Budget: 4 min");
+  });
+});
 
 describe("buyerCtoDemoStepBudgetSeconds", () => {
 

@@ -30,6 +30,7 @@ import {
   BUYER_CTO_DEMO_TOUR_QUERY_PARAM,
   buyerCtoDemoRemainingBudgetMinutes,
   buyerCtoDemoStepBudgetSeconds,
+  formatCtoDemoStepBudgetLabel,
   formatCtoDemoStepTimer,
   readBuyerCtoDemoAutoplay,
   readBuyerCtoDemoExploreMode,
@@ -665,33 +666,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
             <p className={cn("m-0 mt-1", OPERATOR_TYPE_SCALE.cardTitle, "text-al-text-primary")}>{stepLabel}</p>
 
-            {stepTimer !== null ? (
-
-              <p
-
-                className={cn(
-
-                  "m-0 mt-0.5 tabular-nums",
-
-                  OPERATOR_TYPOGRAPHY.badge,
-
-                  stepTimer.isOvertime
-
-                    ? "font-medium text-amber-700 dark:text-amber-300"
-
-                    : "text-neutral-500 dark:text-neutral-400",
-
-                )}
-
-                data-testid="buyer-cto-demo-tour-step-timer"
-
-              >
-
-                {stepTimer.display}
-
-              </p>
-
-            ) : remainingMinutes !== null ? (
+            {remainingMinutes !== null ? (
 
               <p className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
 
@@ -739,6 +714,26 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
         </div>
 
 
+
+        {showPresenterLayer && navigation.stepIndex !== null && stepTimer !== null ? (
+          <div className="mt-2" data-testid="buyer-cto-demo-tour-step-budget">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-500 dark:text-neutral-400")}>
+              {formatCtoDemoStepBudgetLabel(navigation.stepIndex)}
+            </p>
+            <p
+              className={cn(
+                "m-0 mt-0.5 tabular-nums",
+                OPERATOR_TYPOGRAPHY.badge,
+                stepTimer.isOvertime
+                  ? "font-medium text-amber-700 dark:text-amber-300"
+                  : "text-neutral-500 dark:text-neutral-400",
+              )}
+              data-testid="buyer-cto-demo-tour-step-timer"
+            >
+              {stepTimer.display}
+            </p>
+          </div>
+        ) : null}
 
         {showPresenterLayer && presenterNotesVisible ? (
 

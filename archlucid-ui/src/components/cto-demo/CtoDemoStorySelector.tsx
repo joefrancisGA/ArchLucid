@@ -5,9 +5,11 @@ import {
   readBuyerCtoDemoStoryId,
   writeBuyerCtoDemoStoryId,
 } from "@/lib/buyer-cto-demo-tour";
+import { BUYER_CTO_DEMO_STORY_GATED_NOTE } from "@/lib/buyer-polish-copy";
 import {
   CTO_DEMO_DEFAULT_STORY_ID,
   CTO_DEMO_STORIES,
+  isCtoDemoStoryFullyBacked,
   type CtoDemoStory,
 } from "@/lib/buyer-cto-demo-story-registry";
 import { cn } from "@/lib/utils";
@@ -23,9 +25,7 @@ export function CtoDemoStorySelector(props: CtoDemoStorySelectorProps): React.JS
 
   return (
     <div data-testid="cto-demo-story-selector">
-      <p className="m-0 mb-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-        Talk track only — all steps show Claims Intake showcase data.
-      </p>
+      <p className="m-0 mb-1 text-[11px] text-neutral-500 dark:text-neutral-400">{BUYER_CTO_DEMO_STORY_GATED_NOTE}</p>
       <div
         className="flex flex-wrap gap-1"
         role="group"
@@ -33,6 +33,7 @@ export function CtoDemoStorySelector(props: CtoDemoStorySelectorProps): React.JS
       >
         {CTO_DEMO_STORIES.map((story) => {
           const selected = story.id === activeId;
+          const fullyBacked = isCtoDemoStoryFullyBacked(story.id);
 
           return (
             <button
@@ -43,10 +44,18 @@ export function CtoDemoStorySelector(props: CtoDemoStorySelectorProps): React.JS
                 "rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
                 selected
                   ? "border-teal-700 bg-teal-50 text-teal-900 dark:border-teal-600 dark:bg-teal-950/50 dark:text-teal-100"
-                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300",
+                  : fullyBacked
+                    ? "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+                    : "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-500",
               )}
               aria-pressed={selected}
+              disabled={!fullyBacked && !selected}
+              title={fullyBacked ? story.presenterLine : BUYER_CTO_DEMO_STORY_GATED_NOTE}
               onClick={() => {
+                if (!fullyBacked) {
+                  return;
+                }
+
                 writeBuyerCtoDemoStoryId(story.id);
                 onStoryChange?.(story);
 
