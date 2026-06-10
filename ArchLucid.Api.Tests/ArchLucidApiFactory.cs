@@ -96,6 +96,8 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
         settings["ArchLucid:StorageProvider"] = _storageProvider;
         settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
+        // appsettings.Development.json enables Demo:SeedOnStartup; integration tests seed explicitly via IDemoSeedService.
+        settings["Demo:SeedOnStartup"] = "false";
     }
 
     /// <inheritdoc />

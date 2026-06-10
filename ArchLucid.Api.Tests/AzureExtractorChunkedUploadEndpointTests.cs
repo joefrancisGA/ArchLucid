@@ -125,6 +125,13 @@ public sealed class AzureExtractorChunkedUploadEndpointTests(GreenfieldSqlApiFac
 
                     """);
 
+                ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+                using (StreamWriter rw = new(resources.Open()))
+                {
+                    rw.Write("[]");
+                }
+
             }
 
             else

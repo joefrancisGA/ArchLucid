@@ -583,9 +583,15 @@ public sealed class DemoSeedService(
         string traceId, bool isHardened, CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null)
-            return;
         string runId = authorityRunId.ToString("D");
+
+        if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null)
+        {
+            await EnsureTopologyAgentArtifactsAsync(scope, runId, taskId, resultId, isHardened, cancellationToken);
+
+            return;
+        }
+
         RunRecord authorityRow = new()
         {
             TenantId = scope.TenantId,
@@ -603,42 +609,7 @@ public sealed class DemoSeedService(
             IsSample = ShouldMarkSeededRunAsSample(scope.TenantId)
         };
         await runRepository.SaveAsync(authorityRow, cancellationToken);
-        AgentTask task = new()
-        {
-            TaskId = taskId,
-            RunId = runId,
-            AgentType = AgentType.Topology,
-            Objective =
-                isHardened
-                    ? "Hardened topology: add WAF, Key Vault references, and segmented subnets for retail APIs."
-                    : "Baseline topology: single App Service and SQL for retail checkout (minimal segmentation).",
-            Status = AgentTaskStatus.Completed,
-            CreatedUtc = DemoUtc,
-            CompletedUtc = DemoUtc,
-            EvidenceBundleRef = null,
-            AllowedTools = [],
-            AllowedSources = []
-        };
-        await taskRepository.CreateManyAsync([task], cancellationToken);
-        AgentResult result = new()
-        {
-            ResultId = resultId,
-            TaskId = taskId,
-            RunId = runId,
-            AgentType = AgentType.Topology,
-            Claims =
-            [
-                isHardened
-                    ? "Proposed hardened retail edge with WAF and private connectivity to payment dependencies."
-                    : "Proposed consolidated App Service tier with direct SQL connectivity for faster initial rollout."
-            ],
-            EvidenceRefs = ["contoso-policy-retail-001"],
-            Confidence = isHardened ? 0.88 : 0.72,
-            Findings = [],
-            ProposedChanges = null,
-            CreatedUtc = DemoUtc
-        };
-        await resultRepository.CreateAsync(result, cancellationToken);
+        await EnsureTopologyAgentArtifactsAsync(scope, runId, taskId, resultId, isHardened, cancellationToken);
         bool richSeed = IsVerticalDemoSeedDepth(_demoOptions.CurrentValue.SeedDepth);
         GoldenManifest manifest = BuildManifest(runId, manifestVersion, isHardened, richSeed);
         AuthorityChainKeying chainKeying = new(AuthorityDemoChainIds.Manifest(authorityRunId), AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
@@ -667,6 +638,69 @@ public sealed class DemoSeedService(
             authorityCommitted.DecisionTraceId = authorityChain.DecisionTraceId;
             await runRepository.UpdateAsync(authorityCommitted, cancellationToken);
         }
+    }
+
+    /// <summary>
+    ///     Idempotent topology task + result rows for Contoso demo runs. Startup <c>Demo:SeedOnStartup</c> can leave a
+    ///     committed run header without child rows when an earlier seed attempt fails mid-flight.
+    /// </summary>
+    private async Task EnsureTopologyAgentArtifactsAsync(
+        ScopeContext scope,
+        string runId,
+        string taskId,
+        string resultId,
+        bool isHardened,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<AgentResult> existingResults = await _resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+
+        if (existingResults.Count > 0)
+            return;
+
+        IReadOnlyList<AgentTask> existingTasks = await _taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+
+        if (existingTasks.Count == 0)
+        {
+            AgentTask task = new()
+            {
+                TaskId = taskId,
+                RunId = runId,
+                AgentType = AgentType.Topology,
+                Objective =
+                    isHardened
+                        ? "Hardened topology: add WAF, Key Vault references, and segmented subnets for retail APIs."
+                        : "Baseline topology: single App Service and SQL for retail checkout (minimal segmentation).",
+                Status = AgentTaskStatus.Completed,
+                CreatedUtc = DemoUtc,
+                CompletedUtc = DemoUtc,
+                EvidenceBundleRef = null,
+                AllowedTools = [],
+                AllowedSources = []
+            };
+
+            await _taskRepository.CreateManyAsync([task], cancellationToken);
+        }
+
+        AgentResult result = new()
+        {
+            ResultId = resultId,
+            TaskId = taskId,
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            Claims =
+            [
+                isHardened
+                    ? "Proposed hardened retail edge with WAF and private connectivity to payment dependencies."
+                    : "Proposed consolidated App Service tier with direct SQL connectivity for faster initial rollout."
+            ],
+            EvidenceRefs = ["contoso-policy-retail-001"],
+            Confidence = isHardened ? 0.88 : 0.72,
+            Findings = [],
+            ProposedChanges = null,
+            CreatedUtc = DemoUtc
+        };
+
+        await _resultRepository.CreateAsync(result, cancellationToken);
     }
 
     private static bool IsVerticalDemoSeedDepth(string? seedDepth)
