@@ -112,7 +112,7 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
             Encoding.UTF8,
             "application/json");
 
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -146,7 +146,7 @@ public sealed class JwtLocalSigningIntegrationTests(JwtLocalSigningWebAppFactory
             Encoding.UTF8,
             "application/json");
 
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
         response.StatusCode.Should().NotBe(HttpStatusCode.Forbidden);
         response.StatusCode.Should().NotBe(HttpStatusCode.Unauthorized);
