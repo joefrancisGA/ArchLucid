@@ -96,10 +96,10 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
             {
                 IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
-                // Readiness + list-runs only; this test performs its own create-run with transient retry.
-                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                    primer,
-                    includePostCreateRunWarmup: false);
+                // Full warmup including one create-run POST; ensures SQL is warm before the tenant-A
+                // create-run in the test body. The 10-attempt transient-retry helper is not a cold-start
+                // substitute for the warmup's 50-minute bootstrap budget.
+                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
             }
 
             await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
