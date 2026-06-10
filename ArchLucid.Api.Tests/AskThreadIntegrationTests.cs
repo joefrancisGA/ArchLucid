@@ -10,7 +10,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: seed authority run â†’ POST <c>v1/ask</c> with fake LLM â†’ verify response includes thread and answer â†’
+///     End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer →
 ///     list conversations via <c>GET v1/conversations</c>.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -34,8 +34,11 @@ public sealed class AskThreadIntegrationTests
     public async Task Ask_with_seeded_run_returns_answer_and_creates_thread()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-            factory.Services, CancellationToken.None);
+            factory.Services, requestTimeout.Token);
 
         HttpClient client = CreateScopedClient(factory);
 
@@ -43,11 +46,11 @@ public sealed class AskThreadIntegrationTests
             "v1/ask",
             new AskRequest { RunId = runId, Question = "What is the primary architecture topology?" },
             JsonOptions,
-            CancellationToken.None);
+            requestTimeout.Token);
 
         askResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         AskResponse? result = await askResponse.Content
-            .ReadFromJsonAsync<AskResponse>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<AskResponse>(JsonOptions, requestTimeout.Token);
 
         result.Should().NotBeNull();
         result.ThreadId.Should().NotBeEmpty();
@@ -55,11 +58,11 @@ public sealed class AskThreadIntegrationTests
 
         HttpResponseMessage threadsResponse = await client.GetAsync(
             new Uri("v1/conversations?take=10", UriKind.Relative),
-            CancellationToken.None);
+            requestTimeout.Token);
 
         threadsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         List<ConversationThread>? threads = await threadsResponse.Content
-            .ReadFromJsonAsync<List<ConversationThread>>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<List<ConversationThread>>(JsonOptions, requestTimeout.Token);
 
         threads.Should().NotBeNull();
         threads.Should().Contain(t => t.ThreadId == result.ThreadId);
@@ -69,8 +72,11 @@ public sealed class AskThreadIntegrationTests
     public async Task Ask_follow_up_continues_same_thread()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-            factory.Services, CancellationToken.None);
+            factory.Services, requestTimeout.Token);
 
         HttpClient client = CreateScopedClient(factory);
 
@@ -78,11 +84,11 @@ public sealed class AskThreadIntegrationTests
             "v1/ask",
             new AskRequest { RunId = runId, Question = "How many decisions exist?" },
             JsonOptions,
-            CancellationToken.None);
+            requestTimeout.Token);
 
         firstResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         AskResponse? first = await firstResponse.Content
-            .ReadFromJsonAsync<AskResponse>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<AskResponse>(JsonOptions, requestTimeout.Token);
 
         first.Should().NotBeNull();
         Guid threadId = first.ThreadId;
@@ -91,22 +97,22 @@ public sealed class AskThreadIntegrationTests
             "v1/ask",
             new AskRequest { ThreadId = threadId, Question = "What are the security concerns?" },
             JsonOptions,
-            CancellationToken.None);
+            requestTimeout.Token);
 
         followUpResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         AskResponse? followUp = await followUpResponse.Content
-            .ReadFromJsonAsync<AskResponse>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<AskResponse>(JsonOptions, requestTimeout.Token);
 
         followUp.Should().NotBeNull();
         followUp.ThreadId.Should().Be(threadId, "follow-up should reuse the same thread");
 
         HttpResponseMessage messagesResponse = await client.GetAsync(
             new Uri($"v1/conversations/{threadId:D}/messages?take=50", UriKind.Relative),
-            CancellationToken.None);
+            requestTimeout.Token);
 
         messagesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         List<ConversationMessage>? messages = await messagesResponse.Content
-            .ReadFromJsonAsync<List<ConversationMessage>>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<List<ConversationMessage>>(JsonOptions, requestTimeout.Token);
 
         messages.Should().NotBeNull();
         messages.Should().HaveCountGreaterThanOrEqualTo(4, "two user + two assistant messages expected");
@@ -117,12 +123,14 @@ public sealed class AskThreadIntegrationTests
     {
         await using AlertLifecycleWebAppFactory factory = new();
         HttpClient client = CreateScopedClient(factory);
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "v1/ask",
             new AskRequest { RunId = Guid.NewGuid(), Question = "" },
             JsonOptions,
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -132,12 +140,14 @@ public sealed class AskThreadIntegrationTests
     {
         await using AlertLifecycleWebAppFactory factory = new();
         HttpClient client = CreateScopedClient(factory);
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             "v1/ask",
             new AskRequest { Question = "Some question without anchor" },
             JsonOptions,
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -146,8 +156,11 @@ public sealed class AskThreadIntegrationTests
     public async Task Ask_stream_with_seeded_run_emits_token_and_done_events()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-            factory.Services, CancellationToken.None);
+            factory.Services, requestTimeout.Token);
 
         HttpClient client = CreateScopedClient(factory);
 
@@ -162,19 +175,19 @@ public sealed class AskThreadIntegrationTests
         using HttpResponseMessage response = await client.SendAsync(
             request,
             HttpCompletionOption.ResponseHeadersRead,
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.MediaType.Should().Be("text/event-stream");
 
-        await using Stream body = await response.Content.ReadAsStreamAsync(CancellationToken.None);
+        await using Stream body = await response.Content.ReadAsStreamAsync(requestTimeout.Token);
         using StreamReader reader = new(body);
 
         bool sawToken = false;
         AskResponse? donePayload = null;
         string? pendingEvent = null;
 
-        while (await reader.ReadLineAsync(CancellationToken.None) is { } line)
+        while (await reader.ReadLineAsync(requestTimeout.Token) is { } line)
         {
             if (line.StartsWith("event:", StringComparison.Ordinal))
             {
@@ -191,7 +204,10 @@ public sealed class AskThreadIntegrationTests
                 sawToken = true;
 
             if (pendingEvent == "done")
+            {
                 donePayload = JsonSerializer.Deserialize<AskResponse>(data, JsonOptions);
+                break;
+            }
 
             pendingEvent = null;
         }
