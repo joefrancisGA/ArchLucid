@@ -2,6 +2,12 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import {
+  buildStaticCtoDemoRecapPayload,
+  formatCtoDemoHeroStat,
+  formatCtoDemoHeroSubStat,
+} from "@/lib/buyer-cto-demo-recap";
+import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { operatorSemanticBadge } from "@/lib/design-tokens";
 import { getFindingEvidenceInspectHref } from "@/lib/finding-evidence-navigation";
 import { severityFromTrace, severitySortRank } from "@/lib/executive-finding-severity";
@@ -60,6 +66,10 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
   const { runId, headline, summary, topRisks } = props;
   const recommendedAction = pickRecommendedExecutiveAction(summary);
   const verdictTier = verdictTierFromRiskPosture(summary.riskPosture ?? "");
+  const showHeroStat = isCtoDemoPackEnv();
+  const heroPayload = buildStaticCtoDemoRecapPayload();
+  const heroStat = formatCtoDemoHeroStat(heroPayload);
+  const heroSubStat = formatCtoDemoHeroSubStat(heroPayload);
 
   return (
     <section
@@ -67,6 +77,15 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
       data-testid="cto-demo-executive-above-fold"
       className="space-y-4 rounded-xl border border-teal-200/80 bg-gradient-to-br from-teal-50 via-white to-neutral-50 px-4 py-4 shadow-sm dark:border-teal-900/50 dark:from-teal-950/40 dark:via-neutral-950 dark:to-neutral-950 sm:px-5"
     >
+      {showHeroStat ? (
+        <div
+          className="rounded-lg bg-teal-800 px-4 py-3 text-white dark:bg-teal-900"
+          data-testid="cto-demo-hero-stat"
+        >
+          <p className="m-0 text-2xl font-bold tracking-tight">{heroStat}</p>
+          <p className="m-0 mt-0.5 text-sm text-teal-100 dark:text-teal-200">{heroSubStat}</p>
+        </div>
+      ) : null}
       <div className="space-y-1">
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
           CTO demo — executive summary

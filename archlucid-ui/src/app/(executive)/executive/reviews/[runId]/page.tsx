@@ -10,6 +10,7 @@ import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveReviewFirstViewport";
 import { ExecutiveReviewHandoffActions } from "@/components/executive/ExecutiveReviewHandoffActions";
+import { CtoDemoReadOnlySnapshotBanner } from "@/components/cto-demo/CtoDemoReadOnlySnapshotBanner";
 import {
   CtoDemoExecutiveAboveFold,
   CtoDemoFindingEvidenceLink,
@@ -71,8 +72,16 @@ function findingExecutiveHref(runId: string, findingId: string): string {
 /**
  * Single-review executive summary: first-viewport narrative, severity-sorted findings, DOCX package + Markdown handoff.
  */
-export default async function ExecutiveReviewFindingsPage({ params }: { params: Promise<{ runId: string }> }) {
+export default async function ExecutiveReviewFindingsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ runId: string }>;
+  searchParams: Promise<{ readOnly?: string }>;
+}) {
   const { runId } = await params;
+  const query = await searchParams;
+  const readOnlySnapshot = query.readOnly === "1" || query.readOnly === "true";
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
@@ -125,6 +134,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
 
   return (
     <div className="space-y-6" data-testid="executive-review-page">
+      {readOnlySnapshot ? <CtoDemoReadOnlySnapshotBanner /> : null}
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <Link
           href="/executive/reviews"

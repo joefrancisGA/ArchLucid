@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoRecapMarkdown,
+  formatCtoDemoHeroStat,
+  formatCtoDemoHeroSubStat,
 } from "@/lib/buyer-cto-demo-recap";
 
 describe("buyer-cto-demo-recap", () => {
@@ -16,5 +18,15 @@ describe("buyer-cto-demo-recap", () => {
     expect(markdown).toContain("Simulator estimate");
     expect(markdown).toContain(String(payload.firstValueMinutes));
     expect(markdown).toContain(payload.reviewPackageUrl);
+    expect(markdown).toContain("Snapshot (read-only, permanent)");
+    expect(payload.snapshotUrl).toContain("/snapshot/");
+  });
+
+  it("formats hero stat lines", () => {
+    const payload = buildStaticCtoDemoRecapPayload("https://demo.example");
+
+    expect(formatCtoDemoHeroStat(payload).startsWith("$")).toBe(true);
+    expect(formatCtoDemoHeroSubStat(payload)).toContain(String(payload.firstValueMinutes));
+    expect(formatCtoDemoHeroSubStat(payload)).toContain(payload.savingsQualifier);
   });
 });

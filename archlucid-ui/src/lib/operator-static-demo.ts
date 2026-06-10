@@ -45,9 +45,50 @@ export function isOperatorDemoStaticMode(): boolean {
   );
 }
 
+export const OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY = "archlucid.operatorDemo.panicOffline.v1";
+
+/** `window` CustomEvent — presenter forced offline snapshot mode. */
+export const ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT = "archlucid-cto-demo-panic-changed";
+
+export function readOperatorDemoPanicOffline(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeOperatorDemoPanicOffline(on: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (on) {
+      window.localStorage.setItem(OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY, "1");
+    } else {
+      window.localStorage.removeItem(OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY);
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
 /** Curated static payloads only when demo/static-operator env flags are set (TB-274 / BE-059). */
 export function isStaticDemoPayloadFallbackEnabled(): boolean {
-  return isOperatorDemoStaticMode() || isPublicDemoModeEnv();
+  if (isOperatorDemoStaticMode() || isPublicDemoModeEnv()) {
+    return true;
+  }
+
+  if (typeof window !== "undefined" && readOperatorDemoPanicOffline()) {
+    return true;
+  }
+
+  return false;
 }
 
 export function isDemoRunIdEligibleForStaticFallback(runId: string): boolean {

@@ -4,6 +4,7 @@ import {
   writeBuyerCtoDemoTourActive,
   writeBuyerCtoDemoTourCollapsed,
   clearBuyerCtoDemoVisitedSteps,
+  writeBuyerCtoDemoAutoplay,
 } from "@/lib/buyer-cto-demo-tour";
 
 /** Fixed anchor so seeded demo dates always read as recent relative to show day (#17). */
@@ -116,4 +117,18 @@ export async function resetBuyerCtoDemoSession(): Promise<BuyerCtoDemoResetResul
     seedAttempted,
     seedSucceeded,
   };
+}
+
+export type BuyerCtoDemoSoftRestartResult = {
+  readonly destinationHref: string;
+};
+
+/** Clears visited steps and returns to step 1 without re-seeding showcase data. */
+export function softRestartBuyerCtoDemoSession(): BuyerCtoDemoSoftRestartResult {
+  clearBuyerCtoDemoVisitedSteps();
+  writeBuyerCtoDemoAutoplay(false);
+
+  const destinationHref = getStartCtoDemoTourHref();
+
+  return { destinationHref };
 }

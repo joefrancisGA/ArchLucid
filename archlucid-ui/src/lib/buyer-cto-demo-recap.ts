@@ -15,6 +15,7 @@ export type CtoDemoRecapPayload = {
   readonly savingsQualifier: string;
   readonly firstValueMinutes: number;
   readonly reviewPackageUrl: string;
+  readonly snapshotUrl: string;
   readonly generatedAt: string;
 };
 
@@ -22,6 +23,8 @@ export function buildStaticCtoDemoRecapPayload(origin?: string): CtoDemoRecapPay
   const base = (origin ?? "").trim().replace(/\/$/, "");
   const reviewPath = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
   const reviewPackageUrl = base.length > 0 ? `${base}${reviewPath}` : reviewPath;
+  const snapshotPath = `/snapshot/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}?v=demo`;
+  const snapshotUrl = base.length > 0 ? `${base}${snapshotPath}` : snapshotPath;
 
   return {
     systemName: SHOWCASE_BUYER_REVIEW_TITLE,
@@ -32,6 +35,7 @@ export function buildStaticCtoDemoRecapPayload(origin?: string): CtoDemoRecapPay
     savingsQualifier: "Simulator estimate",
     firstValueMinutes: 18,
     reviewPackageUrl,
+    snapshotUrl,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -50,6 +54,8 @@ export function buildCtoDemoRecapPayloadFromRun(
   const base = (origin ?? "").trim().replace(/\/$/, "");
   const reviewPath = `/reviews/${encodeURIComponent(runId)}`;
   const reviewPackageUrl = base.length > 0 ? `${base}${reviewPath}` : reviewPath;
+  const snapshotPath = `/snapshot/${encodeURIComponent(runId)}`;
+  const snapshotUrl = base.length > 0 ? `${base}${snapshotPath}` : snapshotPath;
 
   return {
     systemName,
@@ -60,6 +66,7 @@ export function buildCtoDemoRecapPayloadFromRun(
     savingsQualifier: isLiveEvidence ? "Live evidence" : "Simulator estimate",
     firstValueMinutes,
     reviewPackageUrl,
+    snapshotUrl,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -78,8 +85,21 @@ export function formatCtoDemoRecapMarkdown(payload: CtoDemoRecapPayload): string
     `**Estimated annualized value:** ${savingsLine}`,
     `**Time to first signed package:** ~${payload.firstValueMinutes} minutes`,
     `**Review package:** ${payload.reviewPackageUrl}`,
+    `**Snapshot (read-only, permanent):** ${payload.snapshotUrl.length > 0 ? payload.snapshotUrl : payload.reviewPackageUrl}`,
     `**Executive summary:** ${getShowcaseExecutiveHref()}`,
     "",
     `Generated ${payload.generatedAt}`,
   ].join("\n");
+}
+
+export function formatCtoDemoHeroStat(payload: CtoDemoRecapPayload): string {
+  if (payload.estimatedSavingsUsd !== null) {
+    return `$${payload.estimatedSavingsUsd.toLocaleString("en-US")} annualized risk exposure identified`;
+  }
+
+  return `${payload.findingsCount} findings · ${payload.riskPosture}`;
+}
+
+export function formatCtoDemoHeroSubStat(payload: CtoDemoRecapPayload): string {
+  return `${payload.findingsCount} findings · ~${payload.firstValueMinutes} min to first signed package · ${payload.savingsQualifier}`;
 }

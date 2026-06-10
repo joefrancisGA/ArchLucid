@@ -111,6 +111,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
 
       <div className="grid gap-4 sm:grid-cols-2">
         <section
+          id="isolation-section"
           aria-labelledby="trust-security-posture"
           className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
         >
@@ -139,6 +140,7 @@ export function MarketingTrustCenterBuyerBody(props: MarketingTrustCenterBuyerBo
         </section>
 
         <section
+          id="data-handling-section"
           aria-labelledby="trust-data-handling"
           className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40"
         >

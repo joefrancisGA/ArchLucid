@@ -1,11 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   buyerCtoDemoAudienceCaption,
   formatDemoRelativeTimestamp,
   getBuyerCtoDemoJourneyStepHref,
+  softRestartBuyerCtoDemoSession,
   BUYER_CTO_DEMO_SHOWCASE_ANCHOR_ISO,
 } from "@/lib/buyer-cto-demo-orchestration";
+import { BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY } from "@/lib/buyer-cto-demo-tour";
 import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
 
 describe("buyer-cto-demo-orchestration", () => {
@@ -24,5 +26,20 @@ describe("buyer-cto-demo-orchestration", () => {
     const twoDaysBefore = new Date(anchor.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
     expect(formatDemoRelativeTimestamp(twoDaysBefore, anchor)).toBe("2 days ago");
+  });
+
+  it("soft restart clears visited steps without network calls", async () => {
+    sessionStorage.setItem(BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY, "[0,1]");
+
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const result = softRestartBuyerCtoDemoSession();
+
+    expect(result.destinationHref).toContain("ctoDemoTour=1");
+    expect(sessionStorage.getItem(BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY)).toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
   });
 });

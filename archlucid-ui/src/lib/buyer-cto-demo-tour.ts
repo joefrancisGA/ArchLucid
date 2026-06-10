@@ -22,6 +22,21 @@ export const BUYER_CTO_DEMO_TOUR_NOTES_FULL_SCRIPT_STORAGE_KEY = "archlucid.buye
 /** sessionStorage: golden-journey step indices the presenter has actually visited. */
 export const BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY = "archlucid.buyerCtoDemoTour.visitedSteps.v1";
 
+/** localStorage: auto-play advances steps on the 6/4/6/5/5 budget. */
+export const BUYER_CTO_DEMO_TOUR_AUTOPLAY_STORAGE_KEY = "archlucid.buyerCtoDemoTour.autoplay.v1";
+
+/** sessionStorage: spotlight dims the page for presenter focus. */
+export const BUYER_CTO_DEMO_SPOTLIGHT_STORAGE_KEY = "archlucid.buyerCtoDemoTour.spotlight.v1";
+
+/** sessionStorage: selected vertical story id for presenter narrative. */
+export const BUYER_CTO_DEMO_STORY_STORAGE_KEY = "archlucid.buyerCtoDemoTour.storyId.v1";
+
+/** `window` CustomEvent — spotlight mode toggled (tests, spotlight overlay). */
+export const ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT = "archlucid-cto-demo-spotlight-changed";
+
+/** `window` CustomEvent — vertical story selection changed. */
+export const ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT = "archlucid-cto-demo-story-changed";
+
 /** Per-step pacing budget in minutes for a 30-minute CTO demo (sums to 26; 4 min buffer for open/close). */
 export const BUYER_CTO_DEMO_STEP_BUDGET_MINUTES: readonly number[] = [6, 4, 6, 5, 5];
 
@@ -196,6 +211,92 @@ export function clearBuyerCtoDemoVisitedSteps(): void {
 
   try {
     window.sessionStorage.removeItem(BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY);
+  } catch {
+    /* private mode */
+  }
+}
+
+export function readBuyerCtoDemoAutoplay(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(BUYER_CTO_DEMO_TOUR_AUTOPLAY_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeBuyerCtoDemoAutoplay(on: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (on) {
+      window.localStorage.setItem(BUYER_CTO_DEMO_TOUR_AUTOPLAY_STORAGE_KEY, "1");
+    } else {
+      window.localStorage.removeItem(BUYER_CTO_DEMO_TOUR_AUTOPLAY_STORAGE_KEY);
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
+export function readBuyerCtoDemoSpotlight(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.sessionStorage.getItem(BUYER_CTO_DEMO_SPOTLIGHT_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeBuyerCtoDemoSpotlight(on: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (on) {
+      window.sessionStorage.setItem(BUYER_CTO_DEMO_SPOTLIGHT_STORAGE_KEY, "1");
+    } else {
+      window.sessionStorage.removeItem(BUYER_CTO_DEMO_SPOTLIGHT_STORAGE_KEY);
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
+export function readBuyerCtoDemoStoryId(): string {
+  if (typeof window === "undefined") {
+    return "healthcare";
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(BUYER_CTO_DEMO_STORY_STORAGE_KEY);
+
+    if (raw === null || raw.trim().length === 0) {
+      return "healthcare";
+    }
+
+    return raw.trim();
+  } catch {
+    return "healthcare";
+  }
+}
+
+export function writeBuyerCtoDemoStoryId(id: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(BUYER_CTO_DEMO_STORY_STORAGE_KEY, id.trim());
   } catch {
     /* private mode */
   }

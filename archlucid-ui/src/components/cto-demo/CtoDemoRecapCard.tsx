@@ -8,7 +8,7 @@ import {
   formatCtoDemoRecapMarkdown,
   type CtoDemoRecapPayload,
 } from "@/lib/buyer-cto-demo-recap";
-import { BUYER_CTO_DEMO_RECAP_COPY_CTA, BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA, BUYER_CTO_DEMO_RECAP_HEADING } from "@/lib/buyer-polish-copy";
+import { BUYER_CTO_DEMO_RECAP_COPY_CTA, BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA, BUYER_CTO_DEMO_RECAP_HEADING, BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA } from "@/lib/buyer-polish-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
 export type CtoDemoRecapCardProps = {
@@ -59,6 +59,25 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
     showSuccess("Executive recap download started.");
   }, [markdown, payload.systemName]);
 
+  const onCopySnapshot = useCallback(async () => {
+    if (payload.snapshotUrl.trim().length === 0) {
+      return;
+    }
+
+    setBusy(true);
+
+    try {
+      await navigator.clipboard.writeText(payload.snapshotUrl);
+      showSuccess("Snapshot link copied to clipboard.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Clipboard unavailable.";
+
+      showError("Copy snapshot link", message);
+    } finally {
+      setBusy(false);
+    }
+  }, [payload.snapshotUrl]);
+
   return (
     <div
       className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/60"
@@ -75,7 +94,24 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
         <Button type="button" size="sm" variant="secondary" onClick={onDownload} data-testid="cto-demo-recap-download">
           {BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA}
         </Button>
+        {payload.snapshotUrl.trim().length > 0 ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => void onCopySnapshot()}
+            data-testid="cto-demo-recap-snapshot-copy"
+          >
+            {BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA}
+          </Button>
+        ) : null}
       </div>
+      {payload.snapshotUrl.trim().length > 0 ? (
+        <p className="m-0 mt-2 break-all font-mono text-[11px] text-neutral-600 dark:text-neutral-400">
+          {payload.snapshotUrl}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 
 import { MarketingTrustCenterBuyerBody } from "@/components/marketing/MarketingTrustCenterBuyerBody";
+import { TrustCenterFocusScroll } from "@/components/marketing/TrustCenterFocusScroll";
 import { TrustCenterFaqJsonLd } from "@/components/TrustCenterFaqJsonLd";
 import {
   parseTrustCenterLastReviewedUtc,
@@ -25,6 +27,9 @@ export default function MarketingTrustCenterPage(): ReactNode {
 
   return (
     <main id="main-content" className="mx-auto max-w-3xl px-4 py-10" tabIndex={-1}>
+      <Suspense fallback={null}>
+        <TrustCenterFocusScroll />
+      </Suspense>
       <TrustCenterFaqJsonLd />
       <MarketingTrustCenterBuyerBody lastReviewedUtc={lastReviewedUtc} />
 

@@ -95,7 +95,30 @@ export const COMMAND_PALETTE_START_CTO_DEMO_LABEL = "Start CTO demo tour";
 
 export const COMMAND_PALETTE_RESET_DEMO_LABEL = "Reset demo";
 
-export const BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT = "Press 1–5 to jump between journey steps.";
+export const BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT =
+  "Press 1–5 to jump between journey steps · S — spotlight · 0 — offline mode";
+
+export const BUYER_CTO_DEMO_TOUR_AUTOPLAY_ON_CTA = "Auto-play";
+
+export const BUYER_CTO_DEMO_TOUR_AUTOPLAY_OFF_CTA = "Stop auto";
+
+export const BUYER_CTO_DEMO_TOUR_AUTOPLAY_BADGE = "Auto";
+
+export const BUYER_CTO_DEMO_SMOKE_CHECK_CTA = "Pre-call check";
+
+export const BUYER_CTO_DEMO_SMOKE_CHECK_RECHECK_CTA = "Re-check";
+
+export const BUYER_CTO_DEMO_SOFT_RESTART_CTA = "Back to step 1";
+
+export const BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA = "Copy snapshot link";
+
+export const BUYER_CTO_DEMO_PANIC_BANNER =
+  "Offline mode active — cached showcase data in use";
+
+export const BUYER_CTO_DEMO_PANIC_DISABLE_CTA = "Disable";
+
+export const BUYER_CTO_DEMO_READ_ONLY_SNAPSHOT_BANNER =
+  "Shared read-only view — this link is safe to forward after the live demo.";
 
 export function buyerCtoDemoRemainingMinutesLabel(minutes: number): string {
   return `~${minutes} min remaining`;

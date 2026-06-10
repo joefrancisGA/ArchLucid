@@ -6,50 +6,44 @@ import Link from "next/link";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 
 
 import { CtoDemoRecapCard } from "@/components/cto-demo/CtoDemoRecapCard";
+import { CtoDemoSoftRestartButton } from "@/components/cto-demo/CtoDemoSoftRestartButton";
+import { CtoDemoStorySelector } from "@/components/cto-demo/CtoDemoStorySelector";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 
 import { CTO_DEMO_QUESTIONS } from "@/lib/buyer-cto-demo-cto-questions";
+import { buildCtoDemoProofHref } from "@/lib/buyer-cto-demo-proof-href";
+import { runBuyerCtoDemoSmokeCheck, type CtoDemoSmokeCheckResult } from "@/lib/buyer-cto-demo-smoke-check";
+import { findCtoDemoStory } from "@/lib/buyer-cto-demo-story-registry";
 
 import {
 
   ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
-
+  ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT,
   BUYER_CTO_DEMO_TOUR_QUERY_PARAM,
-
   buyerCtoDemoRemainingBudgetMinutes,
-
   buyerCtoDemoStepBudgetSeconds,
-
   formatCtoDemoStepTimer,
-
+  readBuyerCtoDemoAutoplay,
+  readBuyerCtoDemoStoryId,
   readBuyerCtoDemoTourActive,
-
   readBuyerCtoDemoTourCollapsed,
-
   readBuyerCtoDemoPresenterNotesFullScript,
-
   readBuyerCtoDemoPresenterNotesVisible,
-
   readBuyerCtoDemoVisitedSteps,
-
   resolveBuyerCtoDemoTourNavigation,
-
+  writeBuyerCtoDemoAutoplay,
   writeBuyerCtoDemoTourActive,
-
   writeBuyerCtoDemoTourCollapsed,
-
   writeBuyerCtoDemoPresenterNotesFullScript,
-
   writeBuyerCtoDemoPresenterNotesVisible,
-
   writeBuyerCtoDemoVisitedStep,
-
 } from "@/lib/buyer-cto-demo-tour";
 
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
@@ -60,7 +54,17 @@ import {
 
   BUYER_CTO_DEMO_QUESTIONS_SHOW_CTA,
 
+  BUYER_CTO_DEMO_SMOKE_CHECK_CTA,
+
+  BUYER_CTO_DEMO_SMOKE_CHECK_RECHECK_CTA,
+
   BUYER_CTO_DEMO_TOUR_ARIA,
+
+  BUYER_CTO_DEMO_TOUR_AUTOPLAY_BADGE,
+
+  BUYER_CTO_DEMO_TOUR_AUTOPLAY_OFF_CTA,
+
+  BUYER_CTO_DEMO_TOUR_AUTOPLAY_ON_CTA,
 
   BUYER_CTO_DEMO_TOUR_BACK_CTA,
 
@@ -128,6 +132,16 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
   const [elapsedSecondsOnStep, setElapsedSecondsOnStep] = useState(0);
 
+  const [autoplay, setAutoplay] = useState(false);
+
+  const [storyId, setStoryId] = useState("healthcare");
+
+  const [smokeResults, setSmokeResults] = useState<readonly CtoDemoSmokeCheckResult[] | null>(null);
+
+  const [smokeBusy, setSmokeBusy] = useState(false);
+
+  const advancedForStepRef = useRef<number | null>(null);
+
 
 
   const activateTour = useCallback(() => {
@@ -172,6 +186,10 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     setVisitedSteps(readBuyerCtoDemoVisitedSteps());
 
+    setAutoplay(readBuyerCtoDemoAutoplay());
+
+    setStoryId(readBuyerCtoDemoStoryId());
+
   }, []);
 
 
@@ -214,7 +232,121 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     setElapsedSecondsOnStep(0);
 
+    advancedForStepRef.current = null;
+
   }, [navigation.stepIndex]);
+
+
+
+  useEffect(() => {
+
+    function onStoryChanged(event: Event): void {
+
+      const detail = (event as CustomEvent<{ storyId?: string }>).detail;
+
+      if (detail?.storyId !== undefined && detail.storyId.length > 0) {
+
+        setStoryId(detail.storyId);
+
+      } else {
+
+        setStoryId(readBuyerCtoDemoStoryId());
+
+      }
+
+    }
+
+
+
+    window.addEventListener(ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT, onStoryChanged);
+
+
+
+    return () => {
+
+      window.removeEventListener(ARCHLUCID_CTO_DEMO_STORY_CHANGED_EVENT, onStoryChanged);
+
+    };
+
+  }, []);
+
+
+
+  useEffect(() => {
+
+    if (!mounted || !active || !autoplay || navigation.stepIndex === null) {
+
+      return;
+
+    }
+
+
+
+    const budgetSeconds = buyerCtoDemoStepBudgetSeconds(navigation.stepIndex);
+
+
+
+    if (elapsedSecondsOnStep < budgetSeconds) {
+
+      return;
+
+    }
+
+
+
+    if (advancedForStepRef.current === navigation.stepIndex) {
+
+      return;
+
+    }
+
+
+
+    advancedForStepRef.current = navigation.stepIndex;
+
+
+
+    if (navigation.next !== null) {
+
+      router.push(navigation.next.href);
+
+      return;
+
+    }
+
+
+
+    setAutoplay(false);
+
+    writeBuyerCtoDemoAutoplay(false);
+
+  }, [active, autoplay, elapsedSecondsOnStep, mounted, navigation.next, navigation.stepIndex, router]);
+
+
+
+  const runSmokeCheck = useCallback(async () => {
+
+    setSmokeBusy(true);
+
+
+
+    try {
+
+      const results = await runBuyerCtoDemoSmokeCheck();
+
+      setSmokeResults(results);
+
+    } finally {
+
+      setSmokeBusy(false);
+
+    }
+
+  }, []);
+
+
+
+  const selectedStory = useMemo(() => findCtoDemoStory(storyId), [storyId]);
 
 
 
@@ -456,6 +588,16 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
             ) : null}
 
+            {autoplay ? (
+
+              <div className="mt-1">
+
+                <StatusTag kind="attention" label={BUYER_CTO_DEMO_TOUR_AUTOPLAY_BADGE} />
+
+              </div>
+
+            ) : null}
+
           </div>
 
           <Button
@@ -495,6 +637,108 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
             {presenterNotesText}
 
           </p>
+
+        ) : null}
+
+
+
+        {navigation.stepIndex === 0 ? (
+
+          <>
+
+            <CtoDemoStorySelector
+
+              selectedStoryId={storyId}
+
+              onStoryChange={(story) => {
+
+                setStoryId(story.id);
+
+              }}
+
+            />
+
+            {storyId !== "healthcare" ? (
+
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.badge, "text-neutral-600 dark:text-neutral-400")}>
+
+                Story: {selectedStory.label} · {selectedStory.policyPackLabel}
+
+              </p>
+
+            ) : null}
+
+            <div className="mt-2">
+
+              <Button
+
+                type="button"
+
+                variant="outline"
+
+                size="sm"
+
+                disabled={smokeBusy}
+
+                data-testid="cto-demo-smoke-check-trigger"
+
+                onClick={() => void runSmokeCheck()}
+
+              >
+
+                {smokeBusy
+
+                  ? "Checking…"
+
+                  : smokeResults === null
+
+                    ? BUYER_CTO_DEMO_SMOKE_CHECK_CTA
+
+                    : BUYER_CTO_DEMO_SMOKE_CHECK_RECHECK_CTA}
+
+              </Button>
+
+              {smokeResults !== null ? (
+
+                <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs" data-testid="cto-demo-smoke-check-results">
+
+                  {smokeResults.map((row) => (
+
+                    <li key={row.stepLabel} className="flex items-center gap-1.5">
+
+                      <span
+
+                        className={cn(
+
+                          "inline-block h-2 w-2 rounded-full",
+
+                          row.ok ? "bg-teal-600" : "bg-red-600",
+
+                        )}
+
+                        aria-hidden
+
+                      />
+
+                      <span>
+
+                        {row.stepLabel}
+
+                        {!row.ok && row.statusCode !== null ? ` (${row.statusCode})` : ""}
+
+                      </span>
+
+                    </li>
+
+                  ))}
+
+                </ul>
+
+              ) : null}
+
+            </div>
+
+          </>
 
         ) : null}
 
@@ -590,6 +834,34 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
           </Button>
 
+          <Button
+
+            type="button"
+
+            variant="ghost"
+
+            size="sm"
+
+            className="h-8 px-2 text-neutral-600 dark:text-neutral-400"
+
+            data-testid="cto-demo-autoplay-toggle"
+
+            onClick={() => {
+
+              const next = !autoplay;
+
+              setAutoplay(next);
+
+              writeBuyerCtoDemoAutoplay(next);
+
+            }}
+
+          >
+
+            {autoplay ? BUYER_CTO_DEMO_TOUR_AUTOPLAY_OFF_CTA : BUYER_CTO_DEMO_TOUR_AUTOPLAY_ON_CTA}
+
+          </Button>
+
         </div>
 
 
@@ -614,7 +886,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
                 <Link
 
-                  href={row.proofHref}
+                  href={buildCtoDemoProofHref(row)}
 
                   className="mt-0.5 inline-block text-teal-800 underline underline-offset-2 dark:text-teal-300"
 
@@ -743,6 +1015,8 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
             {BUYER_CTO_DEMO_TOUR_END_CTA}
 
           </Button>
+
+          {navigation.stepIndex !== null && navigation.stepIndex > 0 ? <CtoDemoSoftRestartButton /> : null}
 
           <div className="flex flex-wrap items-center gap-2">
 
