@@ -483,3 +483,23 @@ export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance decision re
 export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";
 
 export const BUYER_EXAMPLE_COUNT_SUFFIX = "(example)";
+
+export const BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING = "Your diligence package is ready.";
+
+export const BUYER_CTO_DEMO_AUDIT_CLOSING_SUBTEXT =
+  "Download the board packet — a PDF summary of findings, decisions, and the governance record — to share with your sponsor or procurement team.";
+
+export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE = "Demo preview — read-only view";
+
+export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
+  "In a live pilot, an architect with Execute authority approves here. The view below shows the post-approval state for demonstration purposes.";
+
+export const BUYER_CTO_DEMO_VALUE_STRIP_LABELS: readonly string[] = [
+  "This executive summary gives your sponsor a one-page risk and outcome verdict — no engineering context required.",
+  "This signed manifest is the verifiable record of every decision made in this review — your auditors' starting point.",
+  "Every finding traces back to the exact evidence that produced it — no black-box AI.",
+  "This approval gate enforces separation-of-duties before any architecture change is promoted to production.",
+  "Every event in this timeline is immutable and exportable — the compliance trail your auditors need on day one.",
+] as const;
+
+export const REVIEWS_NEW_OTHER_PATHS_DISCLOSURE = "Other ways to start a review";

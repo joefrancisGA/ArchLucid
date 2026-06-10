@@ -9,6 +9,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
+import { DEMO_MINIMUM_SESSION_SECONDS, decodeJwtExpirySeconds } from "@/lib/jwt-expiry";
 import {
   areSpineStaticDemoPayloadsAvailable,
   isStaticDemoPayloadFallbackEnabled,
@@ -31,7 +32,8 @@ export type BuyerCtoDemoReadinessCheckId =
   | "api-ready"
   | "llm-budget"
   | "demo-auth"
-  | "static-label";
+  | "static-label"
+  | "showcase-only";
 
 export type BuyerCtoDemoReadinessCheckStatus = "pass" | "fail" | "warn" | "pending";
 
@@ -210,6 +212,37 @@ export function evaluateBuyerCtoDemoAuthCheck(): BuyerCtoDemoReadinessCheck {
   const bearer = typeof window !== "undefined" ? getBearerToken() : undefined;
 
   if (bearer !== undefined && bearer.trim().length > 0) {
+    const expSeconds = decodeJwtExpirySeconds(bearer.trim());
+
+    if (expSeconds !== null) {
+      const remainingSeconds = expSeconds - Math.floor(Date.now() / 1000);
+
+      if (remainingSeconds < 0) {
+        return {
+          id: "demo-auth",
+          label: "Demo auth bypass",
+          status: "fail",
+          detail: "Session has already expired — sign in before presenting.",
+        };
+      }
+
+      if (remainingSeconds < DEMO_MINIMUM_SESSION_SECONDS) {
+        return {
+          id: "demo-auth",
+          label: "Demo auth bypass",
+          status: "warn",
+          detail: `Session expires in ~${Math.round(remainingSeconds / 60)} min — re-authenticate before a 30-minute demo.`,
+        };
+      }
+
+      return {
+        id: "demo-auth",
+        label: "Demo auth bypass",
+        status: "pass",
+        detail: `Signed-in session is active for ~${Math.round(remainingSeconds / 60)} min.`,
+      };
+    }
+
     return {
       id: "demo-auth",
       label: "Demo auth bypass",
@@ -223,6 +256,24 @@ export function evaluateBuyerCtoDemoAuthCheck(): BuyerCtoDemoReadinessCheck {
     label: "Demo auth bypass",
     status: "fail",
     detail: "Sign in or enable demo/static operator flags before presenting live API data.",
+  };
+}
+
+export function evaluateBuyerCtoDemoShowcaseOnlyCheck(): BuyerCtoDemoReadinessCheck {
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return {
+      id: "showcase-only",
+      label: "Non-showcase run protection",
+      status: "pass",
+      detail: "Demo guard active — accidental non-showcase runs show a redirect prompt.",
+    };
+  }
+
+  return {
+    id: "showcase-only",
+    label: "Non-showcase run protection",
+    status: "pass",
+    detail: "Live API — tour guard covers unfinished runs when the CTO demo is active.",
   };
 }
 
@@ -328,6 +379,7 @@ export async function evaluateBuyerCtoDemoReadiness(): Promise<BuyerCtoDemoReadi
     await evaluateBuyerCtoDemoLlmBudgetCheck(),
     evaluateBuyerCtoDemoAuthCheck(),
     evaluateBuyerCtoDemoStaticLabelCheck(),
+    evaluateBuyerCtoDemoShowcaseOnlyCheck(),
   ];
 
   return {

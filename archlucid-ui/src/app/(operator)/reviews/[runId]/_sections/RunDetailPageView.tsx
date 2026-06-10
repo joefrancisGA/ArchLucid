@@ -61,6 +61,7 @@ import { RunDetailCaptureEvidenceSection } from "./RunDetailCaptureEvidenceSecti
 import { RunDetailBuyerModeFallbackBanner } from "./RunDetailBuyerModeFallbackBanner";
 import { RunDetailBuyerPilotConversionSection } from "./RunDetailBuyerPilotConversionSection";
 import { RunDetailExecutiveSummaryCtaCard } from "./RunDetailExecutiveSummaryCtaCard";
+import { CtoDemoReviewRouteGuard } from "@/components/cto-demo/CtoDemoReviewRouteGuard";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
 /** Server component: renders the main run detail chrome from a preloaded `RunDetailPageModel`. */
@@ -154,6 +155,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
     <div
       className={`mx-auto space-y-4 px-1 py-2 sm:px-0 ${m.buyerPolishedArtifactTable ? "max-w-6xl" : "max-w-4xl"}`}
     >
+      <CtoDemoReviewRouteGuard runId={m.resolvedDetail.run.runId} />
       <RunDetailBreadcrumb headline={m.headline} />
 
       {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}

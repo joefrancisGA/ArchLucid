@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { CtoDemoSegregationCallout } from "@/components/cto-demo/CtoDemoSegregationCallout";
+import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { EmptyState } from "@/components/EmptyState";
@@ -35,6 +36,7 @@ import {
   governanceWorkflowOutcomeBannerLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { CtoDemoGovernancePreviewHint } from "@/components/OperateCapabilityHints";
 import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv, isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 import {
@@ -473,7 +475,9 @@ export function GovernanceWorkflowPageContent() {
     <TooltipProvider delayDuration={300}>
     <div className="mx-auto max-w-4xl">
       <LayerHeader pageKey="governance-workflow" />
+      <CtoDemoBuyerValueStrip stepIndex={3} />
       <CtoDemoSegregationCallout />
+      <CtoDemoGovernancePreviewHint />
       <OperatorPageHeader
         title={buyerPolishedShell ? BUYER_GOVERNANCE_PAGE_TITLE : "Governance workflow"}
         docsPageKey="/governance"

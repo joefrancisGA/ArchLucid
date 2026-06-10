@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type { EmptyStateProps } from "@/components/EmptyState";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -447,6 +448,7 @@ export function GraphPageContent() {
   return (
     <div>
       <LayerHeader pageKey="graph" />
+      <CtoDemoBuyerValueStrip stepIndex={2} />
       <OperatorPageHeader
         title={pageTitle}
         helpKey="architecture-graph"

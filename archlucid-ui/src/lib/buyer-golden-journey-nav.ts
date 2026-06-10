@@ -2,6 +2,7 @@ import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-s
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { comparePageHref } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/finding-inspect-graph-evidence";
 import {
   SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -31,7 +32,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
   {
     step: 3,
     label: "Evidence trail",
-    href: `/graph?runId=${showcaseRunEnc}`,
+    href: `/graph?runId=${showcaseRunEnc}&graphNodeId=${encodeURIComponent(SHOWCASE_PHI_FINDING_GRAPH_NODE_ID)}`,
     chipTooltip: "Interactive graph linking evidence → findings → decisions → manifest outputs.",
   },
   {

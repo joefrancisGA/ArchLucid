@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
+import { getShowcaseExecutiveHref } from "@/lib/buyer-safe-review-navigation";
+import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
@@ -38,7 +40,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           defaultVisibleInCollapsedSidebar: true,
         },
         {
-          href: "/dashboard",
+          href: isCtoDemoPresenterSafeModeEnv() ? getShowcaseExecutiveHref() : "/dashboard",
           label: OPERATOR_NAV_LINK_LABELS.executiveSummary,
           title: EXECUTIVE_SUMMARY_NAV_TITLE,
           icon: LayoutDashboard,

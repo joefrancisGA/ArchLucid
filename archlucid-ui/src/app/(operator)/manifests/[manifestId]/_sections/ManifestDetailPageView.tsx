@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import {
   OperatorEvidenceLimitsFooter,
 } from "@/components/OperatorEvidenceLimitsFooter";
@@ -201,6 +202,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
+      <CtoDemoBuyerValueStrip stepIndex={1} />
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link className="text-teal-800 underline dark:text-teal-300" href="/">
           Home

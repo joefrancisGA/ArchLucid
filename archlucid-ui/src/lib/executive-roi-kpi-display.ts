@@ -1,4 +1,5 @@
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isCtoDemoPresenterSafeModeEnv } from "@/lib/cto-demo-presenter-pack";
 
 export type ExecutiveKpiCountState = "loading" | "missing" | "zero" | "value";
 
@@ -61,6 +62,15 @@ export function presentCostEvidenceFreshness(input: {
   const basis = input.savingsPricingBasis?.trim().toLowerCase() ?? "";
 
   if (basis.includes("demo") || basis.includes("illustrative")) {
+    if (isCtoDemoPresenterSafeModeEnv()) {
+      return {
+        display: "Showcase review",
+        state: "demo-derived",
+        footnote: "Seeded Claims Intake showcase — upload your Azure inventory to ground cost evidence in measured spend.",
+        runbookHref: "/docs/runbooks/AZURE_EXTRACTOR_UPLOAD.md",
+      };
+    }
+
     const footnote = isBuyerPolishedOperatorShellEnv()
       ? "Upload your Azure inventory to ground cost evidence in measured spend."
       : "Cost evidence is illustrative — do not treat as measured Azure spend.";

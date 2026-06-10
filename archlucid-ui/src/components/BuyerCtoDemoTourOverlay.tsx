@@ -47,6 +47,7 @@ import {
 } from "@/lib/buyer-cto-demo-tour";
 
 import { BUYER_CTO_DEMO_COMPARE_HREF, BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { emitDemoJourneyTelemetry } from "@/lib/demo-journey-telemetry";
 
 import {
 
@@ -160,6 +161,8 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
   const [panicEnabled, setPanicEnabled] = useState(false);
 
   const advancedForStepRef = useRef<number | null>(null);
+  const telemetryStepIndexRef = useRef<number | null>(null);
+  const telemetryElapsedRef = useRef(0);
 
 
 
@@ -178,6 +181,10 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
 
   const endTour = useCallback(() => {
+    emitDemoJourneyTelemetry({
+      kind: "tour_ended",
+      stepsVisitedCount: readBuyerCtoDemoVisitedSteps().size,
+    });
 
     writeBuyerCtoDemoTourActive(false);
 
@@ -186,7 +193,6 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     setCollapsed(false);
 
     writeBuyerCtoDemoTourCollapsed(false);
-
   }, []);
 
 
@@ -240,6 +246,29 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     }
 
 
+
+    const previousStepIndex = telemetryStepIndexRef.current;
+
+    if (previousStepIndex !== null && previousStepIndex !== navigation.stepIndex) {
+      emitDemoJourneyTelemetry({
+        kind: "step_exited",
+        stepIndex: previousStepIndex,
+        dwellSeconds: telemetryElapsedRef.current,
+      });
+    }
+
+    if (previousStepIndex !== navigation.stepIndex) {
+      const stepDef = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[navigation.stepIndex];
+
+      emitDemoJourneyTelemetry({
+        kind: "step_entered",
+        stepIndex: navigation.stepIndex,
+        stepLabel: stepDef.label,
+      });
+
+      telemetryStepIndexRef.current = navigation.stepIndex;
+      telemetryElapsedRef.current = 0;
+    }
 
     writeBuyerCtoDemoVisitedStep(navigation.stepIndex);
 
@@ -383,7 +412,12 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
     const intervalId = window.setInterval(() => {
 
-      setElapsedSecondsOnStep((previous) => previous + 1);
+      setElapsedSecondsOnStep((previous) => {
+        const next = previous + 1;
+        telemetryElapsedRef.current = next;
+
+        return next;
+      });
 
     }, 1000);
 

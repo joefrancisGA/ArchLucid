@@ -24,7 +24,7 @@ import { CtoDemoFastCreatePanel } from "@/components/cto-demo/CtoDemoFastCreateP
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
+import { REVIEWS_NEW_OTHER_PATHS_DISCLOSURE, QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   defaultQuickReviewSampleBriefId,
@@ -400,11 +400,18 @@ export function ReviewsNewPathSwitcher() {
   const baselineFirst = searchParams?.get("baseline") === "1";
   const [pathMode, setPathMode] = useState<ReviewsNewPathMode>("quick-review");
   const [ready, setReady] = useState(false);
+  const [tourActive, setTourActive] = useState(false);
 
   useEffect(() => {
+    const activeTour = readBuyerCtoDemoTourActive();
+    setTourActive(activeTour);
+
     if (baselineFirst) {
       setPathMode("detailed");
       persistPathMode("detailed");
+    } else if (activeTour) {
+      setPathMode("quick-review");
+      persistPathMode("quick-review");
     } else {
       setPathMode(readStoredPathMode());
     }
@@ -433,46 +440,86 @@ export function ReviewsNewPathSwitcher() {
         <NewReviewIntentCallout />
       </Suspense>
       {ready ? (
-        <div
-          className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
-          role="tablist"
-          aria-label="Review creation path"
-          data-testid="reviews-new-path-toggle"
-        >
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={pathMode === "quick-review"}
-            variant={pathMode === "quick-review" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={selectQuick}
-            data-testid="reviews-new-path-quick"
+        tourActive ? (
+          <details className="rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <summary
+              className="cursor-pointer select-none text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              data-testid="reviews-new-other-paths-disclosure"
+            >
+              {REVIEWS_NEW_OTHER_PATHS_DISCLOSURE}
+            </summary>
+            <div
+              className="mt-3 flex flex-wrap gap-2"
+              role="tablist"
+              aria-label="Review creation path"
+              data-testid="reviews-new-path-toggle"
+            >
+              <Button
+                type="button"
+                role="tab"
+                aria-selected={pathMode === "guided-intake"}
+                variant={pathMode === "guided-intake" ? "default" : "outline"}
+                className="min-w-[10rem]"
+                onClick={selectGuidedIntake}
+                data-testid="reviews-new-path-guided-intake"
+              >
+                Guided intake
+              </Button>
+              <Button
+                type="button"
+                role="tab"
+                aria-selected={pathMode === "detailed"}
+                variant={pathMode === "detailed" ? "default" : "outline"}
+                className="min-w-[10rem]"
+                onClick={selectDetailed}
+                data-testid="reviews-new-path-detailed"
+              >
+                Full guided review
+              </Button>
+            </div>
+          </details>
+        ) : (
+          <div
+            className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
+            role="tablist"
+            aria-label="Review creation path"
+            data-testid="reviews-new-path-toggle"
           >
-            Quick review
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={pathMode === "guided-intake"}
-            variant={pathMode === "guided-intake" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={selectGuidedIntake}
-            data-testid="reviews-new-path-guided-intake"
-          >
-            Guided intake
-          </Button>
-          <Button
-            type="button"
-            role="tab"
-            aria-selected={pathMode === "detailed"}
-            variant={pathMode === "detailed" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={selectDetailed}
-            data-testid="reviews-new-path-detailed"
-          >
-            Full guided review
-          </Button>
-        </div>
+            <Button
+              type="button"
+              role="tab"
+              aria-selected={pathMode === "quick-review"}
+              variant={pathMode === "quick-review" ? "default" : "outline"}
+              className="min-w-[10rem]"
+              onClick={selectQuick}
+              data-testid="reviews-new-path-quick"
+            >
+              Quick review
+            </Button>
+            <Button
+              type="button"
+              role="tab"
+              aria-selected={pathMode === "guided-intake"}
+              variant={pathMode === "guided-intake" ? "default" : "outline"}
+              className="min-w-[10rem]"
+              onClick={selectGuidedIntake}
+              data-testid="reviews-new-path-guided-intake"
+            >
+              Guided intake
+            </Button>
+            <Button
+              type="button"
+              role="tab"
+              aria-selected={pathMode === "detailed"}
+              variant={pathMode === "detailed" ? "default" : "outline"}
+              className="min-w-[10rem]"
+              onClick={selectDetailed}
+              data-testid="reviews-new-path-detailed"
+            >
+              Full guided review
+            </Button>
+          </div>
+        )
       ) : null}
       {ready ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="reviews-new-path-hint">
@@ -482,7 +529,7 @@ export function ReviewsNewPathSwitcher() {
       {ready ? null : (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
-      {!ready ? null : pathMode === "quick-review" ? (
+      {!ready ? null : tourActive || pathMode === "quick-review" ? (
         <QuickReviewWizard />
       ) : pathMode === "guided-intake" ? (
         <SocraticIntakeWizard />
