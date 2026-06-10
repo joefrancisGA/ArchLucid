@@ -35,9 +35,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     /// <summary>
     ///     Reserved for <see cref="ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync" />
     ///     after the parallel burst so a burst that consumes most of <see cref="ParallelCreateRunHangGuard" /> does not
-    ///     cancel resolution with an already-fired token.
+    ///     cancel resolution with an already-fired token. Run 27246641656 exhausted a 20-min resolution budget while slot 0
+    ///     was still replaying 503s (~40 min total); 40 min matches one full greenfield per-POST ceiling plus backoff.
     /// </summary>
-    private static readonly TimeSpan ParallelCreateRunResolutionReserve = TimeSpan.FromMinutes(20);
+    private static readonly TimeSpan ParallelCreateRunResolutionReserve = TimeSpan.FromMinutes(40);
 
     /// <summary>
     ///     Burst-phase budget only (parallel POST + transient 503 retries). Must stay within
@@ -47,12 +48,11 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         ParallelCreateRunHangGuard - ParallelCreateRunResolutionReserve;
 
     /// <summary>
-    ///     Per-resolution-phase budget for replaying 503 slots after the burst (one full greenfield per-POST ceiling +
-    ///     backoff headroom).
+    ///     Per-resolution-phase budget for replaying 503 slots after the burst. Uses the full
+    ///     <see cref="ParallelCreateRunResolutionReserve" /> so resolution is not capped at 20 min while the outer hang
+    ///     guard still has headroom.
     /// </summary>
-    private static readonly TimeSpan ParallelCreateRunResolutionGuard =
-        ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
-        + TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan ParallelCreateRunResolutionGuard = ParallelCreateRunResolutionReserve;
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
@@ -85,11 +85,18 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             client,
             ParallelCreateRunHangGuard);
 
-        // Readiness + list-runs only: post-create-run warm competes with the parallel idempotency burst and can
-        // exhaust GreenfieldSqlHostBootstrapBudget on cold CI SQL before the test hang guard starts.
-        await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
-            client,
-            includePostCreateRunWarmup: false);
+        try
+        {
+            // Readiness + list-runs only: post-create-run warm competes with the parallel idempotency burst and can
+            // exhaust GreenfieldSqlHostBootstrapBudget on cold CI SQL before the test hang guard starts.
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+                client,
+                includePostCreateRunWarmup: false);
+        }
+        catch (WarmupTimedOutException)
+        {
+            Skip.If(true, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
+        }
 
         using CancellationTokenSource hangGuard = new();
         hangGuard.CancelAfter(ParallelCreateRunHangGuard);

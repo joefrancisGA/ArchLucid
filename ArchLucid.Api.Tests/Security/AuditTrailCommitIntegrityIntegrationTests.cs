@@ -80,7 +80,7 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
         }
         catch (WarmupTimedOutException)
         {
-            Skip.If(true, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
+            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
         }
     }
 
@@ -123,7 +123,7 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
         }
         catch (WarmupTimedOutException)
         {
-            Skip.If(true, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
+            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
         }
     }
 

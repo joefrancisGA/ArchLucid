@@ -613,7 +613,7 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
               <div className="mt-1">
 
-                <StatusTag kind="attention" label={BUYER_CTO_DEMO_TOUR_AUTOPLAY_BADGE} />
+                <StatusTag kind="needs-attention" label={BUYER_CTO_DEMO_TOUR_AUTOPLAY_BADGE} />
 
               </div>
 
