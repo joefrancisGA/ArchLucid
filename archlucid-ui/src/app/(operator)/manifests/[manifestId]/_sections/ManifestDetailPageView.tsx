@@ -7,6 +7,7 @@ import {
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { BuyerTitleHint } from "@/components/BuyerTitleHint";
 import { ManifestBuyerBundleDownloadSection } from "@/components/ManifestBuyerBundleDownloadSection";
+import { ManifestDeliverableGrid } from "@/components/ManifestDeliverableGrid";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -332,6 +333,15 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           {monitoredRiskCard}
         </>
       )}
+
+      {buyerPolishedLayout ? (
+        <ManifestDeliverableGrid
+          manifestId={manifestId}
+          runId={summary.runId}
+          buyerPolished={buyerPolishedLayout}
+          systemName={showcaseBuyerManifestHeadline ? SHOWCASE_BUYER_REVIEW_TITLE : undefined}
+        />
+      ) : null}
 
       <Card
         id={buyerPolishedLayout ? "manifest-deliverables" : undefined}

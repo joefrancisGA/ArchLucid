@@ -21,6 +21,7 @@ import { NewRunWizardClient } from "./NewRunWizardClient";
 import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 import { CtoDemoFastCreatePanel } from "@/components/cto-demo/CtoDemoFastCreatePanel";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
@@ -131,7 +132,8 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
 
     defaultBriefAppliedRef.current = true;
     const demoMode = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv();
-    const defaultId = defaultQuickReviewSampleBriefId(demoMode);
+    const tourActive = readBuyerCtoDemoTourActive();
+    const defaultId = defaultQuickReviewSampleBriefId(demoMode, tourActive);
     const sample = findQuickReviewSampleBrief(defaultId);
 
     if (sample === null) {

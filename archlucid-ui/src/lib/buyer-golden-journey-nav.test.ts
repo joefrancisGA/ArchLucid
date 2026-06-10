@@ -3,10 +3,16 @@ import { describe, expect, it } from "vitest";
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 
 import {
+  BUYER_CTO_DEMO_COMPARE_HREF,
   BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS,
   resolveBuyerGoldenJourneyNav,
 } from "@/lib/buyer-golden-journey-nav";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 describe("resolveBuyerGoldenJourneyNav", () => {
   it("returns null for unrelated routes", () => {
@@ -101,5 +107,16 @@ describe("resolveBuyerGoldenJourneyNav", () => {
     expect(nav?.currentStepIndex).toBeNull();
     expect(nav?.prev?.href).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[0].href);
     expect(nav?.next?.href).toBe(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[1].href);
+  });
+});
+
+describe("BUYER_CTO_DEMO_COMPARE_HREF", () => {
+  it("encodes the seeded Claims Intake compare pair with friendly query keys", () => {
+    expect(BUYER_CTO_DEMO_COMPARE_HREF).toContain(
+      `priorRunId=${SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID}`,
+    );
+    expect(BUYER_CTO_DEMO_COMPARE_HREF).toContain(
+      `laterRunId=${SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID}`,
+    );
   });
 });

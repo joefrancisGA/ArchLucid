@@ -1,8 +1,11 @@
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { comparePageHref } from "@/lib/compare-url-query-params";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 
@@ -44,6 +47,13 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     chipTooltip: "Chronological audit trail of review events for compliance and operational follow-up.",
   },
 ] as const;
+
+/** Seeded Claims Intake compare pair for optional CTO demo drift beat (step 3b). */
+export const BUYER_CTO_DEMO_COMPARE_HREF = comparePageHref(
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  "friendly",
+);
 
 export type BuyerGoldenJourneyNavLink = {
   readonly label: string;

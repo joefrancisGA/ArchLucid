@@ -46,9 +46,21 @@ import {
   writeBuyerCtoDemoVisitedStep,
 } from "@/lib/buyer-cto-demo-tour";
 
-import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
+import { BUYER_CTO_DEMO_COMPARE_HREF, BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 
 import {
+
+  BUYER_CTO_DEMO_COMPARE_DRIFT_CTA,
+
+  BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL,
+
+  BUYER_CTO_DEMO_PANIC_ENABLE_CTA,
+
+  BUYER_CTO_DEMO_PANIC_ENABLED_LABEL,
+
+  BUYER_CTO_DEMO_PANIC_SCRIPT_BODY,
+
+  BUYER_CTO_DEMO_PANIC_SCRIPT_HEADING,
 
   BUYER_CTO_DEMO_QUESTIONS_HIDE_CTA,
 
@@ -95,6 +107,11 @@ import {
 import { useBuyerCtoDemoTourKeyboard } from "@/hooks/useBuyerCtoDemoTourKeyboard";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import {
+  ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
+  readOperatorDemoPanicOffline,
+  writeOperatorDemoPanicOffline,
+} from "@/lib/operator-static-demo";
 
 import { OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE, operatorSemanticBadge } from "@/lib/design-tokens";
 
@@ -139,6 +156,8 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
   const [smokeResults, setSmokeResults] = useState<readonly CtoDemoSmokeCheckResult[] | null>(null);
 
   const [smokeBusy, setSmokeBusy] = useState(false);
+
+  const [panicEnabled, setPanicEnabled] = useState(false);
 
   const advancedForStepRef = useRef<number | null>(null);
 
@@ -189,6 +208,8 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
     setAutoplay(readBuyerCtoDemoAutoplay());
 
     setStoryId(readBuyerCtoDemoStoryId());
+
+    setPanicEnabled(readOperatorDemoPanicOffline());
 
   }, []);
 
@@ -638,6 +659,53 @@ export function BuyerCtoDemoTourOverlay(): React.JSX.Element | null {
 
           </p>
 
+        ) : null}
+
+        {presenterNotesVisible && navigation.stepIndex === 2 ? (
+          <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400" data-testid="cto-demo-compare-drift-beat">
+            {BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL}:{" "}
+            <Link
+              href={BUYER_CTO_DEMO_COMPARE_HREF}
+              className="text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              data-testid="cto-demo-compare-drift-link"
+            >
+              {BUYER_CTO_DEMO_COMPARE_DRIFT_CTA}
+            </Link>
+          </p>
+        ) : null}
+
+        {presenterNotesVisible ? (
+          <div
+            className="mt-2 rounded-md border border-amber-200/80 bg-amber-50/60 px-3 py-2 dark:border-amber-900/40 dark:bg-amber-950/20"
+            data-testid="cto-demo-panic-script-section"
+          >
+            <p className="m-0 text-xs font-semibold text-amber-900 dark:text-amber-200">
+              {BUYER_CTO_DEMO_PANIC_SCRIPT_HEADING}
+            </p>
+            <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">{BUYER_CTO_DEMO_PANIC_SCRIPT_BODY}</p>
+            <div className="mt-2">
+              {panicEnabled ? (
+                <StatusTag kind="ready" label={BUYER_CTO_DEMO_PANIC_ENABLED_LABEL} />
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  data-testid="cto-demo-panic-enable-btn"
+                  onClick={() => {
+                    writeOperatorDemoPanicOffline(true);
+                    window.dispatchEvent(
+                      new CustomEvent(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, { detail: { on: true } }),
+                    );
+                    setPanicEnabled(true);
+                  }}
+                >
+                  {BUYER_CTO_DEMO_PANIC_ENABLE_CTA}
+                </Button>
+              )}
+            </div>
+          </div>
         ) : null}
 
 

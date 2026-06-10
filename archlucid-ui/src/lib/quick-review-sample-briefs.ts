@@ -54,8 +54,8 @@ export function findQuickReviewSampleBrief(id: string): QuickReviewSampleBrief |
   return match ?? null;
 }
 
-export function defaultQuickReviewSampleBriefId(demoMode: boolean): string {
-  if (demoMode) {
+export function defaultQuickReviewSampleBriefId(demoMode: boolean, tourActive: boolean = false): string {
+  if (demoMode || tourActive) {
     return QUICK_REVIEW_DEMO_DEFAULT_BRIEF_ID;
   }
 

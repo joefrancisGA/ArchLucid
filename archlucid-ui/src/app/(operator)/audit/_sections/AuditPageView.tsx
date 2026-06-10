@@ -14,6 +14,8 @@ import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-t
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
+import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemoAuditIntegrityExportButton";
+
 import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
 import { AuditResultsSection } from "./AuditResultsSection";
@@ -43,7 +45,10 @@ export function AuditPageView(props: AuditPageViewProps) {
         }
         helpKey="audit-log"
         actions={
-          <InAppHelpLink helpSlug="audit-trail" label="Audit coverage matrix documentation" />
+          <>
+            <CtoDemoAuditIntegrityExportButton />
+            <InAppHelpLink helpSlug="audit-trail" label="Audit coverage matrix documentation" />
+          </>
         }
       />
       {buyerPolishedShell ? (

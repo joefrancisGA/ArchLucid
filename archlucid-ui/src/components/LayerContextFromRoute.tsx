@@ -8,7 +8,7 @@ import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orient
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getLayerForRoute } from "@/lib/getLayerForRoute";
 
-import { CtoDemoDataSourceBadge } from "@/components/cto-demo/CtoDemoDataSourceBadge";
+import { CtoDemoSimulatorTrustBadge } from "@/components/cto-demo/CtoDemoSimulatorTrustBadge";
 
 import { LayerContextStrip } from "./LayerContextStrip";
 
@@ -47,7 +47,7 @@ export function LayerContextFromRoute() {
         buyerRouteOrientation={buyerRouteOrientation ?? undefined}
         buyerOperateBackLink={buyerOperateBackLink}
         buyerGoldenJourneyNav={buyerGoldenJourneyNav}
-        demoDataSourceBadge={buyerGoldenJourneyNav !== null ? <CtoDemoDataSourceBadge /> : undefined}
+        demoDataSourceBadge={buyerGoldenJourneyNav !== null ? <CtoDemoSimulatorTrustBadge /> : undefined}
       />
     </>
   );

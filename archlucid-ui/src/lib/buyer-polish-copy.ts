@@ -85,6 +85,58 @@ export const BUYER_CTO_DEMO_RECAP_COPY_CTA = "Copy recap";
 
 export const BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA = "Download recap (.md)";
 
+export const BUYER_CTO_DEMO_RECAP_BOARD_PACKET_CTA = "Download board packet";
+
+export const BUYER_CTO_DEMO_RECAP_BOARD_PACKET_BUSY_CTA = "Board packet…";
+
+export const BUYER_CTO_DEMO_COMPARE_DRIFT_LABEL = "Optional 3b — Show drift";
+
+export const BUYER_CTO_DEMO_COMPARE_DRIFT_CTA = "See what changed →";
+
+export const BUYER_CTO_DEMO_PANIC_SCRIPT_HEADING = "Offline fallback";
+
+export const BUYER_CTO_DEMO_PANIC_SCRIPT_BODY =
+  "If the API goes down: say \"Let me switch to our pre-loaded version — same data, same output.\" Then click Enable offline fallback below. Navigate to Step 1 using keyboard shortcut 1. Continue the walkthrough — all five steps work offline.";
+
+export const BUYER_CTO_DEMO_PANIC_ENABLE_CTA = "Enable offline fallback";
+
+export const BUYER_CTO_DEMO_PANIC_ENABLED_LABEL = "Offline fallback active";
+
+export const BUYER_SIMULATOR_TRUST_BADGE_LABEL =
+  "Simulator mode — structurally identical findings, no cloud LLM charges";
+
+export const BUYER_SIMULATOR_TRUST_BADGE_TOOLTIP =
+  "Simulator mode runs the full four-agent pipeline using rule-based inference. Findings have the same structure as live mode; cost estimates are illustrative.";
+
+export const BUYER_CTO_DEMO_AUDIT_EXPORT_CTA = "Export audit trail (CSV)";
+
+export const BUYER_CTO_DEMO_AUDIT_EXPORT_BUSY = "Exporting…";
+
+export const BUYER_CTO_DEMO_AUDIT_EXPORT_SUCCESS =
+  "Audit trail exported — attach to your GRC record.";
+
+export const BUYER_MANIFEST_DELIVERABLES_HEADING = "Deliverables";
+
+export const BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_TITLE = "Executive PDF";
+
+export const BUYER_MANIFEST_DELIVERABLE_EXECUTIVE_PDF_DESC =
+  "Sponsor-ready one-pager with verdict, top risks, and recommended actions.";
+
+export const BUYER_MANIFEST_DELIVERABLE_DOCX_TITLE = "Architecture package (DOCX)";
+
+export const BUYER_MANIFEST_DELIVERABLE_DOCX_DESC =
+  "Full review package for architecture board and GRC teams.";
+
+export const BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE = "Review bundle (ZIP)";
+
+export const BUYER_MANIFEST_DELIVERABLE_ZIP_DESC =
+  "All signed artifacts, evidence index, and manifest in one archive.";
+
+export const BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE = "Decision receipt (Markdown)";
+
+export const BUYER_MANIFEST_DELIVERABLE_MARKDOWN_DESC =
+  "Machine-readable record of all decisions in this review.";
+
 export const BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL = "Live data";
 
 export const BUYER_CTO_DEMO_DATA_SOURCE_SAMPLE_LABEL = "Sample data — Contoso Retail";

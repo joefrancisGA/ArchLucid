@@ -6,7 +6,10 @@ import {
   BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY,
   BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY,
 } from "@/lib/buyer-cto-demo-tour";
+import { BUYER_CTO_DEMO_COMPARE_HREF } from "@/lib/buyer-golden-journey-nav";
 import { getShowcaseExecutiveHref, getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY } from "@/lib/operator-static-demo";
 
 const replaceMock = vi.fn();
 
@@ -14,8 +17,10 @@ vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => true,
 }));
 
+const pathnameMock = vi.fn(() => getShowcaseExecutiveHref());
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => getShowcaseExecutiveHref(),
+  usePathname: () => pathnameMock(),
   useRouter: () => ({ replace: replaceMock }),
   useSearchParams: () => new URLSearchParams(""),
 }));
@@ -23,6 +28,7 @@ vi.mock("next/navigation", () => ({
 describe("BuyerCtoDemoTourOverlay", () => {
   beforeEach(() => {
     replaceMock.mockReset();
+    pathnameMock.mockReturnValue(getShowcaseExecutiveHref());
     localStorage.clear();
     sessionStorage.clear();
     localStorage.setItem(BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY, "1");
@@ -80,5 +86,30 @@ describe("BuyerCtoDemoTourOverlay", () => {
       expect(screen.queryByTestId("buyer-cto-demo-tour-overlay")).toBeNull();
     });
     expect(localStorage.getItem(BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("shows compare drift link on evidence trail step", async () => {
+    pathnameMock.mockReturnValue(`/graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`);
+
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cto-demo-compare-drift-link")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("cto-demo-compare-drift-link")).toHaveAttribute("href", BUYER_CTO_DEMO_COMPARE_HREF);
+  });
+
+  it("enables offline fallback from panic script section", async () => {
+    render(<BuyerCtoDemoTourOverlay />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cto-demo-panic-script-section")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("cto-demo-panic-enable-btn"));
+
+    expect(localStorage.getItem(OPERATOR_DEMO_STATIC_PANIC_STORAGE_KEY)).toBe("1");
+    expect(screen.getByText("Offline fallback active")).toBeInTheDocument();
   });
 });

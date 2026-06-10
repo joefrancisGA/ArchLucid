@@ -3,7 +3,9 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { StatusTag } from "@/components/ui/status-tag";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
+import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
 import {
   mapPipelineStageOutcomeToStatusKind,
   pipelineStageOutcomeLabel,
@@ -17,10 +19,6 @@ type RunDetailPipelineStagesSectionProps = {
   readonly otelTraceId?: string | null;
 };
 
-function formatStageDisplayName(stageName: string): string {
-  return stageName.replaceAll("_", " ");
-}
-
 export function RunDetailPipelineStagesSection({
   stageTimeline,
   otelTraceId,
@@ -28,6 +26,8 @@ export function RunDetailPipelineStagesSection({
   if (stageTimeline.length === 0) {
     return null;
   }
+
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
   return (
     <section
@@ -57,7 +57,7 @@ export function RunDetailPipelineStagesSection({
               data-testid={`pipeline-stage-row-${stage.stageName}`}
             >
               <span className="font-medium text-al-text-primary">
-                {formatStageDisplayName(stage.stageName)}
+                {buyerPipelineStageName(stage.stageName, buyerPolished)}
               </span>
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-al-text-secondary" data-testid="pipeline-stage-duration">

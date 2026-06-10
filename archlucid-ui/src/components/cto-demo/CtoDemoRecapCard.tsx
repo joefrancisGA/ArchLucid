@@ -8,7 +8,17 @@ import {
   formatCtoDemoRecapMarkdown,
   type CtoDemoRecapPayload,
 } from "@/lib/buyer-cto-demo-recap";
-import { BUYER_CTO_DEMO_RECAP_COPY_CTA, BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA, BUYER_CTO_DEMO_RECAP_HEADING, BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA } from "@/lib/buyer-polish-copy";
+import {
+  BUYER_CTO_DEMO_RECAP_BOARD_PACKET_BUSY_CTA,
+  BUYER_CTO_DEMO_RECAP_BOARD_PACKET_CTA,
+  BUYER_CTO_DEMO_RECAP_COPY_CTA,
+  BUYER_CTO_DEMO_RECAP_DOWNLOAD_CTA,
+  BUYER_CTO_DEMO_RECAP_HEADING,
+  BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA,
+} from "@/lib/buyer-polish-copy";
+import { downloadFirstValueReportPdf } from "@/lib/api";
+import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showError, showSuccess } from "@/lib/toast";
 
 export type CtoDemoRecapCardProps = {
@@ -18,6 +28,8 @@ export type CtoDemoRecapCardProps = {
 export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Element {
   const { payload: payloadProp } = props;
   const [busy, setBusy] = useState(false);
+  const [boardPacketBusy, setBoardPacketBusy] = useState(false);
+  const showBoardPacket = isCtoDemoPackEnv();
 
   const payload = useMemo(() => {
     if (payloadProp !== undefined) {
@@ -58,6 +70,21 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
     URL.revokeObjectURL(url);
     showSuccess("Executive recap download started.");
   }, [markdown, payload.systemName]);
+
+  const onBoardPacketDownload = useCallback(async () => {
+    setBoardPacketBusy(true);
+
+    try {
+      await downloadFirstValueReportPdf(SHOWCASE_STATIC_DEMO_RUN_ID);
+      showSuccess("Board packet download started.");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      showError("Board packet download failed", message);
+    } finally {
+      setBoardPacketBusy(false);
+    }
+  }, []);
 
   const onCopySnapshot = useCallback(async () => {
     if (payload.snapshotUrl.trim().length === 0) {
@@ -107,6 +134,21 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
           </Button>
         ) : null}
       </div>
+      {showBoardPacket ? (
+        <div className="mt-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="default"
+            className="w-full justify-center sm:w-auto"
+            disabled={boardPacketBusy}
+            onClick={() => void onBoardPacketDownload()}
+            data-testid="cto-demo-recap-board-packet"
+          >
+            {boardPacketBusy ? BUYER_CTO_DEMO_RECAP_BOARD_PACKET_BUSY_CTA : BUYER_CTO_DEMO_RECAP_BOARD_PACKET_CTA}
+          </Button>
+        </div>
+      ) : null}
       {payload.snapshotUrl.trim().length > 0 ? (
         <p className="m-0 mt-2 break-all font-mono text-[11px] text-neutral-600 dark:text-neutral-400">
           {payload.snapshotUrl}
