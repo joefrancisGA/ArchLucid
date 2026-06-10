@@ -76,6 +76,9 @@ export function isDemoStrictNavigationRedirectsBypassedForE2E(): boolean {
  * Packaged demos (public demo mode or static-operator) hide `/compare` for buyer-safe navigation unless explicitly allowed.
  * **`NEXT_PUBLIC_DEMO_ALLOW_COMPARE_ROUTE`:** set `"true"` or `"1"` to keep Compare reachable in strict demo redirects.
  *
+ * Also unblocked at runtime when the CTO demo tour is active — the tour overlay shows a compare link on step 3
+ * and the presenter needs to reach it without an env var change mid-session.
+ *
  * Bypassed when {@link isDemoStrictNavigationRedirectsBypassedForE2E} is true so Playwright can reach advanced routes.
  */
 export function isCompareRouteBlockedUnderDemoStrictShell(): boolean {
@@ -89,9 +92,29 @@ export function isCompareRouteBlockedUnderDemoStrictShell(): boolean {
     return false;
   }
 
+  if (isCtoDemoTourActiveRuntime()) {
+    return false;
+  }
+
   if (isDemoStrictNavigationRedirectsActive() || isBuyerPolishedOperatorShellEnv()) {
     return true;
   }
 
   return false;
+}
+
+/**
+ * Client-runtime check: true when the CTO demo tour localStorage flag is set.
+ * Safe to call on the server (returns false when `window` is undefined).
+ */
+function isCtoDemoTourActiveRuntime(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem("archlucid.buyerCtoDemoTour.active.v1") === "1";
+  } catch {
+    return false;
+  }
 }

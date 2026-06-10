@@ -26,5 +26,15 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         settings["ArchLucidAuth:AllowTestActorHeaders"] = "true";
         // Background TrialFunnelHealthProbe defaults to http://127.0.0.1:5000 under TestServer; disable for integration hosts.
         settings["Demo:Enabled"] = "false";
+        // appsettings.Development.json enables Demo:SeedOnStartup; integration tests seed explicitly when needed.
+        settings["Demo:SeedOnStartup"] = "false";
+    }
+
+    /// <inheritdoc />
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+
+        client.Timeout = IntegrationTestHttpCancellation.DefaultRequestTimeout;
     }
 }

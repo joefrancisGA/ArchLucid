@@ -16,6 +16,8 @@ import {
   BUYER_CTO_DEMO_RECAP_HEADING,
   BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA,
 } from "@/lib/buyer-polish-copy";
+import { CtoDemoLeaveBehindExportButton } from "@/components/cto-demo/CtoDemoLeaveBehindExportButton";
+import { CtoDemoShareSnapshotButton } from "@/components/cto-demo/CtoDemoShareSnapshotButton";
 import { downloadFirstValueReportPdf } from "@/lib/api";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -133,6 +135,8 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
             {BUYER_CTO_DEMO_RECAP_SNAPSHOT_COPY_CTA}
           </Button>
         ) : null}
+        <CtoDemoLeaveBehindExportButton />
+        <CtoDemoShareSnapshotButton />
       </div>
       {showBoardPacket ? (
         <div className="mt-2">

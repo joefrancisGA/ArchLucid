@@ -34,13 +34,16 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         await SeedRetrievalDocumentsAsync(factory.Services);
 
         HttpClient client = factory.CreateClient();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+
         HttpResponseMessage response = await client.GetAsync(
             new Uri("v1/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         List<RetrievalHit>? hits = await response.Content
-            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
 
         hits.Should().NotBeNull();
         hits.Should().NotBeEmpty("indexed documents should produce at least one retrieval hit");
@@ -51,10 +54,12 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     {
         await using AlertLifecycleWebAppFactory factory = new();
         HttpClient client = factory.CreateClient();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
         HttpResponseMessage response = await client.GetAsync(
             new Uri("v1/retrieval/search?q=", UriKind.Relative),
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -64,14 +69,16 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     {
         await using AlertLifecycleWebAppFactory factory = new();
         HttpClient client = factory.CreateClient();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
         HttpResponseMessage response = await client.GetAsync(
             new Uri("v1/retrieval/search?q=anything&topK=3", UriKind.Relative),
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         List<RetrievalHit>? hits = await response.Content
-            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
 
         hits.Should().NotBeNull();
         hits.Should().BeEmpty("no documents have been indexed");
@@ -84,13 +91,16 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         await SeedRetrievalDocumentsAsync(factory.Services);
 
         HttpClient client = factory.CreateClient();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+
         HttpResponseMessage response = await client.GetAsync(
             new Uri("v1/retrieval/search?q=architecture&topK=1", UriKind.Relative),
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         List<RetrievalHit>? hits = await response.Content
-            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, CancellationToken.None);
+            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
 
         hits.Should().NotBeNull();
         hits.Should().HaveCountLessThanOrEqualTo(1);

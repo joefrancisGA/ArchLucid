@@ -16,9 +16,17 @@ export type CtoDemoBuyerValueStripProps = {
 export function CtoDemoBuyerValueStrip(props: CtoDemoBuyerValueStripProps): React.JSX.Element | null {
   const { stepIndex } = props;
   const [visible, setVisible] = useState(false);
+  const [faded, setFaded] = useState(false);
 
   useEffect(() => {
-    setVisible(readBuyerCtoDemoTourActive() && isBuyerPolishedOperatorShellEnv());
+    const shouldShow = readBuyerCtoDemoTourActive() && isBuyerPolishedOperatorShellEnv();
+
+    setVisible(shouldShow);
+
+    if (shouldShow) {
+      // Defer the opacity reveal one frame so the transition fires.
+      requestAnimationFrame(() => { setFaded(true); });
+    }
   }, []);
 
   if (!visible) {
@@ -31,6 +39,8 @@ export function CtoDemoBuyerValueStrip(props: CtoDemoBuyerValueStripProps): Reac
     <div
       className={cn(
         "mb-4 rounded-lg border border-neutral-200 bg-neutral-50 p-3 print:hidden dark:border-neutral-700 dark:bg-neutral-900/50",
+        "transition-opacity duration-150",
+        faded ? "opacity-100" : "opacity-0",
       )}
       data-testid={`cto-demo-buyer-value-strip-${stepIndex}`}
     >

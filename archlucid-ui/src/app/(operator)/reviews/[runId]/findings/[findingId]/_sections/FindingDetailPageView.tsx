@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingIacStubPanel } from "@/components/FindingIacStubPanel";
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
@@ -187,6 +188,10 @@ export function FindingDetailPageView(props: Props) {
                 </Button>
               ) : null}
             </div>
+          </div>
+
+          <div className="space-y-4 p-6">
+            <FindingProvenancePanel runId={runId} findingId={decodedFindingId} />
           </div>
 
           <div className="grid gap-4 p-6 lg:grid-cols-3">

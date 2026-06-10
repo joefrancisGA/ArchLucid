@@ -1,0 +1,23 @@
+import { describe, expect, it } from "vitest";
+
+import { findBlockedRouteEntry, resolveDemoBlockedRoutePanel } from "@/lib/cto-demo-blocked-route-registry";
+
+describe("cto-demo-blocked-route-registry", () => {
+  it("finds admin and nested admin routes", () => {
+    expect(findBlockedRouteEntry("/admin")?.label).toBe("Admin console");
+    expect(findBlockedRouteEntry("/admin/health")?.label).toBe("Admin console");
+  });
+
+  it("returns null for golden journey spine routes", () => {
+    expect(findBlockedRouteEntry("/graph")).toBeNull();
+    expect(findBlockedRouteEntry("/governance")).toBeNull();
+    expect(findBlockedRouteEntry("/audit")).toBeNull();
+  });
+
+  it("falls back to generic blocked panel copy", () => {
+    const panel = resolveDemoBlockedRoutePanel("/unknown-route");
+
+    expect(panel.label).toBe("This page");
+    expect(panel.description).toContain("provisioned ArchLucid tenant");
+  });
+});

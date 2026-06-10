@@ -139,7 +139,7 @@ export const BUYER_MANIFEST_DELIVERABLE_MARKDOWN_DESC =
 
 export const BUYER_CTO_DEMO_DATA_SOURCE_LIVE_LABEL = "Live data";
 
-export const BUYER_CTO_DEMO_DATA_SOURCE_SAMPLE_LABEL = "Sample data — Contoso Retail";
+export const BUYER_CTO_DEMO_DATA_SOURCE_SAMPLE_LABEL = "Sample data — Claims Intake showcase";
 
 export const QUICK_REVIEW_SAMPLE_BRIEF_CAPTION = "Sample — edit freely";
 
@@ -148,7 +148,7 @@ export const COMMAND_PALETTE_START_CTO_DEMO_LABEL = "Start CTO demo tour";
 export const COMMAND_PALETTE_RESET_DEMO_LABEL = "Reset demo";
 
 export const BUYER_CTO_DEMO_TOUR_KEYBOARD_HINT =
-  "Press 1–5 to jump between journey steps · S — spotlight · 0 — offline mode";
+  "Press 1–5 to jump steps · E — explore · P — presenter notes · S — spotlight · 0 — offline · Shift+R — hard reset";
 
 export const BUYER_CTO_DEMO_TOUR_AUTOPLAY_ON_CTA = "Auto-play";
 

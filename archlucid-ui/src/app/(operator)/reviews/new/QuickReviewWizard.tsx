@@ -21,6 +21,10 @@ import { NewRunWizardClient } from "./NewRunWizardClient";
 import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
 import { CtoDemoFastCreatePanel } from "@/components/cto-demo/CtoDemoFastCreatePanel";
+import {
+  CtoDemoReviewModeCallout,
+  type CtoDemoReviewExecutionMode,
+} from "@/components/cto-demo/CtoDemoReviewModeCallout";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -112,8 +116,10 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [runTitle, setRunTitle] = useState("");
   const [scope, setScope] = useState<Record<string, string> | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>("simulator");
 
   const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS;
+  const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
 
   useEffect(() => {
     if (step !== 1) {
@@ -300,7 +306,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
               </p>
             </div>
             <Button type="button" variant="secondary" onClick={useSampleBrief} data-testid="quick-review-sample-brief">
-              Use sample brief (Contoso Retail)
+              Use sample brief (Claims Intake showcase)
             </Button>
           </CardContent>
         </Card>
@@ -353,6 +359,9 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
             <CardDescription>This starts a new architecture review with your pasted brief.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            {showDemoModeCallout ? (
+              <CtoDemoReviewModeCallout mode={executionMode} onModeChange={setExecutionMode} />
+            ) : null}
             <p className="m-0">
               <strong>System name:</strong> {displaySystemName}
             </p>
@@ -378,6 +387,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
           <Button
             type="button"
             onClick={() => {
+              if (executionMode === "simulator" && showDemoModeCallout) {
+                showToast("err", "Use Start simulator create or Try it live on the demo panel above for simulator/live paths.");
+
+                return;
+              }
+
               void submitRun();
             }}
             disabled={submitting || blocksLlmExecution}

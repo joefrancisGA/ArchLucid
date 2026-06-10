@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { CtoDemoExecutiveTenantIsolationCallout } from "@/components/cto-demo/CtoDemoExecutiveTenantIsolationCallout";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import {
   buildStaticCtoDemoRecapPayload,
@@ -91,6 +92,7 @@ export function CtoDemoExecutiveAboveFold(props: CtoDemoExecutiveAboveFoldProps)
           CTO demo — executive summary
         </p>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">{headline}</h1>
+        <CtoDemoExecutiveTenantIsolationCallout />
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">

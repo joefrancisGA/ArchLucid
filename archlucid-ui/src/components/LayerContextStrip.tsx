@@ -116,6 +116,7 @@ export function LayerContextStrip({
                 className="shrink-0 text-sm font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100"
                 data-testid="layer-context-back-pilot"
                 href={stripBack.href}
+                prefetch
               >
                 {stripBack.label}
               </Link>
@@ -133,6 +134,7 @@ export function LayerContextStrip({
                   className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
                   data-testid="buyer-journey-prev"
                   href={buyerGoldenJourneyNav.prev.href}
+                  prefetch
                 >
                   ← {buyerGoldenJourneyNav.prev.label}
                 </Link>
@@ -148,6 +150,7 @@ export function LayerContextStrip({
                   className="shrink-0 font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-950 dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-50"
                   data-testid="buyer-journey-next"
                   href={buyerGoldenJourneyNav.next.href}
+                  prefetch
                 >
                   {buyerGoldenJourneyNav.next.label} →
                 </Link>
@@ -196,6 +199,7 @@ export function LayerContextStrip({
                         <Link
                           href={def.href}
                           title={def.chipTooltip}
+                          prefetch
                           className={cn(
                             "inline-flex min-h-7 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium no-underline transition hover:opacity-95",
                             chipClass,
@@ -247,6 +251,7 @@ export function LayerContextStrip({
             className="shrink-0 text-sm font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-2 transition hover:text-neutral-900 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-1 dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-100"
             data-testid="layer-context-back-pilot"
             href={stripBack.href}
+            prefetch
           >
             {stripBack.label}
           </Link>

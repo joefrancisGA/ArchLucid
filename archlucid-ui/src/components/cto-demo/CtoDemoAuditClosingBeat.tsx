@@ -1,12 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { CtoDemoLeaveBehindExportButton } from "@/components/cto-demo/CtoDemoLeaveBehindExportButton";
+import { CtoDemoShareSnapshotButton } from "@/components/cto-demo/CtoDemoShareSnapshotButton";
 import { Button } from "@/components/ui/button";
 import {
   buildStaticCtoDemoRecapPayload,
   formatCtoDemoRecapMarkdown,
 } from "@/lib/buyer-cto-demo-recap";
+import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import {
   BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING,
   BUYER_CTO_DEMO_AUDIT_CLOSING_SUBTEXT,
@@ -16,13 +19,23 @@ import {
 } from "@/lib/buyer-polish-copy";
 import { downloadFirstValueReportPdf } from "@/lib/api";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showError, showSuccess } from "@/lib/toast";
 
-/** Primary board-packet CTA at the end of audit step 5 — visible in the page body, not only the tour overlay. */
+/**
+ * Primary board-packet CTA at the end of audit step 5 — visible in the page body, not only the tour overlay.
+ * Renders when the presenter pack env is active OR when the CTO demo tour is active in buyer-polished mode,
+ * so the closing beat is always available during a live walkthrough regardless of env flag state.
+ */
 export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
   const [boardPacketBusy, setBoardPacketBusy] = useState(false);
   const [copyBusy, setCopyBusy] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    setVisible(isCtoDemoPackEnv() || (isBuyerPolishedOperatorShellEnv() && readBuyerCtoDemoTourActive()));
+  }, []);
 
   const markdown = useMemo(() => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -60,7 +73,7 @@ export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
     }
   }, [markdown]);
 
-  if (!isCtoDemoPackEnv()) {
+  if (!visible) {
     return null;
   }
 
@@ -97,6 +110,8 @@ export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
         >
           {BUYER_CTO_DEMO_RECAP_COPY_CTA}
         </Button>
+        <CtoDemoLeaveBehindExportButton />
+        <CtoDemoShareSnapshotButton />
       </div>
     </section>
   );

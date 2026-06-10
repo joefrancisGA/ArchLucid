@@ -12,6 +12,7 @@ import { ExecutiveReviewFirstViewport } from "@/components/executive/ExecutiveRe
 import { ExecutiveReviewHandoffActions } from "@/components/executive/ExecutiveReviewHandoffActions";
 import { CtoDemoReadOnlySnapshotBanner } from "@/components/cto-demo/CtoDemoReadOnlySnapshotBanner";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
+import { CtoDemoExecutiveTenantIsolationCallout } from "@/components/cto-demo/CtoDemoExecutiveTenantIsolationCallout";
 import {
   CtoDemoExecutiveAboveFold,
   CtoDemoFindingEvidenceLink,
@@ -174,6 +175,7 @@ export default async function ExecutiveReviewFindingsPage({
               {summary.riskPosture}
             </p>
           ) : null}
+          <CtoDemoExecutiveTenantIsolationCallout />
         </header>
       )}
 

@@ -137,9 +137,11 @@ def discover_controllers(controllers_dir: Path) -> list[ControllerSurface]:
 def parse_nav_hrefs(ui_nav_dir: Path) -> set[str]:
     hrefs: set[str] = set()
     for path in ui_nav_dir.glob("*nav-group-builder.ts"):
-        text = path.read_text(encoding="utf-8")
-        for m in re.finditer(r'href:\s*"([^"]+)"', text):
-            hrefs.add(m.group(1))
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if "href:" not in line:
+                continue
+            for m in re.finditer(r'"(/[^"]+)"', line):
+                hrefs.add(m.group(1))
     return hrefs
 
 

@@ -26,6 +26,7 @@ import {
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
+import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { SidebarNav } from "@/components/SidebarNav";
@@ -197,8 +198,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                     className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                   >
                     <SyncActiveRunFromPathname />
-                    <DemoStrictNavigationGate />
-                    <OperatorRoleGate>{children}</OperatorRoleGate>
+                    <DemoStrictNavigationGate>
+                      <OperatorRoleGate>{children}</OperatorRoleGate>
+                    </DemoStrictNavigationGate>
                   </main>
                 </KeyboardShortcutProvider>
               </div>
@@ -251,6 +253,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:ml-auto">
                   {!isBuyerPolishedOperatorShellEnv() ? <LlmBudgetStatusPill /> : null}
+                  <TenantWorkspaceBoundaryBadge variant="header" />
                   <AuthPanel />
                   <ScopeSwitcher />
                   <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
@@ -305,8 +308,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
                     <SyncActiveRunFromPathname />
-                    <DemoStrictNavigationGate />
-                    <OperatorRoleGate>{children}</OperatorRoleGate>
+                    <DemoStrictNavigationGate>
+                      <OperatorRoleGate>{children}</OperatorRoleGate>
+                    </DemoStrictNavigationGate>
                 </main>
               </KeyboardShortcutProvider>
             </div>

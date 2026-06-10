@@ -23,12 +23,14 @@ public sealed class ArchitectureFindingAskControllerIntegrationTests
         await using AlertLifecycleWebAppFactory factory = new();
         HttpClient client = factory.CreateClient();
         Guid findingId = Guid.NewGuid();
+        using CancellationTokenSource requestTimeout =
+            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             $"v1/architecture/finding/{findingId:D}/ask",
             new FindingAskRequest { Question = "   " },
             JsonOptions,
-            CancellationToken.None);
+            requestTimeout.Token);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

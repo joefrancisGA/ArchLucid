@@ -31,6 +31,12 @@ export const BUYER_CTO_DEMO_SPOTLIGHT_STORAGE_KEY = "archlucid.buyerCtoDemoTour.
 /** sessionStorage: selected vertical story id for presenter narrative. */
 export const BUYER_CTO_DEMO_STORY_STORAGE_KEY = "archlucid.buyerCtoDemoTour.storyId.v1";
 
+/** sessionStorage: overlay hidden so the CTO can drive ("hand the keyboard"). */
+export const BUYER_CTO_DEMO_EXPLORE_MODE_STORAGE_KEY = "archlucid.buyerCtoDemoTour.exploreMode.v1";
+
+/** sessionStorage: presenter-only layer visible in the tour overlay (default off = audience-safe). */
+export const BUYER_CTO_DEMO_PRESENTER_LAYER_STORAGE_KEY = "archlucid.buyerCtoDemoTour.presenterLayer.v1";
+
 /** `window` CustomEvent — spotlight mode toggled (tests, spotlight overlay). */
 export const ARCHLUCID_CTO_DEMO_SPOTLIGHT_CHANGED_EVENT = "archlucid-cto-demo-spotlight-changed";
 
@@ -302,6 +308,62 @@ export function writeBuyerCtoDemoStoryId(id: string): void {
   }
 }
 
+export function readBuyerCtoDemoExploreMode(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.sessionStorage.getItem(BUYER_CTO_DEMO_EXPLORE_MODE_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeBuyerCtoDemoExploreMode(on: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (on) {
+      window.sessionStorage.setItem(BUYER_CTO_DEMO_EXPLORE_MODE_STORAGE_KEY, "1");
+    } else {
+      window.sessionStorage.removeItem(BUYER_CTO_DEMO_EXPLORE_MODE_STORAGE_KEY);
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
+export function readCtoDemoPresenterLayerVisible(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.sessionStorage.getItem(BUYER_CTO_DEMO_PRESENTER_LAYER_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function writeCtoDemoPresenterLayerVisible(visible: boolean): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (visible) {
+      window.sessionStorage.setItem(BUYER_CTO_DEMO_PRESENTER_LAYER_STORAGE_KEY, "1");
+    } else {
+      window.sessionStorage.removeItem(BUYER_CTO_DEMO_PRESENTER_LAYER_STORAGE_KEY);
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
 /** Minutes remaining from the current step through the end of the 30-minute demo script. */
 export function buyerCtoDemoRemainingBudgetMinutes(stepIndex: number): number {
   const safeIndex = Math.max(0, Math.min(stepIndex, BUYER_CTO_DEMO_STEP_BUDGET_MINUTES.length - 1));
@@ -466,6 +528,45 @@ function inferSatellitePresenterIndex(journeyNav: NonNullable<ReturnType<typeof 
 
 export function getStartCtoDemoTourHref(): string {
   return appendBuyerCtoDemoTourStartQuery(BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[0].href);
+}
+
+/**
+ * Hard-resets all CTO demo tour state: localStorage active flag, autoplay, and all sessionStorage
+ * tour keys (collapsed, visited steps, notes prefs, spotlight, story selection).
+ * Use before starting a fresh audience or after a botched demo attempt.
+ */
+export function clearBuyerCtoDemoState(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const localKeys = [
+    BUYER_CTO_DEMO_TOUR_ACTIVE_STORAGE_KEY,
+    BUYER_CTO_DEMO_TOUR_AUTOPLAY_STORAGE_KEY,
+  ];
+
+  const sessionKeys = [
+    BUYER_CTO_DEMO_TOUR_COLLAPSED_STORAGE_KEY,
+    BUYER_CTO_DEMO_TOUR_NOTES_VISIBLE_STORAGE_KEY,
+    BUYER_CTO_DEMO_TOUR_NOTES_FULL_SCRIPT_STORAGE_KEY,
+    BUYER_CTO_DEMO_TOUR_VISITED_STEPS_STORAGE_KEY,
+    BUYER_CTO_DEMO_SPOTLIGHT_STORAGE_KEY,
+    BUYER_CTO_DEMO_STORY_STORAGE_KEY,
+    BUYER_CTO_DEMO_EXPLORE_MODE_STORAGE_KEY,
+    BUYER_CTO_DEMO_PRESENTER_LAYER_STORAGE_KEY,
+  ];
+
+  try {
+    for (const key of localKeys) {
+      window.localStorage.removeItem(key);
+    }
+
+    for (const key of sessionKeys) {
+      window.sessionStorage.removeItem(key);
+    }
+  } catch {
+    /* private mode — best effort */
+  }
 }
 
 /** Printable/downloadable 30-minute CTO demo run-of-show for presenters. */

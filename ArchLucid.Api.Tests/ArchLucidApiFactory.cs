@@ -114,8 +114,8 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
     {
         base.ConfigureClient(client);
 
-        // Align with ArchitectureRequestBurstHttpTimeout + lock/pipeline slack (see ArchitectureRequestConcurrencyTestSupport).
-        client.Timeout = TimeSpan.FromMinutes(65);
+        // Default integration HTTP ceiling; idempotency/greenfield factories raise per-test via AlignHttpClientTimeoutForSqlIdempotencyLockChain.
+        client.Timeout = TimeSpan.FromMinutes(5);
     }
 
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>

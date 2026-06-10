@@ -583,7 +583,8 @@ public sealed class DemoSeedService(
         string traceId, bool isHardened, CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string runId = authorityRunId.ToString("D");
+        // Contract/API run ids use "N" (see ContosoRetailDemoIds); InMemory agent repos match RunId with Ordinal string equality.
+        string runId = authorityRunId.ToString("N");
 
         if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null)
         {

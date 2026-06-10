@@ -1,26 +1,49 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CtoDemoLiveRunProgressRail } from "@/components/cto-demo/CtoDemoLiveRunProgressRail";
+import { CtoDemoLatencyBudgetIndicator } from "@/components/cto-demo/CtoDemoLatencyBudgetIndicator";
+import { CONTOSO_RETAIL_SAMPLE_BRIEF } from "@/app/(operator)/reviews/new/QuickReviewWizard";
+import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import {
   CTO_DEMO_FAST_CREATE_STAGE_LABELS,
   CTO_DEMO_FAST_CREATE_TOTAL_MS,
   ctoDemoFastCreateStageIndex,
   getCtoDemoFastCreateDestinationHref,
 } from "@/lib/cto-demo-fast-create";
-import { CtoDemoLatencyBudgetIndicator } from "@/components/cto-demo/CtoDemoLatencyBudgetIndicator";
-import { CONTOSO_RETAIL_SAMPLE_BRIEF } from "@/app/(operator)/reviews/new/QuickReviewWizard";
+import { findQuickReviewSampleBrief, QUICK_REVIEW_DEMO_DEFAULT_BRIEF_ID } from "@/lib/quick-review-sample-briefs";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
-/** Deterministic 15-second simulated create for CTO demos (#5). */
+function buildHealthcareLivePayload(): CreateArchitectureRunRequestPayload {
+  const sample = findQuickReviewSampleBrief(QUICK_REVIEW_DEMO_DEFAULT_BRIEF_ID);
+  const description = sample?.brief ?? CONTOSO_RETAIL_SAMPLE_BRIEF;
+
+  return {
+    requestId: crypto.randomUUID().replace(/-/g, ""),
+    description: description.trim(),
+    systemName: "Claims Intake Modernization",
+    environment: "staging",
+    cloudProvider: "Azure",
+    constraints: [],
+    requiredCapabilities: [],
+    assumptions: [],
+  };
+}
+
+/** Deterministic simulated create plus optional live API path for CTO demos. */
 export function CtoDemoFastCreatePanel(): ReactElement {
   const router = useRouter();
   const [running, setRunning] = useState(false);
+  const [liveRunActive, setLiveRunActive] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
   const startedAtRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
+  const livePayload = useMemo(() => buildHealthcareLivePayload(), []);
 
   const stopAnimation = useCallback(() => {
     if (frameRef.current !== null) {
@@ -36,7 +59,7 @@ export function CtoDemoFastCreatePanel(): ReactElement {
   }, [stopAnimation]);
 
   const startFastCreate = () => {
-    if (running) {
+    if (running || liveRunActive) {
       return;
     }
 
@@ -67,6 +90,14 @@ export function CtoDemoFastCreatePanel(): ReactElement {
     frameRef.current = requestAnimationFrame(tick);
   };
 
+  const startLiveRun = () => {
+    if (running || liveRunActive) {
+      return;
+    }
+
+    setLiveRunActive(true);
+  };
+
   const stageIndex = ctoDemoFastCreateStageIndex(elapsedMs);
   const progressPercent = Math.min(100, Math.round((elapsedMs / CTO_DEMO_FAST_CREATE_TOTAL_MS) * 100));
 
@@ -75,18 +106,20 @@ export function CtoDemoFastCreatePanel(): ReactElement {
       <CardHeader className="pb-2">
         <CardTitle className="text-base">Live create (demo)</CardTitle>
         <CardDescription>
-          One click loads the Contoso sample and lands on a finalized review in about fifteen seconds — no API wait.
+          Simulator path lands on the showcase in ~15s. Live path uses your Azure OpenAI deployment with the same pipeline.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="m-0 line-clamp-2 text-xs text-neutral-600 dark:text-neutral-400">{CONTOSO_RETAIL_SAMPLE_BRIEF}</p>
-        {running ? (
+        {liveRunActive ? (
+          <>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.badge, "text-neutral-600 dark:text-neutral-400")}>
+              Live mode uses Azure OpenAI — the same pipeline as a real review, triggered now.
+            </p>
+            <CtoDemoLiveRunProgressRail payload={livePayload} />
+          </>
+        ) : running ? (
           <div className="space-y-2" aria-live="polite">
-            <CtoDemoLatencyBudgetIndicator
-              running={running}
-              budgetMs={CTO_DEMO_FAST_CREATE_TOTAL_MS}
-              elapsedMs={elapsedMs}
-            />
+            <CtoDemoLatencyBudgetIndicator running={running} budgetMs={CTO_DEMO_FAST_CREATE_TOTAL_MS} elapsedMs={elapsedMs} />
             <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
               <div
                 className="h-full rounded-full bg-teal-600 transition-[width] duration-150 dark:bg-teal-500"
@@ -94,14 +127,17 @@ export function CtoDemoFastCreatePanel(): ReactElement {
                 data-testid="cto-demo-fast-create-progress"
               />
             </div>
-            <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">
-              {CTO_DEMO_FAST_CREATE_STAGE_LABELS[stageIndex]}
-            </p>
+            <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200">{CTO_DEMO_FAST_CREATE_STAGE_LABELS[stageIndex]}</p>
           </div>
         ) : (
-          <Button type="button" onClick={startFastCreate} data-testid="cto-demo-fast-create-start">
-            Start live create (Contoso sample)
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" onClick={startFastCreate} data-testid="cto-demo-fast-create-start">
+              Start simulator create
+            </Button>
+            <Button type="button" variant="outline" onClick={startLiveRun} data-testid="cto-demo-try-it-live">
+              Try it live (not simulated)
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>
