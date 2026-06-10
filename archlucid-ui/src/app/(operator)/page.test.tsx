@@ -69,6 +69,14 @@ vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/cto-demo/CtoDemoResetButton", () => ({
+  CtoDemoResetButton: () => (
+    <button type="button" data-testid="cto-demo-reset-button-mock">
+      Reset demo
+    </button>
+  ),
+}));
+
 import HomePage from "./page";
 
 afterEach(() => {
