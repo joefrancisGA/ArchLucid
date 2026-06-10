@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -33,12 +34,11 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         + TimeSpan.FromMinutes(85);
 
     /// <summary>
-    ///     Reserved for <see cref="ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync" />
-    ///     after the parallel burst so a burst that consumes most of <see cref="ParallelCreateRunHangGuard" /> does not
-    ///     cancel resolution with an already-fired token. Run 27246641656 exhausted a 20-min resolution budget while slot 0
-    ///     was still replaying 503s (~40 min total); 40 min matches one full greenfield per-POST ceiling plus backoff.
+    ///     Minimum wall clock reserved for <see cref="ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync" />
+    ///     when the burst consumes its cap. Run 27246641656 hit a fixed 20-min resolution ceiling while slot 0 was still
+    ///     replaying 503s (~40 min total); resolution must use remaining outer hang-guard time when the burst finishes early.
     /// </summary>
-    private static readonly TimeSpan ParallelCreateRunResolutionReserve = TimeSpan.FromMinutes(40);
+    private static readonly TimeSpan ParallelCreateRunResolutionReserve = TimeSpan.FromMinutes(20);
 
     /// <summary>
     ///     Burst-phase budget only (parallel POST + transient 503 retries). Must stay within
@@ -48,11 +48,12 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         ParallelCreateRunHangGuard - ParallelCreateRunResolutionReserve;
 
     /// <summary>
-    ///     Per-resolution-phase budget for replaying 503 slots after the burst. Uses the full
-    ///     <see cref="ParallelCreateRunResolutionReserve" /> so resolution is not capped at 20 min while the outer hang
-    ///     guard still has headroom.
+    ///     Minimum resolution budget when the burst runs long (one greenfield per-POST ceiling + backoff headroom). Not the
+    ///     maximum when the burst finishes early — see <see cref="ComputeRemainingParallelCreateRunResolutionBudget" />.
     /// </summary>
-    private static readonly TimeSpan ParallelCreateRunResolutionGuard = ParallelCreateRunResolutionReserve;
+    private static readonly TimeSpan ParallelCreateRunResolutionGuard =
+        ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout
+        + TimeSpan.FromMinutes(5);
 
     private const string SqlUnavailable =
         "API greenfield SQL tests need SQL Server. Set "
@@ -85,22 +86,16 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             client,
             ParallelCreateRunHangGuard);
 
-        try
-        {
-            // Readiness + list-runs only: post-create-run warm competes with the parallel idempotency burst and can
-            // exhaust GreenfieldSqlHostBootstrapBudget on cold CI SQL before the test hang guard starts.
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                client,
-                includePostCreateRunWarmup: false);
-        }
-        catch (WarmupTimedOutException)
-        {
-            Skip.If(true, GreenfieldSqlIntegrationWarmup.ShardOverloadSkipReason);
-        }
+        // Readiness + list-runs only: post-create-run warm competes with the parallel idempotency burst and can
+        // exhaust GreenfieldSqlHostBootstrapBudget on cold CI SQL before the test hang guard starts.
+        await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+            client,
+            includePostCreateRunWarmup: false);
 
         using CancellationTokenSource hangGuard = new();
         hangGuard.CancelAfter(ParallelCreateRunHangGuard);
         CancellationToken ct = hangGuard.Token;
+        Stopwatch hangGuardStopwatch = Stopwatch.StartNew();
 
         string idempotencyKey = "idem-conc-" + Guid.NewGuid().ToString("N");
         string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
@@ -125,9 +120,12 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
                     ParallelCreateRunBurstPhaseGuard);
         }
 
-        using (CancellationTokenSource resolutionPhaseGuard = CancellationTokenSource.CreateLinkedTokenSource(ct))
+        try
         {
-            resolutionPhaseGuard.CancelAfter(ParallelCreateRunResolutionGuard);
+            using CancellationTokenSource resolutionPhaseGuard = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            TimeSpan resolutionBudget =
+                ComputeRemainingParallelCreateRunResolutionBudget(hangGuardStopwatch.Elapsed);
+            resolutionPhaseGuard.CancelAfter(resolutionBudget);
 
             responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
                 client,
@@ -136,6 +134,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
                 responses,
                 25,
                 resolutionPhaseGuard.Token);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            GreenfieldSqlIntegrationWarmup.SkipShardOverload();
         }
 
         try
@@ -165,6 +167,20 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 
         int authorityRunCount = await CountRunsWithRequestIdAsync(connection, requestId, ct);
         authorityRunCount.Should().Be(1);
+    }
+
+    /// <summary>
+    ///     Resolution may consume all remaining outer hang-guard time after a short burst; when the burst runs long,
+    ///     <see cref="ParallelCreateRunBurstPhaseGuard" /> guarantees at least <see cref="ParallelCreateRunResolutionReserve" />.
+    /// </summary>
+    private static TimeSpan ComputeRemainingParallelCreateRunResolutionBudget(TimeSpan elapsedSinceHangGuardStart)
+    {
+        TimeSpan remaining = ParallelCreateRunHangGuard - elapsedSinceHangGuardStart;
+
+        if (remaining <= TimeSpan.Zero)
+            return TimeSpan.Zero;
+
+        return remaining;
     }
 
     private static async Task<int> CountRunsWithRequestIdAsync(SqlConnection connection, string requestId,
