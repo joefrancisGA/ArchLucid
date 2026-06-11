@@ -76,7 +76,7 @@ export async function buildArchLucidAzurePackageZipFromFileList(
     };
   }
 
-  const zipFile = new File([zipBytes], "azure-package-folder.zip", { type: "application/zip" });
+  const zipFile = new File([Uint8Array.from(zipBytes)], "azure-package-folder.zip", { type: "application/zip" });
 
   return { ok: true, zipFile, fileStatuses };
 }
