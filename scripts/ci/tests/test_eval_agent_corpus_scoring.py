@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import pytest
 
@@ -34,13 +35,45 @@ def _golden_valid_path(repo_root: Path) -> Path:
 def _del_eval_corpus_real_mode_agent_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Clear env vars referenced by tests/eval-corpus real-mode qualityEvidence rows."""
 
-    for name in (
-        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT",
-        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT",
-        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT",
-        "ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT",
-    ):
-        monkeypatch.delenv(name, raising=False)
+    prefix = "ARCHLUCID_EVAL_CORPUS_REAL_MODE_"
+    for name in list(os.environ):
+        if name.startswith(prefix):
+            monkeypatch.delenv(name, raising=False)
+
+
+def _disable_committed_real_mode_fixtures(monkeypatch: pytest.MonkeyPatch, mod: Any) -> None:
+    """Force env-unset real rows to skip (no agent-results/*.real.json fallback)."""
+
+    original = mod.evaluate_quality_evidence_block
+
+    def _evaluate_without_committed_fixture(
+        corpus_root: Path,
+        scenario_id: str,
+        qe: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        if str(qe.get("mode") or "").strip().lower() != "real":
+            return original(corpus_root, scenario_id, qe)
+
+        raw_env = qe.get("agentResultPathEnv")
+        env_key = raw_env.strip() if isinstance(raw_env, str) else ""
+        raw_path = str(os.environ.get(env_key, "") or "").strip() if env_key else ""
+
+        if raw_path == "":
+            fixture = (corpus_root / "agent-results" / f"{scenario_id}.real.json").resolve()
+
+            if fixture.is_file():
+                return {
+                    "scenario_id": scenario_id,
+                    "mode": "real",
+                    "agent_type": str(qe.get("agentType") or "").strip() or "(unspecified)",
+                    "skipped": True,
+                    "evidence_env": env_key,
+                    "reason": "committed fixture fallback disabled for test",
+                }
+
+        return original(corpus_root, scenario_id, qe)
+
+    monkeypatch.setattr(mod, "evaluate_quality_evidence_block", _evaluate_without_committed_fixture)
 
 
 def test_score_committed_agent_result_matches_golden_valid_shape():
@@ -178,12 +211,33 @@ def test_main_default_no_real_require_exits_zero_when_real_skipped(monkeypatch):
     assert mod.main() == 0
 
 
-def test_main_require_real_mode_fails_when_env_missing(monkeypatch):
+def test_main_require_real_mode_passes_when_committed_fixtures_exist_without_env(monkeypatch):
     mod = _load_eval_agent_corpus()
     repo = Path(__file__).resolve().parents[3]
     corpus = repo / "tests" / "eval-corpus"
 
     _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "eval_agent_corpus.py",
+            "--corpus",
+            str(corpus),
+            "--require-real-mode-evidence",
+        ],
+    )
+
+    assert mod.main() == 0
+
+
+def test_main_require_real_mode_fails_when_env_missing_and_no_committed_fixtures(monkeypatch):
+    mod = _load_eval_agent_corpus()
+    repo = Path(__file__).resolve().parents[3]
+    corpus = repo / "tests" / "eval-corpus"
+
+    _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    _disable_committed_real_mode_fixtures(monkeypatch, mod)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -255,6 +309,7 @@ def test_main_enforce_real_quality_gate_ignored_when_real_rows_skip(monkeypatch)
     corpus = repo / "tests" / "eval-corpus"
 
     _del_eval_corpus_real_mode_agent_env(monkeypatch)
+    _disable_committed_real_mode_fixtures(monkeypatch, mod)
     monkeypatch.setitem(mod._DEFAULT_GATE, "structural_reject_below", 10.0)
     monkeypatch.setattr(mod, "_attach_expected_outcome", lambda row, *args: None)
     monkeypatch.setattr(

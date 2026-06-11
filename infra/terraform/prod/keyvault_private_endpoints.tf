@@ -16,9 +16,9 @@ resource "azurerm_private_endpoint" "key_vault" {
 }
 
 resource "azurerm_role_assignment" "key_vault_secrets_user" {
-  count = var.key_vault_name != null && var.workload_identity_principal_id != null ? 1 : 0
+  for_each = var.key_vault_name != null ? toset(local.workload_principal_ids_unified) : toset([])
 
   scope                = data.azurerm_key_vault.existing[0].id
   role_definition_name = "Key Vault Secrets User"
-  principal_id         = var.workload_identity_principal_id
+  principal_id         = each.value
 }
