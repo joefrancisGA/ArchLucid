@@ -27,7 +27,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     const trimmedReason = reason.trim();
 
     if (trimmedReason.length === 0) {
-      showError("Governance", "Enter a shared reason before applying a bulk disposition.");
+      showError("Enter a shared reason before applying a bulk disposition.");
 
       return;
     }
@@ -37,7 +37,6 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     try {
       // Bulk disposition API wiring is tenant-scoped; UI records intent and refreshes the queue.
       showSuccess(
-        "Governance",
         `Marked ${props.selectedFindingIds.length} finding(s) as ${disposition.toLowerCase()} — refresh the queue to confirm.`,
       );
       props.onApplied();
