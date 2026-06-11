@@ -52,6 +52,18 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
+        (bundle / "release-smoke-live-ui-sql-result.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.release-smoke-live-ui-sql-result.v1",
+                    "profile": "LiveUiSql",
+                    "status": "PASS",
+                    "generatedUtc": "2026-06-07T00:00:00+00:00",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         return bundle
 
     def test_strict_rc_fails_when_blocking_lane_missing(self) -> None:
@@ -75,6 +87,31 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
         payload = json.loads(json_out.read_text(encoding="utf-8"))
         self.assertEqual(payload["strictDisposition"], "HOLD")
         self.assertTrue(len(payload["strictBlockingReasons"]) > 0)
+
+    def test_strict_rc_fails_when_live_ui_sql_parity_missing(self) -> None:
+        bundle = self._bundle_from_pass_fixture()
+        (bundle / "release-smoke-live-ui-sql-result.json").unlink()
+        json_out = self.temp_dir / "rollup-missing-live.json"
+        md_out = self.temp_dir / "rollup-missing-live.md"
+        result = run_py(
+            "build_release_confidence_rollup.py",
+            "--repo-root",
+            str(self.temp_dir),
+            "--bundle-dir",
+            str(bundle),
+            "--json-out",
+            str(json_out),
+            "--markdown-out",
+            str(md_out),
+            "--strict-rc",
+        )
+        payload = json.loads(json_out.read_text(encoding="utf-8"))
+        self.assertEqual(payload["strictDisposition"], "HOLD")
+        self.assertTrue(
+            any("Live UI-SQL parity" in reason for reason in payload["strictBlockingReasons"]),
+            msg=payload["strictBlockingReasons"],
+        )
+        self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
 
     def test_strict_rc_passes_with_complete_fixture(self) -> None:
         bundle = self._bundle_from_pass_fixture()

@@ -61,6 +61,7 @@ describe("RunTrustEvidenceCardSection", () => {
     const proofChain = screen.getByTestId("evidence-to-manifest-audit-proof-chain");
 
     expect(proofChain).toBeInTheDocument();
+    expect(screen.getByText("Proof confidence")).toBeInTheDocument();
     expect(screen.getByText(/Evidence → finding → manifest → artifact → audit proof chain/i)).toBeInTheDocument();
     expect(screen.getByText(/stronger than a free-form AI answer/i)).toBeInTheDocument();
     expect(within(proofChain).getByRole("link", { name: "Evidence package" })).toHaveAttribute(

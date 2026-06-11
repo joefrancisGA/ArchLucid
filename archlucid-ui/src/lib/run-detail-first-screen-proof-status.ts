@@ -1,4 +1,5 @@
 import { operatorSemanticSurface } from "@/lib/design-tokens";
+import { formatProofConfidenceLabel } from "@/lib/proof-confidence-taxonomy";
 import { describeSponsorProofReadiness, isAgentOutputPilotStrictSponsorSafe, isProjectedDollarClaimsSponsorSafe, type PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
 
 export type RunDetailFirstScreenProofDisposition = "READY" | "WARN" | "HOLD";
@@ -7,6 +8,7 @@ export type RunDetailFirstScreenProofSummary = {
   readonly disposition: RunDetailFirstScreenProofDisposition;
   readonly cardTitle: string;
   readonly whySafeToSendBullets: readonly string[];
+  readonly proofConfidenceLabel: string;
   readonly executionModeLabel: string;
   readonly pilotStrictLabel: string;
   readonly roiBasisLabel: string;
@@ -164,10 +166,21 @@ export function buildRunDetailFirstScreenProofSummary(
     detailParts.push(readiness.detail);
   }
 
+  const extendedPayload = payload as {
+    structuralExecutionMode?: string | number;
+    realModeFellBackToSimulator?: boolean;
+    claimWordingClass?: string;
+  } | null;
+
   return {
     disposition,
     cardTitle: buildCardTitle(disposition),
     whySafeToSendBullets: buildWhySafeToSendBullets(payload, disposition, strictSafe, roiLabel, simulatorFallback),
+    proofConfidenceLabel: formatProofConfidenceLabel({
+      structuralExecutionMode: extendedPayload?.structuralExecutionMode,
+      realModeFellBackToSimulator: extendedPayload?.realModeFellBackToSimulator,
+      claimWordingClass: extendedPayload?.claimWordingClass,
+    }),
     executionModeLabel: structuralExecutionModeLabel(payload),
     pilotStrictLabel: pilotStrictLabel(payload),
     roiBasisLabel: roiLabel,

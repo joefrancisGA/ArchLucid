@@ -40,6 +40,9 @@ jobs:
       - name: Buyer-facing canonical claim drift (blocking)
         run: python scripts/ci/check_buyer_claim_drift.py
 
+      - name: Proof-confidence taxonomy drift (blocking)
+        run: python scripts/ci/check_proof_confidence_taxonomy_drift.py
+
       - name: Public pricing placeholder hard guard (blocking)
         run: python scripts/ci/assert_public_pricing_placeholder_guard.py
 
@@ -79,6 +82,7 @@ jobs:
       - name: Release evidence gate unit tests
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_release_evidence*.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_check_proof_confidence_taxonomy_drift.py"
           python -m unittest discover -s scripts/ci/tests -p "test_emit_real_model_canary_gate.py"
 
       - name: Strict RC rollup self-test (empty bundle must fail)

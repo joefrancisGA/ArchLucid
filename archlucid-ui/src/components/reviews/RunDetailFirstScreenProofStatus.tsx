@@ -1,5 +1,6 @@
 import type { RunDetailFirstScreenProofSummary } from "@/lib/run-detail-first-screen-proof-status";
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/run-detail-first-screen-proof-status";
+import { PROOF_CONFIDENCE_FIELD_LABEL } from "@/lib/proof-confidence-taxonomy";
 
 type RunDetailFirstScreenProofStatusProps = {
   readonly summary: RunDetailFirstScreenProofSummary;
@@ -29,6 +30,10 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
       </ul>
 
       <dl className="m-0 mt-3 grid gap-2 text-sm sm:grid-cols-2">
+        <div>
+          <dt className="font-semibold">{PROOF_CONFIDENCE_FIELD_LABEL}</dt>
+          <dd className="m-0">{summary.proofConfidenceLabel}</dd>
+        </div>
         <div>
           <dt className="font-semibold">Execution mode</dt>
           <dd className="m-0">{summary.executionModeLabel}</dd>

@@ -17,6 +17,7 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
 
     expect(summary.disposition).toBe("READY");
     expect(summary.cardTitle).toBe("Why this is safe to send");
+    expect(summary.proofConfidenceLabel).toBe("Real-mode verified");
     expect(summary.whySafeToSendBullets.length).toBeGreaterThan(0);
   });
 
