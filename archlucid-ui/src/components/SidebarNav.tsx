@@ -542,6 +542,8 @@ export function SidebarNav() {
 
   const adminNavRows = filterClustersByPreset(adminNavRowsRaw);
   const operateUnlockPhase = mounted ? readOperateNavUnlockPhase() : 2;
+  // Full progressive disclosure ("Show all features") opts into governance cluster links without a separate unlock click.
+  const effectiveOperateUnlockPhase = navExpanded && navAdvanced ? 2 : operateUnlockPhase;
 
   function renderNavCluster({ group, visibleLinks }: NavGroupWithVisibleLinks): ReactElement {
         const linksAfterDemoFilter =
@@ -552,7 +554,7 @@ export function SidebarNav() {
         const linksForRender = filterNavLinksByOperateUnlockPhase(
           linksAfterDemoFilter,
           hasCommittedArchitectureReview,
-          operateUnlockPhase,
+          effectiveOperateUnlockPhase,
         );
 
         const isOpen = !mounted || openByGroup[group.id] !== false;
@@ -724,7 +726,12 @@ export function SidebarNav() {
     return (
       <span className="flex min-w-0 flex-col">
         <span>{presented.label}</span>
-        <span className="text-[10px] font-normal leading-tight text-neutral-500 dark:text-neutral-400">{subtitle}</span>
+        <span
+          aria-hidden="true"
+          className="text-[10px] font-normal leading-tight text-neutral-500 dark:text-neutral-400"
+        >
+          {subtitle}
+        </span>
       </span>
     );
   }

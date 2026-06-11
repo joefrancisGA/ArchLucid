@@ -71,7 +71,7 @@ export function filterNavLinksByOperateUnlockPhase<T extends { href: string }>(
   hasCommittedArchitectureReview: boolean,
   unlockPhase: OperateNavUnlockPhase,
 ): T[] {
-  let filtered = links.filter((link) => !NAV_CONSOLIDATED_OMIT_HREFS.has(link.href.split("?")[0] ?? ""));
+  const filtered = links.filter((link) => !NAV_CONSOLIDATED_OMIT_HREFS.has(link.href.split("?")[0] ?? ""));
 
   if (!hasCommittedArchitectureReview) {
     return filtered;

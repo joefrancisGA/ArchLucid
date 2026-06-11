@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -58,12 +59,12 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
             />
           </label>
         </Button>
-        <a
+        <Link
           href="/help/evidence-intake"
           className="text-xs font-medium text-teal-800 underline dark:text-teal-300"
         >
           Evidence intake guide
-        </a>
+        </Link>
       </div>
       {fileNames.length > 0 ? (
         <ul className="m-0 mt-2 list-disc pl-5 text-xs text-neutral-700 dark:text-neutral-300">
