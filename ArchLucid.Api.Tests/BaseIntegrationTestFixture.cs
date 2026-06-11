@@ -183,27 +183,6 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
     }
 
     /// <inheritdoc />
-    protected override async ValueTask DisposeAsyncCore()
-    {
-        Task disposeTask = base.DisposeAsyncCore().AsTask();
-
-        if (await Task.WhenAny(disposeTask, Task.Delay(IntegrationTestHttpCancellation.DefaultRequestTimeout))
-                .ConfigureAwait(false) == disposeTask)
-        {
-            await disposeTask.ConfigureAwait(false);
-
-            return;
-        }
-
-        // A wedged IHostedService can ignore HostOptions.ShutdownTimeout; do not burn the CI blame-hang budget.
-        Console.Error.WriteLine(
-            nameof(BaseIntegrationTestFixture)
-            + ".DisposeAsync exceeded "
-            + IntegrationTestHttpCancellation.DefaultRequestTimeout
-            + "; a hosted service may be ignoring HostOptions.ShutdownTimeout.");
-    }
-
-    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
         if (disposing)
