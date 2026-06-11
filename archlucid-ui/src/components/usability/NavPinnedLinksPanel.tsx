@@ -71,24 +71,23 @@ export function NavPinnedLinksPanel() {
       ) : (
         <ul className="m-0 list-none space-y-0.5 p-0">
           {pinned.map((row) => (
-            <li key={row.href}>
+            <li key={row.href} className="flex items-center gap-1 rounded px-1 hover:bg-neutral-100 dark:hover:bg-neutral-900">
               <Link
                 href={row.href}
-                className="flex items-center justify-between rounded px-2 py-1 text-sm text-neutral-800 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                className="min-w-0 flex-1 truncate rounded px-1 py-1 text-sm text-neutral-800 dark:text-neutral-200"
               >
-                <span className="truncate">{row.label}</span>
-                <button
-                  type="button"
-                  className="ml-2 shrink-0 rounded p-0.5 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
-                  aria-label={`Unpin ${row.label}`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    unpin(row.href);
-                  }}
-                >
-                  <PinOff className="h-3.5 w-3.5" aria-hidden />
-                </button>
+                {row.label}
               </Link>
+              <button
+                type="button"
+                className="shrink-0 rounded p-1 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+                aria-label={`Unpin ${row.label}`}
+                onClick={() => {
+                  unpin(row.href);
+                }}
+              >
+                <PinOff className="h-3.5 w-3.5" aria-hidden />
+              </button>
             </li>
           ))}
         </ul>

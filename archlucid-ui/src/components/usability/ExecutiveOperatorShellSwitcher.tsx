@@ -23,26 +23,22 @@ export function ExecutiveOperatorShellSwitcher() {
         size="sm"
         variant={inExecutive ? "outline" : "default"}
         className={cn("h-7 px-2.5", !inExecutive && "shadow-none")}
-        asChild={!inExecutive}
+        asChild
       >
-        {inExecutive ? (
-          <Link href="/">Operator</Link>
-        ) : (
-          <span>Operator</span>
-        )}
+        <Link href="/" aria-current={inExecutive ? undefined : "page"}>
+          Operator
+        </Link>
       </Button>
       <Button
         type="button"
         size="sm"
         variant={inExecutive ? "default" : "outline"}
         className={cn("h-7 px-2.5", inExecutive && "shadow-none")}
-        asChild={inExecutive}
+        asChild
       >
-        {inExecutive ? (
-          <span>Executive</span>
-        ) : (
-          <Link href="/executive/dashboard">Executive</Link>
-        )}
+        <Link href="/executive/dashboard" aria-current={inExecutive ? "page" : undefined}>
+          Executive
+        </Link>
       </Button>
     </div>
   );
