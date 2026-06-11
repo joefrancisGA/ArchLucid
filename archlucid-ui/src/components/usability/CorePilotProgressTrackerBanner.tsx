@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import {
-  FIRST_VALUE_MINUTES_ESTIMATE,
-  readCorePilotProgressSnapshot,
+  getCorePilotChecklistStorageServerSnapshot,
+  getCorePilotChecklistStorageSnapshot,
   subscribeCorePilotChecklist,
+} from "@/lib/core-pilot-checklist-storage";
+import {
+  FIRST_VALUE_MINUTES_ESTIMATE,
+  parseCorePilotProgressFromSnapshot,
 } from "@/lib/usability/core-pilot-progress-tracker";
-import { getCorePilotChecklistStorageSnapshot } from "@/lib/core-pilot-checklist-storage";
 import { cn } from "@/lib/utils";
 
 type CorePilotProgressTrackerBannerProps = {
@@ -18,24 +21,29 @@ type CorePilotProgressTrackerBannerProps = {
   readonly compact?: boolean;
 };
 
-function getServerSnapshot(): string {
-  return "";
-}
-
 /**
  * Cross-page "5 steps to first proof" tracker with time-to-value estimate.
  * Reads the same localStorage keys as {@link CorePilotChecklist}.
+ *
+ * Defers render until client hydration (localStorage is unavailable on SSR).
  */
 export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBannerProps) {
-  const snapshot = useSyncExternalStore(
+  const [hydrated, setHydrated] = useState(false);
+  const storageSnapshot = useSyncExternalStore(
     subscribeCorePilotChecklist,
-    () => getCorePilotChecklistStorageSnapshot(),
-    getServerSnapshot,
+    getCorePilotChecklistStorageSnapshot,
+    getCorePilotChecklistStorageServerSnapshot,
   );
 
-  void snapshot;
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
-  const progress = readCorePilotProgressSnapshot();
+  if (!hydrated) {
+    return null;
+  }
+
+  const progress = parseCorePilotProgressFromSnapshot(storageSnapshot);
 
   if (progress.allDone) {
     return null;
@@ -44,7 +52,10 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
   const nextStep =
     progress.nextStepIndex !== null ? CORE_PILOT_STEPS[progress.nextStepIndex] : null;
   const remainingSteps = progress.totalCount - progress.completedCount;
-  const estimatedMinutes = Math.max(5, Math.round((remainingSteps / progress.totalCount) * FIRST_VALUE_MINUTES_ESTIMATE));
+  const estimatedMinutes = Math.max(
+    5,
+    Math.round((remainingSteps / progress.totalCount) * FIRST_VALUE_MINUTES_ESTIMATE),
+  );
 
   return (
     <div
@@ -81,8 +92,7 @@ export function CorePilotProgressTrackerBanner(props: CorePilotProgressTrackerBa
       {!props.compact ? (
         <ol className="m-0 mt-3 flex list-none flex-wrap gap-2 p-0" aria-label="Core pilot steps">
           {CORE_PILOT_STEPS.map((step, index) => {
-            const snapshot = getCorePilotChecklistStorageSnapshot();
-            const done = snapshot[index] === "1";
+            const done = storageSnapshot[index] === "1";
 
             return (
               <li

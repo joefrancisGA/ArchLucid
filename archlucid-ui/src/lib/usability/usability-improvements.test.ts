@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { detectStalledReview, STALLED_REVIEW_THRESHOLD_MS } from "@/lib/usability/stalled-review-detection";
-import { readCorePilotProgressSnapshot } from "@/lib/usability/core-pilot-progress-tracker";
+import {
+  parseCorePilotProgressFromSnapshot,
+  readCorePilotProgressSnapshot,
+} from "@/lib/usability/core-pilot-progress-tracker";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -25,6 +28,20 @@ describe("usability improvements", () => {
     const snapshot = readCorePilotProgressSnapshot();
 
     expect(snapshot.totalCount).toBe(5);
+  });
+
+  it("parseCorePilotProgressFromSnapshot treats empty server snapshot as zero complete", () => {
+    const snapshot = parseCorePilotProgressFromSnapshot("");
+
+    expect(snapshot.completedCount).toBe(0);
+    expect(snapshot.nextStepIndex).toBe(0);
+  });
+
+  it("parseCorePilotProgressFromSnapshot counts completed flags", () => {
+    const snapshot = parseCorePilotProgressFromSnapshot("11000");
+
+    expect(snapshot.completedCount).toBe(2);
+    expect(snapshot.nextStepIndex).toBe(2);
   });
 
   it("routeViewExplanationForPathname covers graph", () => {

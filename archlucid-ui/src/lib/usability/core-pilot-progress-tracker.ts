@@ -16,8 +16,8 @@ export type CorePilotProgressSnapshot = {
   readonly allDone: boolean;
 };
 
-export function readCorePilotProgressSnapshot(): CorePilotProgressSnapshot {
-  const snapshot = getCorePilotChecklistStorageSnapshot();
+/** Pure parser for {@link getCorePilotChecklistStorageSnapshot} — safe for SSR/hydration when snapshot is the server fallback. */
+export function parseCorePilotProgressFromSnapshot(snapshot: string): CorePilotProgressSnapshot {
   let completedCount = 0;
 
   for (let index = 0; index < CORE_PILOT_STEP_COUNT; index++) {
@@ -41,6 +41,10 @@ export function readCorePilotProgressSnapshot(): CorePilotProgressSnapshot {
     nextStepIndex,
     allDone: completedCount >= CORE_PILOT_STEP_COUNT,
   };
+}
+
+export function readCorePilotProgressSnapshot(): CorePilotProgressSnapshot {
+  return parseCorePilotProgressFromSnapshot(getCorePilotChecklistStorageSnapshot());
 }
 
 export function markCorePilotStepSkipped(index: number): void {
