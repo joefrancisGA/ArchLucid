@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
+import { ExtractUploadConstraintsPanel } from "@/components/usability/ExtractUploadConstraintsPanel";
+import { ExtractUploadFileProgressList } from "@/components/usability/ExtractUploadFileProgressList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -12,6 +14,7 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
+import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
 import { readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
@@ -35,6 +38,7 @@ export function ExtractUploadSettingsPageClient() {
     correlationId: string | null;
   } | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
+  const [fileStatuses, setFileStatuses] = useState<FolderPackageFileStatus[]>([]);
   const [extractorUpdateBanner, setExtractorUpdateBanner] = useState<string | null>(null);
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
 
@@ -78,6 +82,29 @@ export function ExtractUploadSettingsPageClient() {
       cancelled = true;
     };
   }, []);
+
+  async function onFolderSelected(files: FileList): Promise<void> {
+    setUploadError(null);
+    setPackageId(null);
+    setFileStatuses([]);
+
+    const built = await buildArchLucidAzurePackageZipFromFileList(files);
+    setFileStatuses(built.fileStatuses);
+
+    if (!built.ok) {
+      setUploadError({
+        message: built.message,
+        problem: null,
+        correlationId: null,
+      });
+      showError("Azure upload", built.message);
+
+      return;
+    }
+
+    setSelectedFileLabel(`${built.zipFile.name} (folder packaged)`);
+    await onUpload(built.zipFile);
+  }
 
   async function onZipSelected(file: File): Promise<void> {
     setUploadError(null);
@@ -157,6 +184,8 @@ export function ExtractUploadSettingsPageClient() {
         </p>
       </div>
 
+      <ExtractUploadConstraintsPanel />
+
       {extractorUpdateBanner ? (
         <div
           className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 px-4 py-3 text-sm"
@@ -228,7 +257,9 @@ export function ExtractUploadSettingsPageClient() {
               ) : null
             }
             onZipSelected={onZipSelected}
+            onFolderSelected={onFolderSelected}
           />
+          <ExtractUploadFileProgressList fileStatuses={fileStatuses} />
           {uploadError !== null ? (
             <AzureExtractorUploadFailureCallout
               fallbackMessage={uploadError.message}

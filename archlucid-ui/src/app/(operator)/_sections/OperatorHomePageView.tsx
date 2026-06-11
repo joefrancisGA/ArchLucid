@@ -3,10 +3,10 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
 import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
+import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
+import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
 import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
 import { ReviewsAwaitingActionCard } from "@/components/governance/ReviewsAwaitingActionCard";
-import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
-import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
 import { OperatorHomeGuidanceLinks } from "@/components/operator-home/OperatorHomeGuidanceLinks";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
@@ -16,7 +16,6 @@ import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { AcceleratorChooserCard } from "@/components/operator-home/AcceleratorChooserCard";
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
 import { PilotRoiBaselineReadinessCard } from "@/components/operator-home/PilotRoiBaselineReadinessCard";
-import { PilotStartHereStrip } from "@/components/operator-home/PilotStartHereStrip";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
 import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
 import { OperatorCoArchitectHomeStrip } from "@/components/OperatorCoArchitectHomeStrip";
@@ -119,6 +118,7 @@ function BuyerPolishedHomePageBody() {
 
       <section aria-labelledby="buyer-home-setup-heading" className="space-y-4" data-testid="operator-home-setup-section">
         <HomeSectionHeading id="buyer-home-setup-heading">{BUYER_HOME_SETUP_SECTION_HEADING}</HomeSectionHeading>
+        <CorePilotProgressTrackerBanner compact />
         <UnifiedFirstPilotProgressPanel checklistVariant="compact" />
       </section>
     </>
@@ -149,23 +149,22 @@ function OperatorHomePageBody() {
       <section aria-labelledby="operator-home-readiness-heading" className="space-y-3">
         <HomeSectionHeading id="operator-home-readiness-heading">Workspace readiness</HomeSectionHeading>
         {fullOperatorShell ? <PilotRoiBaselineReadinessCard /> : null}
+        <CorePilotProgressTrackerBanner />
         <UnifiedFirstPilotProgressPanel checklistVariant={fullOperatorShell ? "full" : "compact"} />
       </section>
 
       {/* Zone 4: getting started guidance */}
-      <section aria-labelledby="operator-home-started-heading" className="space-y-4">
-        <HomeSectionHeading id="operator-home-started-heading">Get started</HomeSectionHeading>
-        {fullOperatorShell ? <PilotStartHereStrip /> : null}
-        {fullOperatorShell ? <CorePilotNextStepsCard /> : null}
-        {fullOperatorShell ? (
+      {fullOperatorShell ? (
+        <section aria-labelledby="operator-home-started-heading" className="space-y-4">
+          <HomeSectionHeading id="operator-home-started-heading">Get started</HomeSectionHeading>
           <div className="max-w-prose space-y-3">
             <FirstWeekRouteGuidance variant="home" />
             <OperatorHomeGuidanceLinks>
               <OperatorHomeGuidanceLink helpSlug="first-pilot-path" label="First pilot operator path — full walkthrough" />
             </OperatorHomeGuidanceLinks>
           </div>
-        ) : null}
-      </section>
+        </section>
+      ) : null}
     </>
   );
 }

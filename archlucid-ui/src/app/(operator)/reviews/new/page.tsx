@@ -20,7 +20,7 @@ export default function NewRunPage() {
         <InAppHelpLink helpSlug="pilot-guide" label="Full pilot guidance" variant="text" />
       </div>
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Start fast with a pasted brief (Quick review), use Guided intake for admission and MUST questions, or open the full wizard with templates and imports.
+        Start fast with Quick review (guided defaults), or open Full guided review for intake questions, templates, and imports.
       </p>
       <div className="mt-3">
         <FirstWeekRouteGuidance variant="new-review" />

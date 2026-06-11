@@ -44,7 +44,11 @@ import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
+import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
+import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
+import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
+import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
@@ -315,6 +319,7 @@ function AppShellInner({ children }: AppShellClientProps) {
               <TrialUsageUpgradeNudge />
               <TeamExpansionNudge />
               <TrialExpiryBanner />
+              <PersistentTrialStatusStrip />
               <TrialBanner />
               <KeyboardShortcutProvider>
                 <main
@@ -324,6 +329,9 @@ function AppShellInner({ children }: AppShellClientProps) {
                 >
                     <SyncActiveRunFromPathname />
                     <OperatorRecentViewsTracker />
+                    <ReviewsListReturnStateTracker />
+                    <FirstVisitHelpAutoOpen />
+                    <ExplainThisViewBanner />
                     <ContextualPageHintStrip />
                     <DemoStrictNavigationGate>
                       <OperatorRoleGate>{children}</OperatorRoleGate>

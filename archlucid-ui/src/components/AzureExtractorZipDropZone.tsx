@@ -12,15 +12,19 @@ export type AzureExtractorZipDropZoneProps = {
   hint?: ReactNode;
   testId?: string;
   onZipSelected: (file: File) => void | Promise<void>;
+  /** When set, enables folder selection (webkitdirectory) for zip-less extractor uploads. */
+  onFolderSelected?: (files: FileList) => void | Promise<void>;
 };
 
 /**
  * Drag-and-drop surface for Tier 1 Azure extractor ZIP uploads (wizard + settings).
  */
 export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps) {
-  const { ariaLabel, busy = false, disabled = false, hint, testId, onZipSelected } = props;
+  const { ariaLabel, busy = false, disabled = false, hint, testId, onZipSelected, onFolderSelected } = props;
   const inputId = useId();
+  const folderInputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
   const isDisabled = disabled || busy;
@@ -97,7 +101,9 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
         <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-100">
           Drag and drop your Azure packager ZIP here
         </p>
-        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">or click to browse (.zip)</p>
+        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          or click to browse (.zip{onFolderSelected !== undefined ? " or folder" : ""})
+        </p>
       </div>
       <input
         id={inputId}
@@ -115,6 +121,41 @@ export function AzureExtractorZipDropZone(props: AzureExtractorZipDropZoneProps)
           event.currentTarget.value = "";
         }}
       />
+      {onFolderSelected !== undefined ? (
+        <>
+          <input
+            id={folderInputId}
+            ref={folderInputRef}
+            type="file"
+            // @ts-expect-error webkitdirectory is supported in Chromium-based browsers
+            webkitdirectory=""
+            directory=""
+            multiple
+            disabled={isDisabled}
+            aria-hidden="true"
+            tabIndex={-1}
+            className="sr-only"
+            data-testid={testId ? `${testId}-folder-input` : "azure-extractor-folder-input"}
+            onChange={(event) => {
+              const files = event.currentTarget.files;
+
+              if (files !== null && files.length > 0) {
+                void onFolderSelected(files);
+              }
+
+              event.currentTarget.value = "";
+            }}
+          />
+          <button
+            type="button"
+            className="text-xs font-medium text-teal-800 underline dark:text-teal-300"
+            disabled={isDisabled}
+            onClick={() => folderInputRef.current?.click()}
+          >
+            Select extractor folder instead of ZIP
+          </button>
+        </>
+      ) : null}
       {hint}
     </div>
   );

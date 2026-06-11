@@ -2,9 +2,23 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useSyncExternalStore } from "react";
 
 import { getBreadcrumbs } from "@/lib/breadcrumb-map";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { readReviewsListReturnHref } from "@/lib/usability/reviews-list-return-state";
+
+function subscribeReviewsListReturnHref(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  const handler = () => onStoreChange();
+
+  window.addEventListener("storage", handler);
+
+  return () => window.removeEventListener("storage", handler);
+}
 
 /**
  * Location-aware breadcrumb trail (client — uses `usePathname`). Hidden on home only.
@@ -14,10 +28,16 @@ export function Breadcrumbs() {
   const searchParams = useSearchParams();
   const queryRunId = searchParams.get("runId");
   const runIdTrimmed = queryRunId !== null && queryRunId.trim().length > 0 ? queryRunId.trim() : undefined;
+  const reviewsListReturnHref = useSyncExternalStore(
+    subscribeReviewsListReturnHref,
+    readReviewsListReturnHref,
+    () => "/reviews?projectId=default",
+  );
 
   const items = getBreadcrumbs(pathname, {
     buyerPolishedShell: isBuyerPolishedOperatorShellEnv(),
     queryRunId: runIdTrimmed,
+    reviewsListReturnHref,
   });
 
   if (items.length <= 1) {

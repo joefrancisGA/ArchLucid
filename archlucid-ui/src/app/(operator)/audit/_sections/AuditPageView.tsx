@@ -44,7 +44,7 @@ export function AuditPageView(props: AuditPageViewProps) {
             ? `Audit trail for ${buyerFacingReviewLinkLabelFromRunId(
                 props.runId.trim().length > 0 ? props.runId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID,
               )}`
-            : "Audit log"
+            : "Audit trail"
         }
         helpKey="audit-log"
         actions={

@@ -40,6 +40,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { listNavGroupsVisibleInOperatorShell, visibleOperatorShellHrefSet } from "@/lib/nav-shell-visibility";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -489,6 +490,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
+          <CommandPaletteRecentViewsGroup onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} />
           <CommandPaletteActions onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />

@@ -23,6 +23,8 @@ export type EmptyStateProps = {
   description: ReactNode;
   actions?: EmptyStateAction[];
   helpTopicPath?: string;
+  /** When true, empty state is caused by active filters rather than missing data. */
+  filteredEmpty?: boolean;
   /** Optional first-run “how it works” list shown below the description. */
   gettingStarted?: EmptyStateGettingStarted;
 };
@@ -37,6 +39,7 @@ export function EmptyState({
   actions,
   helpTopicPath,
   gettingStarted,
+  filteredEmpty = false,
 }: EmptyStateProps) {
   const actionList = actions ?? [];
 
@@ -49,6 +52,11 @@ export function EmptyState({
           ) : null}
           <h3 className="text-sm font-semibold text-al-text-primary">{title}</h3>
           <p className="max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{description}</p>
+          {filteredEmpty ? (
+            <p className="m-0 max-w-md text-xs text-neutral-500 dark:text-neutral-400">
+              No rows match your current filters — clear filters or broaden the search to see more results.
+            </p>
+          ) : null}
           {gettingStarted !== undefined ? (
             <GettingStartedSteps
               heading={gettingStarted.heading}
@@ -76,7 +84,7 @@ export function EmptyState({
           ) : null}
           {helpTopicPath ? (
             <Link
-              href={`/onboarding#${helpTopicPath}`}
+              href={helpTopicPath.startsWith("/") ? helpTopicPath : `/help/${helpTopicPath}`}
               className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
             >
               Learn more

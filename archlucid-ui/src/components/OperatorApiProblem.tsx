@@ -9,6 +9,8 @@ import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { OperatorErrorRecoveryActions } from "@/components/usability/OperatorErrorRecoveryActions";
+import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 
 type OperatorApiProblemFromFailure = {
   failure: ApiLoadFailureState;
@@ -63,7 +65,7 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
     retryAfterSeconds,
   });
   const Callout = variant === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
-  const trimmedCorrelation = correlationId?.trim();
+  const trimmedCorrelation = ensureCorrelationId(correlationId ?? problem?.correlationId);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const troubleshootingHref = buyerPolished
     ? resolveInAppDocHref("/docs/runbooks/TROUBLESHOOTING.md")
@@ -80,17 +82,16 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
         <p className="mt-2.5 text-sm leading-normal">{hint}</p>
       ) : null}
       <OperatorErrorUiReferenceLine />
-      {trimmedCorrelation && trimmedCorrelation.length > 0 ? (
-        <div className="mt-2.5 flex flex-wrap items-center gap-2">
-          <p className="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1 text-xs text-neutral-600 dark:text-neutral-400">
-            <span className="shrink-0 font-semibold">Need support?</span>
-            <span className="shrink-0">Provide correlation ID</span>
-            <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{trimmedCorrelation}</code>
-            <span className="shrink-0">with steps to reproduce.</span>
-          </p>
-          <CopyIdButton value={trimmedCorrelation} aria-label="Copy correlation ID" />
-        </div>
-      ) : null}
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        <p className="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1 text-xs text-neutral-600 dark:text-neutral-400">
+          <span className="shrink-0 font-semibold">Need support?</span>
+          <span className="shrink-0">Provide request ID</span>
+          <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{trimmedCorrelation}</code>
+          <span className="shrink-0">with steps to reproduce.</span>
+        </p>
+        <CopyIdButton value={trimmedCorrelation} aria-label="Copy request ID" />
+      </div>
+      <OperatorErrorRecoveryActions helpSlug="troubleshooting" />
       <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
         {problem?.errorCode ? (
           <>

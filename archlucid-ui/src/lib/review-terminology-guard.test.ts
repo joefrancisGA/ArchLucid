@@ -5,11 +5,13 @@ import path from "node:path";
 
 import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import { FIRST_PILOT_BUYER_COPY } from "@/lib/first-pilot-buyer-copy";
+import { AUDIT_TRAIL_LABEL, SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { resolveFirstPilotOperatingRailStepsForDisplay } from "@/lib/first-pilot-operating-rail-copy";
 
 const BUYER_SURFACE_FILES = [
   "src/lib/first-pilot-buyer-copy.ts",
   "src/lib/first-pilot-operating-rail-copy.ts",
+  "src/components/EmailRunToSponsorBanner.tsx",
 ] as const;
 
 describe("review terminology guard", () => {
@@ -38,5 +40,10 @@ describe("review terminology guard", () => {
 
       expect(source, relativePath).not.toContain("architecture run");
     }
+  });
+
+  it("canonical product terms export audit trail label constant", () => {
+    expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
+    expect(SIGNED_MANIFEST_LABEL).toBe("Signed manifest");
   });
 });

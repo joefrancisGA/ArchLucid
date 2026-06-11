@@ -1,4 +1,3 @@
-import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
@@ -20,6 +19,8 @@ export type GetBreadcrumbsOptions = {
    * buyer-polished shell can insert the active review package title after **Home**.
    */
   readonly queryRunId?: string;
+  /** Persisted reviews list href (filters) for return navigation from detail pages. */
+  readonly reviewsListReturnHref?: string;
 };
 
 function newReviewWizardCrumbLabel(buyerPolishedShell: boolean | undefined): string {
@@ -65,7 +66,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   governance: "Governance",
   findings: "Findings",
   dashboard: "Dashboard",
-  audit: "Audit log",
+  audit: "Audit trail",
   manifests: "Manifests",
   provenance: "Provenance",
   "value-report": "Value report",
@@ -154,7 +155,13 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
     if (isLast) {
       items.push({ label });
     } else {
-      items.push({ label, href: cumulative });
+      let href = cumulative;
+
+      if (segment === "reviews" && options?.reviewsListReturnHref !== undefined && options.reviewsListReturnHref.length > 0) {
+        href = options.reviewsListReturnHref;
+      }
+
+      items.push({ label, href });
     }
   }
 
@@ -164,8 +171,8 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
 /** E2E / demo fixture ids in path segments — show realistic titles instead of slug-style labels. */
 const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-run-001": "Claims Intake Modernization",
-  "e2e-fixture-left-run": "Baseline architecture run (compare)",
-  "e2e-fixture-right-run": "Target architecture run (compare)",
+  "e2e-fixture-left-run": "Baseline architecture review (compare)",
+  "e2e-fixture-right-run": "Target architecture review (compare)",
   "f0000001-0000-4000-8000-000000000001": "Sample finalized manifest",
   "f0000002-0000-4000-8000-000000000002": "Manifest (artifacts pending)",
   [SHOWCASE_STATIC_DEMO_MANIFEST_ID]: "Claims Intake package manifest",

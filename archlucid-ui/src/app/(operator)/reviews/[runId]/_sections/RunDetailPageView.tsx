@@ -10,7 +10,10 @@ import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
 import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
+import { CommitBlockingFindingsBanner } from "@/components/usability/CommitBlockingFindingsBanner";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
+import { StalledReviewGuidanceCallout } from "@/components/usability/StalledReviewGuidanceCallout";
+import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
 import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
 import { ReviewPackagePlainSummary } from "@/components/usability/ReviewPackagePlainSummary";
@@ -191,6 +194,34 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         commitBlockedReason={commitBlockedReason}
         hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
       />
+
+      {!m.manifestId ? (
+        (() => {
+          const stalled = detectStalledReview(
+            m.resolvedDetail.run.createdUtc,
+            m.resolvedDetail.run.status === "Completed" || m.resolvedDetail.run.status === "Failed",
+          );
+
+          return stalled.isStalled ? (
+            <StalledReviewGuidanceCallout
+              elapsedMinutes={stalled.elapsedMinutes}
+              runId={m.resolvedDetail.run.runId}
+            />
+          ) : null;
+        })()
+      ) : null}
+
+      {findingCoverageSummary?.hasCommitBlockingFailures === true ? (
+        <CommitBlockingFindingsBanner
+          runId={m.resolvedDetail.run.runId}
+          blockingFindings={[
+            {
+              findingId: "blocking-findings",
+              title: "Open blocking findings — review findings section below",
+            },
+          ]}
+        />
+      ) : null}
 
       <FirstWeekRouteGuidance
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
