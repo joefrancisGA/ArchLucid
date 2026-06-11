@@ -35,6 +35,15 @@ public interface IAgentResultRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
 
+    /// <summary>
+    ///     Replaces the persisted <see cref="AgentResult" /> for one run/task pair (quality-gate auto-retry path only).
+    /// </summary>
+    Task ReplaceForRunTaskAsync(
+        AgentResult replacement,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
+
     Task<IReadOnlyList<EvidenceProposalListItem>> ListEvidenceProposalsAsync(
         ScopeContext scope,
         CancellationToken cancellationToken = default);

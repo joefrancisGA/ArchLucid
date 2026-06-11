@@ -133,6 +133,101 @@ public sealed class AgentResultRepository(
         }
     }
 
+    public async Task ReplaceForRunTaskAsync(
+        AgentResult replacement,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(replacement);
+
+        const string deleteSql = """
+                                 DELETE FROM AgentResults
+                                 WHERE RunId = @RunId AND TaskId = @TaskId;
+                                 """;
+
+        const string insertSql = """
+                                 INSERT INTO AgentResults
+                                 (
+                                     ResultId,
+                                     TaskId,
+                                     RunId,
+                                     AgentType,
+                                     Confidence,
+                                     CalibratedConfidence,
+                                     ProposedEvidenceJson,
+                                     PromptVariantKey,
+                                     ResultJson,
+                                     CreatedUtc
+                                 )
+                                 VALUES
+                                 (
+                                     @ResultId,
+                                     @TaskId,
+                                     @RunId,
+                                     @AgentType,
+                                     @Confidence,
+                                     @CalibratedConfidence,
+                                     @ProposedEvidenceJson,
+                                     @PromptVariantKey,
+                                     @ResultJson,
+                                     @CreatedUtc
+                                 );
+                                 """;
+
+        string json = JsonSerializer.Serialize(replacement, ContractJson.Default);
+        object parameters = new
+        {
+            replacement.ResultId,
+            replacement.TaskId,
+            RunId = RunChildRunScopeSql.ToSqlRunId(replacement.RunId),
+            AgentType = replacement.AgentType.ToString(),
+            replacement.Confidence,
+            replacement.CalibratedConfidence,
+            ProposedEvidenceJson = replacement.ProposedEvidenceJson,
+            PromptVariantKey = replacement.PromptVariantKey,
+            ResultJson = json,
+            replacement.CreatedUtc
+        };
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        try
+        {
+            if (transaction is not null)
+            {
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { RunId = RunChildRunScopeSql.ToSqlRunId(replacement.RunId), replacement.TaskId },
+                    transaction,
+                    cancellationToken: cancellationToken));
+
+                await conn.ExecuteAsync(new CommandDefinition(
+                    insertSql,
+                    parameters,
+                    transaction,
+                    cancellationToken: cancellationToken));
+            }
+            else
+            {
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { RunId = RunChildRunScopeSql.ToSqlRunId(replacement.RunId), replacement.TaskId },
+                    cancellationToken: cancellationToken));
+
+                await conn.ExecuteAsync(new CommandDefinition(
+                    insertSql,
+                    parameters,
+                    cancellationToken: cancellationToken));
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
         ScopeContext scope,
         string runId,
