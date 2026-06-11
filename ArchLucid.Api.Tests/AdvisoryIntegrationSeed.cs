@@ -47,8 +47,6 @@ public static class AdvisoryIntegrationSeed
             RuleSetHash = "test-rh"
         };
 
-        await goldenRepo.SaveAsync(manifest, ct);
-
         RunRecord run = new()
         {
             TenantId = ScopeIds.DefaultTenant,
@@ -60,7 +58,9 @@ public static class AdvisoryIntegrationSeed
             GoldenManifestId = manifestId
         };
 
+        // FK_GoldenManifests_Runs_RunId requires dbo.Runs parent before dbo.GoldenManifests child.
         await runRepo.SaveAsync(run, ct);
+        await goldenRepo.SaveAsync(manifest, ct);
 
         return runId;
     }

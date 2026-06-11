@@ -28,7 +28,9 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
     [SkippableFact]
     public void AuthorityGoldenManifestRepository_resolves_to_Decisioning_or_Persistence_concrete()
     {
-        IGoldenManifestRepository instance = factory.Services.GetRequiredService<IGoldenManifestRepository>();
+        using IServiceScope scope = factory.Services.CreateScope();
+        IGoldenManifestRepository instance =
+            scope.ServiceProvider.GetRequiredService<IGoldenManifestRepository>();
 
         instance.Should().NotBeNull();
 
@@ -45,7 +47,9 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
     [SkippableFact]
     public void AuthorityDecisionTraceRepository_resolves_to_Decisioning_or_Persistence_concrete()
     {
-        IDecisionTraceRepository instance = factory.Services.GetRequiredService<IDecisionTraceRepository>();
+        using IServiceScope scope = factory.Services.CreateScope();
+        IDecisionTraceRepository instance =
+            scope.ServiceProvider.GetRequiredService<IDecisionTraceRepository>();
 
         instance.Should().NotBeNull();
 
