@@ -82,3 +82,30 @@ def test_gate_pass_with_pipeline_profile(tmp_path: Path) -> None:
     assert disposition == "PASS"
     assert any(row["check"] == "Full pipeline profile" and row["result"] == "PASS" for row in rows)
     assert wording == "full-real-mode"
+
+
+def test_waiver_marks_waived_not_verified(tmp_path: Path) -> None:
+    waiver = tmp_path / "waiver.json"
+    waiver.write_text(
+        json.dumps(
+            {
+                "schema": "archlucid.real-mode-evidence-waiver.v1",
+                "owner": "release-owner",
+                "rationale": "Staging AOAI outage; simulator RC with explicit buyer caveat.",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    disposition, rows, wording = evaluate_release_real_mode_claim(
+        agent_results_dir=_REPO_ROOT / "tests" / "eval-corpus" / "agent-results",
+        gate_json=None,
+        require_gate=True,
+        max_gate_age_days=30,
+        allow_simulator_only=False,
+        waiver_json=waiver,
+    )
+
+    assert disposition == "HOLD"
+    assert wording == "waived-not-verified"
+    assert any(row["check"] == "Real-mode evidence waiver" and row["result"] == "PASS" for row in rows)

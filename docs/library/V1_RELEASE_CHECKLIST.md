@@ -36,7 +36,11 @@
 - [ ] **RC go/no-go verdict** attached: `rc-go-no-go-verdict.json` / `.md` is the machine-readable signoff source synthesizing readiness index, confidence lanes, claim gate, Azure parity, and deploy handoff.
 - [ ] **Deploy handoff artifact** attached: `deploy-handoff.json` / `.md` includes commit SHA, config profile, RC verdict reference, and Azure metadata block for operations/procurement.
 - [ ] **RC test evidence manifest** attached: `rc-test-evidence-manifest.json` lists suite/gate statuses for audit.
-- [ ] **Real-mode claim gate** for RC: `real-mode-claim-gate.json` with `claimWordingClass` (`full-real-mode` | `partial-real-mode` | `simulator-only`); use `-RcStrictClaims` or `ARCHLUCID_RC_STRICT_CLAIMS=1` for buyer-facing RCs.
+- [ ] **Real-mode claim gate** for RC: `real-mode-claim-gate.json` with `claimWordingClass` (`full-real-mode` | `partial-real-mode` | `waived-not-verified` | `waiver-required`); buyer-facing RC requires real-mode evidence (canonical source: staging Azure OpenAI). Use `-RcStrictClaims` or `ARCHLUCID_RC_STRICT_CLAIMS=1`.
+- [ ] **Simulator/live divergence** artifact attached: `python scripts/ci/check_simulator_live_divergence.py --summary-json <cohort-summary.json> --json-out simulator-live-divergence.json` — block when `buyerFacingFullRealBlocked` is true.
+- [ ] **Architecture invariant RC summary** attached: `python scripts/ci/report_architecture_invariant_enforcement.py --json-out architecture-invariant-rc-summary.json --markdown-out architecture-invariant-rc-summary.md`.
+- [ ] **Data consistency readiness** summary attached: `python scripts/ci/report_data_consistency_mode_readiness.py --json-out data-consistency-readiness.json --markdown-out data-consistency-readiness.md`.
+- [ ] **First-value timing budget** uses PASS ≤ 10 min / WARN 10–20 min / HOLD > 20 min on create→commit→artifact steps in `first-pilot-timing-budget.json`.
 - [ ] **Azure IaC parity + managed identity** artifacts present when hosted profile applies: `azure-iac-parity-proof.json`, `managed-identity-verification.json`.
 - [ ] **V1 RC drill deploy readiness**: after `scripts/v1-rc-drill.ps1`, confirm `artifacts/v1-rc-drill-result.json` reports `deployReadinessStatus`.
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `scripts/release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).

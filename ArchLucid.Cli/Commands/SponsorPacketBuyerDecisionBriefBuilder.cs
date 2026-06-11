@@ -22,9 +22,10 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         ExecutiveSummary executive = ParseExecutiveSummary(inputs.ExecutiveSummaryJson);
         LimitationsSummary limitations = ParseLimitations(inputs.LimitationsMd);
         string? valueParagraph = ExtractFirstValueParagraph(inputs.FirstValueReportMd);
+        string? executionProvenance = ExtractExecutionProvenanceLine(inputs.FirstValueReportMd);
         string disposition = DeriveDisposition(manifest, limitations);
 
-        return RenderBrief(inputs.RunId, disposition, manifest, executive, limitations, valueParagraph);
+        return RenderBrief(inputs.RunId, disposition, manifest, executive, limitations, valueParagraph, executionProvenance);
     }
 
     /// <summary>Convenience overload that reads files from <paramref name="packetDirectory"/>.</summary>
@@ -219,13 +220,35 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         return "PASS";
     }
 
+    private static string? ExtractExecutionProvenanceLine(string? firstValueReportMd)
+    {
+        if (string.IsNullOrWhiteSpace(firstValueReportMd))
+            return null;
+
+        foreach (string rawLine in firstValueReportMd.Split('\n'))
+        {
+            string line = rawLine.Trim();
+
+            if (!line.StartsWith("| Mode |", StringComparison.Ordinal))
+                continue;
+
+            string[] cells = line.Split('|', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+            if (cells.Length >= 2)
+                return cells[1];
+        }
+
+        return null;
+    }
+
     private static string RenderBrief(
         string runId,
         string disposition,
         PackManifestSummary manifest,
         ExecutiveSummary executive,
         LimitationsSummary limitations,
-        string? valueParagraph)
+        string? valueParagraph,
+        string? executionProvenance)
     {
         StringBuilder sb = new();
         string generatedUtc = manifest.GeneratedUtc ?? DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
@@ -237,6 +260,13 @@ public static class SponsorPacketBuyerDecisionBriefBuilder
         sb.AppendLine(CultureInfo.InvariantCulture, $"**Run:** `{runId.Trim()}`  ");
         sb.AppendLine(CultureInfo.InvariantCulture, $"**Generated (UTC):** {generatedUtc}  ");
         sb.AppendLine(CultureInfo.InvariantCulture, $"**Sponsor-send disposition:** **{disposition}**");
+
+        if (!string.IsNullOrWhiteSpace(executionProvenance))
+        {
+            sb.AppendLine();
+            sb.AppendLine(CultureInfo.InvariantCulture, $"**Evidence basis (execution mode):** **{executionProvenance}**");
+        }
+
         sb.AppendLine();
         sb.AppendLine("## Outcome");
         sb.AppendLine();

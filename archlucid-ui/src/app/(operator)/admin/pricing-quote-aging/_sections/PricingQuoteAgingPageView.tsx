@@ -75,8 +75,8 @@ export function PricingQuoteAgingPageView(props: Props) {
           <ContextualHelp helpKey="admin-pricing-quote-aging" />
         </div>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Unanswered marketing quote requests with SLA posture (warn at 18h, breach at 24h). Human sales follow-up only —
-          no buyer auto-replies. Escalation steps:{" "}
+          Unanswered marketing quote requests with SLA posture (warn at 18h, breach at 24h). V1 uses human sales
+          follow-up only — live self-serve checkout remains deferred. Escalation steps:{" "}
           <span className="font-mono text-xs">docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md</span>.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">

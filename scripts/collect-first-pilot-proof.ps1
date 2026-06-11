@@ -727,7 +727,20 @@ function Add-FirstPilotTimingBudgetFinding {
         return
     }
 
-    Add-ProofFinding -Disposition 'PASS' -Name 'first-pilot-timing-budget' -Detail 'Timing budget includes measured staging-smoke steps with guidance-only doc targets labeled separately.' -Remediation ''
+    $timingJson = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json
+    $budgetDisposition = [string]$timingJson.firstValueCommitBudget.disposition
+
+    if ($budgetDisposition -eq 'HOLD') {
+        Add-ProofFinding -Disposition 'HOLD' -Name 'first-pilot-timing-budget' -Detail ([string]$timingJson.firstValueCommitBudget.detail) -Remediation 'Reduce create→commit→artifact wall clock or document environment-specific constraints before sponsor send.'
+        return
+    }
+
+    if ($budgetDisposition -eq 'WARN') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'first-pilot-timing-budget' -Detail ([string]$timingJson.firstValueCommitBudget.detail) -Remediation 'Review first-value path timing before controlled pilot sponsor send.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'first-pilot-timing-budget' -Detail 'Timing budget includes measured staging-smoke steps with PASS first-value commit budget (≤10 min).' -Remediation ''
 }
 
 function Add-AdminOperationalPostureFinding {

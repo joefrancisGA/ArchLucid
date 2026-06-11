@@ -147,5 +147,12 @@
         }
       ]
     }
-  ]
+  ],
+  "deferredConnectorsV1_1": [
+    "ServiceNow",
+    "Confluence/Jira",
+    "Slack",
+    "Microsoft Teams (first buyer-critical V1.1 target after core V1 proof)"
+  ],
+  "v1AutomationHandoffNote": "V1 automation uses REST, CLI, UI export, and SCIM. First-party ITSM/docs/chat connectors are V1.1 — see deferredConnectorsV1_1."
 }

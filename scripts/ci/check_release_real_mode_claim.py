@@ -73,12 +73,41 @@ def _gate_is_fresh(payload: dict[str, object], max_age_days: int) -> tuple[bool,
     return True, "fresh"
 
 
+def _load_waiver(waiver_path: Path | None) -> dict[str, object] | None:
+    if waiver_path is None or not waiver_path.is_file():
+        return None
+
+    payload = json.loads(waiver_path.read_text(encoding="utf-8"))
+
+    if not isinstance(payload, dict):
+        raise ValueError("waiver json root must be an object")
+
+    return payload
+
+
+def _waiver_is_valid(waiver: dict[str, object] | None) -> tuple[bool, str]:
+    if waiver is None:
+        return False, "waiver absent"
+
+    owner = str(waiver.get("owner") or "").strip()
+    rationale = str(waiver.get("rationale") or "").strip()
+
+    if not owner:
+        return False, "waiver owner missing"
+
+    if not rationale:
+        return False, "waiver rationale missing"
+
+    return True, "waiver present"
+
+
 def resolve_claim_wording_class(
     disposition: str,
     *,
     allow_simulator_only: bool,
     gate_present: bool,
     gate_pass: bool,
+    waiver_valid: bool = False,
 ) -> str:
     if allow_simulator_only:
         return "simulator-only"
@@ -86,11 +115,17 @@ def resolve_claim_wording_class(
     if disposition == "PASS" and gate_pass:
         return "full-real-mode"
 
+    if waiver_valid and disposition in {"WARN", "HOLD"}:
+        return "waived-not-verified"
+
     if gate_present and disposition in {"WARN", "HOLD"}:
         return "partial-real-mode"
 
     if disposition == "WARN":
         return "partial-real-mode"
+
+    if not gate_present and not gate_pass and disposition == "HOLD":
+        return "waiver-required"
 
     return "simulator-only"
 
@@ -103,8 +138,20 @@ def evaluate_release_real_mode_claim(
     max_gate_age_days: int,
     allow_simulator_only: bool,
     rc_strict_claims: bool = False,
+    waiver_json: Path | None = None,
 ) -> tuple[str, list[dict[str, str]], str]:
     rows: list[dict[str, str]] = []
+    waiver = _load_waiver(waiver_json) if waiver_json is not None else None
+    waiver_valid, waiver_detail = _waiver_is_valid(waiver)
+
+    if waiver is not None:
+        rows.append(
+            {
+                "check": "Real-mode evidence waiver",
+                "result": "PASS" if waiver_valid else "FAIL",
+                "detail": waiver_detail,
+            }
+        )
 
     if allow_simulator_only:
         rows.append(
@@ -160,6 +207,7 @@ def evaluate_release_real_mode_claim(
             allow_simulator_only=allow_simulator_only,
             gate_present=False,
             gate_pass=False,
+            waiver_valid=waiver_valid,
         )
         return disposition, rows, wording
 
@@ -237,7 +285,14 @@ def evaluate_release_real_mode_claim(
     )
 
     if blocking:
-        return "HOLD", rows, "partial-real-mode"
+        wording = resolve_claim_wording_class(
+            "HOLD",
+            allow_simulator_only=False,
+            gate_present=True,
+            gate_pass=False,
+            waiver_valid=waiver_valid,
+        )
+        return "HOLD", rows, wording
 
     if gate_result == "WARN":
         wording = resolve_claim_wording_class(
@@ -245,6 +300,7 @@ def evaluate_release_real_mode_claim(
             allow_simulator_only=False,
             gate_present=True,
             gate_pass=False,
+            waiver_valid=waiver_valid,
         )
         return "WARN", rows, wording
 
@@ -253,6 +309,7 @@ def evaluate_release_real_mode_claim(
         allow_simulator_only=False,
         gate_present=True,
         gate_pass=True,
+        waiver_valid=waiver_valid,
     )
     return "PASS", rows, wording
 
@@ -265,7 +322,8 @@ def render_markdown(disposition: str, rows: list[dict[str, str]], claim_wording_
         f"Generated (UTC): **{utc}**",
         "",
         f"**Disposition:** **{disposition}**",
-        f"**Claim wording class:** **{claim_wording_class}** (full-real-mode | partial-real-mode | simulator-only)",
+        f"**Claim wording class:** **{claim_wording_class}** "
+        "(full-real-mode | partial-real-mode | simulator-only | waived-not-verified | waiver-required)",
         "",
         "Full real-mode AI release claims require committed quad-agent fixtures plus a fresh PASS gate json with full pipeline profile.",
         "",
@@ -311,6 +369,12 @@ def main(argv: list[str] | None = None) -> int:
         help="RC signoff mode: fail unless PASS with full-real-mode or explicit simulator-only override.",
     )
     parser.add_argument("--json-out", type=Path, default=None)
+    parser.add_argument(
+        "--waiver-json",
+        type=Path,
+        default=None,
+        help="Optional owner waiver when real evidence is incomplete (waived-not-verified).",
+    )
     args = parser.parse_args(argv)
 
     rc_strict = args.rc_strict_claims or __import__("os").environ.get("ARCHLUCID_RC_STRICT_CLAIMS", "").strip() in {
@@ -329,6 +393,7 @@ def main(argv: list[str] | None = None) -> int:
         max_gate_age_days=args.max_gate_age_days,
         allow_simulator_only=args.allow_simulator_only,
         rc_strict_claims=rc_strict,
+        waiver_json=args.waiver_json if args.waiver_json else None,
     )
 
     payload = {
@@ -337,6 +402,8 @@ def main(argv: list[str] | None = None) -> int:
         "disposition": disposition,
         "claimWordingClass": claim_wording_class,
         "claimDisposition": disposition,
+        "canonicalEvidenceSource": "staging Azure OpenAI deployment",
+        "realModeMandatoryForBuyerFacingRc": True,
         "checks": rows,
     }
 
@@ -350,10 +417,10 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"Release real-mode claim disposition: {disposition} ({claim_wording_class})")
 
-    if rc_strict and claim_wording_class not in {"full-real-mode", "simulator-only"}:
+    if rc_strict and claim_wording_class not in {"full-real-mode", "waived-not-verified"}:
         return 1
 
-    if rc_strict and disposition != "PASS" and not args.allow_simulator_only:
+    if rc_strict and disposition != "PASS" and claim_wording_class != "waived-not-verified":
         return 1
 
     if disposition == "HOLD":

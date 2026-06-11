@@ -50,6 +50,33 @@ class TestReportFirstPilotTimingBudget(unittest.TestCase):
 
         self.assertIn("Guidance-only", md)
         self.assertIn("sla proof", md.lower())
+        self.assertIn("firstValueCommitBudget", summary)
+        self.assertEqual(summary["firstValueCommitBudget"]["disposition"], "HOLD")
+
+    def test_first_value_budget_pass_warn_hold(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            baseline_path = Path(tmp) / "baseline.json"
+            baseline_path.write_text(
+                json.dumps(
+                    {
+                        "steps": [
+                            {"stepKey": "create_run", "stepLabel": "Create review", "status": "RUN", "elapsedMs": 480000},
+                            {"stepKey": "poll_ready", "stepLabel": "Execute and poll", "status": "RUN", "elapsedMs": 480000},
+                            {"stepKey": "commit", "stepLabel": "Commit manifest", "status": "RUN", "elapsedMs": 240000},
+                            {"stepKey": "get_manifest", "stepLabel": "Fetch manifest", "status": "RUN", "elapsedMs": 120000},
+                            {"stepKey": "list_artifacts", "stepLabel": "List artifacts", "status": "RUN", "elapsedMs": 120000},
+                        ],
+                    },
+                ),
+                encoding="utf-8",
+            )
+
+            summary = build_timing_budget(
+                performance_baseline_path=baseline_path,
+                proof_collection_elapsed_ms=None,
+            )
+
+        self.assertEqual(summary["firstValueCommitBudget"]["disposition"], "HOLD")
 
 
 if __name__ == "__main__":

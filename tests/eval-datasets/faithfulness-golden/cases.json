@@ -254,6 +254,39 @@
         { "sourceId": "customer-review-hours", "title": "Customer review hours", "corpusKind": "CustomerProvided" }
       ],
       "agentOutputText": "Annualized $180,000 labor savings from review effort with no labor-rate evidence attached."
+    },
+    {
+      "id": "deferred-scope-soc2-cpa-claim",
+      "category": "deferred-scope-claim",
+      "expectedCorpusKind": "PolicyPack",
+      "requiredEvidenceTokens": ["soc2-cpa-attestation"],
+      "claimIssueKind": "deferred-scope-compliance-claim",
+      "retrievalHits": [
+        { "sourceId": "soc2-roadmap-v1", "title": "SOC 2 roadmap", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "ArchLucid holds a current SOC 2 CPA attestation (soc2-cpa-attestation) suitable for unrestricted enterprise procurement."
+    },
+    {
+      "id": "deferred-scope-pen-test-claim",
+      "category": "deferred-scope-claim",
+      "expectedCorpusKind": "PolicyPack",
+      "requiredEvidenceTokens": ["third-party-pentest-summary"],
+      "claimIssueKind": "deferred-scope-security-claim",
+      "retrievalHits": [
+        { "sourceId": "owner-pentest-2026q2", "title": "Owner-conducted pen test", "corpusKind": "PolicyPack" }
+      ],
+      "agentOutputText": "Independent third-party penetration test summary (third-party-pentest-summary) is published for all buyers."
+    },
+    {
+      "id": "missing-evidence-ref-roi-headline",
+      "category": "missing-citation",
+      "expectedCorpusKind": "CustomerProvided",
+      "requiredEvidenceTokens": ["buyer-roi-baseline-id"],
+      "claimIssueKind": "missing-evidence-ref",
+      "retrievalHits": [
+        { "sourceId": "buyer-roi-baseline-id", "title": "Buyer ROI baseline", "corpusKind": "CustomerProvided" }
+      ],
+      "agentOutputText": "Executive ROI headline shows 42% review-cycle reduction without citing buyer baseline evidence."
     }
   ]
 }

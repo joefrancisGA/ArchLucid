@@ -68,6 +68,14 @@ public sealed class SponsorPacketBuyerDecisionBriefBuilderTests
 
         This committed run identified significant cost reduction opportunities across storage and networking tiers.
 
+        ## Execution provenance
+
+        | Field | Value |
+        | --- | --- |
+        | Mode | Simulator |
+        | LLM completion traces (this run) | 4 |
+        | Azure OpenAI deployment (when known) | `(n/a)` |
+
         | Metric | Value |
         | --- | --- |
         | Systems | 3 |
@@ -112,6 +120,14 @@ public sealed class SponsorPacketBuyerDecisionBriefBuilderTests
         // $125,000 in InvariantCulture is $125,000
         brief.Should().Contain("125,000");
         brief.Should().Contain("Open + Needs-Evidence findings");
+    }
+
+    [Fact]
+    public void Build_includes_execution_mode_evidence_basis_from_first_value_report()
+    {
+        string brief = SponsorPacketBuyerDecisionBriefBuilder.Build(FullInputs());
+
+        brief.Should().Contain("**Evidence basis (execution mode):** **Simulator**");
     }
 
     [Fact]
