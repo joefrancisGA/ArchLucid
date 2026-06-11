@@ -57,6 +57,38 @@ const HINTS: readonly { prefix: string; hint: PageContextualHint }[] = [
       learnMoreHref: "/help/governance-approval",
     },
   },
+  {
+    prefix: "/reviews/",
+    hint: {
+      id: "review-detail",
+      message: "Watch the pipeline timeline while agents run; after commit, use sponsor handoff and exports.",
+      learnMoreHref: "/help/review-packages",
+    },
+  },
+  {
+    prefix: "/replay",
+    hint: {
+      id: "replay-review",
+      message: "Validate stored pipeline output for a single review — not a visual diff.",
+      learnMoreHref: "/help/comparison-replay",
+    },
+  },
+  {
+    prefix: "/ask",
+    hint: {
+      id: "ask-review",
+      message: "Ask plain-language questions scoped to the active review package.",
+      learnMoreHref: "/help/review-packages",
+    },
+  },
+  {
+    prefix: "/dashboard",
+    hint: {
+      id: "executive-dashboard",
+      message: "Sponsor-safe ROI and risk posture for the active workspace.",
+      learnMoreHref: "/help/executive-summary",
+    },
+  },
 ];
 
 export function pageContextualHintForPathname(pathname: string): PageContextualHint | null {

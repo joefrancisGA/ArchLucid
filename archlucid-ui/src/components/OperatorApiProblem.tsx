@@ -92,6 +92,15 @@ export function OperatorApiProblem(props: OperatorApiProblemProps) {
         </div>
       ) : null}
       <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+        {problem?.errorCode ? (
+          <>
+            <span className="font-medium">How to fix:</span> see{" "}
+            <a className="underline" href={`${troubleshootingHref}#${encodeURIComponent(problem.errorCode)}`}>
+              troubleshooting for {problem.errorCode}
+            </a>
+            {" · "}
+          </>
+        ) : null}
         Recovery:{" "}
         <a
           className="underline"

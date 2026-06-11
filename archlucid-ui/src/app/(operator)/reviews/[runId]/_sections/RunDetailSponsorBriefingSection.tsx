@@ -31,12 +31,12 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
   if (buyerPolishedArtifactTable) {
     return (
       <CollapsibleSection title={BUYER_EXECUTIVE_BRIEFING_PACKAGE_LABEL} defaultOpen={false}>
-        <div id="sponsor-deliverables" className="scroll-mt-24">
+        <div id="sponsor-handoff" className="scroll-mt-24">
           {deliverables}
         </div>
       </CollapsibleSection>
     );
   }
 
-  return <div id="sponsor-deliverables" className="scroll-mt-24">{deliverables}</div>;
+  return <div id="sponsor-handoff" className="scroll-mt-24">{deliverables}</div>;
 }

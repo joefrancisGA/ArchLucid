@@ -18,6 +18,8 @@ import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/rev
 import { showError, showSuccess } from "@/lib/toast";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
+import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceUploadZone";
+import { WizardPackagePreview } from "@/components/usability/WizardPackagePreview";
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
@@ -118,6 +120,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [scope, setScope] = useState<Record<string, string> | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>("simulator");
+  const [evidenceAttached, setEvidenceAttached] = useState(false);
 
   const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS;
   const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
@@ -246,7 +249,8 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-4 pb-36">
+    <div className="mx-auto grid w-full max-w-5xl gap-4 pb-36 lg:grid-cols-[minmax(0,1fr)_minmax(220px,280px)]">
+      <div className="space-y-4">
       {isCtoDemoPackEnv() ? <CtoDemoFastCreatePanel /> : null}
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
       <div className="space-y-1" data-testid="quick-review-progress">
@@ -309,6 +313,13 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
             <Button type="button" variant="secondary" onClick={useSampleBrief} data-testid="quick-review-sample-brief">
               Use sample brief (Claims Intake showcase)
             </Button>
+            <WizardEvidenceUploadZone
+              onFilesSelected={(files) => {
+                if (files.length > 0) {
+                  setEvidenceAttached(true);
+                }
+              }}
+            />
           </CardContent>
         </Card>
       ) : null}
@@ -403,7 +414,11 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
           </Button>
         )}
       </div>
+      </div>
 
+      <aside className="hidden lg:block">
+        <WizardPackagePreview systemName={displaySystemName} hasEvidence={evidenceAttached} />
+      </aside>
     </div>
   );
 }

@@ -10,6 +10,11 @@ import { GenerateAdrFromRunModal } from "@/components/GenerateAdrFromRunModal";
 import { PostCommitHabitLoopCard } from "@/components/PostCommitHabitLoopCard";
 import { RecurrenceSchedulePostCommitCard } from "@/components/governance/RecurrenceSchedulePostCommitCard";
 import { RunDetailWhatsNextSection } from "@/components/RunDetailWhatsNextSection";
+import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
+import { ExportDeliverableDialog } from "@/components/usability/ExportDeliverableDialog";
+import { PersistentSponsorEmailStrip } from "@/components/usability/PersistentSponsorEmailStrip";
+import { ReviewPackagePlainSummary } from "@/components/usability/ReviewPackagePlainSummary";
+import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
 import { RunExplanationConfidenceBanner } from "@/components/RunExplanationConfidenceBanner";
 import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
@@ -160,6 +165,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       <RunDetailBreadcrumb headline={m.headline} />
 
       {showDemoMarketingChrome ? <OperatorDemoStaticBanner /> : null}
+      {m.usedStaticDemoRun ? <DemoDataBadge variant="banner" className="mb-2" /> : null}
 
       <RunDetailPageHeader
         runSummary={runSummaryForBadge}
@@ -189,6 +195,28 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       <FirstWeekRouteGuidance
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
+
+      {m.manifestId ? (
+        <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
+      ) : null}
+
+      {m.manifestId ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <ExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
+          <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
+        </div>
+      ) : null}
+
+      {m.manifestId ? (
+        <ReviewPackagePlainSummary
+          blockingFindingCount={m.manifestSummary?.unresolvedIssueCount ?? 0}
+          advisoryFindingCount={Math.max(
+            0,
+            (m.findingCountDisplay ?? 0) - (m.manifestSummary?.unresolvedIssueCount ?? 0),
+          )}
+          overallRiskLabel={m.explanationSummary?.riskPosture ?? m.governanceGateLabel ?? "Moderate"}
+        />
+      ) : null}
 
       <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
 

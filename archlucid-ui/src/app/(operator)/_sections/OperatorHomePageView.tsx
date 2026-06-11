@@ -2,11 +2,9 @@ import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklis
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { BuyerGoldenJourneyStrip } from "@/components/BuyerGoldenJourneyStrip";
 import { CorePilotBuyerStepHint } from "@/components/CorePilotBuyerStepHint";
-import { FirstPilotOperatingRail } from "@/components/FirstPilotOperatingRail";
 import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
-import { FirstPilotReadinessCockpit } from "@/components/FirstPilotReadinessCockpit";
+import { UnifiedFirstPilotProgressPanel } from "@/components/usability/UnifiedFirstPilotProgressPanel";
 import { ReviewsAwaitingActionCard } from "@/components/governance/ReviewsAwaitingActionCard";
-import { CorePilotChecklist } from "@/components/CorePilotChecklist";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHomeGuidanceLink";
@@ -119,18 +117,9 @@ function BuyerPolishedHomePageBody() {
         <BuyerGoldenJourneyStrip />
       </section>
 
-      <section aria-labelledby="operator-home-readiness-heading" className="space-y-3">
-        <FirstPilotReadinessCockpit />
-      </section>
-
-      <section
-        aria-labelledby="buyer-home-setup-heading"
-        className="space-y-4"
-        data-testid="operator-home-setup-section"
-      >
+      <section aria-labelledby="buyer-home-setup-heading" className="space-y-4" data-testid="operator-home-setup-section">
         <HomeSectionHeading id="buyer-home-setup-heading">{BUYER_HOME_SETUP_SECTION_HEADING}</HomeSectionHeading>
-        <CorePilotChecklist variant="compact" />
-        <FirstPilotOperatingRail />
+        <UnifiedFirstPilotProgressPanel checklistVariant="compact" />
       </section>
     </>
   );
@@ -156,22 +145,18 @@ function OperatorHomePageBody() {
         <OperatorHomeReviewsGrid />
       </section>
 
-      {/* Zone 3: workspace readiness (collapsed by default) */}
+      {/* Zone 3: workspace readiness and first-pilot progress */}
       <section aria-labelledby="operator-home-readiness-heading" className="space-y-3">
         <HomeSectionHeading id="operator-home-readiness-heading">Workspace readiness</HomeSectionHeading>
         {fullOperatorShell ? <PilotRoiBaselineReadinessCard /> : null}
-        <FirstPilotReadinessCockpit />
+        <UnifiedFirstPilotProgressPanel checklistVariant={fullOperatorShell ? "full" : "compact"} />
       </section>
 
-      {/* Zone 4: getting started and checklists */}
+      {/* Zone 4: getting started guidance */}
       <section aria-labelledby="operator-home-started-heading" className="space-y-4">
         <HomeSectionHeading id="operator-home-started-heading">Get started</HomeSectionHeading>
         {fullOperatorShell ? <PilotStartHereStrip /> : null}
         {fullOperatorShell ? <CorePilotNextStepsCard /> : null}
-        <div id="core-pilot-checklist-anchor">
-          <CorePilotChecklist variant={fullOperatorShell ? "full" : "compact"} />
-        </div>
-        <FirstPilotOperatingRail />
         {fullOperatorShell ? (
           <div className="max-w-prose space-y-3">
             <FirstWeekRouteGuidance variant="home" />

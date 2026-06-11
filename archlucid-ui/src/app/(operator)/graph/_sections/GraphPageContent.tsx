@@ -49,6 +49,7 @@ import { GraphLoadedExperience } from "@/app/(operator)/graph/_sections/GraphLoa
 import { GraphModeAuxiliaryFields } from "@/app/(operator)/graph/_sections/GraphModeAuxiliaryFields";
 import { GraphPageControls } from "@/app/(operator)/graph/_sections/GraphPageControls";
 import { GraphPageIntroParagraph } from "@/app/(operator)/graph/_sections/GraphPageIntroParagraph";
+import { GraphViewerLegend } from "@/components/usability/GraphViewerLegend";
 import { OperatorSavedViewsBar } from "@/components/OperatorSavedViewsBar";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { OperatorSavedView } from "@/lib/api/operator-saved-views";
@@ -461,6 +462,7 @@ export function GraphPageContent() {
       {effectiveGraph === null ? (
         <GraphPageIntroParagraph demoUi={demoUi} buyerPolishedShell={buyerPolishedShell} leadIntro={leadIntro} />
       ) : null}
+      <GraphViewerLegend />
 
       {effectiveGraph === null ? (
         <>

@@ -65,3 +65,14 @@ export function fetchCorePilotTeamChecklist(): Promise<CorePilotChecklistStepDto
 export async function putCorePilotTeamChecklistStep(stepIndex: number, isCompleted: boolean): Promise<void> {
   await apiPutNoContent("/v1/tenant/core-pilot-checklist", { stepIndex, isCompleted });
 }
+
+export type ProductFeedbackRequest = {
+  score?: number;
+  comment?: string | null;
+  runId?: string | null;
+  findingRef?: string | null;
+};
+
+export async function submitProductFeedback(request: ProductFeedbackRequest): Promise<void> {
+  await apiPostNoContent("/v1/tenant/customer-success/product-feedback", request);
+}

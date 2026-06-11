@@ -44,6 +44,12 @@ import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
+import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
+import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
+import { ShellSetupHealthChip } from "@/components/usability/ShellSetupHealthChip";
+import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
@@ -256,7 +262,11 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <GlobalSearchBar />
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:ml-auto">
+                  {!isBuyerPolishedOperatorShellEnv() ? <ShellSetupHealthChip /> : null}
                   {!isBuyerPolishedOperatorShellEnv() ? <LlmBudgetStatusPill /> : null}
+                  <ExecutiveOperatorShellSwitcher />
+                  <PageContextualHelpButton />
+                  <UsabilityFeedbackWidget />
                   <TenantWorkspaceBoundaryBadge variant="header" />
                   <AuthPanel />
                   <ScopeSwitcher />
@@ -327,8 +337,9 @@ function AppShellInner({ children }: AppShellClientProps) {
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"
             >
-              <div className="mx-auto flex max-w-[1600px] items-center px-4 lg:px-6">
-                <SystemHealthStatusStrip className="mb-0 w-full" />
+              <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 lg:px-6">
+                <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
+                <KeyboardShortcutsFooterHint />
               </div>
             </footer>
           ) : null}
@@ -347,6 +358,9 @@ function AppShellInner({ children }: AppShellClientProps) {
         <CorePilotWizardLauncher />
         <PilotBaselineWizardLauncher />
         <OnboardingTour />
+        <Suspense fallback={null}>
+          <RegistrationOnboardingTourAutoStart />
+        </Suspense>
         <CtoDemoOfflineAutoFallbackListener />
         <CtoDemoPanicModeBanner />
         <CtoDemoSpotlightOverlay />

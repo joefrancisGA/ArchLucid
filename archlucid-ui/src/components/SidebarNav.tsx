@@ -53,6 +53,13 @@ import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
 import { resolveNavLinkPresentation, resolveQuickActionNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+import { NavPinnedLinksPanel } from "@/components/usability/NavPinnedLinksPanel";
+import { OperateGovernanceUnlockPrompt } from "@/components/usability/OperateGovernanceUnlockPrompt";
+import {
+  filterNavLinksByOperateUnlockPhase,
+  readOperateNavUnlockPhase,
+} from "@/lib/usability/operate-nav-progressive-unlock";
+import { navLinkQuestionSubtitle } from "@/lib/usability/nav-link-question-subtitles";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
@@ -534,13 +541,19 @@ export function SidebarNav() {
 
 
   const adminNavRows = filterClustersByPreset(adminNavRowsRaw);
+  const operateUnlockPhase = mounted ? readOperateNavUnlockPhase() : 2;
+
   function renderNavCluster({ group, visibleLinks }: NavGroupWithVisibleLinks): ReactElement {
         const linksAfterDemoFilter =
           demoUi || buyerPolishedShell
             ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true))
             : visibleLinks;
 
-        const linksForRender = linksAfterDemoFilter;
+        const linksForRender = filterNavLinksByOperateUnlockPhase(
+          linksAfterDemoFilter,
+          hasCommittedArchitectureReview,
+          operateUnlockPhase,
+        );
 
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
@@ -618,7 +631,7 @@ export function SidebarNav() {
                         }
                       >
                         {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                        {presented.label}
+                        {renderNavLinkLabel(presented)}
                       </Link>
                     );
                   })}
@@ -665,7 +678,7 @@ export function SidebarNav() {
                       }
                     >
                       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-                      {presented.label}
+                      {renderNavLinkLabel(presented)}
                       {presented.href === "/governance" ? <GovernanceReviewsAwaitingNavBadge /> : null}
                     </Link>
                   );
@@ -701,8 +714,25 @@ export function SidebarNav() {
   const buyerSecondaryRouteHint =
     buyerPolishedShell && pathname !== null ? buyerGoldenPathSecondaryRouteHint(pathname) : null;
 
+  function renderNavLinkLabel(presented: NavLinkItem): ReactElement {
+    const subtitle = navLinkQuestionSubtitle(presented.href);
+
+    if (subtitle === null) {
+      return <>{presented.label}</>;
+    }
+
+    return (
+      <span className="flex min-w-0 flex-col">
+        <span>{presented.label}</span>
+        <span className="text-[10px] font-normal leading-tight text-neutral-500 dark:text-neutral-400">{subtitle}</span>
+      </span>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
+      <NavPinnedLinksPanel />
+      <OperateGovernanceUnlockPrompt />
       <SidebarRecentActivityCard />
 
       {mounted && (buyerPolishedShell || quickActionLinks.length > 0) ? (
