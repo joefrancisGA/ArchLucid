@@ -12,7 +12,9 @@ param(
 
     [string]$Filter = 'Category!=Slow',
 
-    [string]$RunSettingsPath = 'coverage.runsettings'
+    [string]$RunSettingsPath = 'coverage.runsettings',
+
+    [string]$BlameHangTimeout = '30min'
 )
 
 Set-StrictMode -Version Latest
@@ -80,7 +82,9 @@ foreach ($projectPath in $shardProjectPaths) {
             --collect:'XPlat Code Coverage' `
             --results-directory $ResultsDirectory `
             --logger 'console;verbosity=minimal' `
-            --logger "trx;LogFilePrefix=full-core-libs-shard-$ShardIndex-"
+            --logger "trx;LogFilePrefix=full-core-libs-shard-$ShardIndex-" `
+            --blame-hang `
+            --blame-hang-timeout $BlameHangTimeout
 
         if ($LASTEXITCODE -ne 0) {
             $failed = $true

@@ -69,6 +69,7 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 // Each integration host indexes platform ADR + policy-pack corpora by default; skip in tests (CI memory/time).
                 ["Retrieval:PlatformDocs:IndexOnStartup"] = "false",
                 ["Retrieval:PolicyPackCorpus:IndexOnStartup"] = "false",
+                ["Retrieval:ExemplarCorpus:IndexOnStartup"] = "false",
                 [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
                 ["Demo:SeedOnStartup"] = "false",
                 // Integration hosts boot many times per shard; disable OTLP/console export and API purge loops that can
@@ -79,6 +80,7 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 [SampleRunPurgeOptions.SectionName + ":Enabled"] = "false",
                 [DraftIntakeReaperOptions.SectionName + ":Enabled"] = "false",
                 [TenantErasurePurgeOptions.SectionName + ":Enabled"] = "false",
+                [TrialArchitecturePreseedOptions.SectionName + ":Enabled"] = "false",
             };
 
             AddCustomSettings(settings);
@@ -178,6 +180,27 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
         }
 
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(additionalOverrides));
+    }
+
+    /// <inheritdoc />
+    protected override async ValueTask DisposeAsyncCore()
+    {
+        Task disposeTask = base.DisposeAsyncCore().AsTask();
+
+        if (await Task.WhenAny(disposeTask, Task.Delay(IntegrationTestHttpCancellation.DefaultRequestTimeout))
+                .ConfigureAwait(false) == disposeTask)
+        {
+            await disposeTask.ConfigureAwait(false);
+
+            return;
+        }
+
+        // A wedged IHostedService can ignore HostOptions.ShutdownTimeout; do not burn the CI blame-hang budget.
+        Console.Error.WriteLine(
+            nameof(BaseIntegrationTestFixture)
+            + ".DisposeAsync exceeded "
+            + IntegrationTestHttpCancellation.DefaultRequestTimeout
+            + "; a hosted service may be ignoring HostOptions.ShutdownTimeout.");
     }
 
     /// <inheritdoc />

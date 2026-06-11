@@ -109,7 +109,8 @@ foreach ($filter in $filterChunks) {
             --logger "trx;LogFilePrefix=full-core-api-integration-shard-$ShardIndex-chunk$chunkNumber-" `
             --diag $diagLogPath `
             --blame-hang `
-            --blame-hang-timeout $BlameHangTimeout
+            --blame-hang-timeout $BlameHangTimeout `
+            --blame-hang-dump-type mini
 
         if ($LASTEXITCODE -ne 0) {
             $failed = $true

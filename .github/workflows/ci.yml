@@ -2171,6 +2171,13 @@ jobs:
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: dotnet-blame-core-libs-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/Sequence_*.xml
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
         with:
           name: coverage-full-regression-core-libs-shard-${{ matrix.shard }}
           path: ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/coverage.cobertura.xml
