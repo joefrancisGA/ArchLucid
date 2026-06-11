@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Tests;
@@ -69,6 +70,15 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 ["Retrieval:PlatformDocs:IndexOnStartup"] = "false",
                 ["Retrieval:PolicyPackCorpus:IndexOnStartup"] = "false",
                 [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
+                ["Demo:SeedOnStartup"] = "false",
+                // Integration hosts boot many times per shard; disable OTLP/console export and API purge loops that can
+                // block WebApplicationFactory teardown on overloaded CI SQL (75 min blame-hang inactivity).
+                ["Observability:ConsoleExporter:Enabled"] = "false",
+                ["Observability:Otlp:Enabled"] = "false",
+                [ArchitectureProjectRetentionPurgeOptions.SectionName + ":Enabled"] = "false",
+                [SampleRunPurgeOptions.SectionName + ":Enabled"] = "false",
+                [DraftIntakeReaperOptions.SectionName + ":Enabled"] = "false",
+                [TenantErasurePurgeOptions.SectionName + ":Enabled"] = "false",
             };
 
             AddCustomSettings(settings);
@@ -79,6 +89,9 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
         // Integration tests assert the GA bulk-upload cap (200 files per multipart request).
         builder.ConfigureTestServices(services =>
         {
+            services.Configure<HostOptions>(static options =>
+                options.ShutdownTimeout = TimeSpan.FromSeconds(15));
+
             services.Configure<FormOptions>(static options =>
                 options.ValueCountLimit = EvidenceBulkUploadOptions.FormValueCountLimit);
             services.RemoveAll<IConfigureOptions<EvidenceBulkUploadOptions>>();
@@ -86,6 +99,12 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
             services.AddSingleton<IOptions<EvidenceBulkUploadOptions>>(static _ =>
                 Options.Create(new EvidenceBulkUploadOptions { EvidenceBulkUploadMaxFiles = 200 }));
         });
+    }
+
+    /// <inheritdoc />
+    protected override void ConfigureClient(HttpClient client)
+    {
+        client.Timeout = IntegrationTestHttpCancellation.DefaultRequestTimeout;
     }
 
     /// <summary>

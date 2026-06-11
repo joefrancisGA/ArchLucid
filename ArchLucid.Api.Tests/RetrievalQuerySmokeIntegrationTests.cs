@@ -30,12 +30,12 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     public async Task Index_documents_then_query_returns_matching_hits()
     {
         await using AlertLifecycleWebAppFactory factory = new();
-
-        await SeedRetrievalDocumentsAsync(factory.Services);
-
-        HttpClient client = factory.CreateClient();
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+
+        await SeedRetrievalDocumentsAsync(factory.Services, requestTimeout.Token);
+
+        HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync(
             new Uri("v1/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
@@ -88,11 +88,12 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     public async Task TopK_clamps_result_count()
     {
         await using AlertLifecycleWebAppFactory factory = new();
-        await SeedRetrievalDocumentsAsync(factory.Services);
-
-        HttpClient client = factory.CreateClient();
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+
+        await SeedRetrievalDocumentsAsync(factory.Services, requestTimeout.Token);
+
+        HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync(
             new Uri("v1/retrieval/search?q=architecture&topK=1", UriKind.Relative),
@@ -106,7 +107,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         hits.Should().HaveCountLessThanOrEqualTo(1);
     }
 
-    private static async Task SeedRetrievalDocumentsAsync(IServiceProvider services)
+    private static async Task SeedRetrievalDocumentsAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
         using IServiceScope scope = services.CreateScope();
         IRetrievalIndexingService indexingService =
@@ -148,6 +149,6 @@ public sealed class RetrievalQuerySmokeIntegrationTests
             }
         ];
 
-        await indexingService.IndexDocumentsAsync(documents, CancellationToken.None);
+        await indexingService.IndexDocumentsAsync(documents, cancellationToken);
     }
 }

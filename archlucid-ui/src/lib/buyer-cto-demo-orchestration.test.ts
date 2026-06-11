@@ -17,7 +17,7 @@ describe("buyer-cto-demo-orchestration", () => {
   });
 
   it("returns audience captions for each step", () => {
-    expect(buyerCtoDemoAudienceCaption(0)).toContain("executive outcomes");
+    expect(buyerCtoDemoAudienceCaption(0)).toContain("Executive outcomes");
     expect(buyerCtoDemoAudienceCaption(4)).toContain("audit trail");
   });
 
