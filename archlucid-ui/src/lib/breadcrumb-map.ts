@@ -1,4 +1,5 @@
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
+import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,

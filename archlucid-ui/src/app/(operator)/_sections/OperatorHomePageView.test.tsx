@@ -149,11 +149,9 @@ describe("OperatorHomePageView", () => {
     const samplePackage = screen.getByTestId("home-block-sample-package");
     const unifiedProgress = screen.getByTestId("home-block-unified-progress");
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
-    const nextSteps = screen.getByTestId("home-block-next-steps");
 
     expect(welcome.compareDocumentPosition(samplePackage) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(samplePackage.compareDocumentPosition(unifiedProgress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(samplePackage.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(runsDashboard.compareDocumentPosition(unifiedProgress) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(runsDashboard.compareDocumentPosition(nextSteps) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

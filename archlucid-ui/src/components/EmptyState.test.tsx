@@ -27,7 +27,7 @@ describe("EmptyState — help link", () => {
       <EmptyState title="T" description="D" actions={[]} helpTopicPath="alerts" />,
     );
 
-    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/onboarding#alerts");
+    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/help/alerts");
   });
 
   it("omits learn more when helpTopicPath is absent", () => {

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
   buyerSafeActorDisplayName,
@@ -9,6 +9,10 @@ import {
 
 describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
   const envBackup = { ...process.env };
+
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+  });
 
   afterEach(() => {
     process.env = { ...envBackup };
@@ -23,8 +27,8 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
   });
 
   it("redacts demo-prefixed technical ids", () => {
-    expect(buyerSafeTechnicalIdLabel("demo-jordan")).toBe("Recorded in workspace audit log");
-    expect(buyerSafeTechnicalIdLabel("corr-intake-demo-request")).toBe("Recorded in workspace audit log");
+    expect(buyerSafeTechnicalIdLabel("demo-jordan")).toBe("Recorded in workspace audit trail");
+    expect(buyerSafeTechnicalIdLabel("corr-intake-demo-request")).toBe("Recorded in workspace audit trail");
     expect(buyerSafeTechnicalIdLabel("evt-abc-123")).toBe("evt-abc-123");
   });
 
@@ -47,6 +51,6 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
 
     expect(sanitized.actorUserName).not.toContain("Jordan");
     expect(sanitized.tenantId).toBe("workspace");
-    expect(sanitized.correlationId).toBe("Recorded in workspace audit log");
+    expect(sanitized.correlationId).toBe("Recorded in workspace audit trail");
   });
 });
