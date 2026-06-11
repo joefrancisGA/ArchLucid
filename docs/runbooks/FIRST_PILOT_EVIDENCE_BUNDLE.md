@@ -43,9 +43,12 @@ Optional `-DeferredBuyerRequirement` values document buyer requirements that are
   -BaseUrl https://your-staging-api.example `
   -RunId <committed-run-guid> `
   -SponsorHandoff `
+  -FailOnHold `
   -ProductionLikeHostedPilot `
   -OutputDirectory artifacts/first-pilot-proof
 ```
+
+`-FailOnHold` exits **1** when `sponsorPacketDisposition` is **HOLD** or consolidated `ai-readiness-gate` is **HOLD**. **WARN** may still exit **0** unless blocking findings are present.
 
 The pipeline emits **`first-pilot-command-center.md`** and **`first-pilot-command-center.json`** (primary phased status surface aligned to [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) labels), `go-no-go-summary.md`, `go-no-go-summary.json`, `quote-to-proof-packet.md`, `preflight.json`, `observability-export-readiness.md`, `route-tier-policy-nav-parity.md`, `route-tier-policy-nav-drift.json`, `scale-envelope-evidence.md`, `first-pilot-timing-budget.md`, `admin-operational-posture.md`, `procurement-deal-ready-check.txt`, `procurement-deal-ready-classification.md`, **`data-consistency-readiness/`** (including `data-consistency-summary.json` rolled into `go-no-go-summary.json` as `dataConsistencyProof`), and the committed-run evidence bundle when `-RunId` is supplied. **BLOCK/WARN** rows in `go-no-go-summary.md` include a **`supportNextStep`** column pointing at support-bundle or collector commands (no secrets). Triage IDs in the detailed summary map to [`FIRST_PILOT_TRIAGE_CARDS.md`](FIRST_PILOT_TRIAGE_CARDS.md).
 

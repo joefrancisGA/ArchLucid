@@ -53,6 +53,30 @@ class TestAssertRouteTierPolicyNav(unittest.TestCase):
         errors = run_check(root)
         self.assertEqual(errors, [], msg=";\n".join(errors))
 
+    def test_freshness_summary_matches_registry_marker(self) -> None:
+        root = repo_root()
+        matrix_path = root / "docs" / "library" / "ROUTE_TIER_POLICY_NAV_MATRIX.md"
+        matrix_text = matrix_path.read_text(encoding="utf-8")
+        from assert_route_tier_policy_nav import (  # noqa: PLC0415
+            MATRIX_APPENDIX_HEADING,
+            _FRESHNESS_REGISTRY_ROW_RE,
+            load_registry,
+        )
+
+        registry = load_registry(root)
+        entries = registry.get("entries", [])
+        expected_count = len(entries) if isinstance(entries, list) else 0
+        summary_match = _FRESHNESS_REGISTRY_ROW_RE.search(matrix_text.split(MATRIX_APPENDIX_HEADING)[0])
+        marker_match = __import__("re").search(
+            r"<!-- route-tier-policy-nav-registry-count:(\d+) -->",
+            matrix_text,
+        )
+
+        self.assertIsNotNone(summary_match)
+        self.assertIsNotNone(marker_match)
+        self.assertEqual(int(summary_match.group(1)), expected_count)
+        self.assertEqual(int(marker_match.group(1)), expected_count)
+
     def test_run_sync_materializes_missing_controller(self) -> None:
         with tempfile.TemporaryDirectory() as raw_tmp:
             root = Path(raw_tmp)

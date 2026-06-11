@@ -31,6 +31,7 @@ def test_sponsor_handoff_missing_runid_blocks() -> None:
     text = _script_text()
 
     assert "[switch] $SponsorHandoff" in text
+    assert "[switch] $FailOnHold" in text
     assert "No RunId supplied; committed-review evidence collection was skipped in sponsor handoff mode." in text
     assert "Add-ProofFinding -Disposition 'BLOCK' -Name 'committed-run-evidence'" in text
 

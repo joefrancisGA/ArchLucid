@@ -27,6 +27,10 @@ class ControllerSurface:
 
 
 _ROUTE_TOKEN_RE = re.compile(r"v\{version:apiVersion\}")
+_FRESHNESS_REGISTRY_ROW_RE = re.compile(
+    r"\| Registry rows \| \*\*(\d+)\*\* controller route families "
+    r"\(`route-tier-policy-nav-registry-count`\) \|"
+)
 _CLASS_LINE_RE = re.compile(r"^\s*public\s+(?:(?:sealed|partial)\s+)*class\s+(\w+)\b")
 _ATTR_ROUTE_RE = re.compile(r'\[Route\(\s*"([^"]+)"\s*\)\]')
 _POLICY_ON_LINE_RE = re.compile(r"Policy\s*=\s*ArchLucidPolicies\.(\w+)")
@@ -235,6 +239,24 @@ def render_matrix_appendix(root: Path) -> str:
     return "\n".join(lines) + "\n"
 
 
+def sync_freshness_summary_registry_count(matrix_text: str, entry_count: int) -> str:
+    """Keep the human-readable Freshness Summary count aligned with the registry marker."""
+    if _FRESHNESS_REGISTRY_ROW_RE.search(matrix_text) is None:
+        return matrix_text
+
+    updated, replacements = _FRESHNESS_REGISTRY_ROW_RE.subn(
+        rf"| Registry rows | **{entry_count}** controller route families "
+        rf"(`route-tier-policy-nav-registry-count`) |",
+        matrix_text,
+        count=1,
+    )
+
+    if replacements != 1:
+        raise ValueError("matrix doc Freshness Summary Registry rows line could not be updated")
+
+    return updated
+
+
 def sync_matrix_doc(root: Path) -> None:
     doc_path = matrix_doc_path(root)
     matrix_text = doc_path.read_text(encoding="utf-8")
@@ -242,7 +264,11 @@ def sync_matrix_doc(root: Path) -> None:
     if MATRIX_APPENDIX_HEADING not in matrix_text:
         raise ValueError(f"matrix doc missing appendix heading: {MATRIX_APPENDIX_HEADING!r}")
 
+    registry = load_registry(root)
+    entries = registry.get("entries")
+    entry_count = len(entries) if isinstance(entries, list) else 0
     head = matrix_text.split(MATRIX_APPENDIX_HEADING)[0].rstrip() + "\n\n"
+    head = sync_freshness_summary_registry_count(head, entry_count)
     doc_path.write_text(head + render_matrix_appendix(root), encoding="utf-8")
 
 
@@ -398,6 +424,21 @@ def run_check(root: Path) -> list[str]:
             f"matrix registry count marker expects {m.group(1)} but registry has {expected_count} entries; "
             f"update ROUTE_TIER_POLICY_NAV_MATRIX.md"
         )
+
+    summary_head = matrix_text.split(MATRIX_APPENDIX_HEADING)[0]
+    summary_match = _FRESHNESS_REGISTRY_ROW_RE.search(summary_head)
+
+    if summary_match is not None:
+        if int(summary_match.group(1)) != expected_count:
+            errors.append(
+                f"matrix Freshness Summary registry rows count {summary_match.group(1)} "
+                f"!= registry entry count {expected_count}; run --sync"
+            )
+        elif m is not None and int(summary_match.group(1)) != int(m.group(1)):
+            errors.append(
+                f"matrix Freshness Summary count {summary_match.group(1)} "
+                f"!= generated marker count {m.group(1)}"
+            )
 
     return errors
 

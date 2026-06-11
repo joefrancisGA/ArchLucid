@@ -52,6 +52,9 @@ jobs:
       - name: ROI surface consistency (blocking)
         run: python scripts/ci/check_roi_surface_consistency.py
 
+      - name: Route tier policy nav parity (blocking)
+        run: python scripts/ci/assert_route_tier_policy_nav.py
+
       - name: High-risk guard unit tests
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_tenant_isolation_defense_in_depth.py"
@@ -60,10 +63,81 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_public_pricing_placeholder_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_check_release_runbook_script_parity.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_route_tier_policy_nav.py"
+
+  release-evidence-gates:
+    if: github.event.repository.fork == false
+    needs: high-risk-guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Release evidence gate unit tests
+        run: |
+          python -m unittest discover -s scripts/ci/tests -p "test_release_evidence*.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_emit_real_model_canary_gate.py"
+
+      - name: Strict RC rollup self-test (empty bundle must fail)
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          if python scripts/ci/build_release_confidence_rollup.py \
+            --repo-root . \
+            --bundle-dir "$TMP" \
+            --json-out "$TMP/rollup.json" \
+            --markdown-out "$TMP/rollup.md" \
+            --strict-rc; then
+            echo "::error::strict RC rollup must fail on empty evidence bundle"
+            exit 1
+          fi
+
+      - name: Release evidence bundle validate self-test (incomplete must fail)
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          if python scripts/ci/release_evidence_bundle.py validate \
+            --dir "$TMP" \
+            --profile release-readiness; then
+            echo "::error::release evidence validate must fail on empty bundle"
+            exit 1
+          fi
+
+  real-mode-claim-gate:
+    if: github.event.repository.fork == false
+    needs: release-evidence-gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Emit real-mode claim gate (simulator-only RC honest posture)
+        env:
+          ARCHLUCID_RC_RELEASE_CONTEXT: "1"
+          ARCHLUCID_RELEASE_SIMULATOR_ONLY: "1"
+        run: |
+          python scripts/ci/check_release_real_mode_claim.py \
+            --allow-simulator-only \
+            --rc-strict-claims \
+            --json-out "${{ runner.temp }}/real-mode-claim-gate.json" \
+            --markdown-out "${{ runner.temp }}/real-mode-claim-gate.md"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-mode-claim-gate
+          path: ${{ runner.temp }}/real-mode-claim-gate.*
+          if-no-files-found: warn
 
   real-model-canary:
     if: github.event.repository.fork == false
-    needs: high-risk-guards
+    needs: real-mode-claim-gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -75,6 +149,9 @@ jobs:
       - name: Emit real-model canary gate artifact (RC strict)
         env:
           ARCHLUCID_RC_RELEASE_CONTEXT: "1"
+          ARCHLUCID_REAL_MODE_CANARY_WAIVER: "1"
+          ARCHLUCID_REAL_MODE_CANARY_WAIVER_OWNER: "rc-release-gate-workflow"
+          ARCHLUCID_REAL_MODE_CANARY_WAIVER_RATIONALE: "Repository CI validates gate artifact shape; live canary or owner waiver required at RC signoff"
         run: |
           python scripts/ci/emit_real_model_canary_gate.py \
             --json-out "${{ runner.temp }}/real-model-canary-gate.json" \
@@ -86,4 +163,135 @@ jobs:
         with:
           name: real-model-canary-gate
           path: ${{ runner.temp }}/real-model-canary-gate.*
+          if-no-files-found: warn
+
+  ui-e2e-live-rc:
+    if: github.event.repository.fork == false
+    needs: high-risk-guards
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore and build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps and build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create SQL catalog for live API e2e
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eRc') CREATE DATABASE ArchLucidLiveE2eRc;"
+
+      - name: Start ArchLucid.Api (background)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eRc"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: DevelopmentBypass
+          Authentication__ApiKey__DevelopmentBypassAll: "true"
+          AgentExecution__Mode: Simulator
+          Observability__Prometheus__Enabled: "true"
+          Observability__Prometheus__RequireScrapeAuthentication: "false"
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-rc.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-rc.pid"
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:5128/health/ready; then
+              echo "API ready."
+              exit 0
+            fi
+            if [ "$i" -eq 90 ]; then
+              echo "::error::API did not reach /health/ready in time"
+              tail -n 200 "${RUNNER_TEMP}/live-api-rc.log" || true
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Run blocking live UI/API/SQL release-gate Playwright subset
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          NODE_OPTIONS: --max-old-space-size=6144
+          LIVE_JWT_TOKEN: ""
+          LIVE_API_KEY: ""
+          LIVE_API_KEY_READONLY: ""
+        run: |
+          npx playwright install --with-deps chromium
+          curl -fsS http://127.0.0.1:5128/health/ready
+          npx playwright test --grep @release-gate
+
+      - name: Upload Playwright test-results (traces)
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-e2e-live-rc-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - name: Upload live API log
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-e2e-live-rc-api-log
+          path: ${{ runner.temp }}/live-api-rc.log
+          if-no-files-found: warn
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-e2e-live-rc-playwright-report
+          path: archlucid-ui/playwright-report
           if-no-files-found: warn

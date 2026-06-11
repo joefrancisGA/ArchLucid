@@ -12,6 +12,10 @@
   Multi-run stickiness (TB-227): pass -RunNumber 2+ with -CompareBaseRunId (prior committed
   run) and -RunId (current run) to capture compare, governance, and risk-register snapshots
   under pilot-proof-run{N}/ inside the timestamped proof folder.
+
+.PARAMETER FailOnHold
+  Exit with code 1 when sponsor handoff disposition is HOLD or consolidated AI readiness is HOLD.
+  Combine with `-SponsorHandoff` for send/no-send automation.
 #>
 param(
     [string] $BaseUrl = '',
@@ -28,6 +32,7 @@ param(
     [switch] $SkipDemoWorkspaceValidation,
     [switch] $ProductionLikeHostedPilot,
     [switch] $SponsorHandoff,
+    [switch] $FailOnHold,
     [string[]] $DeferredBuyerRequirement = @(),
     [string] $K6SummaryPath = '',
     [string] $LiveUiSqlResultPath = '',
@@ -3198,6 +3203,28 @@ $snapshotScript = Join-Path $PSScriptRoot 'ci\write_first_pilot_proof_status_sna
 
 if (Test-Path -LiteralPath $snapshotScript) {
     & python $snapshotScript 2>&1 | ForEach-Object { Write-Host $_ }
+}
+
+if ($FailOnHold) {
+    $aiReadinessHold = $false
+
+    if ($null -ne $script:aiReadinessGate -and [string]$script:aiReadinessGate.disposition -eq 'HOLD') {
+        $aiReadinessHold = $true
+    }
+
+    if ($SponsorHandoff -and $sponsorPacketDisposition -eq 'HOLD') {
+        Write-Host "FailOnHold: sponsor packet disposition is HOLD ($blockCount blocking finding(s))."
+        exit 1
+    }
+
+    if ($aiReadinessHold) {
+        Write-Host 'FailOnHold: consolidated ai-readiness-gate disposition is HOLD.'
+        exit 1
+    }
+
+    if (-not $SponsorHandoff) {
+        Write-Warning 'FailOnHold: use -SponsorHandoff for full sponsor send/no-send gating; ai-readiness HOLD still blocks when present.'
+    }
 }
 
 if ($blockCount -gt 0) {

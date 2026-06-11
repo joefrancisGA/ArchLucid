@@ -27,6 +27,32 @@ High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: gua
 | Buyer-facing canonical claim drift | `check_buyer_claim_drift.py` | Buyer-safe claim boundaries must not drift at release. |
 | Public pricing placeholder guard | `assert_public_pricing_placeholder_guard.py` | Accidental placeholder checkout URLs at release. |
 | Release runbook/script parity | `check_release_runbook_script_parity.py` | Release docs must match executable script flags. |
+| Route tier policy nav parity | `assert_route_tier_policy_nav.py` | Procurement/security reviewers rely on fresh route registry. |
+| Sponsor packet contract | `check_sponsor_packet_contract.py` | Sponsor export schema must not drift at release. |
+| ROI surface consistency | `check_roi_surface_consistency.py` | ROI copy must stay aligned with proof posture. |
+
+## Release evidence strict (RC)
+
+Job **`release-evidence-gates`** runs unit tests plus self-tests that **empty** evidence folders fail strict RC validation:
+
+- `python scripts/ci/build_release_confidence_rollup.py --strict-rc` on an empty temp bundle (must exit non-zero)
+- `python scripts/ci/release_evidence_bundle.py validate --profile release-readiness` on an empty temp bundle (must exit non-zero)
+
+Release owners attach a populated `artifacts/release-readiness/` folder before buyer-facing signoff; validate with:
+
+```powershell
+.\scripts\ci\Invoke-ValidateReleaseEvidenceBundle.ps1 -BundleDir artifacts/release-readiness -Profile release-readiness
+```
+
+## Real-mode claim gate (RC)
+
+Job **`real-mode-claim-gate`** emits `real-mode-claim-gate.json` via `scripts/ci/check_release_real_mode_claim.py --rc-strict-claims`. Repository CI uses `--allow-simulator-only` for honest simulator posture; buyer-facing RC cuts must attach real evidence or an explicit waiver in the release bundle.
+
+## Live UI/API/SQL parity (RC blocking)
+
+Job **`ui-e2e-live-rc`** runs Playwright **`@release-gate`** specs against SQL-backed **ArchLucid.Api** (simulator mode). This is **blocking** on `release/**` branches and `v*-rc*` tags. Ordinary PR **`ci.yml`** `ui-e2e-live` remains warn-only.
+
+Local reproduction: `.\scripts\release-smoke-live-ui-sql.ps1`
 
 ## Real-model canary (RC strict)
 
