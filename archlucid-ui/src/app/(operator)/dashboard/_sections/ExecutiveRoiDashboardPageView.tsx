@@ -1,3 +1,4 @@
+import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
 import { ExecutiveValueNarrativeBanner } from "@/components/ExecutiveValueNarrativeBanner";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
@@ -50,6 +51,8 @@ export function ExecutiveRoiDashboardPageView({ surface = "operator" }: Executiv
       </section>
 
       <BusinessImpactSummaryWidget />
+
+      <QualityGateMetricsTile />
 
       <section aria-label="Executive portfolio summary and sponsor exports" className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">

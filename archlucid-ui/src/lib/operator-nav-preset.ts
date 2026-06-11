@@ -14,6 +14,21 @@ export const OPERATOR_SHELL_PRESET_ORDER: readonly OperatorShellPresetId[] = [
   "analytics_investigator",
 ];
 
+export const OPERATOR_SHELL_PRESET_LABELS: Record<OperatorShellPresetId, string> = {
+  full: "Full navigator",
+  pilot_operator: "Pilot operator",
+  governance_reviewer: "Governance reviewer",
+  analytics_investigator: "Analytics investigator",
+};
+
+export function parseOperatorShellPresetId(raw: string | null): OperatorShellPresetId {
+  if (isOperatorShellPresetId(raw)) {
+    return raw;
+  }
+
+  return OPERATOR_SHELL_PRESET_DEFAULT_ID;
+}
+
 /** Route path prefixes matched after stripping `?query` — longest wins when checking startswith semantics. */
 
 const PREFIX_RULES: Record<Exclude<OperatorShellPresetId, "full">, readonly string[]> = {

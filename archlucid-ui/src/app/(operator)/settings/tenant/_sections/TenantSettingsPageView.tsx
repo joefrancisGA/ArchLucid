@@ -14,6 +14,7 @@ import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-stora
 
 import { TenantSettingsDigestEmailsInput } from "./TenantSettingsDigestEmailsInput";
 import { TenantCostSettingsCard } from "./TenantCostSettingsCard";
+import { TenantLlmJudgeGuideCard } from "@/components/TenantLlmJudgeGuideCard";
 import { TenantQualityGatesCard } from "./TenantQualityGatesCard";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
@@ -228,6 +229,8 @@ export function TenantSettingsPageView(props: Props) {
           <SupportBundleDownloadButton />
         </CardContent>
       </Card>
+
+      <TenantLlmJudgeGuideCard />
 
       <TenantQualityGatesCard />
     </div>

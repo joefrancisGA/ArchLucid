@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FinishSetupWizardPanel } from "@/components/FinishSetupWizardPanel";
+import { TryCliDemoCard } from "@/components/TryCliDemoCard";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -43,6 +45,8 @@ export function OnboardingPageView({ model }: OnboardingPageViewProps) {
         <InAppHelpLink helpSlug="specialty-walkthroughs" label="Specialty templates (optional, after first commit)" />
       </div>
       <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} />
+      <FinishSetupWizardPanel />
+      <TryCliDemoCard />
       <div>
         <OperatorFirstRunWorkflowPanel />
       </div>

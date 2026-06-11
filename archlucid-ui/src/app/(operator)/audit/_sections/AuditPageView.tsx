@@ -14,6 +14,8 @@ import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer-facing-review-t
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
+import { AuditActiveFilterChips } from "@/components/AuditActiveFilterChips";
+import { buildAuditActiveFilterChips } from "@/lib/audit-active-filter-chips";
 import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemoAuditIntegrityExportButton";
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 
@@ -125,6 +127,29 @@ export function AuditPageView(props: AuditPageViewProps) {
             showSavedViews={!buyerPolishedShell && props.canMutateEnterpriseShell}
             getAuditSavedViewPayload={props.getAuditSavedViewPayload}
             loadAuditSavedView={props.loadAuditSavedView}
+          />
+          <AuditActiveFilterChips
+            chips={buildAuditActiveFilterChips({
+              eventType: props.eventType,
+              fromUtc: props.fromUtc,
+              toUtc: props.toUtc,
+              correlationId: props.correlationId,
+              actorUserId: props.actorUserId,
+              runId: props.runId,
+              auditDatePreset: props.auditDatePreset,
+            })}
+            onClearChip={(id) => {
+              if (id === "eventType") props.setEventType("");
+              if (id === "datePreset") void props.clearDateRangeAndSearch();
+              if (id === "fromUtc") props.setFromUtc("");
+              if (id === "toUtc") props.setToUtc("");
+              if (id === "correlationId") props.setCorrelationId("");
+              if (id === "actorUserId") props.setActorUserId("");
+              if (id === "runId") props.setRunId("");
+            }}
+            onClearAll={() => {
+              void props.clearFiltersAndSearch();
+            }}
           />
         </div>
 

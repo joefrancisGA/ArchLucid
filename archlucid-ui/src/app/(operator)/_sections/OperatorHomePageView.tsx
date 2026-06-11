@@ -28,6 +28,7 @@ import { OperatorNextActionsCard } from "@/components/OperatorNextActionsCard";
 import { OperatorStickinessSnapshotCard } from "@/components/OperatorStickinessSnapshotCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
+import { OperatorRecentViewsPanel } from "@/components/OperatorRecentViewsPanel";
 import { RepeatReviewActivationPrompt } from "@/components/RepeatReviewActivationPrompt";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPackageCard";
@@ -59,6 +60,7 @@ function OperatorHomeReviewsGrid() {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
       <div className="min-w-0 space-y-4">
         <RunsDashboardPanel hideHeading />
+        <OperatorRecentViewsPanel />
         {fullOperatorShell ? <OperatorCorePilotDiagnosticsChecklist /> : null}
         {fullOperatorShell ? <AfterCorePilotChecklistHint /> : null}
 

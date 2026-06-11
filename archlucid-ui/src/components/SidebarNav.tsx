@@ -245,6 +245,27 @@ export function SidebarNav() {
   }, []);
 
   useEffect(() => {
+    function onPresetChanged(): void {
+      try {
+        const rawPreset = window.localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY);
+
+        if (rawPreset !== null && isOperatorShellPresetId(rawPreset)) {
+          setShellPresetId(rawPreset);
+        }
+      }
+      catch {
+        /* ignore */
+      }
+    }
+
+    window.addEventListener("archlucid-nav-preset-changed", onPresetChanged);
+
+    return () => {
+      window.removeEventListener("archlucid-nav-preset-changed", onPresetChanged);
+    };
+  }, []);
+
+  useEffect(() => {
     if (demoUi) {
       return;
     }

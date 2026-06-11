@@ -10,6 +10,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { executeArchitectureRun } from "@/lib/api";
 import type { AgentQualityConcernRow } from "@/lib/agent-quality-warnings-presenter";
+import { buildPlainLanguageQualityBlockSummary } from "@/lib/agent-quality-warnings-presenter";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
@@ -62,6 +63,8 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
     }
   }
 
+  const blockSummary = buildPlainLanguageQualityBlockSummary(rows);
+
   return (
     <section id="ai-quality-warnings" className="scroll-mt-24 mb-6" aria-label="AI quality warnings">
       <Card className="border-amber-600/35 dark:border-amber-700/45">
@@ -74,6 +77,11 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
             Traces flagged by the post-execute quality gate. Review scores and thresholds, then re-run the review after
             adding evidence or context.
           </CardDescription>
+          {blockSummary !== null ? (
+            <p className="m-0 mt-2 text-sm font-medium text-neutral-800 dark:text-neutral-200" role="status">
+              {blockSummary}
+            </p>
+          ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="overflow-x-auto">

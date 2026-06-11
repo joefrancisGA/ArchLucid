@@ -532,6 +532,39 @@ Describe the outcome you want (business + technical). Keep it short and runnable
             get;
             set;
         }
+
+        /// <summary>Optional — when set, CLI attaches X-Tenant-Id / X-Workspace-Id / X-Project-Id on API calls.</summary>
+        [JsonPropertyName("scope")]
+        public CliScopeSection? Scope
+        {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>Tenant routing scope for CLI API calls (mirrors browser proxy scope headers).</summary>
+    public sealed class CliScopeSection
+    {
+        [JsonPropertyName("tenantId")]
+        public string? TenantId
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("workspaceId")]
+        public string? WorkspaceId
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("projectId")]
+        public string? ProjectId
+        {
+            get;
+            set;
+        }
     }
 
     /// <summary>Optional HTTP retry tuning for the CLI API client (<c>archlucid.json</c>).</summary>

@@ -61,7 +61,7 @@ public sealed class ArchLucidApiClient
         ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
             cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
         CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
-        _http = CreateHttpClient(normalized, true, httpResilience);
+        _http = CreateHttpClient(normalized, true, httpResilience, effectiveConfig);
         _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/", ReadResponseAsString = true };
     }
 
@@ -78,7 +78,8 @@ public sealed class ArchLucidApiClient
     }
 
     private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry,
-        CliResilienceOptions? httpResilience = null)
+        CliResilienceOptions? httpResilience = null,
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
     {
         HttpMessageHandler inner = new HttpClientHandler
         {
@@ -95,10 +96,15 @@ public sealed class ArchLucidApiClient
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
-        if (string.IsNullOrWhiteSpace(apiKey))
-            return http;
-        http.DefaultRequestHeaders.Remove("X-Api-Key");
-        http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            http.DefaultRequestHeaders.Remove("X-Api-Key");
+            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+        }
+
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
+            cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
+        CliScopeHeaders.Apply(http, effectiveConfig);
 
         return http;
     }
@@ -120,7 +126,7 @@ public sealed class ArchLucidApiClient
             cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
         CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
 
-        return CreateHttpClient(normalized, true, httpResilience);
+        return CreateHttpClient(normalized, true, httpResilience, effectiveConfig);
     }
 
     public static string GetDefaultBaseUrl()

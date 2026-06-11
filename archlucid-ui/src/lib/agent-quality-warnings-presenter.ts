@@ -104,6 +104,18 @@ export function buildAgentQualityConcernRows(
   return rows.sort((a, b) => a.agentLabel.localeCompare(b.agentLabel));
 }
 
+export function buildPlainLanguageQualityBlockSummary(rows: AgentQualityConcernRow[]): string | null {
+  const rejected = rows.filter((r) => r.status === "rejected");
+
+  if (rejected.length === 0) {
+    return null;
+  }
+
+  const agents = rejected.map((r) => r.agentLabel).join(", ");
+
+  return `This review is blocked because ${agents} output${rejected.length === 1 ? "" : "s"} failed the quality gate. Review the scores below, add evidence or context if needed, then re-run the review.`;
+}
+
 export function hasAgentQualityConcerns(
   evaluation: AgentOutputEvaluationSummaryPayload | null,
   traces: AgentExecutionTraceRow[],

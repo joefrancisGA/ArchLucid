@@ -10,6 +10,9 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
+import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
+import { NavPresetQuickSwitcher } from "@/components/NavPresetQuickSwitcher";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
@@ -257,6 +260,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   <TenantWorkspaceBoundaryBadge variant="header" />
                   <AuthPanel />
                   <ScopeSwitcher />
+                  {!isBuyerPolishedOperatorShellEnv() ? <NavPresetQuickSwitcher /> : null}
                   <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
                     {!isBuyerPolishedOperatorShellEnv() ? (
                       <Tooltip>
@@ -309,6 +313,8 @@ function AppShellInner({ children }: AppShellClientProps) {
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
                     <SyncActiveRunFromPathname />
+                    <OperatorRecentViewsTracker />
+                    <ContextualPageHintStrip />
                     <DemoStrictNavigationGate>
                       <OperatorRoleGate>{children}</OperatorRoleGate>
                     </DemoStrictNavigationGate>

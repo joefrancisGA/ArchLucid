@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export default function DecisionRegisterClient() {
   const [minConfidence, setMinConfidence] = useState("");
   const [maxConfidence, setMaxConfidence] = useState("");
   const [buyerConfidenceSource, setBuyerConfidenceSource] = useState("");
+  const [viewMode, setViewMode] = useState<"cards" | "timeline">("cards");
 
   const filters = useMemo((): ArchitectureDecisionRegisterFilters => {
     const parsed: ArchitectureDecisionRegisterFilters = {};
@@ -73,6 +75,16 @@ export default function DecisionRegisterClient() {
       <OperatorPageHeader
         title={BUYER_GOVERNANCE_DECISION_REGISTER_TITLE}
         subtitle={BUYER_GOVERNANCE_DECISION_REGISTER_LEAD}
+        actions={
+          <div className="flex gap-2">
+            <Button type="button" variant={viewMode === "cards" ? "primary" : "outline"} size="sm" onClick={() => setViewMode("cards")}>
+              Cards
+            </Button>
+            <Button type="button" variant={viewMode === "timeline" ? "primary" : "outline"} size="sm" onClick={() => setViewMode("timeline")}>
+              Timeline
+            </Button>
+          </div>
+        }
       />
 
       <Card>
@@ -178,6 +190,11 @@ export default function DecisionRegisterClient() {
         />
       ) : null}
 
+      {!loading && !loadError && decisions.length > 0 && viewMode === "timeline" ? (
+        <DecisionRegisterTimeline decisions={decisions} />
+      ) : null}
+
+      {!loading && !loadError && decisions.length > 0 && viewMode === "cards" ? (
       <div className="grid gap-4">
         {decisions.map((decision) => (
           <Card key={`${decision.manifestId}-${decision.decisionId}`}>
@@ -224,6 +241,7 @@ export default function DecisionRegisterClient() {
           </Card>
         ))}
       </div>
+      ) : null}
     </div>
   );
 }

@@ -49,8 +49,10 @@ export function CtoDemoHowItWorksTrigger(props: CtoDemoHowItWorksTriggerProps): 
   const trigger =
     customTrigger !== undefined && isValidElement(customTrigger)
       ? cloneElement(customTrigger, {
-          "data-testid": customTrigger.props["data-testid"] ?? "cto-demo-how-it-works-custom-trigger",
-        })
+          "data-testid":
+            (customTrigger.props as { readonly "data-testid"?: string })["data-testid"]
+            ?? "cto-demo-how-it-works-custom-trigger",
+        } as { "data-testid": string })
       : defaultTrigger;
 
   return (

@@ -22,6 +22,7 @@ import {
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
+import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, documentationSearchOpenUrl } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -102,6 +103,24 @@ function CommandPaletteDocumentationSearch({ buyerPolishedShell }: { buyerPolish
         >
           <span className="font-medium">{row.title}</span>
           <span className="ml-2 text-xs text-neutral-500">{row.category}</span>
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
+}
+
+function CommandPaletteActions({ onNavigate }: { onNavigate: (href: string) => void }) {
+  return (
+    <CommandGroup heading="Actions">
+      {COMMAND_PALETTE_ACTIONS.map((action) => (
+        <CommandItem
+          key={action.id}
+          value={`action ${action.label} ${action.searchValue}`}
+          onSelect={() => {
+            onNavigate(action.href);
+          }}
+        >
+          {action.label}
         </CommandItem>
       ))}
     </CommandGroup>
@@ -471,6 +490,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} />
+          <CommandPaletteActions onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks
             visibleHrefs={visibleHrefs}

@@ -17,6 +17,7 @@ import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-stora
 import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
+import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { NewReviewIntentCallout } from "./NewReviewIntentCallout";
 import { SocraticIntakeWizard } from "./SocraticIntakeWizard";
@@ -541,6 +542,7 @@ export function ReviewsNewPathSwitcher() {
           {REVIEWS_NEW_PATH_HINTS[pathMode]}
         </p>
       ) : null}
+      {ready ? <ReviewPathTimeEstimateBanner pathId={pathMode} /> : null}
       {ready ? null : (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
       )}
