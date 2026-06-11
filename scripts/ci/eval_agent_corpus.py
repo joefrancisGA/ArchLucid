@@ -574,6 +574,19 @@ def evaluate_quality_evidence_block(corpus_root: Path, scenario_id: str, qe: Map
         raw_path = str(os.environ.get(env_key, "") or "").strip()
 
         if raw_path == "":
+            committed_fixture = (corpus_root / "agent-results" / f"{scenario_id}.real.json").resolve()
+
+            if committed_fixture.is_file():
+                scored = score_committed_agent_result_json(committed_fixture.read_text(encoding="utf-8"))
+                scored["scenario_id"] = scenario_id
+                scored["mode"] = "real"
+                scored["agent_type"] = agent_type
+                scored["agent_result_path"] = str(committed_fixture)
+                scored["evidence_env"] = env_key
+                scored["evidence_captured"] = True
+                scored["evidence_source"] = "committed_fixture"
+                return scored
+
             return {
                 "scenario_id": scenario_id,
                 "mode": "real",
@@ -582,7 +595,8 @@ def evaluate_quality_evidence_block(corpus_root: Path, scenario_id: str, qe: Map
                 "evidence_env": env_key,
                 "reason": (
                     f"Set `{env_key}` to the filesystem path of an exported Web-serialized AgentResult JSON "
-                    f"(for example pasted from architecture-run trace export). Omit in PR CI."
+                    f"(for example pasted from architecture-run trace export). Omit in PR CI when no committed "
+                    f"`agent-results/{scenario_id}.real.json` fixture exists."
                 ),
             }
 
