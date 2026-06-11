@@ -31,7 +31,7 @@ import {
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { REVIEWS_NEW_PATH_HINTS, QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
+import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   defaultQuickReviewSampleBriefId,
