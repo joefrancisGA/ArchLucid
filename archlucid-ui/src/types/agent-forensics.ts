@@ -6,6 +6,8 @@ export type AgentExecutionTraceRow = {
   agentType: number;
   parseSucceeded: boolean;
   blobUploadFailed?: boolean | null;
+  qualityWarning?: boolean;
+  qualityRejected?: boolean;
   createdUtc: string;
   /** Redacted inline fields; execute-tier UI may preview — full blobs when blob upload succeeded. */
   userPrompt?: string | null;
@@ -82,6 +84,7 @@ export type AgentOutputEvaluationSummaryPayload = {
   averageStructuralCompletenessRatio: number | null;
   /** Mean of {@link AgentOutputSemanticScoreRow.overallSemanticScore} over evaluated rows (same heuristic / optional-judge meaning). */
   averageSemanticScore: number | null;
+  aggregateQualityGateOutcome?: number | null;
 };
 
 export type RunRetrievalGroundingScoreSummary = {

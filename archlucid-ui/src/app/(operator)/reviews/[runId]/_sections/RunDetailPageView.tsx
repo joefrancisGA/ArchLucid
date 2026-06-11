@@ -22,6 +22,7 @@ import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunSavingsSummary } from "@/components/RunSavingsSummary";
 import { RunTrustEvidenceCardSection } from "@/components/RunTrustEvidenceCardSection";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
+import { RunAgentQualityWarningsSection } from "@/components/RunAgentQualityWarningsSection";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
 import { BUYER_REVIEW_DETAIL_POLICY_PACK_NOTE } from "@/lib/buyer-polish-copy";
 import {
@@ -435,6 +436,8 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         />
       ) : null}
+
+      {!m.buyerPolishedArtifactTable ? <RunAgentQualityWarningsSection runId={m.routeRunId} /> : null}
 
       {!m.buyerPolishedArtifactTable ? <RunAgentForensicsSection runId={m.routeRunId} /> : null}
 

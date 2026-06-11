@@ -111,6 +111,11 @@ export async function commitArchitectureRun(
   });
 }
 
+/** Runs agent pipeline for an architecture review (POST /v1/architecture/run/{runId}/execute). */
+export async function executeArchitectureRun(runId: string): Promise<unknown> {
+  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/execute`, {});
+}
+
 /** Seeds deterministic fake agent results for a run (POST /v1/internal/architecture/runs/{runId}/seed-fake-results; operator + ExecuteAuthority). */
 export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
   return apiPostJson<{ resultCount?: number }>(
