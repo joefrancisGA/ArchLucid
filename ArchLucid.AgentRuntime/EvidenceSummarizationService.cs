@@ -8,7 +8,7 @@ namespace ArchLucid.AgentRuntime;
 
 /// <summary>Uses the economy (fast deployment) tier to compress evidence before context overflow.</summary>
 public sealed class EvidenceSummarizationService(
-    IAgentTierCompletionRouter tierCompletionRouter,
+    Lazy<IAgentTierCompletionRouter> tierCompletionRouter,
     IOptionsMonitor<EvidenceSummarizationOptions> options,
     ILogger<EvidenceSummarizationService> logger) : IEvidenceSummarizationService
 {
@@ -17,7 +17,8 @@ public sealed class EvidenceSummarizationService(
         + "cost figures, policy rule IDs, finding IDs, and constraint labels. Remove duplicate sentences "
         + "and boilerplate. Output dense plain text.";
 
-    private readonly IAgentTierCompletionRouter _tierCompletionRouter =
+    // Lazy: completion-chain construction resolves this service while IAgentTierCompletionRouter is still being built.
+    private readonly Lazy<IAgentTierCompletionRouter> _tierCompletionRouter =
         tierCompletionRouter ?? throw new ArgumentNullException(nameof(tierCompletionRouter));
 
     private readonly IOptionsMonitor<EvidenceSummarizationOptions> _options =
@@ -45,7 +46,7 @@ public sealed class EvidenceSummarizationService(
         string cappedEvidence = CapEvidenceText(evidenceText, opts.MaxInputCharacters);
 
         (IAgentCompletionClient completionClient, _) =
-            _tierCompletionRouter.ResolveForAgent(agentType, LlmModelTier.Economy);
+            _tierCompletionRouter.Value.ResolveForAgent(agentType, LlmModelTier.Economy);
 
         try
         {

@@ -78,6 +78,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ExplainGovernanceBlocksOptions>(configuration.GetSection(ExplainGovernanceBlocksOptions.SectionPath));
         services.Configure<EvidenceSummarizationOptions>(
             configuration.GetSection(EvidenceSummarizationOptions.SectionPath));
+        services.AddScoped(static sp =>
+            new Lazy<IAgentTierCompletionRouter>(() => sp.GetRequiredService<IAgentTierCompletionRouter>()));
         services.AddScoped<IEvidenceSummarizationService, EvidenceSummarizationService>();
         services.AddScoped<IFindingIacStubGenerator, FindingIacStubGenerator>();
         services.AddScoped<IFindingPriorityReranker, FindingPriorityReranker>();

@@ -71,7 +71,7 @@ public sealed class EvidenceSummarizationServiceTests
         });
 
         return new EvidenceSummarizationService(
-            tierRouter,
+            new Lazy<IAgentTierCompletionRouter>(() => tierRouter),
             options,
             NullLogger<EvidenceSummarizationService>.Instance);
     }
