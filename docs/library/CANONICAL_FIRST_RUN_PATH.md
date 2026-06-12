@@ -1,4 +1,4 @@
-> **Scope:** Single canonical minimum viable first-run path for V1 pilot operators (seven mandatory steps). Advanced flows are secondary.
+> **Scope:** Single canonical minimum viable first-run path for V1 pilot operators (seven mandatory steps); audience is customer-facing operator onboarding, not a contributor reference.
 
 # Canonical first-run path (V1 pilot)
 
