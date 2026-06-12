@@ -1,3 +1,6 @@
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Persistence.Ports;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Interfaces;
@@ -10,8 +13,9 @@ using AuthorityGoldenManifestRepository = ArchLucid.Core.Manifest.IGoldenManifes
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Shared in-memory authority graph for advisory HTTP integration tests (<see cref="AlertLifecycleIntegrationTests" />
-///     , digest delivery lifecycle).
+///     Shared authority run graph for advisory HTTP integration tests (<see cref="AlertLifecycleIntegrationTests" />,
+///     digest delivery lifecycle, Ask thread tests). Seeds the full Runs → snapshot chain → golden manifest order required
+///     when <c>ArchLucid:StorageProvider=Sql</c> (migration 212 trusted FK constraints).
 /// </summary>
 public static class AdvisoryIntegrationSeed
 {
@@ -22,12 +26,91 @@ public static class AdvisoryIntegrationSeed
     public static async Task<Guid> SeedDefaultScopeAuthorityRunAsync(IServiceProvider services, CancellationToken ct)
     {
         using IServiceScope scope = services.CreateScope();
+        IServiceProvider serviceProvider = scope.ServiceProvider;
         AuthorityGoldenManifestRepository goldenRepo =
-            scope.ServiceProvider.GetRequiredService<AuthorityGoldenManifestRepository>();
-        IRunRepository runRepo = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+            serviceProvider.GetRequiredService<AuthorityGoldenManifestRepository>();
+        IRunRepository runRepo = serviceProvider.GetRequiredService<IRunRepository>();
+        IContextSnapshotRepository contextSnapshotRepo =
+            serviceProvider.GetRequiredService<IContextSnapshotRepository>();
+        IGraphSnapshotRepository graphSnapshotRepo =
+            serviceProvider.GetRequiredService<IGraphSnapshotRepository>();
+        IFindingsSnapshotRepository findingsSnapshotRepo =
+            serviceProvider.GetRequiredService<IFindingsSnapshotRepository>();
+        IDecisionTraceRepository decisionTraceRepo =
+            serviceProvider.GetRequiredService<IDecisionTraceRepository>();
 
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid decisionTraceId = Guid.NewGuid();
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+        string projectSlug = AdvisoryScanSchedule.DefaultProjectSlug;
+
+        RunRecord run = new()
+        {
+            TenantId = ScopeIds.DefaultTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ScopeProjectId = ScopeIds.DefaultProject,
+            RunId = runId,
+            ProjectId = projectSlug,
+            CreatedUtc = createdUtc,
+            GoldenManifestId = manifestId
+        };
+
+        // Authority chain FK order: Runs → ContextSnapshots → GraphSnapshots → FindingsSnapshots → DecisioningTraces → GoldenManifests.
+        await runRepo.SaveAsync(run, ct);
+
+        await contextSnapshotRepo.SaveAsync(
+            new ContextSnapshot
+            {
+                SnapshotId = contextSnapshotId,
+                RunId = runId,
+                ProjectId = projectSlug,
+                CreatedUtc = createdUtc
+            },
+            ct);
+
+        await graphSnapshotRepo.SaveAsync(
+            new GraphSnapshot
+            {
+                GraphSnapshotId = graphSnapshotId,
+                ContextSnapshotId = contextSnapshotId,
+                RunId = runId,
+                CreatedUtc = createdUtc
+            },
+            ct);
+
+        await findingsSnapshotRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
+                CreatedUtc = createdUtc
+            },
+            ct);
+
+        await decisionTraceRepo.SaveAsync(
+            RuleAuditTraceDto.From(
+                new RuleAuditTracePayload
+                {
+                    TenantId = ScopeIds.DefaultTenant,
+                    WorkspaceId = ScopeIds.DefaultWorkspace,
+                    ProjectId = ScopeIds.DefaultProject,
+                    DecisionTraceId = decisionTraceId,
+                    RunId = runId,
+                    CreatedUtc = createdUtc,
+                    RuleSetId = "test-rs",
+                    RuleSetVersion = "1",
+                    RuleSetHash = "test-rh",
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = graphSnapshotId,
+                    FindingsSnapshotId = findingsSnapshotId
+                }),
+            ct);
 
         ManifestDocument manifest = new()
         {
@@ -36,30 +119,17 @@ public static class AdvisoryIntegrationSeed
             ProjectId = ScopeIds.DefaultProject,
             ManifestId = manifestId,
             RunId = runId,
-            ContextSnapshotId = Guid.NewGuid(),
-            GraphSnapshotId = Guid.NewGuid(),
-            FindingsSnapshotId = Guid.NewGuid(),
-            DecisionTraceId = Guid.NewGuid(),
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            ContextSnapshotId = contextSnapshotId,
+            GraphSnapshotId = graphSnapshotId,
+            FindingsSnapshotId = findingsSnapshotId,
+            DecisionTraceId = decisionTraceId,
+            CreatedUtc = createdUtc,
             ManifestHash = "integration-seed",
             RuleSetId = "test-rs",
             RuleSetVersion = "1",
             RuleSetHash = "test-rh"
         };
 
-        RunRecord run = new()
-        {
-            TenantId = ScopeIds.DefaultTenant,
-            WorkspaceId = ScopeIds.DefaultWorkspace,
-            ScopeProjectId = ScopeIds.DefaultProject,
-            RunId = runId,
-            ProjectId = AdvisoryScanSchedule.DefaultProjectSlug,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            GoldenManifestId = manifestId
-        };
-
-        // FK_GoldenManifests_Runs_RunId requires dbo.Runs parent before dbo.GoldenManifests child.
-        await runRepo.SaveAsync(run, ct);
         await goldenRepo.SaveAsync(manifest, ct);
 
         return runId;
