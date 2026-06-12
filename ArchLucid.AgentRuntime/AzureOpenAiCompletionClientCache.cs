@@ -5,7 +5,7 @@ namespace ArchLucid.AgentRuntime;
 /// <summary>
 ///     Caches <see cref="AzureOpenAiCompletionClient" /> instances per deployment name for a single endpoint/key pair.
 /// </summary>
-public sealed class AzureOpenAiCompletionClientCache
+public sealed class AzureOpenAiCompletionClientCache : IDisposable
 {
     private readonly ConcurrentDictionary<string, AzureOpenAiCompletionClient> _clients =
         new(StringComparer.OrdinalIgnoreCase);
@@ -32,5 +32,14 @@ public sealed class AzureOpenAiCompletionClientCache
         string key = deploymentName.Trim();
 
         return _clients.GetOrAdd(key, _clientFactory);
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        foreach (AzureOpenAiCompletionClient client in _clients.Values)
+        {
+            client.Dispose();
+        }
     }
 }

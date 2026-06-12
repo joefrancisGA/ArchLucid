@@ -1496,7 +1496,8 @@ public static partial class ServiceCollectionExtensions
                     AzureOpenAiCompletionClient azureInner = clientCache.GetOrAdd(deployment);
 
                     return BuildAzureOpenAiScopedCompletionChain(sp, azureInner, primaryGate, deployment);
-                });
+                },
+                primaryHolder.Inner);
         });
     }
 

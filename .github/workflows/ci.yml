@@ -2174,7 +2174,9 @@ jobs:
         if: always()
         with:
           name: dotnet-blame-core-libs-shard-${{ matrix.shard }}
-          path: ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/Sequence_*.xml
+          path: |
+            ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/Sequence_*.xml
+            ${{ runner.temp }}/coverage-full-core-libs-shard-${{ matrix.shard }}/**/*.dmp
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v6
