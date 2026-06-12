@@ -98,7 +98,7 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageVersion Include="SharpAbp.Abp.OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="4.6.8" />
     <PackageVersion Include="Stripe.net" Version="48.5.0" />
-    <PackageVersion Include="MessagePack" Version="3.1.4" />
+    <PackageVersion Include="MessagePack" Version="3.1.7" />
     <PackageVersion Include="Microsoft.IdentityModel.Abstractions" Version="8.18.0" />
     <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.18.0" />
     <PackageVersion Include="Microsoft.IdentityModel.Logging" Version="8.18.0" />

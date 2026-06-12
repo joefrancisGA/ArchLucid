@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
@@ -52,11 +51,9 @@ vi.mock("@/lib/cto-demo-audit-integrity-chain", async (importOriginal) => {
 
 describe("CtoDemoAuditIntegrityVerifyButton", () => {
   it("verifies the showcase audit chain on click", async () => {
-    const user = userEvent.setup();
-
     render(<CtoDemoAuditIntegrityVerifyButton />);
 
-    await user.click(screen.getByTestId("cto-demo-audit-integrity-verify-btn"));
+    fireEvent.click(screen.getByTestId("cto-demo-audit-integrity-verify-btn"));
 
     await waitFor(() => {
       expect(screen.getByTestId("cto-demo-audit-integrity-verify-result")).toBeInTheDocument();
