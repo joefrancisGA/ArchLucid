@@ -1,8 +1,54 @@
-import { dirname, normalize } from "node:path/posix";
-
 import { tryResolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 const MARKDOWN_FILE_PATTERN = /\.md(?:#[^\s)]*)?$/i;
+
+/** POSIX dirname without the Node `path` module (keeps this module client-bundle safe). */
+function posixDirname(path: string): string {
+  const lastSlash = path.lastIndexOf("/");
+
+  if (lastSlash < 0) {
+    return ".";
+  }
+
+  if (lastSlash === 0) {
+    return "/";
+  }
+
+  return path.slice(0, lastSlash);
+}
+
+/** POSIX normalize for forward-slash repo paths: resolves "." and ".." segments. */
+function posixNormalize(path: string): string {
+  const isAbsolute = path.startsWith("/");
+  const segments = path.split("/");
+  const resolved: string[] = [];
+
+  for (const segment of segments) {
+    if (segment.length === 0 || segment === ".") {
+      continue;
+    }
+
+    if (segment === "..") {
+      if (resolved.length > 0 && resolved[resolved.length - 1] !== "..") {
+        resolved.pop();
+      } else if (!isAbsolute) {
+        resolved.push("..");
+      }
+
+      continue;
+    }
+
+    resolved.push(segment);
+  }
+
+  const joined = resolved.join("/");
+
+  if (isAbsolute) {
+    return `/${joined}`;
+  }
+
+  return joined.length > 0 ? joined : ".";
+}
 
 /**
  * Turns repo filenames like `OPERATOR_ATLAS.md` into operator-facing labels (no extension).
@@ -53,8 +99,8 @@ export function resolveRelativeRepoDocPath(href: string, sourceDocPath: string):
     return hrefPath.replace(/^\//, "");
   }
 
-  const sourceDir = dirname(sourceDocPath.replace(/^\//, ""));
-  const joined = normalize(`${sourceDir}/${hrefPath}`);
+  const sourceDir = posixDirname(sourceDocPath.replace(/^\//, ""));
+  const joined = posixNormalize(`${sourceDir}/${hrefPath}`);
 
   return joined.replace(/^\//, "");
 }

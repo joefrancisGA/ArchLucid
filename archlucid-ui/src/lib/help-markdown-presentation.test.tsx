@@ -5,6 +5,7 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import {
   humanizeMarkdownFileReference,
   prepareHelpMarkdownForPresentation,
+  resolveRelativeRepoDocPath,
   rewriteHelpMarkdownDocLinks,
   sanitizeBareMarkdownFileReferences,
 } from "@/lib/help-markdown-presentation";
@@ -14,6 +15,18 @@ describe("help-markdown-presentation", () => {
     expect(humanizeMarkdownFileReference("OPERATOR_ATLAS.md")).toBe("Operator Atlas");
     expect(humanizeMarkdownFileReference("../runbooks/FIRST_PILOT_OPERATOR_PATH.md")).toBe(
       "First Pilot Operator Path",
+    );
+  });
+
+  it("resolves relative repo doc paths without node:path", () => {
+    expect(resolveRelativeRepoDocPath("../OPERATOR_ATLAS.md", "docs/library/operator-shell.md")).toBe(
+      "docs/OPERATOR_ATLAS.md",
+    );
+    expect(resolveRelativeRepoDocPath("OPERATOR_ATLAS.md", "docs/library/operator-shell.md")).toBe(
+      "docs/library/OPERATOR_ATLAS.md",
+    );
+    expect(resolveRelativeRepoDocPath("docs/START_HERE.md", "docs/library/operator-shell.md")).toBe(
+      "docs/START_HERE.md",
     );
   });
 

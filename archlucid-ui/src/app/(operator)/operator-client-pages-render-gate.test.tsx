@@ -9,6 +9,21 @@ import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
 import { contextualHelpTriggerAriaLabel } from "@/lib/contextual-help-content";
 
+vi.mock("@/lib/api/http", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api/http")>();
+
+  return {
+    ...actual,
+    apiGet: vi.fn(async () => ({ items: [], totalCount: 0 })),
+    apiGetJsonWithTrace: vi.fn(async () => ({
+      data: { items: [], totalCount: 0 },
+      traceId: null,
+    })),
+    apiPostJson: vi.fn(async () => ({})),
+    apiDelete: vi.fn(async () => undefined),
+  };
+});
+
 vi.mock("next/link", () => ({
   default: ({
     href,

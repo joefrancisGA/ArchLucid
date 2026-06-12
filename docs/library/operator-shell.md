@@ -1,4 +1,4 @@
-> **Scope:** Operator workflow — UI routes, API seams, and progressive Pilot vs Operate disclosure.
+> **Scope:** Operator workflow — UI routes, API seams, and progressive Pilot vs Operate disclosure; audience is contributors maintaining the operator UI, not a buyer-facing document.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
