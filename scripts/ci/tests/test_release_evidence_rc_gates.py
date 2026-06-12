@@ -113,6 +113,19 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 1, msg=result.stderr or result.stdout)
 
+    def test_strict_buyer_rc_fails_without_packet_artifacts(self) -> None:
+        bundle = self._bundle_from_pass_fixture()
+        result = run_py(
+            "release_evidence_bundle.py",
+            "validate",
+            "--dir",
+            str(bundle),
+            "--profile",
+            "release-readiness",
+            "--strict-buyer-rc",
+        )
+        self.assertEqual(result.returncode, 2, msg=result.stderr or result.stdout)
+
     def test_strict_rc_passes_with_complete_fixture(self) -> None:
         bundle = self._bundle_from_pass_fixture()
         json_out = self.temp_dir / "rollup-pass.json"

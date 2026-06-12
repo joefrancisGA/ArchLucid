@@ -205,6 +205,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Detect buyer-surface path changes (strict claim guard trigger)
+        id: buyer-surface-detect
+        run: |
+          python scripts/ci/detect_buyer_surface_changes.py \
+            --base-ref "origin/${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}" \
+            --json-out artifacts/ci/buyer-surface-change-detection.json \
+            --write-github-output
+
       - name: Terraform root ordering sync
         continue-on-error: true
         run: python scripts/ci/assert_terraform_root_ordering_sync.py
@@ -802,6 +810,39 @@ jobs:
       - name: Buyer-facing canonical claim drift guard unit tests
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_buyer_claim_drift.py"
+
+      - name: Buyer-surface strict claim guards (blocking when buyer paths changed)
+        if: steps.buyer-surface-detect.outputs.changed == 'true'
+        run: |
+          python scripts/ci/run_buyer_surface_strict_guards.py \
+            --base-ref "origin/${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}" \
+            --strict
+
+      - name: Real-mode evidence freshness (advisory on ordinary PRs)
+        continue-on-error: true
+        run: |
+          python scripts/ci/report_real_mode_evidence_freshness.py \
+            --allow-simulator-only \
+            --json-out artifacts/ci/real-mode-evidence-freshness.json \
+            --markdown-out artifacts/ci/real-mode-evidence-freshness.md
+
+      - name: Real-mode evidence freshness (strict when buyer paths changed)
+        if: steps.buyer-surface-detect.outputs.changed == 'true'
+        run: |
+          python scripts/ci/report_real_mode_evidence_freshness.py \
+            --strict \
+            --json-out artifacts/ci/real-mode-evidence-freshness.strict.json \
+            --markdown-out artifacts/ci/real-mode-evidence-freshness.strict.md
+
+      - name: TECH_BACKLOG next recommended batch hygiene
+        run: python scripts/ci/check_tech_backlog_next_batch.py
+
+      - name: Buyer-surface / backlog guard unit tests
+        continue-on-error: true
+        run: |
+          python -m unittest discover -s scripts/ci/tests -p "test_detect_buyer_surface_changes.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_check_tech_backlog_next_batch.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_report_real_mode_evidence_freshness.py"
 
       - name: Buyer-polished demo env coherence (TB-273 / BDA-024)
         continue-on-error: true

@@ -23,6 +23,15 @@ _REAL_LLM_EVIDENCE_SCHEMA = "archlucid.real-llm-evidence-gate.v2"
 _REAL_LLM_EVIDENCE_FILE = "real-llm-evidence-gate.json"
 _REAL_LLM_EVIDENCE_STALE_AFTER_DAYS = 30
 _REQUIRED_REAL_AGENT_PATHS = frozenset({"topology", "cost", "compliance", "critic"})
+_BUYER_RC_REQUIRED_FILES: tuple[str, ...] = (
+    "real-mode-claim-gate.json",
+    "real-mode-claim-gate.md",
+    "real-mode-evidence-freshness.json",
+    "rc-go-no-go-verdict.json",
+)
+_BUYER_RC_OPTIONAL_WAIVER_FILES: tuple[str, ...] = (
+    "simulator-only-override.md",
+)
 
 
 @dataclass(frozen=True)
@@ -218,6 +227,58 @@ def evaluate_real_mode_ai_evidence(bundle_dir: Path) -> dict[str, Any]:
     }
 
 
+def evaluate_buyer_rc_packet(bundle_dir: Path, *, strict_buyer_rc: bool) -> list[MissingRequirement]:
+    if not strict_buyer_rc:
+        return []
+
+    missing: list[MissingRequirement] = []
+    simulator_override = bundle_dir / "simulator-only-override.md"
+    waiver_present = simulator_override.is_file()
+
+    for file_name in _BUYER_RC_REQUIRED_FILES:
+        target = bundle_dir / file_name
+
+        if target.is_file():
+            continue
+
+        if file_name.startswith("real-mode-") and waiver_present:
+            continue
+
+        missing.append(
+            MissingRequirement(
+                kind="buyerRcRequiredFile",
+                target=file_name,
+                detail="buyer-facing RC packet requires this artifact",
+            )
+        )
+
+    freshness_path = bundle_dir / "real-mode-evidence-freshness.json"
+
+    if freshness_path.is_file():
+        try:
+            freshness = json.loads(freshness_path.read_text(encoding="utf-8"))
+            status = str(freshness.get("freshnessStatus", "")).upper()
+
+            if status in {"STALE", "MISSING"} and not waiver_present:
+                missing.append(
+                    MissingRequirement(
+                        kind="buyerRcFreshness",
+                        target="real-mode-evidence-freshness.json",
+                        detail=f"freshness status {status} blocks buyer-facing RC handoff",
+                    )
+                )
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="buyerRcFreshness",
+                    target="real-mode-evidence-freshness.json",
+                    detail="freshness artifact is not valid JSON",
+                )
+            )
+
+    return missing
+
+
 def evaluate_profile(bundle_dir: Path, profile_name: str, profiles_doc: dict[str, Any]) -> tuple[list[MissingRequirement], list[str], list[str]]:
     profile = profiles_doc["profiles"][profile_name]
     missing: list[MissingRequirement] = []
@@ -317,6 +378,7 @@ def validate_bundle(
     *,
     require_manifest: bool = True,
     profiles_doc: dict[str, Any] | None = None,
+    strict_buyer_rc: bool = False,
 ) -> tuple[dict[str, Any], int]:
     bundle_dir = bundle_dir.resolve()
     profiles_doc = profiles_doc or load_profiles()
@@ -333,6 +395,7 @@ def validate_bundle(
         return report, 2
 
     missing, present_required, present_optional = evaluate_profile(bundle_dir, profile_name, profiles_doc)
+    missing.extend(evaluate_buyer_rc_packet(bundle_dir, strict_buyer_rc=strict_buyer_rc))
     real_mode_ai_evidence = evaluate_real_mode_ai_evidence(bundle_dir)
     manifest_name = profiles_doc["manifestFileName"]
     manifest_path = bundle_dir / manifest_name
@@ -366,6 +429,7 @@ def validate_bundle(
         "profile": profile_name,
         "bundleRoot": bundle_dir.as_posix(),
         "verdict": verdict,
+        "strictBuyerRc": strict_buyer_rc,
         "realModeAiEvidence": real_mode_ai_evidence,
         "presentRequiredCount": len(present_required),
         "presentOptionalCount": len(present_optional),
@@ -392,6 +456,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     validate_parser.add_argument("--profile", required=True)
     validate_parser.add_argument("--json-out", type=Path, default=None)
     validate_parser.add_argument("--no-require-manifest", action="store_true")
+    validate_parser.add_argument(
+        "--strict-buyer-rc",
+        action="store_true",
+        help="Require buyer-facing RC packet artifacts (claim gate, freshness summary, go/no-go verdict).",
+    )
 
     return parser.parse_args(argv)
 
@@ -415,6 +484,7 @@ def main(argv: list[str] | None = None) -> int:
         args.dir,
         args.profile,
         require_manifest=not args.no_require_manifest,
+        strict_buyer_rc=args.strict_buyer_rc,
     )
 
     if args.json_out is not None:

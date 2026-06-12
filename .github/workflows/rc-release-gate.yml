@@ -144,7 +144,8 @@ jobs:
           TMP="$(mktemp -d)"
           if python scripts/ci/release_evidence_bundle.py validate \
             --dir "$TMP" \
-            --profile release-readiness; then
+            --profile release-readiness \
+            --strict-buyer-rc; then
             echo "::error::release evidence validate must fail on empty bundle"
             exit 1
           fi

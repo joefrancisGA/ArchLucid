@@ -8,7 +8,7 @@
 
 ## Objective
 
-High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: guards pre-corset** job so ordinary PRs stay fast. The same checks **block** RC and release cuts via **`.github/workflows/rc-release-gate.yml`**.
+High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: markdown link integrity** job so ordinary PRs stay fast. When a PR touches buyer-facing paths (`docs/go-to-market/**`, marketing UI, `V1_SCOPE.md`, trust/pricing docs), **`run_buyer_surface_strict_guards.py`** and **`report_real_mode_evidence_freshness.py --strict`** run as **merge-blocking** in the same job. The same checks **block** RC and release cuts via **`.github/workflows/rc-release-gate.yml`**.
 
 ## Triggers
 
@@ -37,13 +37,16 @@ High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: gua
 Job **`release-evidence-gates`** runs unit tests plus self-tests that **empty** evidence folders fail strict RC validation:
 
 - `python scripts/ci/build_release_confidence_rollup.py --strict-rc` on an empty temp bundle (must exit non-zero)
-- `python scripts/ci/release_evidence_bundle.py validate --profile release-readiness` on an empty temp bundle (must exit non-zero)
+- `python scripts/ci/release_evidence_bundle.py validate --profile release-readiness --strict-buyer-rc` on an empty temp bundle (must exit non-zero)
 
 Release owners attach a populated `artifacts/release-readiness/` folder before buyer-facing signoff; validate with:
 
 ```powershell
 .\scripts\ci\Invoke-ValidateReleaseEvidenceBundle.ps1 -BundleDir artifacts/release-readiness -Profile release-readiness
+python scripts/ci/release_evidence_bundle.py validate --dir artifacts/release-readiness --profile release-readiness --strict-buyer-rc
 ```
+
+**Buyer-facing RC packet minimum** (`--strict-buyer-rc`): `real-mode-claim-gate.json`, `real-mode-claim-gate.md`, `real-mode-evidence-freshness.json`, `rc-go-no-go-verdict.json` (or explicit `simulator-only-override.md` waiver for honest simulator-only posture).
 
 ## Observability readiness (RC)
 
