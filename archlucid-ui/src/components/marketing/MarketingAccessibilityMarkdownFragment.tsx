@@ -3,10 +3,15 @@ import type { ReactNode } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
 import { createHelpHeadingSlugAllocator } from "@/lib/help-heading-slug";
+import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-function renderInline(text: string, keyPrefix: string): ReactNode[] {
+type RenderInlineOptions = {
+  readonly linkMode: "external-only" | "help";
+};
+
+function renderInline(text: string, keyPrefix: string, options: RenderInlineOptions): ReactNode[] {
   const nodes: ReactNode[] = [];
   let remaining = text;
   let i = 0;
@@ -74,7 +79,7 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
       const inner = remaining.slice(next.at + 2, close);
       nodes.push(
         <strong key={`${keyPrefix}-s-${i}`} className="font-semibold">
-          {renderInline(inner, `${keyPrefix}-bi-${i}`)}
+          {renderInline(inner, `${keyPrefix}-bi-${i}`, options)}
         </strong>,
       );
       remaining = remaining.slice(close + 2);
@@ -93,24 +98,30 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
 
     const label = remaining.slice(next.at + 1, closeBracket);
     const href = remaining.slice(openParen + 1, closeParen);
-    const safe = href.startsWith("https://") || href.startsWith("http://") || href.startsWith("mailto:");
+    const isExternal =
+      href.startsWith("https://") || href.startsWith("http://") || href.startsWith("mailto:");
+    const isInAppHelp = options.linkMode === "help" && href.startsWith("/help");
+    const safe = isExternal || isInAppHelp;
 
     if (!safe) {
-      nodes.push(<span key={`${keyPrefix}-unsafe-${i}`}>{remaining.slice(next.at, closeParen + 1)}</span>);
+      nodes.push(<span key={`${keyPrefix}-unsafe-${i}`}>{label}</span>);
       remaining = remaining.slice(closeParen + 1);
       i++;
       continue;
     }
 
-    const isExternal = href.startsWith("http://") || href.startsWith("https://");
     nodes.push(
       <Link
         key={`${keyPrefix}-a-${i}`}
         href={href}
-        className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+        className={
+          isInAppHelp
+            ? "text-teal-800 underline decoration-teal-700/40 underline-offset-2 hover:text-teal-950 dark:text-teal-300 dark:hover:text-teal-100"
+            : "text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+        }
         {...(isExternal ? { rel: "noopener noreferrer", target: "_blank" } : {})}
       >
-        {renderInline(label, `${keyPrefix}-al-${i}`)}
+        {renderInline(label, `${keyPrefix}-al-${i}`, options)}
       </Link>,
     );
     remaining = remaining.slice(closeParen + 1);
@@ -135,6 +146,8 @@ type MarketingAccessibilityMarkdownFragmentProps = {
   tableCaption: string;
   /** Help topics use operator typography and readable code blocks. */
   presentation?: "marketing" | "help";
+  /** Primary repo-relative source path for resolving internal doc links in help topics. */
+  sourceDocPath?: string;
 };
 
 /**
@@ -152,11 +165,19 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     ? "scroll-mt-24 mt-6 text-base font-semibold text-al-text-primary"
     : "scroll-mt-24 mt-4 text-sm font-semibold text-al-text-primary";
   const tableTextClass = isHelp ? "text-sm" : "text-sm";
+  const renderOptions: RenderInlineOptions = { linkMode: isHelp ? "help" : "external-only" };
+  const markdownBody =
+    isHelp
+      ? props.sourceDocPath !== undefined && props.sourceDocPath.trim().length > 0
+        ? prepareHelpMarkdownForPresentation(props.markdownBody, props.sourceDocPath)
+        : sanitizeBareMarkdownFileReferences(props.markdownBody)
+      : props.markdownBody;
 
-  const lines = props.markdownBody.replace(/\r\n/g, "\n").split("\n");
+  const lines = markdownBody.replace(/\r\n/g, "\n").split("\n");
   const blocks: ReactNode[] = [];
   let key = 0;
   const allocateSectionSlug = createHelpHeadingSlugAllocator();
+  let skippedDuplicateHelpTitle = !isHelp;
 
   let i = 0;
   while (i < lines.length) {
@@ -204,7 +225,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
           id={sectionId}
           className="scroll-mt-24 mt-8 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
         >
-          {renderInline(title, `h2-${key}`)}
+          {renderInline(title, `h2-${key}`, renderOptions)}
         </h2>,
       );
       key++;
@@ -213,10 +234,16 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     }
 
     if (line.startsWith("# ") && !line.startsWith("##")) {
+      if (isHelp && !skippedDuplicateHelpTitle) {
+        skippedDuplicateHelpTitle = true;
+        i++;
+        continue;
+      }
+
       const title = line.slice(2).trim();
       blocks.push(
         <h1 key={`h1-${key}`} className="mt-2 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
-          {renderInline(title, `h1-${key}`)}
+          {renderInline(title, `h1-${key}`, renderOptions)}
         </h1>,
       );
       key++;
@@ -233,7 +260,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
           id={sectionId}
           className={h3Class}
         >
-          {renderInline(title, `h3-${key}`)}
+          {renderInline(title, `h3-${key}`, renderOptions)}
         </h3>,
       );
       key++;
@@ -261,7 +288,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
             key={`bq-${key}`}
             className="my-4 border-l-4 border-neutral-300 pl-4 text-sm italic text-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
           >
-            <p className="m-0 leading-relaxed">{renderInline(body, `bq-${key}`)}</p>
+            <p className="m-0 leading-relaxed">{renderInline(body, `bq-${key}`, renderOptions)}</p>
           </blockquote>,
         );
         key++;
@@ -300,7 +327,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                     scope="col"
                     className="border border-neutral-200 px-3 py-2 text-left font-semibold dark:border-neutral-800"
                   >
-                    {renderInline(c, `th-${key}-${idx}`)}
+                    {renderInline(c, `th-${key}-${idx}`, renderOptions)}
                   </th>
                 ))}
               </tr>
@@ -316,7 +343,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
                   <tr key={`tr-${key}-${rIdx}`} className="odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/60">
                     {cells.map((c, cIdx) => (
                       <td key={`td-${key}-${rIdx}-${cIdx}`} className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">
-                        {renderInline(c, `td-${key}-${rIdx}-${cIdx}`)}
+                        {renderInline(c, `td-${key}-${rIdx}-${cIdx}`, renderOptions)}
                       </td>
                     ))}
                   </tr>
@@ -349,7 +376,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       blocks.push(
         <ul key={`ul-${key}`} className={cn("my-3 list-disc space-y-2 pl-6", bodyTextClass)}>
           {items.map((it, idx) => (
-            <li key={`li-${key}-${idx}`}>{renderInline(it, `li-${key}-${idx}`)}</li>
+            <li key={`li-${key}-${idx}`}>{renderInline(it, `li-${key}-${idx}`, renderOptions)}</li>
           ))}
         </ul>,
       );
@@ -377,7 +404,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       blocks.push(
         <ol key={`ol-${key}`} className="my-3 list-decimal space-y-2 pl-6 text-neutral-800 dark:text-neutral-200">
           {items.map((it, idx) => (
-            <li key={`oli-${key}-${idx}`}>{renderInline(it, `oli-${key}-${idx}`)}</li>
+            <li key={`oli-${key}-${idx}`}>{renderInline(it, `oli-${key}-${idx}`, renderOptions)}</li>
           ))}
         </ol>,
       );
@@ -412,7 +439,7 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
     if (paragraph.length > 0) {
       blocks.push(
         <p key={`p-${key}`} className={cn("my-3 leading-relaxed", bodyTextClass)}>
-          {renderInline(paragraph, `p-${key}`)}
+          {renderInline(paragraph, `p-${key}`, renderOptions)}
         </p>,
       );
       key++;

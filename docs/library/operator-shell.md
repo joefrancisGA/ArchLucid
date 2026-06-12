@@ -1,9 +1,9 @@
-> **Scope:** Contributor-reference — ArchLucid operator shell (Change Set 55R) - full detail, tables, and links in the sections below.
+> **Scope:** Operator workflow — UI routes, API seams, and progressive Pilot vs Operate disclosure.
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
 
-# ArchLucid operator shell (Change Set 55R)
+# ArchLucid operator shell
 
 **Audience:** Internal operators and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.
 

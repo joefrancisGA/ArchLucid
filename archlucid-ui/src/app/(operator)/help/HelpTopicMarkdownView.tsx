@@ -48,6 +48,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             markdownBody={markdown}
             tableCaption={`${entry.title} reference table`}
             presentation="help"
+            sourceDocPath={entry.sourcePaths[0]}
           />
         </div>
         <HelpTopicTableOfContents headings={headings} />
