@@ -2216,7 +2216,8 @@ function Add-SecurityReviewerOnePagerFinding {
 function Invoke-RoiBaselineSendEvaluation {
     param(
         [Parameter(Mandatory = $true)][string] $ProofDirectory,
-        [Parameter(Mandatory = $true)][hashtable] $SummaryPayload
+        [Parameter(Mandatory = $true)][hashtable] $SummaryPayload,
+        [switch] $StrictSend
     )
 
     $partialPath = Join-Path $ProofDirectory 'go-no-go-summary.partial.json'
@@ -2234,6 +2235,10 @@ function Invoke-RoiBaselineSendEvaluation {
 
     if (Test-Path -LiteralPath $overridePath) {
         $args += @('--override-json', $overridePath)
+    }
+
+    if ($StrictSend) {
+        $args += '--strict-send'
     }
 
     & python @args 2>&1 | Out-Null
@@ -2907,13 +2912,47 @@ if (Test-Path -LiteralPath (Join-Path $proofDir 'commercial-next-step.json')) {
     }
 }
 
-$baselineSendEval = Invoke-RoiBaselineSendEvaluation -ProofDirectory $proofDir -SummaryPayload ([ordered]@{
+$baselineSendEval = Invoke-RoiBaselineSendEvaluation `
+    -ProofDirectory $proofDir `
+    -StrictSend:$SponsorHandoff `
+    -SummaryPayload ([ordered]@{
         roiBasisStatus           = $script:roiBasisStatus
         roiSponsorSafe           = $script:roiSponsorSafe
         blockCount               = $blockCount
         sponsorPacketDisposition = $sponsorPacketDisposition
         runId                    = if ([string]::IsNullOrWhiteSpace($RunId)) { $null } else { $RunId.Trim() }
     })
+
+if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
+    $missingFields = @($baselineSendEval.missingRequiredBaselineFields) -join ', '
+
+    if ([string]::IsNullOrWhiteSpace($missingFields)) {
+        $missingFields = 'see roi-baseline-send-evaluation.json'
+    }
+
+    $sendBlockDetail = @($baselineSendEval.sendBlockReasons) -join '; '
+
+    if ([string]::IsNullOrWhiteSpace($sendBlockDetail)) {
+        $sendBlockDetail = 'ROI baseline completeness did not satisfy strict SEND policy.'
+    }
+
+    Add-ProofFinding `
+        -Disposition 'BLOCK' `
+        -Name 'roi-baseline-send-eligibility' `
+        -Detail "Sponsor SEND blocked: $sendBlockDetail (missing: $missingFields)." `
+        -Remediation 'Collect buyer ROI baselines per ROI_BASELINE_SEND_POLICY.md or attach an approved override JSON before sponsor handoff.' `
+        -TriageCard 'FP-T015'
+
+    $blockCount = @($findings | Where-Object { $_.disposition -eq 'BLOCK' }).Count
+    $warnCount = @($findings | Where-Object { $_.disposition -eq 'WARN' }).Count
+    $verdict = if ($blockCount -gt 0) { 'BLOCK' } elseif ($warnCount -gt 0) { 'PASS_WITH_WARNINGS' } else { 'PASS' }
+    $blockingReasons = Get-BlockingReasonsFromFindings -Findings @($findings)
+    $sponsorPacketDisposition = Resolve-SponsorPacketDisposition `
+        -SponsorHandoff:$SponsorHandoff `
+        -BlockCount $blockCount `
+        -WarnCount $warnCount `
+        -DeferredScopeReasons $deferredScopeReasons
+}
 
 $closeoutPaths = Write-FirstPilotCommercialCloseoutArtifacts `
     -ProofDirectory $proofDir `
@@ -3223,6 +3262,11 @@ if ($FailOnHold) {
 
     if ($null -ne $script:aiReadinessGate -and [string]$script:aiReadinessGate.disposition -eq 'HOLD') {
         $aiReadinessHold = $true
+    }
+
+    if ($SponsorHandoff -and -not [bool]$baselineSendEval.sendEligible) {
+        Write-Host 'FailOnHold: ROI baseline SEND eligibility failed; sponsor packet cannot be sent.'
+        exit 1
     }
 
     if ($SponsorHandoff -and $sponsorPacketDisposition -eq 'HOLD') {

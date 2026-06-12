@@ -27,7 +27,8 @@ High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: gua
 | Buyer-facing canonical claim drift | `check_buyer_claim_drift.py` | Buyer-safe claim boundaries must not drift at release. |
 | Public pricing placeholder guard | `assert_public_pricing_placeholder_guard.py` | Accidental placeholder checkout URLs at release. |
 | Release runbook/script parity | `check_release_runbook_script_parity.py` | Release docs must match executable script flags. |
-| Route tier policy nav parity | `assert_route_tier_policy_nav.py` | Procurement/security reviewers rely on fresh route registry. |
+| Route tier policy nav parity | `assert_route_tier_policy_nav.py` (with `--markdown-report` + `--json-summary-out` RC artifacts) | Procurement/security reviewers rely on fresh route registry. |
+| Sponsor evidence label consistency | `check_sponsor_evidence_label_consistency.py` | Sponsor-facing docs must keep evidence-basis labels and forbid over-claims. |
 | Sponsor packet contract | `check_sponsor_packet_contract.py` | Sponsor export schema must not drift at release. |
 | ROI surface consistency | `check_roi_surface_consistency.py` | ROI copy must stay aligned with proof posture. |
 
@@ -44,9 +45,17 @@ Release owners attach a populated `artifacts/release-readiness/` folder before b
 .\scripts\ci\Invoke-ValidateReleaseEvidenceBundle.ps1 -BundleDir artifacts/release-readiness -Profile release-readiness
 ```
 
+## Observability readiness (RC)
+
+Job **`observability-readiness`** emits `observability-export-readiness.md` via `scripts/report_observability_export_readiness.py --environment Production`. Attach the artifact to release evidence bundles before buyer-facing signoff.
+
+## RC signoff gate (blocking)
+
+Job **`rc-signoff-gate`** synthesizes `rc-go-no-go-verdict.json` / `.md` from claim gate, canary gate, observability, and route/tier/policy/nav artifacts, then runs `build_rc_go_no_go_verdict.py --strict-rc`. The workflow **fails** when verdict is **HOLD** or when claim/canary scripts exit non-zero.
+
 ## Real-mode claim gate (RC)
 
-Job **`real-mode-claim-gate`** emits `real-mode-claim-gate.json` via `scripts/ci/check_release_real_mode_claim.py --rc-strict-claims`. Repository CI uses `--allow-simulator-only` for honest simulator posture; buyer-facing RC cuts must attach real evidence or an explicit waiver in the release bundle.
+Job **`real-mode-claim-gate`** emits `real-mode-claim-gate.json` via `scripts/ci/check_release_real_mode_claim.py --rc-strict-claims`. Repository CI uses `--allow-simulator-only` for honest simulator posture; buyer-facing RC cuts must attach real evidence or an explicit waiver in the release bundle. JSON includes `blockingReasons` consumed by the RC go/no-go verdict.
 
 ## Live UI/API/SQL parity (RC blocking)
 

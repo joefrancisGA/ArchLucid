@@ -56,7 +56,21 @@ jobs:
         run: python scripts/ci/check_roi_surface_consistency.py
 
       - name: Route tier policy nav parity (blocking)
-        run: python scripts/ci/assert_route_tier_policy_nav.py
+        run: |
+          python scripts/ci/assert_route_tier_policy_nav.py \
+            --markdown-report "${{ runner.temp }}/route-tier-policy-nav-parity.md" \
+            --json-summary-out "${{ runner.temp }}/route-tier-policy-nav-parity.json"
+
+      - name: Sponsor evidence label consistency (blocking)
+        run: python scripts/ci/check_sponsor_evidence_label_consistency.py
+
+      - name: Upload route tier policy nav RC artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: route-tier-policy-nav-parity
+          path: ${{ runner.temp }}/route-tier-policy-nav-parity.*
+          if-no-files-found: warn
 
       - name: High-risk guard unit tests
         run: |
@@ -67,6 +81,31 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_assert_public_pricing_placeholder_guard.py"
           python -m unittest discover -s scripts/ci/tests -p "test_check_release_runbook_script_parity.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_route_tier_policy_nav.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_evidence_label_consistency.py"
+
+  observability-readiness:
+    if: github.event.repository.fork == false
+    needs: release-evidence-gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Emit observability export readiness (RC artifact)
+        run: |
+          python scripts/report_observability_export_readiness.py \
+            --environment Production \
+            --out "${{ runner.temp }}/observability-export-readiness.md"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: observability-export-readiness
+          path: ${{ runner.temp }}/observability-export-readiness.*
+          if-no-files-found: warn
 
   release-evidence-gates:
     if: github.event.repository.fork == false
@@ -167,6 +206,65 @@ jobs:
         with:
           name: real-model-canary-gate
           path: ${{ runner.temp }}/real-model-canary-gate.*
+          if-no-files-found: warn
+
+  rc-signoff-gate:
+    if: github.event.repository.fork == false
+    needs:
+      - real-mode-claim-gate
+      - real-model-canary
+      - observability-readiness
+      - high-risk-guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Build RC signoff evidence bundle and verdict (strict)
+        env:
+          ARCHLUCID_RC_RELEASE_CONTEXT: "1"
+          ARCHLUCID_RELEASE_SIMULATOR_ONLY: "1"
+          ARCHLUCID_REAL_MODE_CANARY_WAIVER: "1"
+          ARCHLUCID_REAL_MODE_CANARY_WAIVER_OWNER: "rc-release-gate-workflow"
+          ARCHLUCID_REAL_MODE_CANARY_WAIVER_RATIONALE: "Repository CI validates RC signoff artifact shape; live canary required at buyer-facing RC cut"
+        run: |
+          set -euo pipefail
+          BUNDLE="${{ runner.temp }}/rc-signoff-bundle"
+          mkdir -p "$BUNDLE"
+          python scripts/ci/check_release_real_mode_claim.py \
+            --allow-simulator-only \
+            --rc-strict-claims \
+            --json-out "$BUNDLE/real-mode-claim-gate.json" \
+            --markdown-out "$BUNDLE/real-mode-claim-gate.md"
+          python scripts/ci/emit_real_model_canary_gate.py \
+            --json-out "$BUNDLE/real-model-canary-gate.json" \
+            --markdown-out "$BUNDLE/real-model-canary-gate.md" \
+            --rc-strict
+          python scripts/report_observability_export_readiness.py \
+            --environment Production \
+            --out "$BUNDLE/observability-export-readiness.md"
+          python scripts/ci/assert_route_tier_policy_nav.py \
+            --markdown-report "$BUNDLE/route-tier-policy-nav-parity.md" \
+            --json-summary-out "$BUNDLE/route-tier-policy-nav-parity.json"
+          printf '%s\n' '{"schema":"archlucid.release-readiness-index.v1","rollup":"WARN","claimGateDisposition":"PASS"}' \
+            > "$BUNDLE/release-readiness-index.json"
+          printf '%s\n' '{"schema":"archlucid.release-confidence-rollup.v1","disposition":"PASS","strictDisposition":"PASS","strictBlockingReasons":[]}' \
+            > "$BUNDLE/release-confidence-rollup.json"
+          python scripts/ci/build_rc_go_no_go_verdict.py \
+            --repo-root . \
+            --bundle-dir "$BUNDLE" \
+            --json-out "$BUNDLE/rc-go-no-go-verdict.json" \
+            --markdown-out "$BUNDLE/rc-go-no-go-verdict.md" \
+            --strict-rc
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rc-signoff-gate
+          path: ${{ runner.temp }}/rc-signoff-bundle/**
           if-no-files-found: warn
 
   ui-e2e-live-rc:

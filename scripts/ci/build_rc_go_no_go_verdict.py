@@ -35,6 +35,7 @@ def build_verdict(root: Path, bundle_dir: Path) -> dict[str, Any]:
     readiness = load_json(bundle_dir / "release-readiness-index.json") or {}
     confidence = load_json(bundle_dir / "release-confidence-rollup.json") or {}
     claim_gate = load_json(bundle_dir / "real-mode-claim-gate.json") or {}
+    canary_gate = load_json(bundle_dir / "real-model-canary-gate.json") or {}
     deploy_handoff = load_json(bundle_dir / "deploy-handoff.json") or {}
     azure_parity = load_json(bundle_dir / "azure-iac-parity-proof.json") or {}
     managed_identity = load_json(bundle_dir / "managed-identity-verification.json") or {}
@@ -63,6 +64,19 @@ def build_verdict(root: Path, bundle_dir: Path) -> dict[str, Any]:
 
     if claim_disposition == "HOLD":
         blockers.append(f"Real-mode claim gate: {claim_disposition}")
+
+    for reason in claim_gate.get("blockingReasons") or []:
+        if isinstance(reason, str) and reason.strip():
+            blockers.append(reason)
+
+    canary_disposition = str(canary_gate.get("disposition") or "").upper()
+
+    if canary_disposition in {"FAIL", "WAIVER_REQUIRED_FAIL"}:
+        blockers.append(f"Real-model canary gate: {canary_disposition}")
+
+    for reason in canary_gate.get("blockingReasons") or []:
+        if isinstance(reason, str) and reason.strip():
+            blockers.append(reason)
 
     if readiness_rollup == "FAIL":
         blockers.append(f"Release readiness index rollup: {readiness_rollup}")

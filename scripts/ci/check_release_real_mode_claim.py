@@ -396,6 +396,22 @@ def main(argv: list[str] | None = None) -> int:
         waiver_json=args.waiver_json if args.waiver_json else None,
     )
 
+    blocking_reasons: list[str] = []
+
+    for row in rows:
+        if row.get("result") == "FAIL":
+            blocking_reasons.append(f"{row['check']}: {row['detail']}")
+
+    allowed_rc_wording = {"full-real-mode", "waived-not-verified", "simulator-only"}
+
+    if rc_strict and claim_wording_class not in allowed_rc_wording:
+        blocking_reasons.append(
+            f"RC strict claims require wording class in {sorted(allowed_rc_wording)}; got {claim_wording_class!r}"
+        )
+
+    if disposition == "HOLD":
+        blocking_reasons.append(f"Claim gate disposition is HOLD ({claim_wording_class})")
+
     payload = {
         "schema": "archlucid.real-mode-claim-gate.v1",
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
@@ -404,6 +420,7 @@ def main(argv: list[str] | None = None) -> int:
         "claimDisposition": disposition,
         "canonicalEvidenceSource": "staging Azure OpenAI deployment",
         "realModeMandatoryForBuyerFacingRc": True,
+        "blockingReasons": blocking_reasons,
         "checks": rows,
     }
 
@@ -417,7 +434,9 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"Release real-mode claim disposition: {disposition} ({claim_wording_class})")
 
-    if rc_strict and claim_wording_class not in {"full-real-mode", "waived-not-verified"}:
+    allowed_rc_wording = {"full-real-mode", "waived-not-verified", "simulator-only"}
+
+    if rc_strict and claim_wording_class not in allowed_rc_wording:
         return 1
 
     if rc_strict and disposition != "PASS" and claim_wording_class != "waived-not-verified":

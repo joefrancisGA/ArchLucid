@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -109,3 +110,29 @@ def test_waiver_marks_waived_not_verified(tmp_path: Path) -> None:
     assert disposition == "HOLD"
     assert wording == "waived-not-verified"
     assert any(row["check"] == "Real-mode evidence waiver" and row["result"] == "PASS" for row in rows)
+
+
+def test_cli_simulator_only_rc_strict_exits_zero(tmp_path: Path) -> None:
+    json_out = tmp_path / "claim.json"
+    md_out = tmp_path / "claim.md"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(_REPO_ROOT / "scripts" / "ci" / "check_release_real_mode_claim.py"),
+            "--allow-simulator-only",
+            "--rc-strict-claims",
+            "--json-out",
+            str(json_out),
+            "--markdown-out",
+            str(md_out),
+        ],
+        cwd=_REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    payload = json.loads(json_out.read_text(encoding="utf-8"))
+    assert payload["disposition"] == "PASS"
+    assert payload["claimWordingClass"] == "simulator-only"
+    assert isinstance(payload.get("blockingReasons"), list)
+    assert result.returncode == 0, result.stderr or result.stdout

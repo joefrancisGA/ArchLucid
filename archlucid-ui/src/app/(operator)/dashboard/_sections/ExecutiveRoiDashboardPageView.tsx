@@ -1,5 +1,6 @@
 import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
 import { ExecutiveValueNarrativeBanner } from "@/components/ExecutiveValueNarrativeBanner";
+import { OperatorPilotOrientationBanner } from "@/components/OperatorPilotOrientationBanner";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import type { ExecutiveTimeRange } from "@/lib/executive-time-range";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -30,7 +31,10 @@ export function ExecutiveRoiDashboardPageView({ surface = "operator" }: Executiv
       {isExecutiveSurface ? (
         <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} />
       ) : (
-        <OperatorWelcomeOnboarding />
+        <>
+          <OperatorWelcomeOnboarding />
+          <OperatorPilotOrientationBanner />
+        </>
       )}
       <header className="space-y-2">
         <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">

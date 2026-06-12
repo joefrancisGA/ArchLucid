@@ -45,6 +45,14 @@ def test_production_like_handoff_blocks_missing_telemetry_export() -> None:
     assert "Add-ProofFinding -Disposition 'BLOCK' -Name 'telemetry-export-readiness'" in text
 
 
+def test_sponsor_handoff_strict_send_is_wired() -> None:
+    text = _script_text()
+
+    assert "-StrictSend:$SponsorHandoff" in text
+    assert "'roi-baseline-send-eligibility'" in text
+    assert "ROI baseline SEND eligibility failed" in text
+
+
 def test_summary_includes_sponsor_packet_disposition() -> None:
     text = _script_text()
 

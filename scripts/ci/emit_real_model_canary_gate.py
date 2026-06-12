@@ -160,6 +160,18 @@ def evaluate_gate(*, rc_strict: bool) -> dict[str, object]:
         rc_strict=rc_strict,
     )
 
+    blocking_reasons: list[str] = []
+
+    if disposition in {"FAIL", "WAIVER_REQUIRED_FAIL"}:
+        blocking_reasons.append(
+            f"Real-model canary disposition {disposition} ({canary_detail})"
+        )
+
+    if rc_strict and claim_wording_class == "blocked-pending-waiver":
+        blocking_reasons.append(
+            "RC strict canary requires owner waiver env vars or live credentials"
+        )
+
     return {
         "schema": _GATE_SCHEMA,
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
@@ -171,6 +183,7 @@ def evaluate_gate(*, rc_strict: bool) -> dict[str, object]:
         "credentialDetail": cred_detail,
         "canaryResult": canary_result,
         "canaryDetail": canary_detail,
+        "blockingReasons": blocking_reasons,
         "waiver": {
             "requested": waiver,
             "owner": owner,
