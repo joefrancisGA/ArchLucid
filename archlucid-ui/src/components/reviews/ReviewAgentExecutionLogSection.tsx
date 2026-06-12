@@ -20,15 +20,19 @@ function confidenceLabel(confidence: number | string | null | undefined): string
   return `${Math.round(n * 100)}%`;
 }
 
-function agentTypeLabel(agentType: string | null | undefined): string {
-  if (!agentType) return "Unknown agent";
-
-  // Convert PascalCase / snake_case agent type to readable label
-  return agentType
-    .replace(/([A-Z])/g, " $1")
-    .replace(/_/g, " ")
-    .trim()
-    .replace(/^./, (c) => c.toUpperCase());
+function agentTypeLabel(agentType: RunDetailAgentResult["agentType"]): string {
+  switch (agentType) {
+    case 1:
+      return "Topology";
+    case 2:
+      return "Cost";
+    case 3:
+      return "Compliance";
+    case 4:
+      return "Critic";
+    default:
+      return `Agent (${String(agentType)})`;
+  }
 }
 
 /**

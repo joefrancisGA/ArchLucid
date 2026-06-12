@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/operator-typography";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const PRIMARY_HREF = "/reviews/new";
 const PRIMARY_LABEL = "Start your first review package";

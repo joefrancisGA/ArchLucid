@@ -443,7 +443,7 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
       {!m.buyerPolishedArtifactTable ? (
         <ReviewChainOfCustodySection
           run={m.resolvedDetail.run}
-          manifestId={m.manifestId}
+          manifestId={m.manifestId ?? null}
           ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
           ruleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
         />
