@@ -33,7 +33,9 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
-        await SeedRetrievalDocumentsAsync(factory.Services, requestTimeout.Token);
+        IServiceProvider services = await EnsureRetrievalHostStartedAsync(factory);
+
+        await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
 
         HttpClient client = factory.CreateClient();
 
@@ -53,6 +55,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     public async Task Query_without_q_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+        await EnsureRetrievalHostStartedAsync(factory);
         HttpClient client = factory.CreateClient();
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
@@ -68,6 +71,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     public async Task Query_with_no_indexed_documents_returns_empty_list()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+        await EnsureRetrievalHostStartedAsync(factory);
         HttpClient client = factory.CreateClient();
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
@@ -91,7 +95,9 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
-        await SeedRetrievalDocumentsAsync(factory.Services, requestTimeout.Token);
+        IServiceProvider services = await EnsureRetrievalHostStartedAsync(factory);
+
+        await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
 
         HttpClient client = factory.CreateClient();
 
@@ -105,6 +111,11 @@ public sealed class RetrievalQuerySmokeIntegrationTests
 
         hits.Should().NotBeNull();
         hits.Should().HaveCountLessThanOrEqualTo(1);
+    }
+
+    private static Task<IServiceProvider> EnsureRetrievalHostStartedAsync(AlertLifecycleWebAppFactory factory)
+    {
+        return IntegrationTestHostStartup.EnsureStartedAsync(() => factory.Services);
     }
 
     private static async Task SeedRetrievalDocumentsAsync(IServiceProvider services, CancellationToken cancellationToken)
