@@ -24,6 +24,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
+import { RunsListCompareSelectionBar } from "@/components/usability/RunsListCompareSelectionBar";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -268,6 +269,7 @@ export function RunsListClient({
   const [buyerPackageScope, setBuyerPackageScope] = useState<BuyerPackageScopeFilter>("all");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
+  const [compareSelection, setCompareSelection] = useState<string[]>([]);
   const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
   const mobileInspectorShellRef = useRef<HTMLDivElement>(null);
   const viewportNarrow = useViewportNarrow();
@@ -376,6 +378,10 @@ export function RunsListClient({
       return;
     }
 
+    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+      return;
+    }
+
     setSelectedRun(run);
   }, []);
 
@@ -397,6 +403,26 @@ export function RunsListClient({
     pages === 1 &&
     filteredSorted.length > 0 &&
     !listNarrowingActive;
+
+  const showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards;
+
+  const toggleCompareSelection = useCallback((runId: string) => {
+    setCompareSelection((current) => {
+      if (current.includes(runId)) {
+        return current.filter((id) => id !== runId);
+      }
+
+      if (current.length >= 2) {
+        return [current[1]!, runId];
+      }
+
+      return [...current, runId];
+    });
+  }, []);
+
+  const clearCompareSelection = useCallback(() => {
+    setCompareSelection([]);
+  }, []);
 
   const filterStatusLine = runsListPageFilterStatusLine(
     filteredSorted.length,
@@ -607,6 +633,12 @@ export function RunsListClient({
       <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
           <div className="space-y-4">
+            {showCompareSelection ? (
+              <RunsListCompareSelectionBar
+                selectedRunIds={compareSelection}
+                onClear={clearCompareSelection}
+              />
+            ) : null}
             {showBuyerPackageCards ? (
               <div className="space-y-2">
                 {filteredSorted.every((r) => r.hasGoldenManifest === true) ? (
@@ -655,6 +687,11 @@ export function RunsListClient({
                   <EnterpriseTable ariaLabel={workQueueSectionHeading(section.groupId, buyerPolished)}>
                     <EnterpriseTableHead>
                       <EnterpriseTableHeadRow>
+                        {showCompareSelection ? (
+                          <EnterpriseTableHeaderCell className="w-10">
+                            <span className="sr-only">Compare</span>
+                          </EnterpriseTableHeaderCell>
+                        ) : null}
                         <EnterpriseTableHeaderCell>Architecture review</EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Created</EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
@@ -691,6 +728,22 @@ export function RunsListClient({
                                   activateRowKeyboard(e, run, setSelectedRun);
                                 }}
                               >
+                                {showCompareSelection ? (
+                                  <EnterpriseTableCell className="w-10 align-top">
+                                    <input
+                                      type="checkbox"
+                                      className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600"
+                                      checked={compareSelection.includes(run.runId)}
+                                      aria-label={`Select ${title} for comparison`}
+                                      onChange={() => {
+                                        toggleCompareSelection(run.runId);
+                                      }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                      }}
+                                    />
+                                  </EnterpriseTableCell>
+                                ) : null}
                                 <EnterpriseTableCell className="max-w-[min(100vw,28rem)]">
                                   <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                                     {/* Status badge leads the row so ARB scanners see state before reading the title */}

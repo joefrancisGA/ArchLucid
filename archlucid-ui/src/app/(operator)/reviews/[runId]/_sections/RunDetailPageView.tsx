@@ -55,6 +55,7 @@ import { RunDetailArchitectureGraphSection } from "./RunDetailArchitectureGraphS
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
 import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
+import { ReviewPackageEvidenceDensityStrip } from "@/components/usability/ReviewPackageEvidenceDensityStrip";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
 import { RunDetailManifestSummarySection } from "./RunDetailManifestSummarySection";
@@ -247,6 +248,20 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
             <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
           ) : null}
         </div>
+      ) : null}
+
+      {m.manifestId ? (
+        <ReviewPackageEvidenceDensityStrip
+          findingCount={m.findingCountDisplay}
+          evidenceArtifactCount={m.artifacts.length}
+          policiesCheckedLabel={
+            m.manifestSummaryForUi !== null
+              ? policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion)
+              : null
+          }
+          governanceApprovalLabel={m.governanceGateLabel ?? null}
+          auditTrailHref={`/audit?runId=${encodeURIComponent(m.resolvedDetail.run.runId)}`}
+        />
       ) : null}
 
       {m.manifestId ? (

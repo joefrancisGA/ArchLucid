@@ -9,6 +9,7 @@ import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPack
 import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
 import { BuyerCtoDemoReadinessPanel } from "@/components/operator-home/BuyerCtoDemoReadinessPanel";
 import { StartCtoDemoCard } from "@/components/operator-home/StartCtoDemoCard";
+import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { readBuyerCtoDemoTourActive, ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT } from "@/lib/buyer-cto-demo-tour";
@@ -42,6 +43,7 @@ export function BuyerPolishedHomeHeroSection(): React.JSX.Element {
       data-testid="operator-home-hero-section"
     >
       <div className="min-w-0 space-y-4">
+        <PilotCommandCenterCard />
         <BuyerCtoDemoReadinessPanel />
         <StartCtoDemoCard />
         {hideSecondaryPanels ? null : (

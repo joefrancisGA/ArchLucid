@@ -51,6 +51,7 @@ import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTri
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
 import { ShellSetupHealthChip } from "@/components/usability/ShellSetupHealthChip";
 import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
@@ -266,6 +267,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   {!isBuyerPolishedOperatorShellEnv() ? <ShellSetupHealthChip /> : null}
                   {!isBuyerPolishedOperatorShellEnv() ? <LlmBudgetStatusPill /> : null}
                   <ExecutiveOperatorShellSwitcher />
+                  <TrustCenterShellLink variant="header" />
                   <PageContextualHelpButton />
                   <UsabilityFeedbackWidget />
                   <TenantWorkspaceBoundaryBadge variant="header" />
@@ -338,7 +340,16 @@ function AppShellInner({ children }: AppShellClientProps) {
               </KeyboardShortcutProvider>
             </div>
           </div>
-          {!isBuyerPolishedOperatorShellEnv() && !isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (
+          {isBuyerPolishedOperatorShellEnv() ? (
+            <footer
+              className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
+              aria-label="Trust and compliance"
+            >
+              <div className="mx-auto flex max-w-[1600px] items-center justify-end gap-3 px-4 lg:px-6">
+                <TrustCenterShellLink variant="footer" />
+              </div>
+            </footer>
+          ) : !isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (
             <footer
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"

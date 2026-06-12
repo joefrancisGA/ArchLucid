@@ -18,6 +18,13 @@ import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/rev
 import { showError, showSuccess } from "@/lib/toast";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
+import { QuickReviewAdvancedConfigAccordion } from "@/components/usability/QuickReviewAdvancedConfigAccordion";
+import {
+  QuickReviewProofScopeField,
+  proofScopeToRequiredCapabilities,
+  type QuickReviewProofScopeId,
+} from "@/components/usability/QuickReviewProofScopeField";
+import { ReviewSubmitPhaseProgress, type ReviewSubmitPhaseId } from "@/components/usability/ReviewSubmitPhaseProgress";
 import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceUploadZone";
 import { WizardPackagePreview } from "@/components/usability/WizardPackagePreview";
 import { NewRunWizardClient } from "./NewRunWizardClient";
@@ -32,6 +39,7 @@ import { readBuyerCtoDemoTourActive } from "@/lib/buyer-cto-demo-tour";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
+import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
 import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   defaultQuickReviewSampleBriefId,
@@ -126,7 +134,11 @@ function persistFullGuidedSubMode(mode: FullGuidedSubMode): void {
   }
 }
 
-function buildQuickReviewPayload(brief: string, titleTrimmed: string): CreateArchitectureRunRequestPayload {
+function buildQuickReviewPayload(
+  brief: string,
+  titleTrimmed: string,
+  requiredCapabilities: string[],
+): CreateArchitectureRunRequestPayload {
   const systemName = titleTrimmed.trim().length >= 2 ? titleTrimmed.trim() : "Architecture review";
 
   return {
@@ -136,10 +148,12 @@ function buildQuickReviewPayload(brief: string, titleTrimmed: string): CreateArc
     environment: "staging",
     cloudProvider: "Azure",
     constraints: [],
-    requiredCapabilities: [],
+    requiredCapabilities,
     assumptions: [],
   };
 }
+
+const DEFAULT_PROOF_SCOPE: QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
 
 export type QuickReviewWizardProps = {
   /** Test hook: invoked instead of `router.push` after a run id is returned. */
@@ -161,6 +175,8 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>("simulator");
   const [evidenceAttached, setEvidenceAttached] = useState(false);
+  const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(DEFAULT_PROOF_SCOPE);
+  const [submitPhase, setSubmitPhase] = useState<ReviewSubmitPhaseId>("mapping");
 
   const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS;
   const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
@@ -193,6 +209,25 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     setBriefText(sample.brief);
     setActiveSampleBriefId(sample.id);
   }, []);
+
+  useEffect(() => {
+    if (!submitting) {
+      return;
+    }
+
+    setSubmitPhase("mapping");
+    const policyTimer = window.setTimeout(() => {
+      setSubmitPhase("policy");
+    }, 900);
+    const findingsTimer = window.setTimeout(() => {
+      setSubmitPhase("findings");
+    }, 1800);
+
+    return () => {
+      window.clearTimeout(policyTimer);
+      window.clearTimeout(findingsTimer);
+    };
+  }, [submitting]);
 
   const scopeTenant = scope?.["x-tenant-id"] ?? "—";
   const scopeWorkspace = scope?.["x-workspace-id"] ?? "—";
@@ -257,7 +292,11 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
     setSubmitting(true);
 
     try {
-      const body = buildQuickReviewPayload(briefText, runTitle.trim());
+      const body = buildQuickReviewPayload(
+        briefText,
+        runTitle.trim(),
+        proofScopeToRequiredCapabilities(proofScope),
+      );
       const res = await createArchitectureRun(body);
       const id = res.run?.runId ?? null;
 
@@ -360,6 +399,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 }
               }}
             />
+            <QuickReviewProofScopeField selected={proofScope} onChange={setProofScope} />
           </CardContent>
         </Card>
       ) : null}
@@ -368,23 +408,9 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
         <Card>
           <CardHeader>
             <CardTitle>Review scope</CardTitle>
-            <CardDescription>Requests use your current tenant, workspace, and project headers.</CardDescription>
+            <CardDescription>Confirm a short title; workspace headers are optional under Advanced configuration.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <dl className="m-0 grid gap-2 text-sm">
-              <div>
-                <dt className="text-neutral-500 dark:text-neutral-400">Tenant</dt>
-                <dd className="m-0 font-mono text-neutral-900 dark:text-neutral-100">{scopeTenant}</dd>
-              </div>
-              <div>
-                <dt className="text-neutral-500 dark:text-neutral-400">Workspace</dt>
-                <dd className="m-0 font-mono text-neutral-900 dark:text-neutral-100">{scopeWorkspace}</dd>
-              </div>
-              <div>
-                <dt className="text-neutral-500 dark:text-neutral-400">Project</dt>
-                <dd className="m-0 font-mono text-neutral-900 dark:text-neutral-100">{scopeProject}</dd>
-              </div>
-            </dl>
             <div className="space-y-2">
               <Label htmlFor="quick-review-title">Review title (optional)</Label>
               <Input
@@ -400,6 +426,22 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 If empty, the review uses “{displaySystemName}” as the system name.
               </p>
             </div>
+            <QuickReviewAdvancedConfigAccordion>
+              <dl className="m-0 grid gap-2 text-sm">
+                <div>
+                  <dt className="text-neutral-500 dark:text-neutral-400">Tenant</dt>
+                  <dd className="m-0 font-mono text-neutral-900 dark:text-neutral-100">{scopeTenant}</dd>
+                </div>
+                <div>
+                  <dt className="text-neutral-500 dark:text-neutral-400">Workspace</dt>
+                  <dd className="m-0 font-mono text-neutral-900 dark:text-neutral-100">{scopeWorkspace}</dd>
+                </div>
+                <div>
+                  <dt className="text-neutral-500 dark:text-neutral-400">Project</dt>
+                  <dd className="m-0 font-mono text-neutral-900 dark:text-neutral-100">{scopeProject}</dd>
+                </div>
+              </dl>
+            </QuickReviewAdvancedConfigAccordion>
           </CardContent>
         </Card>
       ) : null}
@@ -411,8 +453,11 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
             <CardDescription>This starts a new architecture review with your pasted brief.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            <ReviewPathTimeEstimateBanner pathId="quick-review" />
             {showDemoModeCallout ? (
-              <CtoDemoReviewModeCallout mode={executionMode} onModeChange={setExecutionMode} />
+              <QuickReviewAdvancedConfigAccordion>
+                <CtoDemoReviewModeCallout mode={executionMode} onModeChange={setExecutionMode} />
+              </QuickReviewAdvancedConfigAccordion>
             ) : null}
             <p className="m-0">
               <strong>System name:</strong> {displaySystemName}
@@ -421,6 +466,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
               <strong>Brief length:</strong> {briefText.trim().length} characters
             </p>
             <p className="m-0 line-clamp-4 text-neutral-600 dark:text-neutral-400">{briefText.trim()}</p>
+            {submitting ? (
+              <ReviewSubmitPhaseProgress
+                activePhase={submitPhase}
+                minutesEstimate={`First package typically ready in ${reviewPathTimeEstimate("quick-review").minutesLow}–${reviewPathTimeEstimate("quick-review").minutesHigh} minutes`}
+              />
+            ) : null}
           </CardContent>
         </Card>
       ) : null}

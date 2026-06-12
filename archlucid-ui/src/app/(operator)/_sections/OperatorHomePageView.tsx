@@ -12,6 +12,7 @@ import { OperatorHomeGuidanceLinks } from "@/components/operator-home/OperatorHo
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { SamplePackageShortcutsCard } from "@/components/operator-home/SamplePackageShortcutsCard";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
+import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { LlmUsageBandHint } from "@/components/LlmUsageBandHint";
 import { AcceleratorChooserCard } from "@/components/operator-home/AcceleratorChooserCard";
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
@@ -132,6 +133,7 @@ function OperatorHomePageBody() {
     <>
       {/* Zone 1: primary actions */}
       <div className="space-y-4">
+        <PilotCommandCenterCard />
         <FirstValueReachedCallout />
         <WelcomeBanner />
         <ReviewsAwaitingActionCard />
@@ -177,7 +179,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGate>
       <TrialWelcomeRunDeepLink />
       <OperatorWelcomeOnboarding />
-      <div className="space-y-8">
+      <div className="space-y-4">
         {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
       </div>
     </OperatorHomeGate>

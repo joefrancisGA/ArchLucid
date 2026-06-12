@@ -24,6 +24,17 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
 
+export const PILOT_COMMAND_CENTER_HEADING = "Start your pilot review";
+
+export const PILOT_COMMAND_CENTER_LEAD =
+  "Generate a versioned, evidence-linked review package — one primary action, optional setup when you are ready.";
+
+export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start a review package";
+
+export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
+
+export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
+
 export const BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo";
 
 export const BUYER_HOME_START_CTO_DEMO_LEAD =
