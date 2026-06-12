@@ -7,7 +7,7 @@ test.describe("first-run wizard", () => {
     await expect(page.getByRole("heading", { name: /new architecture review/i, level: 2 })).toBeVisible();
     await expect(
       page.getByText(
-        "Start fast with a pasted brief (Quick review), use Guided intake for admission and MUST questions, or open the full wizard with templates and imports.",
+        "Start fast with Quick review (guided defaults), or open Full guided review for intake questions, templates, and imports.",
       ),
     ).toBeVisible();
   });
