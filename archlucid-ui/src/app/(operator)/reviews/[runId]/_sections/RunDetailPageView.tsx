@@ -45,6 +45,11 @@ import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
 } from "@/lib/showcase-static-demo";
 
+import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
+import { ReviewAgentExecutionLogSection } from "@/components/reviews/ReviewAgentExecutionLogSection";
+import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
+import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
+import { ReviewSealedIndicatorChip } from "@/components/reviews/ReviewSealedIndicatorChip";
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
 import { RunDetailArchitectureGraphSection } from "./RunDetailArchitectureGraphSection";
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
@@ -238,6 +243,9 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <div className="flex flex-wrap items-center gap-2">
           <ExportDeliverableDialog runId={m.resolvedDetail.run.runId} manifestId={m.manifestId} />
           <ShareableReviewLinkButton runId={m.resolvedDetail.run.runId} isCommitted />
+          {m.resolvedDetail.run.completedUtc ? (
+            <ReviewSealedIndicatorChip sealedUtc={m.resolvedDetail.run.completedUtc} />
+          ) : null}
         </div>
       ) : null}
 
@@ -304,6 +312,10 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
 
       {!m.buyerPolishedArtifactTable ? (
         <RunAgentResultsSummaryCard results={m.resolvedDetail.results} />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <ReviewAgentExecutionLogSection results={m.resolvedDetail.results} />
       ) : null}
 
       {!m.buyerPolishedArtifactTable ? (
@@ -399,8 +411,34 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
       ) : null}
 
+      {!m.buyerPolishedArtifactTable && m.resolvedDetail.run.operatorGovernanceDecision ? (
+        <GovernanceApprovalAttestationBlock
+          decision={m.resolvedDetail.run.operatorGovernanceDecision}
+          approvedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId ?? null}
+          decisionUtc={m.resolvedDetail.run.operatorGovernanceDecisionUtc ?? null}
+          rationale={m.resolvedDetail.run.operatorGovernanceDecisionRationale ?? null}
+          runId={m.resolvedDetail.run.runId}
+        />
+      ) : null}
+
       {!m.buyerPolishedArtifactTable ? (
         <RunDetailProvenanceSummaryCard runId={m.routeRunId} run={m.resolvedDetail.run} />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <ReviewChainOfCustodySection
+          run={m.resolvedDetail.run}
+          manifestId={m.manifestId}
+          ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+          ruleSetVersion={m.manifestSummaryForUi?.ruleSetVersion ?? null}
+        />
+      ) : null}
+
+      {!m.buyerPolishedArtifactTable ? (
+        <ReviewCliReproduceSection
+          runId={m.resolvedDetail.run.runId}
+          ruleSetId={m.manifestSummaryForUi?.ruleSetId ?? null}
+        />
       ) : null}
 
       {!m.manifestId ? <RunDetailPreFinalizedEmptyState /> : null}

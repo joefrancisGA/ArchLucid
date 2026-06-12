@@ -81,13 +81,43 @@ function governanceQueueSeverityCell(row: GovernanceFindingQueueRow, buyerPolish
 export type GovernanceFindingsQueueDesktopTableProps = {
   readonly rows: readonly GovernanceFindingQueueRow[];
   readonly buyerPolishedShell: boolean;
+  /** When provided, the table renders a leading checkbox column for bulk selection. */
+  readonly selectedFindingIds?: ReadonlySet<string>;
+  readonly onSelectionChange?: (ids: ReadonlySet<string>) => void;
 };
 
 /** Carbon-style desktop queue for architecture risks and recorded decisions (md+). */
 export function GovernanceFindingsQueueDesktopTable(
   props: GovernanceFindingsQueueDesktopTableProps,
 ): ReactElement {
-  const { rows, buyerPolishedShell } = props;
+  const { rows, buyerPolishedShell, selectedFindingIds, onSelectionChange } = props;
+  const hasBulkSelect = selectedFindingIds !== undefined && onSelectionChange !== undefined;
+  const allSelected = hasBulkSelect && rows.length > 0 && rows.every((r) => selectedFindingIds.has(r.findingId));
+  const someSelected = hasBulkSelect && rows.some((r) => selectedFindingIds.has(r.findingId));
+
+  function toggleRow(findingId: string) {
+    if (!hasBulkSelect) return;
+    const next = new Set(selectedFindingIds);
+
+    if (next.has(findingId)) {
+      next.delete(findingId);
+    } else {
+      next.add(findingId);
+    }
+
+    onSelectionChange(next);
+  }
+
+  function toggleAll() {
+    if (!hasBulkSelect) return;
+
+    if (allSelected) {
+      onSelectionChange(new Set());
+    } else {
+      onSelectionChange(new Set(rows.map((r) => r.findingId)));
+    }
+  }
+
   const ariaLabel = buyerPolishedShell
     ? "Review records and dispositions"
     : "Architecture risk register";
@@ -97,6 +127,22 @@ export function GovernanceFindingsQueueDesktopTable(
       <EnterpriseTable ariaLabel={ariaLabel}>
         <EnterpriseTableHead>
           <EnterpriseTableHeadRow>
+            {hasBulkSelect ? (
+              <EnterpriseTableHeaderCell className="w-8">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
+                  aria-label={allSelected ? "Deselect all findings" : "Select all findings on this page"}
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) {
+                      el.indeterminate = someSelected && !allSelected;
+                    }
+                  }}
+                  onChange={toggleAll}
+                />
+              </EnterpriseTableHeaderCell>
+            ) : null}
             <EnterpriseTableHeaderCell>Severity</EnterpriseTableHeaderCell>
             {buyerPolishedShell ? <EnterpriseTableHeaderCell>Confidence</EnterpriseTableHeaderCell> : null}
             <EnterpriseTableHeaderCell>{buyerPolishedShell ? "Record" : "Record kind"}</EnterpriseTableHeaderCell>
@@ -116,6 +162,18 @@ export function GovernanceFindingsQueueDesktopTable(
 
             return (
               <EnterpriseTableRow key={`${row.runId}:${row.findingId}:table`}>
+                {hasBulkSelect ? (
+                  <EnterpriseTableCell className="w-8">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 cursor-pointer rounded border-neutral-300 accent-teal-700 dark:border-neutral-600"
+                      aria-label={`Select finding: ${row.title}`}
+                      checked={selectedFindingIds.has(row.findingId)}
+                      onChange={() => { toggleRow(row.findingId); }}
+                      onClick={(e) => { e.stopPropagation(); }}
+                    />
+                  </EnterpriseTableCell>
+                ) : null}
                 <EnterpriseTableCell>{governanceQueueSeverityCell(row, buyerPolishedShell)}</EnterpriseTableCell>
                 {buyerPolishedShell ? (
                   <EnterpriseTableCell>
@@ -140,6 +198,11 @@ export function GovernanceFindingsQueueDesktopTable(
                   >
                     {row.title}
                   </Link>
+                  {row.category && row.recordKind === "finding" ? (
+                    <div className="mt-0.5 text-[11px] font-normal text-al-text-secondary">
+                      Policy area: {row.category}
+                    </div>
+                  ) : null}
                   {buyerPolishedShell ? null : (
                     <div className="mt-0.5 font-mono text-[11px] font-normal text-al-text-secondary">
                       {row.findingId}

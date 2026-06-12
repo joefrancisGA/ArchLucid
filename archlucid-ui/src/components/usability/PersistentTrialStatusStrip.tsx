@@ -71,17 +71,18 @@ export function PersistentTrialStatusStrip() {
 
   return (
     <div
-      className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-500/30 bg-amber-50/70 px-3 py-2 text-sm dark:border-amber-800/40 dark:bg-amber-950/30"
+      className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
       role="region"
       aria-label="Trial status"
       data-testid="persistent-trial-status-strip"
     >
-      <div className="min-w-0">
-        <span className="font-semibold text-amber-950 dark:text-amber-100">Trial workspace</span>
-        <span className="mx-2 text-amber-800 dark:text-amber-200">·</span>
-        <span className="text-amber-900 dark:text-amber-100">{daysLabel}</span>
+      <div className="min-w-0 flex items-center gap-2">
+        <span className="rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+          Trial
+        </span>
+        <span className="text-neutral-700 dark:text-neutral-300">{daysLabel}</span>
       </div>
-      <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700">
+      <Button asChild type="button" size="sm" variant="outline" className="h-7 text-xs">
         <Link href={nextAction.href}>{nextAction.label}</Link>
       </Button>
     </div>

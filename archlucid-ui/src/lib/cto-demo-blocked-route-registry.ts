@@ -1,5 +1,8 @@
 export type BlockedRouteEntry = { readonly prefix: string; readonly label: string; readonly description: string };
 
+/** Core Pilot step 1 — reachable in packaged demos so empty-state CTAs and checklist links work. */
+export const DEMO_ALLOWED_SETTINGS_PATHS = new Set<string>(["/settings/extract-upload"]);
+
 export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/admin", label: "Admin console", description: "Tenant configuration, user management, and system health monitoring." },
   { prefix: "/settings", label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
@@ -21,6 +24,11 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
 export function findBlockedRouteEntry(pathname: string): BlockedRouteEntry | null {
   const normalized = pathname.trim();
   if (normalized.length === 0) return null;
+
+  if (DEMO_ALLOWED_SETTINGS_PATHS.has(normalized)) {
+    return null;
+  }
+
   for (const entry of CTO_DEMO_BLOCKED_ROUTES) {
     if (normalized === entry.prefix || normalized.startsWith(`${entry.prefix}/`)) return entry;
   }

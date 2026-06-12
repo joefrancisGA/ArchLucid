@@ -25,7 +25,7 @@ import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/M
 import type { HelpArticleResponse } from "@/app/api/help/[slug]/route";
 import { type HelpDocSearchRecord, searchHelpDocumentation } from "@/lib/help-index";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { getProductDocumentationEntry, inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 export type HelpSearchPanelProps = {
@@ -280,6 +280,7 @@ export function HelpSearchPanel({ open, onOpenChange, onOpenGuidesPanel }: HelpS
                     markdownBody={article.article.markdown}
                     tableCaption={`${article.article.title} reference table`}
                     presentation="help"
+                    sourceDocPath={getProductDocumentationEntry(article.article.slug)?.sourcePaths[0]}
                   />
                 </article>
               )}

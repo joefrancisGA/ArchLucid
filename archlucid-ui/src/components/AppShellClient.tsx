@@ -259,9 +259,6 @@ function AppShellInner({ children }: AppShellClientProps) {
                     </Button>
                   </h1>
                 </div>
-                <div className="hidden min-w-0 flex-1 items-center gap-1.5 lg:flex">
-                  <Breadcrumbs />
-                </div>
                 <div className="min-w-0 flex-1 basis-full sm:order-none sm:basis-auto sm:max-w-md lg:max-w-none lg:w-72 xl:w-80 lg:shrink-0">
                   <GlobalSearchBar />
                 </div>
@@ -327,6 +324,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   tabIndex={-1}
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
+                    <Breadcrumbs />
                     <SyncActiveRunFromPathname />
                     <OperatorRecentViewsTracker />
                     <ReviewsListReturnStateTracker />

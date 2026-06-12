@@ -431,7 +431,7 @@ export function RunsListClient({
       )}
     >
       <Label htmlFor="runs-filter-input">
-        {buyerPolished ? "Search review packages" : "Filter by review name or description"}
+        {buyerPolished ? "Search architecture reviews" : "Filter by review name or description"}
       </Label>
       <input
         id="runs-filter-input"
@@ -611,7 +611,7 @@ export function RunsListClient({
               <div className="space-y-2">
                 {filteredSorted.every((r) => r.hasGoldenManifest === true) ? (
                   <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                    Finalized review packages
+                    Finalized architecture reviews
                   </h3>
                 ) : null}
                 <div className="grid gap-4">
@@ -626,7 +626,7 @@ export function RunsListClient({
               <EnterpriseTable ariaLabel="Architecture reviews (empty)">
                 <EnterpriseTableHead>
                   <EnterpriseTableHeadRow>
-                    <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Architecture review</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Created</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                   </EnterpriseTableHeadRow>
@@ -655,7 +655,7 @@ export function RunsListClient({
                   <EnterpriseTable ariaLabel={workQueueSectionHeading(section.groupId, buyerPolished)}>
                     <EnterpriseTableHead>
                       <EnterpriseTableHeadRow>
-                        <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
+                        <EnterpriseTableHeaderCell>Architecture review</EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Created</EnterpriseTableHeaderCell>
                         <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                       </EnterpriseTableHeadRow>
@@ -693,10 +693,11 @@ export function RunsListClient({
                               >
                                 <EnterpriseTableCell className="max-w-[min(100vw,28rem)]">
                                   <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                                    {/* Status badge leads the row so ARB scanners see state before reading the title */}
+                                    <RunStatusBadge run={run} />
                                     <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
                                       {title}
                                     </span>
-                                    <RunStatusBadge run={run} />
                                   </div>
                                   {buyerPolished ? (() => {
                                     const meta = buyerDemoPackageCardMeta(run.runId);

@@ -28,7 +28,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Executive summary → Review packages → Evidence trail → Evidence intake for net-new input; then onboarding, findings, help, and scorecard.",
+        "Buyer-first path: Executive summary → Architecture reviews → Evidence trail → Evidence intake for net-new input; then onboarding, findings, help, and scorecard.",
       links: [
         {
           href: "/",
@@ -51,7 +51,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
           href: "/reviews?projectId=default",
           label: OPERATOR_NAV_LINK_LABELS.reviewPackage,
           title: this.shortcutTitle(
-            "Review packages — open review detail, architecture package, artifacts, exports",
+            "Architecture reviews — open review detail, architecture package, artifacts, exports",
             "alt+r",
           ),
           keyShortcut: "alt+r",

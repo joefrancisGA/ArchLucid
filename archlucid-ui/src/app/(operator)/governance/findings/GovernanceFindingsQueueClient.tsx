@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { ProductConceptsGlossary } from "@/components/ProductConceptsGlossary";
 import { Button } from "@/components/ui/button";
 import { GovernanceFindingsQueueDesktopTable } from "./GovernanceFindingsQueueDesktopTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,6 +110,59 @@ function matchesRiskRegisterFilter(row: GovernanceFindingQueueRow, filter: RiskR
   const windowMs = WAIVER_EXPIRING_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
   return expiresMs <= Date.now() + windowMs;
+}
+
+// ---------------------------------------------------------------------------
+// Saved filter presets (localStorage, no backend required)
+// ---------------------------------------------------------------------------
+
+const FILTER_PRESET_STORAGE_KEY = "archlucid.governance.filterPresets.v1";
+
+type FilterPreset = {
+  readonly id: string;
+  readonly label: string;
+  readonly filter: RiskRegisterFilter;
+};
+
+const FILTER_PRESET_LABELS: Record<RiskRegisterFilter, string> = {
+  all: "All risks",
+  stale: "Stale",
+  "waiver-expiring": "Waiver expiring (14d)",
+};
+
+function loadSavedPresets(): FilterPreset[] {
+  try {
+    const raw = typeof window !== "undefined" ? window.localStorage.getItem(FILTER_PRESET_STORAGE_KEY) : null;
+
+    if (raw === null) {
+      return [];
+    }
+
+    const parsed: unknown = JSON.parse(raw);
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter(
+      (item): item is FilterPreset =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof (item as Record<string, unknown>).id === "string" &&
+        typeof (item as Record<string, unknown>).label === "string" &&
+        typeof (item as Record<string, unknown>).filter === "string",
+    );
+  } catch {
+    return [];
+  }
+}
+
+function savePresetsToStorage(presets: FilterPreset[]): void {
+  try {
+    window.localStorage.setItem(FILTER_PRESET_STORAGE_KEY, JSON.stringify(presets));
+  } catch {
+    // localStorage may be unavailable (e.g. private browsing with storage blocked)
+  }
 }
 
 function governanceBuyerRecordTypePrimary(row: GovernanceFindingQueueRow): string {
@@ -419,6 +473,34 @@ export default function GovernanceFindingsQueueClient() {
   const [registerFilter, setRegisterFilter] = useState<RiskRegisterFilter>(() =>
     riskRegisterFilterFromQuery(searchParams.get("filter")),
   );
+  const [selectedFindingIds, setSelectedFindingIds] = useState<ReadonlySet<string>>(new Set());
+  const [savedPresets, setSavedPresets] = useState<FilterPreset[]>(() => loadSavedPresets());
+
+  const saveCurrentFilterAsPreset = (): void => {
+    if (registerFilter === "all") {
+      return;
+    }
+
+    const label = FILTER_PRESET_LABELS[registerFilter];
+    const alreadySaved = savedPresets.some((p) => p.filter === registerFilter);
+
+    if (alreadySaved) {
+      return;
+    }
+
+    const newPreset: FilterPreset = { id: `${registerFilter}-${Date.now()}`, label, filter: registerFilter };
+    const updated = [...savedPresets, newPreset];
+
+    setSavedPresets(updated);
+    savePresetsToStorage(updated);
+  };
+
+  const removePreset = (id: string): void => {
+    const updated = savedPresets.filter((p) => p.id !== id);
+
+    setSavedPresets(updated);
+    savePresetsToStorage(updated);
+  };
 
   useEffect(() => {
     setRegisterFilter(riskRegisterFilterFromQuery(searchParams.get("filter")));
@@ -572,39 +654,83 @@ export default function GovernanceFindingsQueueClient() {
         </p>
 
         {!buyerPolishedShell && !loading && rows.length > 0 ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant={registerFilter === "all" ? "default" : "outline"}
-              onClick={() => setRegisterFilter("all")}
-            >
-              All risks
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={registerFilter === "stale" ? "default" : "outline"}
-              onClick={() => setRegisterFilter("stale")}
-            >
-              Stale
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={registerFilter === "waiver-expiring" ? "default" : "outline"}
-              onClick={() => setRegisterFilter("waiver-expiring")}
-            >
-              Waiver expiring (14d)
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => downloadArchitectureRiskRegisterCsv(displayedRows)}
-            >
-              Export CSV
-            </Button>
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={registerFilter === "all" ? "default" : "outline"}
+                onClick={() => setRegisterFilter("all")}
+              >
+                All risks
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={registerFilter === "stale" ? "default" : "outline"}
+                onClick={() => setRegisterFilter("stale")}
+              >
+                Stale
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={registerFilter === "waiver-expiring" ? "default" : "outline"}
+                onClick={() => setRegisterFilter("waiver-expiring")}
+              >
+                Waiver expiring (14d)
+              </Button>
+              {registerFilter !== "all" && !savedPresets.some((p) => p.filter === registerFilter) ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 gap-1 text-xs text-neutral-500 dark:text-neutral-400"
+                  title="Save this filter as a named preset for quick access"
+                  onClick={saveCurrentFilterAsPreset}
+                >
+                  <span aria-hidden="true">⊕</span> Save as preset
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => downloadArchitectureRiskRegisterCsv(displayedRows)}
+              >
+                Export CSV
+              </Button>
+            </div>
+
+            {savedPresets.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-1.5" aria-label="Saved filter presets">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Presets:
+                </span>
+                {savedPresets.map((preset) => (
+                  <span
+                    key={preset.id}
+                    className="inline-flex items-center gap-1 rounded border border-neutral-200 bg-white px-2 py-0.5 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                  >
+                    <button
+                      type="button"
+                      className="hover:text-teal-700 dark:hover:text-teal-300"
+                      onClick={() => setRegisterFilter(preset.filter)}
+                    >
+                      {preset.label}
+                    </button>
+                    <button
+                      type="button"
+                      className="ml-0.5 text-neutral-400 hover:text-red-500 dark:hover:text-red-400"
+                      aria-label={`Remove preset "${preset.label}"`}
+                      onClick={() => removePreset(preset.id)}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -654,7 +780,32 @@ export default function GovernanceFindingsQueueClient() {
             </div>
           ) : (
           <>
-            <GovernanceFindingsQueueDesktopTable rows={displayedRows} buyerPolishedShell={buyerPolishedShell} />
+            {selectedFindingIds.size > 0 ? (
+              <div
+                className="mb-2 flex flex-wrap items-center gap-3 rounded-md border border-teal-200 bg-teal-50/60 px-3 py-2 text-sm dark:border-teal-800 dark:bg-teal-950/30"
+                role="status"
+                aria-live="polite"
+              >
+                <span className="font-medium text-teal-900 dark:text-teal-100">
+                  {selectedFindingIds.size} finding{selectedFindingIds.size === 1 ? "" : "s"} selected
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => { setSelectedFindingIds(new Set()); }}
+                >
+                  Clear selection
+                </Button>
+              </div>
+            ) : null}
+            <GovernanceFindingsQueueDesktopTable
+              rows={displayedRows}
+              buyerPolishedShell={buyerPolishedShell}
+              selectedFindingIds={selectedFindingIds}
+              onSelectionChange={setSelectedFindingIds}
+            />
 
             <div className="space-y-3 md:hidden">
               {displayedRows.map((row) => (
@@ -832,6 +983,7 @@ export default function GovernanceFindingsQueueClient() {
             </ol>
           </details>
         ) : null}
+        <ProductConceptsGlossary className="mt-4" />
       </div>
     </>
   );

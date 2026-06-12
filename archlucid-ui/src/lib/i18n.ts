@@ -25,7 +25,7 @@ export const ARCHITECTURE_REVIEW_LABELS = {
 
 /** `/reviews` index {@link OperatorPageHeader} title by shell mode (`RunsPageView`). */
 export const RUNS_LIST_PAGE_TITLES = {
-  buyerPolished: "Your review packages",
+  buyerPolished: "Architecture reviews",
   fullOperator: "Architecture Reviews",
 } as const;
 
@@ -108,7 +108,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
 export const OPERATOR_NAV_LINK_LABELS = {
   home: "Home",
   executiveSummary: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle,
-  reviewPackage: "Review packages",
+  reviewPackage: "Architecture reviews",
   evidenceTrail: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,
   capture: "Evidence intake",
   onboarding: "Onboarding",

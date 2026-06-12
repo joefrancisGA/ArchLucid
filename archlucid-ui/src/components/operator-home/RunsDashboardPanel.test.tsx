@@ -134,7 +134,10 @@ describe("RunsDashboardPanel", () => {
         screen.getByText(/Import your Azure environment to get started/i),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByRole("link", { name: "Open Azure Extractor settings" })).toHaveAttribute("href", "/settings/tenant");
+      expect(screen.getByRole("link", { name: "Open Azure Extractor settings" })).toHaveAttribute(
+        "href",
+        "/settings/extract-upload",
+      );
       expect(screen.getByRole("link", { name: "First review checklist" })).toHaveAttribute("href", "/onboarding");
       expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
