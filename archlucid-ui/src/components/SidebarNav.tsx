@@ -548,6 +548,81 @@ export function SidebarNav() {
   // Full progressive disclosure ("Show all features") opts into governance cluster links without a separate unlock click.
   const effectiveOperateUnlockPhase = navExpanded && navAdvanced ? 2 : operateUnlockPhase;
 
+  function renderNavLinkLabel(presented: NavLinkItem): ReactElement {
+    const subtitle = navLinkQuestionSubtitle(presented.href);
+
+    if (subtitle === null) {
+      return <>{presented.label}</>;
+    }
+
+    return (
+      <span className="flex min-w-0 flex-col">
+        <span>{presented.label}</span>
+        <span
+          aria-hidden="true"
+          className="text-[10px] font-normal leading-tight text-neutral-500 dark:text-neutral-400"
+        >
+          {subtitle}
+        </span>
+      </span>
+    );
+  }
+
+  function renderCollapsibleNavLink(
+    presented: NavLinkItem,
+    options: {
+      active: boolean;
+      advancedDemo: boolean;
+      buyerPolishedShell: boolean;
+      afterLabel?: ReactElement | null;
+      keyPrefix?: string;
+    },
+  ): ReactElement {
+    const Icon = presented.icon;
+    const linkPinned = isPinned(presented.href);
+    const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
+
+    return (
+      <div key={`${options.keyPrefix ?? ""}${presented.href}`} className="group/link flex items-center gap-0.5">
+        <Link
+          href={presented.href}
+          {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
+          className={cn(
+            "shell-nav-link flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+            options.active
+              ? DESIGN_TOKENS.interactive.navActive
+              : "text-neutral-900 dark:text-neutral-100",
+            options.buyerPolishedShell && presented.href === "/reviews/new"
+              ? "font-normal text-neutral-600 dark:text-neutral-300"
+              : null,
+          )}
+          title={
+            options.advancedDemo
+              ? `${presented.title} (Advanced — optional)`
+              : presented.title
+          }
+          aria-current={options.active ? "page" : undefined}
+          aria-keyshortcuts={
+            presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
+          }
+        >
+          {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+          {renderNavLinkLabel(presented)}
+          {options.afterLabel}
+        </Link>
+        {mounted ? (
+          <SidebarNavLinkPinButton
+            pinned={linkPinned}
+            label={presented.label}
+            onToggle={() => {
+              togglePin({ href: presented.href, label: presented.label });
+            }}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
   function renderNavCluster({ group, visibleLinks }: NavGroupWithVisibleLinks): ReactElement {
         const linksAfterDemoFilter =
           demoUi || buyerPolishedShell
@@ -676,78 +751,6 @@ export function SidebarNav() {
   const buyerSecondaryRouteHint =
     buyerPolishedShell && pathname !== null ? buyerGoldenPathSecondaryRouteHint(pathname) : null;
 
-  function renderNavLinkLabel(presented: NavLinkItem): ReactElement {
-    const subtitle = navLinkQuestionSubtitle(presented.href);
-
-    if (subtitle === null) {
-      return <>{presented.label}</>;
-    }
-
-    return (
-      <span className="flex min-w-0 flex-col">
-        <span>{presented.label}</span>
-        <span
-          aria-hidden="true"
-          className="text-[10px] font-normal leading-tight text-neutral-500 dark:text-neutral-400"
-        >
-          {subtitle}
-        </span>
-      </span>
-    );
-  }
-
-  function renderCollapsibleNavLink(
-    presented: NavLinkItem,
-    options: {
-      active: boolean;
-      advancedDemo: boolean;
-      buyerPolishedShell: boolean;
-      afterLabel?: ReactElement | null;
-      keyPrefix?: string;
-    },
-  ): ReactElement {
-    const Icon = presented.icon;
-    const linkPinned = isPinned(presented.href);
-
-    return (
-      <div key={`${options.keyPrefix ?? ""}${presented.href}`} className="group/link flex items-center gap-0.5">
-        <Link
-          href={presented.href}
-          data-onboarding={onboardingTourAnchorForHref(presented.href)}
-          className={cn(
-            "shell-nav-link flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-            options.active
-              ? DESIGN_TOKENS.interactive.navActive
-              : "text-neutral-900 dark:text-neutral-100",
-            options.buyerPolishedShell && presented.href === "/reviews/new"
-              ? "font-normal text-neutral-600 dark:text-neutral-300"
-              : null,
-          )}
-          title={
-            options.advancedDemo
-              ? `${presented.title} (Advanced — optional)`
-              : presented.title
-          }
-          aria-current={options.active ? "page" : undefined}
-          aria-keyshortcuts={
-            presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
-          }
-        >
-          {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-          {renderNavLinkLabel(presented)}
-          {options.afterLabel}
-        </Link>
-        <SidebarNavLinkPinButton
-          pinned={linkPinned}
-          label={presented.label}
-          onToggle={() => {
-            togglePin({ href: presented.href, label: presented.label });
-          }}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
       <NavPinnedLinksPanel />
@@ -803,12 +806,13 @@ export function SidebarNav() {
                   const active = isNavLinkActive(pathname, presented.href);
                   const Icon = presented.icon;
                   const advancedDemo = isOperatorNavLinkAdvancedInDemo(presented.href, demoUi || buyerPolishedShell);
+                  const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
 
                   return (
                     <Link
                       key={`quick-${presented.href}`}
                       href={presented.href}
-                      data-onboarding={onboardingTourAnchorForHref(presented.href)}
+                      {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
