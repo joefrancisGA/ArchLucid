@@ -18,6 +18,14 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(forensicsIndex).toBeGreaterThan(proofIndex);
   });
 
+  it("places proof status before evidence density strip on committed packages", () => {
+    const proofIndex = source.indexOf("<RunDetailFirstScreenProofStatusClient");
+    const evidenceStripIndex = source.indexOf("<ReviewPackageEvidenceDensityStrip");
+
+    expect(proofIndex).toBeGreaterThan(-1);
+    expect(evidenceStripIndex).toBeGreaterThan(proofIndex);
+  });
+
   it("hides operator forensics and metadata in sponsor mode", () => {
     expect(source).toContain("{!m.buyerPolishedArtifactTable ? (");
     expect(source).toMatch(

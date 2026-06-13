@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
+import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RoiTelemetryCard } from "@/components/RoiTelemetryCard";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ export function RoiSummaryPageView(props: Props) {
     return (
       <div className="mx-auto space-y-4 p-4">
         <LayerHeader pageKey="value-report-roi" />
+        <ValueReportOutcomesNav />
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
           <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">ROI summary not available in demo mode.</p>
         </div>
@@ -32,6 +34,7 @@ export function RoiSummaryPageView(props: Props) {
     return (
       <div className="mx-auto space-y-4 p-4">
         <LayerHeader pageKey="value-report-roi" />
+        <ValueReportOutcomesNav />
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading ROI summary…</p>
       </div>
     );
@@ -41,6 +44,7 @@ export function RoiSummaryPageView(props: Props) {
     return (
       <div className="mx-auto space-y-4 p-4">
         <LayerHeader pageKey="value-report-roi" />
+        <ValueReportOutcomesNav />
         <OperatorApiProblem
           fallbackMessage={m.state.message}
           problem={m.state.problem}
@@ -58,6 +62,7 @@ export function RoiSummaryPageView(props: Props) {
   return (
     <div className="mx-auto space-y-4 p-4">
       <LayerHeader pageKey="value-report-roi" />
+      <ValueReportOutcomesNav />
       <DocumentLayout>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">ROI summary</h1>
         <div
@@ -66,6 +71,19 @@ export function RoiSummaryPageView(props: Props) {
         >
           <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">Scope</p>
           <p className="m-0 mt-1 leading-snug">Figures reflect your current tenant/workspace/project scope only.</p>
+        </div>
+        <div
+          className="rounded-md border border-neutral-100 bg-neutral-50 px-4 py-2 text-xs text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-400"
+          role="note"
+          data-testid="roi-evidence-basis-notice"
+        >
+          <span className="font-medium text-neutral-700 dark:text-neutral-300">Evidence basis:</span>{" "}
+          Figures are derived from AI-governed architecture review findings. The execution mode of each contributing
+          review (Simulator or Real) is recorded on the review detail page and shown per-period on the{" "}
+          <Link href="/dashboard" className="font-medium text-teal-700 underline-offset-2 hover:underline dark:text-teal-300">
+            ROI trend chart
+          </Link>
+          . Simulator-only periods do not represent live Azure OpenAI analysis.
         </div>
         <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
           Hours-first estimate from pilot-value-report severities and pre-commit block audit events.{" "}

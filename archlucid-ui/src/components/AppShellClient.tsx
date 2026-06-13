@@ -51,6 +51,7 @@ import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTri
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ProductConceptsGlossaryDialog } from "@/components/usability/ProductConceptsGlossaryDialog";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
 import { ShellSetupHealthChip } from "@/components/usability/ShellSetupHealthChip";
@@ -268,6 +269,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                   {!isBuyerPolishedOperatorShellEnv() ? <LlmBudgetStatusPill /> : null}
                   <ExecutiveOperatorShellSwitcher />
                   <TrustCenterShellLink variant="header" />
+                  <ProductConceptsGlossaryDialog />
                   <PageContextualHelpButton />
                   <UsabilityFeedbackWidget />
                   <TenantWorkspaceBoundaryBadge variant="header" />

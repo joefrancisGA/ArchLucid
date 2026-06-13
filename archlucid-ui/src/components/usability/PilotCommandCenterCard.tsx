@@ -3,14 +3,17 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { PilotPathPreviewStepper } from "@/components/usability/PilotPathPreviewStepper";
 import {
-  BUYER_HOME_PRIMARY_CTA,
-  BUYER_HOME_SECONDARY_CTA,
   PILOT_COMMAND_CENTER_CONNECT_AZURE,
   PILOT_COMMAND_CENTER_HEADING,
   PILOT_COMMAND_CENTER_INVITE_REVIEWER,
   PILOT_COMMAND_CENTER_LEAD,
+  PILOT_COMMAND_CENTER_OPTIONAL_SETUP_TOGGLE,
   PILOT_COMMAND_CENTER_PRIMARY_CTA,
+  PILOT_COMMAND_CENTER_SAMPLE_LINK,
+  PILOT_PATH_PREVIEW_STEPS,
 } from "@/lib/buyer-polish-copy";
 import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -32,23 +35,35 @@ export function PilotCommandCenterCard(): React.JSX.Element {
       <p className={cn("m-0 mt-2 max-w-2xl", OPERATOR_TYPE_SCALE.body, "text-al-text-secondary")}>
         {PILOT_COMMAND_CENTER_LEAD}
       </p>
+      <PilotPathPreviewStepper steps={PILOT_PATH_PREVIEW_STEPS} />
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <Button asChild variant="primary" className="w-full justify-center sm:w-auto">
           <Link href="/reviews/new" data-testid="pilot-command-center-primary">
             {PILOT_COMMAND_CENTER_PRIMARY_CTA}
           </Link>
         </Button>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Link
-            href={sampleReviewHref}
-            className={cn(
-              OPERATOR_TYPOGRAPHY.body,
-              "font-medium text-al-accent-interactive underline decoration-al-accent-interactive/40 underline-offset-2 hover:decoration-al-accent-interactive",
-            )}
-            data-testid="pilot-command-center-example"
-          >
-            {BUYER_HOME_PRIMARY_CTA}
-          </Link>
+        <Link
+          href={sampleReviewHref}
+          className={cn(
+            OPERATOR_TYPOGRAPHY.body,
+            "font-medium text-al-accent-interactive underline decoration-al-accent-interactive/40 underline-offset-2 hover:decoration-al-accent-interactive",
+          )}
+          data-testid="pilot-command-center-example"
+        >
+          {PILOT_COMMAND_CENTER_SAMPLE_LINK}
+        </Link>
+      </div>
+      <Collapsible className="mt-3">
+        <CollapsibleTrigger
+          className={cn(
+            OPERATOR_TYPOGRAPHY.meta,
+            "text-left font-medium text-al-text-secondary underline-offset-2 hover:text-al-text-primary hover:underline",
+          )}
+          data-testid="pilot-command-center-optional-setup-toggle"
+        >
+          {PILOT_COMMAND_CENTER_OPTIONAL_SETUP_TOGGLE}
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
           <Link
             href="/settings/cloud-connections"
             className={cn(OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary underline underline-offset-2 hover:text-al-text-primary")}
@@ -61,14 +76,8 @@ export function PilotCommandCenterCard(): React.JSX.Element {
           >
             {PILOT_COMMAND_CENTER_INVITE_REVIEWER}
           </Link>
-        </div>
-      </div>
-      <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.meta, "text-al-text-secondary")}>
-        Prefer a guided walkthrough?{" "}
-        <Link href="/reviews/new" className="font-medium text-al-accent-interactive underline underline-offset-2">
-          {BUYER_HOME_SECONDARY_CTA}
-        </Link>
-      </p>
+        </CollapsibleContent>
+      </Collapsible>
     </section>
   );
 }

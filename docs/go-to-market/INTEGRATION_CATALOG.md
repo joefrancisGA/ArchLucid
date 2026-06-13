@@ -15,6 +15,8 @@
 
 **V1 copyable recipes:** [`../library/V1_REST_CLI_INTEGRATION_RECIPES.md`](../library/V1_REST_CLI_INTEGRATION_RECIPES.md)
 
+**V1 automation handoff pack (create → execute → commit → export → compare → ROI):** [`../library/V1_AUTOMATION_HANDOFF_PACK.md`](../library/V1_AUTOMATION_HANDOFF_PACK.md) — REST, CLI, OpenAPI, idempotency, and V1 vs V1.1 boundaries for enterprise pilots without first-party connectors.
+
 **Connector readiness matrix (implementers):** [../library/CONNECTOR_READINESS_MATRIX.md](../library/CONNECTOR_READINESS_MATRIX.md) — shipped vs recipe vs planned; **product** vs **customer-operated**; code paths and tests.
 
 **Smoke recipes (first-party connectors):** [../integrations/CONNECTOR_SMOKE_INDEX.md](../integrations/CONNECTOR_SMOKE_INDEX.md)

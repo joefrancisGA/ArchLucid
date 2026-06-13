@@ -118,7 +118,7 @@ describe("QuickDecisionSummary", () => {
 
     render(<QuickDecisionSummary runId="run-z" findings={findings} />);
 
-    const ev = screen.getByTestId("quick-decision-view-evidence");
+    const ev = screen.getByTestId("finding-evidence-link-chip");
 
     expect(ev).toBeInTheDocument();
     expect(ev.getAttribute("href") ?? "").toContain("/graph?");

@@ -41,6 +41,10 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { QUICK_REVIEW_SAMPLE_BRIEF_CAPTION } from "@/lib/buyer-polish-copy";
 import { reviewPathTimeEstimate } from "@/lib/review-path-time-estimates";
 import {
+  persistQuickReviewWizardPreferences,
+  readQuickReviewWizardPreferences,
+} from "@/lib/usability/quick-review-wizard-preferences";
+import {
   CONTOSO_RETAIL_SAMPLE_BRIEF,
   defaultQuickReviewSampleBriefId,
   findQuickReviewSampleBrief,
@@ -155,6 +159,28 @@ function buildQuickReviewPayload(
 
 const DEFAULT_PROOF_SCOPE: QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
 
+function readInitialWizardState(): {
+  proofScope: QuickReviewProofScopeId[];
+  executionMode: CtoDemoReviewExecutionMode;
+  advancedConfigExpanded: boolean;
+} {
+  const stored = readQuickReviewWizardPreferences();
+
+  if (stored === null) {
+    return {
+      proofScope: DEFAULT_PROOF_SCOPE,
+      executionMode: "simulator",
+      advancedConfigExpanded: false,
+    };
+  }
+
+  return {
+    proofScope: stored.proofScope,
+    executionMode: stored.executionMode,
+    advancedConfigExpanded: stored.advancedConfigExpanded,
+  };
+}
+
 export type QuickReviewWizardProps = {
   /** Test hook: invoked instead of `router.push` after a run id is returned. */
   onRunCreatedNavigate?: (runId: string) => void;
@@ -165,6 +191,7 @@ export type QuickReviewWizardProps = {
  */
 export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const { onRunCreatedNavigate } = props;
+  const initialWizardState = readInitialWizardState();
   const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -173,13 +200,26 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
   const [runTitle, setRunTitle] = useState("");
   const [scope, setScope] = useState<Record<string, string> | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>("simulator");
+  const [executionMode, setExecutionMode] = useState<CtoDemoReviewExecutionMode>(initialWizardState.executionMode);
   const [evidenceAttached, setEvidenceAttached] = useState(false);
-  const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(DEFAULT_PROOF_SCOPE);
+  const [proofScope, setProofScope] = useState<QuickReviewProofScopeId[]>(initialWizardState.proofScope);
+  const [advancedConfigExpanded, setAdvancedConfigExpanded] = useState(initialWizardState.advancedConfigExpanded);
   const [submitPhase, setSubmitPhase] = useState<ReviewSubmitPhaseId>("mapping");
 
   const briefOk = briefText.trim().length >= MIN_BRIEF_CHARS;
   const showDemoModeCallout = isCtoDemoPackEnv() || isBuyerPolishedOperatorShellEnv() || readBuyerCtoDemoTourActive();
+
+  const persistWizardPreferences = useCallback(() => {
+    persistQuickReviewWizardPreferences({
+      proofScope,
+      executionMode,
+      advancedConfigExpanded,
+    });
+  }, [advancedConfigExpanded, executionMode, proofScope]);
+
+  useEffect(() => {
+    persistWizardPreferences();
+  }, [persistWizardPreferences]);
 
   useEffect(() => {
     if (step !== 1) {
@@ -399,7 +439,12 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 }
               }}
             />
-            <QuickReviewProofScopeField selected={proofScope} onChange={setProofScope} />
+            <QuickReviewProofScopeField
+              selected={proofScope}
+              onChange={(next) => {
+                setProofScope(next);
+              }}
+            />
           </CardContent>
         </Card>
       ) : null}
@@ -426,7 +471,10 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 If empty, the review uses “{displaySystemName}” as the system name.
               </p>
             </div>
-            <QuickReviewAdvancedConfigAccordion>
+            <QuickReviewAdvancedConfigAccordion
+              open={advancedConfigExpanded}
+              onOpenChange={setAdvancedConfigExpanded}
+            >
               <dl className="m-0 grid gap-2 text-sm">
                 <div>
                   <dt className="text-neutral-500 dark:text-neutral-400">Tenant</dt>
@@ -455,7 +503,10 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
           <CardContent className="space-y-3 text-sm">
             <ReviewPathTimeEstimateBanner pathId="quick-review" />
             {showDemoModeCallout ? (
-              <QuickReviewAdvancedConfigAccordion>
+              <QuickReviewAdvancedConfigAccordion
+              open={advancedConfigExpanded}
+              onOpenChange={setAdvancedConfigExpanded}
+            >
                 <CtoDemoReviewModeCallout mode={executionMode} onModeChange={setExecutionMode} />
               </QuickReviewAdvancedConfigAccordion>
             ) : null}

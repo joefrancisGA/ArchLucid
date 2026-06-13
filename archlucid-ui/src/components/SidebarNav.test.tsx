@@ -68,7 +68,7 @@ describe("SidebarNav (primary navigation)", () => {
         "Evidence intake — start a new architecture review (guided wizard through review progress tracking) (Alt+N)",
       );
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
-      expect(within(nav).getByRole("link", { name: "Review packages" })).toHaveAttribute("href", "/reviews?projectId=default");
+      expect(within(nav).getByRole("link", { name: "Architecture reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
       expect(within(nav).getByRole("link", { name: "Executive summary" })).toHaveAttribute("href", "/dashboard");
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
@@ -78,7 +78,7 @@ describe("SidebarNav (primary navigation)", () => {
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
       fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
 
-      fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
+      fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
 
       expect(screen.getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Evidence trail" })).toHaveAttribute(
@@ -107,11 +107,11 @@ describe("SidebarNav (primary navigation)", () => {
   );
 
   it(
-    "exposes Analysis and Governance group navigations when Show all features is clicked",
+    "exposes Analysis and Governance group navigations when Show governance & analysis tools is clicked",
     async () => {
       render(<SidebarNav />);
 
-      fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
+      fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
 
       expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
       expect(screen.queryByTestId("sidebar-show-advanced-operations-toggle")).toBeNull();
@@ -148,7 +148,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByText(/Search pages/i)).toBeNull();
   });
 
-  it('reveals extended Review work links when "Show all features" is clicked without opening Sidebar layout', async () => {
+  it('reveals extended Review work links when "Show governance & analysis tools" is clicked without opening Sidebar layout', async () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -156,7 +156,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(within(nav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
 
     expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
 
@@ -220,7 +220,7 @@ describe("SidebarNav pilot_operator default preset", () => {
     vi.restoreAllMocks();
   });
 
-  it("switches to full navigator and reveals analysis essentials when Show all features is clicked", async () => {
+  it("switches to full navigator and reveals analysis essentials when Show governance & analysis tools is clicked", async () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -229,7 +229,7 @@ describe("SidebarNav pilot_operator default preset", () => {
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Risk register" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
 
     expect(localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY)).toBe("full");
     expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");

@@ -130,6 +130,8 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-273** was added 2026-06-03 from a **harsh buyer-demo readiness defect audit** of the buyer-polished operator shell along the golden path (Home → Reviews list → Review detail → Executive summary → Manifest summary → Evidence graph → Governance → Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. It is a single umbrella item enumerating ~150 issues as sub-IDs **BDA-001 … BDA-150** (sub-ID scheme consistent with `RAG-V1-*` / `INV-*`), grouped **P0** (demo/test-data leakage visible to the buyer, fabricated decision/confidence/audit-link fallbacks, misleading "complete"/"placeholder"/illustrative-ROI claims, sponsor exports that can merge demo runs, and one dead "finalize" anchor in buyer mode), **P1** (terminology drift — run/review/pilot, manifest/golden manifest/signed decision record, audit log/trail, workflow/decision record/approval, evidence trace/trail; raw identifiers and enum labels in UI; redundant CTAs; visual-hierarchy/chart-grammar inconsistency; in-product segregation-of-duties not explained while marketed), and **P2** (lower polish). The full per-issue table (severity, screen/area, exact problem + file, why it hurts buyer confidence, recommended fix, replacement copy) is in the `## TB-273` detail section. **These are buyer-demo-shell credibility defects, not V1 readiness-scoring gaps** — many are correctly gated to demo/static mode today and the dominant risk is **env-flag drift** (`isBuyerPolishedOperatorShellEnv()` / `buyerPolishedArtifactTable` vs static-demo flags) leaking demo copy into the polished shell; per `Assessment-Scope-V1_1.mdc` they do not change `(A)` headline scores. They do not duplicate **TB-143–148** (in-app docs presentation — BDA cross-refs the raw-doc-link items), **TB-168** (KPI semantic guard), or **TB-270–272** (operator usability). Cross-ref `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
+**TB-317 – TB-319** were added 2026-06-12 from a clean-slate weighted release-readiness assessment (`docs/assessments/latest_202606122049.md`, `(A)` headline readiness 81.57%, recent-weight model). Most top improvements already map to existing backlog items: AI faithfulness (**TB-255–257**), real-mode evidence (**TB-137–140**), trial preseed hardening (**TB-258–259**), buyer-demo truthfulness (**TB-273/TB-275**), run-detail fidelity (**TB-106–113**), recurrence loop (**TB-261–263**), RAG quality (**TB-046/TB-049**), procurement pack strictness (**TB-159–160/TB-162/TB-165–166**), executive sponsor polish (**TB-267–269**), and in-app help (**TB-143–148**). New entries only cover gaps not already represented: RC evidence bundle composition (**TB-317**), V1 automation handoff pack (**TB-318**), and pilot-critical performance evidence (**TB-319**). V1.1/V2 non-gates remain excluded from `(A)`: first-party connectors, MCP, multi-cloud target analysis, live commerce un-hold, public references, SOC 2 CPA, and external pen-test execution.
+
 **TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard — partial-failure surfacing and sentinel exclusion were already shipped).
 
 **TB-244 – TB-249** were added 2026-06-02 from an independent first-principles **Executive Value Visibility** quality assessment (`docs/assessments/ExecutiveValueVisibility_06022026.MD`, score 70/100, COMMERCIAL weight 4/116). They address: KPI tile drill-through navigation (**TB-244**, P1), ROI trend chart upgrade to SVG (**TB-245**, P1), executive shell nav — scorecard and dashboard links (**TB-246**, P1), "Top 3 actions" section on executive scorecard (**TB-247**, P2), "Day N since first commit" badge on KPI strip (**TB-248**, P2), and cross-tenant portfolio graceful degradation on 403 (**TB-249**, P3). These do not duplicate **TB-062** (executive dashboard KPI replacement), **TB-103–105** (orphan-candidate pipeline), or **TB-238–243** (Proof-of-ROI readiness items).
@@ -9631,3 +9633,84 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Documented in:** [`DATA_CONSISTENCY_MATRIX.md`](DATA_CONSISTENCY_MATRIX.md) — *Cross-catalog write patterns* section.
 
 **Refs:** SAQ-005; ADR-0038.
+
+---
+
+## TB-317 — RC evidence bundle gate for release signoff (P0)
+
+**Status:** **Done** (2026-06-12) — `scripts/ci/build_rc_evidence_signoff_bundle.py` composes per-gate **PASS/WARN/HOLD/SKIPPED** rows into `rc-evidence-signoff-bundle.json` / `.md`; wired into `Emit-ReleaseReadinessEvidence.ps1`, `rc-release-gate.yml`, and `RC_RELEASE_GATE.md`. Unit tests: `scripts/ci/tests/test_build_rc_evidence_signoff_bundle.py`.
+
+**Assessment source:** `docs/assessments/latest_202606122049.md` — Tier 1 improvement 6.
+
+**Problem:** Release confidence can be overstated when release-smoke, live UI/API parity, config lint, OpenAPI contract, data consistency, AI readiness evidence, and procurement/claim-boundary checks live in separate artifacts. A skipped high-risk gate can disappear from the release narrative.
+
+**Scope:**
+
+1. Compose existing release evidence into a single RC signoff artifact with per-gate **PASS / WARN / HOLD / SKIPPED** status.
+2. Include artifact paths or links for release-smoke, live UI/API parity, config lint, OpenAPI contract, data consistency, AI readiness evidence, and procurement/claim-boundary checks.
+3. Distinguish simulator evidence from real-mode evidence in generated text.
+4. Emit deterministic JSON plus Markdown suitable for attaching to pilot handoff or release notes.
+
+**Acceptance criteria:**
+
+- Missing or skipped high-risk gates are explicitly visible as **HOLD** or **SKIPPED** with reason text.
+- Owner-gated real-AOAI checks remain optional for normal PRs but visible in RC signoff.
+- Unit/script tests cover PASS, HOLD, and SKIPPED rows.
+
+**Likely files:** `docs/runbooks/RC_RELEASE_GATE.md`, `scripts/`, `.github/workflows/rc-release-gate.yml`, existing release-smoke result writers.
+
+**Refs:** TB-165, TB-166, `RELEASE_SMOKE.md`, `RC_RELEASE_GATE.md`.
+
+---
+
+## TB-318 — V1 automation handoff pack over REST / CLI / OpenAPI (P1)
+
+**Status:** **Done** (2026-06-12) — `docs/library/V1_AUTOMATION_HANDOFF_PACK.md` linked from `INTEGRATION_CATALOG.md` and `customer-facing/OPERATOR_QUICKSTART.md`; paths validated via existing `check_v1_integration_starter_contracts.py` gate.
+
+**Assessment source:** `docs/assessments/latest_202606122049.md` — Tier 2 improvement 9.
+
+**Problem:** First-party Jira, ServiceNow, Confluence, Slack, Teams, and webhook buyer-contract integrations are V1.1, so V1 enterprise pilots need a concrete automation handoff using the surfaces that are in scope now: REST, CLI, OpenAPI, exports, SCIM, and CI examples.
+
+**Scope:**
+
+1. Create a buyer/operator handoff pack that walks through create -> execute/observe -> commit -> export -> compare -> ROI summary using V1 surfaces.
+2. Include API key/JWT examples, CLI equivalents, Problem Details handling, idempotency guidance, and OpenAPI import notes.
+3. Explicitly state V1 vs V1.1 boundaries for first-party connectors without presenting those connectors as current blockers.
+4. Reuse existing integration starter fixtures and docs; do not invent new endpoints.
+
+**Acceptance criteria:**
+
+- The pack is linked from the integration catalog and operator quickstart.
+- Example paths are validated against the canonical OpenAPI or existing starter-contract guard.
+- Copy does not promise V1 first-party ITSM/chat/docs connectors.
+
+**Likely files:** `docs/go-to-market/INTEGRATION_CATALOG.md`, `docs/library/OPERATOR_QUICKSTART.md`, `docs/library/API_CONTRACTS.md`, `scripts/ci/data/v1_integration_starter_contracts.v1.json`.
+
+**Refs:** `V1_SCOPE.md` §2.8 / §2.13–§2.15, `API_CONTRACTS.md`.
+
+---
+
+## TB-319 — Pilot-critical performance evidence step (P2)
+
+**Status:** **Done** (2026-06-12) — `scripts/ci/build_pilot_critical_performance_evidence.py` emits pilot-critical flow timings; integrates with RC signoff bundle; documented in `RELEASE_SMOKE.md`. Unit tests in `test_build_rc_evidence_signoff_bundle.py`.
+
+**Assessment source:** `docs/assessments/latest_202606122049.md` — Tier 2 improvement 13.
+
+**Problem:** Current release evidence is stronger on correctness than on pilot-critical latency. Buyers do not need broad performance benchmarking for V1, but release signoff should show whether create review, commit/finalize, dashboard ROI, Ask, and export paths are obviously slow or timing out.
+
+**Scope:**
+
+1. Add a lightweight script or release-smoke optional step that records p50/p95 or equivalent elapsed timings for pilot-critical flows.
+2. Start with create review, commit/finalize, dashboard ROI load, Ask response, and export generation.
+3. Emit JSON and Markdown evidence; do not fail releases on arbitrary hard thresholds until baseline data exists.
+4. Mark severe timeouts or missing flows as **WARN** or **HOLD** in the RC evidence bundle once TB-317 exists.
+
+**Acceptance criteria:**
+
+- Output includes timings, run id / correlation id where available, environment label, and whether AI mode was simulator or real.
+- Script tests cover result serialization and severe-timeout classification.
+- Documentation states this is pilot-critical smoke evidence, not a load-test substitute.
+
+**Likely files:** `scripts/`, `docs/library/RELEASE_SMOKE.md`, `docs/runbooks/RC_RELEASE_GATE.md`, `docs/library/TEST_EXECUTION_MODEL.md`.
+
+**Refs:** TB-317, `RELEASE_SMOKE.md`.

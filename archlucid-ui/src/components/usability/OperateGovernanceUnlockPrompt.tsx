@@ -26,7 +26,7 @@ export function OperateGovernanceUnlockPrompt() {
       data-testid="operate-governance-unlock-prompt"
     >
       <p className="m-0 mb-2 text-neutral-700 dark:text-neutral-300">
-        Governance tools unlock after your first review. Ready to explore alerts, audit, and policy packs?
+        Governance workflow unlocks after your first committed review. One click reveals audit, alerts, and policy packs in the sidebar.
       </p>
       <Button
         type="button"
@@ -39,7 +39,7 @@ export function OperateGovernanceUnlockPrompt() {
           window.location.reload();
         }}
       >
-        Unlock governance navigation
+        Show governance workflow
       </Button>
     </div>
   );

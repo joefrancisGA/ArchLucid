@@ -1,8 +1,11 @@
-import { CheckCircle2, CloudUpload, FileSearch, ShieldCheck } from "lucide-react";
+import { CloudUpload, FileSearch, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
+import { BUYER_HOME_PRIMARY_CTA } from "@/lib/buyer-polish-copy";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
 const FIRST_RUN_STEPS: { label: string; description: string }[] = [
   {
@@ -58,12 +61,9 @@ export function OperatorHomeAzureExtractorEmptyState() {
           </Link>
         </Button>
         <Button asChild variant="outline" size="sm" className="h-8">
-          <Link href={EXTRACT_UPLOAD_SETTINGS_PATH}>Azure Extractor settings</Link>
-        </Button>
-        <Button asChild variant="outline" size="sm" className="h-8">
-          <Link href="/onboarding">
-            <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-            Onboarding checklist
+          <Link href={sampleReviewHref}>
+            <FileSearch className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+            {BUYER_HOME_PRIMARY_CTA}
           </Link>
         </Button>
         <Button asChild variant="outline" size="sm" className="h-8">

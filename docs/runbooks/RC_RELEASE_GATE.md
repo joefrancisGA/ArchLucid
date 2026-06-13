@@ -54,7 +54,22 @@ Job **`observability-readiness`** emits `observability-export-readiness.md` via 
 
 ## RC signoff gate (blocking)
 
-Job **`rc-signoff-gate`** synthesizes `rc-go-no-go-verdict.json` / `.md` from claim gate, canary gate, observability, and route/tier/policy/nav artifacts, then runs `build_rc_go_no_go_verdict.py --strict-rc`. The workflow **fails** when verdict is **HOLD** or when claim/canary scripts exit non-zero.
+Job **`rc-signoff-gate`** emits `pilot-critical-performance-evidence.json`, composes `rc-evidence-signoff-bundle.json` / `.md` (per-gate **PASS / WARN / HOLD / SKIPPED** rows for release-smoke, live UI/API parity, config lint, OpenAPI contract, data consistency, AI readiness, and procurement/claim-boundary checks), then synthesizes `rc-go-no-go-verdict.json` / `.md` from claim gate, canary gate, observability, and route/tier/policy/nav artifacts via `build_rc_go_no_go_verdict.py --strict-rc`. The workflow **fails** when verdict is **HOLD**, when the signoff bundle is **HOLD** under `--strict-rc`, or when claim/canary scripts exit non-zero.
+
+Local reproduction:
+
+```powershell
+python scripts/ci/build_pilot_critical_performance_evidence.py `
+  --bundle-dir artifacts/release-readiness `
+  --json-out artifacts/release-readiness/pilot-critical-performance-evidence.json `
+  --markdown-out artifacts/release-readiness/pilot-critical-performance-evidence.md
+
+python scripts/ci/build_rc_evidence_signoff_bundle.py `
+  --bundle-dir artifacts/release-readiness `
+  --json-out artifacts/release-readiness/rc-evidence-signoff-bundle.json `
+  --markdown-out artifacts/release-readiness/rc-evidence-signoff-bundle.md `
+  --strict-rc
+```
 
 ## Real-mode claim gate (RC)
 

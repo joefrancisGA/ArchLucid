@@ -280,6 +280,10 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
             : "Open the finding to review rationale, evidence, and recommended next steps.",
         recordKind: "finding",
         traceConfidenceLevel: normalizeFindingConfidenceLevel(t.confidenceLevel),
+        evidenceRefCount:
+          typeof t.evidenceRefCount === "number" && Number.isFinite(t.evidenceRefCount)
+            ? Math.trunc(t.evidenceRefCount)
+            : null,
       };
     });
 }

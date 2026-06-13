@@ -9,6 +9,8 @@
 
 **Canonical action map (UI + API + CLI):** [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md).
 
+**V1 automation handoff (REST / CLI / OpenAPI for scripts and CI):** [V1_AUTOMATION_HANDOFF_PACK.md](../V1_AUTOMATION_HANDOFF_PACK.md) — full create → execute → commit → export → compare → ROI path without V1.1 first-party connectors.
+
 Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; **PowerShell:** use `.ps1` where listed.
 
 ## What ArchLucid does (one paragraph)

@@ -254,6 +254,17 @@ jobs:
             > "$BUNDLE/release-readiness-index.json"
           printf '%s\n' '{"schema":"archlucid.release-confidence-rollup.v1","disposition":"PASS","strictDisposition":"PASS","strictBlockingReasons":[]}' \
             > "$BUNDLE/release-confidence-rollup.json"
+          python scripts/ci/build_pilot_critical_performance_evidence.py \
+            --bundle-dir "$BUNDLE" \
+            --environment-label Production \
+            --json-out "$BUNDLE/pilot-critical-performance-evidence.json" \
+            --markdown-out "$BUNDLE/pilot-critical-performance-evidence.md"
+          python scripts/ci/build_rc_evidence_signoff_bundle.py \
+            --repo-root . \
+            --bundle-dir "$BUNDLE" \
+            --json-out "$BUNDLE/rc-evidence-signoff-bundle.json" \
+            --markdown-out "$BUNDLE/rc-evidence-signoff-bundle.md" \
+            --strict-rc
           python scripts/ci/build_rc_go_no_go_verdict.py \
             --repo-root . \
             --bundle-dir "$BUNDLE" \

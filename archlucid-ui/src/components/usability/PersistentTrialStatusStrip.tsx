@@ -64,6 +64,10 @@ export function PersistentTrialStatusStrip() {
     return null;
   }
 
+  if (pathname === "/") {
+    return null;
+  }
+
   const nextAction = resolveTrialNextAction(payload);
   const days = payload.daysRemaining;
   const daysLabel =

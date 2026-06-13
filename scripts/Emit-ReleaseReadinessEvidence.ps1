@@ -593,6 +593,33 @@ if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
     $rcVerdictArgs += "--strict-rc"
 }
 
+[string] $pilotPerfJson = Join-Path $OutDir "pilot-critical-performance-evidence.json"
+[string] $pilotPerfMd = Join-Path $OutDir "pilot-critical-performance-evidence.md"
+& python (Join-Path $root "scripts/ci/build_pilot_critical_performance_evidence.py") `
+    --bundle-dir $OutDir `
+    --environment-label $Environment `
+    --json-out $pilotPerfJson `
+    --markdown-out $pilotPerfMd
+Add-CheckRow $checks "Pilot-critical performance smoke" (Map-ExitToVerdict $LASTEXITCODE).verdict "pilot-critical flow timings — not a load test" "pilot-critical-performance-evidence.json"
+
+[string] $rcSignoffJson = Join-Path $OutDir "rc-evidence-signoff-bundle.json"
+[string] $rcSignoffMd = Join-Path $OutDir "rc-evidence-signoff-bundle.md"
+[string[]] $rcSignoffArgs = @(
+    (Join-Path $root "scripts/ci/build_rc_evidence_signoff_bundle.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $rcSignoffJson,
+    "--markdown-out", $rcSignoffMd
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $rcSignoffArgs += "--strict-rc"
+}
+
+& python @rcSignoffArgs
+[int] $rcSignoffExit = $LASTEXITCODE
+[string] $rcSignoffLabel = if ($rcSignoffExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "RC evidence signoff bundle (TB-317)" $rcSignoffLabel "per-gate PASS/WARN/HOLD/SKIPPED composition; exit $rcSignoffExit" "rc-evidence-signoff-bundle.json"
+
 & python @rcVerdictArgs
 [int] $rcVerdictExit = $LASTEXITCODE
 [string] $rcVerdictLabel = if ($rcVerdictExit -eq 0) { "PASS" } else { "FAIL" }

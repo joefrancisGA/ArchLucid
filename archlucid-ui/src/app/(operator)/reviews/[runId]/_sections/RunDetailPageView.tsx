@@ -55,6 +55,7 @@ import { RunDetailArchitectureGraphSection } from "./RunDetailArchitectureGraphS
 import { RunDetailArtifactsExportsSection } from "./RunDetailArtifactsExportsSection";
 import { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
 import { RunDetailProvenanceSummaryCard } from "./RunDetailProvenanceSummaryCard";
+import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 import { ReviewPackageEvidenceDensityStrip } from "@/components/usability/ReviewPackageEvidenceDensityStrip";
 import { RunDetailBreadcrumb } from "./RunDetailBreadcrumb";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
@@ -236,6 +237,37 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
         variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
       />
 
+      <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
+
+      {m.manifestId ? (
+        <ReviewPackagePlainSummary
+          blockingFindingCount={m.manifestSummary?.unresolvedIssueCount ?? 0}
+          advisoryFindingCount={Math.max(
+            0,
+            (m.findingCountDisplay ?? 0) - (m.manifestSummary?.unresolvedIssueCount ?? 0),
+          )}
+          overallRiskLabel={m.explanationSummary?.riskPosture ?? m.governanceGateLabel ?? "Moderate"}
+        />
+      ) : null}
+
+      {m.manifestId ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <ReviewPackageEvidenceDensityStrip
+            className="min-w-0 flex-1"
+            findingCount={m.findingCountDisplay}
+            evidenceArtifactCount={m.artifacts.length}
+            policiesCheckedLabel={
+              m.manifestSummaryForUi !== null
+                ? policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion)
+                : null
+            }
+            governanceApprovalLabel={m.governanceGateLabel ?? null}
+            auditTrailHref={`/audit?runId=${encodeURIComponent(m.resolvedDetail.run.runId)}`}
+          />
+          <CtoDemoAuditIntegrityVerifyButton />
+        </div>
+      ) : null}
+
       {m.manifestId ? (
         <PersistentSponsorEmailStrip runId={m.resolvedDetail.run.runId} isCommitted />
       ) : null}
@@ -249,33 +281,6 @@ export function RunDetailPageView(props: { readonly model: RunDetailPageModel })
           ) : null}
         </div>
       ) : null}
-
-      {m.manifestId ? (
-        <ReviewPackageEvidenceDensityStrip
-          findingCount={m.findingCountDisplay}
-          evidenceArtifactCount={m.artifacts.length}
-          policiesCheckedLabel={
-            m.manifestSummaryForUi !== null
-              ? policyPackBuyerLabel(m.manifestSummaryForUi.ruleSetId, m.manifestSummaryForUi.ruleSetVersion)
-              : null
-          }
-          governanceApprovalLabel={m.governanceGateLabel ?? null}
-          auditTrailHref={`/audit?runId=${encodeURIComponent(m.resolvedDetail.run.runId)}`}
-        />
-      ) : null}
-
-      {m.manifestId ? (
-        <ReviewPackagePlainSummary
-          blockingFindingCount={m.manifestSummary?.unresolvedIssueCount ?? 0}
-          advisoryFindingCount={Math.max(
-            0,
-            (m.findingCountDisplay ?? 0) - (m.manifestSummary?.unresolvedIssueCount ?? 0),
-          )}
-          overallRiskLabel={m.explanationSummary?.riskPosture ?? m.governanceGateLabel ?? "Moderate"}
-        />
-      ) : null}
-
-      <RunDetailFirstScreenProofStatusClient runId={m.resolvedDetail.run.runId} />
 
       {m.explanationSummary !== null ? (
         <RunExplanationConfidenceBanner summary={m.explanationSummary} />

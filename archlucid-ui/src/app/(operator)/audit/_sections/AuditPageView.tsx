@@ -19,7 +19,7 @@ import { buildAuditActiveFilterChips } from "@/lib/audit-active-filter-chips";
 import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemoAuditIntegrityExportButton";
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 
-import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
+import { AuditTrailIntegrityNote } from "@/components/audit/AuditTrailIntegrityNote";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
 import { AuditResultsSection } from "./AuditResultsSection";
 import { AuditSearchSection } from "./AuditSearchSection";
@@ -61,6 +61,8 @@ export function AuditPageView(props: AuditPageViewProps) {
           buyerAuditTrailMetrics={props.buyerAuditTrailMetrics}
         />
       ) : null}
+
+      {!buyerPolishedShell ? <AuditTrailIntegrityNote /> : null}
 
       {props.ctoDemoAuditFilterActive ? (
         <div

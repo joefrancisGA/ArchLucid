@@ -6,10 +6,11 @@ import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 
 describe("PilotCommandCenterCard", () => {
-  it("renders primary start review CTA and example package link", () => {
+  it("renders primary start review CTA, path preview, and sample package link", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-primary")).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-example")).toBeInTheDocument();
   });
 });

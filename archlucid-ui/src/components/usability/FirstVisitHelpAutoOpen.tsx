@@ -9,36 +9,51 @@ import {
   dismissFirstVisitHelp,
   firstVisitHelpSlugForPathname,
   isFirstVisitHelpDismissed,
+  isFirstVisitHelpSessionDone,
+  markFirstVisitHelpSessionDone,
 } from "@/lib/usability/first-visit-help";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
-/** Auto-surfaces contextual help on first visit to a route; remembers dismissal per path. */
+/** Auto-surfaces contextual help once per session on operator home; remembers dismissal per path. */
 export function FirstVisitHelpAutoOpen() {
   const pathname = usePathname() ?? "/";
   const [visible, setVisible] = useState(false);
   const slug = firstVisitHelpSlugForPathname(pathname);
+  const isOperatorHome = pathname === "/";
 
   useEffect(() => {
-    if (slug === null || isFirstVisitHelpDismissed(pathname)) {
+    if (!isOperatorHome || slug === null || isFirstVisitHelpDismissed(pathname) || isFirstVisitHelpSessionDone()) {
       setVisible(false);
 
       return;
     }
 
     setVisible(true);
-  }, [pathname, slug]);
+  }, [isOperatorHome, pathname, slug]);
 
-  if (!visible || slug === null) {
+  if (!visible || slug === null || !isOperatorHome) {
     return null;
+  }
+
+  function close(): void {
+    dismissFirstVisitHelp(pathname);
+    markFirstVisitHelpSessionDone();
+    setVisible(false);
   }
 
   return (
     <div
-      className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-teal-200 bg-teal-50/80 px-4 py-3 text-sm dark:border-teal-900 dark:bg-teal-950/40"
+      className={cn(
+        "mb-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-700",
+        OPERATOR_TYPOGRAPHY.body,
+      )}
       role="note"
       data-testid="first-visit-help-auto-open"
     >
-      <p className="m-0 text-teal-950 dark:text-teal-100">
-        New here? Open contextual help for this page — it walks through what you are looking at and what to do first.
+      <p className="m-0 text-al-text-primary">
+        <span className="font-medium">3 things to know:</span> start one review package, explore a sample package if you
+        are not ready to connect Azure, then invite a reviewer when you want governance sign-off.
       </p>
       <div className="flex flex-wrap gap-2">
         <Button asChild type="button" size="sm">
@@ -48,10 +63,7 @@ export function FirstVisitHelpAutoOpen() {
           type="button"
           size="sm"
           variant="ghost"
-          onClick={() => {
-            dismissFirstVisitHelp(pathname);
-            setVisible(false);
-          }}
+          onClick={close}
         >
           Dismiss
         </Button>

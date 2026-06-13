@@ -2,6 +2,15 @@
  * Progressive disclosure labels (sidebar + inline help). Tier model unchanged; copy only.
  * @see `docs/library/operator-shell.md`
  */
+/** Sidebar collapsed-pilot expand control — intent over feature count. */
+export const SIDEBAR_SHOW_ALL_FEATURES = {
+  show: "Show governance & analysis tools",
+  hide: "Fewer sidebar links",
+  title: "Unlock governance workflow, compare, replay, and deeper analysis destinations.",
+} as const;
+
+export const SIDEBAR_QUICK_ACTIONS_LABEL = "Start review & audit";
+
 export const NAV_DISCLOSURE = {
   extended: {
     /** Collapsed: reveal extended-tier links (analysis / investigation). */

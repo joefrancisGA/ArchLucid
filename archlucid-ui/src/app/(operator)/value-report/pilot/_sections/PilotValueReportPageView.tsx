@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { LayerHeader } from "@/components/LayerHeader";
+import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 
@@ -22,6 +23,7 @@ export function PilotValueReportPageView(props: Props) {
   return (
     <div className="mx-auto space-y-4 p-4 print:w-full">
       <LayerHeader pageKey="value-report-pilot" />
+      <ValueReportOutcomesNav />
       <DocumentLayout>
         <h1 className="m-0 text-xl font-semibold tracking-tight text-al-text-primary">Pilot value report</h1>
         <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">

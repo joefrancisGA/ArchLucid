@@ -9,11 +9,23 @@ import { cn } from "@/lib/utils";
 
 type QuickReviewAdvancedConfigAccordionProps = {
   readonly children: ReactNode;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 };
 
 /** Collapses execution modes, workspace scope, and policy-pack pickers until the operator explicitly expands them. */
 export function QuickReviewAdvancedConfigAccordion(props: QuickReviewAdvancedConfigAccordionProps): React.JSX.Element {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = props.open !== undefined;
+  const open = isControlled ? props.open : internalOpen;
+
+  function setOpen(next: boolean): void {
+    if (!isControlled) {
+      setInternalOpen(next);
+    }
+
+    props.onOpenChange?.(next);
+  }
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} data-testid="quick-review-advanced-config">

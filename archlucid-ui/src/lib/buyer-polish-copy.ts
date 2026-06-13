@@ -27,13 +27,32 @@ export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
 export const PILOT_COMMAND_CENTER_HEADING = "Start your pilot review";
 
 export const PILOT_COMMAND_CENTER_LEAD =
-  "Generate a versioned, evidence-linked review package — one primary action, optional setup when you are ready.";
+  "Generate a versioned, evidence-linked review package. One primary action — optional setup stays collapsed until you need it.";
 
 export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start a review package";
+
+export const PILOT_COMMAND_CENTER_SAMPLE_LINK = "Explore a sample review package";
+
+export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_TOGGLE = "Optional setup";
 
 export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
 
 export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
+
+export const PILOT_PATH_PREVIEW_STEPS = [
+  { id: "connect", label: "Connect or upload estate" },
+  { id: "analyze", label: "Run analysis" },
+  { id: "package", label: "Signed review package" },
+] as const;
+
+export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Not ready to configure?";
+
+export const NEW_REVIEW_SAMPLE_ESCAPE_CTA = "Skip setup — see a finished package";
+
+export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_TITLE = "Product concepts";
+
+export const PRODUCT_CONCEPTS_GLOSSARY_DIALOG_DESCRIPTION =
+  "Short definitions for terms you will see during a pilot — open on demand instead of on every screen.";
 
 export const BUYER_HOME_START_CTO_DEMO_HEADING = "Start CTO demo";
 
@@ -488,6 +507,9 @@ export const BUYER_FINDING_EVIDENCE_TRACE_LABEL = "Evidence trace";
 export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trace";
 
 export const BUYER_AUDIT_REFERENCE_ID_LABEL = "Reference ID";
+
+export const AUDIT_TRAIL_INTEGRITY_NOTE =
+  "Append-only audit trail — every create, commit, governance decision, and export is recorded with actor, action type, and timestamp. Filter below or verify the hash chain when demo integrity tools are enabled.";
 
 export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance decision record";
 

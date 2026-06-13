@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
@@ -24,6 +25,7 @@ export default function NewRunPage() {
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         Start fast with Quick review (guided defaults), or open Full guided review for intake questions, templates, and imports.
       </p>
+      <NewReviewSampleEscapeLink className="mt-2" />
       <div className="mt-3">
         <FirstWeekRouteGuidance variant="new-review" />
       </div>

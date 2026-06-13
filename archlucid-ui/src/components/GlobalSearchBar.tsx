@@ -127,7 +127,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           ref={inputRef}
           id={inputId}
           type="search"
-          placeholder="Search reviews, findings, and evidence…"
+          placeholder="Search or jump to…"
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);

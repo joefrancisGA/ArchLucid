@@ -48,11 +48,32 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
     definition:
       "A time-bound waiver for an accepted finding. Requires rationale, expiry, and renewal before it expires.",
   },
+  {
+    term: "Execution mode",
+    definition:
+      "How agents ran for this review — Simulator (deterministic, no model billing) or Real (live Azure OpenAI). Recorded on every package for audit.",
+  },
+  {
+    term: "Replay",
+    definition:
+      "Re-run authority or policy reasoning against a committed package to see how conclusions would change with updated inputs.",
+  },
+  {
+    term: "Compare",
+    definition:
+      "Side-by-side diff of two review packages — findings, manifest changes, and governance disposition deltas.",
+  },
+  {
+    term: "Proof packet",
+    definition:
+      "The exportable evidence bundle (manifest hash, audit chain, findings summary) used for sponsor handoff and procurement diligence.",
+  },
 ];
 
 export type ProductConceptsGlossaryProps = {
   readonly entries?: GlossaryEntry[];
   readonly className?: string;
+  readonly defaultOpen?: boolean;
 };
 
 /**
@@ -62,10 +83,11 @@ export type ProductConceptsGlossaryProps = {
 export function ProductConceptsGlossary({
   entries = CORE_GLOSSARY,
   className,
+  defaultOpen = false,
 }: ProductConceptsGlossaryProps): ReactElement {
   return (
     <div className={className}>
-      <CollapsibleSection title="Terminology reference" defaultOpen={false}>
+      <CollapsibleSection title="Terminology reference" defaultOpen={defaultOpen}>
         <dl className="m-0 space-y-3 text-sm">
           {entries.map((entry) => (
             <div key={entry.term}>

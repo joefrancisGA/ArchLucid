@@ -2,27 +2,17 @@
 
 import Link from "next/link";
 import { Pin, PinOff } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import {
-  isNavLinkPinned,
-  readNavPinnedLinks,
-  toggleNavPinnedLink,
-  writeNavPinnedLinks,
-  type NavPinnedLink,
-} from "@/lib/usability/nav-pinned-links";
+import { useNavPinnedLinks } from "@/hooks/use-nav-pinned-links";
 import { flattenNavLinks } from "@/lib/nav-config";
 
 /** Pinned + pin-current controls in the sidebar. */
 export function NavPinnedLinksPanel() {
   const pathname = usePathname() ?? "/";
-  const [pinned, setPinned] = useState<NavPinnedLink[]>([]);
-
-  useEffect(() => {
-    setPinned(readNavPinnedLinks());
-  }, []);
+  const { pinned, togglePin, isPinned } = useNavPinnedLinks();
 
   const pinCurrent = useCallback(() => {
     const links = flattenNavLinks();
@@ -36,18 +26,17 @@ export function NavPinnedLinksPanel() {
       return;
     }
 
-    const next = toggleNavPinnedLink(pinned, { href: match.href, label: match.label });
-    setPinned(next);
-    writeNavPinnedLinks(next);
-  }, [pathname, pinned]);
+    togglePin({ href: match.href, label: match.label });
+  }, [pathname, togglePin]);
 
-  const unpin = useCallback((href: string) => {
-    const next = toggleNavPinnedLink(pinned, { href, label: "" });
-    setPinned(next);
-    writeNavPinnedLinks(next);
-  }, [pinned]);
+  const unpin = useCallback(
+    (href: string) => {
+      togglePin({ href, label: "" });
+    },
+    [togglePin],
+  );
 
-  const currentPinned = isNavLinkPinned(pinned, pathname);
+  const currentPinned = isPinned(pathname);
 
   return (
     <div className="mb-3 space-y-2" data-testid="nav-pinned-links-panel">

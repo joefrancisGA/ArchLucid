@@ -9,6 +9,7 @@ import { FindingAiReasoningDialog } from "@/components/FindingAiReasoningDialog"
 import { FindingAskInlinePanel } from "@/components/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingTrustChip } from "@/components/FindingTrustChip";
+import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
 import { FindingFeedbackThumbs } from "@/components/FindingFeedbackThumbs";
 import { MessageCircle } from "lucide-react";
 
@@ -229,11 +230,11 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
                         {f.title}
                       </Link>
                       {viewEvidenceHref !== null ? (
-                        <Button type="button" size="sm" variant="outline" className="h-8 shrink-0 text-xs" asChild>
-                          <Link href={viewEvidenceHref} data-testid="quick-decision-view-evidence">
-                            View evidence
-                          </Link>
-                        </Button>
+                        <FindingEvidenceLinkChip
+                          href={viewEvidenceHref}
+                          evidenceRefCount={evidenceRefCount}
+                          className="shrink-0"
+                        />
                       ) : null}
                       <Button
                         type="button"
