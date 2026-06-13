@@ -20,6 +20,7 @@ import { CtoDemoAuditIntegrityExportButton } from "@/components/cto-demo/CtoDemo
 import { CtoDemoAuditIntegrityVerifyButton } from "@/components/cto-demo/CtoDemoAuditIntegrityVerifyButton";
 
 import { AuditTrailIntegrityNote } from "@/components/audit/AuditTrailIntegrityNote";
+import { AuditBuyerHeaderMetrics } from "./AuditBuyerHeaderMetrics";
 import { AuditOperatorExportSection } from "./AuditOperatorExportSection";
 import { AuditResultsSection } from "./AuditResultsSection";
 import { AuditSearchSection } from "./AuditSearchSection";

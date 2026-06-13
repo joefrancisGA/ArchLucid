@@ -37,8 +37,10 @@ public sealed class AskThreadIntegrationTests
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
+        IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-            factory.Services, requestTimeout.Token);
+            services, requestTimeout.Token);
 
         HttpClient client = CreateScopedClient(factory);
 
@@ -75,8 +77,10 @@ public sealed class AskThreadIntegrationTests
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
+        IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-            factory.Services, requestTimeout.Token);
+            services, requestTimeout.Token);
 
         HttpClient client = CreateScopedClient(factory);
 
@@ -122,6 +126,9 @@ public sealed class AskThreadIntegrationTests
     public async Task Ask_without_question_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+
+        await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+
         HttpClient client = CreateScopedClient(factory);
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
@@ -139,6 +146,9 @@ public sealed class AskThreadIntegrationTests
     public async Task Ask_without_runId_or_threadId_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+
+        await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+
         HttpClient client = CreateScopedClient(factory);
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
@@ -159,8 +169,10 @@ public sealed class AskThreadIntegrationTests
         using CancellationTokenSource requestTimeout =
             IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
 
+        IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+
         Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-            factory.Services, requestTimeout.Token);
+            services, requestTimeout.Token);
 
         HttpClient client = CreateScopedClient(factory);
 

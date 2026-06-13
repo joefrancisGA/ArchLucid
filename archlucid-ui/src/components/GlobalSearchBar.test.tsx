@@ -32,7 +32,7 @@ describe("GlobalSearchBar", () => {
     render(<GlobalSearchBar />);
 
     expect(screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Search reviews, findings, and evidence…")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search or jump to…")).toBeInTheDocument();
     expect(screen.getByText(COMMAND_PALETTE_DISPLAY_SHORTCUT)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Open command palette" })).toBeNull();
   });

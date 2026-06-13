@@ -49,7 +49,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
             RunId = runId,
             AgentType = AgentType.Topology,
             Confidence = 0.99,
-            ResultJson = """{"claims":[{"detail":"Fabricated post-commit evidence mutation attempt."}]}""",
+            Claims = ["Fabricated post-commit evidence mutation attempt."],
         };
 
         HttpResponseMessage submitResponse = await Client.PostAsync(

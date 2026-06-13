@@ -21,6 +21,9 @@ public sealed class ArchitectureFindingAskControllerIntegrationTests
     public async Task AskAboutFinding_returns_bad_request_when_question_missing()
     {
         await using AlertLifecycleWebAppFactory factory = new();
+
+        await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+
         HttpClient client = factory.CreateClient();
         Guid findingId = Guid.NewGuid();
         using CancellationTokenSource requestTimeout =
