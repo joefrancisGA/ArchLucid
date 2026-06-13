@@ -13,13 +13,13 @@ describe("quick-review-wizard-preferences", () => {
   it("round-trips proof scope, execution mode, and advanced disclosure", () => {
     persistQuickReviewWizardPreferences({
       proofScope: ["cost", "topology"],
-      executionMode: "real",
+      executionMode: "live",
       advancedConfigExpanded: true,
     });
 
     expect(readQuickReviewWizardPreferences()).toEqual({
       proofScope: ["cost", "topology"],
-      executionMode: "real",
+      executionMode: "live",
       advancedConfigExpanded: true,
     });
   });

@@ -1015,7 +1015,29 @@ def evaluate_scenario(scenario_path: Path, corpus_root: Path) -> dict[str, Any]:
         raise ValueError(f"{scenario_path.name} must be an object")
 
     sid = str(scen.get("id") or scenario_path.stem)
+    precheck = scen.get("precheckGuard")
     rec_rel = scen.get("recording")
+
+    if isinstance(precheck, dict) and precheck and (not isinstance(rec_rel, str) or not rec_rel.strip()):
+        row: dict[str, Any] = {
+            "id": sid,
+            "path": str(scenario_path.relative_to(corpus_root)),
+            "expectedRules": 0,
+            "expectedHits": 0,
+            "recall": 1.0,
+            "unexpectedHits": [],
+            "actualFindings": 0,
+            "precheckGuard": precheck,
+            "quality": None,
+        }
+        inline_eo = scen.get("expectedOutcome")
+
+        if isinstance(inline_eo, dict):
+            row["expectedOutcome"] = inline_eo
+        else:
+            _attach_expected_outcome(row, scenario_path, sid, corpus_root)
+
+        return row
 
     if not isinstance(rec_rel, str) or not rec_rel.strip():
         raise ValueError(f"{sid}: recording path required")

@@ -103,7 +103,7 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
         AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
 
         report.SupportRatio.Should().Be(0.0);
-        report.UnsupportedIds.Should().Contain("claim:overlap");
+        report.UnsupportedIds.Should().Contain("claim:citation-fidelity");
     }
 
     [Fact]

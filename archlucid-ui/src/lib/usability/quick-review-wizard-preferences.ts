@@ -4,7 +4,7 @@ import type { QuickReviewProofScopeId } from "@/components/usability/QuickReview
 const STORAGE_KEY = "archlucid_quick_review_wizard_prefs_v1";
 
 const VALID_PROOF_SCOPE: readonly QuickReviewProofScopeId[] = ["cost", "compliance", "topology"];
-const VALID_EXECUTION_MODES: readonly CtoDemoReviewExecutionMode[] = ["simulator", "real"];
+const VALID_EXECUTION_MODES: readonly CtoDemoReviewExecutionMode[] = ["simulator", "live"];
 
 export type QuickReviewWizardPreferences = {
   readonly proofScope: QuickReviewProofScopeId[];
@@ -18,6 +18,18 @@ function isProofScopeId(value: unknown): value is QuickReviewProofScopeId {
 
 function isExecutionMode(value: unknown): value is CtoDemoReviewExecutionMode {
   return typeof value === "string" && VALID_EXECUTION_MODES.includes(value as CtoDemoReviewExecutionMode);
+}
+
+function normalizeExecutionMode(value: unknown): CtoDemoReviewExecutionMode {
+  if (value === "real") {
+    return "live";
+  }
+
+  if (isExecutionMode(value)) {
+    return value;
+  }
+
+  return "simulator";
 }
 
 function parseStoredPreferences(raw: string | null): QuickReviewWizardPreferences | null {
@@ -38,7 +50,7 @@ function parseStoredPreferences(raw: string | null): QuickReviewWizardPreference
       return null;
     }
 
-    const executionMode = isExecutionMode(parsed.executionMode) ? parsed.executionMode : "simulator";
+    const executionMode = normalizeExecutionMode(parsed.executionMode);
     const advancedConfigExpanded = parsed.advancedConfigExpanded === true;
 
     return {
