@@ -227,6 +227,25 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
     )
 
+    saq_path, saq_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        ["saq-release-gate.json"],
+    )
+    saq_payload = load_json(saq_path) if saq_path else None
+    gates.append(
+        _gate_from_payload(
+            gate_id="saq-release-gate",
+            label="Open P0/P1 strong-model architecture questions",
+            artifact_path=saq_rel,
+            payload=saq_payload,
+            status_keys=("disposition", "status"),
+            reason_keys=("policy", "detail", "summary"),
+            high_risk=True,
+            skipped_reason="SAQ release gate artifact not attached",
+        )
+    )
+
     ai_summary_path, ai_summary_rel = _resolve_artifact(
         root,
         bundle_dir,

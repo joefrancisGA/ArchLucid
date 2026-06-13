@@ -1,0 +1,18 @@
+{
+  "findings": [
+    {
+      "findingId": "adv-ood-1",
+      "category": "Critic",
+      "severity": "High",
+      "title": "Out-of-domain legal certification request",
+      "detail": "The request is out-of-domain for ArchLucid because it asks for legal certification rather than architecture evidence review."
+    },
+    {
+      "findingId": "adv-ood-2",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Qualified reviewer required",
+      "detail": "Medical data retention and HIPAA legal interpretation require qualified legal or compliance reviewer approval; the system can provide evidence gaps only."
+    }
+  ]
+}

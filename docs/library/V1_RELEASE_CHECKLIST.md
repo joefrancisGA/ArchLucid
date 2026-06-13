@@ -120,6 +120,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 
 - [ ] **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (against staging/prod-like API) completes without unhandled errors ([CLI_USAGE.md](CLI_USAGE.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)).
 - [ ] **Archive reviewed** internally: no unexpected secrets; redaction policy applied before external share ([PILOT_GUIDE.md](PILOT_GUIDE.md#when-you-report-an-issue)).
+- [ ] **First-pilot support-bundle proof** attached: `support-bundle-status.json` is **PASS** or an explicit **MISSING/WARN** is accepted before operational handoff; **HOLD** redaction findings block external sharing.
 - [ ] **Key sections present** for triage: e.g. build/health/config summary as documented in [CHANGELOG.md](../CHANGELOG.md) / [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) (manifest, build, health, config-summary, environment, etc.).
 - [ ] **Ticket template** for pilots includes: version, correlation ID, bundle (if allowed), repro steps ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
 

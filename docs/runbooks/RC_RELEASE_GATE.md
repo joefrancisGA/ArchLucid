@@ -32,6 +32,7 @@ High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: mar
 | Sponsor evidence label consistency | `check_sponsor_evidence_label_consistency.py` | Sponsor-facing docs must keep evidence-basis labels and forbid over-claims. |
 | Sponsor packet contract | `check_sponsor_packet_contract.py` | Sponsor export schema must not drift at release. |
 | ROI surface consistency | `check_roi_surface_consistency.py` | ROI copy must stay aligned with proof posture. |
+| SAQ release gate | `report_saq_release_gate.py` | Open P0 strong-model architecture questions require explicit RC disposition or waiver. |
 
 ## Release evidence strict (RC)
 
@@ -55,7 +56,7 @@ Job **`observability-readiness`** emits `observability-export-readiness.md` via 
 
 ## RC signoff gate (blocking)
 
-Job **`rc-signoff-gate`** emits `pilot-critical-performance-evidence.json`, composes `rc-evidence-signoff-bundle.json` / `.md` (per-gate **PASS / WARN / HOLD / SKIPPED** rows for release-smoke, live UI/API parity, config lint, OpenAPI contract, data consistency, AI readiness, and procurement/claim-boundary checks), then synthesizes `rc-go-no-go-verdict.json` / `.md` from claim gate, canary gate, observability, and route/tier/policy/nav artifacts via `build_rc_go_no_go_verdict.py --strict-rc`. The workflow **fails** when verdict is **HOLD**, when the signoff bundle is **HOLD** under `--strict-rc`, or when claim/canary scripts exit non-zero.
+Job **`rc-signoff-gate`** emits `pilot-critical-performance-evidence.json` and `saq-release-gate.json`, composes `rc-evidence-signoff-bundle.json` / `.md` (per-gate **PASS / WARN / HOLD / SKIPPED** rows for release-smoke, live UI/API parity, config lint, OpenAPI contract, data consistency, open P0/P1 SAQs, AI readiness, and procurement/claim-boundary checks), then synthesizes `rc-go-no-go-verdict.json` / `.md` from claim gate, canary gate, observability, SAQ, and route/tier/policy/nav artifacts via `build_rc_go_no_go_verdict.py --strict-rc`. The workflow **fails** when verdict is **HOLD**, when the signoff bundle is **HOLD** under `--strict-rc`, or when claim/canary scripts exit non-zero.
 
 Local reproduction:
 
@@ -71,6 +72,8 @@ python scripts/ci/build_rc_evidence_signoff_bundle.py `
   --markdown-out artifacts/release-readiness/rc-evidence-signoff-bundle.md `
   --strict-rc
 ```
+
+Open P0 SAQs in `docs/library/SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md` produce **HOLD** unless release owners attach a structured waiver JSON to `report_saq_release_gate.py --waiver-json`. The waiver must name the SAQ id, owner, rationale, compensating controls, affected claims/features, and expiry or reassessment trigger.
 
 ## Real-mode claim gate (RC)
 

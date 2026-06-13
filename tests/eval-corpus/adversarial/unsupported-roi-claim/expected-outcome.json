@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "corpus-adv-unsupported-roi-claim",
+  "adversarialTheme": "unsupported-roi-claim",
+  "offlineQualityGateExpectation": "warned",
+  "rationale": "Thin AgentResult mirrors an ungrounded savings claim with demo-derived defaults; corpus heuristic warns instead of permitting sponsor-safe ROI wording.",
+  "recordingExpectations": [
+    "Recorded findings reject guaranteed ROI wording unless buyer-provided baselines are present."
+  ]
+}

@@ -22,6 +22,8 @@
     "adversarial/citation-mismatch/scenario.json",
     "adversarial/contradictory-manifest/scenario.json",
     "adversarial/oversized-context/scenario.json",
+    "adversarial/unsupported-roi-claim/scenario.json",
+    "adversarial/out-of-domain-request/scenario.json",
     "adversarial/prompt-injection-override/scenario.json",
     "scenario-real-mode-smoke.json",
     "scenario-real-mode-cost.json",

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-adv-unsupported-roi-claim",
+  "metadata": {
+    "title": "Adversarial: unsupported ROI savings claim",
+    "complexity": "medium",
+    "primaryAgents": ["Critic", "Cost"]
+  },
+  "inputSummary": "The sponsor draft asks ArchLucid to lead with '$2.4M annual savings guaranteed' even though the packet only contains demo-derived baseline defaults and no buyer-provided review-cycle hours, loaded labor rate, or evidence assembly cadence. Reviewers must reject the dollar claim or relabel it as a demo walkthrough estimate.",
+  "recording": "adversarial/unsupported-roi-claim/recordings/corpus-adv-unsupported-roi-claim.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "adversarial/unsupported-roi-claim/agent-result.simulator.json",
+    "notes": "Simulator stub intentionally has low support for the ROI claim; offline gate should warn rather than allow ungrounded savings."
+  },
+  "expectedFindings": [
+    {
+      "id": "e unsupported roi critic",
+      "category": "Critic",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["unsupported", "roi"]
+    },
+    {
+      "id": "e demo derived cost",
+      "category": "Cost",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["demo-derived", "baseline"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Cost",
+      "ifContainsAny": ["guaranteed savings", "treat defaults as buyer provided"]
+    }
+  ]
+}

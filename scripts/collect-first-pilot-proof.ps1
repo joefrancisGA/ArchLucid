@@ -743,6 +743,37 @@ function Add-FirstPilotTimingBudgetFinding {
     Add-ProofFinding -Disposition 'PASS' -Name 'first-pilot-timing-budget' -Detail 'Timing budget includes measured staging-smoke steps with PASS first-value commit budget (≤10 min).' -Remediation ''
 }
 
+function Add-SupportBundleStatusFinding {
+    param([Parameter(Mandatory = $true)][string] $ProofDirectory)
+
+    $jsonPath = Join-Path $ProofDirectory 'support-bundle-status.json'
+    $scriptPath = Join-Path $PSScriptRoot 'ci\evaluate_support_bundle_status.py'
+
+    & python $scriptPath --bundle-dir $ProofDirectory --json-out $jsonPath 2>&1 | Out-Null
+
+    Add-ProofArtifact -Name 'support-bundle-status.json' -Path 'support-bundle-status.json' -Purpose 'Machine-readable support-bundle presence and redaction proof.'
+
+    if (-not (Test-Path -LiteralPath $jsonPath)) {
+        Add-ProofFinding -Disposition 'WARN' -Name 'support-bundle-status' -Detail 'Support-bundle status artifact was not generated.' -Remediation 'Run python scripts/ci/evaluate_support_bundle_status.py for the proof folder.'
+        return
+    }
+
+    $statusJson = Get-Content -LiteralPath $jsonPath -Raw | ConvertFrom-Json
+    $status = [string]$statusJson.status
+
+    if ($status -eq 'HOLD') {
+        Add-ProofFinding -Disposition 'BLOCK' -Name 'support-bundle-status' -Detail ([string]$statusJson.detail) -Remediation 'Regenerate the support bundle with secrets redacted before sponsor or support handoff.' -TriageCard 'FP-T013'
+        return
+    }
+
+    if ($status -eq 'MISSING') {
+        Add-ProofFinding -Disposition 'WARN' -Name 'support-bundle-status' -Detail 'No support bundle artifact was attached to the first-pilot proof folder.' -Remediation 'Attach a generated support bundle or support summary before operational handoff.'
+        return
+    }
+
+    Add-ProofFinding -Disposition 'PASS' -Name 'support-bundle-status' -Detail 'Support bundle artifact is present and redaction scan passed.' -Remediation ''
+}
+
 function Add-AdminOperationalPostureFinding {
     param([Parameter(Mandatory = $true)][string] $ProofDirectory)
 
@@ -2831,6 +2862,7 @@ Add-FirstPilotTimingBudgetFinding `
     -PerformanceBaselineJsonPath $performanceBaselineJsonForEnvelope `
     -ProofCollectionElapsedMs $proofCollectionElapsedMs
 
+Add-SupportBundleStatusFinding -ProofDirectory $proofDir
 Add-AdminOperationalPostureFinding -ProofDirectory $proofDir
 Add-EnvironmentReliabilityRollupFinding -ProofDirectory $proofDir
 Add-OptionalIntegrationCorrectnessDrillFinding -ProofDirectory $proofDir

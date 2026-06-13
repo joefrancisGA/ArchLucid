@@ -44,9 +44,22 @@ def classify_simulator_live_divergence(summary: dict[str, Any]) -> dict[str, Any
     trace_mean = summary.get("explainabilityTraceCompletenessMean")
     owner_note = str(summary.get("ownerDivergenceNote") or "").strip()
     owner_signoff = str(summary.get("ownerSignoff") or "").strip()
+    material_drift_fields = (
+        "topLineRecommendationChanged",
+        "severityChanged",
+        "evidenceBasisChanged",
+        "roiImplicationChanged",
+        "compliancePostureChanged",
+        "highCriticalFindingOutcomeChanged",
+    )
 
     blocking_reasons: list[str] = []
     warn_reasons: list[str] = []
+    material_drift_reasons: list[str] = []
+
+    for field in material_drift_fields:
+        if summary.get(field) is True:
+            material_drift_reasons.append(field)
 
     if fallback:
         blocking_reasons.append("fallback-to-simulator cannot count as live evidence")
@@ -64,6 +77,9 @@ def classify_simulator_live_divergence(summary: dict[str, Any]) -> dict[str, Any
     else:
         classification = "accepted-full-real"
         release_blocking = False
+
+        for field in material_drift_reasons:
+            blocking_reasons.append(f"material simulator/live drift: {field}")
 
         if isinstance(p50, (int, float)) and float(p50) < _P50_FLOOR:
             blocking_reasons.append(f"semantic p50 {float(p50):.3f} < {_P50_FLOOR}")
@@ -110,6 +126,7 @@ def classify_simulator_live_divergence(summary: dict[str, Any]) -> dict[str, Any
         "buyerFacingFullRealBlocked": buyer_facing_full_real_blocked,
         "blockingReasons": blocking_reasons,
         "warnReasons": warn_reasons,
+        "materialDriftFields": material_drift_reasons,
         "thresholds": {
             "semanticP50Floor": _P50_FLOOR,
             "semanticP10Floor": _P10_FLOOR,

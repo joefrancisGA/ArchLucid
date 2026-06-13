@@ -173,6 +173,17 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
+        (bundle / "saq-release-gate.json").write_text(
+            json.dumps(
+                {
+                    "schema": "archlucid.saq-release-gate.v1",
+                    "disposition": "HOLD",
+                    "blockingReasons": ["SAQ-001 is open P0 and has no release waiver"],
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         verdict_json = self.temp_dir / "verdict.json"
         verdict_md = self.temp_dir / "verdict.md"
         run_py(
@@ -188,6 +199,8 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
         )
         verdict = json.loads(verdict_json.read_text(encoding="utf-8"))
         self.assertEqual(verdict["schema"], "archlucid.rc-go-no-go-verdict.v1")
+        self.assertEqual(verdict["saqReleaseGateDisposition"], "HOLD")
+        self.assertIn("SAQ release gate: HOLD", verdict["blockers"])
         handoff_json = self.temp_dir / "handoff.json"
         handoff_md = self.temp_dir / "handoff.md"
         run_py(
@@ -266,6 +279,8 @@ class ReleaseEvidenceRcGateTests(unittest.TestCase):
             "azure-iac-parity-proof.json",
             "managed-identity-verification.json",
             "real-mode-claim-gate.json",
+            "saq-release-gate.json",
+            "saq-release-gate.md",
         ):
             self.assertIn(name, optional)
 

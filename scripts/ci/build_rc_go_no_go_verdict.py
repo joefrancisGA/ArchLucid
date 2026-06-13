@@ -39,6 +39,7 @@ def build_verdict(root: Path, bundle_dir: Path) -> dict[str, Any]:
     deploy_handoff = load_json(bundle_dir / "deploy-handoff.json") or {}
     azure_parity = load_json(bundle_dir / "azure-iac-parity-proof.json") or {}
     managed_identity = load_json(bundle_dir / "managed-identity-verification.json") or {}
+    saq_gate = load_json(bundle_dir / "saq-release-gate.json") or {}
 
     lanes = confidence.get("lanes") if isinstance(confidence.get("lanes"), list) else []
     strict_disposition = str(confidence.get("strictDisposition") or evaluate_strict_rc(lanes)[0])
@@ -87,6 +88,13 @@ def build_verdict(root: Path, bundle_dir: Path) -> dict[str, Any]:
     if str(managed_identity.get("disposition") or "").upper() == "HOLD":
         blockers.append("Managed identity verification: HOLD")
 
+    if str(saq_gate.get("disposition") or "").upper() == "HOLD":
+        blockers.append("SAQ release gate: HOLD")
+
+    for reason in saq_gate.get("blockingReasons") or []:
+        if isinstance(reason, str) and reason.strip():
+            blockers.append(reason)
+
     deploy_status = str(deploy_handoff.get("deployReadinessStatus") or "").upper()
 
     if deploy_status == "HOLD":
@@ -106,6 +114,7 @@ def build_verdict(root: Path, bundle_dir: Path) -> dict[str, Any]:
         "deployReadinessStatus": deploy_handoff.get("deployReadinessStatus"),
         "azureIacParityDisposition": azure_parity.get("disposition"),
         "managedIdentityDisposition": managed_identity.get("disposition"),
+        "saqReleaseGateDisposition": saq_gate.get("disposition"),
         "blockers": blockers,
         "remediation": [
             "Attach missing release-blocking lane status JSON from CI.",
@@ -117,6 +126,7 @@ def build_verdict(root: Path, bundle_dir: Path) -> dict[str, Any]:
             "releaseConfidenceRollup": "release-confidence-rollup.json",
             "realModeClaimGate": "real-mode-claim-gate.json",
             "deployHandoff": "deploy-handoff.json",
+            "saqReleaseGate": "saq-release-gate.json",
         },
     }
 
@@ -139,6 +149,7 @@ def render_markdown(payload: dict[str, Any]) -> str:
         f"| Deploy readiness | {payload.get('deployReadinessStatus') or '(not emitted)'} |",
         f"| Azure IaC parity | {payload.get('azureIacParityDisposition') or '(not emitted)'} |",
         f"| Managed identity | {payload.get('managedIdentityDisposition') or '(not emitted)'} |",
+        f"| SAQ release gate | {payload.get('saqReleaseGateDisposition') or '(not emitted)'} |",
         "",
     ]
 

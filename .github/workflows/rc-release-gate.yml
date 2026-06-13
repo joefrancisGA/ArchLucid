@@ -262,6 +262,10 @@ jobs:
             --environment-label Production \
             --json-out "$BUNDLE/pilot-critical-performance-evidence.json" \
             --markdown-out "$BUNDLE/pilot-critical-performance-evidence.md"
+          python scripts/ci/report_saq_release_gate.py \
+            --repo-root . \
+            --json-out "$BUNDLE/saq-release-gate.json" \
+            --markdown-out "$BUNDLE/saq-release-gate.md"
           python scripts/ci/build_rc_evidence_signoff_bundle.py \
             --repo-root . \
             --bundle-dir "$BUNDLE" \

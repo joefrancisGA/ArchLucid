@@ -79,7 +79,9 @@
         "pilot-critical-performance-evidence.json",
         "pilot-critical-performance-evidence.md",
         "rc-evidence-signoff-bundle.json",
-        "rc-evidence-signoff-bundle.md"
+        "rc-evidence-signoff-bundle.md",
+        "saq-release-gate.json",
+        "saq-release-gate.md"
       ]
     },
     "production-readiness-drill": {

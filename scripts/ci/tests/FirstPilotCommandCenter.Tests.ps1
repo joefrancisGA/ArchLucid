@@ -77,6 +77,10 @@ Describe 'First-pilot command center' {
         Test-Path -LiteralPath (Join-Path $proofDir $paths.jsonPath) | Should Be $true
         Test-Path -LiteralPath (Join-Path $proofDir $paths.mdPath) | Should Be $true
 
+        $markdown = Get-Content -LiteralPath (Join-Path $proofDir $paths.mdPath) -Raw
+        $markdown | Should Match 'Buyer-safe summary'
+        $markdown | Should Match 'Internal diagnostics appendix'
+
         $json = Get-Content -LiteralPath (Join-Path $proofDir $paths.jsonPath) -Raw | ConvertFrom-Json
         $json.nextAction.label | Should Be 'NEXT ACTION'
         $json.phases.Count | Should Be 5

@@ -81,3 +81,21 @@ def test_blocking_on_green_bar_floor() -> None:
     )
 
     assert result["classification"] == "release-blocking-drift"
+
+
+def test_material_recommendation_drift_blocks_even_with_good_scores() -> None:
+    result = classify_simulator_live_divergence(
+        {
+            "hasRealEvidence": True,
+            "structuralComplete": True,
+            "semanticScoreP50": 0.92,
+            "semanticScoreP10": 0.86,
+            "baselineSemanticScoreP50": 0.93,
+            "explainabilityTraceCompletenessMean": 0.95,
+            "topLineRecommendationChanged": True,
+        }
+    )
+
+    assert result["classification"] == "release-blocking-drift"
+    assert result["buyerFacingFullRealBlocked"] is True
+    assert "topLineRecommendationChanged" in result["materialDriftFields"]
