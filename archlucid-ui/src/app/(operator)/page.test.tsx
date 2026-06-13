@@ -124,7 +124,9 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
     expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
     expect(screen.getByText("Search & Insights")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open the example review package" })).toHaveAttribute(
+    // The "Open the example review package" label now appears on more than one CTA; scope to the
+    // stable command-center example link by test id (see PilotCommandCenterCard).
+    expect(screen.getByTestId("pilot-command-center-example")).toHaveAttribute(
       "href",
       "/reviews/claims-intake-modernization",
     );

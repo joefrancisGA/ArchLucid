@@ -39,11 +39,14 @@ export function InProductEvidenceChecklist() {
         return;
       }
 
+      // Harden against a malformed (non-array) checklist body from the API/mock: `.some` would throw.
+      const checklistSteps = Array.isArray(teamChecklist) ? teamChecklist : [];
+
       const apiReady =
         health !== null
         && (health.status?.toLowerCase().includes("healthy") || health.status?.toLowerCase().includes("ok"));
       const configReady = configLint !== null && !configLint.loadFailed && configLint.blockingCount === 0;
-      const evidenceAck = teamChecklist.some((step) => step.stepIndex === 1 && step.isCompleted);
+      const evidenceAck = checklistSteps.some((step) => step.stepIndex === 1 && step.isCompleted);
 
       const nextRows: EvidenceChecklistRow[] = [
         {
@@ -70,7 +73,7 @@ export function InProductEvidenceChecklist() {
         {
           id: "first-commit",
           label: "First review package committed",
-          status: teamChecklist.some((step) => step.stepIndex === 4 && step.isCompleted) ? "ready" : "pending",
+          status: checklistSteps.some((step) => step.stepIndex === 4 && step.isCompleted) ? "ready" : "pending",
           actionHref: "/reviews?projectId=default",
           actionLabel: "Open reviews",
         },

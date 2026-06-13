@@ -13,6 +13,13 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
 {
+    /// <summary>
+    ///     InMemory host start/dispose should take seconds. Bound dispose so an <c>IHostedService</c> that ignores its
+    ///     shutdown token cannot wedge the host for the full 75-minute CI blame-hang ceiling (CI #2138, #2162). Set
+    ///     comfortably above a normal dispose (seconds) and far below the blame-hang budget.
+    /// </summary>
+    private static readonly TimeSpan BoundedDisposeTimeout = TimeSpan.FromMinutes(2);
+
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
         settings["ArchLucid:StorageProvider"] = "InMemory";
@@ -36,5 +43,45 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         base.ConfigureClient(client);
 
         client.Timeout = IntegrationTestHttpCancellation.DefaultRequestTimeout;
+    }
+
+    /// <summary>
+    ///     Bounds <c>await using</c> host teardown. If a hosted service ignores its shutdown token and wedges the host,
+    ///     the wedged dispose is abandoned (a blocked dispose cannot be force-aborted) so the test completes fast and the
+    ///     stall is named in CI logs in seconds — instead of hanging until the 75-minute blame-hang ceiling.
+    /// </summary>
+    public override async ValueTask DisposeAsync()
+    {
+        Task disposeTask = base.DisposeAsync().AsTask();
+
+        Task winner = await Task.WhenAny(disposeTask, Task.Delay(BoundedDisposeTimeout));
+
+        if (winner != disposeTask)
+        {
+            Console.Error.WriteLine(
+                $"[AlertLifecycleWebAppFactory] Host dispose exceeded {BoundedDisposeTimeout.TotalSeconds:N0}s; "
+                + "abandoning wedged dispose to avoid the CI blame-hang ceiling. A hosted service likely ignored its shutdown token.");
+
+            ObserveAbandonedDispose(disposeTask);
+
+            return;
+        }
+
+        await disposeTask;
+    }
+
+    /// <summary>
+    ///     Swallows the abandoned dispose result so a later fault cannot surface as an
+    ///     <c>UnobservedTaskException</c> that tears down the test host process.
+    /// </summary>
+    private static void ObserveAbandonedDispose(Task disposeTask)
+    {
+        ArgumentNullException.ThrowIfNull(disposeTask);
+
+        _ = disposeTask.ContinueWith(
+            static completed => { _ = completed.Exception; },
+            CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted,
+            TaskScheduler.Default);
     }
 }

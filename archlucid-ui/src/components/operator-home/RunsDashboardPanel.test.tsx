@@ -130,15 +130,10 @@ describe("RunsDashboardPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("operator-home-azure-extractor-empty-state")).toBeInTheDocument();
       });
-      expect(
-        screen.getByText(/Import your Azure environment to get started/i),
-      ).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByRole("link", { name: "Open Azure Extractor settings" })).toHaveAttribute(
-        "href",
-        "/settings/extract-upload",
-      );
-      expect(screen.getByRole("link", { name: "First review checklist" })).toHaveAttribute("href", "/onboarding");
+      expect(screen.getByText("Start your first architecture review")).toBeInTheDocument();
+      expect(screen.getByText("Upload your Azure environment")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Begin architecture review" })).toHaveAttribute("href", "/reviews/new");
+      expect(screen.getByRole("link", { name: "How this works" })).toHaveAttribute("href", "/help");
       expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
       expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
