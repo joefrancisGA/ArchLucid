@@ -40,6 +40,7 @@ export type ExecutiveRoiSummary = {
   }>;
   resolvedFindingsCount30Days?: number;
   newlyDiscoveredFindingsCount30Days?: number;
+  staleArchitectureRiskCount?: number;
   historicalTrends?: ExecutiveRoiSystemicIssueTrendSeries[];
   realizedValue?: {
     findingsRemediatedCount30Days: number;
