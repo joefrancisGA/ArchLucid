@@ -12,10 +12,7 @@ import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
 import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
-import { NavPresetQuickSwitcher } from "@/components/NavPresetQuickSwitcher";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
-import { CommandPalette } from "@/components/CommandPalette";
-import { GlobalSearchBar } from "@/components/GlobalSearchBar";
 import { HelpPanel } from "@/components/HelpPanel";
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
@@ -23,13 +20,11 @@ import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
 import { PilotBaselineWizardLauncher } from "@/components/PilotBaselineWizardLauncher";
 import { DemoStrictNavigationGate } from "@/components/DemoStrictNavigationGate";
-import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import {
   OperatorChromeModeProvider,
   useOperatorChromeMode,
 } from "@/components/OperatorChromeModeContext";
-import { ScopeSwitcher } from "@/components/ScopeSwitcher";
-import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
+import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { OperatorRoleGate } from "@/components/OperatorRoleGate";
 import { SidebarNav } from "@/components/SidebarNav";
@@ -45,22 +40,16 @@ import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathnam
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
-import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
 import { PersistentTrialStatusStrip } from "@/components/usability/PersistentTrialStatusStrip";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShortcutsFooterHint";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { ProductConceptsGlossaryDialog } from "@/components/usability/ProductConceptsGlossaryDialog";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
-import { ShellSetupHealthChip } from "@/components/usability/ShellSetupHealthChip";
-import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
-import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
 import { TeamExpansionNudge } from "@/components/TeamExpansionNudge";
@@ -246,62 +235,13 @@ function AppShellInner({ children }: AppShellClientProps) {
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
-        <div ref={shellRootRef} className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
-          <div className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
-            <header
-              data-testid="app-shell-topbar"
-              className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
-            >
-              <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5 lg:flex-nowrap lg:px-6">
-                <div className="flex min-w-0 items-center gap-3">
-                  <MobileNavDrawer />
-                  <h1 className="m-0">
-                    <Button variant="ghost" className="h-auto p-0" asChild>
-                      <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
-                    </Button>
-                  </h1>
-                </div>
-                <div className="min-w-0 flex-1 basis-full sm:order-none sm:basis-auto sm:max-w-md lg:max-w-none lg:w-72 xl:w-80 lg:shrink-0">
-                  <GlobalSearchBar />
-                </div>
-                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:ml-auto">
-                  {!isBuyerPolishedOperatorShellEnv() ? <ShellSetupHealthChip /> : null}
-                  {!isBuyerPolishedOperatorShellEnv() ? <LlmBudgetStatusPill /> : null}
-                  <ExecutiveOperatorShellSwitcher />
-                  <TrustCenterShellLink variant="header" />
-                  <ProductConceptsGlossaryDialog />
-                  <PageContextualHelpButton />
-                  <UsabilityFeedbackWidget />
-                  <TenantWorkspaceBoundaryBadge variant="header" />
-                  <AuthPanel />
-                  <ScopeSwitcher />
-                  {!isBuyerPolishedOperatorShellEnv() ? <NavPresetQuickSwitcher /> : null}
-                  <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
-                    {!isBuyerPolishedOperatorShellEnv() ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            aria-label="Help and documentation"
-                            onClick={() => {
-                              setHelpDocSearchOpen(true);
-                            }}
-                          >
-                            <CircleHelp className="h-4 w-4" aria-hidden />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
-                      </Tooltip>
-                    ) : null}
-                    <ColorModeToggle />
-                  </div>
-                </div>
-              </div>
-              <CommandPalette />
-            </header>
+        <div ref={shellRootRef} className="flex min-h-screen flex-col overflow-x-hidden bg-neutral-50 dark:bg-neutral-950">
+          <div className="sticky top-0 z-30 overflow-x-hidden bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden">
+            <OperatorShellTopBar
+              onOpenHelpSearch={() => {
+                setHelpDocSearchOpen(true);
+              }}
+            />
             <LayerContextFromRoute />
             <CtoDemoJourneyCaptionBar />
           </div>

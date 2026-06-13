@@ -1,0 +1,106 @@
+"use client";
+
+import { CircleHelp } from "lucide-react";
+
+import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { AuthPanel } from "@/components/AuthPanel";
+import { ColorModeToggle } from "@/components/ColorModeToggle";
+import { CommandPalette } from "@/components/CommandPalette";
+import { GlobalSearchBar } from "@/components/GlobalSearchBar";
+import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
+import { MobileNavDrawer } from "@/components/MobileNavDrawer";
+import { NavPresetQuickSwitcher } from "@/components/NavPresetQuickSwitcher";
+import { ScopeSwitcher } from "@/components/ScopeSwitcher";
+import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ProductConceptsGlossaryDialog } from "@/components/usability/ProductConceptsGlossaryDialog";
+import { ShellSetupHealthChip } from "@/components/usability/ShellSetupHealthChip";
+import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
+import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+
+type OperatorShellTopBarProps = {
+  readonly onOpenHelpSearch: () => void;
+};
+
+/**
+ * Operator shell header: primary rail (identity, search, session controls) and a full-width
+ * secondary utilities rail so status chips and help links wrap instead of bleeding horizontally.
+ */
+export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const showDevOperatorChrome = !buyerPolished;
+
+  return (
+    <header
+      data-testid="app-shell-topbar"
+      className="overflow-x-hidden border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950"
+    >
+      <div className="mx-auto w-full min-w-0 max-w-[1600px] overflow-x-hidden px-4 py-2.5 lg:px-6">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+          <div
+            data-testid="app-shell-topbar-primary"
+            className="flex min-w-0 items-center gap-3"
+          >
+            <MobileNavDrawer />
+            <h1 className="m-0">
+              <Button variant="ghost" className="h-auto p-0" asChild>
+                <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
+              </Button>
+            </h1>
+          </div>
+
+          <div className="min-w-0 flex-1 basis-full sm:order-none sm:basis-auto sm:max-w-md lg:max-w-sm xl:max-w-md">
+            <GlobalSearchBar />
+          </div>
+
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:ml-auto">
+            <ExecutiveOperatorShellSwitcher />
+            <AuthPanel />
+            <ScopeSwitcher density="compact" />
+            <div className="flex items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
+              {showDevOperatorChrome ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      aria-label="Help and documentation"
+                      onClick={() => {
+                        props.onOpenHelpSearch();
+                      }}
+                    >
+                      <CircleHelp className="h-4 w-4" aria-hidden />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
+                </Tooltip>
+              ) : null}
+              <ColorModeToggle />
+            </div>
+          </div>
+
+          <div
+            data-testid="app-shell-topbar-secondary"
+            className="flex w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-t border-neutral-200/80 pt-2 dark:border-neutral-700/80"
+          >
+            {showDevOperatorChrome ? <ShellSetupHealthChip /> : null}
+            {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
+            <TrustCenterShellLink variant="header" />
+            <ProductConceptsGlossaryDialog />
+            <PageContextualHelpButton />
+            <UsabilityFeedbackWidget />
+            <TenantWorkspaceBoundaryBadge variant="header" />
+            {showDevOperatorChrome ? <NavPresetQuickSwitcher /> : null}
+          </div>
+        </div>
+      </div>
+      <CommandPalette />
+    </header>
+  );
+}

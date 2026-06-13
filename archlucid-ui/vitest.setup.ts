@@ -23,6 +23,17 @@ if (typeof Element !== "undefined") {
   Element.prototype.scrollIntoView = vi.fn();
 }
 
+/** jsdom does not implement ResizeObserver; operator shell tours and graph views observe layout. */
+if (typeof globalThis.ResizeObserver === "undefined") {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+
+    unobserve(): void {}
+
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+}
+
 afterEach(() => {
   cleanup();
 });

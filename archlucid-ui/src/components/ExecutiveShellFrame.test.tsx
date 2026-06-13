@@ -17,6 +17,10 @@ vi.mock("@/components/LayerContextFromRoute", () => ({
   LayerContextFromRoute: () => null,
 }));
 
+vi.mock("@/components/shell/TenantWorkspaceBoundaryBadge", () => ({
+  TenantWorkspaceBoundaryBadge: () => <div data-testid="tenant-workspace-boundary-badge-compact" />,
+}));
+
 import { ExecutiveShellFrame } from "./ExecutiveShellFrame";
 
 describe("ExecutiveShellFrame", () => {
@@ -39,5 +43,17 @@ describe("ExecutiveShellFrame", () => {
     );
 
     expect(screen.getByTestId("executive-shell-nav-dashboard").className).toContain("font-semibold");
+  });
+
+  it("renders tenant boundary badge and widened main content shell", () => {
+    render(
+      <ExecutiveShellFrame>
+        <p>child</p>
+      </ExecutiveShellFrame>,
+    );
+
+    expect(screen.getByTestId("tenant-workspace-boundary-badge-compact")).toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveClass("max-w-[1600px]");
+    expect(screen.getByTestId("executive-shell-topbar")).toHaveClass("overflow-x-hidden");
   });
 });
