@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { downloadExecutiveRoiBoardPack } from "@/lib/api/executive-roi-board-pack-api";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import {
   buildExecutiveSummaryMarkdown,
@@ -21,6 +22,8 @@ import { showError } from "@/lib/toast";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import { BUYER_EXECUTIVE_DATA_SOURCE_NOTE } from "@/lib/buyer-polish-copy";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -56,7 +59,7 @@ function formatUsd(value: number): string {
 /** Live cross-run executive ROI panel backed by `GET /v1/roi/executive-summary`. */
 export function ExecutiveRoiSummarySection() {
   const [data, setData] = useState<ExecutiveRoiSummary | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [boardPackBusy, setBoardPackBusy] = useState(false);
   const [includeBoardPackNarrative, setIncludeBoardPackNarrative] = useState(false);
   const onDownloadExecutiveSummary = useCallback(() => {
@@ -153,23 +156,14 @@ export function ExecutiveRoiSummarySection() {
 
     void (async () => {
       try {
-        const res = await fetch(
-          EXECUTIVE_ROI_SUMMARY_PATH,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const json = (await res.json()) as ExecutiveRoiSummary;
+        const json = await fetchExecutiveRoiSummaryClient();
 
         if (!cancelled) {
           setData(json);
         }
       } catch (e: unknown) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load executive ROI summary.");
+          setFailure(toApiLoadFailure(e));
         }
       }
     })();
@@ -179,16 +173,14 @@ export function ExecutiveRoiSummarySection() {
     };
   }, []);
 
-  if (error) {
+  if (failure) {
     return (
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-sm text-red-600 dark:text-red-400" role="alert">
-            {error}
-          </p>
+          <OperatorApiProblem failure={failure} />
         </CardContent>
       </Card>
     );

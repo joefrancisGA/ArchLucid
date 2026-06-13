@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
+import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 
 function formatUsd(value: number | null | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -24,23 +24,14 @@ function formatUsd(value: number | null | undefined): string {
 /** Server-authoritative orphan KPI tile (TB-103). */
 export function ExecutiveOrphanCandidatesCard() {
   const [data, setData] = useState<{ count: number; savings: number | null } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     void (async () => {
       try {
-        const res = await fetch(
-          `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const json = (await res.json()) as ExecutiveRoiSummary;
+        const json = await fetchExecutiveRoiSummaryClient();
 
         if (cancelled) {
           return;
@@ -54,7 +45,7 @@ export function ExecutiveOrphanCandidatesCard() {
         });
       } catch (e: unknown) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load orphan candidates.");
+          setFailure(toApiLoadFailure(e));
         }
       }
     })();
@@ -64,7 +55,7 @@ export function ExecutiveOrphanCandidatesCard() {
     };
   }, []);
 
-  if (error) {
+  if (failure) {
     return (
       <Card>
         <CardHeader className="pb-2">
@@ -76,7 +67,7 @@ export function ExecutiveOrphanCandidatesCard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
+          <OperatorApiProblem failure={failure} />
         </CardContent>
       </Card>
     );

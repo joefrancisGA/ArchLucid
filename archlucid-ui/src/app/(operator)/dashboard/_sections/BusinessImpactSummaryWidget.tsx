@@ -2,18 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ExecutiveRoiSummary } from "@/lib/executive-summary-markdown";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { fetchExecutiveRoiSummaryClient } from "@/lib/fetch-executive-roi-summary-client";
 import {
   formatExecutiveRoiPricingBasisLabel,
   formatRoiCostEvidenceFreshnessWarning,
   shouldShowRoiCostEvidenceFreshnessWarning,
 } from "@/lib/roi-pricing-basis-label";
 import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lucide-react";
-
-const EXECUTIVE_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiExecutiveSummary}`;
 
 function formatUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -46,30 +45,21 @@ function readBusinessImpactCounts(data: ExecutiveRoiSummary | null) {
 export function BusinessImpactSummaryWidget() {
   const [data, setData] = useState<ExecutiveRoiSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     void (async () => {
       try {
-        const response = await fetch(
-          EXECUTIVE_ROI_SUMMARY_PATH,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const json = (await response.json()) as ExecutiveRoiSummary;
+        const json = await fetchExecutiveRoiSummaryClient();
 
         if (mounted) {
           setData(json);
         }
       } catch (err: unknown) {
         if (mounted) {
-          setError(err instanceof Error ? err.message : "Failed to load business impact summary.");
+          setFailure(toApiLoadFailure(err));
         }
       } finally {
         if (mounted) {
@@ -83,12 +73,8 @@ export function BusinessImpactSummaryWidget() {
     };
   }, []);
 
-  if (error) {
-    return (
-      <div className="rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-rose-700/50 p-4" role="alert">
-        Business impact summary unavailable: {error}
-      </div>
-    );
+  if (failure) {
+    return <OperatorApiProblem failure={failure} />;
   }
 
   const hasCommittedRuns = (data?.systemCount ?? 0) > 0;
