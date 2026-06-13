@@ -201,10 +201,20 @@ export function enterpriseStatusTagClass(kind: EnterpriseStatusKind): string {
   }
 }
 
-export type FindingSeverityKind = "critical" | "high" | "medium" | "low" | "info" | "unknown";
+export type FindingSeverityKind =
+  | "critical"
+  | "error"
+  | "warning"
+  | "high"
+  | "medium"
+  | "low"
+  | "info"
+  | "unknown";
 
 export const SEVERITY_LABELS: Readonly<Record<FindingSeverityKind, string>> = {
   critical: "Critical",
+  error: "Error",
+  warning: "Warning",
   high: "High",
   medium: "Medium",
   low: "Low",
@@ -215,8 +225,44 @@ export const SEVERITY_LABELS: Readonly<Record<FindingSeverityKind, string>> = {
 export function normalizeFindingSeverity(raw: string | null | undefined): FindingSeverityKind {
   const s = (raw ?? "").trim().toLowerCase();
 
+  switch (s) {
+    case "critical":
+      return "critical";
+
+    case "error":
+      return "error";
+
+    case "warning":
+      return "warning";
+
+    case "info":
+    case "informational":
+      return "info";
+
+    case "high":
+      return "high";
+
+    case "medium":
+    case "moderate":
+      return "medium";
+
+    case "low":
+      return "low";
+
+    default:
+      break;
+  }
+
   if (s.includes("critical")) {
     return "critical";
+  }
+
+  if (s.includes("error")) {
+    return "error";
+  }
+
+  if (s.includes("warning")) {
+    return "warning";
   }
 
   if (s.includes("high")) {
@@ -326,9 +372,11 @@ export function severityTagClass(kind: FindingSeverityKind): string {
     case "critical":
       return `${STATUS_TAG_BASE} border-rose-800/60 bg-[var(--al-status-blocked-bg)] text-[var(--al-status-blocked-fg)]`;
 
+    case "error":
     case "high":
       return `${STATUS_TAG_BASE} border-amber-800/50 bg-[var(--al-status-warn-bg)] text-[var(--al-status-warn-fg)]`;
 
+    case "warning":
     case "medium":
       return `${STATUS_TAG_BASE} border-amber-600/40 bg-al-surface-raised text-al-text-primary`;
 
@@ -339,7 +387,12 @@ export function severityTagClass(kind: FindingSeverityKind): string {
       return `${STATUS_TAG_BASE} border-blue-700/40 bg-al-surface-raised text-al-text-primary`;
 
     case "unknown":
-    default:
       return `${STATUS_TAG_BASE} border-neutral-300 bg-al-surface-raised text-al-text-secondary`;
+
+    default: {
+      const exhaustive: never = kind;
+
+      return exhaustive;
+    }
   }
 }

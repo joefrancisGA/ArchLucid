@@ -493,6 +493,10 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_batch_5r.py"
 
+      - name: Correctness guardrails batch unit tests (TB-320–328)
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_correctness_guardrails_batch_328.py"
+
       - name: Cutting-Edge batch 5V drift guards (TB-192)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_cutting_edge_batch_5v.py"

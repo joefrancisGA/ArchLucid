@@ -9810,3 +9810,23 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 2. Enhance `AgentExecutionTraceRunLlmCostAggregator` to track cumulative token usage during the run.
 3. If the budget is exceeded, immediately halt the pipeline and mark the run as `Failed` with a `TokenBudgetExceeded` reason.
 **Acceptance Criteria:** No individual architecture run can exceed its configured token budget, protecting the tenant's quota and preventing runaway LLM costs.
+
+## TB-328 — Finding severity enum ↔ SeverityTag semantic contract (P1)
+
+- **Status:** **Done (2026-06-13).** `FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json`; `normalizeFindingSeverity` maps `Warning`/`Error` without `unknown` fallback; Vitest + architecture + CI drift guards.
+
+**Context:** UI/API parity guard extension after TB-320. API `FindingSeverity` enum strings (`Info`, `Warning`, `Error`, `Critical`) must render consistently in `<SeverityTag>`.
+
+**Problem:** `normalizeFindingSeverity` only recognized fuzzy tokens like `high`/`medium`/`low`, so contract enum values `Warning` and `Error` fell through to `unknown` — a correctness defect on governance and review surfaces.
+
+**Solution:**
+
+1. Add `docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json` with enum → uiKind → displayLabel mappings.
+2. Extend `FindingSeverityKind` with explicit `warning` and `error` kinds; update `SEVERITY_LABELS` and `severityTagClass`.
+3. Add `finding-severity-tag-semantic-contract.ts` Vitest drift guard and architecture/CI batch tests.
+
+**Acceptance Criteria:** All four contract enum names resolve to non-`unknown` kinds with matching display labels; CI drift guard fails if mapping regresses.
+
+**Likely files:** `archlucid-ui/src/lib/design-tokens.ts`, `docs/library/FINDING_SEVERITY_TAG_SEMANTIC_CONTRACT.json`, `scripts/ci/tests/test_correctness_guardrails_batch_328.py`.
+
+**Refs:** TB-320, `FindingSeverity.cs`, `severity-tag.tsx`.
