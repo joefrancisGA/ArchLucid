@@ -25,6 +25,7 @@ High-risk drift guards run as **warn-only** inside the main `ci.yml` **Docs: mar
 | OpenAPI mutations in audit matrix | `assert_openapi_mutations_in_audit_matrix.py` | Unaudited mutations breach governance posture. |
 | Controller audit matrix | `check_audit_matrix.py` | Same; controller-level coverage. |
 | Buyer-facing canonical claim drift | `check_buyer_claim_drift.py` | Buyer-safe claim boundaries must not drift at release. |
+| Procurement claim coherence | `check_procurement_claim_coherence.py` | Procurement pack and assurance docs must stay internally consistent at release. |
 | Public pricing placeholder guard | `assert_public_pricing_placeholder_guard.py` | Accidental placeholder checkout URLs at release. |
 | Release runbook/script parity | `check_release_runbook_script_parity.py` | Release docs must match executable script flags. |
 | Route tier policy nav parity | `assert_route_tier_policy_nav.py` (with `--markdown-report` + `--json-summary-out` RC artifacts) | Procurement/security reviewers rely on fresh route registry. |

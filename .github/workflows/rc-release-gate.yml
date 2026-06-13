@@ -40,6 +40,9 @@ jobs:
       - name: Buyer-facing canonical claim drift (blocking)
         run: python scripts/ci/check_buyer_claim_drift.py
 
+      - name: Procurement claim coherence (blocking)
+        run: python scripts/ci/check_procurement_claim_coherence.py
+
       - name: Proof-confidence taxonomy drift (blocking)
         run: python scripts/ci/check_proof_confidence_taxonomy_drift.py
 

@@ -9,6 +9,8 @@
 
 **Canonical:** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)
 
+**Minimum viable success lane (five steps):** [MINIMUM_VIABLE_PILOT_SUCCESS.md](../MINIMUM_VIABLE_PILOT_SUCCESS.md)
+
 **Deployment presets (auth, storage, execution, retrieval):** [OPERATOR_DECISION_GUIDE.md](../OPERATOR_DECISION_GUIDE.md#1a-fast-path-deployment-presets-hosted-vs-self-hosted)
 
 **Evaluator / buyer — first review package without the deep stack:** [CORE_PILOT.md](../../CORE_PILOT.md#first-session-checklist) (four steps + what to send a sponsor).

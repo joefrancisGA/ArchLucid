@@ -23,10 +23,14 @@ public static class PilotProofPacketArtifactCatalog
 
     public const string ArtifactManifestSchema = "archlucid.proof-packet.artifact-manifest.v1";
 
+    public const string IndexSchema = "archlucid.proof-packet.index.v1";
+
     public const string RoiMetricSourcesSchema = "archlucid.proof-packet.roi-metric-sources.v1";
 
     public static IReadOnlyList<string> CoreFileNames { get; } =
     [
+        "sponsor-proof-packet-index.json",
+        "sponsor-proof-packet-index.md",
         "run-evidence.json",
         "environment.json",
         "quote-to-proof-readiness.json",

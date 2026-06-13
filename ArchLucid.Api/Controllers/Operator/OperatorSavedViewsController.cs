@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Operator;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -28,12 +29,16 @@ namespace ArchLucid.Api.Controllers.Operator;
 public sealed class OperatorSavedViewsController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
+    IAuditService auditService,
     IOperatorSavedViewRepository savedViewRepository) : ControllerBase
 {
     private const int MaxNameLength = 200;
 
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IOperatorSavedViewRepository _savedViewRepository =
         savedViewRepository ?? throw new ArgumentNullException(nameof(savedViewRepository));
@@ -129,6 +134,19 @@ public sealed class OperatorSavedViewsController(
                     ProblemTypes.ResourceNotFound);
             }
 
+            await _auditService.LogAsync(
+                BuildSavedViewAuditEvent(
+                    scope,
+                    AuditEventTypes.OperatorSavedViewCreated,
+                    new
+                    {
+                        viewId = created.Id,
+                        surface = created.Surface,
+                        name = created.Name,
+                        isShared = body.IsShared,
+                    }),
+                cancellationToken);
+
             return CreatedAtAction(nameof(ListSavedViews), new { surface }, created);
         }
         catch (InvalidOperationException ex)
@@ -158,6 +176,27 @@ public sealed class OperatorSavedViewsController(
             return this.NotFoundProblem("Saved view was not found.", ProblemTypes.ResourceNotFound);
         }
 
+        await _auditService.LogAsync(
+            BuildSavedViewAuditEvent(
+                scope,
+                AuditEventTypes.OperatorSavedViewDeleted,
+                new { viewId }),
+            cancellationToken);
+
         return NoContent();
+    }
+
+    private AuditEvent BuildSavedViewAuditEvent(ScopeContext scope, string eventType, object payload)
+    {
+        return new AuditEvent
+        {
+            EventType = eventType,
+            ActorUserId = _actorContext.GetActorId(),
+            ActorUserName = _actorContext.GetActor(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            DataJson = JsonSerializer.Serialize(payload),
+        };
     }
 }

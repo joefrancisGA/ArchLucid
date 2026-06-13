@@ -295,6 +295,20 @@ internal static class PilotProofPacketCommand
             Utf8NoBom,
             cancellationToken);
 
+        string indexJson = PilotProofPacketIndexBuilder.BuildJson(runId, pilotStrictSatisfied, demoWarning);
+        await File.WriteAllTextAsync(
+            Path.Combine(dir, "sponsor-proof-packet-index.json"),
+            indexJson,
+            Utf8NoBom,
+            cancellationToken);
+
+        string indexMarkdown = PilotProofPacketIndexBuilder.BuildMarkdown(runId, pilotStrictSatisfied);
+        await File.WriteAllTextAsync(
+            Path.Combine(dir, "sponsor-proof-packet-index.md"),
+            indexMarkdown,
+            Utf8NoBom,
+            cancellationToken);
+
         return new PilotProofPacketWriteOutcome(CliExitCode.Success, dir);
     }
 

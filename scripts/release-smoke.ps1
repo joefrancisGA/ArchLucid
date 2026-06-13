@@ -1,9 +1,9 @@
 ﻿# End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright (mock) and -LivePlaywright (live-api parity vs CI ui-e2e-live).
-# Named profile LiveUiSql: same gates + enforced live playwright (browser UI vs smoke SQL API). SQL required unless -SkipE2E.
+# Named profiles LiveUiSql / ReleaseCandidate: same gates + enforced live playwright (browser UI vs smoke SQL API). ReleaseCandidate requires -ResultOut.
 # Optional -AuthorityPipelineDtfSmoke: sets ArchLucid__AuthorityPipeline__OrchestratorBackend=DurableTask for the temporary API (requires ArchLucid__AuthorityPipeline__DurableTask__GrpcEndpoint in the environment — staging SQL + DTF worker validation).
 # Full detail: docs/library/RELEASE_SMOKE.md
 param(
-    [ValidateSet('', 'LiveUiSql')]
+    [ValidateSet('', 'LiveUiSql', 'ReleaseCandidate')]
     [string] $Profile = '',
     [string] $SqlConnectionString = '',
     [Alias('BaseUrl')]
@@ -31,7 +31,19 @@ $root = Split-Path -Parent $PSScriptRoot
 
 $releaseSmokeAuthHeaders = Get-ArchLucidHttpAuthHeadersHashtable -BearerToken $BearerToken -ApiKey $ApiKey
 
-$runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql')
+$runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql' -or $Profile -eq 'ReleaseCandidate')
+
+if ($runLiveUiSqlProfile -and [string]::IsNullOrWhiteSpace($ResultOut)) {
+    Write-OperatorFailureTriage -Stage '-Profile (precheck — ResultOut)' -Category 'Misconfiguration' `
+        -Details @(
+        'Live UI vs SQL parity profiles require -ResultOut for RC machine-readable evidence (JSON + Markdown companion).'
+    ) `
+        -NextSteps @(
+        '-ResultOut artifacts/release-smoke/result.json',
+        'Use scripts/release-smoke-rc.ps1 as the RC convenience wrapper (sets profile + reminds on ResultOut).'
+    )
+    exit 1
+}
 
 if ($runLiveUiSqlProfile) {
     if ($SkipUi) {
