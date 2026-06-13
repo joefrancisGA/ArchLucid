@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "lastReviewedUtc": "2026-06-13",
+  "purpose": "TB-320: run-detail KPI and proof fields are server-authoritative; UI may format only.",
+  "fields": [
+    {
+      "id": "findingCoverage.hasCommitBlockingFailures",
+      "dtoField": "findingCoverageSummary.hasCommitBlockingFailures",
+      "apiRoute": "GET /v1/authority/runs/{runId}",
+      "uiSource": "findingCoverageSummary?.hasCommitBlockingFailures",
+      "forbiddenUiPatterns": [
+        "failedEngineLabels?.length > 0 &&",
+        ".filter(.*finding",
+        "computeCommitBlock"
+      ]
+    },
+    {
+      "id": "findingCoverage.dispositionCoverage",
+      "dtoField": "findingCoverageSummary.dispositionCoverage",
+      "apiRoute": "GET /v1/authority/runs/{runId}",
+      "uiSource": "findingCoverageSummary.dispositionCoverage",
+      "forbiddenUiPatterns": [
+        "dispositionCoverage?.accepted +",
+        "dispositionCoverage?.rejected +",
+        ".reduce(.*disposition"
+      ]
+    },
+    {
+      "id": "governance.hasGovernanceWarnings",
+      "dtoField": "hasGovernanceWarnings",
+      "apiRoute": "GET /v1/authority/runs/{runId}",
+      "uiSource": "hasGovernanceWarnings",
+      "forbiddenUiPatterns": [
+        "governanceWarnings.length > 0",
+        "warnings.filter"
+      ]
+    },
+    {
+      "id": "governance.lastFailureReason",
+      "dtoField": "lastFailureReason",
+      "apiRoute": "GET /v1/authority/runs/{runId}",
+      "uiSource": "lastFailureReason",
+      "forbiddenUiPatterns": [
+        "lastFailure?.message ??",
+        "synthesizeFailureReason"
+      ]
+    },
+    {
+      "id": "operator.llmCostEstimate",
+      "dtoField": "agentExecutionLlmCostEstimate",
+      "apiRoute": "GET /v1/authority/runs/{runId} (enriched)",
+      "uiSource": "agentExecutionLlmCostEstimate",
+      "forbiddenUiPatterns": [
+        "tokenCount *",
+        "estimatedUsd *",
+        "computeLlmCost"
+      ]
+    },
+    {
+      "id": "operator.trustEvidenceCard",
+      "dtoField": "trustEvidenceCard",
+      "apiRoute": "GET /v1/authority/runs/{runId} (enriched)",
+      "uiSource": "trustEvidenceCard",
+      "forbiddenUiPatterns": [
+        "buildTrustEvidenceCard",
+        "fabricateTrust"
+      ]
+    }
+  ]
+}

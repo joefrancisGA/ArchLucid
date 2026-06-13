@@ -84,6 +84,20 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
 
                     string blobForOverlap = string.IsNullOrEmpty(citedBlob) ? fullBlob : citedBlob;
 
+                    if (refs.Count > 0)
+                    {
+                        if (!MeetsCitationFidelity(claimText, citedBlob, fullBlob, options))
+                        {
+                            PushUnsupported("claim:citation-fidelity", unsupported);
+
+                            continue;
+                        }
+
+                        claimsSupported++;
+
+                        continue;
+                    }
+
                     if (MeetsOverlapThreshold(claimText, blobForOverlap, options))
 
                         claimsSupported++;
@@ -181,6 +195,48 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
         double density = matched / (double)tokens.Count;
 
         return matched >= minDistinct && density >= minDensity - 1e-9;
+    }
+
+    private static bool MeetsCitationFidelity(
+        string claimText,
+        string citedBlobLowercase,
+        string fullBlobLowercase,
+        AgentFaithfulnessOptions options)
+    {
+        if (!MeetsOverlapThreshold(claimText, citedBlobLowercase, options))
+            return false;
+
+        double citedDensity = ComputeOverlapDensity(claimText, citedBlobLowercase);
+        double minCitationDensity = Math.Clamp(options.MinCitationFidelityDensityRatio, 0.0, 1.0);
+
+        if (citedDensity < minCitationDensity - 1e-9)
+            return false;
+
+        if (string.IsNullOrEmpty(fullBlobLowercase))
+            return true;
+
+        double packageDensity = ComputeOverlapDensity(claimText, fullBlobLowercase);
+        double maxGap = Math.Clamp(options.MaxCitationVsPackageOverlapGap, 0.0, 1.0);
+
+        if (packageDensity - citedDensity > maxGap + 1e-9)
+            return false;
+
+        return true;
+    }
+
+    private static double ComputeOverlapDensity(string text, string blobLowercase)
+    {
+        if (string.IsNullOrWhiteSpace(text) || string.IsNullOrEmpty(blobLowercase))
+            return 0.0;
+
+        List<string> tokens = CollectTokens(text);
+
+        if (tokens.Count == 0)
+            return 0.0;
+
+        int matched = tokens.Count(token => blobLowercase.Contains(token, StringComparison.Ordinal));
+
+        return matched / (double)tokens.Count;
     }
 
     private static List<string> CollectTokens(string blob)

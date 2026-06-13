@@ -130,7 +130,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 **TB-273** was added 2026-06-03 from a **harsh buyer-demo readiness defect audit** of the buyer-polished operator shell along the golden path (Home → Reviews list → Review detail → Executive summary → Manifest summary → Evidence graph → Governance → Audit; secondary: Finding detail, Ask), assuming a CIO/CISO/procurement/architecture buyer one week from a live demo. It is a single umbrella item enumerating ~150 issues as sub-IDs **BDA-001 … BDA-150** (sub-ID scheme consistent with `RAG-V1-*` / `INV-*`), grouped **P0** (demo/test-data leakage visible to the buyer, fabricated decision/confidence/audit-link fallbacks, misleading "complete"/"placeholder"/illustrative-ROI claims, sponsor exports that can merge demo runs, and one dead "finalize" anchor in buyer mode), **P1** (terminology drift — run/review/pilot, manifest/golden manifest/signed decision record, audit log/trail, workflow/decision record/approval, evidence trace/trail; raw identifiers and enum labels in UI; redundant CTAs; visual-hierarchy/chart-grammar inconsistency; in-product segregation-of-duties not explained while marketed), and **P2** (lower polish). The full per-issue table (severity, screen/area, exact problem + file, why it hurts buyer confidence, recommended fix, replacement copy) is in the `## TB-273` detail section. **These are buyer-demo-shell credibility defects, not V1 readiness-scoring gaps** — many are correctly gated to demo/static mode today and the dominant risk is **env-flag drift** (`isBuyerPolishedOperatorShellEnv()` / `buyerPolishedArtifactTable` vs static-demo flags) leaking demo copy into the polished shell; per `Assessment-Scope-V1_1.mdc` they do not change `(A)` headline scores. They do not duplicate **TB-143–148** (in-app docs presentation — BDA cross-refs the raw-doc-link items), **TB-168** (KPI semantic guard), or **TB-270–272** (operator usability). Cross-ref `.cursor/rules/Assessment-Scope-V1_1.mdc`.
 
-**TB-317 – TB-319** were added 2026-06-12 from a clean-slate weighted release-readiness assessment (`docs/assessments/latest_202606122049.md`, `(A)` headline readiness 81.57%, recent-weight model). Most top improvements already map to existing backlog items: AI faithfulness (**TB-255–257**), real-mode evidence (**TB-137–140**), trial preseed hardening (**TB-258–259**), buyer-demo truthfulness (**TB-273/TB-275**), run-detail fidelity (**TB-106–113**), recurrence loop (**TB-261–263**), RAG quality (**TB-046/TB-049**), procurement pack strictness (**TB-159–160/TB-162/TB-165–166**), executive sponsor polish (**TB-267–269**), and in-app help (**TB-143–148**). New entries only cover gaps not already represented: RC evidence bundle composition (**TB-317**), V1 automation handoff pack (**TB-318**), and pilot-critical performance evidence (**TB-319**). V1.1/V2 non-gates remain excluded from `(A)`: first-party connectors, MCP, multi-cloud target analysis, live commerce un-hold, public references, SOC 2 CPA, and external pen-test execution.
+**TB-317 – TB-324** were added 2026-06-12 from a clean-slate weighted release-readiness assessment (`docs/assessments/latest_202606122049.md`, `(A)` headline readiness 81.57%, recent-weight model). Most top improvements already map to existing backlog items: AI faithfulness (**TB-255–257**), real-mode evidence (**TB-137–140**), trial preseed hardening (**TB-258–259**), buyer-demo truthfulness (**TB-273/TB-275**), run-detail fidelity (**TB-106–113**), recurrence loop (**TB-261–263**), RAG quality (**TB-046/TB-049**), procurement pack strictness (**TB-159–160/TB-162/TB-165–166**), executive sponsor polish (**TB-267–269**), and in-app help (**TB-143–148**). New entries only cover gaps not already represented: RC evidence bundle composition (**TB-317**), V1 automation handoff pack (**TB-318**), pilot-critical performance evidence (**TB-319**), and correctness guardrails (**TB-320–324**). V1.1/V2 non-gates remain excluded from `(A)`: first-party connectors, MCP, multi-cloud target analysis, live commerce un-hold, public references., SOC 2 CPA, and external pen-test execution.
 
 **TB-250 – TB-251** were added 2026-06-03 from an independent first-principles **Traceability** quality assessment (`docs/assessments/Traceability_06032026.MD`, score 76/100, ENTERPRISE weight 3/116). They address: authority pipeline stage timeline in operator UI run detail (**TB-250**, P1 — authority stage spans are OTel-only with no in-product visualization, gap noted since April 2026 quality assessments) and retrieval indexing at-least-once outbox (**TB-251**, P2 — `PROVENANCE_INDEXING.md` hardening backlog item; `IRetrievalRunCompletionIndexer` has no retry on post-commit failure). These do not duplicate **TB-037** (provenance snapshot persistence), **TB-052** (rule audit trace snapshot IDs), **TB-054** (unified decision API), **TB-055** (`AgentResult.ReasoningTrace` propagation), or **TB-056** (sentinel inflation fix). **TB-037**, **TB-052**, **TB-054**, **TB-055** are Done; **TB-056** closed **2026-06-03 batch 5CE** (drift guard — partial-failure surfacing and sentinel exclusion were already shipped).
 
@@ -9714,3 +9714,63 @@ Re-read of golden-path sources after TB-273 **Done** marking. Items below still 
 **Likely files:** `scripts/`, `docs/library/RELEASE_SMOKE.md`, `docs/runbooks/RC_RELEASE_GATE.md`, `docs/library/TEST_EXECUTION_MODEL.md`.
 
 **Refs:** TB-317, `RELEASE_SMOKE.md`.
+
+## TB-320 — UI/API KPI Parity Drift Guard (P1)
+
+- **Status:** **Done (2026-06-13).** `RUN_DETAIL_KPI_SEMANTIC_CONTRACT.json`, `run-detail-kpi-semantic-contract.ts` + Vitest drift guard.
+
+**Context:** The assessment identified that buyer-facing UI can drift from server truth if KPI/proof semantics are reimplemented client-side. The UI must not invent business logic.
+**Problem:** Client-side React components might recalculate cost, findings coverage, or governance warnings instead of strictly rendering the server payload.
+**Solution:** 
+1. Implement an automated test or drift guard that fetches a known, complex `RunDetailPageView` (or similar) API payload.
+2. Mount the React components (or parse their output) to ensure the rendered KPIs strictly match the server payload without client-side recalculation.
+**Acceptance Criteria:** A CI step fails if the UI attempts to render a KPI value that differs from the provided mock API payload.
+
+## TB-321 — Route/Policy/Tier Matrix Snapshot Enforcer (P1)
+
+- **Status:** **Done (2026-06-13).** `RouteTierPolicyNavSnapshotArchitectureTests` + `test_route_tier_policy_nav_snapshot_enforcer.py`.
+
+**Context:** Broad route, policy, scope, and tier surfaces can regress without guardrails.
+**Problem:** We have a matrix (`docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md`), but it might drift from actual code if a developer changes an `[Authorize]` attribute without updating the docs.
+**Solution:** 
+1. Create an executable snapshot test that reflects over all `ArchLucid.Api` controllers and actions.
+2. Extract their `[Authorize]`, `[RequiredScope]`, and `[RequiredTier]` attributes.
+3. Compare them against the canonical markdown matrix. 
+**Acceptance Criteria:** The build fails if a route changes its security posture without a corresponding explicit snapshot/matrix update.
+
+## TB-322 — Finalized Evidence Immutability Enforcer (P0)
+
+- **Status:** **Done (2026-06-13).** `FinalizedEvidenceImmutabilityIntegrationTests` (post-commit mutation rejection + manifest fingerprint stability).
+
+**Context:** Buyer-visible proof semantics must not silently drift.
+**Problem:** While some database-level immutability exists, we need a strict API-level integration test that actively attempts to mutate finalized evidence and ensures it is rejected.
+**Solution:** 
+1. Add an integration test suite that takes a `Committed` or `Completed` review run.
+2. Attempt to issue `PATCH`/`PUT` requests to modify its findings, cost estimates, governance status, or evidence bundle.
+3. Assert that all such attempts return `409 Conflict` or `403 Forbidden`.
+**Acceptance Criteria:** Automated tests prove that once a review is finalized, its proof is immutable at the API boundary, maintaining buyer trust.
+
+## TB-323 — Strict Idempotency Contract Verification (P1)
+
+- **Status:** **Done (2026-06-13).** `MutatingEndpointIdempotencyContractIntegrationTests` + architecture harness guard.
+
+**Context:** Idempotency is claimed, but needs strict enforcement across all mutating endpoints to ensure correctness under real-mode ambiguity and network retries.
+**Problem:** A mutating endpoint might not properly handle a repeated `Idempotency-Key`, leading to duplicate data or unintended side effects.
+**Solution:** 
+1. Implement a test harness that iterates over key `POST`/`PUT`/`PATCH` endpoints.
+2. For each, send a valid request with an `Idempotency-Key`, capture the response and database state.
+3. Send the exact same request again.
+4. Assert the response is identical (including status code) and the database state has not changed (no duplicate rows, no side effects).
+**Acceptance Criteria:** Core mutating endpoints are proven idempotent under test, ensuring safe retries during automation.
+
+## TB-324 — RAG Citation Fidelity Enforcer (P0)
+
+- **Status:** **Done (2026-06-13).** `AgentResultEvidenceFaithfulnessChecker` citation-fidelity path + unit tests.
+
+**Context:** AI output faithfulness is the highest-impact correctness risk.
+**Problem:** The LLM might generate a plausible-sounding claim and attach a real citation ID, but the cited chunk does not actually support the claim (hallucinated citation).
+**Solution:** 
+1. Extend the `AgentResultEvidenceFaithfulnessChecker`.
+2. Implement a cross-check that uses a smaller, fast LLM (or strict NLI model) to verify that the text of the cited chunk semantically entails the generated claim.
+3. Reject or flag claims where the citation is present but the grounding is false.
+**Acceptance Criteria:** The system actively detects and degrades/flags outputs where citations are fabricated or do not support the generated text.

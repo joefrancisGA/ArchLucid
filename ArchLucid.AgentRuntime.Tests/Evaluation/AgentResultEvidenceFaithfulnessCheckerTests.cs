@@ -130,4 +130,66 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
 
         report.SupportRatio.Should().Be(1.0);
     }
+
+    [Fact]
+    public void Evaluate_hallucinated_citation_fails_citation_fidelity_when_package_overlap_exceeds_cited_chunk()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling",
+                }
+            ],
+            ServiceCatalog =
+            [
+                new ServiceCatalogEvidence
+                {
+                    ServiceId = "cat-db",
+                    ServiceName = "Azure SQL",
+                    Category = "Datastore",
+                    Summary = "database retention compliance policy encryption governance",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes cluster nodes scheduling database retention compliance policy encryption governance","evidenceRefs":["pattern-a"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("claim:citation-fidelity");
+    }
+
+    [Fact]
+    public void Evaluate_explicit_citation_with_matching_chunk_passes_citation_fidelity()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[{"detail":"kubernetes cluster nodes scheduling policy","evidenceRefs":["pattern-a"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(1.0);
+        report.UnsupportedIds.Should().NotContain("claim:citation-fidelity");
+    }
 }
