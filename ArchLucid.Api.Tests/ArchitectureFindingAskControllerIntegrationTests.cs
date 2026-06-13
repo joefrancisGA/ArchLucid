@@ -18,23 +18,25 @@ public sealed class ArchitectureFindingAskControllerIntegrationTests
     };
 
     [SkippableFact]
-    public async Task AskAboutFinding_returns_bad_request_when_question_missing()
+    public Task AskAboutFinding_returns_bad_request_when_question_missing()
     {
-        await using AlertLifecycleWebAppFactory factory = new();
+        return IntegrationTestDeadline.RunAsync(
+            nameof(AskAboutFinding_returns_bad_request_when_question_missing),
+            async testDeadline =>
+            {
+                await using AlertLifecycleWebAppFactory factory = new();
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
+                Guid findingId = Guid.NewGuid();
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-        await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+                HttpResponseMessage response = await client.PostAsJsonAsync(
+                    $"v1/architecture/finding/{findingId:D}/ask",
+                    new FindingAskRequest { Question = "   " },
+                    JsonOptions,
+                    requestTimeout.Token);
 
-        HttpClient client = factory.CreateClient();
-        Guid findingId = Guid.NewGuid();
-        using CancellationTokenSource requestTimeout =
-            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
-
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"v1/architecture/finding/{findingId:D}/ask",
-            new FindingAskRequest { Question = "   " },
-            JsonOptions,
-            requestTimeout.Token);
-
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            });
     }
 }

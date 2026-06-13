@@ -20,6 +20,10 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
     /// </summary>
     private static readonly TimeSpan BoundedDisposeTimeout = TimeSpan.FromMinutes(2);
 
+    private readonly object _hostLifecycleLock = new();
+
+    private Task<IServiceProvider>? _ensureServicesTask;
+
     protected override void AddCustomSettings(Dictionary<string, string?> settings)
     {
         settings["ArchLucid:StorageProvider"] = "InMemory";
@@ -43,6 +47,48 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         base.ConfigureClient(client);
 
         client.Timeout = IntegrationTestHttpCancellation.DefaultRequestTimeout;
+    }
+
+    /// <summary>
+    ///     Returns a single in-flight host-start task per factory instance so concurrent
+    ///     <see cref="EnsureServicesStartedAsync" /> / <see cref="CreateBoundedClientAsync" /> calls do not race
+    ///     <see cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory{TEntryPoint}" /> internals (CI #2168).
+    /// </summary>
+    internal Task<IServiceProvider> EnsureServicesStartedAsync()
+    {
+        lock (_hostLifecycleLock)
+        {
+            _ensureServicesTask ??= StartServicesCoreAsync();
+
+            return _ensureServicesTask;
+        }
+    }
+
+    private async Task<IServiceProvider> StartServicesCoreAsync()
+    {
+        try
+        {
+            return await IntegrationTestHostStartup.EnsureStartedAsync(() => Services).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            lock (_hostLifecycleLock)
+            {
+                _ensureServicesTask = null;
+            }
+
+            throw;
+        }
+    }
+
+    /// <summary>
+    ///     Ensures the host is started, then creates an <see cref="HttpClient" /> under the same startup bound.
+    /// </summary>
+    internal async Task<HttpClient> CreateBoundedClientAsync()
+    {
+        await EnsureServicesStartedAsync().ConfigureAwait(false);
+
+        return await IntegrationTestHostStartup.EnsureCompletedAsync(CreateClient).ConfigureAwait(false);
     }
 
     /// <summary>

@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: index documents via DI â†’ query via <c>GET v1/retrieval/search</c> â†’ assert hits.
+///     End-to-end: index documents via DI → query via <c>GET v1/retrieval/search</c> → assert hits.
 ///     Uses <see cref="AlertLifecycleWebAppFactory" /> (InMemory storage + <c>FakeEmbeddingService</c> +
 ///     <c>InMemoryVectorIndex</c>).
 /// </summary>
@@ -27,90 +27,108 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     };
 
     [SkippableFact]
-    public async Task Index_documents_then_query_returns_matching_hits()
+    public Task Index_documents_then_query_returns_matching_hits()
     {
-        await using AlertLifecycleWebAppFactory factory = new();
-        using CancellationTokenSource requestTimeout =
-            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+        return IntegrationTestDeadline.RunAsync(
+            nameof(Index_documents_then_query_returns_matching_hits),
+            async testDeadline =>
+            {
+                await using AlertLifecycleWebAppFactory factory = new();
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-        IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
 
-        await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
+                await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
 
-        HttpClient client = factory.CreateClient();
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
 
-        HttpResponseMessage response = await client.GetAsync(
-            new Uri("v1/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
-            requestTimeout.Token);
+                HttpResponseMessage response = await client.GetAsync(
+                    new Uri("v1/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
+                    requestTimeout.Token);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        List<RetrievalHit>? hits = await response.Content
-            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+                List<RetrievalHit>? hits = await response.Content
+                    .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
 
-        hits.Should().NotBeNull();
-        hits.Should().NotBeEmpty("indexed documents should produce at least one retrieval hit");
+                hits.Should().NotBeNull();
+                hits.Should().NotBeEmpty("indexed documents should produce at least one retrieval hit");
+            });
     }
 
     [SkippableFact]
-    public async Task Query_without_q_returns_bad_request()
+    public Task Query_without_q_returns_bad_request()
     {
-        await using AlertLifecycleWebAppFactory factory = new();
-        await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
-        HttpClient client = factory.CreateClient();
-        using CancellationTokenSource requestTimeout =
-            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+        return IntegrationTestDeadline.RunAsync(
+            nameof(Query_without_q_returns_bad_request),
+            async testDeadline =>
+            {
+                await using AlertLifecycleWebAppFactory factory = new();
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-        HttpResponseMessage response = await client.GetAsync(
-            new Uri("v1/retrieval/search?q=", UriKind.Relative),
-            requestTimeout.Token);
+                HttpResponseMessage response = await client.GetAsync(
+                    new Uri("v1/retrieval/search?q=", UriKind.Relative),
+                    requestTimeout.Token);
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            });
     }
 
     [SkippableFact]
-    public async Task Query_with_no_indexed_documents_returns_empty_list()
+    public Task Query_with_no_indexed_documents_returns_empty_list()
     {
-        await using AlertLifecycleWebAppFactory factory = new();
-        await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
-        HttpClient client = factory.CreateClient();
-        using CancellationTokenSource requestTimeout =
-            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+        return IntegrationTestDeadline.RunAsync(
+            nameof(Query_with_no_indexed_documents_returns_empty_list),
+            async testDeadline =>
+            {
+                await using AlertLifecycleWebAppFactory factory = new();
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-        HttpResponseMessage response = await client.GetAsync(
-            new Uri("v1/retrieval/search?q=anything&topK=3", UriKind.Relative),
-            requestTimeout.Token);
+                HttpResponseMessage response = await client.GetAsync(
+                    new Uri("v1/retrieval/search?q=anything&topK=3", UriKind.Relative),
+                    requestTimeout.Token);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        List<RetrievalHit>? hits = await response.Content
-            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+                List<RetrievalHit>? hits = await response.Content
+                    .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
 
-        hits.Should().NotBeNull();
-        hits.Should().BeEmpty("no documents have been indexed");
+                hits.Should().NotBeNull();
+                hits.Should().BeEmpty("no documents have been indexed");
+            });
     }
 
     [SkippableFact]
-    public async Task TopK_clamps_result_count()
+    public Task TopK_clamps_result_count()
     {
-        await using AlertLifecycleWebAppFactory factory = new();
-        using CancellationTokenSource requestTimeout =
-            IntegrationTestHttpCancellation.CreateRequestTimeoutSource();
+        return IntegrationTestDeadline.RunAsync(
+            nameof(TopK_clamps_result_count),
+            async testDeadline =>
+            {
+                await using AlertLifecycleWebAppFactory factory = new();
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-        IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
 
-        await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
+                await SeedRetrievalDocumentsAsync(services, requestTimeout.Token);
 
-        HttpClient client = factory.CreateClient();
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
 
-        HttpResponseMessage response = await client.GetAsync(
-            new Uri("v1/retrieval/search?q=architecture&topK=1", UriKind.Relative),
-            requestTimeout.Token);
+                HttpResponseMessage response = await client.GetAsync(
+                    new Uri("v1/retrieval/search?q=architecture&topK=1", UriKind.Relative),
+                    requestTimeout.Token);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        List<RetrievalHit>? hits = await response.Content
-            .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+                List<RetrievalHit>? hits = await response.Content
+                    .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
 
-        hits.Should().NotBeNull();
-        hits.Should().HaveCountLessThanOrEqualTo(1);
+                hits.Should().NotBeNull();
+                hits.Should().HaveCountLessThanOrEqualTo(1);
+            });
     }
 
     private static async Task SeedRetrievalDocumentsAsync(IServiceProvider services, CancellationToken cancellationToken)

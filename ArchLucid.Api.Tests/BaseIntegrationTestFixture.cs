@@ -71,6 +71,7 @@ public abstract class BaseIntegrationTestFixture : WebApplicationFactory<Program
                 ["Retrieval:PolicyPackCorpus:IndexOnStartup"] = "false",
                 ["Retrieval:ExemplarCorpus:IndexOnStartup"] = "false",
                 [EvidenceBulkUploadOptions.MaxFilesKey] = "200",
+                ["Demo:Enabled"] = "false",
                 ["Demo:SeedOnStartup"] = "false",
                 // Integration hosts boot many times per shard; disable OTLP/console export and API purge loops that can
                 // block WebApplicationFactory teardown on overloaded CI SQL (75 min blame-hang inactivity).

@@ -11,7 +11,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: create simple alert rule â†’ run advisory scan (evaluates rules) â†’ list persisted
+///     End-to-end: create simple alert rule → run advisory scan (evaluates rules) → list persisted
 ///     <see cref="AlertRecord" /> rows via HTTP.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -23,72 +23,75 @@ public sealed class AlertLifecycleIntegrationTests
     };
 
     [SkippableFact]
-    public async Task Create_rule_run_advisory_scan_list_alerts_persists_open_alert()
+    public Task Create_rule_run_advisory_scan_list_alerts_persists_open_alert()
     {
-        await using AlertLifecycleWebAppFactory factory = new();
-        await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(factory.Services, CancellationToken.None)
-            ;
-
-        HttpClient client = factory.CreateClient();
-
-        HttpResponseMessage createRuleResponse = await client.PostAsJsonAsync(
-            $"/{ApiV1Routes.AlertRules}",
-            new
+        return IntegrationTestDeadline.RunAsync(
+            nameof(Create_rule_run_advisory_scan_list_alerts_persists_open_alert),
+            async testDeadline =>
             {
-                name = "Integration lifecycle â€” critical rec count",
-                ruleType = AlertRuleType.CriticalRecommendationCount,
-                severity = AlertSeverity.Warning,
-                thresholdValue = 0m,
-                isEnabled = true,
-                targetChannelType = "DigestOnly"
-            },
-            JsonOptions,
-            CancellationToken.None);
+                await using AlertLifecycleWebAppFactory factory = new();
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
 
-        createRuleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        AlertRule? createdRule =
-                await createRuleResponse.Content.ReadFromJsonAsync<AlertRule>(JsonOptions, CancellationToken.None)
-            ;
-        createdRule.Should().NotBeNull();
-        Guid ruleId = createdRule.RuleId;
-        ruleId.Should().NotBeEmpty();
+                IServiceProvider services = await AlertLifecycleIntegrationHost.EnsureStartedAsync(factory);
+                await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(services, requestTimeout.Token);
 
-        HttpResponseMessage createScheduleResponse = await client.PostAsJsonAsync(
-            "v1/advisory-scheduling/schedules",
-            new
-            {
-                name = "Lifecycle test scan",
-                cronExpression = "0 7 * * *",
-                isEnabled = true,
-                runProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug
-            },
-            JsonOptions,
-            CancellationToken.None);
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
 
-        createScheduleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        AdvisoryScanSchedule? schedule = await createScheduleResponse.Content
-                .ReadFromJsonAsync<AdvisoryScanSchedule>(JsonOptions, CancellationToken.None)
-            ;
-        schedule.Should().NotBeNull();
+                HttpResponseMessage createRuleResponse = await client.PostAsJsonAsync(
+                    $"/{ApiV1Routes.AlertRules}",
+                    new
+                    {
+                        name = "Integration lifecycle — critical rec count",
+                        ruleType = AlertRuleType.CriticalRecommendationCount,
+                        severity = AlertSeverity.Warning,
+                        thresholdValue = 0m,
+                        isEnabled = true,
+                        targetChannelType = "DigestOnly"
+                    },
+                    JsonOptions,
+                    requestTimeout.Token);
 
-        HttpResponseMessage runResponse = await client
-                .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", null,
-                    CancellationToken.None)
-            ;
+                createRuleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+                AlertRule? createdRule =
+                    await createRuleResponse.Content.ReadFromJsonAsync<AlertRule>(JsonOptions, requestTimeout.Token);
+                createdRule.Should().NotBeNull();
+                Guid ruleId = createdRule.RuleId;
+                ruleId.Should().NotBeEmpty();
 
-        runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+                HttpResponseMessage createScheduleResponse = await client.PostAsJsonAsync(
+                    "v1/advisory-scheduling/schedules",
+                    new
+                    {
+                        name = "Lifecycle test scan",
+                        cronExpression = "0 7 * * *",
+                        isEnabled = true,
+                        runProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug
+                    },
+                    JsonOptions,
+                    requestTimeout.Token);
 
-        HttpResponseMessage listAlertsResponse = await client
-                .GetAsync(new Uri($"/{ApiV1Routes.Alerts}?take=50", UriKind.Relative), CancellationToken.None)
-            ;
+                createScheduleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+                AdvisoryScanSchedule? schedule = await createScheduleResponse.Content
+                    .ReadFromJsonAsync<AdvisoryScanSchedule>(JsonOptions, requestTimeout.Token);
+                schedule.Should().NotBeNull();
 
-        listAlertsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        List<AlertRecord>? alerts = await listAlertsResponse.Content
-                .ReadFromJsonAsync<List<AlertRecord>>(JsonOptions, CancellationToken.None)
-            ;
+                HttpResponseMessage runResponse = await client
+                    .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", null,
+                        requestTimeout.Token);
 
-        alerts.Should().NotBeNull();
-        alerts.Should().Contain(a =>
-            a.RuleId == ruleId && string.Equals(a.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase));
+                runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+                HttpResponseMessage listAlertsResponse = await client
+                    .GetAsync(new Uri($"/{ApiV1Routes.Alerts}?take=50", UriKind.Relative), requestTimeout.Token);
+
+                listAlertsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+                List<AlertRecord>? alerts = await listAlertsResponse.Content
+                    .ReadFromJsonAsync<List<AlertRecord>>(JsonOptions, requestTimeout.Token);
+
+                alerts.Should().NotBeNull();
+                alerts.Should().Contain(a =>
+                    a.RuleId == ruleId && string.Equals(a.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase));
+            });
     }
 }

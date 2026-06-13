@@ -1,7 +1,7 @@
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Bounded <see cref="AlertLifecycleWebAppFactory" /> host startup for integration tests.
+///     Bounded <see cref="AlertLifecycleWebAppFactory" /> host startup and client creation for integration tests.
 /// </summary>
 internal static class AlertLifecycleIntegrationHost
 {
@@ -9,6 +9,13 @@ internal static class AlertLifecycleIntegrationHost
     {
         ArgumentNullException.ThrowIfNull(factory);
 
-        return IntegrationTestHostStartup.EnsureStartedAsync(() => factory.Services);
+        return factory.EnsureServicesStartedAsync();
+    }
+
+    internal static Task<HttpClient> EnsureClientAsync(AlertLifecycleWebAppFactory factory)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+
+        return factory.CreateBoundedClientAsync();
     }
 }

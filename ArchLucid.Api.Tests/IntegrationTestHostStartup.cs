@@ -13,16 +13,38 @@ internal static class IntegrationTestHostStartup
     ///     Returns the started host's <see cref="IServiceProvider" />, or throws
     ///     <see cref="TimeoutException" /> if startup does not complete within <paramref name="timeout" />.
     /// </summary>
-    internal static async Task<IServiceProvider> EnsureStartedAsync(
+    internal static Task<IServiceProvider> EnsureStartedAsync(
         Func<IServiceProvider> accessServices,
         TimeSpan? timeout = null)
     {
-        ArgumentNullException.ThrowIfNull(accessServices);
+        return EnsureCompletedAsync(accessServices, timeout);
+    }
 
-        // First access to factory.Services builds and starts the host synchronously; run it off the
-        // test thread so we can bound it with WaitAsync (host start has no native CancellationToken seam).
-        Task<IServiceProvider> startTask = Task.Run(accessServices);
+    /// <summary>
+    ///     Runs a synchronous factory operation on a worker thread under <paramref name="timeout" />.
+    ///     Uses <see cref="Task.WhenAny" /> so callers return promptly on timeout even when the worker
+    ///     thread remains blocked (WaitAsync alone would leave xUnit waiting on the orphaned task).
+    /// </summary>
+    internal static async Task<T> EnsureCompletedAsync<T>(
+        Func<T> operation,
+        TimeSpan? timeout = null)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
 
-        return await startTask.WaitAsync(timeout ?? DefaultStartupTimeout);
+        TimeSpan effectiveTimeout = timeout ?? DefaultStartupTimeout;
+
+        // Host start and EnsureServer have no native CancellationToken seam; run off the test thread so we can bound it.
+        Task<T> operationTask = Task.Run(operation);
+        Task delayTask = Task.Delay(effectiveTimeout);
+
+        Task completed = await Task.WhenAny(operationTask, delayTask).ConfigureAwait(false);
+
+        if (completed != operationTask)
+        {
+            throw new TimeoutException(
+                $"Integration host operation exceeded {effectiveTimeout.TotalSeconds:N0}s.");
+        }
+
+        return await operationTask.ConfigureAwait(false);
     }
 }
