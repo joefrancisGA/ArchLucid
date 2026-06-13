@@ -67,6 +67,7 @@ def test_gate_pass_with_pipeline_profile(tmp_path: Path) -> None:
                 "generatedUtc": "2026-06-01T12:00:00Z",
                 "disposition": "PASS",
                 "fullPipelineProfile": {"mergeSuccess": True},
+                "gitCommitSha": "abc123def456",
             }
         ),
         encoding="utf-8",
@@ -78,11 +79,43 @@ def test_gate_pass_with_pipeline_profile(tmp_path: Path) -> None:
         require_gate=True,
         max_gate_age_days=30,
         allow_simulator_only=False,
+        expected_commit_sha="abc123def456",
     )
 
     assert disposition == "PASS"
     assert any(row["check"] == "Full pipeline profile" and row["result"] == "PASS" for row in rows)
+    assert any(row["check"] == "Gate commit SHA (RC freshness)" and row["result"] == "PASS" for row in rows)
     assert wording == "full-real-mode"
+
+
+def test_gate_commit_sha_mismatch_fails(tmp_path: Path) -> None:
+    gate = tmp_path / "gate.json"
+    gate.write_text(
+        json.dumps(
+            {
+                "schema": "archlucid.real-llm-evidence-gate.v2",
+                "generatedUtc": "2026-06-01T12:00:00Z",
+                "disposition": "PASS",
+                "fullPipelineProfile": {"mergeSuccess": True},
+                "gitCommitSha": "deadbeef0001",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    disposition, rows, wording = evaluate_release_real_mode_claim(
+        agent_results_dir=_REPO_ROOT / "tests" / "eval-corpus" / "agent-results",
+        gate_json=gate,
+        require_gate=True,
+        max_gate_age_days=30,
+        allow_simulator_only=False,
+        rc_strict_claims=True,
+        expected_commit_sha="abc123def456",
+    )
+
+    assert disposition == "HOLD"
+    assert any(row["check"] == "Gate commit SHA (RC freshness)" and row["result"] == "FAIL" for row in rows)
+    assert wording == "partial-real-mode"
 
 
 def test_waiver_marks_waived_not_verified(tmp_path: Path) -> None:

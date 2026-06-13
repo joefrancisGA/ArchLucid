@@ -49,7 +49,8 @@ function New-RealLlmEvidenceGateJsonPayload {
         [string] $TopologyMetricsRelativePath = $null,
         [string] $PipelineMetricsRelativePath = $null,
         [object] $TopologyMetrics = $null,
-        [object] $PipelineMetrics = $null
+        [object] $PipelineMetrics = $null,
+        [string] $GitCommitSha = $null
     )
 
     $payload = [ordered]@{
@@ -73,6 +74,10 @@ function New-RealLlmEvidenceGateJsonPayload {
 
     if ($null -ne $PipelineMetrics) {
         $payload['fullPipelineProfile'] = ConvertTo-RealLlmProfileSummary -Metrics $PipelineMetrics
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($GitCommitSha)) {
+        $payload['gitCommitSha'] = $GitCommitSha.Trim()
     }
 
     return $payload

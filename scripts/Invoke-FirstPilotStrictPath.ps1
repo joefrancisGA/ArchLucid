@@ -42,6 +42,17 @@ $env:ARCHLUCID_STRICT_RC = "1"
 $env:ARCHLUCID_RC_STRICT_CLAIMS = "1"
 $env:ARCHLUCID_STRICT_SEND = "1"
 
+try {
+    [string] $rcCommitSha = (& git -C $root rev-parse HEAD 2>$null)
+
+    if (-not [string]::IsNullOrWhiteSpace($rcCommitSha)) {
+        $env:ARCHLUCID_RC_COMMIT_SHA = $rcCommitSha.Trim()
+    }
+}
+catch {
+    # Leave unset when git is unavailable; claim gate treats missing expected SHA as advisory.
+}
+
 $releaseDir = Join-Path $OutDir "release-readiness"
 $releaseArgs = @(
     "-NoProfile",

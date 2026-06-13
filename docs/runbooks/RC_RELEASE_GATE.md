@@ -73,7 +73,7 @@ python scripts/ci/build_rc_evidence_signoff_bundle.py `
 
 ## Real-mode claim gate (RC)
 
-Job **`real-mode-claim-gate`** emits `real-mode-claim-gate.json` via `scripts/ci/check_release_real_mode_claim.py --rc-strict-claims`. Repository CI uses `--allow-simulator-only` for honest simulator posture; buyer-facing RC cuts must attach real evidence or an explicit waiver in the release bundle. JSON includes `blockingReasons` consumed by the RC go/no-go verdict.
+Job **`real-mode-claim-gate`** emits `real-mode-claim-gate.json` via `scripts/ci/check_release_real_mode_claim.py --rc-strict-claims --expected-commit-sha <RC commit>`. Real-mode gate JSON must record matching `gitCommitSha` (written by `Invoke-RealLlmEvidenceGate.ps1` at generation time). Repository CI uses `--allow-simulator-only` for honest simulator posture; buyer-facing RC cuts must attach real evidence or an explicit waiver in the release bundle. JSON includes `blockingReasons` consumed by the RC go/no-go verdict.
 
 ## Live UI/API/SQL parity (RC blocking)
 

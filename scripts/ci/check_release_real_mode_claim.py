@@ -73,6 +73,34 @@ def _gate_is_fresh(payload: dict[str, object], max_age_days: int) -> tuple[bool,
     return True, "fresh"
 
 
+def _normalize_commit_sha(sha: object | None) -> str | None:
+    if not isinstance(sha, str):
+        return None
+
+    normalized = sha.strip().lower()
+
+    if not normalized or normalized == "unknown":
+        return None
+
+    return normalized
+
+
+def _commit_sha_matches(expected_sha: str | None, gate_sha: object | None) -> tuple[bool, str]:
+    expected = _normalize_commit_sha(expected_sha)
+    actual = _normalize_commit_sha(gate_sha if isinstance(gate_sha, str) else None)
+
+    if expected is None:
+        return True, "expected RC commit not supplied"
+
+    if actual is None:
+        return False, "gate gitCommitSha missing — regenerate real-llm-evidence-gate.json at the RC commit"
+
+    if actual.startswith(expected) or expected.startswith(actual):
+        return True, f"gate gitCommitSha matches RC commit ({actual[:12]})"
+
+    return False, f"gate gitCommitSha {actual[:12]} does not match RC commit {expected[:12]}"
+
+
 def _load_waiver(waiver_path: Path | None) -> dict[str, object] | None:
     if waiver_path is None or not waiver_path.is_file():
         return None
@@ -139,6 +167,7 @@ def evaluate_release_real_mode_claim(
     allow_simulator_only: bool,
     rc_strict_claims: bool = False,
     waiver_json: Path | None = None,
+    expected_commit_sha: str | None = None,
 ) -> tuple[str, list[dict[str, str]], str]:
     rows: list[dict[str, str]] = []
     waiver = _load_waiver(waiver_json) if waiver_json is not None else None
@@ -276,12 +305,29 @@ def evaluate_release_real_mode_claim(
         }
     )
 
+    commit_ok, commit_detail = _commit_sha_matches(expected_commit_sha, gate.get("gitCommitSha"))
+    commit_required = (
+        not allow_simulator_only
+        and (_normalize_commit_sha(expected_commit_sha) is not None)
+        and (rc_strict_claims or disposition == "PASS")
+    )
+
+    if commit_required:
+        rows.append(
+            {
+                "check": "Gate commit SHA (RC freshness)",
+                "result": "PASS" if commit_ok else "FAIL",
+                "detail": commit_detail,
+            }
+        )
+
     blocking = (
         bool(missing_fixture_types)
         or gate_result == "FAIL"
         or not fresh
         or not pipeline_ok
         or schema != _GATE_SCHEMA
+        or (commit_required and not commit_ok)
     )
 
     if blocking:
@@ -375,6 +421,12 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Optional owner waiver when real evidence is incomplete (waived-not-verified).",
     )
+    parser.add_argument(
+        "--expected-commit-sha",
+        type=str,
+        default=None,
+        help="RC commit SHA that real-mode gate evidence must match (or ARCHLUCID_RC_COMMIT_SHA).",
+    )
     args = parser.parse_args(argv)
 
     rc_strict = args.rc_strict_claims or __import__("os").environ.get("ARCHLUCID_RC_STRICT_CLAIMS", "").strip() in {
@@ -385,6 +437,7 @@ def main(argv: list[str] | None = None) -> int:
         "YES",
     }
     require_gate = args.require_gate or rc_strict
+    expected_commit_sha = args.expected_commit_sha or __import__("os").environ.get("ARCHLUCID_RC_COMMIT_SHA")
 
     disposition, rows, claim_wording_class = evaluate_release_real_mode_claim(
         agent_results_dir=args.agent_results_dir,
@@ -394,6 +447,7 @@ def main(argv: list[str] | None = None) -> int:
         allow_simulator_only=args.allow_simulator_only,
         rc_strict_claims=rc_strict,
         waiver_json=args.waiver_json if args.waiver_json else None,
+        expected_commit_sha=expected_commit_sha,
     )
 
     blocking_reasons: list[str] = []
@@ -420,6 +474,7 @@ def main(argv: list[str] | None = None) -> int:
         "claimDisposition": disposition,
         "canonicalEvidenceSource": "staging Azure OpenAI deployment",
         "realModeMandatoryForBuyerFacingRc": True,
+        "expectedCommitSha": expected_commit_sha,
         "blockingReasons": blocking_reasons,
         "checks": rows,
     }

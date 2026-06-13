@@ -50,6 +50,40 @@ $optionalRelease = @(
 
 $entries = [System.Collections.Generic.List[object]]::new()
 $missingRequired = [System.Collections.Generic.List[string]]::new()
+$unsafeMarkerHits = [System.Collections.Generic.List[string]]::new()
+
+$unsafeMarkerPatterns = @(
+    '\[TODO\b',
+    '\bFIXME\b',
+    'localhost:',
+    '127\.0\.0\.1',
+    '<your-',
+    'example\.com/checkout'
+)
+
+function Test-BuyerUnsafeMarkers {
+    param(
+        [string] $FilePath
+    )
+
+    if (-not (Test-Path -LiteralPath $FilePath)) {
+        return
+    }
+
+    [string] $extension = [System.IO.Path]::GetExtension($FilePath)
+
+    if ($extension -notin @('.md', '.txt')) {
+        return
+    }
+
+    [string] $text = Get-Content -LiteralPath $FilePath -Raw
+
+    foreach ($pattern in $unsafeMarkerPatterns) {
+        if ($text -match $pattern) {
+            [void]$unsafeMarkerHits.Add("$FilePath matches $pattern")
+        }
+    }
+}
 
 function Add-PacketEntry {
     param(
@@ -80,6 +114,7 @@ function Add-PacketEntry {
     }
 
     Copy-Item -LiteralPath $SourcePath -Destination $destPath -Force
+    Test-BuyerUnsafeMarkers -FilePath $destPath
 
     $disposition = 'PASS'
 
@@ -132,7 +167,7 @@ if (-not [string]::IsNullOrWhiteSpace($ReleaseBundleDirectory) -and (Test-Path -
 }
 
 $generatedUtc = [DateTime]::UtcNow.ToString('o', [System.Globalization.CultureInfo]::InvariantCulture)
-$overall = if ($missingRequired.Count -gt 0) { 'HOLD' } else { 'PASS' }
+$overall = if ($missingRequired.Count -gt 0 -or $unsafeMarkerHits.Count -gt 0) { 'HOLD' } else { 'PASS' }
 
 $manifest = [ordered]@{
     schema       = 'archlucid.buyer-decision-packet.v1'
@@ -141,6 +176,7 @@ $manifest = [ordered]@{
     outputDirectory = $outDir
     overallDisposition = $overall
     missingRequired = @($missingRequired)
+    unsafeMarkerHits = @($unsafeMarkerHits)
     entries      = @($entries)
 }
 
@@ -154,6 +190,18 @@ $indexLines.Add("Generated UTC: **$generatedUtc**")
 $indexLines.Add('')
 $indexLines.Add("| Overall | **$overall** |")
 $indexLines.Add('')
+
+if ($unsafeMarkerHits.Count -gt 0) {
+    $indexLines.Add('## Unsafe marker hits')
+    $indexLines.Add('')
+
+    foreach ($hit in $unsafeMarkerHits) {
+        $indexLines.Add("- $hit")
+    }
+
+    $indexLines.Add('')
+}
+
 $indexLines.Add('| Artifact | Required | Present | Disposition |')
 $indexLines.Add('| --- | --- | --- | --- |')
 
@@ -174,6 +222,15 @@ Write-Host "Overall disposition: $overall"
 
 if ($FailOnMissing -and $missingRequired.Count -gt 0) {
     Write-Host "Missing required artifacts: $($missingRequired -join ', ')"
+    exit 1
+}
+
+if ($unsafeMarkerHits.Count -gt 0) {
+    Write-Host "Unsafe buyer markers detected:"
+    foreach ($hit in $unsafeMarkerHits) {
+        Write-Host "  - $hit"
+    }
+
     exit 1
 }
 

@@ -514,6 +514,7 @@ Add-CheckRow $checks "Azure extractor + Terraform emit acceptance" $azureExtract
 
 if ($StrictRc) {
     $claimGateArgs += "--rc-strict-claims"
+    $claimGateArgs += @("--expected-commit-sha", $gitCommitSha)
 }
 
 if ($env:ARCHLUCID_RELEASE_SIMULATOR_ONLY -eq '1') {
