@@ -10,6 +10,13 @@ internal static class IntegrationTestHostStartup
     internal static readonly TimeSpan DefaultStartupTimeout = TimeSpan.FromSeconds(120);
 
     /// <summary>
+    ///     After <see cref="EnsureStartedAsync" /> completes, <see cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory{TEntryPoint}.CreateClient" />
+    ///     should only wrap the already-built TestServer (seconds). A separate 120s bound stacked on startup
+    ///     consumed the entire 4-minute whole-test deadline under CI load (CI #2168 follow-up).
+    /// </summary>
+    internal static readonly TimeSpan DefaultClientCreationTimeout = TimeSpan.FromSeconds(30);
+
+    /// <summary>
     ///     Returns the started host's <see cref="IServiceProvider" />, or throws
     ///     <see cref="TimeoutException" /> if startup does not complete within <paramref name="timeout" />.
     /// </summary>

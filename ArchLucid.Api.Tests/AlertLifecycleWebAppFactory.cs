@@ -66,19 +66,7 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
 
     private async Task<IServiceProvider> StartServicesCoreAsync()
     {
-        try
-        {
-            return await IntegrationTestHostStartup.EnsureStartedAsync(() => Services).ConfigureAwait(false);
-        }
-        catch (TimeoutException)
-        {
-            lock (_hostLifecycleLock)
-            {
-                _ensureServicesTask = null;
-            }
-
-            throw;
-        }
+        return await IntegrationTestHostStartup.EnsureStartedAsync(() => Services).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -88,7 +76,9 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
     {
         await EnsureServicesStartedAsync().ConfigureAwait(false);
 
-        return await IntegrationTestHostStartup.EnsureCompletedAsync(CreateClient).ConfigureAwait(false);
+        return await IntegrationTestHostStartup.EnsureCompletedAsync(
+            CreateClient,
+            IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
     }
 
     /// <summary>

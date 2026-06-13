@@ -6,7 +6,11 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class IntegrationTestDeadline
 {
-    internal static readonly TimeSpan DefaultTestTimeout = TimeSpan.FromMinutes(4);
+    /// <summary>
+    ///     Host start (120s) + client wrap (30s) + two bounded HTTP calls (90s each) need headroom under slow CI;
+    ///     4 minutes stacked with duplicate 120s factory bounds and failed at exactly 240s.
+    /// </summary>
+    internal static readonly TimeSpan DefaultTestTimeout = TimeSpan.FromMinutes(6);
 
     internal static async Task RunAsync(
         string testName,
@@ -28,6 +32,8 @@ internal static class IntegrationTestDeadline
 
         if (completed != runTask)
         {
+            await deadline.CancelAsync().ConfigureAwait(false);
+
             throw new TimeoutException(
                 $"Integration test '{testName}' exceeded {effectiveTimeout.TotalSeconds:N0}s.");
         }
