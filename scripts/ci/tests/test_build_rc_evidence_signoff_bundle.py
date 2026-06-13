@@ -160,6 +160,60 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
         self.assertEqual(release_smoke["status"], "SKIPPED")
         self.assertIn("Release smoke", release_smoke["reason"])
 
+    def test_rag_citation_coverage_gate_warns_when_missing(self) -> None:
+        bundle = self._write_minimal_bundle()
+        json_out = self.temp_dir / "signoff-citation.json"
+        md_out = self.temp_dir / "signoff-citation.md"
+
+        run_py(
+            "build_rc_evidence_signoff_bundle.py",
+            "--bundle-dir",
+            str(bundle),
+            "--json-out",
+            str(json_out),
+            "--markdown-out",
+            str(md_out),
+        )
+
+        payload = json.loads(json_out.read_text(encoding="utf-8"))
+        citation_gate = next(gate for gate in payload["gates"] if gate["id"] == "rag-citation-coverage")
+
+        self.assertEqual(citation_gate["status"], "SKIPPED")
+        self.assertIn("Retrieval quality rollup", citation_gate["reason"])
+        self.assertNotIn("rag-citation-coverage", payload.get("skippedHighRiskGates") or [])
+
+    def test_rag_citation_coverage_gate_passes_when_attached(self) -> None:
+        bundle = self._write_minimal_bundle()
+        (bundle / "retrieval-quality-rollup.json").write_text(
+            json.dumps(
+                {
+                    "disposition": "PASS",
+                    "faithfulness": {"meanSupportRatio": 0.92},
+                    "interpretation": "Offline golden-fixture benchmarks only.",
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        json_out = self.temp_dir / "signoff-citation-pass.json"
+        md_out = self.temp_dir / "signoff-citation-pass.md"
+
+        run_py(
+            "build_rc_evidence_signoff_bundle.py",
+            "--bundle-dir",
+            str(bundle),
+            "--json-out",
+            str(json_out),
+            "--markdown-out",
+            str(md_out),
+        )
+
+        payload = json.loads(json_out.read_text(encoding="utf-8"))
+        citation_gate = next(gate for gate in payload["gates"] if gate["id"] == "rag-citation-coverage")
+
+        self.assertEqual(citation_gate["status"], "PASS")
+
 
 class BuildPilotCriticalPerformanceEvidenceTests(unittest.TestCase):
     def setUp(self) -> None:

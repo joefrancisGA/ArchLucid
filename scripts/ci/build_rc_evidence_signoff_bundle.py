@@ -322,6 +322,31 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
             )
         )
 
+    citation_path, citation_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        [
+            "retrieval-quality-rollup.json",
+            "artifacts/release/retrieval-quality-rollup.json",
+        ],
+    )
+    citation_payload = load_json(citation_path) if citation_path else None
+    gates.append(
+        _gate_from_payload(
+            gate_id="rag-citation-coverage",
+            label="RAG output citation coverage (offline faithfulness rollup)",
+            artifact_path=citation_rel,
+            payload=citation_payload,
+            status_keys=("disposition", "status", "rollup"),
+            reason_keys=("interpretation", "detail", "summary"),
+            high_risk=False,
+            skipped_reason=(
+                "Retrieval quality rollup not attached "
+                "(scripts/ci/report_retrieval_quality_rollup.py via collect-first-pilot-proof.ps1)"
+            ),
+        )
+    )
+
     readiness = load_json(bundle_dir / "release-readiness-index.json") or {}
     high_risk_gates = [gate for gate in gates if gate.get("highRisk")]
     skipped_high_risk = [gate for gate in high_risk_gates if gate["status"] == "SKIPPED"]
