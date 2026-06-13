@@ -22,6 +22,7 @@
     "adversarial/citation-mismatch/scenario.json",
     "adversarial/contradictory-manifest/scenario.json",
     "adversarial/oversized-context/scenario.json",
+    "adversarial/prompt-injection-override/scenario.json",
     "scenario-real-mode-smoke.json",
     "scenario-real-mode-cost.json",
     "scenario-real-mode-compliance.json",

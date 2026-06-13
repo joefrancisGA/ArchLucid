@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core;
 using ArchLucid.Core.AgentEvaluation;
@@ -117,6 +118,11 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionFailureClasses.Dependency;
         }
 
+        if (root is RequestContentSafetyRejectedException)
+        {
+            return AgentExecutionFailureClasses.ContentSafety;
+        }
+
         if (root is InvalidOperationException invalidOperation)
         {
             if (IsContentSafetyBlocked(invalidOperation))
@@ -168,6 +174,17 @@ public static class AgentExecutionFailureSummaryFactory
             return AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded;
         }
 
-        return root is CostLimitExceededException ? AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded : null;
+        if (root is RequestContentSafetyRejectedException)
+        {
+            return AgentExecutionTraceFailureReasonCodes.PromptInjectionDetected;
+        }
+
+        return root switch
+        {
+            CostLimitExceededException cost when cost.Kind == CostLimitExceededKind.RunTokenBudget
+                => AgentExecutionTraceFailureReasonCodes.TokenBudgetExceeded,
+            CostLimitExceededException => AgentExecutionTraceFailureReasonCodes.RunCostLimitExceeded,
+            _ => null,
+        };
     }
 }

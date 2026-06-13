@@ -1406,6 +1406,9 @@ jobs:
       - name: Prompt-injection datasets (shape + executable regression)
         run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only --strict --enforce-prompt-injection-block-layer
 
+      - name: TB-325 prompt-injection guard (corpus + typed rejection)
+        run: python3 scripts/ci/assert_prompt_injection_guard.py
+
   ci-agent-offline-regression:
     name: "CI: agent offline regression (eval corpus + prompt JSON baseline)"
     needs:

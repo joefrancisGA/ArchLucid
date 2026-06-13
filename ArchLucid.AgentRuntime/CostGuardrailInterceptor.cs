@@ -46,7 +46,9 @@ public sealed class CostGuardrailInterceptor(
 
         if (opts.MaxTokensPerRun.HasValue
             && (_totalInputTokens + _totalOutputTokens + _totalReasoningTokens) > opts.MaxTokensPerRun.Value)
-            throw new CostLimitExceededException($"Run exceeded maximum allowed tokens ({opts.MaxTokensPerRun.Value}).");
+            throw new CostLimitExceededException(
+                $"Run exceeded maximum allowed tokens ({opts.MaxTokensPerRun.Value}).",
+                CostLimitExceededKind.RunTokenBudget);
 
         if (!opts.MaxCostPerRun.HasValue)
             return result;
@@ -58,7 +60,11 @@ public sealed class CostGuardrailInterceptor(
                            deploymentLabel: null)
                        ?? 0m;
 
-        return cost > opts.MaxCostPerRun.Value ? throw new CostLimitExceededException($"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).") : result;
+        return cost > opts.MaxCostPerRun.Value
+            ? throw new CostLimitExceededException(
+                $"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).",
+                CostLimitExceededKind.RunCostUsd)
+            : result;
     }
 
     /// <inheritdoc />
@@ -90,7 +96,9 @@ public sealed class CostGuardrailInterceptor(
 
         if (opts.MaxTokensPerRun.HasValue
             && (_totalInputTokens + _totalOutputTokens + _totalReasoningTokens) > opts.MaxTokensPerRun.Value)
-            throw new CostLimitExceededException($"Run exceeded maximum allowed tokens ({opts.MaxTokensPerRun.Value}).");
+            throw new CostLimitExceededException(
+                $"Run exceeded maximum allowed tokens ({opts.MaxTokensPerRun.Value}).",
+                CostLimitExceededKind.RunTokenBudget);
 
         if (!opts.MaxCostPerRun.HasValue)
             yield break;
@@ -103,6 +111,8 @@ public sealed class CostGuardrailInterceptor(
                        ?? 0m;
 
         if (cost > opts.MaxCostPerRun.Value)
-            throw new CostLimitExceededException($"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).");
+            throw new CostLimitExceededException(
+                $"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).",
+                CostLimitExceededKind.RunCostUsd);
     }
 }

@@ -232,7 +232,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                                           throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
             RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
             if (!safety.IsAllowed)
-                throw new InvalidOperationException(string.Join("; ", safety.Reasons));
+                throw new RequestContentSafetyRejectedException(safety.Reasons);
             ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);
             if (tasks.Count == 0)

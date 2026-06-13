@@ -79,7 +79,7 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
 
         Func<Task> act = async () => await sut.CreateRunAsync(request, null, CancellationToken.None);
 
-        await act.Should().ThrowAsync<InvalidOperationException>().Where(ex => ex.Message.Contains("blocked phrase"));
+        await act.Should().ThrowAsync<RequestContentSafetyRejectedException>().Where(ex => ex.Message.Contains("blocked phrase"));
 
         baselineAudit.Verify(
             b => b.RecordAsync(
