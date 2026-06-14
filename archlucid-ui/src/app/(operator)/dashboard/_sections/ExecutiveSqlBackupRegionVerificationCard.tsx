@@ -1,12 +1,15 @@
+"use client";
+
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EXECUTIVE_KPI_DRILL_THROUGH } from "@/lib/executive-kpi-drill-through-hrefs";
 import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import {
+  fetchSqlBackupRegionVerification,
   formatSqlBackupPrimaryRegionLabel,
-  loadSqlBackupRegionVerification,
   type SqlBackupRegionVerification,
 } from "@/lib/sql-backup-region-verification";
 
@@ -41,9 +44,65 @@ function redundancyDetail(verification: SqlBackupRegionVerification): string | n
 }
 
 /** Executive dashboard tile — reads persisted Terraform CI verification artifact. */
-export async function ExecutiveSqlBackupRegionVerificationCard() {
-  const verification = await loadSqlBackupRegionVerification();
+export function ExecutiveSqlBackupRegionVerificationCard() {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric;
+  const [verification, setVerification] = useState<SqlBackupRegionVerification | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const data = await fetchSqlBackupRegionVerification();
+
+        if (!cancelled) {
+          setVerification(data);
+        }
+      } catch {
+        if (!cancelled) {
+          setLoadFailed(true);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (verification === null && !loadFailed) {
+    return (
+      <Card data-testid="executive-sql-backup-region-verification-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{v.title}</CardTitle>
+          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">{v.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400" data-testid="sql-backup-verification-loading">
+            Loading backup region verification…
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (verification === null) {
+    return (
+      <Card data-testid="executive-sql-backup-region-verification-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-400">{v.title}</CardTitle>
+          <CardDescription className="text-xs text-neutral-500 dark:text-neutral-500">{v.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="alert">
+            Backup region verification is unavailable right now.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const regionLabel = formatSqlBackupPrimaryRegionLabel(verification);
   const redundancyLine = redundancyDetail(verification);
   const statusText = verification.verified

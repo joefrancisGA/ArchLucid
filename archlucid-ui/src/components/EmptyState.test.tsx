@@ -53,7 +53,7 @@ describe("EmptyState — actions", () => {
     const primary = screen.getByRole("link", { name: "Primary" });
     const secondary = screen.getByRole("link", { name: "Secondary" });
 
-    expect(primary.className).toMatch(/teal-700/);
+    expect(primary.className).toMatch(/al-primary-action-bg/);
     expect(secondary.className).toMatch(/border/);
   });
 });

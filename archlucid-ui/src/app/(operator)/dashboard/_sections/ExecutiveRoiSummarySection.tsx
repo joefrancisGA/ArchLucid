@@ -303,7 +303,7 @@ export function ExecutiveRoiSummarySection({
               className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-400"
               data-testid="exec-roi-headline-scope-description"
             >
-              {resolveExecutiveHeadlineScopeLabel(data)}
+              {resolveExecutiveHeadlineScopeLabel(displayData)}
             </p>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
               {formatUsd(displayData.totalEstimatedUsdSavings)}
