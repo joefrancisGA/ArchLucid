@@ -26,9 +26,10 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
     {
         ValueReportSnapshot snap = CreateMinimalSnapshot(ReviewCycleBaselineProvenance.NoMeasurementYet);
 
-        (string headline, _) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
+        (string headline, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
 
         headline.Should().Be("Low");
+        body.Should().Contain("No measurement yet");
     }
 
     [Fact]
