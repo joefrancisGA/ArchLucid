@@ -25,7 +25,7 @@ This is validation work — not a substitute for shipping pilot proof mechanics.
 | Sanitized architecture packet (8–15 pages) | Customer redacted packet or Contoso-style sample |
 | ArchLucid committed review output | Real-mode preferred; simulator OK if labeled |
 | Frontier-AI manual baseline | Same packet reviewed in Claude Opus / GPT-5 / Gemini Pro with principal-architect prompt |
-| Scoring sheet | Section below (print or shared doc) |
+| Scoring sheet | [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md) (print or shared doc) |
 
 **Frontier-AI baseline prompt (manual comparison):**
 
@@ -94,6 +94,7 @@ Rate each material finding (ArchLucid and manual AI separately):
 
 ## Related
 
+- [`PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md`](PRINCIPAL_ARCHITECT_SESSION_SCORECARD.md)
 - [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md)
 - [`GENERIC_AI_BAKEOFF_PROTOCOL.md`](GENERIC_AI_BAKEOFF_PROTOCOL.md)
 - [`GTM_BACKLOG.md`](GTM_BACKLOG.md) § Proof-gated rollout
