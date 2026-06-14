@@ -87,7 +87,7 @@ public sealed class WorkspaceProjectScopeIdorIntegrationTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
         }
 
         await EnsureAlternateWorkspaceInSameTenantAsync(factory.SqlConnectionString);
