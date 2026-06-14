@@ -7,7 +7,11 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class IntegrationTestHostStartup
 {
-    internal static readonly TimeSpan DefaultStartupTimeout = TimeSpan.FromSeconds(120);
+    /// <summary>
+    ///     InMemory integration hosts should start in seconds; 180s leaves headroom under slow CI without consuming
+    ///     the 6-minute whole-test deadline (180s startup + 30s client + 90s HTTP = 300s &lt; 360s).
+    /// </summary>
+    internal static readonly TimeSpan DefaultStartupTimeout = TimeSpan.FromSeconds(180);
 
     /// <summary>
     ///     After <see cref="EnsureStartedAsync" /> completes, <see cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory{TEntryPoint}.CreateClient" />

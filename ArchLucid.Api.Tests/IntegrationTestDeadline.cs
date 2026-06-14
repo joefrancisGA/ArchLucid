@@ -7,8 +7,8 @@ namespace ArchLucid.Api.Tests;
 internal static class IntegrationTestDeadline
 {
     /// <summary>
-    ///     Host start (120s) + client wrap (30s) + two bounded HTTP calls (90s each) need headroom under slow CI;
-    ///     4 minutes stacked with duplicate 120s factory bounds and failed at exactly 240s.
+    ///     Host start (180s) + client wrap (30s) + bounded HTTP (90s) need headroom under slow CI; 6 minutes keeps
+    ///     ~60s margin above the 300s inner stack (CI retrieval-smoke 240s failures used the old 4-minute budget).
     /// </summary>
     internal static readonly TimeSpan DefaultTestTimeout = TimeSpan.FromMinutes(6);
 
