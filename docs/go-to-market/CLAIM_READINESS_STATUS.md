@@ -4,13 +4,13 @@
 
 **Current authorized stage:** Stage 0 — Controlled pilots
 
-**Last reviewed:** 2026-06-02
+**Last reviewed:** 2026-06-14
 
 ## Gate table
 
 | Gate | Signal | Current status | Evidence link | Blocking dependency | Who unblocks |
 | --- | --- | --- | --- | --- | --- |
-| **G1** | Execution-mode honesty | **HOLD** | Run-detail + proof-packet spot check | Staging spot-check of sponsor exports after 2026-06-13 labeling pass | Engineering + operator — verify first-value report, proof-packet index, and review-detail banner on one committed run |
+| **G1** | Execution-mode honesty | **PASS** | [`SPONSOR_CLAIM_LABEL_AUDIT.md`](SPONSOR_CLAIM_LABEL_AUDIT.md); `ExecutionModeCrossSurfaceInvariantTests` | Spot-check one new committed run after each export formatter change | Engineering — re-run audit checklist |
 | **G2** | ROI source integrity | **PASS** | [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md), proof-packet ROI table | — | — |
 | **G3** | Tenant isolation provable | **PASS** | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md); TB-071/072/073 in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) | — | — |
 | **G4** | Repeatable proof packet | **HOLD** | [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md) | 0 of 3 qualifying real runs logged | Founder/operator — run `collect-first-pilot-proof.ps1` per real pilot |
@@ -21,6 +21,7 @@
 
 - **Stage 1 — Evidence-backed selling** is authorized when **G1–G4** are all **PASS** for **≥3** distinct real pilot runs (see [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md)).
 - **Stage 2 — Broad GTM / scale claims** requires **G1–G6** all **PASS** plus ≥1 permissioned public reference (owner-deferred per `V1_DEFERRED.md`).
+- **Founder signoff required:** Movement from Stage 0 → Stage 1 requires explicit dated approval by the **founder / release owner** even when technical gates are green. Until approved, status is **HOLD_FOR_OWNER_SIGNOFF**.
 
 ## Session workflow
 

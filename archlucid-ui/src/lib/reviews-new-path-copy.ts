@@ -6,8 +6,18 @@ export const REVIEWS_NEW_BRIEF_PLACEHOLDER =
 
 /** Mode-specific hint shown under the path tabs (one sentence per active mode). */
 export const REVIEWS_NEW_PATH_HINTS: Record<ReviewsNewPathMode, string> = {
-  "quick-review": "Creates a review from a short architecture brief.",
+  "quick-review":
+    "Pilot path: creates a review from a short brief. Choose simulator for dry runs or live when real-mode proof is required.",
   "guided-intake":
-    "Adds structured questions, required review checks, and an evidence trail before the review package is generated.",
-  detailed: "Supports imports, presets, evidence upload, and export-ready packages.",
+    "Structured Pilot intake — adds clarifying questions and evidence checks before the review package is generated.",
+  detailed:
+    "Advanced path: imports, presets, and export-ready packages. Use after your first committed Pilot proof.",
 };
+
+/** First-session guidance shown on the new-review page. */
+export const REVIEWS_NEW_FIRST_SESSION_GUIDANCE =
+  "Start here for your first Pilot proof. Operate surfaces (compare, replay, governance) unlock after commit — see Help → Pilot path.";
+
+/** Proof collection reminder after commit (operator copy). */
+export const REVIEWS_NEW_PROOF_COLLECTION_HINT =
+  "After commit, run .\\scripts\\collect-first-pilot-proof.ps1 -RunId <id> -SponsorHandoff for buyer-safe evidence.";

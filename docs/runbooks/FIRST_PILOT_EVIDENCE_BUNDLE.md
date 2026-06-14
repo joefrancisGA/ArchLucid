@@ -106,6 +106,38 @@ When `-RunId` is supplied, `go-no-go-summary.md` includes an **AI Quality Proof*
 
 Missing signals are labeled **WARN** or **BLOCK** (sponsor handoff) — the pipeline does not invent pass values.
 
+## RC real-mode evidence (release-candidate)
+
+Reference real-mode RC evidence uses the **existing CI / owner dev Azure OpenAI configuration** — do not create ad hoc deployments.
+
+| Variable | Purpose |
+| --- | --- |
+| `ARCHLUCID_CI_REAL_AOAI_ENDPOINT` | CI / golden-cohort endpoint (maps to `ARCHLUCID_REAL_AOAI_TEST_ENDPOINT` locally) |
+| `ARCHLUCID_CI_REAL_AOAI_KEY` | CI / golden-cohort key (maps to `ARCHLUCID_REAL_AOAI_TEST_KEY` locally) |
+| `ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT` | Deployment name (default **`gpt-4o`** when unset) |
+
+Workflow:
+
+1. **Generate real-mode gate evidence** (owner-approved credentials only — not PR CI):
+
+   ```powershell
+   .\scripts\Invoke-RealLlmEvidenceGate.ps1
+   ```
+
+2. **Collect first-pilot proof** with sponsor handoff discipline:
+
+   ```powershell
+   .\scripts\collect-first-pilot-proof.ps1 -RunId <committed-run-guid> -SponsorHandoff -FailOnHold
+   ```
+
+3. Inspect `go-no-go-summary.json` fields **`realModeEvidenceStatus`**, **`executionModeEvidenceCaptured`**, and **`realModeEvidenceNextAction`**.
+
+**Sponsor handoff rules:**
+
+- **`-SponsorHandoff`** + missing real-mode evidence → **`realModeEvidenceStatus=HOLD`** and **`sponsorPacketDisposition=HOLD`** (via BLOCK finding).
+- Readiness-only mode (no `-SponsorHandoff`) may WARN but must not imply real-mode proof exists.
+- Movement from controlled pilot to evidence-backed selling requires **founder / release owner** signoff — green technical checks do not advance claim stage automatically.
+
 ## LLM budget status
 
 When ExecuteAuthority is available, committed-run evidence collection writes `llm-budget-status.json` and includes `llmExecutionMode`, `llmBudgetStatusCollected`, and nested `llmBudgetStatus` in `pilot-observability-summary.json`. First-pilot proof renders `llm-budget-proof-status.md` — buyer-safe UTC-month hard-cap posture without secrets or prompt text.

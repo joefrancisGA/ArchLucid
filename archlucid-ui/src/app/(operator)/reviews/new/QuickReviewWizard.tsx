@@ -14,7 +14,7 @@ import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
-import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
+import { REVIEWS_NEW_BRIEF_PLACEHOLDER, REVIEWS_NEW_FIRST_SESSION_GUIDANCE, REVIEWS_NEW_PATH_HINTS } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
 import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
@@ -628,6 +628,12 @@ export function ReviewsNewPathSwitcher() {
       <Suspense fallback={null}>
         <NewReviewIntentCallout />
       </Suspense>
+      <p
+        className="rounded-md border border-neutral-200/80 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-200"
+        data-testid="reviews-new-first-session-guidance"
+      >
+        {REVIEWS_NEW_FIRST_SESSION_GUIDANCE}
+      </p>
       {ready ? (
         <div
           className="flex flex-wrap gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"

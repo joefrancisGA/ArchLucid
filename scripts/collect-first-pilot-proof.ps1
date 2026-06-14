@@ -375,7 +375,9 @@ function Add-AgentQualitySponsorGateFinding {
         return
     }
 
-    Add-ProofFinding -Disposition 'WARN' -Name 'real-llm-sponsor-evidence' -Detail "No real-mode LLM sponsor-evidence signal was detected. Quality gate disposition: $qualityGateDisposition." -Remediation 'For buyer sponsor proof, use a PilotStrict real-mode host or explicitly label the packet as simulator/demo evidence.' -TriageCard 'FP-T004'
+    $missingRealModeDisposition = if ($SponsorHandoff) { 'BLOCK' } else { 'WARN' }
+
+    Add-ProofFinding -Disposition $missingRealModeDisposition -Name 'real-llm-sponsor-evidence' -Detail "No real-mode LLM sponsor-evidence signal was detected. Quality gate disposition: $qualityGateDisposition." -Remediation 'For buyer sponsor proof, use a PilotStrict real-mode host or explicitly label the packet as simulator/demo evidence.' -TriageCard 'FP-T004'
 }
 
 function Add-AiQualityProofFinding {
@@ -3059,8 +3061,10 @@ if ($RunNumber -ge 2 -and -not [string]::IsNullOrWhiteSpace($RunId)) {
     }
 }
 
+$realModeEvidenceRollup = Get-RealModeEvidenceRollupFromFindings -Findings @($findings) -SponsorHandoff:$SponsorHandoff
+
 $summary = [ordered]@{
-    formatVersion             = '1.2'
+    formatVersion             = '1.3'
     generatedUtc              = $timestamp
     baseUrl                   = $normalizedBase
     runNumber                 = $RunNumber
@@ -3096,6 +3100,10 @@ $summary = [ordered]@{
     missingRequiredBaselineFields = @($baselineSendEval.missingRequiredBaselineFields)
     aiQualityProof            = $script:aiQualityProof
     aiReadinessGate           = $script:aiReadinessGate
+    realModeEvidence          = $realModeEvidenceRollup
+    realModeEvidenceStatus    = [string]$realModeEvidenceRollup.status
+    executionModeEvidenceCaptured = [bool]$realModeEvidenceRollup.evidenceCaptured
+    realModeEvidenceNextAction = [string]$realModeEvidenceRollup.nextAction
     commandCenter             = [ordered]@{
         jsonPath            = $commandCenterPaths.jsonPath
         mdPath              = $commandCenterPaths.mdPath
@@ -3140,6 +3148,9 @@ $lines.Add("| ROI basis status | **$($script:roiBasisStatus)** |")
 $lines.Add("| Baseline completeness | **$($baselineSendEval.baselineCompletenessStatus)** |")
 $lines.Add("| SEND eligible | **$($baselineSendEval.sendEligible)** |")
 $lines.Add("| ROI sponsor-safe | **$($script:roiSponsorSafe)** |")
+$lines.Add("| Real-mode evidence status | **$($realModeEvidenceRollup.status)** |")
+$lines.Add("| Execution mode evidence captured | **$($realModeEvidenceRollup.evidenceCaptured)** |")
+$lines.Add("| Real-mode next action | $($realModeEvidenceRollup.nextAction) |")
 $lines.Add("| Blocking findings | $blockCount |")
 $lines.Add("| Warnings | $warnCount |")
 $lines.Add('')

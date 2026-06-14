@@ -32,11 +32,39 @@ Describe 'FirstPilotMultiRunStickinessProof' {
     }
 }
 
+Describe 'FirstPilotProofDisposition real-mode rollup' {
+    BeforeAll {
+        . (Join-Path $scriptRoot 'FirstPilotProofDisposition.ps1')
+    }
+
+    It 'maps PASS finding to PASS rollup with evidence captured' {
+        $findings = @([ordered]@{ name = 'real-llm-sponsor-evidence'; disposition = 'PASS'; detail = 'ok'; remediation = '' })
+        $rollup = Get-RealModeEvidenceRollupFromFindings -Findings $findings -SponsorHandoff
+        $rollup.status | Should Be 'PASS'
+        $rollup.evidenceCaptured | Should Be $true
+    }
+
+    It 'maps missing real-mode signal to HOLD when SponsorHandoff is set' {
+        $findings = @([ordered]@{ name = 'real-llm-sponsor-evidence'; disposition = 'WARN'; detail = 'no signal'; remediation = 'use real mode' })
+        $rollup = Get-RealModeEvidenceRollupFromFindings -Findings $findings -SponsorHandoff
+        $rollup.status | Should Be 'HOLD'
+        $rollup.evidenceCaptured | Should Be $false
+    }
+
+    It 'maps missing real-mode signal to WARN in readiness-only mode' {
+        $findings = @([ordered]@{ name = 'real-llm-sponsor-evidence'; disposition = 'WARN'; detail = 'no signal'; remediation = 'use real mode' })
+        $rollup = Get-RealModeEvidenceRollupFromFindings -Findings $findings
+        $rollup.status | Should Be 'WARN'
+    }
+}
+
 Describe 'collect-first-pilot-proof.ps1 parameters' {
     It 'declares RunNumber and CompareBaseRunId' {
         $content = Get-Content -LiteralPath (Join-Path $scriptRoot 'collect-first-pilot-proof.ps1') -Raw
         ($content -match 'RunNumber') | Should Be $true
         ($content -match 'CompareBaseRunId') | Should Be $true
         ($content -match 'stickinessSignals') | Should Be $true
+        ($content -match 'realModeEvidenceStatus') | Should Be $true
+        ($content -match 'Get-RealModeEvidenceRollupFromFindings') | Should Be $true
     }
 }

@@ -288,6 +288,9 @@ def deal_ready_repo_checks(root: Path, entries: list[dict], max_review_age_days:
         root / "docs" / "go-to-market" / "SOC2_STATUS_PROCUREMENT.md",
         root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md",
         root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md",
+        root / "docs" / "go-to-market" / "DPA_TEMPLATE.md",
+        root / "docs" / "go-to-market" / "ORDER_FORM_TEMPLATE.md",
+        root / "docs" / "go-to-market" / "AI_OUTPUT_DECISION_SUPPORT.md",
     )
 
     for p in required_docs:

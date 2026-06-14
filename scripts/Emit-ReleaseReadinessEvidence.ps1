@@ -510,7 +510,7 @@ function Write-ReleaseReadinessIndexArtifacts {
     [void] $summaryBuilder.AppendLine("")
     [void] $summaryBuilder.AppendLine("**Generate:** ``pwsh ./scripts/Emit-ReleaseReadinessEvidence.ps1 [-ApiBaseUrl https://staging.example]``")
     [void] $summaryBuilder.AppendLine("")
-    [void] $summaryBuilder.AppendLine("Machine-readable index: ``release-readiness-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Confidence rollup: ``release-confidence-rollup.json``. RC verdict: ``rc-go-no-go-verdict.json``. Deploy handoff: ``deploy-handoff.json``. Redaction policy: ``redaction-note.md``.")
+    [void] $summaryBuilder.AppendLine("Machine-readable index: ``release-readiness-index.json``. RC evidence index: ``rc-evidence-index.json``. Bundle manifest: ``release-evidence-bundle-manifest.json`` (profile ``release-readiness``). Confidence rollup: ``release-confidence-rollup.json``. RC verdict: ``rc-go-no-go-verdict.json``. Deploy handoff: ``deploy-handoff.json``. Redaction policy: ``redaction-note.md``.")
     [void] $summaryBuilder.AppendLine("")
     [void] $summaryBuilder.AppendLine("See ``docs/library/DEPLOYMENT_RUNBOOK.md`` and ``docs/library/OBSERVABILITY.md``.")
 
@@ -723,6 +723,17 @@ if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
 
 & python @deployHandoffArgs
 Add-CheckRow $checks "Deploy handoff artifact" (Map-ExitToVerdict $LASTEXITCODE).verdict "commit/profile/Azure metadata for operations" "deploy-handoff.json"
+
+[string] $rcEvidenceIndexJson = Join-Path $OutDir "rc-evidence-index.json"
+[string] $rcEvidenceIndexMd = Join-Path $OutDir "rc-evidence-index.md"
+& python (Join-Path $root "scripts/ci/build_rc_evidence_index.py") `
+    --bundle-dir $OutDir `
+    --json-out $rcEvidenceIndexJson `
+    --markdown-out $rcEvidenceIndexMd
+[int] $rcEvidenceIndexExit = $LASTEXITCODE
+[string] $rcEvidenceIndexVerdict = if ($rcEvidenceIndexExit -eq 1) { "FAIL" } else { "PASS" }
+Add-CheckRow $checks "RC evidence index (unified)" $rcEvidenceIndexVerdict "PASS/WARN/HOLD/NOT_RUN rollup; exit $rcEvidenceIndexExit" "rc-evidence-index.json"
+
 $indexState = Write-ReleaseReadinessIndexArtifacts -CheckRows $checks -GeneratedUtc $generatedUtc -OutputDirectory $OutDir
 $rollup = [string]$indexState.rollup
 $failCount = [int]$indexState.failCount

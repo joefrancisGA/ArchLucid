@@ -22,6 +22,14 @@
 
 ---
 
+## 1b. P0 SAQ release decisions
+
+- [ ] **P0 SAQ disposition** documented: [`SAQ_P0_RC_RELEASE_DECISIONS.md`](SAQ_P0_RC_RELEASE_DECISIONS.md) — all P0 rows have RC disposition (Act now / Hold for evidence / Owner input / Deferred).
+- [ ] **SAQ register** updated: [`SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md`](SONNET_ARCHITECTURE_DESIGN_QUESTIONS.md) — SAQ-007, 008, 010, 011 marked Resolved with links.
+- [ ] **RC evidence index** attached: `rc-evidence-index.json` / `.md` from `Emit-ReleaseReadinessEvidence.ps1`.
+
+---
+
 ## 2. Deployment readiness
 
 - [ ] **Release build** succeeds: `scripts/build-release.ps1` (or `dotnet build ArchLucid.sln -c Release`) per [RELEASE_LOCAL.md](RELEASE_LOCAL.md).

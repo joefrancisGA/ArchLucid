@@ -189,6 +189,63 @@ function Get-BlockingReasonsFromFindings {
     )
 }
 
+function Get-RealModeEvidenceRollupFromFindings {
+    param(
+        [object[]] $Findings,
+        [switch] $SponsorHandoff
+    )
+
+    $match = @($Findings | Where-Object { [string]$_.name -eq 'real-llm-sponsor-evidence' })
+
+    if ($match.Count -eq 0) {
+        return [ordered]@{
+            status                 = 'NOT_RUN'
+            evidenceCaptured       = $false
+            executionModeLabel     = 'unknown'
+            sponsorHandoffRequired = [bool]$SponsorHandoff
+            nextAction             = 'Run committed-run evidence collection with a RunId on a PilotStrict real-mode host, or label the packet simulator-only.'
+        }
+    }
+
+    $row = $match[0]
+    $findingDisposition = [string]$row.disposition
+    $remediation = [string]$row.remediation
+    $detail = [string]$row.detail
+
+    if ($findingDisposition -eq 'PASS') {
+        return [ordered]@{
+            status                 = 'PASS'
+            evidenceCaptured       = $true
+            executionModeLabel     = 'real-mode'
+            sponsorHandoffRequired = [bool]$SponsorHandoff
+            nextAction             = 'Real-mode sponsor evidence passed; attach proof packet for RC signoff.'
+            detail                 = $detail
+        }
+    }
+
+    if ($findingDisposition -eq 'BLOCK') {
+        return [ordered]@{
+            status                 = 'HOLD'
+            evidenceCaptured       = $false
+            executionModeLabel     = if ($detail -match 'simulator|demo') { 'simulator-or-mixed' } else { 'real-mode-incomplete' }
+            sponsorHandoffRequired = [bool]$SponsorHandoff
+            nextAction             = if ([string]::IsNullOrWhiteSpace($remediation)) { 'Resolve real-mode sponsor evidence before sponsor handoff.' } else { $remediation }
+            detail                 = $detail
+        }
+    }
+
+    $warnStatus = if ($SponsorHandoff) { 'HOLD' } else { 'WARN' }
+
+    return [ordered]@{
+        status                 = $warnStatus
+        evidenceCaptured       = $false
+        executionModeLabel     = 'simulator-or-unverified'
+        sponsorHandoffRequired = [bool]$SponsorHandoff
+        nextAction             = if ([string]::IsNullOrWhiteSpace($remediation)) { 'Use PilotStrict real-mode host or label packet simulator/demo evidence.' } else { $remediation }
+        detail                 = $detail
+    }
+}
+
 function Get-QualityGateHoldDetail {
     param(
         [string] $QualityGateDisposition,
