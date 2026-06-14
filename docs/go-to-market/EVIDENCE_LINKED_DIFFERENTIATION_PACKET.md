@@ -15,7 +15,7 @@ ArchLucid differentiates on **governed, provenance-backed architecture review** 
 | Claim boundary | `CLAIM_READINESS_STATUS.md`, real-mode evidence gate | Implicit or overstated |
 | Retrieval grounding | Committed-run `retrieval-grounding.json` traces | Opaque citations |
 | Release evidence | `release-evidence-bundle-manifest.json` profiles | Manual checklists |
-| Tenant isolation | RLS + classification matrix + architecture tests | Varies / not evidenced |
+| Tenant isolation | Database-per-tenant catalogs + classification matrix + architecture tests | Varies / not evidenced |
 
 ## Evidence links (do not overclaim)
 

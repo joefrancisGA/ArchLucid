@@ -33,6 +33,7 @@ class ClaimPattern:
 
 DOCS_TO_SCAN: tuple[Path, ...] = (
     Path("docs/go-to-market/PRICING_PHILOSOPHY.md"),
+    Path("docs/go-to-market/PRODUCT_DATASHEET.md"),
     Path("docs/go-to-market/TRUST_CENTER.md"),
     Path("docs/go-to-market/SOC2_ROADMAP.md"),
     Path("docs/go-to-market/INTEGRATION_CATALOG.md"),
@@ -118,6 +119,24 @@ CLAIM_PATTERNS: tuple[ClaimPattern, ...] = (
         ),
         "Jira and Microsoft Teams must not be promised inside the V1 GA scope.",
         "docs/library/V1_DEFERRED.md",
+    ),
+    ClaimPattern(
+        re.compile(
+            r"(?:SQL\s+)?row[-\s]level\s+security\s*\(?RLS\)?[^.\n]{0,80}(?:multi[-\s]tenant|tenant)\s+isolation",
+            re.IGNORECASE,
+        ),
+        "SQL RLS must not be described as the production multi-tenant isolation boundary; use database-per-tenant catalogs (ADR 0037).",
+        "docs/architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md",
+    ),
+    ClaimPattern(
+        re.compile(r"RLS[-\s]isolated\s+tenancy", re.IGNORECASE),
+        "RLS-isolated tenancy must not be claimed; production uses database-per-tenant catalogs.",
+        "docs/go-to-market/TENANT_ISOLATION.md",
+    ),
+    ClaimPattern(
+        re.compile(r"SQL\s+RLS\s+for\s+multi[-\s]tenant\s+isolation", re.IGNORECASE),
+        "SQL RLS for multi-tenant isolation must not be claimed in buyer-facing docs.",
+        "docs/architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md",
     ),
 )
 

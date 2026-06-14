@@ -603,6 +603,11 @@ if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
     --markdown-out $pilotPerfMd
 Add-CheckRow $checks "Pilot-critical performance smoke" (Map-ExitToVerdict $LASTEXITCODE).verdict "pilot-critical flow timings — not a load test" "pilot-critical-performance-evidence.json"
 
+& pwsh -NoProfile -File (Join-Path $root "scripts/ci/Invoke-FirstPilotPerformanceBudgetSmoke.ps1") `
+    -OutputDir $OutDir `
+    -ExecutionMode Simulator | Out-Null
+Add-CheckRow $checks "First-value timing budget" (Map-ExitToVerdict $LASTEXITCODE).verdict "PASS/WARN/HOLD create→commit→artifact budget" "first-pilot-timing-budget.json"
+
 [string] $rcSignoffJson = Join-Path $OutDir "rc-evidence-signoff-bundle.json"
 [string] $rcSignoffMd = Join-Path $OutDir "rc-evidence-signoff-bundle.md"
 [string[]] $rcSignoffArgs = @(
@@ -625,6 +630,22 @@ Add-CheckRow $checks "RC evidence signoff bundle (TB-317)" $rcSignoffLabel "per-
 [int] $rcVerdictExit = $LASTEXITCODE
 [string] $rcVerdictLabel = if ($rcVerdictExit -eq 0) { "PASS" } else { "FAIL" }
 Add-CheckRow $checks "RC go/no-go verdict" $rcVerdictLabel "synthesized signoff artifact; exit $rcVerdictExit" "rc-go-no-go-verdict.json"
+
+[string] $rcNarrativeJson = Join-Path $OutDir "rc-decision-narrative.json"
+[string] $rcNarrativeMd = Join-Path $OutDir "rc-decision-narrative.md"
+& python (Join-Path $root "scripts/ci/build_rc_decision_narrative.py") `
+    --bundle-dir $OutDir `
+    --json-out $rcNarrativeJson `
+    --markdown-out $rcNarrativeMd
+Add-CheckRow $checks "RC decision narrative" (Map-ExitToVerdict $LASTEXITCODE).verdict "human-readable go/no-go summary" "rc-decision-narrative.md"
+
+[string] $execBriefJson = Join-Path $OutDir "executive-one-screen-brief.json"
+[string] $execBriefMd = Join-Path $OutDir "executive-one-screen-brief.md"
+& python (Join-Path $root "scripts/ci/build_executive_one_screen_brief.py") `
+    --bundle-dir $OutDir `
+    --json-out $execBriefJson `
+    --markdown-out $execBriefMd
+Add-CheckRow $checks "Executive one-screen brief" (Map-ExitToVerdict $LASTEXITCODE).verdict "sponsor-facing rollup from RC artifacts" "executive-one-screen-brief.md"
 
 [string] $deployHandoffJson = Join-Path $OutDir "deploy-handoff.json"
 [string] $deployHandoffMd = Join-Path $OutDir "deploy-handoff.md"

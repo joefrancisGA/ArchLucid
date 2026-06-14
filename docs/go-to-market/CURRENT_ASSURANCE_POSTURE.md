@@ -35,7 +35,7 @@ ArchLucid runs automated security checks on every pull request and merge to main
 |-------|-----------|---------|
 | **Identity** | Microsoft Entra ID (OIDC / JWT) with app roles (Admin, Operator, Reader, Auditor); optional API keys for automation | [`docs/library/SECURITY.md`](../library/SECURITY.md) |
 | **Application** | RBAC policies (`ReadAuthority`, `ExecuteAuthority`, `AdminAuthority`); request-scoped tenant/workspace/project context | [`ArchLucid.Api/Auth/`](../../ArchLucid.Api/Auth/) |
-| **Database** | SQL Server row-level security (RLS) with `SESSION_CONTEXT` per request; tenant ID enforced on covered tables | [`docs/security/MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md) |
+| **Database** | **Database-per-tenant** SQL catalogs via `TenantDatabaseBindings`; application scope predicates within each catalog — **SQL RLS is not used in production** ([ADR 0037](../architecture/adrs/0037-tenant-isolation-without-rls-defense-in-depth.md)) | [`docs/go-to-market/TENANT_ISOLATION.md`](TENANT_ISOLATION.md) |
 | **Network** | Optional Azure Front Door + WAF; private endpoints for Azure SQL and Blob; no public SMB (port 445) | [`docs/library/CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | **Secrets** | Azure Key Vault references for application configuration in hosted deployments | [`docs/library/CONFIGURATION_KEY_VAULT.md`](../library/CONFIGURATION_KEY_VAULT.md) |
 

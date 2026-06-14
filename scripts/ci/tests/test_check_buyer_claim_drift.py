@@ -190,6 +190,22 @@ class TestBuyerClaimDrift(unittest.TestCase):
 
             self.assertEqual(G.buyer_claim_drift_violations(root), [])
 
+    def test_sql_rls_primary_isolation_phrase_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            for rel in G.DOCS_TO_SCAN:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("Safe default text.\n", encoding="utf-8")
+
+            bad = root / "docs/go-to-market/PRODUCT_DATASHEET.md"
+            bad.write_text("SQL RLS for multi-tenant isolation is our production model.\n", encoding="utf-8")
+
+            violations = G.buyer_claim_drift_violations(root)
+
+            self.assertTrue(any("SQL RLS for multi-tenant isolation" in violation for violation in violations))
+
 
 if __name__ == "__main__":
     unittest.main()

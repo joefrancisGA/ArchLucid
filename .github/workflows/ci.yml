@@ -3509,6 +3509,7 @@ jobs:
           curl -fsS http://127.0.0.1:5128/health/ready
           npx playwright test \
             live-api-apikey-auth.spec.ts \
+            live-api-auth-parity-spine.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts
 
@@ -3675,6 +3676,7 @@ jobs:
           curl -fsS http://127.0.0.1:5128/health/ready
           npx playwright test \
             live-api-jwt-auth.spec.ts \
+            live-api-auth-parity-spine.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts
 
@@ -4167,3 +4169,25 @@ jobs:
                   f.write("\n".join(lines) + "\n")
           print("Overall:", overall)
           PY
+
+      - name: Emit CI release-signal health (advisory)
+        if: always()
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          mkdir -p artifacts/ci
+          printf '%s' "$NEEDS_JSON" > artifacts/ci/workflow-needs.json
+          python scripts/ci/report_ci_release_signal_health.py \
+            --needs-json artifacts/ci/workflow-needs.json \
+            --json-out artifacts/ci/release-signal-health.json \
+            --markdown-out artifacts/ci/release-signal-health.md
+
+      - name: Upload CI release-signal health
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci-release-signal-health
+          path: |
+            artifacts/ci/release-signal-health.json
+            artifacts/ci/release-signal-health.md
+          if-no-files-found: warn

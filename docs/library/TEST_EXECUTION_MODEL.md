@@ -301,3 +301,11 @@ never accumulate stale processes, so the script is a guaranteed no-op there.
 - **C#** test stack (xUnit).
 - **SQL Server + Dapper** for database tests; **no EF**.
 - Prefer **small, surgical** changes when adjusting tests or CI.
+
+---
+
+## CI release-signal health (advisory)
+
+The **`ci-summary`** job emits `artifacts/ci/release-signal-health.json` via `scripts/ci/report_ci_release_signal_health.py`. It classifies merge-blocking / release-relevant job outcomes into failure buckets (**timeout**, **hang**, **assertion**, **infra**, **config**) for trend triage. This report is **advisory** — it does not change merge gating.
+
+**Hang determinism:** SQL regression shards and fast-core corset shards run with **`--blame-hang`** and upload mini hang dumps where configured (`Invoke-CoreLibsTestShard.ps1`, `Invoke-ApiIntegrationTestShard.ps1`). Prefer blame-hang output over job-level timeouts when diagnosing deadlocks.

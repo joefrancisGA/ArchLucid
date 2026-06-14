@@ -341,6 +341,34 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
             )
         )
 
+    timing_path, timing_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        ["first-pilot-timing-budget.json"],
+    )
+    timing_payload = load_json(timing_path) if timing_path else None
+    timing_gate_payload = timing_payload
+
+    if timing_payload is not None and isinstance(timing_payload.get("firstValueCommitBudget"), dict):
+        timing_gate_payload = {
+            **timing_payload,
+            "disposition": timing_payload["firstValueCommitBudget"].get("disposition"),
+            "detail": timing_payload["firstValueCommitBudget"].get("detail"),
+        }
+
+    gates.append(
+        _gate_from_payload(
+            gate_id="first-value-timing",
+            label="First-value timing budget (create→commit→artifact)",
+            artifact_path=timing_rel,
+            payload=timing_gate_payload,
+            status_keys=("disposition", "status"),
+            reason_keys=("detail", "summary"),
+            high_risk=True,
+            skipped_reason="first-pilot-timing-budget.json not attached — run Invoke-FirstPilotPerformanceBudgetSmoke.ps1",
+        )
+    )
+
     citation_path, citation_rel = _resolve_artifact(
         root,
         bundle_dir,

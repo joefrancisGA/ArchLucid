@@ -54,6 +54,7 @@ flowchart LR
 |------|------------------|-------------------------|----------------------|----------------------|
 | `live-api-apikey-auth.spec.ts` | skipped (no key) | ✅ | skipped (no API key) | ✅ (ApiKey job only meaningful; Bypass/Jwt runs skip tests) |
 | `live-api-jwt-auth.spec.ts` | skipped (no JWT) | skipped (prefers JWT when set; use ApiKey-only job) | ✅ | ✅ (Jwt job meaningful) |
+| `live-api-auth-parity-spine.spec.ts` | skipped (no ApiKey/JWT) | ✅ | ✅ | ✅ |
 | `live-api-journey.spec.ts` | ✅ | ✅ | ✅ | ✅ |
 | `live-api-negative-paths.spec.ts` | ✅ | ✅ | ✅ | ✅ |
 | All other `live-api-*.spec.ts` | ✅ | — | — | ✅ |
