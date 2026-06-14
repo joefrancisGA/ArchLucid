@@ -724,6 +724,24 @@ if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
 & python @deployHandoffArgs
 Add-CheckRow $checks "Deploy handoff artifact" (Map-ExitToVerdict $LASTEXITCODE).verdict "commit/profile/Azure metadata for operations" "deploy-handoff.json"
 
+[string] $rcGoldenPathJson = Join-Path $OutDir "rc-golden-path-validation.json"
+[string] $rcGoldenPathMd = Join-Path $OutDir "rc-golden-path-validation.md"
+[string[]] $rcGoldenPathArgs = @(
+    (Join-Path $root "scripts/ci/validate_rc_golden_path.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $rcGoldenPathJson,
+    "--markdown-out", $rcGoldenPathMd
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $rcGoldenPathArgs += "--enforce"
+}
+
+& python @rcGoldenPathArgs
+[int] $rcGoldenPathExit = $LASTEXITCODE
+[string] $rcGoldenPathVerdict = if ($rcGoldenPathExit -eq 1) { "FAIL" } else { "PASS" }
+Add-CheckRow $checks "RC golden-path evidence validation" $rcGoldenPathVerdict "mandatory pilot-facing RC artifacts; exit $rcGoldenPathExit" "rc-golden-path-validation.json"
+
 [string] $rcEvidenceIndexJson = Join-Path $OutDir "rc-evidence-index.json"
 [string] $rcEvidenceIndexMd = Join-Path $OutDir "rc-evidence-index.md"
 & python (Join-Path $root "scripts/ci/build_rc_evidence_index.py") `
