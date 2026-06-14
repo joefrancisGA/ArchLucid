@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -26,7 +25,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using MultipartFormDataContent form =
-            UploadForm(BuildValidZip(includeManifest: false, schemaVersionOverride: null));
+            UploadForm(AzureExtractorTestZipBuilder.BuildValidZip(includeManifest: false, schemaVersionOverride: null));
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
@@ -44,7 +43,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using MultipartFormDataContent form =
-            UploadForm(BuildValidZip(includeManifest: false, schemaVersionOverride: null));
+            UploadForm(AzureExtractorTestZipBuilder.BuildValidZip(includeManifest: false, schemaVersionOverride: null));
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
@@ -62,7 +61,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using MultipartFormDataContent form = UploadForm(
-            BuildValidZip(includeManifest: true, schemaVersionOverride: 99));
+            AzureExtractorTestZipBuilder.BuildValidZip(includeManifest: true, schemaVersionOverride: 99));
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
@@ -79,7 +78,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        using MultipartFormDataContent form = UploadForm(BuildZipWithMalformedManifest());
+        using MultipartFormDataContent form = UploadForm(AzureExtractorTestZipBuilder.BuildZipWithMalformedManifest());
 
         await using SqlConnection conn = new(fixture.SqlConnectionString);
 
@@ -111,7 +110,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         using MultipartFormDataContent form =
-            UploadForm(BuildValidZip(includeManifest: true, schemaVersionOverride: null));
+            UploadForm(AzureExtractorTestZipBuilder.BuildValidZip(includeManifest: true, schemaVersionOverride: null));
 
         using HttpResponseMessage response = await client.PostAsync("/v1/azure-extractor/upload", form);
 
@@ -151,7 +150,7 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        byte[] zipBytes = BuildValidZip(includeManifest: true, schemaVersionOverride: null);
+        byte[] zipBytes = AzureExtractorTestZipBuilder.BuildValidZip(includeManifest: true, schemaVersionOverride: null);
 
         using MultipartFormDataContent form = UploadForm(zipBytes);
 
@@ -259,90 +258,6 @@ public sealed class AzureExtractorUploadEndpointTests(GreenfieldSqlApiFactory fi
 
         scalar.Should().Be(1);
 
-    }
-
-    private static byte[] BuildValidZip(bool includeManifest, int? schemaVersionOverride)
-    {
-        using MemoryStream ms = new();
-
-        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
-
-        {
-
-            if (includeManifest)
-
-            {
-
-                ZipArchiveEntry m = zip.CreateEntry("manifest.json");
-
-                int schemaVersion = schemaVersionOverride ?? 1;
-
-                using (StreamWriter sw = new(m.Open()))
-                {
-                    sw.Write(
-
-                        $$"""
-
-                        {"schemaVersion":{{schemaVersion}},"scriptVersion":"1.0.0-tests","collectionTimestamp":"2026-05-06T12:00:00Z",
-
-                        "subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-
-                        "scope":"/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-
-                        "switchesUsed":[],"azModuleVersion":"0.0.0-test"}
-
-                        """);
-                }
-
-                ZipArchiveEntry resources = zip.CreateEntry("resources.json");
-
-                using (StreamWriter rw = new(resources.Open()))
-                {
-                    rw.Write("[]");
-                }
-
-            }
-
-            else
-
-            {
-
-                ZipArchiveEntry other = zip.CreateEntry("readme.txt");
-
-                using StreamWriter ow = new(other.Open());
-
-                ow.WriteLine("no manifest");
-
-            }
-
-        }
-
-        return ms.ToArray();
-
-    }
-
-    private static byte[] BuildZipWithMalformedManifest()
-    {
-        using MemoryStream ms = new();
-
-        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
-        {
-            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
-
-            using (StreamWriter sw = new(manifest.Open()))
-            {
-                sw.Write("{ not-valid-json");
-            }
-
-            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
-
-            using (StreamWriter rw = new(resources.Open()))
-            {
-                rw.Write("[]");
-            }
-        }
-
-        return ms.ToArray();
     }
 
 }
