@@ -15,8 +15,8 @@ _SCHEMA = "archlucid.material-finding-faithfulness-summary.v1"
 
 _MATERIAL_SCENARIOS: tuple[str, ...] = (
     "scenario-three-tier-web.json",
-    "buyer-scenarios/scenario-buyer-roi-citation-safety.json",
     "adversarial/phantom-dependency/scenario.json",
+    "adversarial/unsupported-roi-claim/scenario.json",
 )
 
 
@@ -49,7 +49,19 @@ def build_summary(corpus_root: Path, ci_dir: Path) -> dict[str, Any]:
             )
             continue
 
-        row = eval_mod.evaluate_scenario(scen_path, corpus_root)
+        try:
+            row = eval_mod.evaluate_scenario(scen_path, corpus_root)
+        except (FileNotFoundError, OSError, ValueError, json.JSONDecodeError) as exc:
+            rows.append(
+                {
+                    "scenarioId": rel,
+                    "verdict": "MISSING",
+                    "recall": 0.0,
+                    "detail": str(exc),
+                }
+            )
+            continue
+
         scenario = json.loads(scen_path.read_text(encoding="utf-8"))
         expected = scenario.get("expectedFindings") or []
         requires_refs = any(rule.get("evidenceRefsMustContain") for rule in expected if isinstance(rule, dict))
