@@ -24,14 +24,27 @@ export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_PRIMARY_CTA = "Open the example review package";
 
-export const PILOT_COMMAND_CENTER_HEADING = "Start your pilot review";
+export const PILOT_COMMAND_CENTER_HEADING = "Start your first review";
 
 export const PILOT_COMMAND_CENTER_LEAD =
-  "Generate a versioned, evidence-linked review package. One primary action — optional setup stays collapsed until you need it.";
+  "Create a governed, evidence-linked review package.";
 
-export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start a review package";
+export const PILOT_COMMAND_CENTER_PRIMARY_CTA = "Start review";
 
-export const PILOT_COMMAND_CENTER_SAMPLE_LINK = "Explore a sample review package";
+export const PILOT_COMMAND_CENTER_SAMPLE_LINK = "Open example review";
+
+export const PILOT_COMMAND_CENTER_HELP_LINK = "How it works";
+
+export const PILOT_COMMAND_CENTER_OUTCOMES_HEADING = "What you'll get";
+
+export const PILOT_COMMAND_CENTER_OUTCOMES = [
+  "Findings",
+  "Decisions",
+  "Review trail",
+  "Governed decision record",
+] as const;
+
+export const PILOT_COMMAND_CENTER_STEPS_HEADING = "3 steps";
 
 export const PILOT_COMMAND_CENTER_OPTIONAL_SETUP_TOGGLE = "Optional setup";
 
@@ -40,10 +53,20 @@ export const PILOT_COMMAND_CENTER_CONNECT_AZURE = "Connect Azure";
 export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
 
 export const PILOT_PATH_PREVIEW_STEPS = [
-  { id: "connect", label: "Connect or upload estate" },
+  { id: "connect", label: "Connect environment or upload evidence" },
   { id: "analyze", label: "Run analysis" },
-  { id: "package", label: "Signed review package" },
+  { id: "review", label: "Review findings" },
 ] as const;
+
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE = "Advanced guidance";
+
+export const OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY =
+  "Checklists, operating path, walkthroughs, and optional setup.";
+
+export const OPERATOR_HOME_WORKSPACE_STATUS_TITLE = "Workspace status";
+
+export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
+  "ROI baseline and workspace readiness signals.";
 
 export const NEW_REVIEW_SAMPLE_ESCAPE_LEAD = "Not ready to configure?";
 
