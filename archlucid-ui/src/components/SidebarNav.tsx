@@ -26,7 +26,7 @@ import { GovernanceReviewsAwaitingNavBadge } from "@/components/governance/Gover
 import { NAV_GROUPS, flattenNavLinks } from "@/lib/nav-config";
 import type { NavLinkItem } from "@/lib/nav-config.types";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
-import { NAV_DISCLOSURE, SIDEBAR_QUICK_ACTIONS_LABEL, SIDEBAR_SHOW_ALL_FEATURES } from "@/lib/nav-disclosure-copy";
+import { NAV_DISCLOSURE, SIDEBAR_QUICK_ACTIONS_LABEL, SIDEBAR_SHOW_ALL_FEATURES, V1_SIDEBAR_CUSTOMIZATION_VISIBLE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import {
   OPERATOR_SHELL_PRESET_DEFAULT_ID,
@@ -46,17 +46,22 @@ import {
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS } from "@/lib/buyer-golden-journey-nav";
 import { buyerGoldenPathSecondaryRouteHint } from "@/lib/buyer-golden-path-secondary-hint";
+import {
+  ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT,
+  readBuyerCtoDemoTourActive,
+} from "@/lib/buyer-cto-demo-tour";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { isCtoDemoNavExpandedEnv } from "@/lib/cto-demo-presenter-pack";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import {
+  ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT,
+  isOperatorDemoStaticMode,
+  readOperatorDemoPanicOffline,
+} from "@/lib/operator-static-demo";
+import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
 import { resolveNavLinkPresentation, resolveQuickActionNavLinkPresentation } from "@/lib/operator-nav-labels";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
-import { NavPinnedLinksPanel } from "@/components/usability/NavPinnedLinksPanel";
-import { SidebarNavLinkPinButton } from "@/components/usability/SidebarNavLinkPinButton";
 import { OperateGovernanceUnlockPrompt } from "@/components/usability/OperateGovernanceUnlockPrompt";
-import { useNavPinnedLinks } from "@/hooks/use-nav-pinned-links";
 import {
   filterNavLinksByOperateUnlockPhase,
   readOperateNavUnlockPhase,
@@ -195,7 +200,6 @@ function SidebarRecentActivityCard() {
  */
 export function SidebarNav() {
   const pathname = usePathname();
-  const { togglePin, isPinned } = useNavPinnedLinks();
   const [mounted, setMounted] = useState(false);
   const [navAllFeaturesExpanded, setNavAllFeaturesExpanded] = useState(false);
   const [openByGroup, setOpenByGroup] = useState<Record<string, boolean>>({});
@@ -207,19 +211,27 @@ export function SidebarNav() {
   const [navDisclosurePathOverride, setNavDisclosurePathOverride] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
+  const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
+  const ctoDemoNavExpandedEnv =
+    process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED === "true" ||
+    process.env.NEXT_PUBLIC_CTO_DEMO_NAV_EXPANDED === "1";
+  const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
+  const [runtimeCtoDemoTourActive, setRuntimeCtoDemoTourActive] = useState(false);
   /**
    * The preset that was active before "Show all features" upgraded it to "full".
    * Restored when the user clicks "Fewer sidebar links" so collapsing actually removes links.
    */
   const [preExpandPresetId, setPreExpandPresetId] = useState<OperatorShellPresetId>(OPERATOR_SHELL_PRESET_DEFAULT_ID);
-  const demoUi = isStaticDemoPayloadFallbackEnabled();
+  const demoUi = runtimeDemoUi;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showProgressiveDisclosureChrome = !demoUi && !buyerPolishedShell;
+  const showSidebarCustomizationChrome = showProgressiveDisclosureChrome && V1_SIDEBAR_CUSTOMIZATION_VISIBLE;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = navDisclosurePathOverride
     ? { showExtended, showAdvanced }
     : effectiveNavDisclosureForPathname(pathname, showExtended, showAdvanced);
-  const navExpanded = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
-  const navAdvanced = isCtoDemoNavExpandedEnv() ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const ctoDemoNavExpanded = buyerPolishedShell && (ctoDemoNavExpandedEnv || runtimeCtoDemoTourActive);
+  const navExpanded = ctoDemoNavExpanded ? true : buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
+  const navAdvanced = ctoDemoNavExpanded ? true : buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
   const effectiveShellPresetId: OperatorShellPresetId = buyerPolishedShell || demoUi ? "full" : shellPresetId;
 
   const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !buyerPolishedShell && !navAllFeaturesExpanded;
@@ -253,6 +265,24 @@ export function SidebarNav() {
       /* private mode — keep collapsed default */
     }
   }, []);
+
+  useEffect(() => {
+    function refreshRuntimeDemoState(): void {
+      setRuntimeDemoUi(demoUiEnv || readOperatorDemoPanicOffline());
+      setRuntimeCtoDemoTourActive(readBuyerCtoDemoTourActive());
+    }
+
+    refreshRuntimeDemoState();
+    window.addEventListener(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, refreshRuntimeDemoState);
+    window.addEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, refreshRuntimeDemoState);
+    window.addEventListener("storage", refreshRuntimeDemoState);
+
+    return () => {
+      window.removeEventListener(ARCHLUCID_CTO_DEMO_PANIC_CHANGED_EVENT, refreshRuntimeDemoState);
+      window.removeEventListener(ARCHLUCID_BUYER_CTO_DEMO_TOUR_START_EVENT, refreshRuntimeDemoState);
+      window.removeEventListener("storage", refreshRuntimeDemoState);
+    };
+  }, [demoUiEnv]);
 
   useEffect(() => {
     function onPresetChanged(): void {
@@ -579,47 +609,36 @@ export function SidebarNav() {
     },
   ): ReactElement {
     const Icon = presented.icon;
-    const linkPinned = isPinned(presented.href);
     const onboardingAnchor = onboardingTourAnchorForHref(presented.href);
 
     return (
-      <div key={`${options.keyPrefix ?? ""}${presented.href}`} className="group/link flex items-center gap-0.5">
-        <Link
-          href={presented.href}
-          {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
-          className={cn(
-            "shell-nav-link flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
-            options.active
-              ? DESIGN_TOKENS.interactive.navActive
-              : "text-neutral-900 dark:text-neutral-100",
-            options.buyerPolishedShell && presented.href === "/reviews/new"
-              ? "font-normal text-neutral-600 dark:text-neutral-300"
-              : null,
-          )}
-          title={
-            options.advancedDemo
-              ? `${presented.title} (Advanced — optional)`
-              : presented.title
-          }
-          aria-current={options.active ? "page" : undefined}
-          aria-keyshortcuts={
-            presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
-          }
-        >
-          {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-          {renderNavLinkLabel(presented)}
-          {options.afterLabel}
-        </Link>
-        {mounted ? (
-          <SidebarNavLinkPinButton
-            pinned={linkPinned}
-            label={presented.label}
-            onToggle={() => {
-              togglePin({ href: presented.href, label: presented.label });
-            }}
-          />
-        ) : null}
-      </div>
+      <Link
+        key={`${options.keyPrefix ?? ""}${presented.href}`}
+        href={presented.href}
+        {...(onboardingAnchor !== undefined ? { "data-onboarding": onboardingAnchor } : {})}
+        className={cn(
+          "shell-nav-link flex min-w-0 items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+          options.active
+            ? DESIGN_TOKENS.interactive.navActive
+            : "text-neutral-900 dark:text-neutral-100",
+          options.buyerPolishedShell && presented.href === "/reviews/new"
+            ? "font-normal text-neutral-600 dark:text-neutral-300"
+            : null,
+        )}
+        title={
+          options.advancedDemo
+            ? `${presented.title} (Advanced — optional)`
+            : presented.title
+        }
+        aria-current={options.active ? "page" : undefined}
+        aria-keyshortcuts={
+          presented.keyShortcut ? registryKeyToAriaKeyShortcuts(presented.keyShortcut) : undefined
+        }
+      >
+        {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+        {renderNavLinkLabel(presented)}
+        {options.afterLabel}
+      </Link>
     );
   }
 
@@ -660,6 +679,7 @@ export function SidebarNav() {
               aria-controls={`sidebar-group-${group.id}-content`}
               aria-labelledby={`sidebar-group-trigger-title-${group.id}`}
               aria-describedby={group.id === "operate-governance" ? "sidebar-governance-nav-hint-slot" : undefined}
+              {...(group.id === "pilot" ? { "data-onboarding": "tour-nav-settings" } : {})}
             >
               <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
                 <span id={`sidebar-group-trigger-title-${group.id}`}>
@@ -753,7 +773,6 @@ export function SidebarNav() {
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
-      <NavPinnedLinksPanel />
       <OperateGovernanceUnlockPrompt />
       <SidebarRecentActivityCard />
 
@@ -867,7 +886,7 @@ export function SidebarNav() {
         </nav>
       ) : reviewNavRows.map((row) => renderNavCluster(row))}
 
-      {showProgressiveDisclosureChrome ? (
+      {showSidebarCustomizationChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
           <button
             type="button"
@@ -973,7 +992,7 @@ export function SidebarNav() {
         </div>
       ) : null}
 
-      {showProgressiveDisclosureChrome ? (
+      {showSidebarCustomizationChrome ? (
       <div className="mt-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button
           type="button"
@@ -1039,7 +1058,7 @@ export function SidebarNav() {
       </div>
       ) : null}
 
-      {showProgressiveDisclosureChrome ? (
+      {showSidebarCustomizationChrome ? (
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="max-w-md" data-testid="sidebar-layout-settings-dialog">
           <DialogHeader>

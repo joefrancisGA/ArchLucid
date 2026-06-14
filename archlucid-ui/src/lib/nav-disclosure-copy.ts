@@ -9,6 +9,12 @@ export const SIDEBAR_SHOW_ALL_FEATURES = {
   title: "Unlock governance workflow, compare, replay, and deeper analysis destinations.",
 } as const;
 
+/**
+ * V1: sidebar footer customization (expand-all toggle, layout dialog) is not surfaced.
+ * Per-group "N more" disclosure and the command palette remain; infrastructure stays for V1.1+.
+ */
+export const V1_SIDEBAR_CUSTOMIZATION_VISIBLE = false;
+
 export const SIDEBAR_QUICK_ACTIONS_LABEL = "Start review & audit";
 
 export const NAV_DISCLOSURE = {

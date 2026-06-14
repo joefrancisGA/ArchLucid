@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useNavPinnedLinks } from "@/hooks/use-nav-pinned-links";
 import { flattenNavLinks } from "@/lib/nav-config";
 
-/** Pinned + pin-current controls in the sidebar. */
+/** Pinned + pin-current controls in the sidebar (V1.1+; not mounted in V1 {@link SidebarNav}). */
 export function NavPinnedLinksPanel() {
   const pathname = usePathname() ?? "/";
   const { pinned, togglePin, isPinned } = useNavPinnedLinks();

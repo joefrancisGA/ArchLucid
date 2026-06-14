@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as corePilotCommitContext from "@/lib/core-pilot-commit-context";
 
 import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context-copy";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 
 import { SidebarNav } from "./SidebarNav";
@@ -51,8 +50,8 @@ describe("SidebarNav (primary navigation)", () => {
   });
 
   it(
-    "shows compact Review work group by default; sidebar layout can reveal extended Analysis links",
-    () => {
+    "shows compact Review work group by default; per-group disclosure can reveal extended Analysis links",
+    async () => {
       render(<SidebarNav />);
 
       const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -74,11 +73,11 @@ describe("SidebarNav (primary navigation)", () => {
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(within(nav).queryByRole("link", { name: "Replay a review" })).toBeNull();
 
-      fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
-      fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
-      fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
+      fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
-      fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
+      await waitFor(() => {
+        expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
+      });
 
       expect(screen.getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Evidence trail" })).toHaveAttribute(
@@ -107,14 +106,16 @@ describe("SidebarNav (primary navigation)", () => {
   );
 
   it(
-    "exposes Analysis and Governance group navigations when Show governance & analysis tools is clicked",
+    "exposes Analysis and Governance group navigations when Review work disclosure is expanded",
     async () => {
       render(<SidebarNav />);
 
-      fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
+      fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
       expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
       expect(screen.queryByTestId("sidebar-show-advanced-operations-toggle")).toBeNull();
+      expect(screen.queryByTestId("sidebar-show-all-features-toggle")).toBeNull();
+      expect(screen.queryByRole("button", { name: "Sidebar layout" })).toBeNull();
 
       await waitFor(() => {
         expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
@@ -122,7 +123,6 @@ describe("SidebarNav (primary navigation)", () => {
       });
       expect(screen.getByRole("link", { name: "Ask this review" })).toHaveAttribute("href", "/ask");
       expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
-      expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("1");
 
       fireEvent.click(screen.getByRole("button", { name: "Governance" }));
 
@@ -148,7 +148,27 @@ describe("SidebarNav (primary navigation)", () => {
     expect(screen.queryByText(/Search pages/i)).toBeNull();
   });
 
-  it('reveals extended Review work links when "Show governance & analysis tools" is clicked without opening Sidebar layout', async () => {
+  it("does not show sidebar pin customization in V1", () => {
+    render(<SidebarNav />);
+
+    expect(screen.queryByTestId("nav-pinned-links-panel")).toBeNull();
+    expect(screen.queryByText("Pinned")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Pin page" })).toBeNull();
+    expect(screen.queryByText("Pin frequently used pages for quick access.")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Pin / })).toBeNull();
+  });
+
+  it("does not show V1 sidebar customization controls on the home sidebar", () => {
+    render(<SidebarNav />);
+
+    expect(screen.queryByTestId("sidebar-show-all-features-toggle")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Sidebar layout" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Fewer sidebar links" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Show governance & analysis tools/ })).toBeNull();
+    expect(screen.queryByTestId("sidebar-layout-settings-dialog")).toBeNull();
+  });
+
+  it('reveals extended Review work links when "N more" is clicked in Review work', async () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -156,7 +176,7 @@ describe("SidebarNav (primary navigation)", () => {
     expect(within(nav).queryByRole("link", { name: "Risk register" })).toBeNull();
     expect(within(nav).queryByRole("link", { name: "Scorecard" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
     expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
 
@@ -168,13 +188,6 @@ describe("SidebarNav (primary navigation)", () => {
     });
     expect(within(nav).getByRole("link", { name: "Scorecard" })).toHaveAttribute("href", "/scorecard");
     expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
-    expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("1");
-
-    fireEvent.click(screen.getByRole("button", { name: "Fewer sidebar links" }));
-
-    expect(within(nav).queryByRole("link", { name: "Risk register" })).toBeNull();
-    expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("0");
-    expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("0");
   });
 
   it('reveals extended Review work links when "N more" is clicked instead of opening Sidebar layout', () => {
@@ -220,7 +233,7 @@ describe("SidebarNav pilot_operator default preset", () => {
     vi.restoreAllMocks();
   });
 
-  it("switches to full navigator and reveals analysis essentials when Show governance & analysis tools is clicked", async () => {
+  it("switches to full navigator and reveals analysis essentials when Review work disclosure expands", async () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -229,11 +242,10 @@ describe("SidebarNav pilot_operator default preset", () => {
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Risk register" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: /Show governance & analysis tools/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
     expect(localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY)).toBe("full");
     expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
-    expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("1");
     expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
     expect(screen.queryByTestId("sidebar-show-advanced-operations-toggle")).toBeNull();
     expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
@@ -254,11 +266,5 @@ describe("SidebarNav pilot_operator default preset", () => {
     const governanceNav = screen.getByRole("navigation", { name: "Governance" });
 
     expect(within(governanceNav).getByRole("link", { name: "Audit trail" })).toHaveAttribute("href", "/audit");
-
-    fireEvent.click(screen.getByRole("button", { name: "Fewer sidebar links" }));
-
-    expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("0");
-    expect(localStorage.getItem("archlucid_nav_show_advanced")).toBe("0");
-    expect(screen.queryByRole("link", { name: "Risk register" })).toBeNull();
   });
 });

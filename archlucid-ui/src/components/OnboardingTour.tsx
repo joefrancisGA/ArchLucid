@@ -47,7 +47,7 @@ const OPERATOR_ONBOARDING_STEPS: TourStep[] = [
     id: "disclose",
     title: "Explore deeper",
     body:
-      "Use Sidebar layout to reveal extended analysis links and Enterprise Controls when you are ready — Pilot stays the default path until you opt in.",
+      "Use the Review work group and its “more destinations” control when you need compare, replay, or governance links — the default sidebar stays compact until you expand.",
     targetSelector: '[data-onboarding="tour-nav-settings"]',
   },
   {
@@ -99,7 +99,7 @@ function onboardingTourSteps(): TourStep[] {
       return {
         ...s,
         body:
-          "Use Sidebar layout to reveal deeper analysis when stakeholders ask for it—the default path stays buyer-safe until you opt into extended controls.",
+          "Use Review work’s “more destinations” control when stakeholders ask for deeper analysis—the default path stays buyer-safe until you expand that group.",
       };
     }
 
