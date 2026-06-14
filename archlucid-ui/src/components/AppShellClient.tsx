@@ -51,6 +51,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
+import { SetupHealthShellBanner } from "@/components/usability/SetupHealthShellBanner";
 import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialExpiryBanner } from "@/components/TrialExpiryBanner";
@@ -259,6 +260,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               <CtoDemoStaticFallbackPresenterBanner />
               <ServiceBusHealthBanner />
+              <SetupHealthShellBanner />
               <LlmBudgetApproachingLimitBanner />
               <TrialUsageUpgradeNudge />
               <TeamExpansionNudge />

@@ -28,7 +28,23 @@ describe("SystemHealthStatusStrip", () => {
     globalThis.fetch = originalFetch;
   });
 
-  it("renders readiness strip", async () => {
+  it("renders readiness strip when platform health needs attention", async () => {
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (url.includes("/api/proxy/health/ready")) {
+        return new Response(
+          JSON.stringify({
+            status: "Degraded",
+            entries: [{ name: "data_archival", status: "Healthy" }],
+          }),
+          { status: 200 },
+        );
+      }
+
+      return new Response("not found", { status: 404 });
+    }) as unknown as typeof fetch;
+
     render(<SystemHealthStatusStrip />);
 
     await waitFor(() => {
@@ -37,7 +53,33 @@ describe("SystemHealthStatusStrip", () => {
     expect(screen.getByText(/platform services:/i)).toBeInTheDocument();
   });
 
-  it("shows data_archival status from readiness payload", async () => {
+  it("hides the strip when readiness is fully healthy", async () => {
+    render(<SystemHealthStatusStrip />);
+
+    await waitFor(() => {
+      expect(globalThis.fetch).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("command-center-health-card")).not.toBeInTheDocument();
+  });
+
+  it("shows data_archival status from readiness payload when archival needs attention", async () => {
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (url.includes("/api/proxy/health/ready")) {
+        return new Response(
+          JSON.stringify({
+            status: "Healthy",
+            entries: [{ name: "data_archival", status: "Degraded" }],
+          }),
+          { status: 200 },
+        );
+      }
+
+      return new Response("not found", { status: 404 });
+    }) as unknown as typeof fetch;
+
     render(<SystemHealthStatusStrip />);
 
     await waitFor(() => {

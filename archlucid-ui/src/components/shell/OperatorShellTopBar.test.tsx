@@ -80,6 +80,7 @@ describe("OperatorShellTopBar", () => {
     expect(screen.getByTestId("app-shell-topbar-secondary")).toHaveClass("w-full");
     expect(screen.getByTestId("trust-center-shell-link")).toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
+    expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
   });
 
   it("omits dev-only chrome in buyer-polished shell mode", () => {

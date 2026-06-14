@@ -18,7 +18,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ProductConceptsGlossaryDialog } from "@/components/usability/ProductConceptsGlossaryDialog";
-import { ShellSetupHealthChip } from "@/components/usability/ShellSetupHealthChip";
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -93,7 +92,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             data-testid="app-shell-topbar-secondary"
             className="flex w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5 border-t border-neutral-200/80 pt-2 dark:border-neutral-700/80"
           >
-            {showDevOperatorChrome ? <ShellSetupHealthChip /> : null}
             {showDevOperatorChrome ? <LlmBudgetStatusPill /> : null}
             <TrustCenterShellLink variant="header" />
             <ProductConceptsGlossaryDialog />
