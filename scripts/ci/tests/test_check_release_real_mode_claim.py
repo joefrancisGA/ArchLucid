@@ -118,6 +118,21 @@ def test_gate_commit_sha_mismatch_fails(tmp_path: Path) -> None:
     assert wording == "partial-real-mode"
 
 
+def test_waiver_required_when_gate_missing_and_strict(tmp_path: Path) -> None:
+    disposition, rows, wording = evaluate_release_real_mode_claim(
+        agent_results_dir=_REPO_ROOT / "tests" / "eval-corpus" / "agent-results",
+        gate_json=None,
+        require_gate=True,
+        max_gate_age_days=30,
+        allow_simulator_only=False,
+        rc_strict_claims=True,
+    )
+
+    assert disposition == "HOLD"
+    assert wording == "waiver-required"
+    assert any(row["check"] == "real-llm-evidence-gate.json" and row["result"] == "FAIL" for row in rows)
+
+
 def test_waiver_marks_waived_not_verified(tmp_path: Path) -> None:
     waiver = tmp_path / "waiver.json"
     waiver.write_text(

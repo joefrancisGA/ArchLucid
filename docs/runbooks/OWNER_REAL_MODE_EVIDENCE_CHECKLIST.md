@@ -23,6 +23,20 @@
 | 5 | (Optional) Enable **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true`** and require **`cohort-real-llm-gate`** after one green nightly under the $15 cap. | See [`GOLDEN_COHORT_REAL_LLM_GATE.md`](GOLDEN_COHORT_REAL_LLM_GATE.md). |
 | 6 | After **≥ 5 consecutive green nightly runs**, promote **Phase B** LLM faithfulness from warn-only to enforce (p50 ≥ 0.65). | Baselines under `tests/golden-cohort/baselines/`; see assessment Owner Decision Addendum in [`LATEST_GPT55.md`](../assessments/LATEST_GPT55.md). |
 
+## Claim wording classes (`claimWordingClass`)
+
+Release owners must match buyer-facing copy to the machine-readable class in `real-mode-claim-gate.json`:
+
+| Class | When | Allowed buyer copy |
+| --- | --- | --- |
+| `full-real-mode` | Fresh `real-llm-evidence-gate.json` PASS with quad-agent paths | Real Azure OpenAI execution on representative agents |
+| `partial-real-mode` | Gate present but stale, incomplete, or commit SHA mismatch | Partial real-mode evidence — do not claim full quad-agent proof |
+| `simulator-only` | `ARCHLUCID_RELEASE_SIMULATOR_ONLY=1` or explicit simulator RC | Walkthrough / simulator — not customer AI evidence |
+| `waiver-required` | Strict RC requires gate; none attached and no valid waiver | Do not send sponsor materials until gate or waiver is recorded |
+| `waived-not-verified` | Valid waiver JSON attached while gate is missing or HOLD | Explicitly waived — not verified real-mode proof |
+
+Simulator/live divergence must appear in `simulator-live-divergence-summary.json` and the RC evidence rollup before any full-real-mode claim.
+
 ## Budget skip is not a release failure
 
 When the kill-switch skips a real-LLM step (MTD ≥ 95% of $15), CI emits **`::warning::`** and stays green. The release claim reverts to **WARN/partial/simulator-only** until the next successful run under budget.
