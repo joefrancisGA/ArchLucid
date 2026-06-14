@@ -35,7 +35,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
     public Task A_Query_with_no_indexed_documents_returns_empty_list()
     {
         return IntegrationTestDeadline.RunAsync(
-            nameof(Query_with_no_indexed_documents_returns_empty_list),
+            nameof(A_Query_with_no_indexed_documents_returns_empty_list),
             async testDeadline =>
             {
                 HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
@@ -59,7 +59,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
     public Task B_Query_without_q_returns_bad_request()
     {
         return IntegrationTestDeadline.RunAsync(
-            nameof(Query_without_q_returns_bad_request),
+            nameof(B_Query_without_q_returns_bad_request),
             async testDeadline =>
             {
                 HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
@@ -78,7 +78,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
     public Task C_Index_documents_then_query_returns_matching_hits()
     {
         return IntegrationTestDeadline.RunAsync(
-            nameof(Index_documents_then_query_returns_matching_hits),
+            nameof(C_Index_documents_then_query_returns_matching_hits),
             async testDeadline =>
             {
                 using CancellationTokenSource requestTimeout =
@@ -105,7 +105,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
     public Task D_TopK_clamps_result_count()
     {
         return IntegrationTestDeadline.RunAsync(
-            nameof(TopK_clamps_result_count),
+            nameof(D_TopK_clamps_result_count),
             async testDeadline =>
             {
                 using CancellationTokenSource requestTimeout =
