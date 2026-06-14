@@ -77,40 +77,22 @@ function Sync-RealAoaiEnvFromAzureOpenAi {
 function Write-SkippedSessionMarkdown {
     param([string]$DestinationPath)
 
-    $templatePath = Join-Path $root 'docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md'
-    $generatedUtc = (Get-Date).ToUniversalTime().ToString('o')
-    $lines = @(
-        '# Real-LLM session record (skipped — no credentials)',
-        '',
-        "Generated (UTC): **$generatedUtc**",
-        '',
-        '**Status:** `SKIPPED_NO_CREDENTIALS`',
-        '',
-        'Live Azure OpenAI was not invoked. Set `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_API_KEY` (or `ARCHLUCID_REAL_AOAI_TEST_*`) on the runner, then re-run:',
-        '',
-        '```powershell',
-        '.\scripts\ci\Invoke-RealLlmGoldenCohort.ps1',
-        '```',
-        '',
-        'Template: [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md)',
-        'Buyer index: [AI_EVIDENCE_APPENDIX.md](../go-to-market/AI_EVIDENCE_APPENDIX.md)',
-        ''
-    )
+    $buildScript = Join-Path $PSScriptRoot 'build_real_llm_session_record.py'
+    $destinationAbs =
+        if ([System.IO.Path]::IsPathRooted($DestinationPath)) {
+            $DestinationPath
+        }
+        else {
+            Join-Path $root $DestinationPath
+        }
 
-    if (Test-Path -LiteralPath $templatePath) {
-        $lines += '---', '', '## Template (unfilled)', ''
-        $lines += Get-Content -LiteralPath $templatePath -Encoding UTF8
+    & python $buildScript `
+        --session-markdown-out $destinationAbs `
+        --gate-markdown-rel 'artifacts/release/real-llm-evidence-gate.md'
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "build_real_llm_session_record.py failed with exit code $LASTEXITCODE"
     }
-
-    $dir = Split-Path -Parent $DestinationPath
-    if ($dir -and -not (Test-Path -LiteralPath $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-    }
-
-    [System.IO.File]::WriteAllText(
-        $(if ([System.IO.Path]::IsPathRooted($DestinationPath)) { $DestinationPath } else { Join-Path $root $DestinationPath }),
-        ($lines -join [Environment]::NewLine),
-        [System.Text.UTF8Encoding]::new($false))
 }
 
 $credsPresent = Test-RealLlmCredentialsPresent
@@ -137,29 +119,19 @@ $sessionAbs =
     }
 
 $gateRel = $GateMarkdownOut.Replace('\', '/')
-$sessionBody = @(
-    '# Real-LLM session record (golden cohort shell)',
-    '',
-    "Generated (UTC): **$((Get-Date).ToUniversalTime().ToString('o'))**",
-    '',
-    '**Status:** Live gate executed (credentials present; values not logged).',
-    '',
-    "| Artifact | Path |",
-    '| --- | --- |',
-    "| Evidence gate | ``$gateRel`` |",
-    "| Session record | ``$($SessionMarkdownOut.Replace('\', '/'))`` |",
-    '',
-    'Fill the checklist in [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) after reviewing gate rows.',
-    'Index: [AI_EVIDENCE_APPENDIX.md](../go-to-market/AI_EVIDENCE_APPENDIX.md).',
-    ''
-) -join [Environment]::NewLine
+$gateJsonPath = Join-Path $root 'artifacts/release/real-llm-evidence-gate.json'
+$buildScript = Join-Path $PSScriptRoot 'build_real_llm_session_record.py'
+& python $buildScript `
+    --gate-json $gateJsonPath `
+    --gate-markdown-rel $gateRel `
+    --session-markdown-out $sessionAbs `
+    --credentials-present `
+    --dotnet-exit-code $gateExit
 
-$sessionDir = Split-Path -Parent $sessionAbs
-if ($sessionDir -and -not (Test-Path -LiteralPath $sessionDir)) {
-    New-Item -ItemType Directory -Path $sessionDir -Force | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    throw "build_real_llm_session_record.py failed with exit code $LASTEXITCODE"
 }
 
-[System.IO.File]::WriteAllText($sessionAbs, $sessionBody, [System.Text.UTF8Encoding]::new($false))
 Write-Host "Wrote $SessionMarkdownOut" -ForegroundColor Green
 
 exit $gateExit

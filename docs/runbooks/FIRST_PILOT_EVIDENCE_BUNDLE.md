@@ -18,7 +18,9 @@ Use these when assembling handoff folders — they map artifacts to decision nee
 | Operator / pilot lead | [`evidence-packet-operator.template.md`](../go-to-market/templates/evidence-packet-operator.template.md) |
 | Security reviewer | [`evidence-packet-security-reviewer.template.md`](../security/templates/evidence-packet-security-reviewer.template.md) |
 
-Minimum doc routing: [`V1_CRITICAL_PATH_MAP.md`](../library/V1_CRITICAL_PATH_MAP.md).
+Minimum doc routing: [`V1_CRITICAL_PATH_MAP.md`](../library/V1_CRITICAL_PATH_MAP.md) · **First path choice:** [`FIRST_EVALUATOR_DECISION.md`](FIRST_EVALUATOR_DECISION.md).
+
+Optional **generic-AI comparison** rubric when a buyer asks "why not ChatGPT?": [`DIFFERENTIATION_PROOF_PACKET.md`](../go-to-market/DIFFERENTIATION_PROOF_PACKET.md) § Generic-AI comparison exercise.
 
 ## When to run
 

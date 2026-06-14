@@ -10,7 +10,7 @@
 
 | Gate | Signal | Current status | Evidence link | Blocking dependency | Who unblocks |
 | --- | --- | --- | --- | --- | --- |
-| **G1** | Execution-mode honesty | **HOLD** | Run-detail + proof-packet spot check | Unlabeled/mixed mode in any sponsor export | Engineering — verify all sponsor surfaces label Real/Simulator/Fallback/Mixed |
+| **G1** | Execution-mode honesty | **HOLD** | Run-detail + proof-packet spot check | Staging spot-check of sponsor exports after 2026-06-13 labeling pass | Engineering + operator — verify first-value report, proof-packet index, and review-detail banner on one committed run |
 | **G2** | ROI source integrity | **PASS** | [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md), proof-packet ROI table | — | — |
 | **G3** | Tenant isolation provable | **PASS** | [`TENANT_ISOLATION.md`](TENANT_ISOLATION.md); TB-071/072/073 in [`TECH_BACKLOG.md`](../library/TECH_BACKLOG.md) | — | — |
 | **G4** | Repeatable proof packet | **HOLD** | [`PROOF_PACKET_RUN_LOG.md`](PROOF_PACKET_RUN_LOG.md) | 0 of 3 qualifying real runs logged | Founder/operator — run `collect-first-pilot-proof.ps1` per real pilot |

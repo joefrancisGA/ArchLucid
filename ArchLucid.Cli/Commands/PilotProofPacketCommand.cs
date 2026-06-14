@@ -217,7 +217,10 @@ internal static class PilotProofPacketCommand
         string environmentJson = BuildEnvironmentJson(config, normalized, deltasJson, demoWarning, pilotStrictSatisfied);
         await File.WriteAllTextAsync(Path.Combine(dir, "environment.json"), environmentJson, Utf8NoBom, cancellationToken);
 
-        string limitations = BuildLimitationsMarkdown(demoWarning, deltasJson, aggregateJson);
+        string? structuralExecutionModeLabel =
+            PilotProofPacketStructuralExecutionModeFormatter.TryResolveLabelFromDeltasJson(deltasJson);
+
+        string limitations = BuildLimitationsMarkdown(demoWarning, deltasJson, aggregateJson, structuralExecutionModeLabel);
         await File.WriteAllTextAsync(Path.Combine(dir, "limitations.md"), limitations, Utf8NoBom, cancellationToken);
 
         string commercialReadiness = PilotProofPacketCommercialReadinessBuilder.BuildJson(
@@ -295,14 +298,21 @@ internal static class PilotProofPacketCommand
             Utf8NoBom,
             cancellationToken);
 
-        string indexJson = PilotProofPacketIndexBuilder.BuildJson(runId, pilotStrictSatisfied, demoWarning);
+        string indexJson = PilotProofPacketIndexBuilder.BuildJson(
+            runId,
+            pilotStrictSatisfied,
+            demoWarning,
+            structuralExecutionModeLabel);
         await File.WriteAllTextAsync(
             Path.Combine(dir, "sponsor-proof-packet-index.json"),
             indexJson,
             Utf8NoBom,
             cancellationToken);
 
-        string indexMarkdown = PilotProofPacketIndexBuilder.BuildMarkdown(runId, pilotStrictSatisfied);
+        string indexMarkdown = PilotProofPacketIndexBuilder.BuildMarkdown(
+            runId,
+            pilotStrictSatisfied,
+            structuralExecutionModeLabel);
         await File.WriteAllTextAsync(
             Path.Combine(dir, "sponsor-proof-packet-index.md"),
             indexMarkdown,
@@ -367,12 +377,18 @@ internal static class PilotProofPacketCommand
         return JsonSerializer.Serialize(payload, JsonWrite);
     }
 
-    private static string BuildLimitationsMarkdown(bool demoWarning, string deltasJson, string? aggregateJson)
+    private static string BuildLimitationsMarkdown(
+        bool demoWarning,
+        string deltasJson,
+        string? aggregateJson,
+        string? structuralExecutionModeLabel)
     {
         StringBuilder sb = new();
         sb.AppendLine("# Limitations");
         sb.AppendLine();
         sb.AppendLine("This proof packet summarizes one committed architecture review. It is buyer-safe by design (no secrets).");
+        sb.AppendLine();
+        sb.AppendLine(PilotProofPacketStructuralExecutionModeFormatter.BuildSponsorCaveatLine(structuralExecutionModeLabel));
         sb.AppendLine();
 
         if (demoWarning)

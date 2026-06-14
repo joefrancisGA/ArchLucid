@@ -1,7 +1,9 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Value;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -238,6 +240,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine("| Question | Sponsor-safe answer |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine($"| Evidence source | {FormatSponsorEvidenceSource(proof)} |");
+        sb.AppendLine($"| Execution mode | {FormatSponsorExecutionMode(run)} |");
         sb.AppendLine($"| Quality disposition | {FormatSponsorQualityDisposition(proof)} |");
         sb.AppendLine($"| ROI basis status | {FormatSponsorRoiBasis(proof)} |");
         sb.AppendLine($"| LLM call basis | {FormatSponsorLlmCallBasis(deltas, proof)} |");
@@ -245,6 +248,26 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine($"| Deferred buyer requirements | {FormatSponsorDeferredBuyerRequirements()} |");
         sb.AppendLine($"| Recommended next action | {FormatSponsorNextAction(disposition, proof, deltas, run)} |");
         sb.AppendLine();
+    }
+
+    private static string FormatSponsorExecutionMode(ArchitectureRun run)
+    {
+        string label = StructuralExecutionModeLabels.ToDisplayLabel(run.StructuralExecutionMode);
+
+        string caveat = run.StructuralExecutionMode switch
+        {
+            StructuralExecutionMode.Real =>
+                "Live model path for agent steps (no recorded simulator substitution for this run).",
+            StructuralExecutionMode.Simulator =>
+                "**Not real-mode AI** — deterministic simulator; do not claim live model quality.",
+            StructuralExecutionMode.Fallback =>
+                "**Fallback recorded** — real path attempted but simulator substitution persisted.",
+            StructuralExecutionMode.Mixed =>
+                "**Mixed** — review per-agent traces before sponsor send.",
+            _ => StructuralExecutionModeLabels.ToOperatorDetail(run.StructuralExecutionMode),
+        };
+
+        return $"**{label}** — {caveat}";
     }
 
     private static string FormatSponsorEvidenceSource(ProofPackageCompletenessResponse proof)

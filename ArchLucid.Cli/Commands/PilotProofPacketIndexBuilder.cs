@@ -5,7 +5,11 @@ public static class PilotProofPacketIndexBuilder
 {
     public const string Schema = "archlucid.proof-packet.index.v1";
 
-    public static string BuildJson(string runId, bool pilotStrictSatisfied, bool demoWarning)
+    public static string BuildJson(
+        string runId,
+        bool pilotStrictSatisfied,
+        bool demoWarning,
+        string? structuralExecutionModeLabel = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
@@ -16,6 +20,7 @@ public static class PilotProofPacketIndexBuilder
             generatedUtc = DateTimeOffset.UtcNow.ToString("O"),
             pilotStrictSatisfied,
             demoWarning,
+            structuralExecutionMode = structuralExecutionModeLabel ?? "(not captured)",
             whatThisProves = new[]
             {
                 "One committed architecture review produced durable findings, governance posture, and audit samples.",
@@ -43,7 +48,10 @@ public static class PilotProofPacketIndexBuilder
         return System.Text.Json.JsonSerializer.Serialize(payload, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
     }
 
-    public static string BuildMarkdown(string runId, bool pilotStrictSatisfied)
+    public static string BuildMarkdown(
+        string runId,
+        bool pilotStrictSatisfied,
+        string? structuralExecutionModeLabel = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
@@ -51,10 +59,15 @@ public static class PilotProofPacketIndexBuilder
             ? "PilotStrict evidence is **satisfied** for this run — sponsor handoff is permitted when other org gates pass."
             : "PilotStrict evidence is **not satisfied** — treat this packet as internal-only until gaps in limitations.md are closed.";
 
+        string executionLine = PilotProofPacketStructuralExecutionModeFormatter.BuildSponsorCaveatLine(
+            structuralExecutionModeLabel);
+
         return $"""
             # Sponsor proof packet index
 
             Run id: `{runId}`
+
+            {executionLine}
 
             {strictLine}
 

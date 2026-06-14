@@ -49,6 +49,36 @@ Static demo proof shape (before setup): [`demo-proof-packets/README.md`](demo-pr
 
 ---
 
+## Generic-AI comparison exercise (validation guidance)
+
+Use this when an evaluator asks: *"Why not Claude/GPT/Gemini with a good prompt?"*
+
+This is **validation guidance**, not a claim that ArchLucid always beats frontier AI. Do not publish benchmark superiority without data. See [`WHAT_NOT_TO_PROMISE.md`](WHAT_NOT_TO_PROMISE.md).
+
+### Rubric (score each dimension: **Better / Same / Worse / NOT_RUN**)
+
+| Dimension | ArchLucid proof packet | Manual frontier-AI review (same input evidence) |
+| --- | --- | --- |
+| Non-obvious, decision-changing finding | | |
+| Evidence traceability (refs, manifest, audit) | | |
+| Repeatability (same run → same export) | | |
+| Governance / audit / commit gate | | |
+| ROI basis labels (buyer-provided vs demo-derived) | | |
+| Sponsor usability (one packet, explicit HOLD/SEND) | | |
+
+**NOT_RUN** when comparison was not performed — never record as zero or PASS.
+
+### How to run the exercise
+
+1. Pick one committed run with a complete proof packet (`archlucid pilot proof-packet <runId>` or `collect-first-pilot-proof.ps1 -RunId …`).
+2. Give the **same redacted input evidence** to a principal architect using their preferred frontier AI tool (no automated calls from ArchLucid).
+3. Record rubric scores in pilot notes or [`evidence-packet-buyer.template.md`](templates/evidence-packet-buyer.template.md) § Comparison.
+4. Keep conservative claims: ArchLucid wins on **repeatability, evidence packaging, governance, and labeled ROI** — not necessarily prose quality on day one.
+
+Optional template hook: [`templates/evidence-packet-buyer.template.md`](templates/evidence-packet-buyer.template.md)
+
+---
+
 ## When ArchLucid is not a fit yet
 
 - Buyer requires **CPA-issued SOC 2 Type I/II** before any pilot — see **(B)** deferrals in [`TRUST_CENTER.md`](TRUST_CENTER.md); self-assessment and roadmap only today.
