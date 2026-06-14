@@ -40,4 +40,14 @@ describe("RunDetailPageView progressive disclosure", () => {
     expect(source).toContain("RunDetailAdvancedAnalysisSection");
     expect(source).toContain("RunDetailOperatorPipelineToolsCollapsible");
   });
+
+  it("hides per-finding trace table behind collapsible disclosure", () => {
+    const collapsibleSource = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "RunDetailRunExplanationCollapsible.tsx"),
+      "utf8",
+    );
+
+    expect(collapsibleSource).toContain("run-finding-explainability-collapsible");
+    expect(collapsibleSource).toContain('defaultOpen={false}');
+  });
 });

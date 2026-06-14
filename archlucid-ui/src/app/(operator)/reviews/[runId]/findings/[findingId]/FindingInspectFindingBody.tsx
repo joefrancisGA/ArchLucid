@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
@@ -105,7 +106,9 @@ export function FindingInspectFindingBody({
     return (
       <>
         {whyBlock}
-        {evidenceBlock}
+        <CollapsibleSection title="View evidence" defaultOpen={false} sectionTestId="finding-evidence-collapsible">
+          {evidenceBlock}
+        </CollapsibleSection>
         {recommendedBlock("detail")}
         {feedbackBlock}
         {auditBlock}

@@ -114,6 +114,7 @@ public sealed class CriticAgentHandler(
                 cancellationToken: cancellationToken);
 
             parsed.PromptVariantKey = systemResolved.PromptVariantKey;
+            CriticFindingConfidenceNormalizer.Apply(parsed);
 
             return parsed;
         }

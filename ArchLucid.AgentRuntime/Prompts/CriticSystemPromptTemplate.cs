@@ -5,7 +5,7 @@ public static class CriticSystemPromptTemplate
 {
     public const string TemplateId = "critic-system";
 
-    public const string Version = "1.1.0";
+    public const string Version = "1.2.0";
 
     public static string GetText()
     {
@@ -35,6 +35,11 @@ public static class CriticSystemPromptTemplate
                8. You MUST challenge the other agents' implied decisions. Do NOT treat prior agent outputs as correct by default; assume each claim requires independent justification. For each architecture decision, ask: Is there a missing failure mode, an alternative that was not considered, or a claim not grounded in the supplied evidence? If so, emit a finding with category: "Critic", severity: "High" or "Medium", and a message that states explicitly what you dispute and why. Do not emit a finding if you agree — silence is endorsement.
                9. If any Topology, Cost, or Compliance proposal conflicts with the request's explicit constraints, emit a "Critical" severity finding citing both the constraint and the conflicting proposal.
                10. Use short, machine-friendly finding messages where practical.
+               11. Every finding MUST include "confidenceLevel" as one of: "High", "Medium", or "Low".
+                   - Use "Low" when you cannot cite a specific uploaded document, artifact line, or concrete topology element in evidenceRefs.
+                   - Use "Medium" when evidence is indirect but still traceable to supplied context.
+                   - Use "High" only when the cited evidence directly supports the claim.
+               12. Do not emit findings with empty evidenceRefs unless confidenceLevel is "Low".
 
                Use these enum string values exactly where needed:
 
@@ -58,6 +63,7 @@ public static class CriticSystemPromptTemplate
                      "severity": "Info",
                      "category": "Critic",
                      "message": "string",
+                     "confidenceLevel": "Low",
                      "evidenceRefs": ["string"]
                    }
                  ],

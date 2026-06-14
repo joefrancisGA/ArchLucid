@@ -26,6 +26,11 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 export type RunToolInvocationForensicsPayload = components["schemas"]["RunToolInvocationForensicsResponse"];
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
+  ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE,
+  isArchitectureRequestCreateGatewayTimeout,
+} from "@/lib/api/architecture-request-create-guard";
+import { ApiRequestError, isApiRequestError } from "@/lib/api-request-error";
+import {
   type ApiResponseWithTrace,
   apiGet,
   apiGetJsonWithTrace,
@@ -85,9 +90,25 @@ export async function createArchitectureRun(
 ): Promise<CreateArchitectureRunResponsePayload> {
   const idempotencyKey = options?.idempotencyKey?.trim() || getOrCreateWizardIdempotencyKey();
 
-  return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body, {
-    extraHeaders: { "Idempotency-Key": idempotencyKey },
-  });
+  try {
+    return await apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body, {
+      extraHeaders: { "Idempotency-Key": idempotencyKey },
+    });
+  } catch (error: unknown) {
+    if (
+      isApiRequestError(error) &&
+      isArchitectureRequestCreateGatewayTimeout(error.httpStatus)
+    ) {
+      throw new ApiRequestError(ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE, {
+        problem: error.problem,
+        correlationId: error.correlationId,
+        httpStatus: error.httpStatus,
+        retryAfterSeconds: error.retryAfterSeconds,
+      });
+    }
+
+    throw error;
+  }
 }
 
 /** Pins or unpins a run (PATCH /v1/architecture/run/{runId}/pin). Omit `isPinned` to toggle. */
