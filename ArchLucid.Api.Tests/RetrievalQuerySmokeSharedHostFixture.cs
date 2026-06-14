@@ -10,8 +10,14 @@ public sealed class RetrievalQuerySmokeSharedHostFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        Console.Error.WriteLine(
+            $"[RetrievalQuerySmokeSharedHostFixture] InitializeAsync starting at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
         Factory = new AlertLifecycleWebAppFactory();
         await AlertLifecycleIntegrationHost.EnsureStartedAsync(Factory);
+
+        Console.Error.WriteLine(
+            $"[RetrievalQuerySmokeSharedHostFixture] InitializeAsync complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
     }
 
     public async Task DisposeAsync()

@@ -44,6 +44,11 @@ internal static class IntegrationTestHostStartup
 
         TimeSpan effectiveTimeout = timeout ?? DefaultStartupTimeout;
 
+        Console.Error.WriteLine(
+            $"[IntegrationTestHostStartup] Starting bounded operation (limit {effectiveTimeout.TotalSeconds:N0}s) at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
+        System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+
         // Host start and EnsureServer have no native CancellationToken seam; run off the test thread so we can bound it.
         Task<T> operationTask = Task.Run(operation);
         Task delayTask = Task.Delay(effectiveTimeout);
@@ -52,10 +57,18 @@ internal static class IntegrationTestHostStartup
 
         if (completed != operationTask)
         {
+            Console.Error.WriteLine(
+                $"[IntegrationTestHostStartup] TIMEOUT: operation exceeded {effectiveTimeout.TotalSeconds:N0}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
             throw new TimeoutException(
                 $"Integration host operation exceeded {effectiveTimeout.TotalSeconds:N0}s.");
         }
 
-        return await operationTask.ConfigureAwait(false);
+        T result = await operationTask.ConfigureAwait(false);
+
+        Console.Error.WriteLine(
+            $"[IntegrationTestHostStartup] Bounded operation completed in {sw.Elapsed.TotalSeconds:N1}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
+        return result;
     }
 }

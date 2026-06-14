@@ -66,12 +66,18 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
 
     private Task<IServiceProvider> StartServicesCoreAsync()
     {
+        Console.Error.WriteLine(
+            $"[AlertLifecycleWebAppFactory] Host startup beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
         // Services access and first CreateClient share one Task.Run worker so WebApplicationFactory.EnsureServer
         // is never entered concurrently from an abandoned startup thread and a later CreateClient (CI #2168).
         return IntegrationTestHostStartup.EnsureStartedAsync(() =>
         {
             IServiceProvider services = Services;
             _ = CreateClient();
+
+            Console.Error.WriteLine(
+                $"[AlertLifecycleWebAppFactory] Services resolved + CreateClient complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
 
             return services;
         });
@@ -95,6 +101,9 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
     /// </summary>
     public override async ValueTask DisposeAsync()
     {
+        Console.Error.WriteLine(
+            $"[AlertLifecycleWebAppFactory] Dispose beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
         Task disposeTask = base.DisposeAsync().AsTask();
 
         Task winner = await Task.WhenAny(disposeTask, Task.Delay(BoundedDisposeTimeout));

@@ -34,6 +34,9 @@ internal static class IntegrationTestDeadline
         {
             await deadline.CancelAsync().ConfigureAwait(false);
 
+            Console.Error.WriteLine(
+                $"[IntegrationTestDeadline] TIMEOUT: test '{testName}' exceeded {effectiveTimeout.TotalSeconds:N0}s at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
             throw new TimeoutException(
                 $"Integration test '{testName}' exceeded {effectiveTimeout.TotalSeconds:N0}s.");
         }
