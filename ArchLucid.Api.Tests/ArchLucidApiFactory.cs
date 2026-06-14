@@ -31,12 +31,15 @@ namespace ArchLucid.Api.Tests;
 ///         raised for stable CI/local runs.
 ///     </para>
 /// </remarks>
-public class ArchLucidApiFactory : BaseIntegrationTestFixture
+public class ArchLucidApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
 {
     private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment;
     private readonly IntegrationTestSqlCatalogEnvironment? _sqlCatalogEnvironment;
     private readonly bool _ownsSqlCatalog;
     private readonly string _storageProvider;
+    private readonly object _hostLifecycleLock = new();
+
+    private Task<IServiceProvider>? _ensureServicesTask;
 
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchLucidApiFactory()
@@ -116,6 +119,63 @@ public class ArchLucidApiFactory : BaseIntegrationTestFixture
 
         // Default integration HTTP ceiling; idempotency/greenfield factories raise per-test via AlignHttpClientTimeoutForSqlIdempotencyLockChain.
         client.Timeout = TimeSpan.FromMinutes(5);
+    }
+
+    /// <inheritdoc />
+    public Task InitializeAsync()
+    {
+        return EnsureServicesStartedAsync();
+    }
+
+    /// <inheritdoc cref="IAsyncLifetime.DisposeAsync" />
+    Task IAsyncLifetime.DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    ///     Returns a single in-flight host-start task per factory instance so concurrent
+    ///     <see cref="EnsureServicesStartedAsync" /> / <see cref="CreateBoundedClientAsync" /> calls do not race
+    ///     <see cref="WebApplicationFactory{TEntryPoint}" /> internals (CI #2168).
+    /// </summary>
+    internal Task<IServiceProvider> EnsureServicesStartedAsync()
+    {
+        lock (_hostLifecycleLock)
+        {
+            _ensureServicesTask ??= StartServicesCoreAsync();
+
+            return _ensureServicesTask;
+        }
+    }
+
+    private Task<IServiceProvider> StartServicesCoreAsync()
+    {
+        Console.Error.WriteLine(
+            $"[ArchLucidApiFactory] Host startup beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
+        // Services access and first CreateClient share one Task.Run worker so WebApplicationFactory.EnsureServer
+        // is never entered concurrently from an abandoned startup thread and a later CreateClient (CI #2168).
+        return IntegrationTestHostStartup.EnsureStartedAsync(() =>
+        {
+            IServiceProvider services = Services;
+            _ = CreateClient();
+
+            Console.Error.WriteLine(
+                $"[ArchLucidApiFactory] Services resolved + CreateClient complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
+
+            return services;
+        });
+    }
+
+    /// <summary>
+    ///     Ensures the host is started (including TestServer client cache priming), then returns an
+    ///     <see cref="HttpClient" />.
+    /// </summary>
+    internal async Task<HttpClient> CreateBoundedClientAsync()
+    {
+        await EnsureServicesStartedAsync().ConfigureAwait(false);
+
+        return CreateClient();
     }
 
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>
