@@ -1,5 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/components/help/MermaidDiagram", () => ({
+  MermaidDiagram: ({ source }: { readonly source: string }) => (
+    <div data-testid="mermaid-diagram">{source}</div>
+  ),
+}));
 
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import {
@@ -116,5 +122,18 @@ describe("MarketingAccessibilityMarkdownFragment help presentation", () => {
 
     expect(screen.queryByText(/Change Set 55R/i)).toBeNull();
     expect(screen.getByRole("heading", { level: 2, name: "What it is" })).toBeInTheDocument();
+  });
+
+  it("routes mermaid fences to the diagram renderer", () => {
+    render(
+      <MarketingAccessibilityMarkdownFragment
+        markdownBody={"```mermaid\nflowchart LR\n  A --> B\n```"}
+        tableCaption="Test table"
+        presentation="help"
+      />,
+    );
+
+    expect(screen.getByTestId("mermaid-diagram")).toHaveTextContent("flowchart LR");
+    expect(screen.queryByRole("button", { name: /copy code/i })).toBeNull();
   });
 });

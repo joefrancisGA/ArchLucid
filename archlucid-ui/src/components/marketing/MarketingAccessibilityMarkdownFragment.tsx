@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
+import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { createHelpHeadingSlugAllocator } from "@/lib/help-heading-slug";
+import { isMermaidDiagramSource } from "@/lib/help-mermaid";
 import { prepareHelpMarkdownForPresentation, sanitizeBareMarkdownFileReferences } from "@/lib/help-markdown-presentation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -209,7 +211,13 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       const code = codeLines.join("\n").replace(/\n$/, "");
 
       if (code.length > 0) {
-        blocks.push(<HelpMarkdownCodeBlock key={`code-${key}`} code={code} language={language} />);
+        if (isMermaidDiagramSource(code, language)) {
+          blocks.push(<MermaidDiagram key={`mermaid-${key}`} source={code} />);
+        }
+        else {
+          blocks.push(<HelpMarkdownCodeBlock key={`code-${key}`} code={code} language={language} />);
+        }
+
         key++;
       }
 

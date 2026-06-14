@@ -17,6 +17,14 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("pilot-command-center-help")).toHaveAttribute("href", "/help/core-pilot");
     expect(screen.getByTestId("pilot-path-preview-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-outcomes")).toBeInTheDocument();
+    expect(screen.queryByText("Optional setup")).toBeNull();
+  });
+
+  it("exposes tertiary setup links without an optional-setup heading", () => {
+    render(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("pilot-command-center-connect-azure")).toHaveAttribute("href", "/settings/cloud-connections");
+    expect(screen.getByTestId("pilot-command-center-invite-reviewer")).toHaveAttribute("href", "/settings/roles");
   });
 });
 

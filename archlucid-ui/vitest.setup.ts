@@ -11,6 +11,8 @@ process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
 /** Keep unit tests on the non-demo path unless a test file explicitly stubs demo env (avoids hiding Operate controls). */
 delete process.env.NEXT_PUBLIC_DEMO_MODE;
 delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+delete process.env.NEXT_PUBLIC_UI_AUTHORITY_THEME;
+delete process.env.NEXT_PUBLIC_UI_AUTHORITY_THEME_EVAL;
 
 /** Radix Select uses pointer capture APIs not implemented in jsdom. */
 if (typeof Element !== "undefined") {

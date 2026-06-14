@@ -15,7 +15,7 @@ export type PilotPathPreviewStepperProps = {
 export function PilotPathPreviewStepper(props: PilotPathPreviewStepperProps): React.JSX.Element {
   return (
     <ol
-      className={cn("m-0 mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 list-none p-0", props.className)}
+      className={cn("m-0 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 list-none p-0", props.className)}
       aria-label="First review path"
       data-testid="pilot-path-preview-stepper"
     >

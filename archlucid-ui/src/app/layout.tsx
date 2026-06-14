@@ -3,10 +3,12 @@ import type { ReactNode } from "react";
 
 import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
+import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 
 import "./globals.css";
 
 const siteUrl = getSiteMetadataBaseUrl();
+const authorityThemeEnvDefault = resolveAuthorityThemeFromEnv(process.env.NEXT_PUBLIC_UI_AUTHORITY_THEME);
 
 export const viewport: Viewport = { themeColor: "#1E3A5F" };
 
@@ -53,7 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var k='archlucid_color_mode';var m=localStorage.getItem(k)||'system';var d=m==='dark'||(m!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();",
+              `(function(){try{var colorKey='archlucid_color_mode';var mode=localStorage.getItem(colorKey)||'system';var dark=mode==='dark'||(mode!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',dark);var themeKey='archlucid_authority_theme';var def='${authorityThemeEnvDefault}';var theme=localStorage.getItem(themeKey);if(theme!=='charcoal'&&theme!=='default'){theme=def;}document.documentElement.setAttribute('data-al-authority-theme',theme==='charcoal'?'charcoal':'default');}catch(e){}})();`,
           }}
         />
       </head>

@@ -34,8 +34,8 @@ export function OperatorHomeAdvancedGuidanceSection(
       sectionTestId="operator-home-advanced-guidance"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.advancedGuidance}
       defaultExpanded={false}
+      density="slim"
       collapsedSummary={OPERATOR_HOME_ADVANCED_GUIDANCE_COLLAPSED_SUMMARY}
-      sectionClassName="p-3"
     >
       <div className="space-y-3">
         <UnifiedFirstPilotProgressPanel checklistVariant={checklistVariant} embedded />

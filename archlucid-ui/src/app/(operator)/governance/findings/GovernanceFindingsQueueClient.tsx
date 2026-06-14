@@ -33,6 +33,7 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA,
   BUYER_GOVERNANCE_PAGE_TITLE,
 } from "@/lib/buyer-polish-copy";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { shouldUseGovernanceCuratedDemoSpine } from "@/lib/buyer-demo-content-gating";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
@@ -42,6 +43,7 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import { cn } from "@/lib/utils";
 import type { FindingConfidenceLevel, FindingTraceConfidenceDto } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import type { RunSummary } from "@/types/authority";
@@ -630,7 +632,7 @@ export default function GovernanceFindingsQueueClient() {
         title={buyerPolishedShell ? BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE : "Architecture risk register"}
       />
 
-        <div className="mt-4 space-y-4">
+        <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>

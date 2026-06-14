@@ -4,10 +4,11 @@ import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicSourceFooter } from "@/components/help/HelpTopicSourceFooter";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help-markdown-headings";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
 
 type HelpTopicMarkdownViewProps = {
   entry: ProductDocumentationEntry;
@@ -20,9 +21,9 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
   const headings = extractHelpMarkdownHeadings(markdown);
 
   return (
-    <article className="space-y-6">
+    <article className={OPERATOR_LAYOUT.majorSectionGap}>
       <HelpTopicHashScroll />
-      <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
+      <header className={cn("border-b border-neutral-200 pb-5 dark:border-neutral-800", OPERATOR_LAYOUT.sectionHeadingStack)}>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>{entry.summary}</p>
         {entry.audience === "developer" ? (

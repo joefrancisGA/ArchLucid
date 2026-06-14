@@ -6,12 +6,14 @@ import type { ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
+import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 
 export type ExecutiveShellFrameProps = {
   children: ReactNode;
@@ -87,6 +89,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
             <div className="flex items-center gap-2">
               <TenantWorkspaceBoundaryBadge variant="compact" />
               <AuthPanel />
+              {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
               <ColorModeToggle />
             </div>
           </div>

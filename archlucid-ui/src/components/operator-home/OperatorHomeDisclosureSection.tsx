@@ -10,6 +10,7 @@ import {
   readOperatorHomeDisclosureExpanded,
   writeOperatorHomeDisclosureExpanded,
 } from "@/lib/operator-home-disclosure-storage";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type OperatorHomeDisclosureSectionProps = {
@@ -19,6 +20,8 @@ type OperatorHomeDisclosureSectionProps = {
   storageKey: string;
   legacyStorageKeys?: readonly string[];
   defaultExpanded: boolean;
+  /** Slim rows for low-priority home sections — tighter padding and subordinate title scale. */
+  density?: "default" | "slim";
   description?: ReactNode;
   collapsedSummary?: ReactNode;
   headerAside?: ReactNode;
@@ -37,6 +40,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     storageKey,
     legacyStorageKeys = [],
     defaultExpanded,
+    density = "default",
     description,
     collapsedSummary,
     headerAside,
@@ -70,12 +74,14 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
 
   const showExpandedContent = !hydrated || expanded;
   const toggleLabel = expanded ? collapseAriaLabel(title) : expandAriaLabel(title);
+  const slim = density === "slim";
 
   return (
     <section
       aria-labelledby={titleId}
       className={cn(
-        "rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-950",
+        "rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950",
+        slim ? OPERATOR_LAYOUT.disclosure.slim : OPERATOR_LAYOUT.disclosure.default,
         sectionClassName,
       )}
       data-testid={sectionTestId}
@@ -85,18 +91,38 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 id={titleId} className="m-0 text-sm font-semibold text-al-text-primary">
+            <h2
+              id={titleId}
+              className={cn(
+                "m-0 font-semibold text-al-text-primary",
+                slim ? "text-xs" : "text-sm",
+              )}
+            >
               {title}
             </h2>
             {headerAside}
           </div>
 
           {!showExpandedContent && collapsedSummary !== undefined ? (
-            <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">{collapsedSummary}</p>
+            <p
+              className={cn(
+                "m-0 text-neutral-600 dark:text-neutral-400",
+                slim ? "mt-1 text-xs leading-snug" : "mt-2 text-sm",
+              )}
+            >
+              {collapsedSummary}
+            </p>
           ) : null}
 
           {showExpandedContent && description !== undefined ? (
-            <p className="m-0 mt-1 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">{description}</p>
+            <p
+              className={cn(
+                "m-0 max-w-3xl text-neutral-600 dark:text-neutral-400",
+                slim ? "mt-1 text-xs leading-snug" : "mt-2 text-sm",
+              )}
+            >
+              {description}
+            </p>
           ) : null}
         </div>
 
@@ -104,7 +130,10 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 shrink-0 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
+          className={cn(
+            "shrink-0 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200",
+            slim ? "h-7 w-7" : "h-8 w-8",
+          )}
           aria-expanded={expanded}
           aria-controls={`${titleId}-panel`}
           aria-label={toggleLabel}
@@ -115,7 +144,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
       </div>
 
       {showExpandedContent ? (
-        <div id={`${titleId}-panel`} className={cn("mt-3", bodyClassName)}>
+        <div id={`${titleId}-panel`} className={cn(slim ? OPERATOR_LAYOUT.disclosure.bodyOffsetSlim : OPERATOR_LAYOUT.disclosure.bodyOffset, bodyClassName)}>
           {children}
         </div>
       ) : null}

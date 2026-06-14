@@ -164,8 +164,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   },
 ];
 
-export function documentationSearchOpenUrl(relativeDocsPath: string): void {
-  const url = toDocsBlobUrl(`/${relativeDocsPath}`);
-
-  window.location.assign(url);
+/** Resolves a relative docs path to the in-app help URL without navigating. */
+export function resolveDocumentationHref(relativeDocsPath: string): string {
+  return toDocsBlobUrl(`/${relativeDocsPath}`);
 }

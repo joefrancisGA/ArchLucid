@@ -24,7 +24,7 @@ import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
 import { COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-curated-tasks";
-import { DOCUMENTATION_SEARCH_ITEMS, documentationSearchOpenUrl } from "@/lib/docs-search-index";
+import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { resetBuyerCtoDemoSession } from "@/lib/buyer-cto-demo-orchestration";
@@ -91,21 +91,47 @@ function curatedPaletteVisibilityHref(href: string): string {
   return href.slice(0, i);
 }
 
-function CommandPaletteDocumentationSearch({ buyerPolishedShell }: { buyerPolishedShell: boolean }) {
+function CommandPaletteDocumentationSearch({
+  buyerPolishedShell,
+  onNavigate,
+}: {
+  buyerPolishedShell: boolean;
+  onNavigate: (href: string) => void;
+}) {
   return (
     <CommandGroup heading={buyerPolishedShell ? "Help topics" : "Documentation"}>
-      {DOCUMENTATION_SEARCH_ITEMS.map((row) => (
-        <CommandItem
-          key={row.relativeDocsPath}
-          value={`doc ${row.title} ${row.description} ${row.category} ${row.relativeDocsPath}`}
-          onSelect={() => {
-            documentationSearchOpenUrl(row.relativeDocsPath);
-          }}
-        >
-          <span className="font-medium">{row.title}</span>
-          <span className="ml-2 text-xs text-neutral-500">{row.category}</span>
-        </CommandItem>
-      ))}
+      {DOCUMENTATION_SEARCH_ITEMS.map((row) => {
+        const href = resolveDocumentationHref(row.relativeDocsPath);
+
+        return (
+          <CommandItem
+            key={row.relativeDocsPath}
+            value={`doc ${row.title} ${row.description} ${row.category} ${row.relativeDocsPath}`}
+            className="cursor-pointer"
+            onSelect={() => onNavigate(href)}
+          >
+            {/*
+             * Render a real <a> so the browser provides right-click → "Open in new tab",
+             * Ctrl+Click, and middle-click. For plain left-clicks we preventDefault and
+             * delegate to the SPA router so the dialog closes cleanly.
+             */}
+            <a
+              href={href}
+              className="flex w-full items-center"
+              onClick={(e) => {
+                if (!e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onNavigate(href);
+                }
+              }}
+            >
+              <span className="font-medium">{row.title}</span>
+              <span className="ml-2 text-xs text-neutral-500">{row.category}</span>
+            </a>
+          </CommandItem>
+        );
+      })}
     </CommandGroup>
   );
 }
@@ -491,7 +517,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
-          <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} />
+          <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteActions onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks

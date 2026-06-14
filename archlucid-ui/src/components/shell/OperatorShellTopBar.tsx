@@ -4,6 +4,7 @@ import { CircleHelp } from "lucide-react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
+import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 import { GlobalSearchBar } from "@/components/GlobalSearchBar";
@@ -21,6 +22,7 @@ import { ShellSetupHealthChip } from "@/components/usability/ShellSetupHealthChi
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { UsabilityFeedbackWidget } from "@/components/usability/UsabilityFeedbackWidget";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 
 type OperatorShellTopBarProps = {
   readonly onOpenHelpSearch: () => void;
@@ -33,6 +35,7 @@ type OperatorShellTopBarProps = {
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const showDevOperatorChrome = !buyerPolished;
+  const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
 
   return (
     <header
@@ -81,6 +84,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                   <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
                 </Tooltip>
               ) : null}
+              {showAuthorityThemeToggle ? <AuthorityThemeToggle /> : null}
               <ColorModeToggle />
             </div>
           </div>

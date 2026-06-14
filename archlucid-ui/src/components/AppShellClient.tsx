@@ -13,6 +13,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ContextualPageHintStrip } from "@/components/ContextualPageHintStrip";
 import { OperatorRecentViewsTracker } from "@/components/OperatorRecentViewsTracker";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
+import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { HelpPanel } from "@/components/HelpPanel";
 import { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
@@ -47,6 +48,7 @@ import { KeyboardShortcutsFooterHint } from "@/components/usability/KeyboardShor
 import { TrustCenterShellLink } from "@/components/usability/TrustCenterShellLink";
 import { RegistrationOnboardingTourAutoStart } from "@/components/usability/RegistrationOnboardingTourAutoStart";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { SessionIdleTimeoutGuard } from "@/components/SessionIdleTimeoutGuard";
 import { ServiceBusHealthBanner } from "@/components/governance/ServiceBusHealthBanner";
 import { LlmBudgetApproachingLimitBanner } from "@/components/LlmBudgetApproachingLimitBanner";
@@ -180,6 +182,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                         </TooltipTrigger>
                         <TooltipContent sideOffset={6}>Help and documentation</TooltipContent>
                       </Tooltip>
+                      {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
                       <ColorModeToggle />
                     </div>
                   </div>

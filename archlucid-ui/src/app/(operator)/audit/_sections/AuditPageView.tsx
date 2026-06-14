@@ -6,6 +6,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { cn } from "@/lib/utils";
 import { auditExportExecuteRankAuditorRoleNote } from "@/lib/enterprise-controls-context-copy";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   BUYER_CTO_DEMO_AUDIT_DEMO_FILTER_BANNER,
   BUYER_CTO_DEMO_AUDIT_SHOW_ALL_EVENTS_CTA,
@@ -37,7 +38,7 @@ export function AuditPageView(props: AuditPageViewProps) {
     props.displayEvents.length <= 10;
 
   return (
-    <div className={cn("space-y-4", buyerPolishedShell ? "max-w-6xl" : "max-w-4xl")}>
+    <div className={cn(OPERATOR_LAYOUT.sectionStack, buyerPolishedShell ? "max-w-6xl" : "max-w-4xl")}>
       <LayerHeader pageKey="audit" />
       <OperatorPageHeader
         title={

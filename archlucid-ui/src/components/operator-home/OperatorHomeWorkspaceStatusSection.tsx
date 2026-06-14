@@ -17,8 +17,8 @@ export function OperatorHomeWorkspaceStatusSection(): React.JSX.Element {
       sectionTestId="operator-home-workspace-status"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.workspaceReadiness}
       defaultExpanded={false}
+      density="slim"
       collapsedSummary={OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY}
-      sectionClassName="p-3"
     >
       <PilotRoiBaselineReadinessCard />
     </OperatorHomeDisclosureSection>
