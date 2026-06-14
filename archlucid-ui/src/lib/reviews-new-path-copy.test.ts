@@ -17,9 +17,9 @@ describe("reviews-new-path-copy first-session cognitive load", () => {
   });
 
   it("surfaces first-session guidance and proof collection command", () => {
-    expect(REVIEWS_NEW_FIRST_SESSION_GUIDANCE).toMatch(/first Pilot proof/i);
+    expect(REVIEWS_NEW_FIRST_SESSION_GUIDANCE).toMatch(/Create review → Execute → Commit/i);
     expect(REVIEWS_NEW_FIRST_SESSION_GUIDANCE).toMatch(/Operate/i);
     expect(REVIEWS_NEW_PROOF_COLLECTION_HINT).toMatch(/collect-first-pilot-proof/i);
-    expect(REVIEWS_NEW_PROOF_COLLECTION_HINT).toMatch(/SponsorHandoff/i);
+    expect(REVIEWS_NEW_PROOF_COLLECTION_HINT).toMatch(/review-id/i);
   });
 });
