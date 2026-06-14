@@ -1,4 +1,5 @@
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
+import { FirstValueReachedCallout } from "@/components/FirstValueReachedCallout";
 import { OperatorHomeAdvancedGuidanceSection } from "@/components/operator-home/OperatorHomeAdvancedGuidanceSection";
 import { OperatorHomeWorkspaceStatusSection } from "@/components/operator-home/OperatorHomeWorkspaceStatusSection";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
@@ -8,7 +9,7 @@ import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { BUYER_HOME_REVIEWS_SECTION_HEADING } from "@/lib/buyer-polish-copy";
-import { OPERATOR_HOME_SECTION_HEADING } from "@/lib/design-tokens";
+import { OPERATOR_HOME_SECTION_HEADING, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
@@ -32,7 +33,7 @@ function BuyerPolishedHomePageBody() {
 
       <BeforeAfterDeltaPanel />
 
-      <section aria-labelledby="operator-home-reviews-heading" className="space-y-1.5">
+      <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">{BUYER_HOME_REVIEWS_SECTION_HEADING}</HomeSectionHeading>
         <RunsDashboardPanel hideHeading />
       </section>
@@ -48,10 +49,11 @@ function OperatorHomePageBody() {
   return (
     <>
       <PilotCommandCenterCard />
+      <FirstValueReachedCallout />
 
       <BeforeAfterDeltaPanel />
 
-      <section aria-labelledby="operator-home-reviews-heading" className="space-y-1.5">
+      <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
         <HomeSectionHeading id="operator-home-reviews-heading">Your reviews</HomeSectionHeading>
         <RunsDashboardPanel hideHeading />
       </section>
@@ -75,7 +77,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGate>
       <TrialWelcomeRunDeepLink />
       <OperatorWelcomeOnboarding />
-      <div className="space-y-2">
+      <div className={OPERATOR_LAYOUT.majorSectionGap}>
         {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
       </div>
     </OperatorHomeGate>

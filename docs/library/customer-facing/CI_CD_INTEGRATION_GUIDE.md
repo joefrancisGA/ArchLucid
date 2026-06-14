@@ -180,4 +180,4 @@ Operator UI uses the same idempotency semantics; on **504/408** it surfaces: *"R
 
 - [`docs/integrations/CICD_INTEGRATION.md`](../../integrations/CICD_INTEGRATION.md) — PR comment pattern and severity thresholds
 - [`AZURE_EXTRACTOR.md`](../AZURE_EXTRACTOR.md) — generating the ingest ZIP
-- [`PRE_COMMIT_GOVERNANCE_GATE.md`](../../PRE_COMMIT_GOVERNANCE_GATE.md) — 409 gate semantics
+- [`PRE_COMMIT_GOVERNANCE_GATE.md`](../PRE_COMMIT_GOVERNANCE_GATE.md) — 409 gate semantics

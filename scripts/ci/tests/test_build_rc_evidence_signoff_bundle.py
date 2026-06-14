@@ -116,6 +116,34 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
             encoding="utf-8",
         )
         (bundle / "simulator-only-override.md").write_text("# Simulator-only override\n", encoding="utf-8")
+        (bundle / "simulator-live-divergence.json").write_text(
+            json.dumps({"disposition": "PASS", "buyerFacingFullRealBlocked": False})
+            + "\n",
+            encoding="utf-8",
+        )
+        (bundle / "architecture-invariant-rc-summary.json").write_text(
+            json.dumps({"disposition": "PASS"})
+            + "\n",
+            encoding="utf-8",
+        )
+        (bundle / "saq-release-gate.json").write_text(
+            json.dumps({"disposition": "PASS"})
+            + "\n",
+            encoding="utf-8",
+        )
+        (bundle / "first-pilot-timing-budget.json").write_text(
+            json.dumps(
+                {
+                    "disposition": "PASS",
+                    "firstValueCommitBudget": {
+                        "disposition": "PASS",
+                        "detail": "Synthetic PASS for signoff bundle unit test",
+                    },
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
 
         json_out = self.temp_dir / "signoff-pass.json"
         md_out = self.temp_dir / "signoff-pass.md"
