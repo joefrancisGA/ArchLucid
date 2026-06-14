@@ -227,6 +227,54 @@ def build_signoff_bundle(root: Path, bundle_dir: Path) -> dict[str, Any]:
         )
     )
 
+    sim_div_path, sim_div_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        [
+            "simulator-live-divergence.json",
+            "artifacts/release/simulator-live-divergence.json",
+        ],
+    )
+    sim_div_payload = load_json(sim_div_path) if sim_div_path else None
+    sim_div_gate = _gate_from_payload(
+        gate_id="simulator-live-divergence",
+        label="Simulator/live divergence (buyer-facing full-real boundary)",
+        artifact_path=sim_div_rel,
+        payload=sim_div_payload,
+        status_keys=("classification", "disposition", "status"),
+        reason_keys=("blockingReasons", "detail", "summary"),
+        high_risk=True,
+        skipped_reason="simulator-live-divergence.json not attached",
+    )
+
+    if sim_div_payload is not None and sim_div_payload.get("buyerFacingFullRealBlocked") is True:
+        sim_div_gate["status"] = "HOLD"
+        reasons = sim_div_payload.get("blockingReasons")
+
+        if isinstance(reasons, list) and reasons:
+            sim_div_gate["reason"] = "; ".join(str(r) for r in reasons[:3])
+
+    gates.append(sim_div_gate)
+
+    arch_inv_path, arch_inv_rel = _resolve_artifact(
+        root,
+        bundle_dir,
+        ["architecture-invariant-rc-summary.json"],
+    )
+    arch_inv_payload = load_json(arch_inv_path) if arch_inv_path else None
+    gates.append(
+        _gate_from_payload(
+            gate_id="architecture-invariant-rc",
+            label="P0/P1 architecture invariant RC summary",
+            artifact_path=arch_inv_rel,
+            payload=arch_inv_payload,
+            status_keys=("disposition", "status"),
+            reason_keys=("interpretation", "detail", "summary"),
+            high_risk=True,
+            skipped_reason="architecture-invariant-rc-summary.json not attached",
+        )
+    )
+
     saq_path, saq_rel = _resolve_artifact(
         root,
         bundle_dir,

@@ -376,6 +376,65 @@ if (Test-Path -LiteralPath $faithfulnessSource) {
 [string] $aiQualityDetail = if ($aiQualityExit -eq 0) { "offline retrieval/faithfulness and optional committed-run/live evidence summarized" } else { "AI quality summary builder failed; exit $aiQualityExit" }
 Add-CheckRow $checks "AI quality release summary" $aiQualityVerdict $aiQualityDetail "ai-quality-release-summary.json"
 
+[string] $simDivJson = Join-Path $OutDir "simulator-live-divergence.json"
+[string] $simDivMd = Join-Path $OutDir "simulator-live-divergence.md"
+[string[]] $simDivArgs = @(
+    (Join-Path $root "scripts/ci/build_simulator_live_divergence_from_bundle.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $simDivJson,
+    "--markdown-out", $simDivMd
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $simDivArgs += "--enforce-buyer-facing"
+}
+
+& python @simDivArgs
+[int] $simDivExit = $LASTEXITCODE
+[string] $simDivVerdict = if ($simDivExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "Simulator/live divergence (RC boundary)" $simDivVerdict "bundle-derived classification; exit $simDivExit" "simulator-live-divergence.json"
+
+[string] $archInvJson = Join-Path $OutDir "architecture-invariant-rc-summary.json"
+[string] $archInvMd = Join-Path $OutDir "architecture-invariant-rc-summary.md"
+[string[]] $archInvArgs = @(
+    (Join-Path $root "scripts/ci/report_architecture_invariant_enforcement.py"),
+    "--json-out", $archInvJson,
+    "--markdown-out", $archInvMd
+)
+
+if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+    $archInvArgs += "--strict-rc"
+}
+
+& python @archInvArgs
+[int] $archInvExit = $LASTEXITCODE
+[string] $archInvVerdict = if ($archInvExit -eq 0) { "PASS" } elseif ($archInvExit -eq 1) { "FAIL" } else { "WARN" }
+Add-CheckRow $checks "Architecture invariant RC summary" $archInvVerdict "P0/P1 attention items; exit $archInvExit" "architecture-invariant-rc-summary.json"
+
+[string] $dataConsistencyJson = Join-Path $OutDir "data-consistency-readiness.json"
+[string] $dataConsistencyMd = Join-Path $OutDir "data-consistency-readiness.md"
+& python (Join-Path $root "scripts/ci/report_data_consistency_mode_readiness.py") `
+    --json-out $dataConsistencyJson `
+    --markdown-out $dataConsistencyMd
+Add-CheckRow $checks "Data consistency readiness" (Map-ExitToVerdict $LASTEXITCODE).verdict "production appsettings posture" "data-consistency-readiness.json"
+
+[string] $realModeFreshJson = Join-Path $OutDir "real-mode-evidence-freshness.json"
+[string] $realModeFreshMd = Join-Path $OutDir "real-mode-evidence-freshness.md"
+[string[]] $realModeFreshArgs = @(
+    (Join-Path $root "scripts/ci/report_real_mode_evidence_freshness.py"),
+    "--bundle-dir", $OutDir,
+    "--json-out", $realModeFreshJson,
+    "--markdown-out", $realModeFreshMd,
+    "--gate-json", (Join-Path $OutDir "real-llm-evidence-gate.json")
+)
+
+if ($env:ARCHLUCID_RELEASE_SIMULATOR_ONLY -eq '1') {
+    $realModeFreshArgs += "--allow-simulator-only"
+}
+
+& python @realModeFreshArgs
+Add-CheckRow $checks "Real-mode evidence freshness" (Map-ExitToVerdict $LASTEXITCODE).verdict "claim boundary freshness lane" "real-mode-evidence-freshness.json"
+
 [int] $deploymentEvidenceExit = 999
 
 if (-not [string]::IsNullOrWhiteSpace($ApiBaseUrl)) {

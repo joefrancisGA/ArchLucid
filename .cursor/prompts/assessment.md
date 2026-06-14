@@ -1,5 +1,5 @@
 <!-- Saved assessment prompt — canonical copy; run from Cursor chat or paste directly.
-     Last updated: 2026-06-13. See prompt-refinement notes in docs/library/ASSESSMENT_INPUTS.md. -->
+     Last updated: 2026-06-14. See prompt-refinement notes in docs/library/ASSESSMENT_INPUTS.md. -->
 
 Please perform an independent, first-principles release-readiness assessment of this solution using the quality model and weights below.
 
@@ -12,6 +12,13 @@ This assessment should optimize for actionable release planning, not exhaustive 
 * Do not use subagents, parallel agents, or distributed analysis.
 * Work only from the materials currently available to you.
 * Treat any items explicitly deferred to v1.1 or v2 as out of scope and do not let them reduce the current readiness score.
+* Customer pilot concerns, market validation, voluntary usage, purchasing behavior, paid conversion, public references, design-partner activity, customer proof cohorts, founder traction, and buyer adoption behavior are **V1.1 / market-motion issues** unless explicitly promoted by current scope docs.
+* **Do not score market uncertainty.** Do not reduce any quality score because customer pilots, paid pilots, buyer interviews, adoption behavior, public references, purchasing evidence, founder traction, or design-partner evidence are absent.
+* **Do not include improvement recommendations** whose primary purpose is to validate customer demand, willingness to pay, voluntary usage, principal-architect adoption, paid pilot conversion, or purchasing behavior.
+* If the assessment includes monetization, adoption, product-value, or competitive reality sections, treat them as **informational only** and explicitly label them `Out of (A) headline score`.
+* Improvement recommendations must reduce design, implementation, release, correctness, trust, security, reliability, deployability, supportability, documentation, test, governance, or operability uncertainty.
+* If an item would primarily be answered by pilots, customer interviews, purchase behavior, production usage, or market observation, omit it from Top Improvement Opportunities unless explicitly asked for V1.1 market-validation planning.
+* Before assigning each score or recommendation, ask: **Is this deduction based on shipped-product / release evidence, or on absent customer-market evidence?** If the latter, exclude it from `(A)`.
 * If deferred items are referenced but you cannot locate the markdown or source material that identifies them, explicitly say so in a short "Deferred Scope Uncertainty" section.
 * Do not interrupt the assessment to ask questions. Put unresolved questions in the "Pending Questions for Later" section.
 * If an improvement requires my input before meaningful work can begin, mark it as DEFERRED in all caps at the start of its title.

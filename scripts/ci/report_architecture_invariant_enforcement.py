@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -100,6 +101,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=repo_root())
     parser.add_argument("--json-out", type=Path, required=True)
     parser.add_argument("--markdown-out", type=Path, required=True)
+    parser.add_argument(
+        "--strict-rc",
+        action="store_true",
+        help="Exit non-zero when disposition is HOLD (also enabled by ARCHLUCID_STRICT_RC=1).",
+    )
     args = parser.parse_args(argv)
 
     registry = load_registry(args.repo_root.resolve())
@@ -110,6 +116,18 @@ def main(argv: list[str] | None = None) -> int:
     args.markdown_out.write_text(render_markdown(summary), encoding="utf-8")
 
     print(f"Architecture invariant RC summary: {summary['disposition']}")
+
+    strict_rc = args.strict_rc or os.environ.get("ARCHLUCID_STRICT_RC", "").strip() in {
+        "1",
+        "true",
+        "TRUE",
+        "yes",
+        "YES",
+    }
+
+    if strict_rc and summary["disposition"] == "HOLD":
+        return 1
+
     return 0
 
 

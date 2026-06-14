@@ -128,12 +128,13 @@
       "evidence": ["Shared middleware ordering tests"]
     },
     {
-      "id": "INV-016",
+      "id": "INV-017",
       "tier": "P1",
-      "label": "Decisioning notification boundary",
-      "status": "enforced",
+      "label": "Within-tenant workspace/project scope on pilot routes",
+      "status": "partially-enforced",
       "evidence": [
-        "ArchLucid.Architecture.Tests/DecisioningNotificationsBoundaryArchitectureTests.cs"
+        "docs/security/V1_WORKSPACE_PROJECT_AUTHORIZATION_POSTURE.md",
+        "ArchLucid.Api.Tests/Security/WorkspaceProjectScopeIdorIntegrationTests.cs"
       ]
     }
   ]
