@@ -18,12 +18,32 @@ function rollingBounds30Days(): { fromUtc: string; toUtc: string } {
 }
 
 /** Live compliance drift panel for the executive summary dashboard (`/dashboard`). */
-export function ExecutiveComplianceDriftTrendSection() {
-  const [loading, setLoading] = useState(true);
-  const [points, setPoints] = useState<ComplianceDriftTrendPoint[]>([]);
-  const [error, setError] = useState(false);
+export type ExecutiveComplianceDriftTrendSectionProps = {
+  readonly points?: ComplianceDriftTrendPoint[];
+  readonly loading?: boolean;
+  readonly error?: boolean;
+};
+
+/** Live compliance drift panel for the executive summary dashboard (`/dashboard`). */
+export function ExecutiveComplianceDriftTrendSection({
+  points: pointsProp,
+  loading: loadingProp,
+  error: errorProp,
+}: ExecutiveComplianceDriftTrendSectionProps = {}) {
+  const usesExternalData = pointsProp !== undefined || loadingProp !== undefined || errorProp !== undefined;
+  const [loading, setLoading] = useState(loadingProp ?? true);
+  const [points, setPoints] = useState<ComplianceDriftTrendPoint[]>(pointsProp ?? []);
+  const [error, setError] = useState(errorProp ?? false);
 
   useEffect(() => {
+    if (usesExternalData) {
+      setPoints(pointsProp ?? []);
+      setLoading(loadingProp ?? false);
+      setError(errorProp ?? false);
+
+      return undefined;
+    }
+
     let cancelled = false;
     const window = rollingBounds30Days();
 
@@ -48,7 +68,7 @@ export function ExecutiveComplianceDriftTrendSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [errorProp, loadingProp, pointsProp, usesExternalData]);
 
   return (
     <Card>

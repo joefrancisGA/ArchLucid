@@ -1,4 +1,7 @@
+"use client";
+
 import { QualityGateMetricsTile } from "@/components/QualityGateMetricsTile";
+import { ExecutiveDashboardDataProvider, useExecutiveDashboardData } from "@/components/executive/ExecutiveDashboardDataContext";
 import { ExecutiveValueNarrativeBanner } from "@/components/ExecutiveValueNarrativeBanner";
 import { OperatorPilotOrientationBanner } from "@/components/OperatorPilotOrientationBanner";
 import { OperatorWelcomeOnboarding } from "@/components/OperatorWelcomeOnboarding";
@@ -20,16 +23,34 @@ export type ExecutiveRoiDashboardPageViewProps = {
   readonly surface?: "operator" | "executive";
 };
 
-export function ExecutiveRoiDashboardPageView({ surface = "operator" }: ExecutiveRoiDashboardPageViewProps) {
+type DashboardSectionsProps = {
+  readonly defaultTrendRange: ExecutiveTimeRange;
+  readonly isExecutiveSurface: boolean;
+  readonly summary?: ReturnType<typeof useExecutiveDashboardData>["summary"];
+  readonly summaryLoading?: boolean;
+  readonly summaryError?: string | null;
+  readonly driftPoints?: ReturnType<typeof useExecutiveDashboardData>["driftPoints"];
+  readonly driftLoading?: boolean;
+  readonly driftError?: boolean;
+};
+
+function ExecutiveRoiDashboardSections({
+  defaultTrendRange,
+  isExecutiveSurface,
+  summary,
+  summaryLoading,
+  summaryError,
+  driftPoints,
+  driftLoading,
+  driftError,
+}: DashboardSectionsProps): React.JSX.Element {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
-  const isExecutiveSurface = surface === "executive";
-  const defaultTrendRange: ExecutiveTimeRange = "quarter";
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 px-4 py-4">
+    <div className={isExecutiveSurface ? "mx-auto max-w-6xl space-y-4" : "mx-auto max-w-6xl space-y-4 px-4 py-4"}>
       <ExecutiveDashboardBaselineWarningBanner />
       {isExecutiveSurface ? (
-        <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} />
+        <ExecutiveValueNarrativeBanner timeRange={defaultTrendRange} roiSummary={summary} />
       ) : (
         <>
           <OperatorWelcomeOnboarding />
@@ -48,29 +69,84 @@ export function ExecutiveRoiDashboardPageView({ surface = "operator" }: Executiv
           {v.roiMetricsSrOnly}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <ExecutiveRoiDashboardLiveKpiCards />
+          <ExecutiveRoiDashboardLiveKpiCards summary={summary} loading={summaryLoading} />
           <ExecutiveOrphanCandidatesCard />
           <ExecutiveSqlBackupRegionVerificationCard />
         </div>
       </section>
 
-      <BusinessImpactSummaryWidget />
+      <BusinessImpactSummaryWidget summary={summary} loading={summaryLoading} />
 
       <QualityGateMetricsTile />
 
       <section aria-label="Executive portfolio summary and sponsor exports" className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <ExecutiveRoiSummarySection />
+          <ExecutiveRoiSummarySection
+            summary={summary}
+            loading={summaryLoading}
+            summaryError={summaryError}
+          />
         </div>
         <SponsorExportsSection />
       </section>
 
-      <ExecutiveComplianceDriftTrendSection />
+      <ExecutiveComplianceDriftTrendSection
+        points={driftPoints}
+        loading={driftLoading}
+        error={driftError}
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ExecutiveRoiTrendSection defaultTimeRange={defaultTrendRange} showTimeRangeSelector />
         <ExecutiveRoiEnvironmentSavingsSection />
       </div>
     </div>
+  );
+}
+
+function ExecutiveRoiDashboardExecutiveView({
+  defaultTrendRange,
+}: {
+  readonly defaultTrendRange: ExecutiveTimeRange;
+}): React.JSX.Element {
+  const {
+    summary,
+    summaryLoading,
+    summaryError,
+    driftPoints,
+    driftLoading,
+    driftError,
+  } = useExecutiveDashboardData();
+
+  return (
+    <ExecutiveRoiDashboardSections
+      defaultTrendRange={defaultTrendRange}
+      isExecutiveSurface
+      summary={summary}
+      summaryLoading={summaryLoading}
+      summaryError={summaryError}
+      driftPoints={driftPoints}
+      driftLoading={driftLoading}
+      driftError={driftError}
+    />
+  );
+}
+
+export function ExecutiveRoiDashboardPageView({ surface = "operator" }: ExecutiveRoiDashboardPageViewProps) {
+  const defaultTrendRange: ExecutiveTimeRange = "quarter";
+
+  if (surface === "executive") {
+    return (
+      <ExecutiveDashboardDataProvider>
+        <ExecutiveRoiDashboardExecutiveView defaultTrendRange={defaultTrendRange} />
+      </ExecutiveDashboardDataProvider>
+    );
+  }
+
+  return (
+    <ExecutiveRoiDashboardSections
+      defaultTrendRange={defaultTrendRange}
+      isExecutiveSurface={false}
+    />
   );
 }

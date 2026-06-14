@@ -56,21 +56,34 @@ function formatUsd(value: number): string {
   }).format(value);
 }
 
+export type ExecutiveRoiSummarySectionProps = {
+  readonly summary?: ExecutiveRoiSummary | null;
+  readonly loading?: boolean;
+  readonly summaryError?: string | null;
+};
+
 /** Live cross-run executive ROI panel backed by `GET /v1/roi/executive-summary`. */
-export function ExecutiveRoiSummarySection() {
-  const [data, setData] = useState<ExecutiveRoiSummary | null>(null);
+export function ExecutiveRoiSummarySection({
+  summary: summaryProp,
+  loading: loadingProp,
+  summaryError: summaryErrorProp,
+}: ExecutiveRoiSummarySectionProps = {}) {
+  const [data, setData] = useState<ExecutiveRoiSummary | null>(summaryProp ?? null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined || summaryErrorProp !== undefined;
   const [boardPackBusy, setBoardPackBusy] = useState(false);
   const [includeBoardPackNarrative, setIncludeBoardPackNarrative] = useState(false);
   const onDownloadExecutiveSummary = useCallback(() => {
-    if (data === null) {
+    const resolved = usesExternalSummary ? summaryProp : data;
+
+    if (resolved === null || resolved === undefined) {
       return;
     }
 
-    const markdown = buildExecutiveSummaryMarkdown(data);
+    const markdown = buildExecutiveSummaryMarkdown(resolved);
 
     triggerGoldenManifestMarkdownDownload(markdown, executiveSummaryMarkdownFilename());
-  }, [data]);
+  }, [data, summaryProp, usesExternalSummary]);
 
   const onDownloadBoardPack = useCallback(async () => {
     setBoardPackBusy(true);
@@ -152,6 +165,13 @@ export function ExecutiveRoiSummarySection() {
   }, []);
 
   useEffect(() => {
+    if (usesExternalSummary) {
+      setData(summaryProp ?? null);
+      setFailure(null);
+
+      return undefined;
+    }
+
     let cancelled = false;
 
     void (async () => {
@@ -171,7 +191,22 @@ export function ExecutiveRoiSummarySection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [summaryProp, usesExternalSummary]);
+
+  if (usesExternalSummary && summaryErrorProp) {
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">{executiveRoiSummaryCardTitle()}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" role="alert">
+            {summaryErrorProp}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (failure) {
     return (
@@ -186,7 +221,10 @@ export function ExecutiveRoiSummarySection() {
     );
   }
 
-  if (data === null) {
+  const displayData = usesExternalSummary ? (summaryProp ?? null) : data;
+  const showLoading = usesExternalSummary ? (loadingProp ?? false) : displayData === null;
+
+  if (showLoading || displayData === null) {
     return (
       <Card>
         <CardHeader className="pb-2">
@@ -251,7 +289,7 @@ export function ExecutiveRoiSummarySection() {
             <>Latest committed review per system in this workspace. {BUYER_EXECUTIVE_DATA_SOURCE_NOTE}</>
           ) : (
             <>
-              {resolveExecutiveHeadlineScopeLabel(data)} {resolveExecutiveSystemRowScopeLabel(data)} Data from{" "}
+              {resolveExecutiveHeadlineScopeLabel(displayData)} {resolveExecutiveSystemRowScopeLabel(displayData)} Data from{" "}
               <span className="font-mono">GET /v1/roi/executive-summary</span>.
             </>
           )}
@@ -268,67 +306,67 @@ export function ExecutiveRoiSummarySection() {
               {resolveExecutiveHeadlineScopeLabel(data)}
             </p>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
-              {formatUsd(data.totalEstimatedUsdSavings)}
+              {formatUsd(displayData.totalEstimatedUsdSavings)}
             </div>
             <div className="mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="exec-roi-pricing-basis">
-              {formatExecutiveRoiPricingBasisLabel(data.savingsPricingBasis, data.eaDiscountMultiplier)}
+              {formatExecutiveRoiPricingBasisLabel(displayData.savingsPricingBasis, displayData.eaDiscountMultiplier)}
             </div>
-            {data.savingsPricingBasisDescription ? (
+            {displayData.savingsPricingBasisDescription ? (
               <p
                 className="mt-2 text-xs text-neutral-600 dark:text-neutral-400"
                 data-testid="exec-roi-pricing-basis-description"
               >
-                {data.savingsPricingBasisDescription}
+                {displayData.savingsPricingBasisDescription}
               </p>
             ) : null}
           </div>
-          {data.basisBreakdown ? (
+          {displayData.basisBreakdown ? (
             <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-3">
               <div className="text-xs font-medium text-teal-800 dark:text-teal-200">Realized USD (remediated)</div>
               <div
                 className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
                 data-testid="exec-roi-realized-usd"
               >
-                {formatUsd(data.basisBreakdown.realizedUsd)}
+                {formatUsd(displayData.basisBreakdown.realizedUsd)}
               </div>
               <p className="mt-1 text-xs text-teal-900 dark:text-teal-100">
-                Open estimated ${data.basisBreakdown.openEstimatedUsd.toFixed(0)} · Deferred/waived $
-                {(data.basisBreakdown.deferredUsd + data.basisBreakdown.waivedUsd).toFixed(0)}
+                Open estimated ${displayData.basisBreakdown.openEstimatedUsd.toFixed(0)} · Deferred/waived $
+                {(displayData.basisBreakdown.deferredUsd + displayData.basisBreakdown.waivedUsd).toFixed(0)}
               </p>
             </div>
           ) : null}
-          {shouldShowRoiCostEvidenceFreshnessWarning(data.costEvidenceFreshnessStatus) ? (
+          {shouldShowRoiCostEvidenceFreshnessWarning(displayData.costEvidenceFreshnessStatus) ? (
             <div
               className="rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-sm text-al-text-primary dark:border-amber-700/50 sm:col-span-3 px-3 py-2 text-xs"
               role="alert"
               data-testid="exec-roi-cost-evidence-freshness-warning"
             >
               {formatRoiCostEvidenceFreshnessWarning(
-                data.costEvidenceFreshnessStatus,
-                data.costEvidenceStaleAfterDays,
-                data.latestCostEvidenceCollectionTimestampUtc ?? null,
+                displayData.costEvidenceFreshnessStatus,
+                displayData.costEvidenceStaleAfterDays,
+                displayData.latestCostEvidenceCollectionTimestampUtc ?? null,
               )}
             </div>
           ) : null}
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Systems reviewed</div>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
-              {data.systemCount}
+              {displayData.systemCount}
             </div>
           </div>
           <div className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
             <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Latest reviews included</div>
             <div className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}>
-              {data.latestRunCount}
+              {displayData.latestRunCount}
             </div>
           </div>
         </div>
 
-        {data.topSystemicIssues.length > 0 ? (
+        {displayData.topSystemicIssues.length > 0 ? (
           <div>
             <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Top systemic issues</h3>
             <ul className="mt-2 space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
-              {data.topSystemicIssues.map((issue) => (
+              {displayData.topSystemicIssues.map((issue) => (
                 <li key={`${issue.category}-${issue.severity}`}>
                   <span className="font-medium">{issue.category}</span> · {issue.severity} · {issue.count}
                 </li>
@@ -341,15 +379,15 @@ export function ExecutiveRoiSummarySection() {
           </p>
         )}
 
-        {(data.historicalTrends?.length ?? 0) > 0 ? (
+        {(displayData.historicalTrends?.length ?? 0) > 0 ? (
           <div>
             <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
               Systemic issue trends (last 6 months)
             </h3>
             <div className="mt-3">
               <ExecutiveRoiSystemicIssueTrendChart
-                series={data.historicalTrends ?? []}
-                savingsPricingBasis={data.savingsPricingBasis}
+                series={displayData.historicalTrends ?? []}
+                savingsPricingBasis={displayData.savingsPricingBasis}
               />
             </div>
           </div>

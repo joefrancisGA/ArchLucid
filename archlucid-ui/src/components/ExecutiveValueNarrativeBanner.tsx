@@ -45,10 +45,11 @@ function sumDriftChanges(points: { changeCount: number }[]): number {
 
 export type ExecutiveValueNarrativeBannerProps = {
   readonly timeRange: ExecutiveTimeRange;
+  readonly roiSummary?: ExecutiveRoiSummary | null;
 };
 
 /** Deterministic executive story line (TB-268). */
-export function ExecutiveValueNarrativeBanner({ timeRange }: ExecutiveValueNarrativeBannerProps) {
+export function ExecutiveValueNarrativeBanner({ timeRange, roiSummary }: ExecutiveValueNarrativeBannerProps) {
   const [narrative, setNarrative] = useState<string | null>(null);
 
   const load = useCallback(async (selected: ExecutiveTimeRange) => {
@@ -65,7 +66,7 @@ export function ExecutiveValueNarrativeBanner({ timeRange }: ExecutiveValueNarra
           fromUtcIso: report.fromUtc,
           toUtcIso: report.toUtc,
         }),
-        fetchExecutiveRoiSummary(),
+        roiSummary !== undefined ? Promise.resolve(roiSummary) : fetchExecutiveRoiSummary(),
       ]);
 
       const recommendedActions: ExecutiveScorecardRecommendedAction[] =
@@ -98,7 +99,7 @@ export function ExecutiveValueNarrativeBanner({ timeRange }: ExecutiveValueNarra
     } catch {
       setNarrative(null);
     }
-  }, []);
+  }, [roiSummary]);
 
   useEffect(() => {
     void load(timeRange);

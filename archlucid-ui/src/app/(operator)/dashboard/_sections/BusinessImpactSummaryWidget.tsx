@@ -41,13 +41,30 @@ function readBusinessImpactCounts(data: ExecutiveRoiSummary | null) {
   };
 }
 
+export type BusinessImpactSummaryWidgetProps = {
+  readonly summary?: ExecutiveRoiSummary | null;
+  readonly loading?: boolean;
+};
+
 /** Live business-impact tiles from `GET /v1/roi/executive-summary` (TB-062 / Batch C item 7). */
-export function BusinessImpactSummaryWidget() {
-  const [data, setData] = useState<ExecutiveRoiSummary | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function BusinessImpactSummaryWidget({
+  summary: summaryProp,
+  loading: loadingProp,
+}: BusinessImpactSummaryWidgetProps = {}) {
+  const [data, setData] = useState<ExecutiveRoiSummary | null>(summaryProp ?? null);
+  const [isLoading, setIsLoading] = useState(loadingProp ?? true);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined;
 
   useEffect(() => {
+    if (usesExternalSummary) {
+      setData(summaryProp ?? null);
+      setIsLoading(loadingProp ?? false);
+      setFailure(null);
+
+      return undefined;
+    }
+
     let mounted = true;
 
     void (async () => {
@@ -71,7 +88,7 @@ export function BusinessImpactSummaryWidget() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [loadingProp, summaryProp, usesExternalSummary]);
 
   if (failure) {
     return <OperatorApiProblem failure={failure} />;

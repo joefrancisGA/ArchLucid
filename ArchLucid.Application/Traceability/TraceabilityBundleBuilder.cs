@@ -35,6 +35,7 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
             ? []
             : await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, new AuditEventFilter { RunId = runGuid, Take = 1000 },
                 cancellationToken);
+        bool auditTruncated = audits.Count >= 1000;
         object summary = new
         {
             detail.Run.RunId,
@@ -47,11 +48,16 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
             ResultCount = detail.Results.Count,
             DecisionTraceCount = detail.DecisionTraces.Count
         };
-        byte[] zipBytes = BuildZipInMemory(summary, audits, detail.DecisionTraces);
+        byte[] zipBytes = BuildZipInMemory(detail.Run.RunId, summary, audits, auditTruncated, detail.DecisionTraces);
         return zipBytes.LongLength > maxZipBytes ? throw new TraceabilityBundleTooLargeException(zipBytes.LongLength, maxZipBytes) : zipBytes;
     }
 
-    private static byte[] BuildZipInMemory(object runSummary, IReadOnlyList<AuditEvent> audits, IReadOnlyList<DecisionTraceDto> traces)
+    private static byte[] BuildZipInMemory(
+        string runId,
+        object runSummary,
+        IReadOnlyList<AuditEvent> audits,
+        bool auditTruncated,
+        IReadOnlyList<DecisionTraceDto> traces)
     {
         using MemoryStream ms = new();
         using (ZipArchive zip = new(ms, ZipArchiveMode.Create, true))
@@ -59,13 +65,30 @@ public sealed class TraceabilityBundleBuilder(IRunDetailQueryService runDetailQu
             AddJsonEntry(zip, "run-summary.json", runSummary);
             AddJsonEntry(zip, "audit-events.json", audits);
             AddJsonEntry(zip, "decision-traces.json", traces);
+            AddTextEntry(
+                zip,
+                "audit-evidence-summary.json",
+                BuyerSafeAuditEvidenceSummaryBuilder.BuildJson(runId, audits, auditTruncated));
+            AddTextEntry(
+                zip,
+                "audit-evidence-summary.md",
+                BuyerSafeAuditEvidenceSummaryBuilder.BuildMarkdown(runId, audits, auditTruncated));
             ZipArchiveEntry readme = zip.CreateEntry("README.txt", CompressionLevel.Fastest);
             using StreamWriter w = new(readme.Open());
             w.WriteLine("ArchLucid traceability bundle — audit slice, decision traces, and run summary.");
+            w.WriteLine("Includes buyer-safe audit-evidence-summary.md/json (no raw payloads).");
             w.WriteLine("LLM full prompts may be omitted per export policy; use admin evidence export when explicitly authorized.");
+            w.WriteLine("Agent-output metrics export readiness: scripts/report_observability_export_readiness.py");
         }
 
         return ms.ToArray();
+    }
+
+    private static void AddTextEntry(ZipArchive zip, string path, string content)
+    {
+        ZipArchiveEntry entry = zip.CreateEntry(path, CompressionLevel.Fastest);
+        using StreamWriter writer = new(entry.Open());
+        writer.Write(content);
     }
 
     private static void AddJsonEntry(ZipArchive zip, string path, object payload)

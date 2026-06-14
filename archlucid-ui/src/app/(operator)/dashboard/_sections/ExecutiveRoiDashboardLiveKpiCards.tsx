@@ -39,7 +39,7 @@ function KpiFootnote(props: { readonly text: string | null; readonly runbookHref
       {props.runbookHref ? (
         <>
           {" "}
-          <Link href={toDocsBlobUrl(props.runbookHref)} className="underline" rel="noopener noreferrer" target="_blank">
+          <Link href={toDocsBlobUrl(props.runbookHref)} className="underline">
             Runbook
           </Link>
         </>
@@ -49,24 +49,50 @@ function KpiFootnote(props: { readonly text: string | null; readonly runbookHref
 }
 
 /** Live KPI tiles for `/dashboard` backed by ROI and governance stickiness APIs (TB-062). */
-export function ExecutiveRoiDashboardLiveKpiCards() {
+export type ExecutiveRoiDashboardLiveKpiCardsProps = {
+  readonly summary?: ExecutiveRoiSummary | null;
+  readonly loading?: boolean;
+};
+
+export function ExecutiveRoiDashboardLiveKpiCards({
+  summary: summaryProp,
+  loading: loadingProp,
+}: ExecutiveRoiDashboardLiveKpiCardsProps = {}) {
   const v = BUYER_EXECUTIVE_SUMMARY_VOCABULARY;
+  const usesExternalSummary = summaryProp !== undefined || loadingProp !== undefined;
   const [state, setState] = useState<LiveKpiState>({
-    summary: null,
+    summary: summaryProp ?? null,
     staleRiskCount: 0,
     expiringWaiversCount: 0,
     decisionsNeededCount: 0,
   });
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(loadingProp ?? true);
 
   useEffect(() => {
+    if (usesExternalSummary) {
+      setState((current) => ({
+        ...current,
+        summary: summaryProp ?? null,
+        staleRiskCount: summaryProp?.staleArchitectureRiskCount ?? current.staleRiskCount,
+      }));
+      setLoading(loadingProp ?? false);
+      setFailure(null);
+
+      if (loadingProp) {
+        return undefined;
+      }
+    }
+
     let cancelled = false;
 
     void (async () => {
       try {
+        const summaryPromise = usesExternalSummary
+          ? Promise.resolve(summaryProp ?? null)
+          : fetchExecutiveRoiSummaryClient();
         const [summary, decisionsNeeded] = await Promise.all([
-          fetchExecutiveRoiSummaryClient(),
+          summaryPromise,
           getGovernanceDecisionsNeededSummary(),
         ]);
 
@@ -74,7 +100,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
           setState({
             summary,
             staleRiskCount:
-              summary.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
+              summary?.staleArchitectureRiskCount ?? decisionsNeeded.staleRisks,
             // TB-155 / EXECUTIVE_KPI_SEMANTIC_CONTRACT: live governance count only (not cached ROI).
             expiringWaiversCount: decisionsNeeded.waiversExpiringWithin14Days,
             decisionsNeededCount: decisionsNeeded.totalDecisionItems,
@@ -94,7 +120,7 @@ export function ExecutiveRoiDashboardLiveKpiCards() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadingProp, summaryProp, usesExternalSummary]);
 
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
