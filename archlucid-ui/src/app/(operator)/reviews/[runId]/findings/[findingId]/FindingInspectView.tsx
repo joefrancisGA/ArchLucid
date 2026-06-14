@@ -52,9 +52,6 @@ export function FindingInspectView({
   if (failure || !payload) {
     return (
       <div className="mx-auto max-w-6xl space-y-4 p-6">
-        <Link href={`/reviews/${encodeURIComponent(runId)}`} className="text-sm text-sky-700 underline dark:text-sky-300">
-          ← Back to review
-        </Link>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Technical inspection</h1>
         <OperatorApiProblem
           problem={failure?.problem ?? null}
@@ -110,15 +107,6 @@ export function FindingInspectView({
 
   return (
     <div className="mx-auto max-w-6xl space-y-4 p-4">
-      <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
-        <Link
-          href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
-          className="text-sm font-semibold text-al-text-primary text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-        >
-          ← {buyerPolishedShell ? "Back to finding detail" : "Finding detail"}
-        </Link>
-      </div>
-
       {buyerPolishedShell ? (
         <div className="flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
           <span className="rounded-sm bg-neutral-200 px-1.5 py-0.5 font-semibold uppercase tracking-wide text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300">

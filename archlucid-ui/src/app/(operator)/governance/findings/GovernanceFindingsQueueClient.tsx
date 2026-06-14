@@ -631,15 +631,6 @@ export default function GovernanceFindingsQueueClient() {
       />
 
         <div className="mt-4 space-y-4">
-          {buyerPolishedShell ? (
-            <p className="m-0">
-              <Button asChild variant="outline" size="sm" className="h-8">
-                <Link href={`/governance?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>
-                  Back to governance approval
-                </Link>
-              </Button>
-            </p>
-          ) : null}
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
           {buyerPolishedShell ? (
             <>

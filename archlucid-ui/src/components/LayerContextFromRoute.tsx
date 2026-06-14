@@ -3,7 +3,10 @@
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer-golden-journey-nav";
-import { buyerPolishedOperateBackLink } from "@/lib/buyer-polished-operate-back-link";
+import {
+  buyerPolishedOperateBackLink,
+  isBuyerOperateBackLinkRedundantWithBreadcrumbs,
+} from "@/lib/buyer-polished-operate-back-link";
 import { buyerPolishedRouteOrientation } from "@/lib/buyer-polished-route-orientation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getLayerForRoute } from "@/lib/getLayerForRoute";
@@ -19,12 +22,17 @@ export function LayerContextFromRoute() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const searchRunIdFromUrl =
     pathname.startsWith("/search") ? (searchParams.get("runId")?.trim() ?? "") : "";
+  const queryRunId = searchParams.get("runId")?.trim() ?? "";
   const buyerRouteOrientation = buyerPolishedShell
     ? buyerPolishedRouteOrientation(pathname, {
         searchRunId: searchRunIdFromUrl.length > 0 ? searchRunIdFromUrl : undefined,
       })
     : null;
-  const buyerOperateBackLink = buyerPolishedShell ? buyerPolishedOperateBackLink(pathname) : null;
+  const buyerOperateBackLinkRaw = buyerPolishedShell ? buyerPolishedOperateBackLink(pathname) : null;
+  const buyerOperateBackLink =
+    buyerOperateBackLinkRaw !== null && isBuyerOperateBackLinkRedundantWithBreadcrumbs(queryRunId, buyerOperateBackLinkRaw)
+      ? null
+      : buyerOperateBackLinkRaw;
   const buyerGoldenJourneyNav = buyerPolishedShell ? resolveBuyerGoldenJourneyNav(pathname) : null;
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.

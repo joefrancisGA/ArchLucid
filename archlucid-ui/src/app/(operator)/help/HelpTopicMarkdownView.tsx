@@ -23,11 +23,6 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
     <article className="space-y-6">
       <HelpTopicHashScroll />
       <header className="space-y-2 border-b border-neutral-200 pb-4 dark:border-neutral-800">
-        <p className="m-0">
-          <Link href="/help" className={`text-sm underline-offset-2 hover:underline ${DESIGN_TOKENS.accent.link}`}>
-            ← Back to Help
-          </Link>
-        </p>
         <h1 className={`m-0 ${OPERATOR_TYPOGRAPHY.pageTitle}`}>{entry.title}</h1>
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.meta}`}>{entry.summary}</p>
         {entry.audience === "developer" ? (

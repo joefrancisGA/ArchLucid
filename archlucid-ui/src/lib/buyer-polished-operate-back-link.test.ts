@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerPolishedOperateBackLink } from "./buyer-polished-operate-back-link";
+import {
+  buyerPolishedOperateBackLink,
+  isBuyerOperateBackLinkRedundantWithBreadcrumbs,
+} from "./buyer-polished-operate-back-link";
 
 describe("buyerPolishedOperateBackLink", () => {
   it("returns showcase package link for golden-path satellites", () => {
@@ -30,5 +33,24 @@ describe("buyerPolishedOperateBackLink", () => {
     expect(buyerPolishedOperateBackLink("/reviews/claims-intake-modernization")).toBeNull();
     expect(buyerPolishedOperateBackLink("/reviews/claims-intake-modernization/findings/f1")).toBeNull();
     expect(buyerPolishedOperateBackLink("/")).toBeNull();
+  });
+});
+
+describe("isBuyerOperateBackLinkRedundantWithBreadcrumbs", () => {
+  const backLink = {
+    label: "Back to review package",
+    href: "/reviews/claims-intake-modernization",
+  } as const;
+
+  it("is redundant when query runId matches the back-link href", () => {
+    expect(isBuyerOperateBackLinkRedundantWithBreadcrumbs("claims-intake-modernization", backLink)).toBe(true);
+  });
+
+  it("is not redundant without a scoped runId", () => {
+    expect(isBuyerOperateBackLinkRedundantWithBreadcrumbs("", backLink)).toBe(false);
+  });
+
+  it("is not redundant when query runId targets a different package", () => {
+    expect(isBuyerOperateBackLinkRedundantWithBreadcrumbs("other-run", backLink)).toBe(false);
   });
 });

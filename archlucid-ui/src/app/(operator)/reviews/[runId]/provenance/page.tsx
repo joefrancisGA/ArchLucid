@@ -88,11 +88,6 @@ export default async function RunProvenancePage({
           Open the <Link href="/graph">architecture graph</Link> for this review for an interactive trail, or use the
           public sample walkthrough when this coordinator view is unavailable.
         </p>
-        <p>
-          <Link href={`/reviews/${runId}`} className="text-teal-800 underline dark:text-teal-300">
-            ← Review detail
-          </Link>
-        </p>
       </div>
     );
   }
@@ -137,12 +132,6 @@ export default async function RunProvenancePage({
         ) : null}
 
         <ProvenanceGraphDiagram nodes={graph.nodes} edges={graph.edges} />
-
-        <p>
-          <Link href={`/reviews/${runId}`} className="text-teal-800 underline dark:text-teal-300">
-            ← Review detail
-          </Link>
-        </p>
 
         <section id="prov-timeline" aria-labelledby="prov-timeline-heading" className="mt-6">
           <h3 id="prov-timeline-heading" className="m-0 text-sm font-semibold text-al-text-primary">

@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorBrandedRouteLoadFailure } from "@/components/OperatorBrandedRouteLoadFailure";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -23,12 +21,6 @@ export function PlanningPlanDetailPageView({ model }: PlanningPlanDetailPageView
         <OperatorBrandedRouteLoadFailure failure={failure} retryLabel="Retry loading plan" />
       ) : (
         <>
-          <p className="mt-0 mb-4">
-            <Link href="/planning" className="text-blue-700 dark:text-blue-400 text-sm">
-              ← Back to planning
-            </Link>
-          </p>
-
           <h2 className="mt-0">Improvement plan</h2>
 
           {!planId.trim() ? (

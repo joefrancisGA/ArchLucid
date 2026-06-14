@@ -39,6 +39,7 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
           <h1 className="text-xl font-semibold tracking-tight text-al-text-primary">Approval lineage</h1>
           <p className="text-sm text-muted-foreground">{displayApprovalTitle}</p>
         </div>
+        {/* Returns to the curated showcase walkthrough, not the breadcrumb parent (approval request detail). */}
         <Button variant="outline" size="sm" asChild>
           <Link href={getShowcaseWalkthroughHref()}>Back to governance approval</Link>
         </Button>
