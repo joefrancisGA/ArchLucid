@@ -12,7 +12,6 @@ import { LlmBudgetStatusPill } from "@/components/LlmBudgetStatusPill";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { NavPresetQuickSwitcher } from "@/components/NavPresetQuickSwitcher";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
-import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
@@ -97,7 +96,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             <ProductConceptsGlossaryDialog />
             <PageContextualHelpButton />
             <UsabilityFeedbackWidget />
-            <TenantWorkspaceBoundaryBadge variant="header" />
             {showDevOperatorChrome ? <NavPresetQuickSwitcher /> : null}
           </div>
         </div>
