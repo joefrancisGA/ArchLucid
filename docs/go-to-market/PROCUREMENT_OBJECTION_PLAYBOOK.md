@@ -124,3 +124,9 @@
 - **Evidence:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md), `scripts/ci/check_procurement_claim_coherence.py`
 - **Escalate when:** Buyer requests a controlled-document policy attestation.
 
+---
+
+## Controlled pilot drill
+
+Before a live procurement call for a controlled pilot, run [`CONTROLLED_PILOT_OBJECTION_DRILL.md`](CONTROLLED_PILOT_OBJECTION_DRILL.md) (45–60 minutes) against objections **#1, #2, #8**, and real-mode AI evidence boundaries.
+
