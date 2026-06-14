@@ -9,7 +9,7 @@ internal static class IntegrationTestHostStartup
 {
     /// <summary>
     ///     InMemory integration hosts should start in seconds; 180s leaves headroom under slow CI without consuming
-    ///     the 6-minute whole-test deadline (180s startup + 30s client + 90s HTTP = 300s &lt; 360s).
+    ///     the 8-minute whole-test deadline (180s startup + 90s HTTP + 120s dispose &lt; 480s).
     /// </summary>
     internal static readonly TimeSpan DefaultStartupTimeout = TimeSpan.FromSeconds(180);
 

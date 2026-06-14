@@ -64,21 +64,28 @@ public sealed class AlertLifecycleWebAppFactory : BaseIntegrationTestFixture
         }
     }
 
-    private async Task<IServiceProvider> StartServicesCoreAsync()
+    private Task<IServiceProvider> StartServicesCoreAsync()
     {
-        return await IntegrationTestHostStartup.EnsureStartedAsync(() => Services).ConfigureAwait(false);
+        // Services access and first CreateClient share one Task.Run worker so WebApplicationFactory.EnsureServer
+        // is never entered concurrently from an abandoned startup thread and a later CreateClient (CI #2168).
+        return IntegrationTestHostStartup.EnsureStartedAsync(() =>
+        {
+            IServiceProvider services = Services;
+            _ = CreateClient();
+
+            return services;
+        });
     }
 
     /// <summary>
-    ///     Ensures the host is started, then creates an <see cref="HttpClient" /> under the same startup bound.
+    ///     Ensures the host is started (including TestServer client cache priming), then returns an
+    ///     <see cref="HttpClient" />.
     /// </summary>
     internal async Task<HttpClient> CreateBoundedClientAsync()
     {
         await EnsureServicesStartedAsync().ConfigureAwait(false);
 
-        return await IntegrationTestHostStartup.EnsureCompletedAsync(
-            CreateClient,
-            IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
+        return CreateClient();
     }
 
     /// <summary>
