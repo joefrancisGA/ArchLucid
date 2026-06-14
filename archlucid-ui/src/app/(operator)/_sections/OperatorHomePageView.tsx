@@ -1,3 +1,4 @@
+import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { OperatorHomeAdvancedGuidanceSection } from "@/components/operator-home/OperatorHomeAdvancedGuidanceSection";
 import { OperatorHomeWorkspaceStatusSection } from "@/components/operator-home/OperatorHomeWorkspaceStatusSection";
 import { BuyerPolishedHomeHeroSection } from "@/components/operator-home/BuyerPolishedHomeHeroSection";
@@ -29,7 +30,9 @@ function BuyerPolishedHomePageBody() {
     <>
       <BuyerPolishedHomeHeroSection />
 
-      <section aria-labelledby="operator-home-reviews-heading" className="space-y-3">
+      <BeforeAfterDeltaPanel />
+
+      <section aria-labelledby="operator-home-reviews-heading" className="space-y-1.5">
         <HomeSectionHeading id="operator-home-reviews-heading">{BUYER_HOME_REVIEWS_SECTION_HEADING}</HomeSectionHeading>
         <RunsDashboardPanel hideHeading />
       </section>
@@ -46,7 +49,9 @@ function OperatorHomePageBody() {
     <>
       <PilotCommandCenterCard />
 
-      <section aria-labelledby="operator-home-reviews-heading" className="space-y-3">
+      <BeforeAfterDeltaPanel />
+
+      <section aria-labelledby="operator-home-reviews-heading" className="space-y-1.5">
         <HomeSectionHeading id="operator-home-reviews-heading">Your reviews</HomeSectionHeading>
         <RunsDashboardPanel hideHeading />
       </section>
@@ -70,7 +75,7 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
     <OperatorHomeGate>
       <TrialWelcomeRunDeepLink />
       <OperatorWelcomeOnboarding />
-      <div className="space-y-3">
+      <div className="space-y-2">
         {buyerPolishedShell ? <BuyerPolishedHomePageBody /> : <OperatorHomePageBody />}
       </div>
     </OperatorHomeGate>

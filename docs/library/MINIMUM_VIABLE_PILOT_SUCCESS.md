@@ -1,4 +1,4 @@
-> **Scope:** Operator / pilot — shortest path to a **passing baseline** without optional branches (Improvement #8).
+> **Scope:** Operator cookbook — shortest path to a **passing baseline** without optional branches (Improvement #8).
 
 # Minimum viable pilot success lane
 

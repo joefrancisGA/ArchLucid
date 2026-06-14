@@ -1,4 +1,4 @@
-> **Scope:** Canonical single-path command sequence for first **hosted pilot** success — one authoritative flow; advanced paths are troubleshooting only.
+> **Scope:** Operator cookbook — canonical single-path command sequence for first **hosted pilot** success — one authoritative flow; advanced paths are troubleshooting only.
 
 # Hosted pilot — single path quickstart
 

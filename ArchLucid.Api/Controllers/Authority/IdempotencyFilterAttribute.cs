@@ -49,7 +49,16 @@ public sealed class IdempotencyFilterAttribute : ActionFilterAttribute
             if (executedContext.Result is ObjectResult objectResult)
             {
                 string json = JsonSerializer.Serialize(objectResult.Value, ArchLucidApiJsonSerializerOptions.Web);
-                await repository.TryInsertAsync(scope.TenantId, idempotencyKey, objectResult.StatusCode ?? 200, json, context.HttpContext.RequestAborted);
+                int statusCode = objectResult.StatusCode ?? 200;
+                await repository.TryInsertAsync(scope.TenantId, idempotencyKey, statusCode, json, context.HttpContext.RequestAborted);
+
+                // Wire the same bytes on first response so replay matches the stored body (ASP.NET formatters can differ).
+                executedContext.Result = new ContentResult
+                {
+                    Content = json,
+                    ContentType = "application/json",
+                    StatusCode = statusCode
+                };
             }
             else if (executedContext.Result is ContentResult contentResult && contentResult.Content != null)
             {

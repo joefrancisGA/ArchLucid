@@ -27,8 +27,55 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
         PropertyNameCaseInsensitive = true
     };
 
+    /// <summary>
+    ///     Method name prefix <c>A_</c> forces xUnit alphabetical order before seeding tests — shared
+    ///     <see cref="InMemoryVectorIndex" /> accumulates documents for the class lifetime.
+    /// </summary>
     [SkippableFact]
-    public Task Index_documents_then_query_returns_matching_hits()
+    public Task A_Query_with_no_indexed_documents_returns_empty_list()
+    {
+        return IntegrationTestDeadline.RunAsync(
+            nameof(Query_with_no_indexed_documents_returns_empty_list),
+            async testDeadline =>
+            {
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
+
+                HttpResponseMessage response = await client.GetAsync(
+                    new Uri("v1/retrieval/search?q=anything&topK=3", UriKind.Relative),
+                    requestTimeout.Token);
+
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+                List<RetrievalHit>? hits = await response.Content
+                    .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
+
+                hits.Should().NotBeNull();
+                hits.Should().BeEmpty("no documents have been indexed");
+            });
+    }
+
+    [SkippableFact]
+    public Task B_Query_without_q_returns_bad_request()
+    {
+        return IntegrationTestDeadline.RunAsync(
+            nameof(Query_without_q_returns_bad_request),
+            async testDeadline =>
+            {
+                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
+                using CancellationTokenSource requestTimeout =
+                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
+
+                HttpResponseMessage response = await client.GetAsync(
+                    new Uri("v1/retrieval/search?q=", UriKind.Relative),
+                    requestTimeout.Token);
+
+                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            });
+    }
+
+    [SkippableFact]
+    public Task C_Index_documents_then_query_returns_matching_hits()
     {
         return IntegrationTestDeadline.RunAsync(
             nameof(Index_documents_then_query_returns_matching_hits),
@@ -55,26 +102,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
     }
 
     [SkippableFact]
-    public Task Query_without_q_returns_bad_request()
-    {
-        return IntegrationTestDeadline.RunAsync(
-            nameof(Query_without_q_returns_bad_request),
-            async testDeadline =>
-            {
-                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(sharedHost.Factory);
-                using CancellationTokenSource requestTimeout =
-                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
-
-                HttpResponseMessage response = await client.GetAsync(
-                    new Uri("v1/retrieval/search?q=", UriKind.Relative),
-                    requestTimeout.Token);
-
-                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            });
-    }
-
-    [SkippableFact]
-    public Task TopK_clamps_result_count()
+    public Task D_TopK_clamps_result_count()
     {
         return IntegrationTestDeadline.RunAsync(
             nameof(TopK_clamps_result_count),
@@ -143,43 +171,5 @@ public sealed class RetrievalQuerySmokeIntegrationTests(RetrievalQuerySmokeShare
         ];
 
         await indexingService.IndexDocumentsAsync(documents, cancellationToken);
-    }
-}
-
-/// <summary>
-///     Isolated host for the empty-index assertion — cannot share
-///     <see cref="RetrievalQuerySmokeSharedHostFixture" /> with seeding smoke tests.
-/// </summary>
-[Trait("Category", "Integration")]
-public sealed class RetrievalQueryEmptyIndexSmokeIntegrationTests
-{
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
-    [SkippableFact]
-    public Task Query_with_no_indexed_documents_returns_empty_list()
-    {
-        return IntegrationTestDeadline.RunAsync(
-            nameof(Query_with_no_indexed_documents_returns_empty_list),
-            async testDeadline =>
-            {
-                await using AlertLifecycleWebAppFactory factory = new();
-                HttpClient client = await AlertLifecycleIntegrationHost.EnsureClientAsync(factory);
-                using CancellationTokenSource requestTimeout =
-                    IntegrationTestDeadline.CreateLinkedRequestTimeoutSource(testDeadline);
-
-                HttpResponseMessage response = await client.GetAsync(
-                    new Uri("v1/retrieval/search?q=anything&topK=3", UriKind.Relative),
-                    requestTimeout.Token);
-
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
-                List<RetrievalHit>? hits = await response.Content
-                    .ReadFromJsonAsync<List<RetrievalHit>>(JsonOptions, requestTimeout.Token);
-
-                hits.Should().NotBeNull();
-                hits.Should().BeEmpty("no documents have been indexed");
-            });
     }
 }

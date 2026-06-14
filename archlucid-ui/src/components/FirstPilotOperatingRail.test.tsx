@@ -69,6 +69,12 @@ describe("FirstPilotOperatingRail", () => {
       expect(screen.getByTestId("first-pilot-operating-rail")).toHaveAttribute("data-rail-variant", "buyer");
     });
 
+    fireEvent.click(screen.getByRole("button", { name: "Expand Guided review workflow" }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Complete the guided assessment/i)).toBeInTheDocument();
+    });
+
     expect(screen.getByRole("heading", { name: "Guided review workflow" })).toBeInTheDocument();
     expect(screen.queryByText(/V1\.1 connectors/i)).toBeNull();
     expect(screen.getByText(/Complete the guided assessment/i)).toBeInTheDocument();
