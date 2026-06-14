@@ -365,6 +365,15 @@ if (Test-Path -LiteralPath $faithfulnessSource) {
     Copy-Item -LiteralPath $faithfulnessSource -Destination (Join-Path $OutDir "faithfulness-report.md") -Force
 }
 
+[string] $materialFindingJson = Join-Path $OutDir "material-finding-faithfulness-summary.json"
+[string] $materialFindingMd = Join-Path $OutDir "material-finding-faithfulness-summary.md"
+& python (Join-Path $root "scripts/ci/build_material_finding_faithfulness_summary.py") `
+    --json-out $materialFindingJson `
+    --markdown-out $materialFindingMd
+[int] $materialFindingExit = $LASTEXITCODE
+[string] $materialFindingVerdict = if ($materialFindingExit -eq 0) { "PASS" } else { "FAIL" }
+Add-CheckRow $checks "Material finding faithfulness (offline corpus)" $materialFindingVerdict "citation/evidence coverage on representative scenarios; exit $materialFindingExit" "material-finding-faithfulness-summary.json"
+
 [string] $aiQualityJsonPath = Join-Path $OutDir "ai-quality-release-summary.json"
 [string] $aiQualityMarkdownPath = Join-Path $OutDir "ai-quality-release-summary.md"
 & python (Join-Path $root "scripts/ci/build_ai_quality_release_summary.py") `
