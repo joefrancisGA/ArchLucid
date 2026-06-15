@@ -29,7 +29,8 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
         (string headline, string body) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
 
         headline.Should().Be("Low");
-        body.Should().Contain("No measurement yet");
+        body.Should().Contain("No tenant baseline measurements were captured");
+        body.Should().Contain("illustrative / internal planning only");
     }
 
     [Fact]
