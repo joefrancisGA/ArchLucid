@@ -1,4 +1,5 @@
 using System.Net;
+using System.Reflection;
 
 using ArchLucid.Host.Core.Hosted;
 
@@ -17,7 +18,7 @@ public sealed class OidcAuthorityStartupProbeHostedServiceTests
     public async Task StartAsync_when_fail_closed_and_probe_fails_stops_application()
     {
         CountingHostApplicationLifetime lifetime = new();
-        StubHttpClientFactory factory = new(new StubHttpMessageHandler(HttpStatusCode.ServiceUnavailable));
+        StubHttpClientFactory factory = new(new StubHttpMessageHandler(HttpStatusCode.NotFound));
 
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -35,6 +36,7 @@ public sealed class OidcAuthorityStartupProbeHostedServiceTests
             NullLogger<OidcAuthorityStartupProbeHostedService>.Instance);
 
         await sut.StartAsync(CancellationToken.None);
+        await WaitForExecuteTaskAsync(sut);
 
         lifetime.StopApplicationCallCount.Should().Be(1);
     }
@@ -43,7 +45,7 @@ public sealed class OidcAuthorityStartupProbeHostedServiceTests
     public async Task StartAsync_when_fail_closed_disabled_does_not_stop_application()
     {
         CountingHostApplicationLifetime lifetime = new();
-        StubHttpClientFactory factory = new(new StubHttpMessageHandler(HttpStatusCode.ServiceUnavailable));
+        StubHttpClientFactory factory = new(new StubHttpMessageHandler(HttpStatusCode.NotFound));
 
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -61,10 +63,24 @@ public sealed class OidcAuthorityStartupProbeHostedServiceTests
             NullLogger<OidcAuthorityStartupProbeHostedService>.Instance);
 
         await sut.StartAsync(CancellationToken.None);
+        await WaitForExecuteTaskAsync(sut);
 
         lifetime.StopApplicationCallCount.Should().Be(0);
     }
 
+    private static async Task WaitForExecuteTaskAsync(BackgroundService service)
+    {
+        FieldInfo? executeTaskField = typeof(BackgroundService).GetField(
+            "_executeTask",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+
+        executeTaskField.Should().NotBeNull("BackgroundService should expose _executeTask for hosted-service tests.");
+
+        Task? executeTask = (Task?)executeTaskField!.GetValue(service);
+        executeTask.Should().NotBeNull("StartAsync should schedule ExecuteAsync before assertions run.");
+
+        await executeTask!;
+    }
     private sealed class CountingHostApplicationLifetime : IHostApplicationLifetime
     {
         public int StopApplicationCallCount

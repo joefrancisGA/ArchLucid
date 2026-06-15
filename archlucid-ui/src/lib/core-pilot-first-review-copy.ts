@@ -12,7 +12,7 @@ export const OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING = "Sample package shortcu
 
 /** High-level flow; technical terms (manifest, run ID) stay in step bodies and tooltips. */
 export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
-  "Create architecture review → Assessment executes → Finalize → Review package";
+  "Create architecture review → Assessment runs → Finalize → Review package";
 
 /**
  * Four plain steps for default first-session copy (no manifest / Operate jargon). Shown in collapsed diagnostics on Home
