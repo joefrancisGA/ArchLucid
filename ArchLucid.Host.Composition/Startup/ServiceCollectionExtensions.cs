@@ -73,6 +73,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(DraftIntakeReaperOptions.SectionName));
         services.Configure<DraftIntakeBranchOptions>(
             configuration.GetSection(DraftIntakeBranchOptions.SectionName));
+        services.Configure<DraftSemanticAdmissionOptions>(
+            configuration.GetSection(DraftSemanticAdmissionOptions.SectionName));
         services.Configure<TenantErasurePurgeOptions>(configuration.GetSection(TenantErasurePurgeOptions.SectionName));
         services.Configure<OrphanedTenantCatalogCleanupOptions>(
             configuration.GetSection(OrphanedTenantCatalogCleanupOptions.SectionName));

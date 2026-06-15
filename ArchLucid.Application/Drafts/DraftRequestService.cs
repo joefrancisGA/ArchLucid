@@ -18,6 +18,7 @@ namespace ArchLucid.Application.Drafts;
 public sealed class DraftRequestService(
     IDraftRequestRepository draftRepository,
     IDraftAdmissionGate admissionGate,
+    IDraftSemanticAdmissionEvaluator semanticAdmissionEvaluator,
     IQuestionSelectionEngine questionSelectionEngine,
     IDraftRequestProjector projector,
     IArchitectureRunCreateOrchestrator runCreateOrchestrator,
@@ -27,6 +28,9 @@ public sealed class DraftRequestService(
 {
     private readonly IDraftAdmissionGate _admissionGate =
         admissionGate ?? throw new ArgumentNullException(nameof(admissionGate));
+
+    private readonly IDraftSemanticAdmissionEvaluator _semanticAdmissionEvaluator =
+        semanticAdmissionEvaluator ?? throw new ArgumentNullException(nameof(semanticAdmissionEvaluator));
 
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -268,6 +272,25 @@ public sealed class DraftRequestService(
             return BuildAdmissionResponse(redirected!, admitted: false, evaluation.RedirectReason);
         }
 
+        DraftAdmissionEvaluation? semanticRedirect =
+            await TrySemanticRedirectAsync(existing.Document, cancellationToken);
+
+        if (semanticRedirect is not null)
+        {
+            DraftRequestResponse? redirected = await _draftRepository.UpdateAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                draftId,
+                DraftRequestStatus.Redirected,
+                existing.Document,
+                semanticRedirect.RedirectReason,
+                existing.SpawnedRunId,
+                cancellationToken);
+
+            return BuildAdmissionResponse(redirected!, admitted: false, semanticRedirect.RedirectReason);
+        }
+
         QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -451,7 +474,12 @@ public sealed class DraftRequestService(
 
         if (evaluation.Admitted)
         {
-            QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
+            DraftAdmissionEvaluation? semanticRedirect =
+                await TrySemanticRedirectAsync(branchDocument, cancellationToken);
+
+            if (semanticRedirect is null)
+            {
+                QuestionSelectionResult selection = await _questionSelectionEngine.SelectAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
@@ -471,6 +499,7 @@ public sealed class DraftRequestService(
                 spawnedRunId: null,
                 cancellationToken)
                 ?? branch;
+            }
         }
 
         return new BranchDraftResponse
@@ -675,6 +704,26 @@ public sealed class DraftRequestService(
 
         existing.Value = value;
         existing.Confidence = confidence;
+    }
+
+    private async Task<DraftAdmissionEvaluation?> TrySemanticRedirectAsync(
+        DraftRequestDocument document,
+        CancellationToken cancellationToken)
+    {
+        DraftSemanticAdmissionEvaluation semantic =
+            await _semanticAdmissionEvaluator.EvaluateAsync(document, cancellationToken);
+
+        if (semantic.Disposition is DraftSemanticAdmissionDispositionKind.Admitted
+            or DraftSemanticAdmissionDispositionKind.EvaluatorUnavailable)
+        {
+            return null;
+        }
+
+        return new DraftAdmissionEvaluation
+        {
+            Admitted = false,
+            RedirectReason = semantic.RedirectReason,
+        };
     }
 
     private DraftAdmissionResponse BuildAdmissionResponse(

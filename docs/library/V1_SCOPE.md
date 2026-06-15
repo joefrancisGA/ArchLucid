@@ -49,7 +49,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 
 #### 2.1 Review lifecycle: request → execute → commit
 
-- Create a **review** from a structured **architecture request** (`POST /v1/architecture/request`).
+- Create a **review** from a structured **architecture request** (`POST /v1/architecture/request`) **or** from the operator **guided intake** path (`POST /v1/architecture/draft` → admit → submit).
 - Drive the **review** through **execution** so agent work completes under the configured **simulator or real** execution mode.
 - **Commit** a **golden manifest** (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - End-to-end request → execute → commit behavior, including convergence on manifests and artifacts, is described in [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).

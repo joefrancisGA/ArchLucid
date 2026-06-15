@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
 import {
   feasibilityVerdictKindLabel,
   feasibilityVerdictTone,
@@ -40,6 +40,7 @@ export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceipt
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
+        <DraftIntakeClaimLabel surface="redirected-draft" />
         <p className="m-0 text-sm font-semibold">{feasibilityVerdictKindLabel(props.verdict.kind)}</p>
         <p className="m-0 text-sm leading-relaxed">{props.verdict.summary}</p>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

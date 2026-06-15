@@ -13,6 +13,7 @@
 | Review-detail trust card | Execution mode status | `RunTrustEvidenceCardBuilderTests` |
 | Executive ROI summary | Real-mode filter, estimate caveats | `ExecutiveRoiSummaryServiceExtendedTests` |
 | UI review detail / value report | Mode callouts, demo labels | Vitest `RunTrustEvidenceCardSection.test.tsx` |
+| Socratic draft intake (operator) | Structural admission, LLM intake reasoning, redirect receipt, admitted draft, spawned review | Vitest `SocraticIntakeWizard.test.tsx`, `DraftIntakeClaimLabel` surfaces |
 | Proof pipeline outputs | `realModeEvidenceStatus`, sponsor disposition | `collect-first-pilot-proof.Tests.ps1` |
 
 ## Rules (V1)

@@ -51,7 +51,7 @@ import {
   QUICK_REVIEW_SAMPLE_BRIEFS,
 } from "@/lib/quick-review-sample-briefs";
 
-/** Persisted when the operator switches paths; missing key defaults to Quick review (onboarding-friendly). */
+/** Persisted when the operator switches paths; missing key defaults to guided intake (onboarding-friendly). */
 const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
 
 type ReviewsNewPathMode = "quick-review" | "full-guided";
@@ -68,7 +68,7 @@ const QUICK_REVIEW_STEPS = [
 
 function readStoredPathMode(): ReviewsNewPathMode {
   if (typeof window === "undefined") {
-    return "quick-review";
+    return "full-guided";
   }
 
   try {
@@ -95,7 +95,7 @@ function readStoredPathMode(): ReviewsNewPathMode {
     /* ignore */
   }
 
-  return "quick-review";
+  return "full-guided";
 }
 
 function persistPathMode(mode: ReviewsNewPathMode): void {
@@ -572,7 +572,7 @@ export function ReviewsNewPathSwitcher() {
   const searchParams = useSearchParams();
   const baselineFirst = searchParams?.get("baseline") === "1";
   const presetGreenfield = searchParams?.get("preset") === "greenfield";
-  const [pathMode, setPathMode] = useState<ReviewsNewPathMode>("quick-review");
+  const [pathMode, setPathMode] = useState<ReviewsNewPathMode>("full-guided");
   const [fullGuidedSubMode, setFullGuidedSubMode] = useState<FullGuidedSubMode>("guided-intake");
   const [ready, setReady] = useState(false);
   const [tourActive, setTourActive] = useState(false);
@@ -644,24 +644,24 @@ export function ReviewsNewPathSwitcher() {
           <Button
             type="button"
             role="tab"
-            aria-selected={pathMode === "quick-review"}
-            variant={pathMode === "quick-review" ? "default" : "outline"}
-            className="min-w-[10rem]"
-            onClick={selectQuick}
-            data-testid="reviews-new-path-quick"
-          >
-            Quick review
-          </Button>
-          <Button
-            type="button"
-            role="tab"
             aria-selected={pathMode === "full-guided"}
             variant={pathMode === "full-guided" ? "default" : "outline"}
             className="min-w-[10rem]"
             onClick={selectFullGuided}
             data-testid="reviews-new-path-full-guided"
           >
-            Full guided review
+            Guided intake (recommended)
+          </Button>
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={pathMode === "quick-review"}
+            variant={pathMode === "quick-review" ? "default" : "outline"}
+            className="min-w-[10rem]"
+            onClick={selectQuick}
+            data-testid="reviews-new-path-quick"
+          >
+            Quick review (advanced)
           </Button>
         </div>
       ) : null}
