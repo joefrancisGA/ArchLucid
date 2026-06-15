@@ -7,10 +7,10 @@ export const CUSTOM_ROLE_PERMISSION_GROUPS: readonly PermissionGroup[] = [
   {
     area: "Reviews",
     permissions: [
-      { id: "Runs.Read", label: "Read runs" },
-      { id: "Runs.Create", label: "Create runs" },
-      { id: "Runs.Commit", label: "Commit runs" },
-      { id: "Runs.Delete", label: "Delete runs" },
+      { id: "Runs.Read", label: "Read reviews" },
+      { id: "Runs.Create", label: "Create reviews" },
+      { id: "Runs.Commit", label: "Commit reviews" },
+      { id: "Runs.Delete", label: "Delete reviews" },
     ],
   },
   {

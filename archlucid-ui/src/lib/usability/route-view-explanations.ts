@@ -52,7 +52,7 @@ const ROUTE_VIEW_EXPLANATIONS: readonly { prefix: string; explanation: RouteView
   {
     prefix: "/dashboard",
     explanation: {
-      title: "Executive summary",
+      title: "Portfolio overview",
       summary: "Sponsor-facing ROI and proof metrics derived from committed review packages.",
       nextAction: "Open a finalized review package to drill into findings confidence and value claims.",
     },

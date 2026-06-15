@@ -49,7 +49,7 @@ const INTAKE_STEPS = [
     label: "Intent, outcome & actors",
     description: "Describe what you are building, the business result, and who uses the system.",
   },
-  { label: "MUST questions", description: "Answer pack-driven intake questions before the run starts." },
+  { label: "MUST questions", description: "Answer pack-driven intake questions before the review starts." },
   { label: "Start review", description: "Submit the admitted draft to the authority pipeline." },
 ] as const;
 

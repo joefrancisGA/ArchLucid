@@ -4,6 +4,9 @@ using ArchLucid.Host.Core.Startup.Validation;
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+
+using Moq;
 
 namespace ArchLucid.Host.Core.Tests.Startup;
 
@@ -167,6 +170,27 @@ public sealed class CriticalConfigurationValidatorTests
     }
 
     [Fact]
+    public void CollectErrors_reports_demo_enabled_when_host_environment_is_production()
+    {
+        IConfiguration configuration = BuildConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:ArchLucid"] =
+                    "Server=.;Database=CriticalConfigurationValidatorTests;Trusted_Connection=True;TrustServerCertificate=True",
+                ["AgentExecution:Mode"] = "Simulator",
+                ["Demo:Enabled"] = "true",
+            });
+
+        Mock<IHostEnvironment> environment = new();
+        environment.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors =
+            CriticalConfigurationValidator.CollectErrors(configuration, environment.Object);
+
+        errors.Should().ContainSingle(error => error.Contains("Demo:Enabled", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void StartAsync_throws_descriptive_invalid_operation_exception_when_configuration_invalid()
     {
         IConfiguration configuration = BuildConfiguration(
@@ -176,8 +200,12 @@ public sealed class CriticalConfigurationValidatorTests
                 ["AgentExecution:Mode"] = "Real",
             });
 
+        Mock<IHostEnvironment> environment = new();
+        environment.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
         ConfigurationValidationHostedService hostedService = new(
             configuration,
+            environment.Object,
             Microsoft.Extensions.Logging.Abstractions.NullLogger<ConfigurationValidationHostedService>.Instance);
 
         Func<Task> act = () => hostedService.StartAsync(CancellationToken.None);

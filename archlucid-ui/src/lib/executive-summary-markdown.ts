@@ -164,7 +164,7 @@ export function buildExecutiveSummaryMarkdown(summary: ExecutiveRoiSummary): str
   if (summary.systems.length === 0) {
     lines.push("_No systems were returned in this summary._");
   } else {
-    lines.push("| System | Run ID | Estimated USD savings |");
+    lines.push("| System | Review ID | Estimated USD savings |");
     lines.push("| --- | --- | ---: |");
 
     for (const system of summary.systems) {

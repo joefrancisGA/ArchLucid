@@ -22,7 +22,7 @@ export const NAV_LINK_QUESTION_SUBTITLES: readonly NavLinkQuestionSubtitle[] = [
   { href: "/value-report", subtitle: "What value did reviews deliver?" },
   { href: "/reviews/new", subtitle: "Start a new architecture review" },
   { href: "/reviews", subtitle: "Browse committed review packages" },
-  { href: "/dashboard", subtitle: "Executive summary for sponsors" },
+  { href: "/dashboard", subtitle: "Portfolio ROI and compliance drift for sponsors" },
 ] as const;
 
 export function navLinkQuestionSubtitle(href: string): string | null {

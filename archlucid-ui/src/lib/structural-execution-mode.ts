@@ -31,14 +31,14 @@ export function structuralExecutionModeBadgeTitle(mode: number | null | undefine
 
   switch (mode) {
     case StructuralExecutionModeWire.Real:
-      return `${label} execution — agent steps used the configured model path for this run.`;
+      return `${label} execution — agent steps used the configured model path for this review.`;
     case StructuralExecutionModeWire.Fallback:
-      return `${label} execution — real path was attempted but this run recorded simulator substitution.`;
+      return `${label} execution — real path was attempted but this review recorded simulator substitution.`;
     case StructuralExecutionModeWire.Mixed:
       return `${label} execution — some agent steps used deterministic substitution while others used the model path. Treat highlights conservatively.`;
     case StructuralExecutionModeWire.Simulator:
       return `${label} execution — deterministic analysis path (repeatable, no billable model usage for those steps).`;
     default:
-      return "Execution mode label unavailable for this run.";
+      return "Execution mode label unavailable for this review.";
   }
 }

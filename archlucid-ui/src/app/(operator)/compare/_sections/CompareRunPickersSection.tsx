@@ -110,7 +110,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
               Advanced — enter review ID manually
             </summary>
             <p className="mt-2 m-0 text-neutral-600 dark:text-neutral-400">
-              Type or paste a review ID in either field above when the run is not in the recent list (for example an
+              Type or paste a review ID in either field above when the review is not in the recent list (for example an
               in-progress or archived review).
             </p>
           </details>

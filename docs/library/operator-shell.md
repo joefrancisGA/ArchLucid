@@ -55,7 +55,7 @@ Short **Operate (governance and trust)** context lines (nav subtitle + `LayerHea
 
 **Contributors:** treat **`archlucid-ui/README.md`** (*Role-aware shaping*) as the canonical pointer list. Do not add ad-hoc `/me` fetches or duplicate policy logic in the browser; extend **`nav-config.ts`** + **`nav-shell-visibility.ts`** when adding routes so sidebar, mobile drawer, and palette stay consistent.
 
-**Navigation preset (UI-only):** the sidebar footer exposes **Navigation preset (UI only)** — it reorders Pilot shortcuts via **`operator-nav-preset`** (browser `localStorage`) without changing API authorization.
+**Primary navigation:** **Operator | Executive** in the top bar switches producer vs consumer shells. Sidebar groups (Review work, Analysis, Governance, Administration) are the direct navigation model; progressive disclosure tiers and **Show all features** control link breadth — there is no separate workflow-mode toolbar.
 
 **Core Pilot checklist telemetry (aggregated):** when the checklist records completion it may **`POST /v1/diagnostics/core-pilot-rail-step`** with **`stepIndex` 0–3** (`AllowAnonymous`, rate limited). The API emits counter **`archlucid_core_pilot_rail_checklist_step_total`** (label **`step`**) — adoption signal only.
 

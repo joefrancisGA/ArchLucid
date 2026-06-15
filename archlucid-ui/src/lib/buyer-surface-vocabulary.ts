@@ -35,7 +35,7 @@ export const BUYER_EXECUTIVE_SUMMARY_VOCABULARY = {
   },
   newlyDiscoveredFindings30dMetric: {
     title: "Findings discovered (30 days)",
-    description: "New risks on committed runs in trailing window",
+    description: "New risks on committed reviews in trailing window",
   },
   staleArchitectureRisksMetric: {
     title: "Stale architecture risks",

@@ -8,33 +8,33 @@ describe("PilotNavGroupBuilder", () => {
     vi.unstubAllEnvs();
   });
 
-  it("uses buyer-safe executive summary nav title without illustrative metrics leak", () => {
+  it("uses buyer-safe portfolio overview nav title without illustrative metrics leak", () => {
     const group = new PilotNavGroupBuilder().build();
-    const dashboardLink = group.links.find((link) => link.label === "Executive summary");
+    const dashboardLink = group.links.find((link) => link.label === "Portfolio overview");
 
     expect(dashboardLink).toBeDefined();
-    expect(dashboardLink?.title).toContain("Executive summary");
+    expect(dashboardLink?.title).toContain("Portfolio overview");
     expect(dashboardLink?.title?.toLowerCase()).not.toContain("illustrative");
     expect(dashboardLink?.title?.toLowerCase()).not.toContain("until api lands");
   });
 
-  it("points executive summary nav at /dashboard outside demo packaging", () => {
+  it("points portfolio overview nav at /dashboard outside demo packaging", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "");
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
 
     const group = new PilotNavGroupBuilder().build();
-    const executiveLink = group.links.find((link) => link.label === "Executive summary");
+    const dashboardLink = group.links.find((link) => link.label === "Portfolio overview");
 
-    expect(executiveLink?.href).toBe("/dashboard");
+    expect(dashboardLink?.href).toBe("/dashboard");
   });
 
-  it("points executive summary nav at showcase executive href in CTO presenter safe mode", () => {
+  it("points portfolio overview nav at showcase executive href in CTO presenter safe mode", () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     vi.stubEnv("NEXT_PUBLIC_DEMO_STATIC_OPERATOR", "");
 
     const group = new PilotNavGroupBuilder().build();
-    const executiveLink = group.links.find((link) => link.label === "Executive summary");
+    const dashboardLink = group.links.find((link) => link.label === "Portfolio overview");
 
-    expect(executiveLink?.href).toBe(getShowcaseExecutiveHref());
+    expect(dashboardLink?.href).toBe(getShowcaseExecutiveHref());
   });
 });

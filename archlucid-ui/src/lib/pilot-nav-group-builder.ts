@@ -17,8 +17,8 @@ import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n"
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-const EXECUTIVE_SUMMARY_NAV_TITLE =
-  "Executive summary — sponsor-facing ROI snapshot and package overview";
+const PORTFOLIO_OVERVIEW_NAV_TITLE =
+  "Portfolio overview — sponsor-facing ROI snapshot and package overview";
 
 /** Pilot layer — default authenticated path; essentials omit `requiredAuthority` where invariant requires it. */
 export class PilotNavGroupBuilder extends NavGroupBuilderBase {
@@ -28,7 +28,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
       label: OPERATOR_NAV_GROUP_LABELS.reviewWork,
       surface: "review-workflow",
       caption:
-        "Buyer-first path: Executive summary → Architecture reviews → Evidence trail → Evidence intake for net-new input; then onboarding, findings, help, and scorecard.",
+        "Buyer-first path: Portfolio overview → Architecture reviews → Evidence trail → Evidence intake for net-new input; then onboarding, findings, help, and scorecard.",
       links: [
         {
           href: "/",
@@ -41,8 +41,8 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: isCtoDemoPresenterSafeModeEnv() ? getShowcaseExecutiveHref() : "/dashboard",
-          label: OPERATOR_NAV_LINK_LABELS.executiveSummary,
-          title: EXECUTIVE_SUMMARY_NAV_TITLE,
+          label: OPERATOR_NAV_LINK_LABELS.portfolioOverview,
+          title: PORTFOLIO_OVERVIEW_NAV_TITLE,
           icon: LayoutDashboard,
           tier: "essential",
           defaultVisibleInCollapsedSidebar: true,

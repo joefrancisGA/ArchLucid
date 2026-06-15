@@ -8,9 +8,11 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AuthPanel } from "@/components/AuthPanel";
 import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
+import { ExecutiveShellOrientationCallout } from "@/components/executive/ExecutiveShellOrientationCallout";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { TenantWorkspaceBoundaryBadge } from "@/components/shell/TenantWorkspaceBoundaryBadge";
+import { ExecutiveOperatorShellSwitcher } from "@/components/usability/ExecutiveOperatorShellSwitcher";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
@@ -79,14 +81,9 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
                   Scorecard
                 </Link>
               </Button>
-              <span className="hidden text-neutral-400 sm:inline dark:text-neutral-600" aria-hidden>
-                |
-              </span>
-              <Button asChild variant="ghost" size="sm" className="shrink-0 text-neutral-700 dark:text-neutral-300">
-                <Link href="/">Review portal</Link>
-              </Button>
             </div>
             <div className="flex items-center gap-2">
+              <ExecutiveOperatorShellSwitcher />
               <TenantWorkspaceBoundaryBadge variant="compact" />
               <AuthPanel />
               {isUiAuthorityThemeEvalEnabledEnv() ? <AuthorityThemeToggle /> : null}
@@ -94,6 +91,7 @@ export function ExecutiveShellFrame({ children }: ExecutiveShellFrameProps) {
             </div>
           </div>
         </header>
+        <ExecutiveShellOrientationCallout />
         <LayerContextFromRoute />
         <main
           id="main-content"

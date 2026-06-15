@@ -68,7 +68,7 @@ describe("OperatorShellTopBar", () => {
     });
   });
 
-  it("renders primary and secondary header rails so utilities can wrap", async () => {
+  it("renders a single header rail with help and without resources flyout", async () => {
     render(
       <TooltipProvider>
         <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
@@ -77,13 +77,14 @@ describe("OperatorShellTopBar", () => {
 
     expect(screen.getByTestId("app-shell-topbar")).toHaveClass("overflow-x-hidden");
     expect(screen.getByTestId("app-shell-topbar-primary")).toBeInTheDocument();
-    expect(screen.getByTestId("app-shell-topbar-secondary")).toHaveClass("w-full");
-    expect(screen.getByTestId("trust-center-shell-link")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-shell-topbar-secondary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(await screen.findByTestId("llm-budget-status-pill")).toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
   });
 
-  it("omits dev-only chrome in buyer-polished shell mode", () => {
+  it("omits dev-only chrome in buyer-polished shell mode but keeps help", () => {
     buyerPolishedMock.value = true;
 
     render(
@@ -92,8 +93,9 @@ describe("OperatorShellTopBar", () => {
       </TooltipProvider>,
     );
 
+    expect(screen.getByTestId("operator-shell-help-trigger")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-shell-resources-trigger")).not.toBeInTheDocument();
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
     expect(screen.queryByTestId("shell-setup-health-chip")).not.toBeInTheDocument();
-    expect(screen.getByTestId("trust-center-shell-link")).toBeInTheDocument();
   });
 });

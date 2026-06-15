@@ -18,15 +18,31 @@ import { showError, showSuccess } from "@/lib/toast";
 
 type UsabilityFeedbackWidgetProps = {
   readonly runId?: string | null;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
+  /** When false, only the dialog surface is rendered (parent supplies open state). */
+  readonly showTrigger?: boolean;
 };
 
 /** Lightweight in-app feedback — posts to customer-success product-feedback. */
 export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
   const pathname = usePathname() ?? "/";
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = props.open !== undefined;
+  const open = isControlled ? props.open : internalOpen;
+  const showTrigger = props.showTrigger !== false;
   const [comment, setComment] = useState("");
   const [score, setScore] = useState<number>(4);
   const [busy, setBusy] = useState(false);
+
+  function setOpen(next: boolean): void {
+    if (isControlled) {
+      props.onOpenChange?.(next);
+      return;
+    }
+
+    setInternalOpen(next);
+  }
 
   async function submit(): Promise<void> {
     setBusy(true);
@@ -51,17 +67,19 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 text-xs text-neutral-600 dark:text-neutral-400"
-          data-testid="usability-feedback-trigger"
-        >
-          Feedback
-        </Button>
-      </DialogTrigger>
+      {showTrigger ? (
+        <DialogTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs text-neutral-600 dark:text-neutral-400"
+            data-testid="usability-feedback-trigger"
+          >
+            Feedback
+          </Button>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Was this helpful?</DialogTitle>

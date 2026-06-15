@@ -14,14 +14,20 @@ param(
 
     [string] $ApiKey = '',
 
-    [Parameter(Mandatory = $true)]
-    [string] $ResultOut
+    [string] $ResultOut = 'artifacts/release-smoke-live-ui-sql-result.json'
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+if ([string]::IsNullOrWhiteSpace($ResultOut)) {
+    Write-Error 'Release candidate profile requires -ResultOut for machine-readable strict evidence (default: artifacts/release-smoke-live-ui-sql-result.json).'
+    exit 1
+}
+
+$env:ARCHLUCID_RC_RELEASE_CONTEXT = '1'
 
 & (Join-Path $scriptPath 'release-smoke.ps1') -Profile ReleaseCandidate `
     -SqlConnectionString $SqlConnectionString `

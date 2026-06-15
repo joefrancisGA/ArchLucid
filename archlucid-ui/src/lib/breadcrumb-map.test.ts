@@ -67,10 +67,10 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("maps executive ROI dashboard as Home / Executive summary", () => {
+  it("maps operator ROI dashboard as Home / Portfolio overview", () => {
     expect(getBreadcrumbs("/dashboard")).toEqual([
       { label: "Home", href: "/" },
-      { label: "Executive summary" },
+      { label: "Portfolio overview" },
     ]);
   });
 

@@ -1,6 +1,9 @@
 using ArchLucid.Core.Configuration;
 
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Startup.Validation.Rules;
+
+using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Host.Core.Startup.Validation;
 
@@ -9,10 +12,13 @@ namespace ArchLucid.Host.Core.Startup.Validation;
 /// </summary>
 public static class CriticalConfigurationValidator
 {
+    public static IReadOnlyList<string> CollectErrors(IConfiguration configuration) =>
+        CollectErrors(configuration, environment: null);
+
     /// <summary>
     ///     Returns human-readable errors for missing critical configuration. An empty list means validation passed.
     /// </summary>
-    public static IReadOnlyList<string> CollectErrors(IConfiguration configuration)
+    public static IReadOnlyList<string> CollectErrors(IConfiguration configuration, IHostEnvironment? environment)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
@@ -20,7 +26,7 @@ public static class CriticalConfigurationValidator
 
         CollectConnectionStringErrors(configuration, errors);
         CollectAzureOpenAiErrorsWhenNotSimulator(configuration, errors);
-        CollectDemoEnabledProductionErrors(configuration, errors);
+        ProductionSafetyRules.CollectDemoDisallowedInProductionProfile(configuration, errors, environment);
 
         return errors;
     }
@@ -87,35 +93,4 @@ public static class CriticalConfigurationValidator
             + "or AgentExecution:CompletionClient=Echo when Real mode should use the in-process Echo client.");
     }
 
-    private static void CollectDemoEnabledProductionErrors(IConfiguration configuration, List<string> errors)
-    {
-        string? aspNetEnv =
-            configuration["ASPNETCORE_ENVIRONMENT"]?.Trim()
-            ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Trim();
-
-        string? archLucidEnv =
-            configuration["ARCHLUCID_ENVIRONMENT"]?.Trim()
-            ?? Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT")?.Trim();
-
-        bool productionProfile =
-            string.Equals(aspNetEnv, "Production", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(archLucidEnv, "Production", StringComparison.OrdinalIgnoreCase);
-
-        if (!productionProfile)
-            return;
-
-        if (configuration.GetValue("Demo:Enabled", false))
-        {
-            errors.Add(
-                "Demo:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
-                + "(in-product demo paths must not run on production-profile hosts).");
-        }
-
-        if (configuration.GetValue("Demo:AnonymousViewer:Enabled", false))
-        {
-            errors.Add(
-                "Demo:AnonymousViewer:Enabled must be false when ASPNETCORE_ENVIRONMENT or ARCHLUCID_ENVIRONMENT is Production "
-                + "(anonymous demo viewer must not run on production-profile hosts).");
-        }
-    }
 }

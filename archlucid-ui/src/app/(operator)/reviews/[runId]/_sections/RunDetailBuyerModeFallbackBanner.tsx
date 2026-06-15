@@ -22,7 +22,7 @@ export function RunDetailBuyerModeFallbackBanner(
       role="alert"
       data-testid="run-detail-buyer-fallback-banner"
     >
-      <p className="m-0 font-semibold">Real mode unavailable for this run</p>
+      <p className="m-0 font-semibold">Real mode unavailable for this review</p>
       <p className="m-0 mt-1 leading-snug">
         This review package used simulator fallback because real-mode execution was unavailable at run time.
       </p>

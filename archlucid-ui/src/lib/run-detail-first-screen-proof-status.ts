@@ -96,7 +96,7 @@ function buildWhySafeToSendBullets(
   }
 
   if (simulatorFallback) {
-    bullets.push("Real mode fell back to simulator for this run — label that limitation before any external send.");
+    bullets.push("Real mode fell back to simulator for this review — label that limitation before any external send.");
   }
 
   if (bullets.length === 0) {
@@ -159,7 +159,7 @@ export function buildRunDetailFirstScreenProofSummary(
   const detailParts: string[] = [];
 
   if (simulatorFallback) {
-    detailParts.push("Simulator substitution is recorded on this run.");
+    detailParts.push("Simulator substitution is recorded on this review.");
   }
 
   if (readiness?.detail) {

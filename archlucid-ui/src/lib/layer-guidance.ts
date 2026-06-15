@@ -150,7 +150,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen:
       "After you commit a review, open sponsor proof here — totals, severities, governance signals, and a Markdown handoff aligned to a UTC measurement window.",
     firstPilotNote:
-      "First-use path: create review → run analysis → commit → open sponsor proof on this page (or export from review detail).",
+      "First-use path: create review → execute analysis → commit → open sponsor proof on this page (or export from review detail).",
   },
   "value-report-roi": {
     layerBadge: "Advanced operations",

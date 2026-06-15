@@ -105,7 +105,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
     }
 
     if (blocksLlmExecution) {
-      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous runs.");
+      showToast("err", "LLM Execution budget exceeded for this month. You may still view previous reviews.");
 
       return;
     }

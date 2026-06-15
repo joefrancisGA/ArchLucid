@@ -105,7 +105,7 @@ export function recentViewLabelFromPathname(pathname: string): string | null {
   }
 
   if (path.startsWith("/dashboard")) {
-    return "Executive summary";
+    return "Portfolio overview";
   }
 
   return path.replace(/^\//u, "").replace(/\//gu, " · ") || null;

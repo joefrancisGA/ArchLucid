@@ -28,6 +28,18 @@ $ErrorActionPreference = "Stop"
 [string] $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
+[bool] $strictRcEffective = $StrictRc.IsPresent `
+    -or $env:ARCHLUCID_STRICT_RC -eq '1' `
+    -or $env:ARCHLUCID_RC_RELEASE_CONTEXT -eq '1'
+
+if ($strictRcEffective) {
+    Write-Host "Strict RC mode: ON (fail-closed on missing/stale strict signoff artifacts)."
+}
+
+function Test-StrictRcEffective {
+    return $strictRcEffective
+}
+
 function Invoke-PythonReport {
     param(
         [string] $EnvName,
@@ -205,6 +217,37 @@ function Get-RealModeAiEvidenceVerdict {
 }
 
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
+
+function Import-ReleaseSmokeParityArtifactIfPresent {
+    param(
+        [string] $OutputDirectory,
+        [string] $RepositoryRoot
+    )
+
+    [string] $bundleParityPath = Join-Path $OutputDirectory "release-smoke-live-ui-sql-result.json"
+
+    if (Test-Path -LiteralPath $bundleParityPath) {
+        return
+    }
+
+    [string[]] $candidates = @(
+        (Join-Path $RepositoryRoot "artifacts/release-smoke-live-ui-sql-result.json"),
+        (Join-Path $RepositoryRoot "artifacts/release-smoke/result.json"),
+        (Join-Path $RepositoryRoot "artifacts/release-smoke/release-smoke-live-ui-sql-result.json")
+    )
+
+    foreach ($candidate in $candidates) {
+        if (-not (Test-Path -LiteralPath $candidate)) {
+            continue
+        }
+
+        Copy-Item -LiteralPath $candidate -Destination $bundleParityPath -Force
+        Write-Host "Staged live UI-SQL parity artifact into bundle: $bundleParityPath (from $candidate)"
+        return
+    }
+}
+
+Import-ReleaseSmokeParityArtifactIfPresent -OutputDirectory $OutDir -RepositoryRoot $root
 
 [System.Collections.Generic.List[object]] $checks = [System.Collections.Generic.List[object]]::new()
 
@@ -394,7 +437,7 @@ Add-CheckRow $checks "AI quality release summary" $aiQualityVerdict $aiQualityDe
     "--markdown-out", $simDivMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $simDivArgs += "--enforce-buyer-facing"
 }
 
@@ -411,7 +454,7 @@ Add-CheckRow $checks "Simulator/live divergence (RC boundary)" $simDivVerdict "b
     "--markdown-out", $archInvMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $archInvArgs += "--strict-rc"
 }
 
@@ -439,6 +482,10 @@ Add-CheckRow $checks "Data consistency readiness" (Map-ExitToVerdict $LASTEXITCO
 
 if ($env:ARCHLUCID_RELEASE_SIMULATOR_ONLY -eq '1') {
     $realModeFreshArgs += "--allow-simulator-only"
+}
+
+if (Test-StrictRcEffective) {
+    $realModeFreshArgs += "--strict"
 }
 
 & python @realModeFreshArgs
@@ -580,7 +627,7 @@ Add-CheckRow $checks "Azure extractor + Terraform emit acceptance" $azureExtract
     "--gate-json", (Join-Path $OutDir "real-llm-evidence-gate.json")
 )
 
-if ($StrictRc) {
+if (Test-StrictRcEffective) {
     $claimGateArgs += "--rc-strict-claims"
     $claimGateArgs += @("--expected-commit-sha", $gitCommitSha)
 }
@@ -601,7 +648,7 @@ Add-CheckRow $checks "Real-mode claim gate (RC boundary)" $claimGateVerdict "exi
     "--markdown-out", $confidenceMarkdownPath
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $confidenceArgs += "--strict-rc"
 }
 
@@ -626,7 +673,7 @@ Add-CheckRow $checks "RC test evidence manifest" (Map-ExitToVerdict $LASTEXITCOD
     "--markdown-out", $azureParityMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $azureParityArgs += "--strict-rc"
 }
 
@@ -642,7 +689,7 @@ Add-CheckRow $checks "Azure IaC parity proof" (Map-ExitToVerdict $LASTEXITCODE).
     "--markdown-out", $managedIdentityMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $managedIdentityArgs += "--strict-rc"
 }
 
@@ -658,7 +705,7 @@ Add-CheckRow $checks "Managed identity verification" (Map-ExitToVerdict $LASTEXI
     "--markdown-out", $rcVerdictMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $rcVerdictArgs += "--strict-rc"
 }
 
@@ -685,7 +732,7 @@ Add-CheckRow $checks "First-value timing budget" (Map-ExitToVerdict $LASTEXITCOD
     "--markdown-out", $rcSignoffMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $rcSignoffArgs += "--strict-rc"
 }
 
@@ -726,7 +773,7 @@ Add-CheckRow $checks "Executive one-screen brief" (Map-ExitToVerdict $LASTEXITCO
     "--config-profile", "production-like-hosted-pilot"
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $deployHandoffArgs += "--strict-rc"
 }
 
@@ -742,7 +789,7 @@ Add-CheckRow $checks "Deploy handoff artifact" (Map-ExitToVerdict $LASTEXITCODE)
     "--markdown-out", $rcGoldenPathMd
 )
 
-if ($StrictRc -or $env:ARCHLUCID_STRICT_RC -eq '1') {
+if (Test-StrictRcEffective) {
     $rcGoldenPathArgs += "--enforce"
 }
 
@@ -775,6 +822,30 @@ $warnCount = [int]$indexState.warnCount
     -Environment $Environment | Out-Null
 
 Write-Host "Wrote release readiness bundle to $OutDir (rollup=$rollup)"
+
+if (Test-StrictRcEffective) {
+    & python (Join-Path $root "scripts/ci/release_evidence_bundle.py") validate `
+        --dir $OutDir `
+        --profile "release-readiness" `
+        --strict-buyer-rc `
+        --json-out (Join-Path $OutDir "release-evidence-bundle-validation-strict-rc.json")
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Strict buyer RC bundle validation failed (exit $LASTEXITCODE). See release-evidence-bundle-validation-strict-rc.json."
+        exit $LASTEXITCODE
+    }
+
+    & python (Join-Path $root "scripts/ci/assert_rc_strict_signoff.py") `
+        --bundle-dir $OutDir `
+        --require-pass `
+        --require-live-parity-artifact `
+        --json-out (Join-Path $OutDir "rc-strict-signoff-assertion.json")
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Strict RC signoff assertion failed (exit $LASTEXITCODE). See rc-strict-signoff-assertion.json and blockingReasons."
+        exit $LASTEXITCODE
+    }
+}
 
 if ($strictExit -ne 0) {
     Write-Warning "Strict observability export gate failed (exit $strictExit). See $OutDir."

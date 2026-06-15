@@ -378,7 +378,7 @@ export function EmailRunToSponsorBanner({
         >
           <p className="m-0 font-semibold">AI readiness gate not satisfied</p>
           <p className="m-0 mt-1 text-xs leading-relaxed opacity-95">
-            PilotStrict agent-output quality signals failed for this run. Resolve faithfulness and citation gaps in the
+            PilotStrict agent-output quality signals failed for this review. Resolve faithfulness and citation gaps in the
             first-value report and observability summary before external sponsor PDF send on real-mode hosts.
           </p>
         </div>
@@ -579,7 +579,7 @@ export function EmailRunToSponsorBanner({
         )}
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
           {blockSponsorPdfForAiGate
-            ? "PDF export stays disabled until PilotStrict AI readiness signals pass for this run."
+            ? "PDF export stays disabled until PilotStrict AI readiness signals pass for this review."
             : blockSponsorPdfForProjectedDollar
               ? "PDF export stays disabled until ROI baselines are buyer-provided and projected-dollar claims are sponsor-safe."
               : blockSponsorPdfForRoi

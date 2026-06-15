@@ -1,10 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-import * as corePilotCommitContext from "@/lib/core-pilot-commit-context";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context-copy";
-import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 
 import { SidebarNav } from "./SidebarNav";
 
@@ -43,10 +40,6 @@ describe("SidebarNav (primary navigation)", () => {
     // Progressive disclosure persists `archlucid_nav_show_extended` in localStorage; clear so tests
     // do not inherit extended disclosure state from a prior case in the same file.
     localStorage.clear();
-
-    // Default shell preset is pilot_operator (narrow route list). These tests assert extended analysis
-    // links (Evidence trail, Compare, …) after disclosure toggles — mirror "Full navigator" so those hrefs are not preset-pruned.
-    localStorage.setItem(OPERATOR_SHELL_PRESET_STORAGE_KEY, "full");
   });
 
   it(
@@ -68,7 +61,7 @@ describe("SidebarNav (primary navigation)", () => {
       );
       expect(within(nav).getByRole("link", { name: "Evidence trail" })).toHaveAttribute("href", "/graph");
       expect(within(nav).getByRole("link", { name: "Architecture reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
-      expect(within(nav).getByRole("link", { name: "Executive summary" })).toHaveAttribute("href", "/dashboard");
+      expect(within(nav).getByRole("link", { name: "Portfolio overview" })).toHaveAttribute("href", "/dashboard");
 
       expect(within(nav).queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(within(nav).queryByRole("link", { name: "Replay a review" })).toBeNull();
@@ -111,11 +104,6 @@ describe("SidebarNav (primary navigation)", () => {
       render(<SidebarNav />);
 
       fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
-
-      expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
-      expect(screen.queryByTestId("sidebar-show-advanced-operations-toggle")).toBeNull();
-      expect(screen.queryByTestId("sidebar-show-all-features-toggle")).toBeNull();
-      expect(screen.queryByRole("button", { name: "Sidebar layout" })).toBeNull();
 
       await waitFor(() => {
         expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
@@ -178,8 +166,6 @@ describe("SidebarNav (primary navigation)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
-    expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
-
     await waitFor(() => {
       expect(within(nav).getByRole("link", { name: "Risk register" })).toHaveAttribute(
         "href",
@@ -215,25 +201,14 @@ describe("SidebarNav (primary navigation)", () => {
   });
 });
 
-describe("SidebarNav pilot_operator default preset", () => {
+describe("SidebarNav progressive disclosure without navigation presets", () => {
   beforeEach(() => {
     process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
     mockPathname.mockReturnValue("/");
     localStorage.clear();
-    vi.spyOn(corePilotCommitContext, "fetchCorePilotCommitContext").mockResolvedValue({
-      hasCommittedManifest: true,
-      committedReviewCount: 1,
-      latestRunId: "run-1",
-      firstCommittedRunId: "run-1",
-      secondCommittedRunId: null,
-    });
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("switches to full navigator and reveals analysis essentials when Review work disclosure expands", async () => {
+  it("reveals analysis essentials when Review work disclosure expands", async () => {
     render(<SidebarNav />);
 
     const nav = screen.getByRole("navigation", { name: "Review work" });
@@ -244,10 +219,7 @@ describe("SidebarNav pilot_operator default preset", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Show \d+ more destinations in Review work/ }));
 
-    expect(localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY)).toBe("full");
     expect(localStorage.getItem("archlucid_nav_show_extended")).toBe("1");
-    expect(screen.queryByTestId("sidebar-nav-preset-hint")).toBeNull();
-    expect(screen.queryByTestId("sidebar-show-advanced-operations-toggle")).toBeNull();
     expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask this review" })).toHaveAttribute("href", "/ask");
 

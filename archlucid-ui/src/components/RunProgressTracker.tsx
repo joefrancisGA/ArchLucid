@@ -87,12 +87,12 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
         return "We're preparing this review; this can take a moment. Use Retry or refresh the page.";
       }
 
-      return `Pipeline may still be running server-side (run ${runId}). Use Retry to watch for up to ~3 minutes, refresh this page, or check GET /health/ready on the API.`;
+      return `Pipeline may still be running server-side (review ${runId}). Use Retry to watch for up to ~3 minutes, refresh this page, or check GET /health/ready on the API.`;
     }
 
     const transport = sseConnected ? "live stream" : "polling";
 
-    return `${completedStages} of 4 run pipeline stages complete (${transport}).`;
+    return `${completedStages} of 4 review pipeline stages complete (${transport}).`;
   }, [buyerPolished, clientPhase, completedStages, runId, sseConnected]);
 
   if (!pollEnabled) {

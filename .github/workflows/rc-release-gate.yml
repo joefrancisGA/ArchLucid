@@ -124,6 +124,7 @@ jobs:
       - name: Release evidence gate unit tests
         run: |
           python -m unittest discover -s scripts/ci/tests -p "test_release_evidence*.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_rc_strict_signoff.py"
           python -m unittest discover -s scripts/ci/tests -p "test_check_proof_confidence_taxonomy_drift.py"
           python -m unittest discover -s scripts/ci/tests -p "test_emit_real_model_canary_gate.py"
 
@@ -227,7 +228,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Build RC signoff evidence bundle and verdict (strict)
+      - name: Compose RC signoff artifacts (shape validation)
         env:
           ARCHLUCID_RC_RELEASE_CONTEXT: "1"
           ARCHLUCID_RELEASE_SIMULATOR_ONLY: "1"
@@ -255,8 +256,6 @@ jobs:
             --json-summary-out "$BUNDLE/route-tier-policy-nav-parity.json"
           printf '%s\n' '{"schema":"archlucid.release-readiness-index.v1","rollup":"WARN","claimGateDisposition":"PASS"}' \
             > "$BUNDLE/release-readiness-index.json"
-          printf '%s\n' '{"schema":"archlucid.release-confidence-rollup.v1","disposition":"PASS","strictDisposition":"PASS","strictBlockingReasons":[]}' \
-            > "$BUNDLE/release-confidence-rollup.json"
           python scripts/ci/build_pilot_critical_performance_evidence.py \
             --bundle-dir "$BUNDLE" \
             --environment-label Production \
@@ -266,18 +265,51 @@ jobs:
             --repo-root . \
             --json-out "$BUNDLE/saq-release-gate.json" \
             --markdown-out "$BUNDLE/saq-release-gate.md"
+          python scripts/ci/build_release_confidence_rollup.py \
+            --repo-root . \
+            --bundle-dir "$BUNDLE" \
+            --json-out "$BUNDLE/release-confidence-rollup.json" \
+            --markdown-out "$BUNDLE/release-confidence-rollup.md"
           python scripts/ci/build_rc_evidence_signoff_bundle.py \
             --repo-root . \
             --bundle-dir "$BUNDLE" \
             --json-out "$BUNDLE/rc-evidence-signoff-bundle.json" \
-            --markdown-out "$BUNDLE/rc-evidence-signoff-bundle.md" \
-            --strict-rc
+            --markdown-out "$BUNDLE/rc-evidence-signoff-bundle.md"
           python scripts/ci/build_rc_go_no_go_verdict.py \
             --repo-root . \
             --bundle-dir "$BUNDLE" \
             --json-out "$BUNDLE/rc-go-no-go-verdict.json" \
-            --markdown-out "$BUNDLE/rc-go-no-go-verdict.md" \
-            --strict-rc
+            --markdown-out "$BUNDLE/rc-go-no-go-verdict.md"
+
+      - name: Assert strict RC signoff outputs reference machine-readable artifacts
+        run: |
+          set -euo pipefail
+          BUNDLE="${{ runner.temp }}/rc-signoff-bundle"
+          python scripts/ci/assert_rc_strict_signoff.py \
+            --bundle-dir "$BUNDLE" \
+            --json-out "$BUNDLE/rc-strict-signoff-assertion-shape.json"
+
+      - name: Assert strict RC mode fails closed when signoff is incomplete
+        run: |
+          set -euo pipefail
+          BUNDLE="${{ runner.temp }}/rc-signoff-bundle"
+          if python scripts/ci/build_rc_evidence_signoff_bundle.py \
+            --repo-root . \
+            --bundle-dir "$BUNDLE" \
+            --json-out "$BUNDLE/rc-evidence-signoff-bundle-strict-check.json" \
+            --markdown-out "$BUNDLE/rc-evidence-signoff-bundle-strict-check.md" \
+            --strict-rc; then
+            echo "::error::strict RC signoff must fail when high-risk gates are SKIPPED"
+            exit 1
+          fi
+          if python scripts/ci/assert_rc_strict_signoff.py \
+            --bundle-dir "$BUNDLE" \
+            --require-pass \
+            --require-live-parity-artifact; then
+            echo "::error::strict RC assertion must fail when strictDisposition/verdict are not PASS"
+            exit 1
+          fi
+          echo "Strict RC fail-closed guard verified (incomplete bundle correctly blocked)."
 
       - uses: actions/upload-artifact@v4
         if: always()

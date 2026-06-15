@@ -2,7 +2,6 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import { ONBOARDING_TOUR_COMPLETED_KEY } from "@/lib/onboarding-tour";
-import { OPERATOR_SHELL_PRESET_STORAGE_KEY } from "@/lib/operator-nav-preset";
 import { HAS_SEEN_ONBOARDING_STORAGE_KEY } from "@/lib/operator-welcome-onboarding-storage";
 
 /** Must match `SESSION_KEY` in `TrialWelcomeRunDeepLink.tsx`. */
@@ -70,9 +69,7 @@ async function clickSidebarDisclosureTrigger(sidebarNav: Locator, ariaControlsId
 test.describe("pilot-default operator navigation profile @pilot-nav", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(
-      (keys: { presetStorageKey: string; hasSeenOnboardingKey: string; onboardingTourCompletedKey: string }) => {
-        // Full navigator preset: tier/disclosure toggles are under test; preset pruning would hide operate links.
-        localStorage.setItem(keys.presetStorageKey, "full");
+      (keys: { hasSeenOnboardingKey: string; onboardingTourCompletedKey: string }) => {
         localStorage.setItem("archlucid-nav-expanded", "false");
         localStorage.setItem("archlucid_nav_show_extended", "false");
         localStorage.setItem("archlucid_nav_show_advanced", "false");
@@ -87,7 +84,6 @@ test.describe("pilot-default operator navigation profile @pilot-nav", () => {
         }
       },
       {
-        presetStorageKey: OPERATOR_SHELL_PRESET_STORAGE_KEY,
         hasSeenOnboardingKey: HAS_SEEN_ONBOARDING_STORAGE_KEY,
         onboardingTourCompletedKey: ONBOARDING_TOUR_COMPLETED_KEY,
       },

@@ -1,5 +1,5 @@
-import { BUYER_EXECUTIVE_SUMMARY_VOCABULARY } from "@/lib/buyer-surface-vocabulary";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_BUYER_REVIEW_TITLE,
@@ -98,7 +98,7 @@ export function getBreadcrumbs(pathname: string, options?: GetBreadcrumbsOptions
   if (normalized === "/dashboard") {
     return [
       { label: "Home", href: "/" },
-      { label: BUYER_EXECUTIVE_SUMMARY_VOCABULARY.pageTitle },
+      { label: OPERATOR_NAV_LINK_LABELS.portfolioOverview },
     ];
   }
 

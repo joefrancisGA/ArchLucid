@@ -20,6 +20,8 @@ export type FindingInspectFindingBodyProps = {
   readonly decodedFindingId: string;
   readonly payload: FindingInspectPayload;
   readonly variant?: "detail" | "inspect";
+  /** When `executive`, omit operator audit linkage and use executive review handoffs. */
+  readonly surface?: "operator" | "executive";
 };
 
 /**
@@ -32,15 +34,22 @@ export function FindingInspectFindingBody({
   decodedFindingId,
   payload,
   variant = "inspect",
+  surface = "operator",
 }: FindingInspectFindingBodyProps): ReactElement {
   const demoFillGaps =
     (isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId)) && !isBuyerPolishedOperatorShellEnv();
-  const reviewContextHref = isDemoRunIdEligibleForStaticFallback(runId)
-    ? getShowcaseManifestHref()
-    : `/reviews/${encodeURIComponent(runId)}`;
-  const reviewContextLabel = isDemoRunIdEligibleForStaticFallback(runId)
-    ? "Open cited evidence"
-    : "Open review detail (artifacts & graph)";
+  const reviewContextHref =
+    surface === "executive"
+      ? `/executive/reviews/${encodeURIComponent(runId)}`
+      : isDemoRunIdEligibleForStaticFallback(runId)
+        ? getShowcaseManifestHref()
+        : `/reviews/${encodeURIComponent(runId)}`;
+  const reviewContextLabel =
+    surface === "executive"
+      ? "Open risk review"
+      : isDemoRunIdEligibleForStaticFallback(runId)
+        ? "Open cited evidence"
+        : "Open review detail (artifacts & graph)";
   const labels = findingInspectPrimaryLabels(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
@@ -84,7 +93,10 @@ export function FindingInspectFindingBody({
     />
   );
 
-  const auditBlock = <FindingInspectAuditSection auditRowId={payload.auditRowId} demoFillGaps={demoFillGaps} />;
+  const auditBlock =
+    surface === "executive" ? null : (
+      <FindingInspectAuditSection auditRowId={payload.auditRowId} demoFillGaps={demoFillGaps} />
+    );
 
   const feedbackBlock =
     variant === "detail" && !isBuyerPolishedOperatorShellEnv() ? (

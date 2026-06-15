@@ -102,7 +102,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         <p
           class="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400"
         >
-          Committed runs (pilot-value-report)
+          Committed reviews
         </p>
       </div>
     </div>
@@ -129,7 +129,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
         <p
           class="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400"
         >
-          Across committed runs in range
+          Across committed reviews in range
         </p>
       </div>
     </div>
@@ -225,7 +225,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
             data-testid="executive-scorecard-action-compliance-drift"
             href="/governance/dashboard"
           >
-            View →
+            Open in Operator →
           </a>
         </li>
       </ul>
@@ -258,7 +258,7 @@ exports[`ExecutiveScorecardClient > matches snapshot when data loads 1`] = `
           (same API as operator ROI tiles).
         </li>
         <li>
-          Estimated hours use the same coefficients as workspace health (critical/high/medium findings plus pre-commit blocks). When that sum is zero but reviews exist, the scorecard uses a simple runs × hours fallback.
+          Estimated hours use the same coefficients as workspace health (critical/high/medium findings plus pre-commit blocks). When that sum is zero but reviews exist, the scorecard uses a simple reviews × hours fallback.
         </li>
         <li>
           Drift activity sums daily buckets from the governance compliance-drift-trend endpoint; trend compares first vs second half of the window.

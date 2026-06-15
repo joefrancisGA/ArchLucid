@@ -227,6 +227,164 @@ def evaluate_real_mode_ai_evidence(bundle_dir: Path) -> dict[str, Any]:
     }
 
 
+def _evaluate_strict_rc_machine_outputs(bundle_dir: Path) -> list[MissingRequirement]:
+    missing: list[MissingRequirement] = []
+
+    confidence_path = bundle_dir / "release-confidence-rollup.json"
+    confidence = None
+
+    if confidence_path.is_file():
+        try:
+            confidence = json.loads(confidence_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="release-confidence-rollup.json",
+                    detail="unreadable — strict RC requires strictDisposition and strictBlockingReasons",
+                )
+            )
+    else:
+        missing.append(
+            MissingRequirement(
+                kind="strictRcMachineOutput",
+                target="release-confidence-rollup.json",
+                detail="missing — run build_release_confidence_rollup.py --strict-rc",
+            )
+        )
+
+    if confidence is not None:
+        strict_disposition = str(confidence.get("strictDisposition") or "").upper()
+
+        if strict_disposition != "PASS":
+            reasons = confidence.get("strictBlockingReasons") or []
+            detail = f"strictDisposition={strict_disposition or 'MISSING'}"
+
+            if isinstance(reasons, list) and reasons:
+                detail += f"; strictBlockingReasons={reasons[:5]}"
+
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="release-confidence-rollup.json",
+                    detail=detail,
+                )
+            )
+
+    signoff_path = bundle_dir / "rc-evidence-signoff-bundle.json"
+    signoff = None
+
+    if signoff_path.is_file():
+        try:
+            signoff = json.loads(signoff_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="rc-evidence-signoff-bundle.json",
+                    detail="unreadable — strict RC signoff bundle required",
+                )
+            )
+    else:
+        missing.append(
+            MissingRequirement(
+                kind="strictRcMachineOutput",
+                target="rc-evidence-signoff-bundle.json",
+                detail="missing — run build_rc_evidence_signoff_bundle.py --strict-rc",
+            )
+        )
+
+    if signoff is not None:
+        overall = str(signoff.get("overallDisposition") or "").upper()
+
+        if overall != "PASS":
+            skipped = signoff.get("skippedHighRiskGates") or []
+            detail = f"overallDisposition={overall or 'MISSING'}"
+
+            if isinstance(skipped, list) and skipped:
+                detail += f"; skippedHighRiskGates={skipped[:8]}"
+
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="rc-evidence-signoff-bundle.json",
+                    detail=detail,
+                )
+            )
+
+        references = signoff.get("references") if isinstance(signoff.get("references"), dict) else {}
+
+        for ref_key, ref_file in (
+            ("releaseConfidenceRollup", "release-confidence-rollup.json"),
+            ("rcGoNoGoVerdict", "rc-go-no-go-verdict.json"),
+        ):
+            if ref_key not in references:
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="rc-evidence-signoff-bundle.json",
+                        detail=f"references.{ref_key} must reference {ref_file} for machine-readable RC handoff",
+                    )
+                )
+
+    parity_path = bundle_dir / "release-smoke-live-ui-sql-result.json"
+
+    if not parity_path.is_file():
+        missing.append(
+            MissingRequirement(
+                kind="strictRcMachineOutput",
+                target="release-smoke-live-ui-sql-result.json",
+                detail=(
+                    "missing — run scripts/release-smoke-rc.ps1 "
+                    "-ResultOut artifacts/release-smoke-live-ui-sql-result.json"
+                ),
+            )
+        )
+    else:
+        try:
+            parity = json.loads(parity_path.read_text(encoding="utf-8"))
+            evidence_kind = str(parity.get("evidenceKind") or "").lower()
+            verdict = str(parity.get("verdict") or parity.get("status") or "").strip().upper()
+            profile = str(parity.get("profile") or "")
+
+            if evidence_kind != "live-ui-sql-parity":
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="release-smoke-live-ui-sql-result.json",
+                        detail=f"evidenceKind expected live-ui-sql-parity, got {evidence_kind!r}",
+                    )
+                )
+
+            if verdict != "PASS":
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="release-smoke-live-ui-sql-result.json",
+                        detail=f"verdict expected Pass/PASS, got {verdict!r}",
+                    )
+                )
+
+            if profile not in {"LiveUiSql", "ReleaseCandidate"}:
+                missing.append(
+                    MissingRequirement(
+                        kind="strictRcMachineOutput",
+                        target="release-smoke-live-ui-sql-result.json",
+                        detail=f"profile expected LiveUiSql or ReleaseCandidate, got {profile!r}",
+                    )
+                )
+        except json.JSONDecodeError:
+            missing.append(
+                MissingRequirement(
+                    kind="strictRcMachineOutput",
+                    target="release-smoke-live-ui-sql-result.json",
+                    detail="unreadable JSON",
+                )
+            )
+
+    return missing
+
+
 def evaluate_buyer_rc_packet(bundle_dir: Path, *, strict_buyer_rc: bool) -> list[MissingRequirement]:
     if not strict_buyer_rc:
         return []
@@ -275,6 +433,8 @@ def evaluate_buyer_rc_packet(bundle_dir: Path, *, strict_buyer_rc: bool) -> list
                     detail="freshness artifact is not valid JSON",
                 )
             )
+
+    missing.extend(_evaluate_strict_rc_machine_outputs(bundle_dir))
 
     return missing
 

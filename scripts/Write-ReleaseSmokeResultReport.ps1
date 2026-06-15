@@ -59,13 +59,23 @@ function Test-ReleaseSmokeLiveUiSqlParityProfile {
     return ($ProfileName -eq 'LiveUiSql' -or $ProfileName -eq 'ReleaseCandidate')
 }
 
+$isParityProfile = Test-ReleaseSmokeLiveUiSqlParityProfile -ProfileName $Profile
+$normalizedVerdict = switch ($Verdict) {
+    'Pass' { 'PASS' }
+    'Partial' { 'PARTIAL' }
+    'Fail' { 'FAIL' }
+    default { $Verdict.ToUpperInvariant() }
+}
+
 $payload = [ordered]@{
+    schema        = 'archlucid.release-smoke-result.v1'
     formatVersion = '1.1'
     generatedUtc  = $timestamp
     verdict       = $Verdict
+    status        = $normalizedVerdict
     baseUrl       = $BaseUrl
     profile       = $Profile
-    evidenceKind  = if (Test-ReleaseSmokeLiveUiSqlParityProfile -ProfileName $Profile) { 'live-ui-sql-parity' } else { 'release-smoke' }
+    evidenceKind  = if ($isParityProfile) { 'live-ui-sql-parity' } else { 'release-smoke' }
     checks        = $normalizedChecks
     notProven     = @(
         'Full merge-blocking SQL regression (run in CI)',

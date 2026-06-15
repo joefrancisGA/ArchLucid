@@ -6,6 +6,7 @@ import {
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { ARCHITECTURE_REVIEW_VOCABULARY } from "@/lib/architecture-review-vocabulary";
 import {
   findingDetailHeadingTitle,
   findingDetailLeadSentence,
@@ -70,7 +71,9 @@ export function FindingInspectView({
             ? "This finding belongs to a different review package than the one in this URL."
             : (
                 <>
-                  This finding belongs to run <span className="font-mono">{payload.runId}</span>, not the run in this URL.
+                  This finding belongs to review{" "}
+                  <span className="font-mono">{payload.runId}</span>{" "}
+                  ({ARCHITECTURE_REVIEW_VOCABULARY.correlationIdFieldBridge}), not the review in this URL.
                 </>
               )}
         </p>

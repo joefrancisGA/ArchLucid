@@ -141,6 +141,7 @@ export default async function ExecutiveFindingDetailPage({
         decodedFindingId={decodedFindingId}
         payload={safePayload}
         variant="detail"
+        surface="executive"
       />
     </div>
   );

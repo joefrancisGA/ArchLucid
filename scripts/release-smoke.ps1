@@ -196,6 +196,38 @@ function Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled {
     }
 }
 
+function Publish-ReleaseSmokeRcCanonicalArtifacts {
+    param(
+        [Parameter(Mandatory = $true)][string] $ResultOutPath,
+        [Parameter(Mandatory = $true)][string] $ExpectedProfile
+    )
+
+    if (-not (Test-Path -LiteralPath $ResultOutPath)) {
+        return
+    }
+
+    $resultDir = Split-Path -Parent $ResultOutPath
+    $canonicalJson = Join-Path $resultDir 'release-smoke-live-ui-sql-result.json'
+    $canonicalMd = [System.IO.Path]::ChangeExtension($canonicalJson, '.md')
+    $sourceMd = [System.IO.Path]::ChangeExtension($ResultOutPath, '.md')
+
+    if ($canonicalJson -ne $ResultOutPath) {
+        Copy-Item -LiteralPath $ResultOutPath -Destination $canonicalJson -Force
+    }
+
+    if ((Test-Path -LiteralPath $sourceMd) -and ($canonicalMd -ne $sourceMd)) {
+        Copy-Item -LiteralPath $sourceMd -Destination $canonicalMd -Force
+    }
+
+    & (Join-Path $PSScriptRoot 'Assert-ReleaseSmokeRcResult.ps1') `
+        -ResultPath $ResultOutPath `
+        -ExpectedProfile $ExpectedProfile
+
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+}
+
 function Write-ReleaseSmokeResultArtifact {
     param(
         [Parameter(Mandatory = $true)][ValidateSet('Pass', 'Partial')][string] $Verdict,
@@ -693,6 +725,19 @@ try
             Write-Warning 'Live parity (-LivePlaywright or -Profile LiveUiSql) skipped under -SkipE2E (steps 5–7 never ran; API not started).'
         }
 
+        if ($Profile -eq 'ReleaseCandidate') {
+            Write-OperatorFailureTriage -Stage 'ReleaseCandidate (-SkipE2E blocked)' -Category 'StrictRcValidation' `
+                -Details @(
+                'Release candidate profile is fail-closed: -SkipE2E produces Partial evidence only and cannot satisfy RC signoff lanes.'
+            ) `
+                -NextSteps @(
+                'Omit -SkipE2E and supply tenant SQL (ARCHLUCID_SMOKE_SQL or -SqlConnectionString)',
+                'Use plain release-smoke.ps1 -SkipE2E for build-only developer workflows',
+                'See docs/library/RELEASE_SMOKE.md — ReleaseCandidate profile'
+            )
+            exit 1
+        }
+
         Write-Host '=== 6-8/8 Skipped E2E API+CLI (-SkipE2E) ==='
         if ($FullCore)
         {
@@ -1044,6 +1089,10 @@ try
         -RanLivePlaywright:$runLivePlaywrightEffective `
         -ApiBaseUrlEvidence $ApiBaseUrl `
         -ProfileName $Profile
+
+    if ($Profile -eq 'ReleaseCandidate') {
+        Publish-ReleaseSmokeRcCanonicalArtifacts -ResultOutPath $ResultOut -ExpectedProfile 'ReleaseCandidate'
+    }
 
     Write-Host ''
     Write-Host 'Release smoke finished successfully.'

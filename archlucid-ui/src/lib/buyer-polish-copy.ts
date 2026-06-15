@@ -52,7 +52,7 @@ export const PILOT_COMMAND_CENTER_INVITE_REVIEWER = "Invite reviewer";
 
 export const PILOT_PATH_PREVIEW_STEPS = [
   { id: "connect", label: "Connect environment or upload evidence" },
-  { id: "analyze", label: "Run analysis" },
+  { id: "analyze", label: "Execute review analysis" },
   { id: "review", label: "Review findings" },
 ] as const;
 
@@ -444,6 +444,8 @@ export const BUYER_EXECUTIVE_SCORECARD_NO_ACTIONS_HEALTHY =
   "No actions needed for the current period.";
 
 export const BUYER_EXECUTIVE_SCORECARD_RECOMMENDED_ACTION_LINK = "Review this action →";
+
+export const BUYER_EXECUTIVE_OPERATOR_HANDOFF_LINK = "Open in Operator →";
 
 export const BUYER_EXECUTIVE_SCORECARD_COMMITTED_LABEL = "Committed reviews";
 

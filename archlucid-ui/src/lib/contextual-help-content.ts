@@ -20,7 +20,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md",
   },
   "run-pipeline-status": {
-    text: "The pipeline shows each AI agent's progress. When all steps complete, the run is ready to finalize. Elapsed labels (when shown) are wall time since the prior event — useful for sponsor readouts.",
+    text: "The pipeline shows each AI agent's progress. When all steps complete, the architecture review is ready to finalize. Elapsed labels (when shown) are wall time since the prior event — useful for sponsor readouts.",
     learnMoreUrl: "/docs/CORE_PILOT.md#pipeline-status",
   },
   "commit-manifest": {

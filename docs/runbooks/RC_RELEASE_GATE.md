@@ -56,9 +56,18 @@ Job **`observability-readiness`** emits `observability-export-readiness.md` via 
 
 ## RC signoff gate (blocking)
 
-Job **`rc-signoff-gate`** emits `pilot-critical-performance-evidence.json` and `saq-release-gate.json`, composes `rc-evidence-signoff-bundle.json` / `.md` (per-gate **PASS / WARN / HOLD / SKIPPED** rows for release-smoke, live UI/API parity, config lint, OpenAPI contract, data consistency, open P0/P1 SAQs, AI readiness, and procurement/claim-boundary checks), then synthesizes `rc-go-no-go-verdict.json` / `.md` from claim gate, canary gate, observability, SAQ, and route/tier/policy/nav artifacts via `build_rc_go_no_go_verdict.py --strict-rc`. The workflow **fails** when verdict is **HOLD**, when the signoff bundle is **HOLD** under `--strict-rc`, or when claim/canary scripts exit non-zero.
+Job **`rc-signoff-gate`** composes `rc-evidence-signoff-bundle.json` / `.md` and `rc-go-no-go-verdict.json` from claim gate, canary gate, observability, SAQ, and route/tier/policy/nav artifacts. It then runs **`assert_rc_strict_signoff.py`** to verify machine-readable references exist, and **proves fail-closed behavior** by asserting `--strict-rc` / `--require-pass` exit non-zero when high-risk gates are SKIPPED or live UI-SQL parity artifacts are absent. Buyer-facing RC cuts must pass `assert_rc_strict_signoff.py --require-pass --require-live-parity-artifact` on a populated `artifacts/release-readiness/` bundle (also enforced at the end of `Emit-ReleaseReadinessEvidence.ps1` when strict RC mode is on).
 
-Local reproduction:
+Local strict validation:
+
+```powershell
+python scripts/ci/assert_rc_strict_signoff.py `
+  --bundle-dir artifacts/release-readiness `
+  --require-pass `
+  --require-live-parity-artifact
+```
+
+Local reproduction (signoff composition):
 
 ```powershell
 python scripts/ci/build_pilot_critical_performance_evidence.py `

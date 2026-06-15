@@ -105,7 +105,7 @@ export const DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
     category: "Analysis",
     title: "Comparison and replay",
-    description: "Two-run compare, replay modes, export records.",
+    description: "Two-review compare, replay modes, export records.",
     relativeDocsPath: "docs/library/COMPARISON_REPLAY.md",
   },
   {

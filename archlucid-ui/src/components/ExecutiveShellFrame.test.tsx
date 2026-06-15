@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/dashboard",
+  usePathname: () => "/executive/dashboard",
 }));
 
 vi.mock("@/components/AuthPanel", () => ({
@@ -33,6 +33,18 @@ describe("ExecutiveShellFrame", () => {
 
     expect(screen.getByTestId("executive-shell-nav-dashboard")).toHaveAttribute("href", "/executive/dashboard");
     expect(screen.getByTestId("executive-shell-nav-scorecard")).toHaveAttribute("href", "/executive/scorecard");
+  });
+
+  it("renders the operator / executive switcher in the executive top bar", () => {
+    render(
+      <ExecutiveShellFrame>
+        <p>child</p>
+      </ExecutiveShellFrame>,
+    );
+
+    expect(screen.getByTestId("executive-operator-shell-switcher")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Operator" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Executive" })).toHaveAttribute("href", "/executive/dashboard");
   });
 
   it("highlights the active route link", () => {
